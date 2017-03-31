@@ -29,7 +29,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     private String stageCounter;
     private Long id;
 
-    public static final StageIdentifier NULL = new StageIdentifier(new NullPipeline(),new NullStage(null));
+    public static final StageIdentifier NULL = new StageIdentifier(new NullPipeline(""),new NullStage(null));
     public StageIdentifier() {
     }
 

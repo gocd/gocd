@@ -180,7 +180,7 @@ public class FetchTask extends AbstractTask implements Serializable {
     }
 
     public File destOnAgent(String pipelineName) {
-        return new File("pipelines" + '/' + pipelineName + '/' + getDest());
+        return new File(pipelineName + '/' + getDest());
     }
 
     protected void setTaskConfigAttributes(Map attributeMap) {

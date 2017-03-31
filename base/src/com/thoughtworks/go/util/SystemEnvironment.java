@@ -125,6 +125,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> ADDONS_PATH = new GoStringSystemProperty("addons.path", "addons");
     public static GoSystemProperty<String> AVAILABLE_FEATURE_TOGGLES_FILE_PATH = new GoStringSystemProperty("available.toggles.path", "/available.toggles");
     public static GoSystemProperty<String> USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR = new GoStringSystemProperty("user.toggles.path", "go.feature.toggles");
+    public static GoSystemProperty<String> SERVER_FLYWEIGHT_DIR = new GoStringSystemProperty("server.flyweight.dir", new File("pipelines", "flyweight").getPath());
+    public static GoSystemProperty<String> AGENT_WORK_DIR = new GoStringSystemProperty("agent.work.dir", "pipelines");
 
     public static GoSystemProperty<String> DEFAULT_COMMAND_SNIPPETS_ZIP = new CachedProperty<>(
             new GoStringSystemProperty("default.command.snippets.zip.location", "/defaultFiles/defaultCommandSnippets.zip"));
@@ -199,7 +201,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
     public static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
     private static final GoSystemProperty<Boolean> GO_AGENT_USE_SSL_CONTEXT = new GoBooleanSystemProperty("go.agent.reuse.ssl.context", true);
-    public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
+    public static final GoSystemProperty<Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
     public static final GoSystemProperty<? extends Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
@@ -825,6 +827,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getReAuthenticationTimeInterval() {
         return REAUTHENTICATION_TIME_INTERVAL.getValue();
+    }
+
+    public File resolveAgentWorkingDirectory(File path) {
+        return SystemUtil.getFileWithFullPath(new File(get(AGENT_WORK_DIR), path.getPath()));
+    }
+
+    public File resolveAgentWorkingDirectory() {
+        return resolveAgentWorkingDirectory(new File("."));
     }
 
     public static abstract class GoSystemProperty<T> {

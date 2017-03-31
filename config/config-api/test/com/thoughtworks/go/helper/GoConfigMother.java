@@ -270,7 +270,7 @@ public class GoConfigMother {
         CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("logs");
         JobConfig job = new JobConfig(jobPlanName);
-        String workingDir = new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + stageName).getPath();
+        String workingDir = new File("testdata/pipelines/" + stageName).getPath();
         AntTask task = new AntTask();
         task.setWorkingDirectory(workingDir);
         job.addTask(task);

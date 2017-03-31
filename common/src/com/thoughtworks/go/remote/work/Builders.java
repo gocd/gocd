@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
@@ -46,7 +47,7 @@ public class Builders {
         this.taskExtension = taskExtension;
     }
 
-    public JobResult build(EnvironmentVariableContext environmentVariableContext) {
+    public JobResult build(EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment) {
         JobResult result = JobResult.Passed;
 
         for (Builder builder : builders) {
@@ -61,7 +62,7 @@ public class Builders {
             BuildLogElement buildLogElement = new BuildLogElement();
             try {
                 builder.build(buildLogElement, RunIfConfig.fromJobResult(result.toLowerCase()), goPublisher,
-                        environmentVariableContext, taskExtension);
+                        environmentVariableContext, systemEnvironment, taskExtension);
             } catch (Exception e) {
                 result = JobResult.Failed;
             }
@@ -79,10 +80,10 @@ public class Builders {
         return result;
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment) {
         cancelStarted = true;
         synchronized (this) {
-            currentBuilder.cancel(goPublisher, environmentVariableContext, taskExtension);
+            currentBuilder.cancel(goPublisher, environmentVariableContext, systemEnvironment, taskExtension);
             cancelFinished = true;
         }
     }

@@ -40,15 +40,15 @@ public class CommandBuilder extends BaseCommandBuilder {
         this.args = args;
     }
 
-    protected CommandLine buildCommandLine() {
+    protected CommandLine buildCommandLine(File realWorkingDirectory) {
         CommandLine command = null;
         if (SystemUtil.isWindows()) {
-            command = CommandLine.createCommandLine("cmd").withWorkingDir(workingDir);
+            command = CommandLine.createCommandLine("cmd").withWorkingDir(realWorkingDirectory);
             command.withArg("/c");
             command.withArg(translateToWindowsPath(this.command));
         }
         else {
-            command = CommandLine.createCommandLine(this.command).withWorkingDir(workingDir);
+            command = CommandLine.createCommandLine(this.command).withWorkingDir(realWorkingDirectory);
         }
         String[] argsArray = CommandLine.translateCommandLine(args);
         for (int i = 0; i < argsArray.length; i++) {

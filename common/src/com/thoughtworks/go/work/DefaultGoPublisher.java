@@ -42,18 +42,19 @@ public class DefaultGoPublisher implements GoPublisher {
     private AgentIdentifier agentIdentifier;
     private BuildRepositoryRemote remoteBuildRepository;
     private final AgentRuntimeInfo agentRuntimeInfo;
+    private final File workingDirectory;
     private ConsoleOutputTransmitter consoleOutputTransmitter;
     private static final Log LOG = LogFactory.getLog(DefaultGoPublisher.class);
-    private String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
                               BuildRepositoryRemote remoteBuildRepository,
-                              AgentRuntimeInfo agentRuntimeInfo) {
+                              AgentRuntimeInfo agentRuntimeInfo, File workingDirectory) {
         this.manipulator = manipulator;
         this.jobIdentifier = jobIdentifier;
         this.agentIdentifier = agentRuntimeInfo.getIdentifier();
         this.remoteBuildRepository = remoteBuildRepository;
         this.agentRuntimeInfo = agentRuntimeInfo;
+        this.workingDirectory = workingDirectory;
         init();
     }
 
@@ -124,7 +125,7 @@ public class DefaultGoPublisher implements GoPublisher {
 
     public void reportAction(String action) {
         String message = String.format("[%s] %s %s on %s [%s]", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
-                agentIdentifier.getHostName(), currentWorkingDirectory);
+                agentIdentifier.getHostName(), workingDirectory);
         if (LOG.isDebugEnabled()) {
             LOG.debug(message);
         }

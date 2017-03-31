@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
@@ -35,7 +36,7 @@ import static java.lang.String.format;
 
 public class DirHandler implements FetchHandler {
     private final String srcFile;
-    private final File destOnAgent;
+    private File destOnAgent;
     private static final Logger LOG = Logger.getLogger(DirHandler.class);
     private ArtifactMd5Checksums artifactMd5Checksums;
     private ChecksumValidationPublisher checksumValidationPublisher;
@@ -44,6 +45,11 @@ public class DirHandler implements FetchHandler {
         this.srcFile = srcFile;
         this.destOnAgent = destOnAgent;
         checksumValidationPublisher = new ChecksumValidationPublisher();
+    }
+
+    @Override
+    public void updateDestinationForAgent(SystemEnvironment systemEnvironment) {
+        this.destOnAgent = systemEnvironment.resolveAgentWorkingDirectory(destOnAgent);
     }
 
     public String url(String remoteHost, String workingUrl) throws IOException {

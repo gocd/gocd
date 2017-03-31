@@ -106,7 +106,7 @@ public class LongWorkCreator implements WorkCreator {
                     instance,
                     buildCause,
                     builder,
-                    new File(CruiseConfig.WORKING_BASE_DIR + PIPELINE_NAME));
+                    new File(PIPELINE_NAME));
             return new BuildWork(buildAssignment);
         } catch (Exception e) {
             throw bomb(e);
@@ -129,7 +129,7 @@ public class LongWorkCreator implements WorkCreator {
         }
 
         public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
+                          EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) {
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {

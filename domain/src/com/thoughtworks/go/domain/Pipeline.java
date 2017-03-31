@@ -31,7 +31,7 @@ import static com.thoughtworks.go.domain.label.PipelineLabel.COUNT;
 
 public class Pipeline extends PersistentObject implements PipelineInfo {
 
-    private String pipelineName;
+    private String pipelineName = "";
     private Integer counter;
     private PipelineLabel pipelineLabel = PipelineLabel.defaultLabel();
     private Stages stages = new Stages();
@@ -59,7 +59,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     public File defaultWorkingFolder() {
-        return new File(CruiseConfig.WORKING_BASE_DIR + pipelineName);
+        return new File(pipelineName);
     }
 
     public String getName() {

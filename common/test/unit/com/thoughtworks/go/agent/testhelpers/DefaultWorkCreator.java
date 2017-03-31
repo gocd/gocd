@@ -91,7 +91,7 @@ public class DefaultWorkCreator implements WorkCreator {
         try {
             CruiseConfig config = GoConfigMother.pipelineHavingJob(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, ARTIFACT_FILE.getAbsolutePath(), ARTIFACT_FOLDER.getAbsolutePath());
             BuildCause buildCause = BuildCause.createWithEmptyModifications();
-            BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME));
+            BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/pipelines/" + STAGE_NAME));
             return new BuildWork(buildAssignment);
         } catch (Exception e) {
             throw bomb(e);

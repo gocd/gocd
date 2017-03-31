@@ -405,7 +405,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldCreateAgentWorkingDirectoryIfNotExist() throws Exception {
         String pipelineName = "pipeline1";
-        File workingdir = new File(sandbox, "pipelines/" + pipelineName);
+        File workingdir = new File(sandbox, pipelineName);
         assertThat(workingdir.exists(), is(false));
         build(WILL_PASS, pipelineName, true, false);
 
@@ -419,7 +419,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldNotBombWhenCreatingWorkingDirectoryIfCleanWorkingDirectoryFlagIsTrue() throws Exception {
         String pipelineName = "p1";
-        File workingdir = new File(sandbox, "pipelines/" + pipelineName);
+        File workingdir = new File(sandbox, pipelineName);
         assertThat(workingdir.exists(), is(false));
         build(WILL_PASS, pipelineName, true, true);
 
@@ -433,7 +433,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldCreateAgentWorkingDirectoryIfNotExistWhenFetchMaterialsIsFalse() throws Exception {
         String pipelineName = "p1";
-        File workingdir = new File(sandbox, "pipelines/" + pipelineName);
+        File workingdir = new File(sandbox, pipelineName);
         assertThat(workingdir.exists(), is(false));
         build(WILL_PASS, pipelineName, false, false);
 
@@ -445,7 +445,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldCleanAgentWorkingDirectoryIfExistsWhenCleanWorkingDirIsTrue() throws Exception {
         String pipelineName = "p1";
-        File workingdir = new File(sandbox, "pipelines/" + pipelineName);
+        File workingdir = new File(sandbox, pipelineName);
         workingdir.mkdirs();
         new File(workingdir, "foo").createNewFile();
         new File(workingdir, "bar").mkdirs();
@@ -521,7 +521,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldReportUploadMessageWhenUpload() throws Exception {
         String destFolder = "dest\\test\\sub-folder";
-        File basedir = new File(sandbox, "pipelines/pipeline1");
+        File basedir = new File(sandbox, "pipeline1");
         basedir.mkdirs();
         File artifact = new File(basedir, "artifact");
         artifact.createNewFile();
@@ -540,7 +540,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
 
     @Test
     public void generateReportForNUnit() throws Exception {
-        File basedir = new File(sandbox, "pipelines/pipeline1/test-reports");
+        File basedir = new File(sandbox, "pipeline1/test-reports");
         basedir.mkdirs();
 
         InputStream nunitResult = new ClassPathResource(FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + "TestResult.xml").getInputStream();
@@ -561,7 +561,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
 
     @Test
     public void generateBuildPropertyUsingXPath() throws Exception {
-        File basedir = new File(sandbox, "pipelines/pipeline1");
+        File basedir = new File(sandbox, "pipeline1");
         String content = "<artifacts>\n"
                 + "         <artifact src=\"target\\connectfour.jar\" dest=\"dist\\jars\" />\n"
                 + "         <artifact src=\"target\\test-results\" dest=\"testoutput\" type=\"junit\" />\n"

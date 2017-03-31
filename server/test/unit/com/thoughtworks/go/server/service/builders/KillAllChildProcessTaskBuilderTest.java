@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.util.ProcessWrapper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -40,10 +41,12 @@ import static org.mockito.Mockito.mock;
 
 public class KillAllChildProcessTaskBuilderTest {
     private BuilderFactory builderFactory;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         builderFactory = mock(BuilderFactory.class);
+        systemEnvironment = mock(SystemEnvironment.class);
     }
 
     @Test(timeout = 11*60*1000)//11 minutes
@@ -60,7 +63,7 @@ public class KillAllChildProcessTaskBuilderTest {
 
         long before = getSystemTime();
         Builder builder = new KillAllChildProcessTaskBuilder().createBuilder(builderFactory, new KillAllChildProcessTask(), null, null);
-        builder.build(log, publisher, environmentVariableContext, null);
+        builder.build(log, publisher, environmentVariableContext, systemEnvironment, null);
 
         assertThat(processWrapper.waitForExit(), is(greaterThan(0)));
         assertThat(getSystemTime() - before, is(lessThan(10*60*1000*1000*1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;

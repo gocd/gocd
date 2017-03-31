@@ -217,13 +217,13 @@ public class AgentRuntimeInfo implements Serializable {
         return this;
     }
 
-    public static long usableSpace(String currentWorkingDir) {
-        File file = new File(currentWorkingDir, "pipelines");
+    public static long usableSpace(String workingDir) {
+        File file = new File(workingDir);
         if (!file.exists()) {
             LOGGER.warn(
                     "the [" + file.getAbsolutePath() + "] should be created when agent starts up, "
                             + "but it seems missing at the moment. "
-                            + "Cruise should be able to automatically create it later");
+                            + "GoCD should be able to automatically create it later");
         }
         return file.getUsableSpace();
     }

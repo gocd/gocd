@@ -108,7 +108,7 @@ public class BuildAssignment implements Serializable {
         return result;
     }
 
-    public File getWorkingDirectory() {
+    public File getRelativeWorkingDirectory() {
         return buildWorkingDirectory;
     }
 

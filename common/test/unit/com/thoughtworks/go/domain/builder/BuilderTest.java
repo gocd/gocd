@@ -25,9 +25,13 @@ import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,10 +49,25 @@ public class BuilderTest {
     private StubGoPublisher goPublisher = new StubGoPublisher();
 
     private EnvironmentVariableContext environmentVariableContext;
+    private SystemEnvironment systemEnvironment;
+
+    private File workingDir;
+    private File resolvedWorkingDir;
 
     @Before
     public void setUp() throws Exception {
         environmentVariableContext = new EnvironmentVariableContext();
+        systemEnvironment = new SystemEnvironment();
+
+        workingDir = new File(".");
+        resolvedWorkingDir = systemEnvironment.resolveAgentWorkingDirectory(workingDir);
+
+        resolvedWorkingDir.mkdirs();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        FileUtil.deleteFolder(resolvedWorkingDir);
     }
 
     @Test
@@ -57,14 +76,14 @@ public class BuilderTest {
 
         StubBuilder stubBuilder = new StubBuilder();
 
-        CommandBuilder cancelBuilder = new CommandBuilder("echo2", "cancel task", new File("."),
+        CommandBuilder cancelBuilder = new CommandBuilder("echo2", "cancel task", workingDir,
                 new RunIfConfigs(FAILED), stubBuilder,
                 "");
 
-        CommandBuilder builder = new CommandBuilder("echo", "normal task", new File("."), new RunIfConfigs(FAILED),
+        CommandBuilder builder = new CommandBuilder("echo", "normal task", workingDir, new RunIfConfigs(FAILED),
                 cancelBuilder,
                 "");
-        builder.cancel(goPublisher, new EnvironmentVariableContext(), null);
+        builder.cancel(goPublisher, new EnvironmentVariableContext(), systemEnvironment, null);
 
         assertThat(goPublisher.getMessage(),
                 containsString("Error happened while attempting to execute 'echo2 cancel task'"));
@@ -73,18 +92,18 @@ public class BuilderTest {
     @Test
     public void shouldRunCancelBuilderWhenCancelled() throws Exception {
         StubBuilder stubBuilder = new StubBuilder();
-        CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
+        CommandBuilder builder = new CommandBuilder("echo", "", workingDir, new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext, null);
+        builder.cancel(goPublisher, environmentVariableContext, systemEnvironment, null);
         assertThat(stubBuilder.wasCalled, is(true));
     }
 
     @Test
     public void shouldLogToConsoleOutWhenCancelling() {
         StubBuilder stubBuilder = new StubBuilder();
-        CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
+        CommandBuilder builder = new CommandBuilder("echo", "", workingDir, new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext, null);
+        builder.cancel(goPublisher, environmentVariableContext, systemEnvironment, null);
 
         assertThat(goPublisher.getMessage(), containsString("Start to execute cancel task"));
         assertThat(goPublisher.getMessage(), containsString("Task is cancelled"));
@@ -92,11 +111,11 @@ public class BuilderTest {
 
     @Test
     public void shouldNotBuildIfTheJobIsCancelled() throws Exception {
-        CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED),
+        CommandBuilder builder = new CommandBuilder("echo", "", workingDir, new RunIfConfigs(FAILED),
                 new StubBuilder(),
                 "");
 
-        builder.build(new BuildLogElement(), PASSED, goPublisher, environmentVariableContext, null);
+        builder.build(new BuildLogElement(), PASSED, goPublisher, environmentVariableContext, systemEnvironment, null);
 
         assertThat(goPublisher.getMessage(), is(""));
     }
@@ -109,7 +128,7 @@ public class BuilderTest {
         }
 
         public void build(BuildLogElement buildElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) throws CruiseControlException {
             wasCalled = true;
         }
     }

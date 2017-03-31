@@ -46,7 +46,7 @@ public class SleepWork implements Work {
     }
 
     @Override
-    public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+    public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment systemEnvironment, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         cancelLatch = new CountDownLatch(1);
         agentRuntimeInfo.busy(new AgentBuildingInfo("sleepwork", "sleepwork1"));
         boolean canceled = false;
@@ -75,7 +75,7 @@ public class SleepWork implements Work {
     }
 
     @Override
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         agentruntimeInfo.cancel();
         cancelLatch.countDown();
     }

@@ -140,7 +140,7 @@ public class JobInstanceServiceTest {
     public void shouldNotifyAllListenersWhenSaveJob() throws Exception {
         final JobStatusListener listener1 = Mockito.mock(JobStatusListener.class, "listener1");
         final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
-        final Pipeline pipeline = new NullPipeline();
+        final Pipeline pipeline = new NullPipeline("");
         final Stage stage = new Stage();
         stage.setId(1);
 
@@ -162,7 +162,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener failingListener = Mockito.mock(JobStatusListener.class, "listener1");
         final JobStatusListener passingListener = Mockito.mock(JobStatusListener.class, "listener2");
         doThrow(new RuntimeException("Should not be rethrown by save")).when(failingListener).jobStatusChanged(job);
-        final Pipeline pipeline = new NullPipeline();
+        final Pipeline pipeline = new NullPipeline("");
         final Stage stage = new Stage();
         stage.setId(1);
 

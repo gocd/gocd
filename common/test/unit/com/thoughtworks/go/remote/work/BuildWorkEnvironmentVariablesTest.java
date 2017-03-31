@@ -56,6 +56,7 @@ import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedEnvVariable;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildWorkEnvironmentVariablesTest {
@@ -80,6 +81,8 @@ public class BuildWorkEnvironmentVariablesTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws IOException {
@@ -95,6 +98,8 @@ public class BuildWorkEnvironmentVariablesTest {
         dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream1"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
+
+        when(systemEnvironment.resolveAgentWorkingDirectory(dir)).thenReturn(dir);
         setupHgRepo();
     }
 
@@ -107,7 +112,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     @Test
     public void shouldSetUpEnvironmentContextCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        when(systemEnvironment.getPropertyImpl("serviceUrl")).thenReturn("some_random_place");
         Materials materials = new Materials(svnMaterial);
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(materials);
         assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("3"));
@@ -130,7 +135,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), new GoArtifactsManipulatorStub(),
-                environmentContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
 
         assertEnvironmentContext(environmentContext, "foo", is("bar"));
     }
@@ -168,12 +173,12 @@ public class BuildWorkEnvironmentVariablesTest {
         BuildWork work = new BuildWork(buildAssigment);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        when(systemEnvironment.getPropertyImpl("serviceUrl")).thenReturn("some_random_place");
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(environmentVariableContext.getProperty("GO_REVISION_CRUISE"), is("3"));
     }
@@ -193,11 +198,11 @@ public class BuildWorkEnvironmentVariablesTest {
         BuildAssignment buildAssigment = createAssignment();
         BuildWork work = new BuildWork(buildAssigment);
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        when(systemEnvironment.getPropertyImpl("serviceUrl")).thenReturn("some_random_place");
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_SERVER_URL", "some_random_place"));
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_NAME", PIPELINE_NAME));
@@ -274,7 +279,7 @@ public class BuildWorkEnvironmentVariablesTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         return environmentVariableContext;
     }
 }

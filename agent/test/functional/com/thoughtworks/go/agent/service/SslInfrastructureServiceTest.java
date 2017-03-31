@@ -115,7 +115,7 @@ public class SslInfrastructureServiceTest {
     private SslInfrastructureService.RemoteRegistrationRequester requesterStub(final Registration registration) {
         final SslInfrastructureServiceTest me = this;
         final SystemEnvironment systemEnvironment = new SystemEnvironment();
-        return new SslInfrastructureService.RemoteRegistrationRequester(null, agentRegistryStub(), new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(systemEnvironment))) {
+        return new SslInfrastructureService.RemoteRegistrationRequester(null, agentRegistryStub(), new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(systemEnvironment)), systemEnvironment) {
             protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties)
                     throws IOException, ClassNotFoundException {
                 LOGGER.debug("Requesting remote registration");

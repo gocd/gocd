@@ -40,6 +40,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -91,7 +92,6 @@ public class AgentControllerTest {
     public void setUp() throws Exception {
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
-
 
     @Test
     public void shouldReturnTrueIfCausedBySecurity() throws Exception {

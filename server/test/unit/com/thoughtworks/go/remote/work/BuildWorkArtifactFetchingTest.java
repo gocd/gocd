@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.DirHandler;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -23,6 +24,7 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.After;
 import org.junit.Before;
@@ -42,13 +44,12 @@ import static org.junit.Assert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {
     public static final String PIPELINE_NAME = "pipeline1";
-    public static final String PIPELINE_LABEL = "100";
     public static final String STAGE_NAME = "mingle";
     public static final String JOB_NAME = "run-ant";
     private static final String DEST = "lib";
 
     private static final String AGENT_UUID = "uuid";
-    File buildWorkingDirectory;
+    private File buildWorkingDirectory;
 
     private static final String WITH_FETCH_FILE =
                       "<job name=\"" + JOB_NAME + "\">\n"
@@ -74,6 +75,7 @@ public class BuildWorkArtifactFetchingTest {
     private AgentIdentifier agentIdentifier;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private EnvironmentVariableContext environmentVariableContext;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws IOException {
@@ -81,6 +83,7 @@ public class BuildWorkArtifactFetchingTest {
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", AGENT_UUID);
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
+        systemEnvironment = new SystemEnvironment();
         environmentVariableContext = new EnvironmentVariableContext();
     }
 
@@ -95,7 +98,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: passed."));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]."));
@@ -109,19 +112,20 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed."));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: ant --help."));
     }
 
     @Test
-    public void shouldFetchFolder() throws Exception {
+    public void shouldFetchAnArtifactWhichIsAFolderIntoResolvedAgentWorkingDirectory() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, null, null, null);
 
-        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib",new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
+        File expectedDestination = systemEnvironment.resolveAgentWorkingDirectory(new File(PIPELINE_NAME + File.separator + DEST));
+        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", expectedDestination)));
     }
 }

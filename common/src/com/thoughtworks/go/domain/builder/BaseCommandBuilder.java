@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CheckedCommandLineException;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CompositeConsumer;
@@ -45,19 +46,20 @@ public abstract class BaseCommandBuilder extends Builder {
         this.workingDir = workingDir;
     }
 
-    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
+    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension)
             throws CruiseControlException {
         final long startTime = System.currentTimeMillis();
+        final File realWorkingDir = systemEnvironment.resolveAgentWorkingDirectory(workingDir);
 
-        if (!workingDir.isDirectory()) {
-            String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
+        if (!realWorkingDir.isDirectory()) {
+            String message = "Working directory \"" + realWorkingDir.getAbsolutePath() + "\" is not a directory!";
             publisher.consumeLine(message);
             setBuildError(buildLogElement, message);
             throw new CruiseControlException(message);
         }
 
         ExecScript execScript = new ExecScript(errorString);
-        CommandLine commandLine = buildCommandLine();
+        CommandLine commandLine = buildCommandLine(realWorkingDir);
 
         // mimic Ant target/task logging
         buildLogElement.setBuildLogHeader(command);
@@ -88,7 +90,7 @@ public abstract class BaseCommandBuilder extends Builder {
         }
     }
 
-    protected abstract CommandLine buildCommandLine();
+    protected abstract CommandLine buildCommandLine(File realWorkingDirectory);
 
     private void setBuildDuration(long startTime, BuildLogElement buildLogElement) {
         final long endTime = System.currentTimeMillis();

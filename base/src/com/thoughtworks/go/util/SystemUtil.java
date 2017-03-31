@@ -172,15 +172,25 @@ public class SystemUtil {
     }
 
     public static String currentWorkingDirectory() {
+        return getFullPath(new File("."));
+    }
+
+    public static String getFullPath(File file) {
         String location;
-        File file = new File(".");
         try {
             location = file.getCanonicalPath();
         } catch (IOException e) {
             location = file.getAbsolutePath();
         }
         return location;
+    }
 
+    public static File getFileWithFullPath(File file) {
+        try {
+            return file.getCanonicalFile();
+        } catch (IOException e) {
+            return file.getAbsoluteFile();
+        }
     }
 
     public static int getIntProperty(String propertyName, int defaultValue) {

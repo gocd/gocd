@@ -25,6 +25,7 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.concurrent.CountDownLatch;
@@ -38,26 +39,26 @@ public class JobRunner {
     private Work work;
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
-    public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
+    public void handleInstruction(AgentInstruction instruction, SystemEnvironment systemEnvironment, AgentRuntimeInfo agentStatus) {
         if (instruction.isShouldCancelJob() && !handled) {
-            cancelJob(agentStatus);
+            cancelJob(agentStatus, systemEnvironment);
         }
     }
 
-    private void cancelJob(AgentRuntimeInfo agentRuntimeInfo) {
+    private void cancelJob(AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment systemEnvironment) {
         isJobCancelled = true;
         if (work != null) {
-            work.cancel(environmentVariableContext, agentRuntimeInfo);
+            work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         }
         handled = true;
     }
 
     public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
-                    PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+                    SystemEnvironment systemEnvironment, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         running = true;
         this.work = work;
         try {
-            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         } finally {
             running = false;
             doneSignal.countDown();

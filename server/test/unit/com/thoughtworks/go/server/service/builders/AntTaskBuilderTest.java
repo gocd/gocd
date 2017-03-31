@@ -32,6 +32,7 @@ import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.hamcrest.core.Is;
@@ -39,15 +40,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class AntTaskBuilderTest {
@@ -61,6 +61,7 @@ public class AntTaskBuilderTest {
     private BuilderFactory builderFactory;
     private ExecTaskBuilder execTaskBuilder;
     private TaskExtension taskEntension;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setup() throws Exception {
@@ -70,6 +71,7 @@ public class AntTaskBuilderTest {
         builderFactory = mock(BuilderFactory.class);
         resolver = mock(UpstreamPipelineResolver.class);
         taskEntension = mock(TaskExtension.class);
+        systemEnvironment = mock(SystemEnvironment.class);
     }
 
     @After
@@ -99,11 +101,14 @@ public class AntTaskBuilderTest {
         String buildXml = "./build.xml";
         antTask.setBuildFile(buildXml);
         antTask.setTarget(target);
-        Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
+        Pipeline pipeline = TasksTest.pipelineStub(PIPELINE_LABEL, ".");
+        Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
         BuildLogElement element = new BuildLogElement();
 
+        doAnswer(new ReturnsArgumentAt(0)).when(systemEnvironment).resolveAgentWorkingDirectory(any(File.class));
+
         try {
-            builder.build(element, RunIfConfig.PASSED, new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
+            builder.build(element, RunIfConfig.PASSED, new StubGoPublisher(), new EnvironmentVariableContext(), systemEnvironment, taskEntension);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
             assertThat(element.getBuildError(), Is.is("Build failed. Command ant reported [BUILD FAILED]."));

@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -60,8 +61,8 @@ public class SslInfrastructureService {
     private transient boolean registered = false;
 
     @Autowired
-    public SslInfrastructureService(URLService urlService, GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) throws Exception {
-        this(new RemoteRegistrationRequester(urlService.getAgentRegistrationURL(), agentRegistry, httpClient), httpClient);
+    public SslInfrastructureService(URLService urlService, GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry, SystemEnvironment systemEnvironment) throws Exception {
+        this(new RemoteRegistrationRequester(urlService.getAgentRegistrationURL(), agentRegistry, httpClient, systemEnvironment), httpClient);
     }
 
     // For mocking out remote call
@@ -151,13 +152,15 @@ public class SslInfrastructureService {
 
     public static class RemoteRegistrationRequester {
         private final AgentRegistry agentRegistry;
+        private SystemEnvironment systemEnvironment;
         private String serverUrl;
         private GoAgentServerHttpClient httpClient;
 
-        public RemoteRegistrationRequester(String serverUrl, AgentRegistry agentRegistry, GoAgentServerHttpClient httpClient) {
+        public RemoteRegistrationRequester(String serverUrl, AgentRegistry agentRegistry, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment) {
             this.serverUrl = serverUrl;
             this.httpClient = httpClient;
             this.agentRegistry = agentRegistry;
+            this.systemEnvironment = systemEnvironment;
         }
 
         protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException, ClassNotFoundException {
@@ -165,11 +168,12 @@ public class SslInfrastructureService {
                 LOGGER.debug(String.format("[Agent Registration] Using URL %s to register.", serverUrl));
             }
 
+            String agentWorkDir = systemEnvironment.resolveAgentWorkingDirectory().getAbsolutePath();
             HttpRequestBase postMethod = (HttpRequestBase) RequestBuilder.post(serverUrl)
                     .addParameter("hostname", agentHostName)
                     .addParameter("uuid", agentRegistry.uuid())
-                    .addParameter("location", SystemUtil.currentWorkingDirectory())
-                    .addParameter("usablespace", String.valueOf(AgentRuntimeInfo.usableSpace(SystemUtil.currentWorkingDirectory())))
+                    .addParameter("location", agentWorkDir)
+                    .addParameter("usablespace", String.valueOf(AgentRuntimeInfo.usableSpace(agentWorkDir)))
                     .addParameter("operatingSystem", new SystemEnvironment().getOperatingSystemCompleteName())
                     .addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey())
                     .addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources())

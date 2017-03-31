@@ -171,7 +171,7 @@ public class FetchTaskBuilderTest {
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest"), getSrc())));
+        assertThat(fetchHandler, is(new FileHandler(new File("cruise/dest"), getSrc())));
         assertThat(builder.jobLocatorForDisplay(), is("mingle/label-1/dev/2/one"));
     }
 
@@ -197,14 +197,14 @@ public class FetchTaskBuilderTest {
     public void shouldNormalizeDestOnAgent() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest\\pavan");
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc())));
+        assertThat(fetchHandler, is(new FileHandler(new File("cruise/dest/pavan"), getSrc())));
     }
 
     @Test
     public void shouldSupportNullForDest() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", null);
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise"), getSrc())));
+        assertThat(fetchHandler, is(new FileHandler(new File("cruise"), getSrc())));
     }
 
     @Test
@@ -213,7 +213,7 @@ public class FetchTaskBuilderTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString(pipeline.getName()), new CaseInsensitiveString(pipeline.getFirstStage().getName()), new CaseInsensitiveString("windows-3"), "", "dest\\subfolder");
         fetchTask.setSrcdir("log");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
-        File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
+        File folderOnAgent = new File("mingle/dest/subfolder");
         assertThat(actual, is(new DirHandler("log", folderOnAgent)));
     }
 
@@ -222,7 +222,7 @@ public class FetchTaskBuilderTest {
         Pipeline pipeline = pipelineWithStage("mingle", 1, LABEL, "dev", 1);
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString(pipeline.getName()), new CaseInsensitiveString(pipeline.getFirstStage().getName()), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
-        File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
+        File folderOnAgent = new File("mingle/dest/subfolder");
         assertThat(actual, is(new FileHandler(new File(folderOnAgent, "cruise.zip"), getSrc())));
     }
 

@@ -73,27 +73,27 @@ public class BuildWork implements Work {
     }
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
-                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension, SystemEnvironment systemEnvironment) {
         timeProvider = new TimeProvider();
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));
-        workingDirectory = assignment.getWorkingDirectory();
+        workingDirectory = systemEnvironment.resolveAgentWorkingDirectory(assignment.getRelativeWorkingDirectory());
         materialRevisions = assignment.materialRevisions();
         buildLog = new GoControlLog(this.workingDirectory + "/cruise-output");
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),
-                remoteBuildRepository, agentRuntimeInfo);
+                remoteBuildRepository, agentRuntimeInfo, workingDirectory);
 
         builders = new Builders(assignment.getBuilders(), goPublisher, buildLog, taskExtension);
     }
 
     public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
                        EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo,
-                       PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
-        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension);
+                       SystemEnvironment systemEnvironment, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension, systemEnvironment);
         environmentVariableContext.addAll(assignment.initialEnvironmentVariableContext());
         try {
-            JobResult result = build(environmentVariableContext, agentIdentifier, packageRepositoryExtension, scmExtension);
+            JobResult result = build(environmentVariableContext, agentIdentifier, packageRepositoryExtension, scmExtension, systemEnvironment);
             reportCompletion(result);
         } catch (InvalidAgentException e) {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
@@ -130,7 +130,7 @@ public class BuildWork implements Work {
     }
 
     private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier,
-                            PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) throws Exception {
+                            PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, SystemEnvironment systemEnvironment) throws Exception {
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
             return null;
@@ -140,7 +140,7 @@ public class BuildWork implements Work {
 
         prepareJob(agentIdentifier, packageRepositoryExtension, scmExtension);
 
-        setupEnvrionmentContext(environmentVariableContext);
+        setupEnvrionmentContext(environmentVariableContext, systemEnvironment);
         plan.applyTo(environmentVariableContext);
         dumpEnvironmentVariables(environmentVariableContext);
 
@@ -149,7 +149,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        JobResult result = buildJob(environmentVariableContext);
+        JobResult result = buildJob(environmentVariableContext, systemEnvironment);
         completeJob(result);
         return result;
     }
@@ -198,18 +198,18 @@ public class BuildWork implements Work {
         return new ProcessOutputStreamConsumer<>(goPublisher, goPublisher);
     }
 
-    private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
-        context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
+    private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context, SystemEnvironment systemEnvironment) {
+        context.setProperty("GO_SERVER_URL", systemEnvironment.getPropertyImpl("serviceUrl"), false);
         context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
         plan.getIdentifier().populateEnvironmentVariables(context);
         materialRevisions.populateEnvironmentVariables(context, workingDirectory);
         return context;
     }
 
-    private JobResult buildJob(EnvironmentVariableContext environmentVariableContext) {
+    private JobResult buildJob(EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment) {
         goPublisher.reportCurrentStatus(Building);
         goPublisher.reportAction("Start to build");
-        return execute(environmentVariableContext);
+        return execute(environmentVariableContext, systemEnvironment);
     }
 
     private void completeJob(JobResult result) throws SocketTimeoutException {
@@ -227,14 +227,14 @@ public class BuildWork implements Work {
         plan.publishArtifacts(goPublisher, workingDirectory);
     }
 
-    private JobResult execute(EnvironmentVariableContext environmentVariableContext) {
+    private JobResult execute(EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment) {
         Date now = new Date();
 
         // collect project information
         // TODO - #2409
         buildLog.addContent(new Element("info"));
 
-        JobResult result = builders.build(environmentVariableContext);
+        JobResult result = builders.build(environmentVariableContext, systemEnvironment);
 
         goPublisher.reportCompleting(result);
 
@@ -264,9 +264,9 @@ public class BuildWork implements Work {
         return "Running build ...";
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         agentruntimeInfo.cancel();
-        builders.cancel(environmentVariableContext);
+        builders.cancel(environmentVariableContext, systemEnvironment);
     }
 
     public BuildAssignment getAssignment() {

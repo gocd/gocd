@@ -88,7 +88,7 @@ public class AgentHTTPClientController extends AgentController {
     @Override
     public void execute() {
         if (runner != null) {
-            runner.handleInstruction(agentInstruction, getAgentRuntimeInfo());
+            runner.handleInstruction(agentInstruction, getSystemEnvironment(), getAgentRuntimeInfo());
         }
     }
 
@@ -120,7 +120,7 @@ public class AgentHTTPClientController extends AgentController {
                 LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             }
             runner = new JobRunner();
-            runner.run(work, agentIdentifier, server, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension);
+            runner.run(work, agentIdentifier, server, manipulator, getAgentRuntimeInfo(), getSystemEnvironment(), packageRepositoryExtension, scmExtension, taskExtension);
         } catch (UnregisteredAgentException e) {
             LOG.warn("[Agent Loop] Invalid agent certificate with fingerprint {}. Registering with server on next iteration.", e.getUuid());
             sslInfrastructureService.invalidateAgentCertificate();

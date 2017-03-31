@@ -129,7 +129,7 @@ public class AgentWebSocketClientController extends AgentController {
                 try {
                     runner.run(work, agentIdentifier(),
                             new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
-                            manipulator, getAgentRuntimeInfo(),
+                            manipulator, getAgentRuntimeInfo(), getSystemEnvironment(),
                             packageRepositoryExtension, scmExtension,
                             taskExtension);
                 } finally {
@@ -186,7 +186,7 @@ public class AgentWebSocketClientController extends AgentController {
                 buildConsole,
                 buildVariables,
                 artifactsRepository,
-                httpService, clock, new File("."));
+                httpService, clock, getSystemEnvironment().resolveAgentWorkingDirectory());
 
         this.buildSession.set(build);
 
@@ -221,7 +221,7 @@ public class AgentWebSocketClientController extends AgentController {
             return;
         }
         LOG.info("Cancel running job");
-        runner.handleInstruction(new AgentInstruction(true), getAgentRuntimeInfo());
+        runner.handleInstruction(new AgentInstruction(true), getSystemEnvironment(), getAgentRuntimeInfo());
         runner.waitUntilDone(30);
         if (runner.isRunning()) {
             LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is running job details: " + runner);

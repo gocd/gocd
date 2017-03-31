@@ -19,12 +19,8 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 
 public class NullPipeline extends Pipeline {
-    public NullPipeline() {
-        setCounter(0);
-    }
-
     public NullPipeline(String pipelineName) {
-        this();
+        setCounter(0);
         super.setName(pipelineName);
     }
 

@@ -41,6 +41,7 @@ public class AgentStatusReportingIntegrationTest {
     private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void before() {
@@ -48,39 +49,35 @@ public class AgentStatusReportingIntegrationTest {
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
         buildRepository = new BuildRepositoryRemoteStub();
+        systemEnvironment = new SystemEnvironment();
         this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
-    }
-
-    @After
-    public void tearDown() {
-        new SystemEnvironment().clearProperty("serviceUrl");
     }
 
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
     @Test
     public void shouldReportIdleWhenAgentCancelledNoWork() {
         NoWork work = new NoWork();
-        work.cancel(environmentVariableContext, agentRuntimeInfo);
+        work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
     @Test
     public void shouldReportIdleWhenAgentRunningDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
     @Test
     public void shouldReportIdleWhenAgentCancelledDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.cancel(environmentVariableContext, agentRuntimeInfo);
+        work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -88,7 +85,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeWhenAgentRunningUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
@@ -98,7 +95,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeIdleWhenAgentCancelledUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.cancel(environmentVariableContext, agentRuntimeInfo);
+            work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));

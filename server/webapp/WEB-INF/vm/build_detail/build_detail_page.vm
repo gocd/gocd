@@ -185,8 +185,12 @@
   jQuery(function() {
     jQuery(document).on("click.fullScreen", '#full-screen', function () {
       jQuery(".content_wrapper_outer").toggleClass("full-screen");
-      jQuery("#cruise_message_counts").hide();
-      jQuery(window).trigger(jQuery.Event("resetPinOnScroll"));
+      jQuery("#cruise_message_counts").toggleClass("hide");
+      jQuery(window).trigger(jQuery.Event("resetPinOnScroll"), [{
+        calcRequiredScroll: function() {
+          return jQuery(".console-area").offset().top - jQuery("#header").outerHeight(true) - jQuery(".page_header").outerHeight(true);
+        }
+      }]);
     });
   });
 

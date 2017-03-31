@@ -31,8 +31,6 @@ import java.util.List;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public abstract class GoAgentServerClientBuilder<T> {
-    @Deprecated
-    public static final File AGENT_TRUST_FILE = new File("config", "trust.jks");
     public static final File AGENT_CERTIFICATE_FILE = new File(new SystemEnvironment().getConfigDir(), "agent.jks");
     protected final File rootCertFile;
     private final File keyStoreFile;

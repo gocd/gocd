@@ -22,6 +22,7 @@ import com.thoughtworks.go.agent.common.AgentCLI;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.logging.LogConfigurator;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
 import com.thoughtworks.go.util.validators.Validation;
@@ -103,6 +104,7 @@ public class AgentBootstrapper {
     private void cleanupTempFiles() {
         FileUtils.deleteQuietly(new File(JarUtil.EXPLODED_DEPENDENCIES_DIR_NAME));
         FileUtils.deleteQuietly(new File(LauncherTempFileHandler.LAUNCHER_TMP_FILE_LIST));
+        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "trust.jks"));
     }
 
     void waitForRelaunchTime() {

@@ -277,7 +277,7 @@ div.build_detail_container_content {
 .console-area {
   background-color: #333;
   .white-theme & {
-    background-color: white;
+    background-color: #fdfdfd;
   }
 }
 
@@ -327,8 +327,9 @@ div.build_detail_container_content {
   }
 
   .white-theme & {
+    background-color: rgba(#fdfdfd, 0.85);
     div > a {
-      color: white;
+      color: #025695;
     }
   }
 
@@ -433,7 +434,7 @@ div.build_detail_container_content {
   color: white;
 
   .white-theme & {
-    background-color: white;
+    background-color: #fdfdfd;
     color: black;
   }
 

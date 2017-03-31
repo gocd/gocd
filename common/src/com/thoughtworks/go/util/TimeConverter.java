@@ -17,6 +17,9 @@
 package com.thoughtworks.go.util;
 
 import java.text.SimpleDateFormat;
+
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -71,6 +74,9 @@ public class TimeConverter {
 
     public static final ConvertedTime LESS_THAN_A_MINUTE_AGO = new ConvertedTime("label.less.1.minute",
             "less than a minute ago");
+
+    public final DateTimeFormatter dateFormatterWithTimeZone = DateTimeFormat.forPattern("dd MMM, yyyy 'at' HH:mm:ss [Z]");
+    public final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd MMM, yyyy 'at' HH:mm:ss");
 
     private static final LinkedHashMap<Seconds, ConvertableTime> RULES =
             new LinkedHashMap<>();
@@ -128,15 +134,12 @@ public class TimeConverter {
     }
 
     public String getHumanReadableString(Date date) {
-
-        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : new SimpleDateFormat("dd MMM, yyyy 'at' HH:mm:ss", Locale.ENGLISH)
-                    .format(date);
+        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatter.print(new DateTime(date));
 
     }
 
     public String getHumanReadableStringWithTimeZone(Date date) {
-        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : new SimpleDateFormat("dd MMM, yyyy 'at' HH:mm:ss [Z]", Locale.ENGLISH)
-                    .format(date);
+        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : dateFormatterWithTimeZone.print(new DateTime(date));
     }
 
     public ConvertedTime getConvertedTime(Date dateLogFileGenerated, Date dateCheckTheDuration) {

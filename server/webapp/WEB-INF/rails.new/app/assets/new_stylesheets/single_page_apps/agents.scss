@@ -214,44 +214,73 @@
 
 $arrow-color: #000;
 
-.go-table {
-  background: transparent;
-  border:     0;
-  margin:     0;
+.agents-table {
+  background:   transparent;
+  border:       0;
+  margin:       0;
+  table-layout: fixed;
 
-  $column-widths: (
-                    "1": 1%,
-                    "2": 38px,
-                    "3": 16%,
-                    "4": 9%,
-                    "5": 10%,
-                    "6": 10%,
-                    "7": 7%,
-                    "8": 9%,
-                    "9": calc(20% - 38px),
-                    "10": 18%,
-                  );
+  @include breakpoint(large up) {
+    $column-widths: (
+                      "1": 1%,
+                      "2": 38px,
+                      "3": 16%,
+                      "4": 9%,
+                      "5": 10%,
+                      "6": 10%,
+                      "7": 7%,
+                      "8": 9%,
+                      "9": calc(20% - 38px),
+                      "10": 18%,
+                    );
 
-  @each $key, $val in $column-widths {
-    td:nth-child(#{$key}), th:nth-child(#{$key}) {
-      width: $val;
+    @each $key, $val in $column-widths {
+      td:nth-child(#{$key}), th:nth-child(#{$key}) {
+        width: $val;
+      }
     }
-  }
 
-  td:nth-child(2), th:nth-child(2) {
-    padding: 0;
+    td:nth-child(2), th:nth-child(2) {
+      padding: 0;
+    }
   }
 
   thead {
     border: 0;
     tr {
-      background: $table-header-bg;
-      color:      $txt-color;
-      font-size:  rem-calc(14px);
+      background:    $table-header-bg;
+      color:         $txt-color;
+      font-size:     rem-calc(14px);
+
+      border-bottom: 3px solid #a5d6a7;
+      display:       block;
+      position:      relative;
+
+      th {
+        color:   $dark-grey;
+        padding: 5px 10px;
+      }
     }
   }
   tbody {
-    border: 0;
+    border:   0;
+    $page-top-nav: 40px;
+    $page-header: 108px;
+    $page-footer: 76px;
+    $table-header: 38px;
+    display:  block;
+    overflow: auto;
+    height:   calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 10px);
+
+    label {
+      min-width:   120px;
+      font-weight: $global-weight-bold;
+
+      &+.content {
+        display: inline-block;
+      }
+    }
+
     tr {
       font-size:    rem-calc(13px);
       border-right: 1px dotted #ddd;
@@ -275,6 +304,7 @@ $arrow-color: #000;
       width:  38px;
     }
   }
+
   .select-agent {
     margin: 0;
   }
@@ -291,43 +321,6 @@ $arrow-color: #000;
 
   &.has-message.has-permanent-message {
     margin-top: 274px - $foo;
-  }
-}
-
-.agents-table {
-  thead {
-    tr {
-      background:    $table-header-bg;
-      border-bottom: 3px solid #a5d6a7;
-      th {
-        color:   $dark-grey;
-        padding: 5px 10px;
-      }
-    }
-  }
-
-  table-layout: fixed;
-
-  thead {
-    tr {
-      display:  block;
-      position: relative;
-    }
-  }
-
-  tbody {
-    $page-top-nav: 40px;
-    $page-header: 108px;
-    $page-footer: 76px;
-    $table-header: 38px;
-    display:  block;
-    overflow: auto;
-    height:   calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 10px);
-
-    label {
-      min-width: 120px;
-      font-weight: $global-weight-bold;
-    }
   }
 }
 

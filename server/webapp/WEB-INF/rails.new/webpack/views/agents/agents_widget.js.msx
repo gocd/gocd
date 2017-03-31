@@ -223,7 +223,7 @@ const AgentsWidget = {
         </div>
         <f.row class={classForTableBody}>
           <div class="container">
-            <table class="go-table agents-table stack">
+            <table class="agents-table stack">
               <AgentTableHeader
                 sortOrder={args.sortOrder}
                 onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}

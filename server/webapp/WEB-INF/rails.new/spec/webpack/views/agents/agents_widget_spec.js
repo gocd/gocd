@@ -315,7 +315,7 @@ describe("Agents Widget", () => {
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    allBoxes = $root.find('.go-table tbody tr input[type="checkbox"]');
+    allBoxes = $root.find('.agents-table tbody tr input[type="checkbox"]');
     expect(allBoxes).toHaveLength(2);
     expect(allBoxes[0]).toBeChecked();
     expect(allBoxes[1]).not.toBeChecked();
@@ -323,7 +323,7 @@ describe("Agents Widget", () => {
 
   it('should allow sorting', () => {
     const getHostnamesInTable = () => {
-      const hostnameCells = $root.find(".go-table tbody td:nth-child(3)");
+      const hostnameCells = $root.find(".agents-table tbody td:nth-child(3)");
 
       return hostnameCells.map((_i, cell) => $(cell).find('.content').text()).toArray();
     };

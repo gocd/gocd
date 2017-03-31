@@ -860,7 +860,7 @@ ul.entity_title {
 }
 
 .build_detail .sidebar_history h4.entity_title {
-  padding:       11px 10px !important;
+  padding:       12px 10px !important;
   background:    $stage-history-head-bg;
   margin-bottom: 0 !important;;
   font-weight:   600;
@@ -1793,7 +1793,9 @@ tr.Cancelled, tr.cancelled-stage {
 
 .job_details_content .sub_tabs_container {
   margin-bottom: 0;
-  position:      relative;
+  position: relative;
+  float: left;
+  width: calc(100% - 272px);
 }
 
 a:link#link-to-this-page, a:visited#link-to-this-page {
@@ -1819,9 +1821,48 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 
 }
 
-.sidebar_history #build_history_holder {
-  padding:    0px 0px 0 !important;
-  box-shadow: none !important;
+.sidebar_history {
+  height: 43px;
+
+  #build_history_holder {
+    padding:    0px 0px 0 !important;
+    border-radius: 3px 3px 0px 0px;
+
+    .entity_title {
+      cursor: pointer;
+      -moz-user-select: none;
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      @include icon-after(caret-down,
+                          $size: 20px,
+                          $margin: 0,
+                          $line-height: 0.85em
+                          );
+
+      &:after {
+        float: right;
+        padding-right: 2px;
+      }
+    }
+
+    &.open #buildlist-container {
+      position: absolute;
+      z-index: 1;
+      top: 43px;
+      bottom: 0;
+      overflow: auto;
+      width: 257px;
+
+      .dropdown-menu {
+        background-color: #F5F5F5;
+        padding: 0;
+        position: static;
+        border-radius: 0;
+      }
+    }
+  }
 }
 
 .sidebar_history .passed .color_code_small {
@@ -2992,9 +3033,13 @@ button.edit-environment {
   padding: 0 30px;
 }
 
-.job_details_content .build_detail_container #tab-content-of-materials .material_revision {
-  padding:       20px !important;
-  margin-bottom: 0;
+.job_details_content .build_detail_container {
+  margin-right: 0px !important;
+  clear: left;
+  #tab-content-of-materials .material_revision {
+    padding:       20px !important;
+    margin-bottom: 0;
+  }
 }
 
 .overview_widget {

@@ -723,6 +723,7 @@ a.collapse-all {
 #build-status-panel .job_details_content {
   /*margin-right: 260px;*/
   overflow: hidden;
+  position: relative;
 }
 
 #build-status-panel .sub_tabs_container,

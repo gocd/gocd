@@ -32,9 +32,19 @@ public class Capabilities {
     @SerializedName("can_search")
     private final boolean canSearch;
 
-    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch) {
+    @Expose
+    @SerializedName("can_verify_connection")
+    private final boolean canVerifyConnection;
+
+    @Expose
+    @SerializedName("can_authorize")
+    private final boolean canAuthorize;
+
+    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch, boolean canVerifyConnection, boolean canAuthorize) {
         this.supportedAuthType = supportedAuthType;
         this.canSearch = canSearch;
+        this.canVerifyConnection = canVerifyConnection;
+        this.canAuthorize = canAuthorize;
     }
 
     public SupportedAuthType getSupportedAuthType() {
@@ -45,6 +55,13 @@ public class Capabilities {
         return canSearch;
     }
 
+    public boolean canVerifyConnection() {
+        return canVerifyConnection;
+    }
+
+    public boolean canAuthorize() {
+        return canAuthorize;
+    }
 
     public String toJSON() {
         return GSON.toJson(this);
@@ -52,5 +69,27 @@ public class Capabilities {
 
     public static Capabilities fromJSON(String json) {
         return GSON.fromJson(json, Capabilities.class);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Capabilities that = (Capabilities) o;
+
+        if (canSearch != that.canSearch) return false;
+        if (canVerifyConnection != that.canVerifyConnection) return false;
+        if (canAuthorize != that.canAuthorize) return false;
+        return supportedAuthType == that.supportedAuthType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = supportedAuthType != null ? supportedAuthType.hashCode() : 0;
+        result = 31 * result + (canSearch ? 1 : 0);
+        result = 31 * result + (canVerifyConnection ? 1 : 0);
+        result = 31 * result + (canAuthorize ? 1 : 0);
+        return result;
     }
 }

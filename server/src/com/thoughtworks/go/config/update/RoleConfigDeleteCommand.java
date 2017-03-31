@@ -38,9 +38,14 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
         }
 
         removeFromServerRole(preprocessedConfig, preprocessedRole);
+        removeFromAdmins(preprocessedConfig);
         removeFromAllGroups(preprocessedConfig);
         removeFromAllTemplates(preprocessedConfig);
         removeFromSecurity(preprocessedConfig);
+    }
+
+    private void removeFromAdmins(CruiseConfig preprocessedConfig) {
+        preprocessedConfig.server().security().adminsConfig().remove(new AdminRole(role.getName()));
     }
 
     private void removeFromSecurity(CruiseConfig preprocessedConfig) {

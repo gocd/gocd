@@ -15,8 +15,20 @@
  */
 
 define([
-  'mithril', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'js-routes', 'models/validatable_mixin', 'models/crud_mixins'
-], function (m, s, Mixins, PluginConfigurations, Routes, Validatable, CrudMixins) {
+  'mithril', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes', 'models/validatable_mixin'
+], function (m, s, Mixins, PluginConfigurations, mrequest, Routes, Validatable) {
+
+  var unwrapMessageOrEntity = function (originalEtag) {
+    return function (data, xhr) {
+      if (xhr.status === 422) {
+        var fromJSON = new ElasticProfiles.Profile.fromJSON(data.data);
+        fromJSON.etag(originalEtag);
+        return fromJSON;
+      } else {
+        return mrequest.unwrapErrorExtractMessage(data, xhr);
+      }
+    };
+  };
 
   var ElasticProfiles = function (data) {
     Mixins.HasMany.call(this, {
@@ -27,13 +39,17 @@ define([
     });
   };
 
-  CrudMixins.Index({
-    type:     ElasticProfiles,
-    indexUrl: Routes.apiv1ElasticProfilesPath(),
-    version:  'v1',
-    dataPath: '_embedded.profiles'
-  });
-
+  ElasticProfiles.all = function () {
+    return m.request({
+      method:        "GET",
+      url:           Routes.apiv1ElasticProfilesPath(),
+      config:        mrequest.xhrConfig.v1,
+      unwrapSuccess: function (data) {
+        return ElasticProfiles.fromJSON(data['_embedded']['profiles']);
+      },
+      unwrapError:   mrequest.unwrapErrorExtractMessage
+    });
+  };
 
   ElasticProfiles.Profile = function (data) {
     this.id         = m.prop(s.defaultToIfBlank(data.id, ''));
@@ -48,18 +64,57 @@ define([
     this.validatePresenceOf('id');
     this.validatePresenceOf('pluginId');
 
-    CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
-      type:        ElasticProfiles.Profile,
-      indexUrl:    Routes.apiv1ElasticProfilesPath(),
-      resourceUrl: function (id) {
-        return Routes.apiv1ElasticProfilePath(id);
-      },
-      version:     'v1'
-    });
+    this.update = function () {
+      var self = this;
+      return m.request({
+        method:      'PUT',
+        url:         Routes.apiv1ElasticProfilePath(this.id()),
+        config:      function (xhr) {
+          mrequest.xhrConfig.v1(xhr);
+          xhr.setRequestHeader('If-Match', self.etag());
+        },
+        data:        JSON.parse(JSON.stringify(self, s.snakeCaser)),
+        unwrapError: unwrapMessageOrEntity(self.etag())
+      });
+    };
+
+    this.delete = function () {
+      return m.request({
+        method:        "DELETE",
+        url:           Routes.apiv1ElasticProfilePath(this.id()),
+        config:        mrequest.xhrConfig.v1,
+        unwrapSuccess: function (data, xhr) {
+          if (xhr.status === 200) {
+            return data.message;
+          }
+        },
+        unwrapError:   mrequest.unwrapErrorExtractMessage
+      });
+    };
+
+    this.create = function () {
+      return m.request({
+        method:      'POST',
+        url:         Routes.apiv1ElasticProfilesPath(),
+        config:      mrequest.xhrConfig.v1,
+        data:        JSON.parse(JSON.stringify(this, s.snakeCaser)),
+        unwrapError: unwrapMessageOrEntity()
+      });
+    };
   };
 
   ElasticProfiles.Profile.get = function (id) {
-    return new ElasticProfiles.Profile({id: id}).refresh();
+    return m.request({
+      method:        'GET',
+      url:           Routes.apiv1ElasticProfilePath(id),
+      config:        mrequest.xhrConfig.v1,
+      unwrapSuccess: function (data, xhr) {
+        var entity = ElasticProfiles.Profile.fromJSON(data);
+        entity.etag(xhr.getResponseHeader('ETag'));
+        return entity;
+      },
+      unwrapError:   mrequest.unwrapErrorExtractMessage
+    });
   };
 
   ElasticProfiles.Profile.create = function (data) {

@@ -20,6 +20,7 @@ const Mixins                    = require('models/mixins/model_mixins');
 const Routes                    = require('gen/js-routes');
 const CrudMixins                = require('models/mixins/crud_mixins');
 const PluggableInstanceSettings = require('models/shared/plugin_infos/pluggable_instance_settings');
+const Capabilities              = require('models/shared/plugin_infos/capabilities');
 const About                     = require('models/shared/plugin_infos/about');
 
 const PluginInfos = function (data) {
@@ -48,7 +49,7 @@ CrudMixins.Index({
   dataPath: '_embedded.plugin_info'
 });
 
-PluginInfos.PluginInfo = function(type, {id, version, about, imageUrl}) {
+PluginInfos.PluginInfo = function (type, {id, version, about, imageUrl}) {
   this.constructor.modelType = 'pluginInfo';
   this.parent                = Mixins.GetterSetter();
   Mixins.HasUUID.call(this);
@@ -132,6 +133,8 @@ PluginInfos.PluginInfo.Authorization = function (data) {
 
   this.authConfigSettings = Stream(data.authConfigSettings);
   this.roleSettings       = Stream(data.roleSettings);
+  this.capabilities       = Stream(data.capabilities);
+
 };
 
 PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Authorization({
@@ -140,6 +143,7 @@ PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.P
   about:              About.fromJSON(data.about),
   authConfigSettings: PluggableInstanceSettings.fromJSON(data.auth_config_settings),
   roleSettings:       PluggableInstanceSettings.fromJSON(data.role_settings),
+  capabilities:       Capabilities.fromJSON(data.capabilities),
   imageUrl:           _.get(data, '_links.image.href'),
 });
 

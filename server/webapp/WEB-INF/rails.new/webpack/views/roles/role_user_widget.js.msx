@@ -1,0 +1,104 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const m     = require('mithril');
+const Roles = require('models/roles/roles');
+
+const RoleUserWidget = {
+  oninit(vnode) {
+
+    this.updateRole = (role, users) => {
+      const newRole = new Roles.Role({name: role.name(), users});
+      newRole.etag(role.etag());
+      vnode.attrs.role(newRole);
+    };
+
+    this.deleteUser = (user) => {
+      const role  = vnode.attrs.role();
+      const users = role.users();
+      const index = users.indexOf(user);
+
+      if (index > -1) {
+        users.splice(index, 1);
+        this.updateRole(role, users);
+      }
+    };
+
+    this.onInputChange = (e) => {
+      const key = e.which || e.keyCode;
+      if (key === 13) {
+        const currentTarget = (e || event).currentTarget;
+        const username      = currentTarget.value || currentTarget.getAttribute('value');
+        currentTarget.value = "";
+        this.addUser(username);
+      }
+    };
+
+    this.addUser = (username) => {
+      const users = vnode.attrs.role().users();
+      users.push(username);
+      this.updateRole(vnode.attrs.role(), users);
+    };
+  },
+
+  view (vnode) {
+    const role     = vnode.attrs.role;
+    const editable = new Boolean(vnode.attrs.editable);
+    let showState  = vnode.attrs.showState;
+
+    if (!showState) {
+      showState = 'hide';
+    }
+
+    if (!role().users() || role().users().length === 0) {
+      return;
+    }
+
+    let addUserInput;
+    if (editable.valueOf()) {
+      addUserInput = (
+        <span>
+          <input onkeyup={vnode.state.onInputChange.bind(vnode.state)}/>
+        </span>
+      );
+    }
+
+    this.getDeleteButton = (user) => {
+      if (editable.valueOf()) {
+        return (<span aria-hidden="true" class="role-user-delete-icon"
+                      onclick={vnode.state.deleteUser.bind(vnode.state, user)}>&times;</span>);
+      }
+    };
+
+    return (
+      <div class={`role-read-only row ${showState}`}>
+        {
+          role().users().map((user) => {
+            return (
+              <div data-alert class="tag">
+                {user}
+                {this.getDeleteButton(user)}
+              </div>
+            );
+          })
+        }
+        {addUserInput}
+      </div>);
+  }
+};
+
+module.exports = RoleUserWidget;
+
+

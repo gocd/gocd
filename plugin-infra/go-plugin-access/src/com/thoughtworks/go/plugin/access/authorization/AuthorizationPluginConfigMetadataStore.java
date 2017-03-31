@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
+import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
 import com.thoughtworks.go.plugin.access.common.PluginConfigMetadataStore;
@@ -29,6 +30,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.EXTENSION_NAME;
+import static java.lang.String.format;
 
 @Component
 public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadataStore<AuthorizationPluginRegistry> {
@@ -51,7 +55,9 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
             PluginProfileMetadataKeys authConfigMetadata = extension.getPluginConfigurationMetadata(plugin.id());
             String authConfigView = extension.getPluginConfigurationView(plugin.id());
 
-            cacheRoleMetadataAndView(plugin, extension);
+            if (capabilities.canAuthorize()) {
+                cacheRoleMetadataAndView(plugin, extension);
+            }
 
             this.icons.put(plugin, icon);
             this.authConfigMetadata.put(plugin, authConfigMetadata);
@@ -142,5 +148,22 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
 
     public Set<String> getPluginsThatSupportsWebBasedAuthentication() {
         return getPluginsThatSupports(SupportedAuthType.Web);
+    }
+
+    public boolean canAuthorize(String pluginId) {
+        final PluginDescriptor pluginDescriptor = pluginDescriptor(pluginId);
+        return this.capabilities.get(pluginDescriptor).canAuthorize();
+    }
+
+    private PluginDescriptor pluginDescriptor(final String pluginId) {
+        for (PluginDescriptor pluginDescriptor : this.capabilities.keySet()) {
+            if (pluginDescriptor.id().equals(pluginId))
+                return pluginDescriptor;
+        }
+        throw new PluginNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", EXTENSION_NAME, pluginId));
+    }
+
+    public Capabilities getCapabilities(PluginDescriptor descriptor) {
+        return this.capabilities.get(descriptor);
     }
 }

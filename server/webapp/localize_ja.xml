@@ -754,7 +754,7 @@
 	<entry key="NEW_GLOBAL_PACKAGE_WARNING">The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.</entry>
     <entry key="PACKAGE_REPOSITORY_NOT_FOUND">Could not find the repository with id ''{0}''. It might have been deleted.</entry>
     <entry key="CONNECTION_OK">Connection OK. {0}</entry>
-    <entry key="PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED">Could not connect to package repository. Reason(s): {0}</entry>
+    <entry key="CHECK_CONNECTION_FAILED">Could not connect to {0}. Reason(s): {1}</entry>
     <entry key="MANDATORY_CONFIGURATION_FIELD_WITH_NAME">Field: '{0}' is required</entry>
     <entry key="PACKAGE_CHECK_FAILED">Package check Failed. Reason(s): {0}</entry>
     <entry key="CHECK_PACKAGE">CHECK PACKAGE</entry>

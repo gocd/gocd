@@ -183,7 +183,7 @@ RSpec::Matchers.define :allow_action do |verb, expected_action, params={}, heade
     end
 
     if @exception
-      messages << "An exception was raised #{exception.message}."
+      messages << "An exception was raised #{@exception.message}."
     end
 
     messages.join("\n")
@@ -235,7 +235,7 @@ RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, he
     end
 
     if @exception
-      messages << "An exception was raised #{exception.message}."
+      messages << "An exception was raised #{@exception.message}."
     end
 
     if @failed_with_bad_status

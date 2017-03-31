@@ -16,8 +16,9 @@
 
 module ApiV1
   module Elastic
-    class ProfileRepresenter < ApiV1::BaseRepresenter
+    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
       alias_method :profile, :represented
+
 
       link :self do |opts|
         opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
@@ -31,23 +32,6 @@ module ApiV1
         opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
       end
 
-      error_representer(
-        {
-          'pluginId'     => 'plugin_id'
-        }
-      )
-      property :id
-      property :plugin_id
-
-      collection :properties, exec_context: :decorator, decorator: ApiV1::Config::PluginConfigurationPropertyRepresenter, class: ConfigurationProperty
-
-      def properties
-        profile.to_a
-      end
-
-      def properties=(new_properties)
-        profile.addConfigurations(new_properties)
-      end
     end
   end
 end

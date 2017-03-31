@@ -53,7 +53,7 @@ define([
     };
 
     this.hasOnCancelTask = function () {
-      return ! _.isNil(this.onCancelTask);
+      return !_.isNil(this.onCancelTask);
     };
 
     this.onCancelTaskToJSON = function () {
@@ -87,7 +87,7 @@ define([
       /* eslint-enable camelcase */
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
@@ -99,7 +99,7 @@ define([
       };
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
   };
@@ -118,12 +118,12 @@ define([
 
   Tasks.Task.NAnt = function (data) {
     Tasks.Task.call(this, "nant", data);
-    this.target            = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDirectory  = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
-    this.buildFile         = m.prop(s.defaultToIfBlank(data.buildFile, ''));
-    this.nantPath          = m.prop(s.defaultToIfBlank(data.nantPath, ''));
-    this.runIf             = m.prop(RunIfConditions.create(data.runIf));
-    this.onCancelTask      = Tasks.Task.onCancelTask(data.onCancelTask);
+    this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
+    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
+    this.nantPath         = m.prop(s.defaultToIfBlank(data.nantPath, ''));
+    this.runIf            = m.prop(RunIfConditions.create(data.runIf));
+    this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
       /* eslint-disable camelcase */
@@ -138,7 +138,7 @@ define([
       /* eslint-enable camelcase */
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
@@ -151,7 +151,7 @@ define([
       };
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
   };
@@ -197,11 +197,11 @@ define([
     this.summary = function () {
       return {
         command: this.command(),
-        args   : this.args().toString()
+        args:    this.args().toString()
       };
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.command(), this.args().toString()]));
     };
   };
@@ -239,7 +239,7 @@ define([
       /* eslint-enable camelcase */
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
@@ -251,7 +251,7 @@ define([
       };
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
   };
@@ -286,19 +286,19 @@ define([
     this._attributesToJSON = function () {
       /* eslint-disable camelcase */
       return {
-        pipeline:          this.pipeline,
-        stage:             this.stage,
-        job:               this.job,
-        source:            this.source,
-        is_source_a_file:  this.isSourceAFile,
-        destination:       this.destination,
-        run_if:            this.runIf().data(),
-        on_cancel:         this.onCancelTaskToJSON()
+        pipeline:         this.pipeline,
+        stage:            this.stage,
+        job:              this.job,
+        source:           this.source,
+        is_source_a_file: this.isSourceAFile,
+        destination:      this.destination,
+        run_if:           this.runIf().data(),
+        on_cancel:        this.onCancelTaskToJSON()
       };
       /* eslint-enable camelcase */
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.pipeline(), this.stage(), this.job()], ' ');
     };
 
@@ -312,7 +312,7 @@ define([
       };
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.pipeline(), this.stage(), this.job()]));
     };
   };
@@ -342,12 +342,12 @@ define([
     this.runIf         = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask  = Tasks.Task.onCancelTask(data.onCancelTask);
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return this.configuration().isEmptyConfiguration();
     };
 
-    this.toString = function() {
-      return _.join(this.configuration().mapConfigurations(function(configuration) {
+    this.toString = function () {
+      return _.join(this.configuration().mapConfigurations(function (configuration) {
         return _.join([configuration.key(), ':', ' ', configuration.value()], '');
       }), ' ');
     };
@@ -369,9 +369,9 @@ define([
           id:      this.pluginId,
           version: this.version
         },
-        configuration: this.configuration,
-        run_if:        this.runIf().data(),
-        on_cancel:     this.onCancelTaskToJSON()
+        configuration:        this.configuration,
+        run_if:               this.runIf().data(),
+        on_cancel:            this.onCancelTaskToJSON()
       };
       /* eslint-enable camelcase */
     };
@@ -393,7 +393,7 @@ define([
     return new Tasks.Task.PluginTask({
       pluginId:      pluginInfo.id(),
       version:       pluginInfo.version(),
-      configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.configurations())
+      configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.profileSettings().configurations)
     });
   };
 
@@ -431,8 +431,8 @@ define([
     }
   };
 
-  Tasks.Task.onCancelTask = function(data) {
-    if(data) {
+  Tasks.Task.onCancelTask = function (data) {
+    if (data) {
       return Tasks.Task.fromJSON(data);
     }
     return null;

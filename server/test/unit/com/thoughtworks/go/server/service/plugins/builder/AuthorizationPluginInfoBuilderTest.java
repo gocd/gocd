@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
+import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadata;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
@@ -26,6 +28,7 @@ import com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -38,6 +41,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AuthorizationPluginInfoBuilderTest {
+
+    private Capabilities capabilities;
+
+    @Before
+    public void setUp() throws Exception {
+        capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
+    }
+
     @Test
     public void pluginInfoFor_ShouldProvidePluginInfoForAPlugin() throws Exception {
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "12.4", "Validates its own plugin descriptor",
@@ -59,6 +70,8 @@ public class AuthorizationPluginInfoBuilderTest {
         when(store.getIcon(plugin)).thenReturn(image);
         when(store.getProfileView(plugin)).thenReturn(securityAuthConfigView);
         when(store.getRoleView(plugin)).thenReturn(roleConfigView);
+        when(store.getCapabilities(plugin)).thenReturn(capabilities);
+        when(store.canAuthorize(plugin.id())).thenReturn(capabilities.canAuthorize());
 
         AuthorizationPluginInfoBuilder builder = new AuthorizationPluginInfoBuilder(store);
         AuthorizationPluginInfo pluginInfo = builder.pluginInfoFor(plugin.id());
@@ -66,7 +79,7 @@ public class AuthorizationPluginInfoBuilderTest {
         PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(PluginConfiguration.getPluginConfigurations(securityAuthConfigMetadata), new PluginView(securityAuthConfigView));
         PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(PluginConfiguration.getPluginConfigurations(roleConfigMetadata), new PluginView(roleConfigView));
 
-        assertEquals(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings, image), pluginInfo);
+        assertEquals(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings, image, capabilities), pluginInfo);
     }
 
     @Test
@@ -101,6 +114,8 @@ public class AuthorizationPluginInfoBuilderTest {
         when(store.getIcon(plugin)).thenReturn(image);
         when(store.getProfileView(plugin)).thenReturn(securityAuthConfigView);
         when(store.getRoleView(plugin)).thenReturn(roleConfigView);
+        when(store.getCapabilities(plugin)).thenReturn(capabilities);
+        when(store.canAuthorize(plugin.id())).thenReturn(capabilities.canAuthorize());
 
         AuthorizationPluginInfoBuilder builder = new AuthorizationPluginInfoBuilder(store);
         Collection<AuthorizationPluginInfo> pluginInfos = builder.allPluginInfos();
@@ -108,6 +123,6 @@ public class AuthorizationPluginInfoBuilderTest {
         PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(PluginConfiguration.getPluginConfigurations(securityAuthConfigMetadata), new PluginView(securityAuthConfigView));
         PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(PluginConfiguration.getPluginConfigurations(roleConfigMetadata), new PluginView(roleConfigView));
 
-        assertEquals(Arrays.asList(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings, image)), pluginInfos);
+        assertEquals(Arrays.asList(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings, image, capabilities)), pluginInfos);
     }
 }

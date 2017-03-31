@@ -115,13 +115,15 @@ if [ "$PRODUCTION_MODE" == "Y" ]; then
     if [ -d /var/log/${SERVICE_NAME} ]; then
         LOG_DIR=/var/log/${SERVICE_NAME}
     else
-	    LOG_DIR=$AGENT_WORK_DIR
+	    LOG_DIR="${AGENT_WORK_DIR}/logs"
     fi
 else
-    LOG_DIR=$AGENT_WORK_DIR
+    LOG_DIR="${AGENT_WORK_DIR}/logs"
 fi
 
-STDOUT_LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log
+mkdir -p "${LOG_DIR}"
+
+STDOUT_LOG_FILE="${LOG_DIR}/${SERVICE_NAME}-bootstrapper.out.log"
 
 if [ "$PID_FILE" ]; then
     echo "[$(date)] Use PID_FILE: $PID_FILE"
@@ -169,6 +171,8 @@ eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
 AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")
 
 RUN_CMD=("$(autoDetectJavaExecutable)" "-jar" "$AGENT_DIR/agent-bootstrapper.jar" "-serverUrl" "$(autoDetectGoServerUrl)" "${AGENT_BOOTSTRAPPER_ARGS[@]}")
+
+mkdir -p "$(dirname "$STDOUT_LOG_FILE")"
 
 echo "[$(date)] Starting Go Agent Bootstrapper with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
 echo "[$(date)] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$STDOUT_LOG_FILE"

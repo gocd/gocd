@@ -16,16 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
@@ -38,6 +28,16 @@ import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
@@ -172,7 +172,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return svnInfo;
     }
 
-    public SubversionRevision checkoutTo(ProcessOutputStreamConsumer outputStreamConsumer, File targetFolder,
+    public SubversionRevision checkoutTo(ConsoleOutputStreamConsumer outputStreamConsumer, File targetFolder,
                                          SubversionRevision revision) {
         CommandLine command = svn(true)
                 .withArgs("checkout", "--non-interactive", "-r", revision.getRevision())
@@ -183,14 +183,14 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return null;
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File workingFolder,
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File workingFolder,
                          SubversionRevision targetRevision) {
         CommandLine command = svn(true).withArgs("update", "--non-interactive", "-r", targetRevision.getRevision(),
                 workingFolder.getAbsolutePath());
         executeCommand(command, outputStreamConsumer);
     }
 
-    public void cleanupAndRevert(ProcessOutputStreamConsumer outputStreamConsumer, File workingFolder) {
+    public void cleanupAndRevert(ConsoleOutputStreamConsumer outputStreamConsumer, File workingFolder) {
         CommandLine command = svn(false).withArgs("cleanup", workingFolder.getAbsolutePath());
         executeCommand(command, outputStreamConsumer);
         command = svn(false).withArgs("revert", "--recursive", workingFolder.getAbsolutePath());
@@ -227,7 +227,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return runOrBomb(svnCmd);
     }
 
-    private int executeCommand(CommandLine svnCmd, ProcessOutputStreamConsumer outputStreamConsumer) {
+    private int executeCommand(CommandLine svnCmd, ConsoleOutputStreamConsumer outputStreamConsumer) {
         int returnValue = run(svnCmd, outputStreamConsumer);
         if (returnValue != 0) {
             throw new RuntimeException("Failed to run " + svnCmd.toStringForDisplay());
@@ -258,12 +258,12 @@ public class SvnCommand extends SCMCommand implements Subversion {
         }
     }
 
-    public void add(ProcessOutputStreamConsumer output, File file) {
+    public void add(ConsoleOutputStreamConsumer output, File file) {
         CommandLine line = svn(false).withArgs("add", file.getAbsolutePath());
         executeCommand(line, output);
     }
 
-    public void commit(ProcessOutputStreamConsumer output, File workingDir, String message) {
+    public void commit(ConsoleOutputStreamConsumer output, File workingDir, String message) {
         CommandLine line = svn(true).withArgs("commit", "--non-interactive", "-m", message,
                 workingDir.getAbsolutePath());
         executeCommand(line, output);

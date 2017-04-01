@@ -16,29 +16,24 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
-import static com.thoughtworks.go.config.RunIfConfig.PASSED;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
 
 @RunWith(JunitExtRunner.class)
 public class BuilderTest {
@@ -53,7 +48,7 @@ public class BuilderTest {
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldReportErrorWhenCancelCommandDoesNotExists() throws Exception {
+    public void shouldReportErrorWhenCancelCommandDoesNotExist() throws Exception {
 
         StubBuilder stubBuilder = new StubBuilder();
 
@@ -71,7 +66,7 @@ public class BuilderTest {
     }
 
     @Test
-    public void shouldRunCancelBuilderWhenCancelled() throws Exception {
+    public void shouldRunCancelBuilderWhenCanceled() throws Exception {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
@@ -80,38 +75,14 @@ public class BuilderTest {
     }
 
     @Test
-    public void shouldLogToConsoleOutWhenCancelling() {
+    public void shouldLogToConsoleOutWhenCanceling() {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
         builder.cancel(goPublisher, environmentVariableContext, null);
 
-        assertThat(goPublisher.getMessage(), containsString("Start to execute cancel task"));
-        assertThat(goPublisher.getMessage(), containsString("Task is cancelled"));
-    }
-
-    @Test
-    public void shouldNotBuildIfTheJobIsCancelled() throws Exception {
-        CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED),
-                new StubBuilder(),
-                "");
-
-        builder.build(new BuildLogElement(), PASSED, goPublisher, environmentVariableContext, null);
-
-        assertThat(goPublisher.getMessage(), is(""));
-    }
-
-    private class StubBuilder extends Builder {
-        boolean wasCalled;
-
-        public StubBuilder() {
-            super(null, null, "");
-        }
-
-        public void build(BuildLogElement buildElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
-            wasCalled = true;
-        }
+        assertThat(goPublisher.getMessage(), containsString("On Cancel Task"));
+        assertThat(goPublisher.getMessage(), containsString("On Cancel Task completed"));
     }
 
 }

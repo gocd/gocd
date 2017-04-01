@@ -20,4 +20,8 @@ public interface ConsoleOutputStreamConsumer<T extends StreamConsumer, T2 extend
     void stdOutput(String line);
 
     void errOutput(String line);
+
+    void taggedStdOutput(String tag, String line);
+
+    void taggedErrOutput(String tag, String line);
 }

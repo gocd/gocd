@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "font-awesome/variables";
 @import "../new_stylesheets/shared/go-variables";
 @import "css_sass/base/mixins";
 @import '_font-awesome-glyphs';
@@ -29,6 +30,7 @@ $sidebar-color: #555;
 $sidebar-width: 257px;
 $sidebar-border: 10px;
 $page-margin: 15px;
+$CONSOLE_ACTION_BAR_ACTIVE: #79f582;
 
 #build_detail_summary_container {
   zoom: 1;
@@ -281,6 +283,12 @@ div.build_detail_container_content {
   }
 }
 
+.console-area.with-timestamps {
+  .toggle-timestamps {
+    color: $CONSOLE_ACTION_BAR_ACTIVE;
+  }
+}
+
 @mixin console-action() {
   min-height: 25px;
   background-color: rgba(#333, 0.6);
@@ -295,7 +303,7 @@ div.build_detail_container_content {
 
     &.tailing {
       background-image: image-url('scroll_on.png');
-      color: #79f582;
+      color: $CONSOLE_ACTION_BAR_ACTIVE;
     }
   }
 
@@ -412,55 +420,6 @@ div.build_detail_container_content {
   100% {
     @include -go-opacity(100);
   }
-}
-
-.buildoutput_pre {
-  $height-of-non-console-log-elements: 500px;
-  overflow: auto;
-
-  white-space: pre;
-  white-space: pre-wrap;
-  word-break: break-all;
-  word-wrap: break-word;
-
-  padding-left: 10px;
-  padding-bottom: 35px;
-
-  min-height: 800px; // ie < 8
-  min-height: calc(100vh - #{$height-of-non-console-log-elements});
-
-  background-color: #333;
-  color: white;
-
-  .white-theme & {
-    background-color: white;
-    color: black;
-  }
-
-  * {
-    font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
-    font-size: 13px;
-    line-height: 19px;
-  }
-
-  @each $color in black, red, green, yellow, blue, magenta, cyan, white {
-    .ansi-#{$color}-fg {
-      color: $color;
-    }
-
-    .ansi-#{$color}-bg {
-      background-color: $color;
-    }
-
-    .ansi-bright-#{$color}-fg {
-      color: lighten($color, 33%);
-    }
-
-    .ansi-bright-#{$color}-bg {
-      background-color: lighten($color, 33%);
-    }
-  }
-
 }
 
 .tests li {

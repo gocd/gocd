@@ -74,7 +74,7 @@
                 <div class="clear"></div>
               </div>
 
-              <div class="job_details_content">
+              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-stage="${presenter.stageName}" data-job="${presenter.id}" data-build="${presenter.buildName}" data-result="$presenter.result">
                 <div class="sub_tabs_container">
                   <ul>
                     <li class="current_tab" id="build_console">
@@ -159,40 +159,4 @@
   </div>
 </div>
 </div>
-<script type="text/javascript">
-  var cruise_stage_or_build_detail_page_status = '$presenter.result';
-  var subtab_callback_map = {
-    'console':  new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#build_console')[0]),
-    'failures': new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#failures_console')[0])
-  };
-  var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
-
-  var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}', function (jobstatus_json_array) {
-    return jobstatus_json_array[0].building_info.is_completed.toString() == "true"
-  });
-  var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}');
-  dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
-  dashboard_periodical_executer.start();
-
-  observer.update_live_output();
-
-  jQuery(function () {
-    jQuery(document).on('click.changeTheme', '.change-theme', function (evt) {
-      jQuery('.sub_tab_container_content').toggleClass('white-theme')
-    });
-  });
-
-  jQuery(function() {
-    jQuery(document).on("click.fullScreen", '#full-screen', function () {
-      jQuery(".content_wrapper_outer").toggleClass("full-screen");
-      jQuery("#cruise_message_counts").toggleClass("hide");
-      jQuery(window).trigger(jQuery.Event("resetPinOnScroll"), [{
-        calcRequiredScroll: function() {
-          return jQuery(".console-area").offset().top - jQuery("#header").outerHeight(true) - jQuery(".page_header").outerHeight(true);
-        }
-      }]);
-    });
-  });
-
-</script>
 #parse("shared/_footer.vm")

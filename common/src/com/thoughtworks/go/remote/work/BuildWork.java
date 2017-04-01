@@ -31,10 +31,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.PasswordArgument;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
+import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -105,10 +102,9 @@ public class BuildWork implements Work {
     }
 
     private void reportFailure(Exception e) {
-        try{
+        try {
             goPublisher.reportErrorMessage(messageOf(e), e);
-        }
-        catch (Exception reportException) {
+        } catch (Exception reportException) {
             LOGGER.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
         reportCompletion(JobResult.Failed);
@@ -157,7 +153,7 @@ public class BuildWork implements Work {
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
         Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
         List<String> report = environmentVariableContext.report(processLevelEnvVariables);
-        SafeOutputStreamConsumer safeOutput = safeOutputStreamConsumer(environmentVariableContext);
+        ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, safeOutputStreamConsumer(environmentVariableContext));
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
             safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);
@@ -173,21 +169,21 @@ public class BuildWork implements Work {
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-        goPublisher.reportAction("Start to prepare");
+        goPublisher.reportAction(DefaultGoPublisher.PREP, "Start to prepare");
         goPublisher.reportCurrentStatus(Preparing);
 
         createWorkingDirectoryIfNotExist(workingDirectory);
         if (!plan.shouldFetchMaterials()) {
-            goPublisher.consumeLineWithPrefix("Skipping material update since stage is configured not to fetch materials");
+            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Skipping material update since stage is configured not to fetch materials");
             return;
         }
 
-        ProcessOutputStreamConsumer<GoPublisher, GoPublisher> consumer = processOutputStreamConsumer();
+        ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, processOutputStreamConsumer());
         MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 
-        goPublisher.consumeLineWithPrefix("Start to update materials.\n");
+        goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Start to update materials.\n");
 
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
             materialAgentFactory.createAgent(revision).prepare();
@@ -200,7 +196,7 @@ public class BuildWork implements Work {
 
     private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
         context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
-        context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
+        context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover(), false);
         plan.getIdentifier().populateEnvironmentVariables(context);
         materialRevisions.populateEnvironmentVariables(context, workingDirectory);
         return context;
@@ -217,7 +213,8 @@ public class BuildWork implements Work {
             return;
         }
 
-        goPublisher.consumeLineWithPrefix(format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
+        String tag = result.isPassed() ? DefaultGoPublisher.JOB_PASS : DefaultGoPublisher.JOB_FAIL;
+        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(Completing);
         goPublisher.reportAction("Start to create properties");

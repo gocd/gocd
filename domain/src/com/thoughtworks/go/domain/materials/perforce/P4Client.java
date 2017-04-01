@@ -16,21 +16,17 @@
 
 package com.thoughtworks.go.domain.materials.perforce;
 
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.SCMCommand;
+import com.thoughtworks.go.util.command.*;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.SCMCommand;
-import com.thoughtworks.go.util.command.ProgramExitCode;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.PasswordArgument;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.apache.log4j.Logger;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 
@@ -45,11 +41,11 @@ public class P4Client extends SCMCommand {
     private boolean loggedIn;
 
     public static P4Client fromServerAndPort(String materialFingerprint, String serverAndPort, String userName, String password,
-                                             String clientName, boolean useTickets, File workingdir, String p4view, ProcessOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+                                             String clientName, boolean useTickets, File workingdir, String p4view, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
         return new P4Client(materialFingerprint,serverAndPort, userName, password, clientName,useTickets, workingdir, p4view, consumer, failOnError);
     }
 
-    private P4Client(String materialFingerprint, String serverAndPort, String userName, String password, String p4ClientName, boolean useTickets, File workingDirectory, String p4view, ProcessOutputStreamConsumer consumer,
+    private P4Client(String materialFingerprint, String serverAndPort, String userName, String password, String p4ClientName, boolean useTickets, File workingDirectory, String p4view, ConsoleOutputStreamConsumer consumer,
                      boolean failOnError) throws Exception {
         super(materialFingerprint);
         this.p4Port = serverAndPort;
@@ -79,7 +75,7 @@ public class P4Client extends SCMCommand {
         return execute(p4);
     }
 
-    public int client(String clientSpec, ProcessOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+    public int client(String clientSpec, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
         return execute(p4("client", "-i"), clientSpec, consumer, failOnError);
     }
 
@@ -102,7 +98,7 @@ public class P4Client extends SCMCommand {
         return Modifications.filterOutRevision(parser.modifications(result), revision);
     }
 
-    public void sync(long revision, boolean shouldForce, ProcessOutputStreamConsumer outputStreamConsumer) {
+    public void sync(long revision, boolean shouldForce, ConsoleOutputStreamConsumer outputStreamConsumer) {
         if (shouldForce) {
             execute(p4("sync", "-f", clientView() + "@" + revision), "", outputStreamConsumer, true);
         } else {
@@ -122,7 +118,7 @@ public class P4Client extends SCMCommand {
         return result;
     }
 
-    int execute(CommandLine p4, String input, ProcessOutputStreamConsumer outputStreamConsumer, boolean failOnError) {
+    int execute(CommandLine p4, String input, ConsoleOutputStreamConsumer outputStreamConsumer, boolean failOnError) {
         login();
         int returnCode = run(p4, outputStreamConsumer, input);
         if (failOnError) {

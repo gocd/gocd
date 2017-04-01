@@ -76,4 +76,9 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
     public void consumeLine(String line, JobIdentifier jobIdentifier) {
 
     }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier) {
+
+    }
 }

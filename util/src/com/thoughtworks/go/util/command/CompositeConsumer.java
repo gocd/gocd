@@ -16,28 +16,44 @@
 
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CompositeConsumer implements StreamConsumer {
+/**
+ * CompositeConsumer multicasts strings to any set of {@link StreamConsumer} or {@link TaggedStreamConsumer} instances
+ */
+public class CompositeConsumer implements TaggedStreamConsumer {
     private List<StreamConsumer> consumers = new LinkedList<>();
+    private String defaultTag;
 
-    /**
-     * Creates a new instance of CompositeConsumer.
-     */
-    public CompositeConsumer(StreamConsumer... consumers) {
+    public CompositeConsumer(String defaultTag, StreamConsumer... consumers) {
+        this.defaultTag = defaultTag;
         this.consumers.addAll(Arrays.asList(consumers));
     }
 
-    /** {@inheritDoc} */
-    public void consumeLine(String line) {
+    public CompositeConsumer(StreamConsumer... consumers) {
+        this(null, consumers);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
         Iterator i = consumers.iterator();
         while (i.hasNext()) {
-            ((StreamConsumer) i.next()).consumeLine(line);
+            StreamConsumer consumer = (StreamConsumer) i.next();
+            if (null != tag && consumer instanceof TaggedStreamConsumer) {
+                ((TaggedStreamConsumer) consumer).taggedConsumeLine(tag, line);
+            } else {
+                consumer.consumeLine(line);
+            }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void consumeLine(String line) {
+        taggedConsumeLine(defaultTag, line);
     }
 }

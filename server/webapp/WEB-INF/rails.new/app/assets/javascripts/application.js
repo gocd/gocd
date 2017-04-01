@@ -57,7 +57,7 @@
 //= require "lib/ui.dialog-1.7.3.js"
 //= require "lib/ansi_up.js"
 //= require "lib/lodash.js"
-//= require "build_base_observer.js"
+//= require "crel.js"
 //= require "json_to_css.js"
 //= require "util.js"
 //= require "micro_content_popup.js"

@@ -167,7 +167,7 @@ public class AgentRemoteHandlerTest {
         JobIdentifier jobIdentifier = new JobIdentifier();
         String consoleLine = "wubba lubba dub dub!!!!!";
         File consoleFile = new File("/some/dir");
-        ConsoleTransmission msg = new ConsoleTransmission(consoleLine, jobIdentifier);
+        ConsoleTransmission msg = new ConsoleTransmission(null, consoleLine, jobIdentifier);
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(consoleFile);
 
         handler.process(agent, new Message(Action.consoleOut, MessageEncoding.encodeData(msg)));

@@ -14,7 +14,7 @@ class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
     private JobRunner runner;
     private WebSocketSessionHandler webSocketSessionHandler;
 
-    public BuildRepositoryRemoteAdapter(JobRunner runner, WebSocketSessionHandler webSocketSessionHandler) {
+    BuildRepositoryRemoteAdapter(JobRunner runner, WebSocketSessionHandler webSocketSessionHandler) {
         this.runner = runner;
         this.webSocketSessionHandler = webSocketSessionHandler;
     }
@@ -59,7 +59,12 @@ class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
 
     @Override
     public void consumeLine(String line, JobIdentifier jobIdentifier) {
-        ConsoleTransmission consoleTransmission = new ConsoleTransmission(line, jobIdentifier);
+        taggedConsumeLine(null, line, jobIdentifier);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier) {
+        ConsoleTransmission consoleTransmission = new ConsoleTransmission(tag, line, jobIdentifier);
         webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.consoleOut, MessageEncoding.encodeData(consoleTransmission)));
     }
 }

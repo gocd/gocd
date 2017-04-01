@@ -64,12 +64,12 @@
     var pipelineActions = new PipelineActions();
     var stageActions = new StageActions();
     var pipelineSelector = new PipelineSelector();
-    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineStatus.json');
+    var dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineStatus.json');
 
     var pipelineObserver = new PipelineObserver('pipelines');
-    dashboard_periodical_executer.register(pipelineObserver);
+    dashboard_periodical_executor.register(pipelineObserver);
 
-    dashboard_periodical_executer.start();
+    dashboard_periodical_executor.start();
 </script>
 
 #parse("shared/_footer.vm")

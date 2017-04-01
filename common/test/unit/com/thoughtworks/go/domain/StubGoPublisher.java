@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.work.DefaultGoPublisher;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 
 import static org.junit.Assert.fail;
 
@@ -40,6 +40,14 @@ public class StubGoPublisher extends DefaultGoPublisher {
     }
 
     protected void init() {
+    }
+
+    public void taggedConsumeLineWithPrefix(String tag, String message) {
+        this.message += message;
+    }
+
+    public void taggedConsumeLine(String tag, String message) {
+        this.message += message;
     }
 
     public void consumeLineWithPrefix(String message) {

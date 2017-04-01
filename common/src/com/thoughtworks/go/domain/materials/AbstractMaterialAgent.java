@@ -16,23 +16,25 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import com.thoughtworks.go.util.command.LabeledOutputStreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
+
+import java.io.File;
 
 public class AbstractMaterialAgent implements MaterialAgent {
     private MaterialRevision revision;
-    private ProcessOutputStreamConsumer consumer;
+    private ConsoleOutputStreamConsumer consumer;
     private File workingDirectory;
     private SubprocessExecutionContext execCtx;
 
     public AbstractMaterialAgent(MaterialRevision revision,
-                                 ProcessOutputStreamConsumer consumer,
+                                 ConsoleOutputStreamConsumer consumer,
                                  File workingDirectory, final SubprocessExecutionContext execCtx) {
         this.revision = revision;
-        this.consumer = consumer;
+        this.consumer = new LabeledOutputStreamConsumer(TaggedStreamConsumer.PREP, TaggedStreamConsumer.PREP_ERR, consumer);
         this.workingDirectory = workingDirectory;
         this.execCtx = execCtx;
     }

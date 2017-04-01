@@ -52,7 +52,7 @@ public class HgCommand extends SCMCommand {
     }
 
 
-    private boolean pull(ProcessOutputStreamConsumer outputStreamConsumer) {
+    private boolean pull(ConsoleOutputStreamConsumer outputStreamConsumer) {
         CommandLine hg = hg("pull", "-b", branch, "--config", String.format("paths.default=%s", url));
         return execute(hg, outputStreamConsumer) == 0;
     }
@@ -63,7 +63,7 @@ public class HgCommand extends SCMCommand {
     }
 
 
-    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, UrlArgument repositoryUrl) {
+    public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, UrlArgument repositoryUrl) {
         CommandLine hg = createCommandLine("hg").withArgs("clone").withArg("-b").withArg(branch).withArg(repositoryUrl)
                 .withArg(workingDir.getAbsolutePath()).withNonArgSecrets(secrets);
         return execute(hg, outputStreamConsumer);
@@ -73,28 +73,28 @@ public class HgCommand extends SCMCommand {
         execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets), repositoryURL.forDisplay());
     }
 
-    public void updateTo(Revision revision, ProcessOutputStreamConsumer outputStreamConsumer) {
+    public void updateTo(Revision revision, ConsoleOutputStreamConsumer outputStreamConsumer) {
         if (!pull(outputStreamConsumer) || !update(revision, outputStreamConsumer)) {
             bomb(format("Unable to update to revision [%s]", revision));
         }
     }
 
-    private boolean update(Revision revision, ProcessOutputStreamConsumer outputStreamConsumer) {
+    private boolean update(Revision revision, ConsoleOutputStreamConsumer outputStreamConsumer) {
         CommandLine hg = hg("update", "--clean", "-r", revision.getRevision());
         return execute(hg, outputStreamConsumer) == 0;
     }
 
-    public void add(ProcessOutputStreamConsumer outputStreamConsumer, File file) {
+    public void add(ConsoleOutputStreamConsumer outputStreamConsumer, File file) {
         CommandLine hg = hg("add", file.getAbsolutePath());
         execute(hg, outputStreamConsumer);
     }
 
-    public void commit(ProcessOutputStreamConsumer consumer, String comment, String username) {
+    public void commit(ConsoleOutputStreamConsumer consumer, String comment, String username) {
         CommandLine hg = hg("commit", "-m", comment, "-u", username);
         execute(hg, consumer);
     }
 
-    public void push(ProcessOutputStreamConsumer consumer) {
+    public void push(ConsoleOutputStreamConsumer consumer) {
         CommandLine hg = hg("push");
         execute(hg, consumer);
     }
@@ -156,7 +156,7 @@ public class HgCommand extends SCMCommand {
         return runOrBomb(hgCmd);
     }
 
-    private int execute(CommandLine hgCmd, ProcessOutputStreamConsumer outputStreamConsumer) {
+    private int execute(CommandLine hgCmd, ConsoleOutputStreamConsumer outputStreamConsumer) {
         return run(hgCmd, outputStreamConsumer);
     }
 }

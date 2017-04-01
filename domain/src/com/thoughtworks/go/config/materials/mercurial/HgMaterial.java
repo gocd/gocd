@@ -118,7 +118,7 @@ public class HgMaterial extends ScmMaterial {
         return hgCommand;
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url.forDisplay()));
@@ -194,7 +194,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
 
-    private HgCommand hg(File workingFolder, ProcessOutputStreamConsumer outputStreamConsumer) throws Exception {
+    private HgCommand hg(File workingFolder, ConsoleOutputStreamConsumer outputStreamConsumer) throws Exception {
         HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl(), secrets());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
             if (LOGGER.isDebugEnabled()) {

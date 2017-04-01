@@ -17,8 +17,8 @@
 package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.util.command.CommandLine;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 
 /**
  * @understands: SCMCommand
@@ -30,7 +30,7 @@ public abstract class SCMCommand {
         this.materialFingerprint = materialFingerprint;
     }
 
-    protected int run(CommandLine commandLine, ProcessOutputStreamConsumer outputStreamConsumer, String... input) {
+    protected int run(CommandLine commandLine, ConsoleOutputStreamConsumer outputStreamConsumer, String... input) {
         return commandLine.run(outputStreamConsumer, materialFingerprint, input);
     }
 

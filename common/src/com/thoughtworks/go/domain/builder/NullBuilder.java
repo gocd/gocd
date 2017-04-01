@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.DateUtils;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public class NullBuilder extends Builder {
@@ -34,7 +34,7 @@ public class NullBuilder extends Builder {
     }
 
     public void build(BuildLogElement buildElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws
-                                                                                                                         CruiseControlException {
+            CruiseControlException {
         buildElement.setBuildDuration(DateUtils.getDurationAsString(0));
     }
 }

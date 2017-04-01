@@ -21,12 +21,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 
-/**
- * @understands configuration of Ant
- */
 @ConfigTag("ant")
 public class AntTask extends BuildTask {
-    private final String ANT = "Ant";
     public static final String TYPE = "ant";
 
     @Override
@@ -35,7 +31,7 @@ public class AntTask extends BuildTask {
     }
 
     public String getTypeForDisplay() {
-        return ANT;
+        return "Ant";
     }
 
     public String arguments() {

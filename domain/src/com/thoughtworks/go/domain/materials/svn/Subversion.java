@@ -17,18 +17,18 @@
 package com.thoughtworks.go.domain.materials.svn;
 
 
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import com.thoughtworks.go.util.command.UrlArgument;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
-
 public interface Subversion {
 
-    void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File workingFolder,
+    void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File workingFolder,
                   SubversionRevision targetRevision);
 
     List<Modification> latestModification();
@@ -39,7 +39,7 @@ public interface Subversion {
 
     String workingRepositoryUrl(File workingFolder) throws IOException;
 
-    void cleanupAndRevert(ProcessOutputStreamConsumer outputStreamConsumer, File workingFolder);
+    void cleanupAndRevert(ConsoleOutputStreamConsumer outputStreamConsumer, File workingFolder);
 
     String getUserName();
 
@@ -47,12 +47,12 @@ public interface Subversion {
 
     boolean isCheckExternals();
 
-    SubversionRevision checkoutTo(ProcessOutputStreamConsumer outputStreamConsumer, File targetFolder,
+    SubversionRevision checkoutTo(ConsoleOutputStreamConsumer outputStreamConsumer, File targetFolder,
                                   SubversionRevision revision);
 
-    void add(ProcessOutputStreamConsumer outputStreamConsumer, File file);
+    void add(ConsoleOutputStreamConsumer outputStreamConsumer, File file);
 
-    void commit(ProcessOutputStreamConsumer outputStreamConsumer, File workingDir, String message);
+    void commit(ConsoleOutputStreamConsumer outputStreamConsumer, File workingDir, String message);
 
     List<Modification> modificationsSince(SubversionRevision subversionRevision);
 

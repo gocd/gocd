@@ -16,20 +16,15 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.DateUtils;
-import com.thoughtworks.go.util.command.CheckedCommandLineException;
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.CompositeConsumer;
-import com.thoughtworks.go.util.command.CruiseControlException;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.ExecScript;
+import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.log4j.Logger;
+
+import java.io.File;
 
 public abstract class BaseCommandBuilder extends Builder {
     private static final Logger LOG = Logger.getLogger(BaseCommandBuilder.class);
@@ -51,7 +46,7 @@ public abstract class BaseCommandBuilder extends Builder {
 
         if (!workingDir.isDirectory()) {
             String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
-            publisher.consumeLine(message);
+            publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
             setBuildError(buildLogElement, message);
             throw new CruiseControlException(message);
         }

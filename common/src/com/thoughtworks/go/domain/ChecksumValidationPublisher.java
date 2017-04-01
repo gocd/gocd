@@ -47,23 +47,23 @@ public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.Ch
     public void publish(int httpCode, File artifact, GoPublisher goPublisher) {
         if (!this.md5MismatchPaths.isEmpty()) {
             String mismatchedFilePath = md5MismatchPaths.iterator().next();
-            goPublisher.consumeLineWithPrefix(
+            goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR,
                     String.format("[ERROR] Verification of the integrity of the artifact [%s] failed. The artifact file on the server may have changed since its original upload.", mismatchedFilePath));
             throw new RuntimeException(String.format("Artifact download failed for [%s]", mismatchedFilePath));
         }
         for (String md5NotFoundPath : md5NotFoundPaths) {
-            goPublisher.consumeLineWithPrefix(String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", md5NotFoundPath));
+            goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", md5NotFoundPath));
         }
 
         if (httpCode == HttpServletResponse.SC_NOT_MODIFIED) {
-            goPublisher.consumeLineWithPrefix("Artifact is not modified, skipped fetching it");
+            goPublisher.taggedConsumeLineWithPrefix(GoPublisher.OUT, "Artifact is not modified, skipped fetching it");
         }
 
         if (httpCode == HttpServletResponse.SC_OK) {
             if (md5NotFoundPaths.size() > 0 || md5ChecksumFileWasNotFound) {
-                goPublisher.consumeLineWithPrefix(String.format("Saved artifact to [%s] without verifying the integrity of its contents.", artifact));
+                goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, String.format("Saved artifact to [%s] without verifying the integrity of its contents.", artifact));
             } else {
-                goPublisher.consumeLineWithPrefix(String.format("Saved artifact to [%s] after verifying the integrity of its contents.", artifact));
+                goPublisher.taggedConsumeLineWithPrefix(GoPublisher.OUT, String.format("Saved artifact to [%s] after verifying the integrity of its contents.", artifact));
             }
         }
     }

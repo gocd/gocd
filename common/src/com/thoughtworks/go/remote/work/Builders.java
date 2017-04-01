@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.GoControlLog;
@@ -28,6 +25,11 @@ import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.String.format;
 
 public class Builders {
     private List<Builder> builders = new ArrayList<>();
@@ -59,11 +61,32 @@ public class Builders {
             }
 
             BuildLogElement buildLogElement = new BuildLogElement();
-            try {
-                builder.build(buildLogElement, RunIfConfig.fromJobResult(result.toLowerCase()), goPublisher,
-                        environmentVariableContext, taskExtension);
-            } catch (Exception e) {
-                result = JobResult.Failed;
+
+            if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
+                JobResult taskStatus = JobResult.Passed;
+                try {
+                    String executeMessage = format("Task: %s", builder.getDescription());
+                    goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
+
+                    builder.build(buildLogElement, goPublisher,
+                            environmentVariableContext, taskExtension);
+                } catch (Exception e) {
+                    result = taskStatus = JobResult.Failed;
+                }
+
+                if (cancelStarted) {
+                    result = taskStatus = JobResult.Cancelled;
+                }
+
+                String tag;
+
+                if (taskStatus.isCancelled()) {
+                    tag = DefaultGoPublisher.TASK_CANCELLED;
+                } else {
+                    tag = taskStatus.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
+                }
+
+                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", taskStatus.toLowerCase()));
             }
 
             buildLog.addContent(buildLogElement.getElement());
@@ -92,7 +115,7 @@ public class Builders {
             while (!cancelFinished) {
                 try {
                     Thread.sleep(500);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -116,9 +139,11 @@ public class Builders {
         if (cancelStarted != builders1.cancelStarted) {
             return false;
         }
+
         if (builders != null ? !builders.equals(builders1.builders) : builders1.builders != null) {
             return false;
         }
+
         if (currentBuilder != null ? !currentBuilder.equals(
                 builders1.currentBuilder) : builders1.currentBuilder != null) {
             return false;

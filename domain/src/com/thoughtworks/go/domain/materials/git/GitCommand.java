@@ -57,7 +57,7 @@ public class GitCommand extends SCMCommand {
         this.environment = environment;
     }
 
-    public int cloneWithNoCheckout(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
+    public int cloneWithNoCheckout(ConsoleOutputStreamConsumer outputStreamConsumer, String url) {
         CommandLine gitClone = cloneCommand().withArg("--no-checkout");
 
         gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
@@ -65,13 +65,13 @@ public class GitCommand extends SCMCommand {
         return run(gitClone, outputStreamConsumer);
     }
 
-    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
+    public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, String url) {
         return clone(outputStreamConsumer, url, Integer.MAX_VALUE);
     }
 
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
-    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+    public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
         CommandLine gitClone = cloneCommand();
 
         if(depth < Integer.MAX_VALUE) {
@@ -150,7 +150,7 @@ public class GitCommand extends SCMCommand {
     }
 
 
-    public void resetWorkingDir(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
+    public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
         outputStreamConsumer.stdOutput(String.format("[GIT] Reset working directory %s", workingDir));
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
@@ -160,12 +160,12 @@ public class GitCommand extends SCMCommand {
         cleanAllUnversionedFiles(outputStreamConsumer);
     }
 
-    private void checkoutAllModifiedFilesInSubmodules(ProcessOutputStreamConsumer outputStreamConsumer) {
+    private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Removing modified files in submodules");
         runOrBomb(git(environment).withArgs("submodule", "foreach", "--recursive", "git", "checkout", ".").withWorkingDir(workingDir));
     }
 
-    private void cleanAllUnversionedFiles(ProcessOutputStreamConsumer outputStreamConsumer) {
+    private void cleanAllUnversionedFiles(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Cleaning all unversioned files in working copy");
         for (Map.Entry<String, String> submoduleFolder : submoduleUrls().entrySet()) {
             cleanUnversionedFiles(new File(workingDir, submoduleFolder.getKey()));
@@ -173,13 +173,13 @@ public class GitCommand extends SCMCommand {
         cleanUnversionedFiles(workingDir);
     }
 
-    private void printSubmoduleStatus(ProcessOutputStreamConsumer outputStreamConsumer) {
+    private void printSubmoduleStatus(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Git sub-module status");
         CommandLine gitCmd = git(environment).withArgs("submodule", "status").withWorkingDir(workingDir);
         run(gitCmd, outputStreamConsumer);
     }
 
-    public void resetHard(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
+    public void resetHard(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
         outputStreamConsumer.stdOutput("[GIT] Updating working copy to revision " + revision.getRevision());
         String[] args = new String[]{"reset", "--hard", revision.getRevision()};
         CommandLine gitCmd = git(environment).withArgs(args).withWorkingDir(workingDir);
@@ -195,12 +195,12 @@ public class GitCommand extends SCMCommand {
         return git.withEnv(environment);
     }
 
-    public void fetchAndResetToHead(ProcessOutputStreamConsumer outputStreamConsumer) {
+    public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer) {
         fetch(outputStreamConsumer);
         resetWorkingDir(outputStreamConsumer, new StringRevision(remoteBranch()));
     }
 
-    public void updateSubmoduleWithInit(ProcessOutputStreamConsumer outputStreamConsumer) {
+    public void updateSubmoduleWithInit(ConsoleOutputStreamConsumer outputStreamConsumer) {
         if (!gitsubmoduleEnabled()) {
             return;
         }
@@ -226,7 +226,7 @@ public class GitCommand extends SCMCommand {
         runOrBomb(gitCmd);
     }
 
-    private void removeSubmoduleSectionsFromGitConfig(ProcessOutputStreamConsumer outputStreamConsumer) {
+    private void removeSubmoduleSectionsFromGitConfig(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Cleaning submodule configurations in .git/config");
         for (String submoduleFolder : submoduleUrls().keySet()) {
             configRemoveSection("submodule." + submoduleFolder);
@@ -308,7 +308,7 @@ public class GitCommand extends SCMCommand {
         return "origin/" + branch;
     }
 
-    public void fetch(ProcessOutputStreamConsumer outputStreamConsumer) {
+    public void fetch(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Fetching changes");
         CommandLine gitFetch = git(environment).withArgs("fetch", "origin", "--prune").withWorkingDir(workingDir);
 
@@ -322,7 +322,7 @@ public class GitCommand extends SCMCommand {
     // Unshallow a shallow cloned repository with "git fetch --depth n".
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
     // https://git-scm.com/docs/git-fetch-pack
-    public void unshallow(ProcessOutputStreamConsumer outputStreamConsumer, Integer depth) {
+    public void unshallow(ConsoleOutputStreamConsumer outputStreamConsumer, Integer depth) {
         outputStreamConsumer.stdOutput(String.format("[GIT] Unshallowing repository with depth %d", depth));
         CommandLine gitFetch = git(environment)
                 .withArgs("fetch", "origin")
@@ -336,7 +336,7 @@ public class GitCommand extends SCMCommand {
     }
 
 
-    private int gc(ProcessOutputStreamConsumer outputStreamConsumer) {
+    private int gc(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Performing git gc");
         CommandLine gitGc = git(environment).withArgs("gc", "--auto").withWorkingDir(workingDir);
         return run(gitGc, outputStreamConsumer);

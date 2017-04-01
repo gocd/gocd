@@ -256,7 +256,7 @@ public class PluggableTaskBuilderTest {
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-            verify(goPublisher).consumeLine(captor.capture());
+            verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
             String error = "Error: err";
             assertThat(captor.getValue(), is(error));
             assertThat(e.getMessage(), is(new RuntimeException("err").toString()));
@@ -286,7 +286,7 @@ public class PluggableTaskBuilderTest {
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-            verify(goPublisher).consumeLine(captor.capture());
+            verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
             assertThat(captor.getValue(), is("err"));
             assertThat(e.getMessage(), is("err"));
         }

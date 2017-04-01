@@ -21,13 +21,12 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-
-import java.util.Map;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Map;
 
 public interface Material extends Serializable {
 
@@ -44,7 +43,7 @@ public interface Material extends Serializable {
     //scm.findModificationsSince(revision)
     //scm.findRecentModifications(5)
 
-    void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx);
+    void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx);
 
     void toJson(Map jsonMap, Revision revision);
 

@@ -27,8 +27,8 @@ import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.SecretString;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
@@ -119,7 +119,7 @@ public class GitMaterial extends ScmMaterial {
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
         if(!execCtx.isGitShallowClone()) {
-            fullyUnshallow(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer());
+            fullyUnshallow(gitCommand, inMemoryConsumer());
         }
         if (gitCommand.containsRevisionInBranch(revision)) {
             return gitCommand.modificationsSince(revision);
@@ -145,7 +145,7 @@ public class GitMaterial extends ScmMaterial {
         parameters.put("shallowClone", shallowClone);
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
@@ -213,7 +213,7 @@ public class GitMaterial extends ScmMaterial {
         }
     }
 
-    private GitCommand git(ProcessOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
+    private GitCommand git(ConsoleOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
         if (isSubmoduleFolder()) {
             return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables(), secrets());
         }
@@ -264,7 +264,7 @@ public class GitMaterial extends ScmMaterial {
     // Unshallow local repo to include a revision operating on via two step process:
     // First try to fetch forward 100 level with "git fetch -depth 100". If revision still missing,
     // unshallow the whole repo with "git fetch --2147483647".
-    private void unshallowIfNeeded(GitCommand gitCommand, ProcessOutputStreamConsumer streamConsumer, Revision revision, File workingDir) {
+    private void unshallowIfNeeded(GitCommand gitCommand, ConsoleOutputStreamConsumer streamConsumer, Revision revision, File workingDir) {
         if (gitCommand.isShallow() && !gitCommand.containsRevisionInBranch(revision)) {
             gitCommand.unshallow(streamConsumer, UNSHALLOW_TRYOUT_STEP);
 
@@ -274,7 +274,7 @@ public class GitMaterial extends ScmMaterial {
         }
     }
 
-    private void fullyUnshallow(GitCommand gitCommand, ProcessOutputStreamConsumer streamConsumer) {
+    private void fullyUnshallow(GitCommand gitCommand, ConsoleOutputStreamConsumer streamConsumer) {
         if(gitCommand.isShallow()) {
             gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
         }

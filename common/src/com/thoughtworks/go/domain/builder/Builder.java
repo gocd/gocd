@@ -16,18 +16,19 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.Serializable;
-import static java.lang.String.format;
-
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.work.DefaultGoPublisher;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.log4j.Logger;
+
+import java.io.Serializable;
+
+import static java.lang.String.format;
 
 public abstract class Builder implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(Builder.class);
@@ -41,16 +42,8 @@ public abstract class Builder implements Serializable {
         this.description = description;
     }
 
-    public void build(BuildLogElement buildLogElement, RunIfConfig currentStatus, DefaultGoPublisher publisher,
-                      EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
-            throws CruiseControlException {
-        if (conditions.match(currentStatus)) {
-            String statusMessage = format("Current job status: %s.\n", currentStatus);
-            String executeMessage = format("Start to execute task: %s.", getDescription());
-            publisher.consumeLineWithPrefix(statusMessage);
-            publisher.consumeLineWithPrefix(executeMessage);
-            build(buildLogElement, publisher, environmentVariableContext, taskExtension);
-        }
+    public boolean allowRun(RunIfConfig previousStatus) {
+        return conditions.match(previousStatus);
     }
 
     public abstract void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
@@ -101,23 +94,26 @@ public abstract class Builder implements Serializable {
     }
 
     public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
-        publisher.consumeLineWithPrefix("Start to execute cancel task: " + cancelBuilder.getDescription());
+        publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
             cancelBuilder.build(new BuildLogElement(), publisher, environmentVariableContext, taskExtension);
-            publisher.consumeLineWithPrefix("Task is cancelled");
+            // As this message will output before the running task outputs its task status, do not use the same
+            // wording (i.e. "Task status: %s") as the order of outputted lines may be confusing
+            publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_PASS, "On Cancel Task completed");
         } catch (Exception e) {
+            publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_FAIL, "On Cancel Task failed");
             LOGGER.error("", e);
         }
     }
 
     protected void logException(DefaultGoPublisher publisher, Exception e) throws CruiseControlException {
-        publisher.consumeLine(String.format("Error: %s", e.getMessage()));
+        publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
         throw new CruiseControlException(e);
     }
 
     protected void logError(DefaultGoPublisher publisher, String message) throws CruiseControlException {
-        publisher.consumeLine(message);
+        publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
         LOGGER.error(message);
         throw new CruiseControlException(message);
     }

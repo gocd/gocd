@@ -85,7 +85,7 @@ var BuildOutputDetector = Class.create({
             method: 'HEAD',
             on404: this.showNoOutputWarnning,
             onFailure: this.showNoOutputWarnning,
-            onExeption: this.showNoOutputWarnning, 
+            onExeption: this.showNoOutputWarnning,
             onSuccess: this.updateIframeSrc.bind(this)
         });
     },

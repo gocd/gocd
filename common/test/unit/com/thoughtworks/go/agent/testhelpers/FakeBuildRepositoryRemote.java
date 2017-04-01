@@ -91,6 +91,10 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
 
     }
 
+    @Override
+    public void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier) {
+
+    }
 
     public static void waitUntilBuildCompleted() throws InterruptedException {
         while (!isBuildCompleted()) {

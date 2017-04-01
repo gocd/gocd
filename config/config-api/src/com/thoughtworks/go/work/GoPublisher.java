@@ -16,15 +16,17 @@
 
 package com.thoughtworks.go.work;
 
+import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
+
 import java.io.File;
 
-import com.thoughtworks.go.domain.Property;
-import com.thoughtworks.go.util.command.StreamConsumer;
-
-public interface GoPublisher extends StreamConsumer {
+public interface GoPublisher extends TaggedStreamConsumer {
     void upload(File fileToUpload, String destPath);
 
     void consumeLineWithPrefix(String message);
+
+    void taggedConsumeLineWithPrefix(String tag, String message);
 
     void setProperty(Property property);
 

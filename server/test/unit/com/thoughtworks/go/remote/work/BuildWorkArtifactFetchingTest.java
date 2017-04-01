@@ -97,8 +97,9 @@ public class BuildWorkArtifactFetchingTest {
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
 
-        assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: passed."));
-        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]"));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Task status: failed"));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed"));
 
         assertThat(buildRepository.results, not(containsResult(Passed)));
         assertThat(buildRepository.results, containsResult(Failed));
@@ -111,8 +112,10 @@ public class BuildWorkArtifactFetchingTest {
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
 
-        assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed."));
-        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: ant --help."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]"));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Task status: failed"));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Task: ant --help"));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed"));
     }
 
     @Test

@@ -31,7 +31,7 @@
 body {
   padding:                 0;
   margin:                  0;
-  font-family:             "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif !important;
+  font-family:             "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   font-weight:             normal;
   color:                   #0a0a0a;
   -webkit-font-smoothing:  antialiased;
@@ -64,12 +64,12 @@ a, a:hover, a:visited {
 }
 
 *, html, body {
-  font-family: "Open Sans", Arial, Helvetica, sans-serif !important;
+  font-family: "Open Sans", Arial, Helvetica, sans-serif;
 
 }
 
 h1, h2, h3, h4 {
-  font-family: "Open Sans", Arial, Helvetica, sans-serif !important;
+  font-family: "Open Sans", Arial, Helvetica, sans-serif;
   font-weight: 500;
 
 }
@@ -3011,9 +3011,9 @@ button.edit-environment {
 }
 
 .buildoutput_pre * {
-  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace !important;
-  font-size:   13px !important;
-  line-height: 19px !important;
+  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+  font-size:   13px;
+  line-height: 19px;
 }
 
 .template_group h2.entity_title {

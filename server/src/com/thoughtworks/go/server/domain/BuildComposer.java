@@ -97,9 +97,9 @@ public class BuildComposer {
     private BuildCommand runSingleBuilder(Builder builder) {
         String runIfConfig = builder.resolvedRunIfConfig().toString();
         return BuildCommand.compose(
-                echoWithPrefix("Current job status: passed."),
-                echoWithPrefix("Current job status: failed.").runIf("failed"),
-                echoWithPrefix("Start to execute task: %s.", builder.getDescription()).runIf(runIfConfig),
+                echoWithPrefix("Current job status: passed"),
+                echoWithPrefix("Current job status: failed").runIf("failed"),
+                echoWithPrefix("Task: %s", builder.getDescription()).runIf(runIfConfig),
                 builder.buildCommand()
                         .runIf(runIfConfig)
                         .setOnCancel(runCancelTask(builder.getCancelBuilder()))).runIf(runIfConfig);
@@ -110,9 +110,9 @@ public class BuildComposer {
             return null;
         }
         return BuildCommand.compose(
-                echoWithPrefix("Start to execute cancel task: %s", cancelBuilder.getDescription()),
+                echoWithPrefix("Cancel task: %s", cancelBuilder.getDescription()),
                 cancelBuilder.buildCommand(),
-                echoWithPrefix("Task is canceled"));
+                echoWithPrefix("Task is cancelled"));
     }
 
     private BuildCommand uploadArtifacts() {

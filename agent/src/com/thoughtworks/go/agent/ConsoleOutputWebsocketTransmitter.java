@@ -19,12 +19,13 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.ConsoleTransmission;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
 
-public class ConsoleOutputWebsocketTransmitter implements StreamConsumer {
+public class ConsoleOutputWebsocketTransmitter implements TaggedStreamConsumer {
     private WebSocketSessionHandler webSocketSessionHandler;
     private String buildId;
 
@@ -35,7 +36,12 @@ public class ConsoleOutputWebsocketTransmitter implements StreamConsumer {
 
     @Override
     public void consumeLine(String line) {
-        ConsoleTransmission transmission = new ConsoleTransmission(line, buildId);
+        taggedConsumeLine(null, line);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
+        ConsoleTransmission transmission = new ConsoleTransmission(tag, line, buildId);
         this.webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.consoleOut, MessageEncoding.encodeData(transmission)));
     }
 }

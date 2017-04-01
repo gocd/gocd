@@ -64,7 +64,7 @@ public class NantTaskBuilderTest {
         NantTask nantTask = new NantTask();
         nantTask.setTarget("unit-test");
         CommandBuilder commandBuilder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, resolver);
-        assertThat(commandBuilder.getArgs(), is(" unit-test"));
+        assertThat(commandBuilder.getArgs(), is("unit-test"));
     }
 
     @Test

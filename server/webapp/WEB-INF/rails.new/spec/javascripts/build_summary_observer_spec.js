@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-describe("build_detail_observer", function () {
+describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
     var orig_write_attribute = Element.writeAttribute;
     var contextPath = "/dashboard";
 
     var observer;
     beforeEach(function () {
-        setFixtures("<div id=\"container\">\n" +
+        setFixtures("<div id=\"container\" class=\"build_detail\">\n" +
             "    <span class=\"page_panel\"><b class=\"rtop\"><b class=\"r1\"></b> <b class=\"r2\"></b> <b class=\"r3\"></b> <b class=\"r4\"></b></b></span>\n" +
             "\n" +
             "<div id=\"build_status\" class=\"build-status\"></div>\n" +
@@ -42,10 +42,11 @@ describe("build_detail_observer", function () {
             "<span class=\"buildoutput_pre\"></span>\n" +
             "\n" +
             "<div id=\"trans_content\"></div>");
+
         Element.addMethods({writeAttribute: orig_write_attribute});
         jQuery('.buildoutput_pre').html('');
 
-        observer = new BuildOutputObserver(1, "project1");
+        observer = new BuildSummaryObserver(jQuery(".build_detail_summary"));
         jQuery('#container').addClass("building_passed");
 
         jQuery('#trans_content').html('');
@@ -53,24 +54,17 @@ describe("build_detail_observer", function () {
     });
 
     it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
-        var status = jQuery(".build-status");
-        status.addClass("building_passed");
+        var status = jQuery(".build-status").addClass("building_passed");
         var json = failed_json('project1')
-        observer.update_page(json);
-        assertTrue("failed", status.hasClass("failed"));
-    });
-
-    it("test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output", function () {
-        var build_output = "Build Failed.";
-        observer._update_live_output_color(build_output);
-        assertEquals("Build Failed.", jQuery('.buildoutput_pre').text());
+        observer.updateBuildResult(json);
+        assertTrue(status.hasClass("failed"));
     });
 
     it("test_should_invoke_word_break_to_break_text", function () {
         $$WordBreaker.break_text = function () {
-            return "breaked text";
-        }
-        observer.display_error_message_if_necessary(inactive_json("project1"))
-        assertTrue(jQuery('#trans_content').text().indexOf("breaked text") > -1);
+            return "split text";
+        };
+        observer.displayAnyErrorMessages(inactive_json("project1"));
+        assertTrue(jQuery('#trans_content').text().indexOf("split text") > -1);
     });
 });

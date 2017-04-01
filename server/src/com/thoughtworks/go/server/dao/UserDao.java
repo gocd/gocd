@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
+
+import java.util.List;
+import java.util.Set;
 
 public interface UserDao {
     void saveOrUpdate(User user);
@@ -46,4 +46,6 @@ public interface UserDao {
     User load(long id);
 
     boolean deleteUser(String username);
+
+    User findOrCreate(final User user);
 }

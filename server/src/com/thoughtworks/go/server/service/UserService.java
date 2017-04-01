@@ -352,10 +352,19 @@ public class UserService {
         synchronized (enableUserMutex) {
             if (!(user.isAnonymous() || userExists(user))) {
                 assertUnknownUsersAreAllowedToLogin();
-
                 userDao.saveOrUpdate(user);
             }
         }
+    }
+
+    public User findOrCreate(User user) {
+        synchronized (enableUserMutex) {
+            if (!user.isAnonymous()) {
+                assertUnknownUsersAreAllowedToLogin();
+                return userDao.findOrCreate(user);
+            }
+        }
+        return user;
     }
 
     public void withEnableUserMutex(Runnable runnable) {

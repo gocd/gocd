@@ -131,27 +131,34 @@ public class PluginAuthenticationProviderTest {
     public void shouldAddUserIfDoesNotExistOnSuccessfulAuthenticationUsingTheAuthorizationPlugin() {
         String pluginId = "plugin-id-1";
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
+        final User user = new User("username", "display-name", "username@example.com");
+        final com.thoughtworks.go.domain.User domainUser = new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
+        AuthenticationResponse response = new AuthenticationResponse(user, Collections.emptyList());
+
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
         when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
-
-        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "username@example.com"), Collections.emptyList());
         when(authorizationExtension.authenticateUser(pluginId, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId), securityConfig.getPluginRoles(pluginId))).thenReturn(response);
+        when(userService.findOrCreate(domainUser)).thenReturn(domainUser);
 
         provider.retrieveUser("username", authenticationToken);
 
-        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "display-name", "username@example.com"));
+        verify(userService).findOrCreate(domainUser);
     }
 
     @Test
     public void shouldAddUserIfDoesNotExistOnSuccessfulAuthenticationUsingTheAuthenticationPlugin() {
         String pluginId = "plugin-id-1";
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
+        final User user = new User("username", "display-name", "username@example.com");
+        final com.thoughtworks.go.domain.User domainUser = new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
+
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
-        when(authenticationExtension.authenticateUser(pluginId, "username", "password")).thenReturn(new User("username", "display-name", "username@example.com"));
+        when(authenticationExtension.authenticateUser(pluginId, "username", "password")).thenReturn(user);
+        when(userService.findOrCreate(domainUser)).thenReturn(domainUser);
 
         provider.retrieveUser("username", authenticationToken);
 
-        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "display-name", "username@example.com"));
+        verify(userService).findOrCreate(domainUser);
     }
 
     @Test(expected = UsernameNotFoundException.class)
@@ -173,11 +180,14 @@ public class PluginAuthenticationProviderTest {
         String pluginId2 = "plugin-id-2";
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId2));
         securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
+        final User user = new User("username", "display-name", "test@test.com");
+        final com.thoughtworks.go.domain.User domainUser = new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
+        AuthenticationResponse response = new AuthenticationResponse(user, Collections.emptyList());
+
         when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
         when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), null)).thenReturn(NULL_AUTH_RESPONSE);
-
-        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "test@test.com"), Collections.emptyList());
         when(authorizationExtension.authenticateUser(pluginId2, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId2), securityConfig.getPluginRoles(pluginId2))).thenReturn(response);
+        when(userService.findOrCreate(domainUser)).thenReturn(domainUser);
 
         UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
 
@@ -193,10 +203,13 @@ public class PluginAuthenticationProviderTest {
     public void shouldCreateGoUserPrincipalWhenAnAuthenticationPluginIsAbleToAuthenticateUser() {
         String pluginId1 = "plugin-id-1";
         String pluginId2 = "plugin-id-2";
+        final User user = new User("username", null, null);
+        final com.thoughtworks.go.domain.User domainUser = new com.thoughtworks.go.domain.User(user.getUsername(), "username", user.getEmailId());
+
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
         when(authenticationExtension.authenticateUser(pluginId1, "username", "password")).thenReturn(null);
-
-        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(new User("username", null, null));
+        when(userService.findOrCreate(domainUser)).thenReturn(domainUser);
+        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(user);
 
         UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
 
@@ -227,25 +240,24 @@ public class PluginAuthenticationProviderTest {
     public void shouldUpdatePluginRolesForAUserPostAuthentication() throws Exception {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
-
         String pluginId1 = "cd.go.ldap";
         String pluginId2 = "cd.go.github";
+        final User user = new User("username", "bob", "bob@example.com");
+        final com.thoughtworks.go.domain.User domainUser = new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
 
         when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
-
         when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), securityConfig.getPluginRoles(pluginId1))).thenReturn(
                 new AuthenticationResponse(
-                        new User("username", "bob", "bob@example.com"),
+                        user,
                         Arrays.asList("blackbird", "admins")
                 )
         );
-
+        when(userService.findOrCreate(domainUser)).thenReturn(domainUser);
         when(authorizationExtension.authenticateUser(pluginId2, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId2), securityConfig.getPluginRoles(pluginId2))).thenReturn(NULL_AUTH_RESPONSE);
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(null, "password"));
 
         assertNotNull(userDetails);
-
         verify(pluginRoleService).updatePluginRoles("cd.go.ldap", "username", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
     }
 

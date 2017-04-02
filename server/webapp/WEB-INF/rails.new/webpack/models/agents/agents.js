@@ -228,7 +228,7 @@ const toHumanReadable = (freeSpace) => {
 };
 
 Agents.Agent = function (data) {
-  const self               = this;
+  const self             = this;
   this.uuid              = Stream(data.uuid);
   this.hostname          = Stream(data.hostname);
   this.ipAddress         = Stream(data.ipAddress);
@@ -267,10 +267,10 @@ Agents.Agent = function (data) {
   };
 
   this.matches = (filterText) => {
-    const keys   = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environments', 'resources'];
+    const keys = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environments', 'resources', 'elasticAgentId', 'elasticPluginId'];
     filterText = filterText.toLowerCase();
     return _.some(keys, (field) => {
-      const agentInfo = self[field]().toString().toLowerCase();
+      const agentInfo = self[field]() ? self[field]().toString().toLowerCase() : '';
       return s.include(agentInfo, filterText);
     });
   };

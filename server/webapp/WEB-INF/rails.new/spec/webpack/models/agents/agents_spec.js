@@ -137,6 +137,18 @@ describe('Agent Model', () => {
       expect(agent.matches("perf")).toBe(true);
       expect(agent.matches("invalid-search")).toBe(false);
     });
+
+    it("should tell whether the specified elastic agent plugin id matches the agent's information", () => {
+      const elasticAgentJSON = agentData[7];
+      const agent            = Agents.Agent.fromJSON(elasticAgentJSON);
+      expect(agent.matches(elasticAgentJSON.elastic_plugin_id)).toBe(true);
+    });
+
+    it("should tell whether the specified elastic agent id matches the agent's information", () => {
+      const elasticAgentJSON = agentData[7];
+      const agent            = Agents.Agent.fromJSON(elasticAgentJSON);
+      expect(agent.matches(elasticAgentJSON.elastic_agent_id)).toBe(true);
+    });
   });
 
   describe('sort the agents', () => {

@@ -28,7 +28,8 @@
       if (inFlight) return false;
       if (finished) return false;
 
-      return inFlight = true;
+      inFlight = true;
+      return inFlight;
     }
 
     function clearLock() {

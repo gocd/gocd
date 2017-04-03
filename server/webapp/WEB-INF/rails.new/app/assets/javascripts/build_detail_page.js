@@ -52,9 +52,8 @@
 
     var build = $("[data-console-url]");
 
-    function triggerLogDequeue() {
-      var subTab = this;
-      jobDetails.trigger("dequeue", subTab.tab_name);
+    function triggerLogDequeue(tabName) {
+      jobDetails.trigger("dequeue", tabName);
     }
 
     var uid = [jobDetails.data("pipeline"), jobDetails.data("stage"), jobDetails.data("job"), jobDetails.data("build")].join("-");

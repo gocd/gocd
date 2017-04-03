@@ -433,7 +433,9 @@ Materials.Material.PluggableMaterial = function (data) {
 Materials.Material.PluggableMaterial.fromJSON = ({attributes, errors}) => {
   const attr = attributes || {};
   return new Materials.Material.PluggableMaterial({
-    scm:          SCMs.findById(attr.ref),
+    scm:          _.find(SCMs(), (scm) => {
+      return scm.id() === attr.ref;
+    }),
     destination:  attr.destination,
     filter:       Materials.Filter.fromJSON(attr.filter),
     invertFilter: attr.invert_filter,

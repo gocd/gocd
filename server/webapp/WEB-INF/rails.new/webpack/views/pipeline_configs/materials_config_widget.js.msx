@@ -28,8 +28,6 @@ const tt              = require('helpers/pipeline_configs/tooltips');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const Materials       = require('models/pipeline_configs/materials');
 const Pipelines       = require('models/pipeline_configs/pipelines');
-const PluggableSCMs   = require('models/pipeline_configs/pluggable_scms');
-const PluginInfos     = require('models/pipeline_configs/plugin_infos');
 
 let PasswordField = {
   view (vnode) {
@@ -375,7 +373,7 @@ let MaterialViews = {
 
       return (
         <MaterialViews.base {...vnode.attrs}>
-          <PluggableSCMWidget material={material}/>
+          <PluggableSCMWidget material={material} pluginInfos={vnode.attrs.pluginInfos}/>
         </MaterialViews.base>
       );
     }
@@ -405,7 +403,15 @@ let MaterialTypeSelector = {
   },
 
   view (vnode) {
-    const items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), (accumulator, value, key) => {
+    const pluggableSCMs = {};
+    vnode.attrs.pluginInfos().filterByType('scm').eachPluginInfo((pluginInfo) => {
+      pluggableSCMs[pluginInfo.id()] = {
+        type:        pluginInfo.type(),
+        description: pluginInfo.about().name()
+      };
+    });
+
+    const items = _.reduce(_.merge({}, Materials.Types, pluggableSCMs), (accumulator, value, key) => {
       accumulator.push({id: key, text: value.description});
       return accumulator;
     }, []);
@@ -445,8 +451,15 @@ const MaterialsConfigWidget = {
 
     self.createMaterial = function (materials) {
       return function (type) {
-        const newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
-          : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
+        let newMaterial;
+        if (Materials.isBuiltInType(type())) {
+          newMaterial = materials().createMaterial({type: type()});
+        } else {
+          newMaterial = materials().createMaterial({
+            type:       type(),
+            pluginInfo: vnode.attrs.pluginInfos().findById(type())
+          });
+        }
 
         const indexOfMaterial = materials().indexOfMaterial(newMaterial);
         self.vmState(`material-${  indexOfMaterial}`, {selectedMaterialIndex: Stream(0)});
@@ -463,16 +476,19 @@ const MaterialsConfigWidget = {
         <div>
           {vnode.attrs.materials().mapMaterials((material, index) => {
             const materialView = MaterialViews[material.type()];
+
             return (m(materialView, {
               material,
               onRemove:     vnode.state.removeMaterial(vnode.attrs.materials),
               key:          material.uuid(),
+              pluginInfos:  vnode.attrs.pluginInfos,
               pipelineName: vnode.attrs.pipelineName,
               pipelines:    vnode.state.pipelines,
               vm:           vnode.state.vmState(`material-${  index}`)
             }));
           })}
           <MaterialTypeSelector createMaterial={vnode.state.createMaterial(vnode.attrs.materials)}
+                                pluginInfos={vnode.attrs.pluginInfos}
                                 key='material-type-selector'/>
         </div>
       </f.accordion>

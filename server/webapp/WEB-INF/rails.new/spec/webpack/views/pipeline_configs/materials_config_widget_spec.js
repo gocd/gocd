@@ -25,6 +25,7 @@ describe("Materials Config Widget", () => {
   const Materials             = require("models/pipeline_configs/materials");
   const MaterialsConfigWidget = require("views/pipeline_configs/materials_config_widget");
   const Pipelines             = require("models/pipeline_configs/pipelines");
+  const PluginInfos           = require("models/shared/plugin_infos");
 
   let $root, root;
   beforeEach(() => {
@@ -417,6 +418,7 @@ describe("Materials Config Widget", () => {
       view() {
         return m(MaterialsConfigWidget, {
           materials:    Stream(materials),
+          pluginInfos:  Stream(PluginInfos.fromJSON(pluginInfosJSON)),
           pipelineName: Stream('testPipeLine')
         });
       }
@@ -428,6 +430,25 @@ describe("Materials Config Widget", () => {
     m.mount(root, null);
     m.redraw();
   };
+
+  const pluginInfosJSON = [
+    {
+      "id":      "github.oauth.login",
+      "version": "1",
+      "type":    "authentication",
+      "about":   {
+        "name":                     "GitHub OAuth Login",
+        "version":                  "2.2",
+        "target_go_version":        "16.2.1",
+        "description":              "Login using GitHub OAuth",
+        "target_operating_systems": ['Linux', 'Mac'],
+        "vendor":                   {
+          "name": "GoCD Contributors",
+          "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
+        }
+      }
+    }
+  ];
 
   function viewMaterial() {
     $root.find(".materials>.accordion-item>a")[0].click();

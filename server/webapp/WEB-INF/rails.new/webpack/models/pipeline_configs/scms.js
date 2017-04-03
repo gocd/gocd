@@ -161,6 +161,7 @@ SCMs.init = () => $.Deferred(function () {
     SCMs(_.map(_embedded.scms, (scm) => new SCMs.SCM(scm)));
     deferred.resolve();
   });
+
 }).promise();
 
 SCMs.filterByPluginId = (pluginId) => _.filter(SCMs(), (scm) => scm.pluginMetadata().id() === pluginId);
@@ -191,54 +192,5 @@ SCMs.findById = (id) => {
   }).promise();
 
 };
-
-//SCMs.vm = function () {
-//  this.saveState = Stream('');
-//  var errors     = [];
-//
-//  this.startUpdating = function () {
-//    errors = [];
-//    this.saveState('in-progress disabled');
-//  };
-//
-//  this.saveFailed = function (data) {
-//    errors.push(data.message);
-//
-//    if (data.data) {
-//      if (data.data.configuration) {
-//        errors = _.concat(errors, _.flattenDeep(_.map(data.data.configuration, function (conf) {
-//          return _.values(conf.errors);
-//        })));
-//      }
-//    }
-//
-//    this.saveState('alert');
-//  };
-//
-//  this.saveSuccess = function () {
-//    this.saveState('success');
-//  };
-//
-//  this.clearErrors = function () {
-//    errors = [];
-//  };
-//
-//  this.reset = function () {
-//    errors = [];
-//    this.saveState('');
-//  };
-//
-//  this.errors = function () {
-//    return errors;
-//  };
-//
-//  this.hasErrors = function () {
-//    return !_.isEmpty(errors);
-//  };
-//
-//  this.markClientSideErrors = function () {
-//    errors.push('There are errors on the page, fix them and save');
-//  };
-//};
 
 module.exports = SCMs;

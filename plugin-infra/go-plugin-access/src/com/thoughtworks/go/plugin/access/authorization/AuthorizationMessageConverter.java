@@ -20,20 +20,18 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.List;
 import java.util.Map;
 
 public interface AuthorizationMessageConverter {
-    Capabilities getCapabilitiesFromResponseBody(String responseBody);
+    com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
-    Image getImageResponseFromBody(String responseBody);
+    com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
 
-    PluginProfileMetadataKeys getPluginConfigMetadataResponseFromBody(String responseBody);
+    List<PluginConfiguration> getPluginConfigMetadataResponseFromBody(String responseBody);
 
     String getPluginConfigurationViewFromResponseBody(String responseBody);
 
@@ -41,7 +39,7 @@ public interface AuthorizationMessageConverter {
 
     ValidationResult getPluginConfigurationValidationResultFromResponseBody(String responseBody);
 
-    PluginProfileMetadataKeys getRoleConfigMetadataResponseFromBody(String responseBody);
+    List<PluginConfiguration> getRoleConfigMetadataResponseFromBody(String responseBody);
 
     String getRoleConfigurationViewFromResponseBody(String responseBody);
 

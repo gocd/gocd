@@ -22,11 +22,16 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,8 +54,6 @@ public class UserSearchServiceTest {
     @Mock
     private PasswordFileUserSearch passwordFileUserSearch;
     @Mock
-    private AuthorizationPluginConfigMetadataStore metadataStore;
-    @Mock
     private AuthorizationExtension authorizationExtension;
     @Mock
     private GoConfigService goConfigService;
@@ -62,7 +65,12 @@ public class UserSearchServiceTest {
 
         when(goConfigService.isLdapConfigured()).thenReturn(true);
 
-        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, metadataStore, authorizationExtension, goConfigService, authenticationPluginRegistry, authenticationExtension);
+        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, authorizationExtension, goConfigService, authenticationPluginRegistry, authenticationExtension);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        AuthorizationMetadataStore.instance().clear();
     }
 
     @Test
@@ -83,7 +91,11 @@ public class UserSearchServiceTest {
         when(ldapUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
 
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
-        when(metadataStore.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<>(pluginIds));
+
+        addPluginSupportingUserSearch(pluginIds.get(0));
+        addPluginSupportingUserSearch(pluginIds.get(1));
+        addPluginSupportingUserSearch(pluginIds.get(2));
+        addPluginSupportingUserSearch(pluginIds.get(3));
         when(authorizationExtension.canHandlePlugin(anyString())).thenReturn(true);
         when(goConfigService.security()).thenReturn(new SecurityConfig());
         when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(getPluginUser(1)));
@@ -219,5 +231,12 @@ public class UserSearchServiceTest {
 
     private com.thoughtworks.go.plugin.access.authentication.models.User getPluginUser(Integer userId) {
         return new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
+    }
+
+    private void addPluginSupportingUserSearch(String pluginId) {
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
+                new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
+                new Capabilities(SupportedAuthType.Password, true));
+        AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }
 }

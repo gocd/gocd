@@ -16,59 +16,54 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadata;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.ElasticPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ElasticAgentPluginInfoBuilderTest {
+    @After
+    public void tearDown() throws Exception {
+        ElasticAgentMetadataStore.instance().clear();
+    }
+
     @Test
     public void pluginInfoFor_ShouldProvideEPluginInfoForAPlugin() throws Exception {
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "12.4", "Validates its own plugin descriptor",
                 new GoPluginDescriptor.Vendor("ThoughtWorks Go Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X"));
         GoPluginDescriptor plugin = new GoPluginDescriptor("docker-plugin", "1.0", about, null, null, false);
 
-        PluginProfileMetadataKeys metadataKeys = new PluginProfileMetadataKeys(Arrays.asList(new PluginProfileMetadataKey("password", new PluginProfileMetadata(true, true))));
-        Image image = new Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));;
-        String view = "some html view";
+        com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", Collections.singletonMap("secure", true))),
+                new com.thoughtworks.go.plugin.domain.common.PluginView("profile_view"));
+        com.thoughtworks.go.plugin.domain.common.Image image =
+                new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
 
-        ElasticPluginConfigMetadataStore store = mock(ElasticPluginConfigMetadataStore.class);
+        ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(plugin, profileSettings, image));
 
-        when(store.find("docker-plugin")).thenReturn(plugin);
-        when(store.getProfileMetadata(plugin)).thenReturn(metadataKeys);
-        when(store.getIcon(plugin)).thenReturn(image);
-        when(store.getProfileView(plugin)).thenReturn(view);
+        ElasticPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(metadataStore).pluginInfoFor(plugin.id());
 
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(store);
-        ElasticPluginInfo pluginInfo = builder.pluginInfoFor(plugin.id());
+        PluggableInstanceSettings elasticProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", Collections.singletonMap("secure", true))), new PluginView("profile_view"));
 
-        PluggableInstanceSettings settings = new PluggableInstanceSettings(PluginConfiguration.getPluginConfigurations(metadataKeys), new PluginView(view));
-
-        assertEquals(new ElasticPluginInfo(plugin, settings, image), pluginInfo);
+        assertEquals(new ElasticPluginInfo(plugin, elasticProfileSettings, new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData())), pluginInfo);
     }
 
     @Test
     public void pluginInfoFor_ShouldReturnNullWhenPluginIsNotFound() throws Exception {
-        ElasticPluginConfigMetadataStore store = mock(ElasticPluginConfigMetadataStore.class);
-        when(store.find("docker-plugin")).thenReturn(null);
-
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(store);
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(ElasticAgentMetadataStore.instance());
         ElasticPluginInfo pluginInfo = builder.pluginInfoFor("docker-plugin");
         assertEquals(null, pluginInfo);
     }
@@ -79,23 +74,18 @@ public class ElasticAgentPluginInfoBuilderTest {
                 new GoPluginDescriptor.Vendor("ThoughtWorks Go Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X"));
         GoPluginDescriptor plugin = new GoPluginDescriptor("docker-plugin", "1.0", about, null, null, false);
 
-        PluginProfileMetadataKeys metadataKeys = new PluginProfileMetadataKeys(Arrays.asList(new PluginProfileMetadataKey("password", new PluginProfileMetadata(true, true))));
-        Image image = new Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));;
-        String view = "some html view";
+        com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", Collections.singletonMap("secure", true))),
+                new com.thoughtworks.go.plugin.domain.common.PluginView("profile_view"));
+        com.thoughtworks.go.plugin.domain.common.Image image =
+                new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
 
-        ElasticPluginConfigMetadataStore store = mock(ElasticPluginConfigMetadataStore.class);
+        ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(plugin, profileSettings, image));
 
-        when(store.getPlugins()).thenReturn(Arrays.asList(plugin));
-        when(store.find("docker-plugin")).thenReturn(plugin);
-        when(store.getProfileMetadata(plugin)).thenReturn(metadataKeys);
-        when(store.getIcon(plugin)).thenReturn(image);
-        when(store.getProfileView(plugin)).thenReturn(view);
+        Collection<ElasticPluginInfo> pluginInfos = new ElasticAgentPluginInfoBuilder(metadataStore).allPluginInfos();
 
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(store);
-        Collection<ElasticPluginInfo> pluginInfos = builder.allPluginInfos();
+        PluggableInstanceSettings elasticProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", Collections.singletonMap("secure", true))), new PluginView("profile_view"));
 
-        PluggableInstanceSettings settings = new PluggableInstanceSettings(PluginConfiguration.getPluginConfigurations(metadataKeys), new PluginView(view));
-
-        assertEquals(Arrays.asList(new ElasticPluginInfo(plugin, settings, image)), pluginInfos);
+        assertEquals(Arrays.asList(new ElasticPluginInfo(plugin, elasticProfileSettings, new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData()))), pluginInfos);
     }
 }

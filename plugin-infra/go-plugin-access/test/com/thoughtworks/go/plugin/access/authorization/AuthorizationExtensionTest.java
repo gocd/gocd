@@ -22,15 +22,12 @@ import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadata;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.core.Is;
 import org.json.JSONException;
@@ -45,6 +42,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
@@ -84,10 +82,10 @@ public class AuthorizationExtensionTest {
         String responseBody = "{\"supported_auth_type\":\"password\",\"can_search\":true}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        Capabilities capabilities = authorizationExtension.getCapabilities(PLUGIN_ID);
+        com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities = authorizationExtension.getCapabilities(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
-        assertThat(capabilities.getSupportedAuthType(), is(SupportedAuthType.Password));
+        assertThat(capabilities.getSupportedAuthType().toString(), is(SupportedAuthType.Password.toString()));
         assertThat(capabilities.canSearch(), is(true));
     }
 
@@ -96,22 +94,31 @@ public class AuthorizationExtensionTest {
         String responseBody = "[{\"key\":\"username\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"password\",\"metadata\":{\"required\":true,\"secure\":true}}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        PluginProfileMetadataKeys pluginConfigurationMetadata = authorizationExtension.getPluginConfigurationMetadata(PLUGIN_ID);
+        List<PluginConfiguration> authConfigMetadata = authorizationExtension.getAuthConfigMetadata(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_METADATA, null);
 
-        assertThat(pluginConfigurationMetadata, containsInAnyOrder(
-                new PluginProfileMetadataKey("username", new PluginProfileMetadata(true, false)),
-                new PluginProfileMetadataKey("password", new PluginProfileMetadata(true, true))
+        assertThat(authConfigMetadata.size(), is(2));
+        HashMap<String, Object> usernameMetadata = new HashMap<>();
+        usernameMetadata.put("required", true);
+        usernameMetadata.put("secure", false);
+
+        HashMap<String, Object> passwordMetadata = new HashMap<>();
+        passwordMetadata.put("required", true);
+        passwordMetadata.put("secure", true);
+
+        assertThat(authConfigMetadata, containsInAnyOrder(
+                new PluginConfiguration("username", usernameMetadata),
+                new PluginConfiguration("password", passwordMetadata)
         ));
     }
 
     @Test
-    public void shouldTalkToPlugin_To_GetPluginConfigurationView() throws Exception {
+    public void shouldTalkToPlugin_To_GetAuthConfigView() throws Exception {
         String responseBody = "{ \"template\": \"<div>This is view snippet</div>\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        String pluginConfigurationView = authorizationExtension.getPluginConfigurationView(PLUGIN_ID);
+        String pluginConfigurationView = authorizationExtension.getAuthConfigView(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_VIEW, null);
 
@@ -119,11 +126,11 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPlugin_To_ValidatePluginConfiguration() throws Exception {
+    public void shouldTalkToPlugin_To_ValidateAuthConfig() throws Exception {
         String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        ValidationResult validationResult = authorizationExtension.validatePluginConfiguration(PLUGIN_ID, Collections.emptyMap());
+        ValidationResult validationResult = authorizationExtension.validateAuthConfig(PLUGIN_ID, Collections.emptyMap());
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_AUTH_CONFIG, "{}");
 
@@ -144,7 +151,7 @@ public class AuthorizationExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VERIFY_CONNECTION, "{}");
 
-        verify(authorizationExtensionSpy).validatePluginConfiguration(PLUGIN_ID, Collections.emptyMap());
+        verify(authorizationExtensionSpy).validateAuthConfig(PLUGIN_ID, Collections.emptyMap());
     }
 
     @Test
@@ -152,12 +159,16 @@ public class AuthorizationExtensionTest {
         String responseBody = "[{\"key\":\"memberOf\",\"metadata\":{\"required\":true,\"secure\":false}}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        PluginProfileMetadataKeys pluginConfigurationMetadata = authorizationExtension.getRoleConfigurationMetadata(PLUGIN_ID);
+        List<PluginConfiguration> roleConfigurationMetadata = authorizationExtension.getRoleConfigurationMetadata(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ROLE_CONFIG_METADATA, null);
 
-        assertThat(pluginConfigurationMetadata, containsInAnyOrder(
-                new PluginProfileMetadataKey("memberOf", new PluginProfileMetadata(true, false))
+        assertThat(roleConfigurationMetadata.size(), is(1));
+        HashMap<String, Object> memberOfMetadata = new HashMap<>();
+        memberOfMetadata.put("required", true);
+        memberOfMetadata.put("secure", false);
+        assertThat(roleConfigurationMetadata, containsInAnyOrder(
+                new PluginConfiguration("memberOf", memberOfMetadata)
         ));
     }
 

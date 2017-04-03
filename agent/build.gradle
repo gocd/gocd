@@ -116,6 +116,7 @@ task verifyJar(type: VerifyJarTask) {
           "domain-${project.version}.jar",
           "dom4j-1.6.1.jar",
           "go-plugin-access-${project.version}.jar",
+          "go-plugin-domain-${project.version}.jar",
           "plugin-metadata-store-${project.version}.jar",
           "go-plugin-activator.jar",
           "go-plugin-api-${project.version}.jar",

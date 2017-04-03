@@ -18,11 +18,11 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -60,8 +60,6 @@ public class DefaultPluginInfoBuilder {
     @Autowired
     public DefaultPluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,
                                     NotificationPluginRegistry notificationPluginRegistry,
-                                    ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore,
-                                    AuthorizationPluginConfigMetadataStore authorizationPluginConfigMetadataStore,
                                     PluginManager pluginManager) {
         this.pluginManager = pluginManager;
 
@@ -70,8 +68,8 @@ public class DefaultPluginInfoBuilder {
         builders.put(PackageRepositoryExtension.EXTENSION_NAME, new PackageRepositoryPluginInfoBuilder(pluginManager, PackageMetadataStore.getInstance(), RepositoryMetadataStore.getInstance()));
         builders.put(TaskExtension.TASK_EXTENSION, new PluggableTaskPluginInfoBuilder(pluginManager, PluggableTaskConfigStore.store()));
         builders.put(SCMExtension.EXTENSION_NAME, new SCMPluginInfoBuilder(pluginManager, SCMMetadataStore.getInstance()));
-        builders.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentPluginInfoBuilder(elasticPluginConfigMetadataStore));
-        builders.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationPluginInfoBuilder(authorizationPluginConfigMetadataStore));
+        builders.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentPluginInfoBuilder(ElasticAgentMetadataStore.instance()));
+        builders.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationPluginInfoBuilder(AuthorizationMetadataStore.instance()));
     }
 
     public NewPluginInfo pluginInfoFor(String pluginId) {

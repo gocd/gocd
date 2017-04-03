@@ -16,23 +16,19 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
-import com.thoughtworks.go.server.ui.plugins.PluginView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Deprecated
-class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
-    private ElasticPluginConfigMetadataStore metadataStore;
+class ElasticAgentViewViewModelBuilder extends AbstractViewModelBuilder {
+    private ElasticAgentMetadataStore metadataStore;
 
-    ElasticAgentViewViewModelBuilder(ElasticPluginConfigMetadataStore metadataStore) {
+    ElasticAgentViewViewModelBuilder(ElasticAgentMetadataStore metadataStore) {
         this.metadataStore = metadataStore;
     }
 
@@ -40,9 +36,8 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for (PluginDescriptor descriptor : metadataStore.getPlugins()) {
-            Image icon = metadataStore.getIcon(descriptor);
-            pluginInfos.add(new PluginInfo(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME, null, null, icon));
+        for (ElasticAgentPluginInfo pluginInfo : metadataStore.getPlugins()) {
+            pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), ElasticAgentPluginConstants.EXTENSION_NAME, null, null, image(pluginInfo.getImage())));
         }
 
         return pluginInfos;
@@ -50,19 +45,13 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
 
     @Override
     public PluginInfo pluginInfoFor(String pluginId) {
-        PluginDescriptor descriptor = metadataStore.find(pluginId);
+        ElasticAgentPluginInfo pluginInfo = metadataStore.getPluginInfo(pluginId);
 
-        if (descriptor == null) {
+        if (pluginInfo == null) {
             return null;
         }
 
-        Image icon = metadataStore.getIcon(descriptor);
-
-        ArrayList<PluginConfiguration> pluginConfigurations = PluginConfiguration.getPluginConfigurations(metadataStore.getProfileMetadata(descriptor));
-
-        PluginView pluginView = new PluginView(metadataStore.getProfileView(descriptor));
-        PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
-
-        return new PluginInfo(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME, null, settings, icon);
+        return new PluginInfo(pluginInfo.getDescriptor(), ElasticAgentPluginConstants.EXTENSION_NAME, null,
+                settings(pluginInfo.getProfileSettings()), image(pluginInfo.getImage()));
     }
 }

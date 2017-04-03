@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,18 +37,18 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     private static final Gson GSON = new Gson();
 
     @Override
-    public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return Capabilities.fromJSON(responseBody);
+    public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
+        return Capabilities.fromJSON(responseBody).toCapabilites();
     }
 
     @Override
-    public Image getImageResponseFromBody(String responseBody) {
-        return Image.fromJSON(responseBody);
+    public com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
+        return Image.fromJSON(responseBody).toDomainImage();
     }
 
     @Override
-    public PluginProfileMetadataKeys getPluginConfigMetadataResponseFromBody(String responseBody) {
-        return PluginProfileMetadataKeys.fromJSON(responseBody);
+    public List<PluginConfiguration> getPluginConfigMetadataResponseFromBody(String responseBody) {
+        return PluginProfileMetadataKeys.fromJSON(responseBody).toPluginConfigurations();
     }
 
     @Override
@@ -66,8 +67,8 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public PluginProfileMetadataKeys getRoleConfigMetadataResponseFromBody(String responseBody) {
-        return PluginProfileMetadataKeys.fromJSON(responseBody);
+    public List<PluginConfiguration> getRoleConfigMetadataResponseFromBody(String responseBody) {
+        return PluginProfileMetadataKeys.fromJSON(responseBody).toPluginConfigurations();
     }
 
     @Override

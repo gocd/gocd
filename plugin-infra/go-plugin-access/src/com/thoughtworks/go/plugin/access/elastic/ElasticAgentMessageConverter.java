@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
@@ -38,7 +38,7 @@ public interface ElasticAgentMessageConverter {
 
     Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody);
 
-    PluginProfileMetadataKeys getProfileMetadataResponseFromBody(String responseBody);
+    List<PluginConfiguration> getProfileMetadataResponseFromBody(String responseBody);
 
     String getProfileViewResponseFromBody(String responseBody);
 
@@ -46,5 +46,5 @@ public interface ElasticAgentMessageConverter {
 
     String validateRequestBody(Map<String, String> configuration);
 
-    Image getImageResponseFromBody(String responseBody);
+    com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
 }

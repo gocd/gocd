@@ -16,38 +16,24 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.ElasticPluginInfo;
-import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
-import com.thoughtworks.go.server.ui.plugins.PluginView;
 
-import java.util.ArrayList;
+public class ElasticAgentPluginInfoBuilder extends PluginConfigMetadataStoreBasedPluginInfoBuilder<ElasticPluginInfo, ElasticAgentMetadataStore> {
 
-public class ElasticAgentPluginInfoBuilder extends PluginConfigMetadataStoreBasedPluginInfoBuilder<ElasticPluginInfo, ElasticPluginConfigMetadataStore> {
-
-    public ElasticAgentPluginInfoBuilder(ElasticPluginConfigMetadataStore store) {
+    public ElasticAgentPluginInfoBuilder(ElasticAgentMetadataStore store) {
         super(store);
     }
 
     @Override
     public ElasticPluginInfo pluginInfoFor(String pluginId) {
-        PluginDescriptor descriptor = store.find(pluginId);
-        if (descriptor == null) {
+        ElasticAgentPluginInfo pluginInfo = store.getPluginInfo(pluginId);
+
+        if(pluginInfo == null) {
             return null;
         }
 
-        Image icon = store.getIcon(descriptor);
-
-        ArrayList<PluginConfiguration> pluginConfigurations = PluginConfiguration.getPluginConfigurations(store.getProfileMetadata(descriptor));
-
-        PluginView pluginView = new PluginView(store.getProfileView(descriptor));
-        PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
-
-        return new ElasticPluginInfo(descriptor, settings, icon);
+        return new ElasticPluginInfo(pluginInfo.getDescriptor(), settings(pluginInfo.getProfileSettings()), image(pluginInfo.getImage()));
     }
-
-
 }

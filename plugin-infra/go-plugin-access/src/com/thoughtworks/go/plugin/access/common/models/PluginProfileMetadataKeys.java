@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.common.models;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +41,16 @@ public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadata
         }.getType());
 
         return new PluginProfileMetadataKeys(keys);
+    }
+
+    public List<PluginConfiguration> toPluginConfigurations() {
+        List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+
+        for(PluginProfileMetadataKey key: keys) {
+            pluginConfigurations.add(key.toPluginConfiguration());
+        }
+
+        return pluginConfigurations;
     }
 
     @Override

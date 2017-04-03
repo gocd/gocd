@@ -161,6 +161,7 @@ const ElasticProfilesWidget = {
       const onFulfilled = function (profileFromAjax) {
         newProfile(profileFromAjax);
         newProfile().id('');
+        newProfile().etag(null);
         newProfile().errors().add('id', "Provide id to your clone.");
         errorMessage(null);
       };

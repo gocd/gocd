@@ -281,11 +281,11 @@ describe("ElasticProfilesWidget", () => {
     afterEach(Modal.destroyAll);
     it("should popup a new modal to allow edditing a profile", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(profileJSON),
+        responseText:    JSON.stringify(profileJSON),
         responseHeaders: {
           'ETag': '"foo"'
         },
-        status:       200
+        status:          200
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
@@ -370,8 +370,11 @@ describe("ElasticProfilesWidget", () => {
 
     it("should show modal with profile daa", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(profileJSON),
-        status:       200
+        responseText:    JSON.stringify(profileJSON),
+        status:          200,
+        responseHeaders: {
+          'ETag': '"foo"'
+        }
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
@@ -392,6 +395,35 @@ describe("ElasticProfilesWidget", () => {
       m.redraw();
 
       expect($('.alert')).toContainText('Boom!');
+    });
+
+    it("should allow cloning a profile if save is successful", () => {
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(profileJSON),
+        status:          200,
+        responseHeaders: {
+          'ETag': '"foo"'
+        }
+      });
+
+      simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+
+      const profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
+      $(profileId).val("foo-clone");
+      simulateEvent.simulate(profileId, 'input');
+
+      jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
+        responseText: JSON.stringify({data: profileJSON}),
+        status:       200
+      });
+
+      simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
+
+      const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
+      expect(request.url).toBe('/go/api/elastic/profiles');
+      expect(request.method).toBe('POST');
+
+      expect($('.success')).toContainText('The profile foo-clone was cloned successfully');
     });
 
   });

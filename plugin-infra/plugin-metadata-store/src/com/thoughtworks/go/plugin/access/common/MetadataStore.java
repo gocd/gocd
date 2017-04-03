@@ -22,10 +22,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 public class MetadataStore<T extends PluginInfo> {
     protected Map<String, T> pluginInfos = new ConcurrentHashMap<>();
 
     public T getPluginInfo(String pluginId) {
+        if (isEmpty(pluginId)) {
+            return null;
+        }
         return pluginInfos.get(pluginId);
     }
 

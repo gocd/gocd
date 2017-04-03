@@ -41,7 +41,7 @@ public abstract class AbstractViewModelBuilder implements ViewModelBuilder {
 
         List<PluginConfiguration> configurations = new ArrayList<>();
         for(com.thoughtworks.go.plugin.domain.common.PluginConfiguration configuration : settings.getConfigurations()) {
-            configurations.add(new PluginConfiguration(configuration.getKey(), configuration.getMetadata()));
+            configurations.add(new PluginConfiguration(configuration.getKey(), configuration.getMetadata().toMap()));
         }
 
         String template = settings.getView() != null ? settings.getView().getTemplate() : null;

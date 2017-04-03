@@ -28,8 +28,4 @@ public class ElasticAgentMetadataStore extends MetadataStore<ElasticAgentPluginI
     public static ElasticAgentMetadataStore instance() {
         return store;
     }
-
-    public static ElasticAgentMetadataStore newInstanceForTest() {
-        return new ElasticAgentMetadataStore();
-    }
 }

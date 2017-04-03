@@ -27,8 +27,6 @@ import java.util.List;
 
 @Deprecated
 class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
-
-
     private AuthorizationMetadataStore metadataStore;
 
     AuthorizationViewModelBuilder(AuthorizationMetadataStore metadataStore) {
@@ -47,7 +45,6 @@ class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
 
         return pluginInfos;
     }
-
 
     @Override
     public PluginInfo pluginInfoFor(String pluginId) {

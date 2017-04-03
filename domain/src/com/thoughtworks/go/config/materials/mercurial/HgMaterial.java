@@ -324,7 +324,7 @@ public class HgMaterial extends ScmMaterial {
                 '}';
     }
 
-    String getBranch() {
+    public String getBranch() {
         return getBranchFromUrl(url.forCommandline());
     }
 

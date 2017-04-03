@@ -57,7 +57,8 @@
       applyStyle(parentElement, { "padding-top": element.height() });
     } else if (scroll >= options.requiredScroll && options.bottomLimit) {
       applyStyle(element, $.extend({}, styleAttrs, {
-        top: options.bottomLimit()
+        top: options.bottomLimit(),
+        width: parentElement.width()
       }));
     } else {
       clearStyles(element);

@@ -1849,7 +1849,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 
     &.open #buildlist-container {
       position: absolute;
-      z-index: 1;
+      z-index: 101;
       top: 43px;
       bottom: 0;
       overflow: auto;

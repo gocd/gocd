@@ -212,7 +212,7 @@ const AgentsWidget = {
                 </div>
               </f.column>
 
-              <f.column size={6} largeSize={8} class="show-for-large-only">
+              <f.column size={6} largeSize={8} class="show-for-large">
                 <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
               </f.column>
 

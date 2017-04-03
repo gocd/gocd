@@ -18,6 +18,7 @@
 
   function ConsoleLogObserver(url, transformer, options) {
     var me   = this;
+    var enabled = false;
 
     var startLineNumber = 0;
     var inFlight = false;
@@ -34,7 +35,20 @@
       inFlight = false;
     }
 
+    var deferredResult;
+
     function consumeBuildLog(jobResultJson) {
+      if (enabled) {
+        // this function may have been called asynchronously (e.g. enabled set after WebSocket failure)
+        // so if we weren't provided a jobResultJson through notify(), used the last saved value
+        jobResultJson = jobResultJson || deferredResult;
+        deferredResult = null;
+      } else {
+        // save the result in case we activate and call this function at a later time
+        if (jobResultJson) deferredResult = jobResultJson;
+        return;
+      }
+
       // Might be a bug with the "beforeSend" AJAX option in this version of jQuery.
       // When acquireLock() returns false, $.ajax() returns false, and thus fails
       // to attach the done() and always() callbacks.
@@ -56,14 +70,16 @@
 
           if ("" === lineSet[lineSet.length - 1]) lineSet.pop(); // regex generally leaves a terminal blank line for each set
 
+          // do this before the loop as the loop alters the array in-place
+          startLineNumber += lineSet.length;
+
           while (lineSet.length) {
             slice = lineSet.splice(0, 1000);
             transformer.transform(slice);
           }
-          startLineNumber = nextLine;
         }
 
-        finished = jobResultJson[0].building_info.is_completed.toLowerCase() === "true";
+        finished = jobResultJson && jobResultJson[0].building_info.is_completed.toLowerCase() === "true";
         if (options && "function" === typeof options.onUpdate) {
           transformer.invoke(options.onUpdate);
         }
@@ -74,7 +90,10 @@
       }).fail($.noop).always(clearLock);
     }
 
-    me.notify = consumeBuildLog;
+    this.notify = consumeBuildLog;
+    this.enable = function activateConsolePolling() {
+      enabled = true;
+    };
   }
 
   // export

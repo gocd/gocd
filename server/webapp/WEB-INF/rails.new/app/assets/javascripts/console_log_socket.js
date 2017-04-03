@@ -17,8 +17,8 @@
 (function($) {
   "use strict";
 
-  function startTailingConsole(observer) {
-    var startLine = 0, socket, ansi = ansi_up.ansi_to_html_obj();
+  function ConsoleLogSocket(fallbackObserver, transformer, options) {
+    var startLine = 0, socket;
 
     var details = $(".job_details_content"), contentArea = $(".buildoutput_pre");
     var fatal = false;
@@ -50,8 +50,8 @@
 
     function fallbackToPolling(e) {
       fatal = true; // prevent close handler from trying to reconnect
-      observer.shouldPollForLogs = true;
-      observer.update_live_output();
+      fallbackObserver.enable();
+      fallbackObserver.notify();
     }
 
     function maybeResume(e) {
@@ -59,6 +59,10 @@
 
       if (e.type === "close" && e.code !== 4004) {
         startLine = 0;
+
+        if (options && "function" === typeof options.onComplete) {
+          options.onComplete();
+        }
         return;
       }
 
@@ -66,22 +70,20 @@
     }
 
     function renderLines(e) {
-      var build_output = e.data, lines, slices = [];
+      var buildOutput = e.data, lines, slice = [];
 
-      function dequeueConsoleSlice() {
-        contentArea.append(slices.shift().join("\n") + "\n"); // ensure terminal newline
-        if (observer.enableTailing) observer.scrollToBottom();
-      }
-
-      if (build_output) {
-        lines = ansi.ansi_to_html(ansi.escape_for_html(build_output), {use_classes: true}).split(/\r?\n/);
+      if (buildOutput) {
+        lines = buildOutput.split(/\r?\n/);
 
         startLine += lines.length;
 
-        while (lines.length > 0) {
-          slices.push(lines.splice(0, 250));
+        while (lines.length) {
+          slice = lines.splice(0, 1000);
+          transformer.transform(slice);
+        }
 
-          window.requestAnimationFrame(dequeueConsoleSlice);
+        if (options && "function" === typeof options.onUpdate) {
+          options.onUpdate();
         }
       }
     }
@@ -89,5 +91,5 @@
     init();
   }
 
-  window.startTailingConsole = startTailingConsole;
+  window.ConsoleLogSocket = ConsoleLogSocket;
 })(jQuery);

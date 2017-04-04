@@ -25,12 +25,6 @@ AGENT_DIR=`(cd "$CWD" && pwd)`
 
 AGENT_WORK_DIR=${AGENT_WORK_DIR:-"$AGENT_DIR"}
 
-if [ -d /var/log/go-agent ]; then
-    LOG_FILE=/var/log/go-agent/agent-bootstrapper.log
-else
-    LOG_FILE=$AGENT_WORK_DIR/agent-bootstrapper.log
-fi
-
 if [ "$PID_FILE" ]; then
     echo "Overriding PID_FILE with $PID_FILE"
 elif [ -d /var/run/go-agent ]; then

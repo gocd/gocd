@@ -165,7 +165,6 @@ if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
 fi
 export AGENT_STARTUP_ARGS
 export LOG_DIR
-export LOG_FILE
 
 eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
 AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")

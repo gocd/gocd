@@ -18,7 +18,6 @@ description = 'GoCD Config API'
 dependencies {
   compile project(':util')
   compile project(':plugin-metadata-store')
-  compile project(':go-plugin-domain')
   compile project(':db')
   compile group: 'org.quartz-scheduler', name: 'quartz', version: '1.6.5'
   compile group: 'uk.com.robust-it', name: 'cloning', version: '1.7.3'

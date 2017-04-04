@@ -17,17 +17,16 @@
 package com.thoughtworks.go.plugin.access.common;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
-import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
-public abstract class MetadataLoader<T extends PluginInfo> implements PluginChangeListener {
-    private final PluginInfoBuilder<T> builder;
-    private final MetadataStore<T> metadataStore;
+public abstract class MetadataLoader implements PluginChangeListener {
+    private final PluginInfoBuilder builder;
+    private final MetadataStore metadataStore;
     private final AbstractExtension extension;
 
-    public MetadataLoader(PluginManager pluginManager, PluginInfoBuilder<T> builder, MetadataStore<T> metadataStore, AbstractExtension extension) {
+    public MetadataLoader(PluginManager pluginManager, PluginInfoBuilder builder, MetadataStore metadataStore, AbstractExtension extension) {
         this.builder = builder;
         this.metadataStore = metadataStore;
         this.extension = extension;

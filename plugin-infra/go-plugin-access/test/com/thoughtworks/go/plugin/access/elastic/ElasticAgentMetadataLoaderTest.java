@@ -41,7 +41,7 @@ public class ElasticAgentMetadataLoaderTest {
     public void setUp() throws Exception {
         extension = mock(ElasticAgentExtension.class);
         infoBuilder = mock(ElasticAgentPluginInfoBuilder.class);
-        metadataStore = mock(ElasticAgentMetadataStore.class);
+        metadataStore = ElasticAgentMetadataStore.newInstanceForTest();
         pluginManager = mock(PluginManager.class);
     }
 
@@ -63,7 +63,7 @@ public class ElasticAgentMetadataLoaderTest {
 
         metadataLoader.pluginLoaded(descriptor);
 
-        verify(metadataStore).setPluginInfo(pluginInfo);
+        assertThat(metadataStore.getPluginInfo(descriptor.id()), is(pluginInfo));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ElasticAgentMetadataLoaderTest {
         metadataLoader.pluginLoaded(descriptor);
 
         verifyZeroInteractions(infoBuilder);
-        verifyZeroInteractions(metadataStore);
+        assertNull(metadataStore.getPluginInfo(descriptor.id()));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ElasticAgentMetadataLoaderTest {
 
         metadataLoader.pluginUnLoaded(descriptor);
 
-        verify(metadataStore).remove(descriptor.id());
+        assertNull(metadataStore.getPluginInfo(descriptor.id()));
     }
 }
 

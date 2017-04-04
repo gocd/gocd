@@ -19,7 +19,10 @@ package com.thoughtworks.go.plugin.access.authorization;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
-import com.thoughtworks.go.plugin.domain.common.*;
+import com.thoughtworks.go.plugin.domain.common.Image;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +48,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithAuthSettings() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("username", new Metadata(true, false)));
+        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("username", Collections.singletonMap("secure", false)));
 
         when(extension.getAuthConfigMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getAuthConfigView(descriptor.id())).thenReturn("auth_config");
@@ -58,7 +61,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithRoleSettings() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("group", new Metadata(true, false)));
+        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("group", Collections.singletonMap("secure", false)));
 
         when(extension.getRoleConfigurationMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getRoleConfigurationView(descriptor.id())).thenReturn("role_config");

@@ -56,4 +56,8 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
         }
         return plugins;
     }
+
+    public static AuthorizationMetadataStore newInstanceForTest() {
+        return new AuthorizationMetadataStore();
+    }
 }

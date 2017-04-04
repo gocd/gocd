@@ -16,25 +16,23 @@
 
 package com.thoughtworks.go.plugin.domain.common;
 
+import java.util.Map;
+
 public class PluginConfiguration {
     private final String key;
-    private final Metadata metadata;
+    private final Map<String, Object> metadata;
 
-    public PluginConfiguration(String key, Metadata metadata) {
+    public PluginConfiguration(String key, Map<String, Object> metadata) {
         this.key = key;
-        this.metadata = metadata != null ? metadata : new Metadata(false, false);
+        this.metadata = metadata;
     }
 
     public String getKey() {
         return key;
     }
 
-    public Metadata getMetadata() {
+    public Map<String, Object> getMetadata() {
         return metadata;
-    }
-
-    public boolean isSecure() {
-        return metadata.isSecure();
     }
 
     @Override

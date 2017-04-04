@@ -17,52 +17,27 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 
 import java.util.Collection;
 
 @ConfigTag("authConfig")
 @ConfigCollection(value = ConfigurationProperty.class)
 public class SecurityAuthConfig extends PluginProfile {
-    private final AuthorizationMetadataStore store;
-
     public SecurityAuthConfig() {
         super();
-        this.store = AuthorizationMetadataStore.instance();
     }
 
     public SecurityAuthConfig(String id, String pluginId, ConfigurationProperty... props) {
         super(id, pluginId, props);
-        this.store = AuthorizationMetadataStore.instance();
     }
 
     public SecurityAuthConfig(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
         this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
-    protected SecurityAuthConfig(String id, String pluginId, AuthorizationMetadataStore store, ConfigurationProperty... props) {
-        super(id, pluginId, props);
-
-        this.store = store;
-    }
-
     @Override
     protected String getObjectDescription() {
         return "Security authorization configuration";
-    }
-
-    @Override
-    protected boolean isSecure(String key) {
-        AuthorizationPluginInfo pluginInfo = this.store.getPluginInfo(getPluginId());
-
-        if (pluginInfo == null
-                || pluginInfo.getAuthConfigSettings() == null
-                || pluginInfo.getAuthConfigSettings().getConfiguration(key) == null) {
-            return false;
-        }
-
-        return pluginInfo.getAuthConfigSettings().getConfiguration(key).isSecure();
     }
 
     public boolean hasRole(PluginRoleConfig role) {

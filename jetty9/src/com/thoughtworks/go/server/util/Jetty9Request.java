@@ -44,4 +44,9 @@ public class Jetty9Request implements ServletRequest {
     public void setRequestURI(String uri) {
         request.setRequestURI(uri);
     }
+
+    @Override
+    public String getRootURL() {
+        return request.getRootURL().toString();
+    }
 }

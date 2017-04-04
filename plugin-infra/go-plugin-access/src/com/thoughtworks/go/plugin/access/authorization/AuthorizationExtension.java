@@ -181,8 +181,8 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public Map<String, String> grantIdentityProviderAccess(String pluginId, Map<String, String> requestHeaders, final Map<String, String> requestParams, List<SecurityAuthConfig> authConfigs) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_IDENTITY_PROVIDER_ACCESS, new DefaultPluginInteractionCallback<Map<String, String>>() {
+    public Map<String, String> fetchAccessToken(String pluginId, Map<String, String> requestHeaders, final Map<String, String> requestParams, List<SecurityAuthConfig> authConfigs) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_ACCESS_TOKEN, new DefaultPluginInteractionCallback<Map<String, String>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).grantAccessRequestBody(authConfigs);
@@ -227,11 +227,11 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public String getIdentityProviderRedirectUrl(String pluginId, List<SecurityAuthConfig> authConfigs) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_IDENTITY_PROVIDER_URL, new DefaultPluginInteractionCallback<String>() {
+    public String getAuthorizationServerRedirectUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).identityProviderUrlRequestBody(authConfigs);
+                return getMessageConverter(resolvedExtensionVersion).authorizationServerRedirectUrlRequestBody(pluginId, authConfigs, siteUrl);
             }
 
             @Override

@@ -17,11 +17,16 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.server.util.ServletHelper;
+import com.thoughtworks.go.server.web.BaseUrlProvider;
+import com.thoughtworks.go.server.web.SiteUrlProvider;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,6 +34,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class BasicAuthenticationFilter extends BasicProcessingFilter {

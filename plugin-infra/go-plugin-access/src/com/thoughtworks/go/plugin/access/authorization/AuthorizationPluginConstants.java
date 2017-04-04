@@ -43,6 +43,6 @@ public interface AuthorizationPluginConstants {
     String REQUEST_AUTHENTICATE_USER = REQUEST_PREFIX + ".authenticate-user";
     String REQUEST_SEARCH_USERS = REQUEST_PREFIX + ".search-users";
 
-    String REQUEST_IDENTITY_PROVIDER_ACCESS = REQUEST_PREFIX + ".identity-provider-access";
-    String REQUEST_IDENTITY_PROVIDER_URL = REQUEST_PREFIX + ".identity-provider-url";
+    String REQUEST_ACCESS_TOKEN = REQUEST_PREFIX + ".fetch-access-token";
+    String REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL = REQUEST_PREFIX + ".authorization-server-redirect-url";
 }

@@ -20,8 +20,10 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.web.SiteUrlProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.SpringSecurityFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,24 +34,27 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WebBasedPluginAuthenticationFilter extends BasicProcessingFilter {
+public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
     private static final Pattern LOGIN_REQUEST_PATTERN = Pattern.compile("^/go/plugin/([^\\s]+)/login$");
     private AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
+    private SiteUrlProvider siteUrlProvider;
 
     @Autowired
-    public WebBasedPluginAuthenticationFilter(AuthorizationExtension authorizationExtension, GoConfigService goConfigService) {
+    public WebBasedAuthenticationFilter(AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
+                                        SiteUrlProvider siteUrlProvider) {
         this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
+        this.siteUrlProvider = siteUrlProvider;
     }
 
     @Override
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
         if(isWebBasedPluginLoginRequest(httpRequest)) {
-            httpResponse.sendRedirect(identityProviderRedirectUrl(pluginId(httpRequest)));
+            httpResponse.sendRedirect(authorizationServerRedirectUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest)));
         }
 
-        super.doFilterHttp(httpRequest, httpResponse, chain);
+        chain.doFilter(httpRequest, httpResponse);
     }
 
     private String pluginId(HttpServletRequest request) {
@@ -59,12 +64,17 @@ public class WebBasedPluginAuthenticationFilter extends BasicProcessingFilter {
         return matcher.group(1);
     }
 
-    private String identityProviderRedirectUrl(String pluginId) {
+    private String authorizationServerRedirectUrl(String pluginId, String siteUrl) {
         List<SecurityAuthConfig> authConfigs = goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
-        return this.authorizationExtension.getIdentityProviderRedirectUrl(pluginId, authConfigs);
+        return this.authorizationExtension.getAuthorizationServerRedirectUrl(pluginId, authConfigs, siteUrl);
     }
 
     private boolean isWebBasedPluginLoginRequest(HttpServletRequest request) {
         return LOGIN_REQUEST_PATTERN.matcher(request.getRequestURI()).matches();
+    }
+
+    @Override
+    public int getOrder() {
+        return FilterChainOrder.PRE_AUTH_FILTER - 1;
     }
 }

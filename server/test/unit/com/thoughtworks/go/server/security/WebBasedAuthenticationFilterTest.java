@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.web.SiteUrlProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,15 +34,16 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public class WebBasedPluginAuthenticationFilterTest {
+public class WebBasedAuthenticationFilterTest {
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain filterChain;
-    private WebBasedPluginAuthenticationFilter filter;
+    private WebBasedAuthenticationFilter filter;
     private AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
     private SecurityConfig securityConfig;
     private SecurityAuthConfig securityAuthConfig;
+    private SiteUrlProvider siteUrlProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -50,29 +52,31 @@ public class WebBasedPluginAuthenticationFilterTest {
         filterChain = mock(FilterChain.class);
         authorizationExtension = mock(AuthorizationExtension.class);
         goConfigService = mock(GoConfigService.class);
+        siteUrlProvider = mock(SiteUrlProvider.class);
         securityConfig = new SecurityConfig();
 
         securityAuthConfig = new SecurityAuthConfig("github", "github.oauth", new ConfigurationProperty());
         securityConfig.securityAuthConfigs().add(securityAuthConfig);
         stub(goConfigService.security()).toReturn(securityConfig);
-        filter = new WebBasedPluginAuthenticationFilter(authorizationExtension, goConfigService);
+        filter = new WebBasedAuthenticationFilter(authorizationExtension, goConfigService, siteUrlProvider);
     }
 
     @Test
     public void shouldHandleOnlyWebBasedPluginAuthenticationRequests() throws Exception {
         when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/login");
+        when(siteUrlProvider.siteUrl(request)).thenReturn("http://go.site.url");
 
         filter.doFilter(request, response, filterChain);
 
-        verify(authorizationExtension).getIdentityProviderRedirectUrl("github.oauth", Collections.singletonList(securityAuthConfig));
+        verify(authorizationExtension).getAuthorizationServerRedirectUrl("github.oauth", Collections.singletonList(securityAuthConfig), "http://go.site.url");
     }
 
     @Test
-    public void shouldRedirectToIdentityProviderUrlProvidedByPlugin() throws Exception {
+    public void shouldRedirectToAuthorizationServerUrlProvidedByPlugin() throws Exception {
         String redirectUrl = "http://github/oauth/login";
 
         when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/login");
-        when(authorizationExtension.getIdentityProviderRedirectUrl(eq("github.oauth"), any(List.class))).thenReturn(redirectUrl);
+        when(authorizationExtension.getAuthorizationServerRedirectUrl(eq("github.oauth"), any(List.class), any(String.class))).thenReturn(redirectUrl);
 
         filter.doFilter(request, response, filterChain);
 

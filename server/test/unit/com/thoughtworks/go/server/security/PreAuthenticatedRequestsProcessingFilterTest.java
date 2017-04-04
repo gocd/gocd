@@ -112,7 +112,7 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
     }
 
     @Test
-    public void shouldGetCredentialsFromThePlugin() {
+    public void shouldFetchAuthorizationServerAccessTokenFromThePlugin() {
         HashMap<String, String[]> params = new HashMap<>();
         params.put("code", new String[]{"some_auth_code"});
         SecurityAuthConfig githubAuthConfig = new SecurityAuthConfig("github", "github.oauth");
@@ -123,11 +123,11 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
         when(request.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList("Authorization")));
         when(request.getHeader("Authorization")).thenReturn("qwe123");
 
-        when(authorizationExtension.grantIdentityProviderAccess("github.oauth", Collections.singletonMap("Authorization", "qwe123"),
+        when(authorizationExtension.fetchAccessToken("github.oauth", Collections.singletonMap("Authorization", "qwe123"),
                 Collections.singletonMap("code", "some_auth_code"), Collections.singletonList(githubAuthConfig))).
                 thenReturn(Collections.singletonMap("access_token", "token"));
 
-        Map<String, String> credentials = filter.getPreAuthenticatedCredentials(request);
+        Map<String, String> credentials = filter.fetchAuthorizationServerAccessToken(request);
 
         assertThat(credentials, hasEntry("access_token", "token"));
     }
@@ -144,7 +144,7 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
         when(request.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList("Authorization")));
         when(request.getHeader("Authorization")).thenReturn("qwe123");
         when(request.getParameterMap()).thenReturn(params);
-        when(authorizationExtension.grantIdentityProviderAccess("github.oauth", Collections.singletonMap("Authorization", "qwe123"),
+        when(authorizationExtension.fetchAccessToken("github.oauth", Collections.singletonMap("Authorization", "qwe123"),
                 Collections.singletonMap("code", "some_auth_code"), Collections.singletonList(githubAuthConfig))).
                 thenReturn(Collections.singletonMap("access_token", "token"));
         when(authenticationManager.authenticate(any(PreAuthenticatedAuthenticationToken.class))).thenReturn(token);

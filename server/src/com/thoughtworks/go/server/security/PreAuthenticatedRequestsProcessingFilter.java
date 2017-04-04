@@ -47,17 +47,17 @@ public class PreAuthenticatedRequestsProcessingFilter extends AbstractProcessing
         this.configService = configService;
     }
 
-    protected Map<String, String> getPreAuthenticatedCredentials(HttpServletRequest request) {
+    protected Map<String, String> fetchAuthorizationServerAccessToken(HttpServletRequest request) {
         String pluginId = pluginId(request);
         List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginId);
 
-        return authorizationExtension.grantIdentityProviderAccess(pluginId, getRequestHeaders(request), getParameterMap(request), authConfigs);
+        return authorizationExtension.fetchAccessToken(pluginId, getRequestHeaders(request), getParameterMap(request), authConfigs);
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
         PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(null,
-                getPreAuthenticatedCredentials(request), pluginId(request));
+                fetchAuthorizationServerAccessToken(request), pluginId(request));
 
         Authentication authResult = this.getAuthenticationManager().authenticate(authRequest);
 

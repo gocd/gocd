@@ -197,9 +197,10 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String identityProviderUrlRequestBody(List<SecurityAuthConfig> authConfigs) {
+    public String authorizationServerRedirectUrlRequestBody(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("auth_configs", getAuthConfigs(authConfigs));
+        requestMap.put("authorization_server_callback_url", authorizationServerCallbackUrl(pluginId, siteUrl));
 
         return GSON.toJson(requestMap);
     }
@@ -212,4 +213,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         return template;
     }
 
+    private String authorizationServerCallbackUrl(String pluginId, String siteUrl) {
+        return String.format("%s/go/plugin/%s/authenticate", siteUrl, pluginId);
+    }
 }

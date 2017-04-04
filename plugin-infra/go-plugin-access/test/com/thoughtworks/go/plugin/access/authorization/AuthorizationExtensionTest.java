@@ -299,7 +299,7 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPlugin_To_GetIdentityProviderRedirectUrl() throws JSONException {
+    public void shouldTalkToPlugin_To_GetAuthorizationServerRedirectUrl() throws JSONException {
         String requestBody = "{\n" +
                 "  \"auth_configs\": [\n" +
                 "    {\n" +
@@ -308,17 +308,18 @@ public class AuthorizationExtensionTest {
                 "        \"url\": \"some-url\"\n" +
                 "      }\n" +
                 "    }\n" +
-                "  ]\n" +
+                "  ],\n" +
+                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n"+
                 "}";
         String responseBody = "{\"identity_provider_url\":\"url_to_identity_provder\"}";
         SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", ConfigurationPropertyMother.create("url", false, "some-url"));
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        String identityProviderRedirectUrl = authorizationExtension.getIdentityProviderRedirectUrl(PLUGIN_ID, Collections.singletonList(authConfig));
+        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerRedirectUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_IDENTITY_PROVIDER_URL, requestBody);
-        assertThat(identityProviderRedirectUrl, is("url_to_identity_provder"));
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL, requestBody);
+        assertThat(authorizationServerRedirectUrl, is("url_to_identity_provder"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

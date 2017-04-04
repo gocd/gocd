@@ -60,7 +60,19 @@
 }
 
 .notification-content {
+  display: flex;
   color:   $txt-color;
+
+  .email-settings {
+    flex:  0 0 auto;
+    width: 15em;
+  }
+
+  .filter-controls {
+    flex: 1 1 auto;
+    border-left: 1px solid $border-color;
+    padding-left: 20px;
+  }
 
   h2, legend {
     text-transform: uppercase;
@@ -68,13 +80,20 @@
     font-weight:    500;
   }
 
+  thead {
+    background: $table-header-bg;
+  }
+
   label {
     margin-right: 10px;
   }
 
-  label span {
+  label span, th {
     font-size: 13px;
     font-weight: bold;
+  }
+
+  label span {
     display: block;
   }
 
@@ -83,7 +102,7 @@
     display: inline;
   }
 
-  input[type='text'] {
+  td, input[type='text'] {
     font-size: 13px;
   }
 

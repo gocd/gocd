@@ -20,7 +20,10 @@
   const Stream = require("mithril/stream");
 
   const EmailSettingsView = require('views/preferences/email_settings');
+  const FiltersListView   = require('views/preferences/filters_list');
+
   const EmailSettingsModel = require('models/preferences/email_settings_model');
+  const FiltersModel       = require('models/preferences/filters_model');
 
   $(function ready() {
 
@@ -32,10 +35,14 @@
     const validations = document.getElementById("validations");
 
     const userUrl     = dataAttr(main, "user-url");
+    const filtersUrl  = dataAttr(main, "filters-url");
 
     const errorsModel = Stream();
     const emailSettingsModel = new EmailSettingsModel(userUrl, errorsModel);
+    const filtersModel       = new FiltersModel(filtersUrl, errorsModel);
+
     const EmailSettings = new EmailSettingsView(emailSettingsModel);
+    const Filters       = new FiltersListView(filtersModel);
 
     const ErrorMessage = {
       oninit(vnode) {
@@ -58,7 +65,11 @@
     m.mount(main, {
       view() {
         return [
-          m(EmailSettings)
+          m(EmailSettings),
+          m("div", {class: "filter-controls"},
+            m("h2", "Current Notification Filters"),
+            m(Filters)
+          )
         ];
       }
     });

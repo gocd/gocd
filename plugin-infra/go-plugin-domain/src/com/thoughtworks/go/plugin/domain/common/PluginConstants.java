@@ -18,5 +18,5 @@ package com.thoughtworks.go.plugin.domain.common;
 
 public interface PluginConstants {
     String AUTHORIZATION_EXTENSION = "authorization";
-    String AUTHENTICATION_EXTENSION = "authentication";
+    String ELASTIC_AGENT_EXTENSION = "elastic-agent";
 }

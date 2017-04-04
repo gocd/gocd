@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.common.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 
@@ -46,7 +47,7 @@ public class PluginProfileMetadataKey {
     }
 
     public PluginConfiguration toPluginConfiguration() {
-        return new PluginConfiguration(key, getMetadata().toMap());
+        return new PluginConfiguration(key, getMetadata().toMetadata());
     }
 
     @Override

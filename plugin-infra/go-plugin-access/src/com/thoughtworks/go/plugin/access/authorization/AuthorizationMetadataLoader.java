@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AuthorizationMetadataLoader extends MetadataLoader {
+public class AuthorizationMetadataLoader extends MetadataLoader<AuthorizationPluginInfo> {
     @Autowired
     public AuthorizationMetadataLoader(PluginManager pluginManager, AuthorizationPluginInfoBuilder builder, AuthorizationExtension extension) {
         this(pluginManager, AuthorizationMetadataStore.instance(), builder, extension);

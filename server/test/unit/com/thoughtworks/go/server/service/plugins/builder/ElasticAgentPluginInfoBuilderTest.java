@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.ElasticPluginInfo;
@@ -26,10 +27,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginView;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
@@ -46,7 +44,7 @@ public class ElasticAgentPluginInfoBuilderTest {
                 new GoPluginDescriptor.Vendor("ThoughtWorks Go Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X"));
         GoPluginDescriptor plugin = new GoPluginDescriptor("docker-plugin", "1.0", about, null, null, false);
 
-        com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", Collections.singletonMap("secure", true))),
+        com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", new Metadata(true, true))),
                 new com.thoughtworks.go.plugin.domain.common.PluginView("profile_view"));
         com.thoughtworks.go.plugin.domain.common.Image image =
                 new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
@@ -56,7 +54,10 @@ public class ElasticAgentPluginInfoBuilderTest {
 
         ElasticPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(metadataStore).pluginInfoFor(plugin.id());
 
-        PluggableInstanceSettings elasticProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", Collections.singletonMap("secure", true))), new PluginView("profile_view"));
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("required", true);
+        metadata.put("secure", true);
+        PluggableInstanceSettings elasticProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", metadata)), new PluginView("profile_view"));
 
         assertEquals(new ElasticPluginInfo(plugin, elasticProfileSettings, new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData())), pluginInfo);
     }
@@ -74,7 +75,7 @@ public class ElasticAgentPluginInfoBuilderTest {
                 new GoPluginDescriptor.Vendor("ThoughtWorks Go Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X"));
         GoPluginDescriptor plugin = new GoPluginDescriptor("docker-plugin", "1.0", about, null, null, false);
 
-        com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", Collections.singletonMap("secure", true))),
+        com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", new Metadata(true, true))),
                 new com.thoughtworks.go.plugin.domain.common.PluginView("profile_view"));
         com.thoughtworks.go.plugin.domain.common.Image image =
                 new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
@@ -84,7 +85,11 @@ public class ElasticAgentPluginInfoBuilderTest {
 
         Collection<ElasticPluginInfo> pluginInfos = new ElasticAgentPluginInfoBuilder(metadataStore).allPluginInfos();
 
-        PluggableInstanceSettings elasticProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", Collections.singletonMap("secure", true))), new PluginView("profile_view"));
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("required", true);
+        metadata.put("secure", true);
+
+        PluggableInstanceSettings elasticProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", metadata)), new PluginView("profile_view"));
 
         assertEquals(Arrays.asList(new ElasticPluginInfo(plugin, elasticProfileSettings, new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData()))), pluginInfos);
     }

@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 
 import java.util.Collection;
 
@@ -27,16 +29,25 @@ import java.util.Collection;
 @ConfigCollection(value = ConfigurationProperty.class)
 public class ElasticProfile extends PluginProfile {
 
+    private final ElasticAgentMetadataStore store;
+
     public ElasticProfile() {
         super();
+        this.store = ElasticAgentMetadataStore.instance();
     }
 
     public ElasticProfile(String id, String pluginId, ConfigurationProperty... props) {
         super(id, pluginId, props);
+        this.store = ElasticAgentMetadataStore.instance();
     }
 
     public ElasticProfile(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
         this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
+    }
+
+    protected ElasticProfile(String id, String pluginId, ElasticAgentMetadataStore store, ConfigurationProperty... props) {
+        super(id, pluginId, props);
+        this.store = store;
     }
 
     @Override
@@ -44,4 +55,16 @@ public class ElasticProfile extends PluginProfile {
         return "Elastic agent profile";
     }
 
+    @Override
+    protected boolean isSecure(String key) {
+        ElasticAgentPluginInfo pluginInfo = this.store.getPluginInfo(getPluginId());
+
+        if (pluginInfo == null
+                || pluginInfo.getProfileSettings() == null
+                || pluginInfo.getProfileSettings().getConfiguration(key) == null) {
+            return false;
+        }
+
+        return pluginInfo.getProfileSettings().getConfiguration(key).isSecure();
+    }
 }

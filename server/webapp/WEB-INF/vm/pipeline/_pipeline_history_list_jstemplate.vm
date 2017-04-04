@@ -103,7 +103,7 @@
                     <div class="wrapper" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
                         <span id="pipeline-${% pipeline.pipelineId %}-label" class="pipeline-label"> <a href="$req.getContextPath()/pipelines/value_stream_map/${% data.pipelineName %}/${% pipeline.counterOrLabel %}" title="${% pipeline.label %}">${% pipeline.label.truncate(17) %}</a></span><br/>
                         <span class="pipeline-info revision" id="pipeline-${% pipeline.pipelineId %}-revision" title="${% pipeline.revision %}">revision: ${% pipeline.revision %}</span><br/>
-                        <span id="pipeline-${% pipeline.pipelineId %}-modificationDate" class="pipeline-info">${% pipeline.modification_date %}</span><br/>
+                        <span id="pipeline-${% pipeline.pipelineId %}-modificationDate" class="pipeline-info scheduled-date" title="${% pipeline.scheduled_date %}">${% pipeline.scheduled_date %}</span><br/>
                         <span id="pipeline-${% pipeline.pipelineId %}-buildCause"
                               class="pipeline-info popup-${% pipelineHistoryPage.buildCauseActor.getBuildCauseClass(pipeline.pipelineId) %}" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
                             {if pipeline.buildCauseBy ==  ''} No modifications

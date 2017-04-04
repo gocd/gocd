@@ -106,13 +106,6 @@ describe("util", function () {
     });
 
 
-    it("test_timeago_convertion", function () {
-        assertEquals("", jQuery('#time_field').text());
-        var elem = document.getElementById("time_field");
-        Util.convert_to_timeago(elem);
-        assertEquals("30 minutes ago", jQuery('#time_field').text());
-    });
-
     it("test_escapeDotsFromId", function () {
         assertEquals("#2\\.1\\.1\\.2", Util.escapeDotsFromId("2.1.1.2"));
     });

@@ -103,7 +103,6 @@ public class PipelineHistoryJsonPresentationModelTest {
                 "{    'groups' : [ {"
                         + "      'history' : ["
                         + "         { 'pipelineId' : 1,"
-                        + "           'scheduled_date' : 'less than a minute ago',"
                         + "           'stages' : ["
                         + "             { 'stageStatus' : 'Passed', 'stageName':'dev', 'stageId':0,"
                         + "               'approvedBy' : '" + DEFAULT_APPROVED_BY + "', "

@@ -59,70 +59,66 @@ table.pipeline-history-group  td .wrapper {
 }
 
 table.pipeline-history-group thead th {
-    
-}
 
-.pipeline-history-group .spacer
-{
-    background-image: none;
-    border-right: 0;
-    width: 100%;
 }
 
 .pipeline-label a {
-font-size: 18px;
+  font-size: 18px;
 }
 
+*+html .pipeline-history-group .wrapper {
+    width: 100px;
+}
 
-.pipeline-history-group .wrapper
-{
+.pipeline-history-group {
+  .spacer {
+    background-image: none;
+    border-right: 0;
+    width: 100%;
+  }
+
+  .wrapper {
     width: auto;
     min-width: 100px;
     position: relative;
     /* For IE6's quirks */
     _width: 100px;
-}
-*+html .pipeline-history-group .wrapper{
-    width: 100px;
-}
+  }
 
-
-.pipeline-history-group .column-header
-{
+  .column-header {
     *width: 180px;
     *white-space: nowrap;
-}
+  }
 
-.pipeline-history-group .pipeline-name
-{
+  .pipeline-name {
     font-weight: bold;
     color: #333;
     text-align: left;
     *width: 10em;
     zoom: 1;
-}
+  }
 
-.pipeline-history-group .pipeline-name .wrapper
-{
+  .pipeline-name .wrapper {
     width: 12em;
     min-width: 12em;
     /* width works similar with min-width in IE6, the container will expand when content is long */
     _width: 12em;
-}
+  }
 
-.pipeline-history-group .pipeline-info {
+  .pipeline-info {
     font-size: 12px;
     font-weight:normal;
     color: #333;
     position: relative; /* for popup */
-}
 
-.pipeline-history-group .pipeline-info.revision{
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    width: 100%;
-    overflow: hidden;
-    display: inline-block;
+    &.revision {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: 100%;
+      overflow: hidden;
+      display: inline-block;
+    }
+  }
 }
 
 .pipeline-comment-button {
@@ -397,7 +393,7 @@ a.cancel:hover
     border-bottom: 1px solid #666 !important;
     padding: 3px 8px !important;
     padding-right: 30px !important;
-    
+
 }
 
 new-pipeline-history .popup table tbody td {

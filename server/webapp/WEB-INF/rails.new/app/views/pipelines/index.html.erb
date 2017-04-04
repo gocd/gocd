@@ -27,23 +27,13 @@
         if (!isPartialRefresh) {
           Util.enable('show_pipelines_selector');
         }
-        jQuery('span.time').each(function () {
-          Util.convert_to_timeago(this);
-        });
 
         jQuery(document).trigger("dashboard-refresh-completed", isPartialRefresh);
       }
     });
     AjaxRefreshers.addRefresher(dashboard_ajax_refresher, true);
 
-    <% else %>
-    jQuery('span.time').each(function () {
-      Util.convert_to_timeago_on_timer(this)();
-    });
     <% end %>
-    jQuery('span.time').each(function () {
-      Util.convert_to_timeago(this);
-    });
     ElementAligner.hookupAlignEvents();
     var content_box = jQuery('#dashboard_build_cause_content');
     var popup       = new MicroContentPopup('dashboard_build_cause_content', new ContextualAjaxPopupHandler(content_box.get(0),

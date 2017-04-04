@@ -65,17 +65,17 @@ describe PipelinesHelper do
     it "should display the trigger message with username and isodate in title" do
       triggered_date = java.util.Date.new
       pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-      message = trigger_message(triggered_date.getTime(), pim)
+      message = trigger_message(triggered_date, pim)
 
       expect(message).to have_selector(".who", text: "Anonymous")
-      expect(message).to have_selector("input[value='#{triggered_date.getTime()}']")
+      expect(message).to have_selector("input[value='#{triggered_date}']")
     end
 
     it "should not display the trigger message when the pipeline is being scheduled for the first time" do
       triggered_date = java.util.Date.new
       pim = PipelineInstanceModel.createPreparingToSchedule("pipeline", nil)
 
-      message = trigger_message(triggered_date.getTime(), pim)
+      message = trigger_message(triggered_date, pim)
 
       expect(message.blank?).to be_true
     end

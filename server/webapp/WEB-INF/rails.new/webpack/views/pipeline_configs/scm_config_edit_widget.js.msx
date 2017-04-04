@@ -17,21 +17,9 @@
 let m = require('mithril');
 let f = require('helpers/form_helper');
 
-const $                      = require('jquery');
-const Stream                 = require('mithril/stream');
-const SCMConfigAngularWidget = require('mithril');
-const SCMs                   = require('models/pipeline_configs/scms');
-
-//This has to be done to get around mithril's controller caching
-const submodule = function (module, args) {
-  return module.view.bind(module, new module.controller(args));
-};
-
-/*
- 'scmForEdit' is a cloned copy of the actual SCM, this is required since SCMConfigEditWidget is rendered in a modal. There might be scenarios
- wherein a user can make changes to the scm but not save it and close the modal, in this scenario the changes should not
- be retained. To achieve this behaviour the widget works with a cloned copy of scm.
- */
+const $             = require('jquery');
+const Stream        = require('mithril/stream');
+const AngularPlugin = require('views/shared/angular_plugin');
 
 const fetchDependentPipelines = function (id) {
   const pipelineUsedInUrl = ['/go/admin/materials/pluggable_scm/', id, '/pipelines_used_in'].join('');
@@ -59,7 +47,9 @@ let SCMGlobalCopyWarningWidget = {
     self.dependentPipelines = Stream('');
 
     this.showAssociatedPipelines = function () {
-      fetchDependentPipelines(self.scm.id()).then(self.dependentPipelines);
+      fetchDependentPipelines(self.scm.id())
+        .then(self.dependentPipelines)
+        .always(m.redraw);
     };
   },
 
@@ -87,42 +77,16 @@ let SCMGlobalCopyWarningWidget = {
 
 const SCMConfigEditWidget = {
   oninit (vnode) {
-    const self         = this;
-    self.parentView    = vnode.attrs.parentView;
-    self.material      = vnode.attrs.material;
-    self.scmForEdit    = vnode.attrs.material.scm().clone();
-    self.angularModule = submodule(SCMConfigAngularWidget, {scm: self.scmForEdit, parentView: self.parentView});
-    self.vm            = new SCMs.vm();
-
-    self.update = function () {
-      self.vm.startUpdating();
-
-      self.scmForEdit.update().then((scm) => {
-        self.vm.saveSuccess();
-        self.material.scm().reInitialize(JSON.parse(JSON.stringify(scm)));
-        self.parentView.close();
-      }, (data) => {
-        self.vm.saveFailed(data);
-        if (data.data) {
-          self.scmForEdit.reInitialize(data.data);
-        }
-      });
-    };
-
-    self.parentView.onClose(() => {
-      self.scmForEdit.reInitialize(JSON.parse(JSON.stringify(vnode.attrs.material.scm())));
-      self.vm.reset();
-    });
+    const self      = this;
+    self.scmForEdit = vnode.attrs.scm();
+    self.pluginInfo = Stream(vnode.attrs.pluginInfos().findById(vnode.attrs.scm().pluginMetadata().id()));
   },
 
   view (vnode) {
-    const errors = vnode.state.vm.hasErrors() ? (<f.alert>{vnode.state.vm.errors()}</f.alert>) : undefined;
-
     return (
       <div class='modal-content'>
         <div class='modal-header'>
           <SCMGlobalCopyWarningWidget scm={vnode.state.scmForEdit}/>
-          {errors}
         </div>
         <div class='modal-body'>
           <div class='key-value' size={6}>
@@ -135,14 +99,9 @@ const SCMConfigEditWidget = {
                         size={6}
                         end={true}/>
           </f.row>
-          {vnode.state.angularModule()}
-          <f.row>
-            <f.button onclick={vnode.state.update.bind(vnode.state)}
-                      class={`save-pipeline ${  vnode.state.vm.saveState()}`}>
-              <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
-              Save
-            </f.button>
-          </f.row>
+          <AngularPlugin pluginInfoSettings={vnode.state.pluginInfo().scmSettings}
+                         configuration={vnode.attrs.scm().configuration}
+                         key={vnode.state.pluginInfo() ? vnode.state.pluginInfo().id() : 'no-plugin'}/>
         </div>
       </div>
     );

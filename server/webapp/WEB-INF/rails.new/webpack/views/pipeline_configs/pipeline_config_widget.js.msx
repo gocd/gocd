@@ -185,6 +185,7 @@ const PipelineConfigWidget = function (options) {
               <PipelineSettingsWidget pipeline={vnode.state.pipeline}
                                       vm={vnode.state.vmState('pipelineSettingsConfig')}/>
               <MaterialsConfigWidget materials={pipeline.materials}
+                                     pluginInfos={vnode.state.pluginInfos}
                                      key={pipeline.materials().uuid}
                                      pipelineName={pipeline.name}
                                      vm={vnode.state.vmState('materialsConfig')}/>

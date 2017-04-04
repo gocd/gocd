@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-let m             = require('mithril');
-let f             = require('helpers/form_helper');
-let AngularPlugin = require('views/shared/angular_plugin');
-
-const Stream      = require('mithril/stream');
-const NewModal    = require('views/shared/new_modal');
+const m           = require('mithril');
+const f           = require('helpers/form_helper');
 const SCMs        = require('models/pipeline_configs/scms');
-const PluginInfos = require('models/pipeline_configs/plugin_infos');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const Modal       = require('views/shared/new_modal');
+let AngularPlugin = require('views/shared/angular_plugin');
 
 
 let ScmConfigModalBody = {
@@ -43,6 +42,7 @@ let ScmConfigModalBody = {
         </f.row>
       );
     }
+
     return (
       <div>
         {errorMessageElem}
@@ -53,18 +53,18 @@ let ScmConfigModalBody = {
                             largeSize={12}
                             validate={true}
                             isRequired={true}
-                            model={vnode.attrs.scm()}/>
+                            model={vnode.attrs.scm}/>
         </f.row>
         <f.row collapse>
-          <f.checkBox model={vnode.attrs.scm()}
+          <f.checkBox model={vnode.attrs.scm}
                       attrName='autoUpdate'
                       class='align'
                       size={6}
                       end={true}/>
         </f.row>
         <f.row collapse>
-          <AngularPlugin pluginInfo={vnode.attrs.pluginInfo}
-                         configuration={vnode.attrs.scm().configuration}
+          <AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().scmSettings}
+                         configuration={vnode.attrs.scm.configuration}
                          key={vnode.attrs.pluginInfo() ? vnode.attrs.pluginInfo().id() : 'no-plugin'}/>
         </f.row>
       </div>
@@ -72,20 +72,32 @@ let ScmConfigModalBody = {
   }
 };
 
-const CreateNewScmMaterialButtonWidget = {
+const NewPluggableSCMMaterialWidget = {
   oninit (vnode) {
+    const self    = this;
+    const args    = vnode.attrs;
+    self.material = args.material;
+    self.scms     = Stream(SCMs.filterByPluginId(self.material.pluginInfo().id()));
+    self.selected = _.isEmpty(self.scms()) ? Stream('default') : Stream(_.head(self.scms()).id());
+
+    self.selectSCM = function (id) {
+      SCMs.findById(id).then((scm) => {
+        self.material.scm(scm);
+      }).then(m.redraw);
+    };
+
     this.showModal = function () {
-      const scm = Stream(new SCMs.SCM({
+      let scm = new SCMs.SCM({
         'plugin_metadata': {
           id:      vnode.attrs.material.pluginInfo().id(),
           version: vnode.attrs.material.pluginInfo().version()
         }
-      }));
+      });
 
-      const pluginInfo   = Stream();
+      const pluginInfo   = Stream(vnode.attrs.pluginInfos().findById((vnode.attrs.material.pluginInfo().id())));
       const errorMessage = Stream();
 
-      const modal = new NewModal({
+      const modal = new Modal({
         title:   'Create a new plugin SCM material',
         body:    () => (<ScmConfigModalBody scm={scm} pluginInfo={pluginInfo} errorMessage={errorMessage}/>),
         buttons: () => [
@@ -93,51 +105,63 @@ const CreateNewScmMaterialButtonWidget = {
             text: 'Save',
             onclick () {
               const callback = function (savedScm) {
+                SCMs().push(savedScm);
                 vnode.attrs.material.scm(savedScm);
                 modal.destroy();
-                SCMs.init();
               };
 
               const errback = function (json) {
                 errorMessage(json.message);
                 if (json.data) {
-                  scm(new SCMs.SCM(json.data));
+                  scm = new SCMs.SCM(json.data);
                 }
               };
-              scm().create().then(callback, errback).always(m.redraw);
+              scm.create().then(callback, errback).always(m.redraw);
             }
           }]
       });
 
       modal.render();
       m.redraw();
-
-      PluginInfos.PluginInfo.get(vnode.attrs.material.pluginInfo().id()).then(pluginInfo).then(m.redraw);
     };
   },
 
   view (vnode) {
-    return (
-      <f.row class='scm-selector' collapse>
+    const ctrl = vnode.state;
+
+    const items = _.reduce(ctrl.scms(), (accumulator, value) => {
+      accumulator.push({id: value.id(), text: value.name()});
+      return accumulator;
+    }, []);
+
+    if (!_.isEmpty(items)) {
+      return (
+        <f.row class='scm-selector'>
+          <f.select
+            model={ctrl}
+            attrName='selected'
+            label='Select an existing SCM'
+            items={items}
+            size={4}
+            largeSize={2}
+          />
+          <f.column size={6} largeSize={6} end>
+            <a class='add-button button' onclick={ctrl.selectSCM.bind(ctrl, ctrl.selected())}>Add</a>
+            <label class='or'>Or</label>
+            <a class='add-button button' onclick={ctrl.showModal.bind(vnode.state)}>Create New</a>
+          </f.column>
+        </f.row>
+      );
+    } else {
+      return (<f.row class='scm-selector'>
         <f.column class='no-scm' size={4} largeSize={6} end>
-          <f.row collapse>
-            <label>
-              There are no existing SCM materials for <strong>{vnode.attrs.material.pluginInfo().displayName()}</strong>
-            </label>
-          </f.row>
-          <f.row collapse>
-            <f.button class="add-button" onclick={vnode.state.showModal.bind(vnode.state)}>
-              Create a new
-              {' '}
-              <strong>{vnode.attrs.material.pluginInfo().displayName()}</strong>
-              {' '}
-              material
-            </f.button>
-          </f.row>
+          <label>No existing SCMs for <b>{ctrl.material.pluginInfo().about().name()}</b></label>
+          <a class='add-button button' onclick={ctrl.showModal.bind(vnode.state)}>Create New</a>
         </f.column>
-      </f.row>
-    );
+      </f.row>);
+    }
+
   }
 };
 
-module.exports = CreateNewScmMaterialButtonWidget;
+module.exports = NewPluggableSCMMaterialWidget;

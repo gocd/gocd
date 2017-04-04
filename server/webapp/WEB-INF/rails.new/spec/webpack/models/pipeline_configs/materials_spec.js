@@ -865,7 +865,6 @@ describe("Material Model", () => {
           destination:  "dest_folder",
           invertFilter: true
         });
-        spyOn(SCMs, 'findById').and.returnValue(github);
       });
 
       afterEach(() => {
@@ -903,7 +902,6 @@ describe("Material Model", () => {
 
         it("should serialize to JSON", () => {
           expect(pluggableMaterial.toJSON()).toEqual(sampleJSON());
-          expect(SCMs.findById).toHaveBeenCalledWith('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
         });
 
         it("should de-serialize from JSON", () => {

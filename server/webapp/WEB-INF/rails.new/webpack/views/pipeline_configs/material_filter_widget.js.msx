@@ -22,22 +22,23 @@ const tt = require('helpers/pipeline_configs/tooltips');
 const MaterialFilterWidget = {
   view (vnode) {
     // TODO: make this an 'intelligent' text component that maps to an array.
+    const material = vnode.attrs.material;
     return (
       <div class='ignore-pattern'>
         <f.row>
           <f.inputWithLabel attrName='ignore'
                             label="Ignore pattern"
-                            model={vnode.attrs.material.filter()}
+                            model={material.filter()}
                             size={12}
                             largeSize={12}
                             tooltip={{
-                              content:   tt.material.filter(vnode.attrs.material.invertFilter() ? 'included' : 'excluded'),
+                              content:   tt.material.filter(material.invertFilter() ? 'included' : 'excluded'),
                               direction: 'bottom',
                               size:      'small'
                             }}/>
         </f.row>
         <f.row>
-          <f.checkBox model={vnode.attrs.material}
+          <f.checkBox model={material}
                       attrName='invertFilter'
                       label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.'
                       size={12}

@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.domain.elastic;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class ElasticAgentPluginInfo extends PluginInfo {
@@ -27,7 +26,7 @@ public class ElasticAgentPluginInfo extends PluginInfo {
     private final Image image;
 
     public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image) {
-        super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION);
+        super(descriptor, "qwe");
         this.profileSettings = profileSettings;
         this.image = image;
     }
@@ -38,25 +37,5 @@ public class ElasticAgentPluginInfo extends PluginInfo {
 
     public Image getImage() {
         return image;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ElasticAgentPluginInfo that = (ElasticAgentPluginInfo) o;
-
-        if (profileSettings != null ? !profileSettings.equals(that.profileSettings) : that.profileSettings != null)
-            return false;
-        return image != null ? image.equals(that.image) : that.image == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = profileSettings != null ? profileSettings.hashCode() : 0;
-        result = 31 * result + (image != null ? image.hashCode() : 0);
-        return result;
     }
 }

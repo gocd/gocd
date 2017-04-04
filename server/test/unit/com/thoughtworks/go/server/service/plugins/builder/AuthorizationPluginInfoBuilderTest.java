@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
@@ -26,7 +25,10 @@ import com.thoughtworks.go.server.ui.plugins.PluginView;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
@@ -44,10 +46,10 @@ public class AuthorizationPluginInfoBuilderTest {
         GoPluginDescriptor plugin = new GoPluginDescriptor("docker-plugin", "1.0", about, null, null, false);
 
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings authSettings =
-                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", new Metadata(true, true))),
+                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", Collections.singletonMap("secure", true))),
                         new com.thoughtworks.go.plugin.domain.common.PluginView("auth_config_view"));
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings roleSettings =
-                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("memberOf", new Metadata(true, false))),
+                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("memberOf", Collections.singletonMap("secure", false))),
                         new com.thoughtworks.go.plugin.domain.common.PluginView("role_config_view"));
 
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
@@ -57,16 +59,8 @@ public class AuthorizationPluginInfoBuilderTest {
         AuthorizationPluginInfoBuilder builder = new AuthorizationPluginInfoBuilder(authorizationMetadataStore);
         AuthorizationPluginInfo pluginInfo = builder.pluginInfoFor(plugin.id());
 
-        Map<String, Object> passwordMetadata = new HashMap<>();
-        passwordMetadata.put("required", true);
-        passwordMetadata.put("secure", true);
-
-        Map<String, Object> memberOfMetadata = new HashMap<>();
-        memberOfMetadata.put("required", true);
-        memberOfMetadata.put("secure", false);
-
-        PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", passwordMetadata)), new PluginView("auth_config_view"));
-        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("memberOf", memberOfMetadata)), new PluginView("role_config_view"));
+        PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", Collections.singletonMap("secure", true))), new PluginView("auth_config_view"));
+        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("memberOf", Collections.singletonMap("secure", false))), new PluginView("role_config_view"));
 
 
         assertEquals(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings,
@@ -87,10 +81,10 @@ public class AuthorizationPluginInfoBuilderTest {
         GoPluginDescriptor plugin = new GoPluginDescriptor("docker-plugin", "1.0", about, null, null, false);
 
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings authSettings =
-                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", new Metadata(true, true))),
+                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", Collections.singletonMap("secure", true))),
                         new com.thoughtworks.go.plugin.domain.common.PluginView("auth_config_view"));
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings roleSettings =
-                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("memberOf", new Metadata(true, false))),
+                new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("memberOf", Collections.singletonMap("secure", false))),
                         new com.thoughtworks.go.plugin.domain.common.PluginView("role_config_view"));
 
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
@@ -100,16 +94,8 @@ public class AuthorizationPluginInfoBuilderTest {
         AuthorizationPluginInfoBuilder builder = new AuthorizationPluginInfoBuilder(authorizationMetadataStore);
         Collection<AuthorizationPluginInfo> pluginInfos = builder.allPluginInfos();
 
-        Map<String, Object> passwordMetadata = new HashMap<>();
-        passwordMetadata.put("required", true);
-        passwordMetadata.put("secure", true);
-
-        Map<String, Object> memberOfMetadata = new HashMap<>();
-        memberOfMetadata.put("required", true);
-        memberOfMetadata.put("secure", false);
-
-        PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", passwordMetadata)), new PluginView("auth_config_view"));
-        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("memberOf", memberOfMetadata)), new PluginView("role_config_view"));
+        PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", Collections.singletonMap("secure", true))), new PluginView("auth_config_view"));
+        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("memberOf", Collections.singletonMap("secure", false))), new PluginView("role_config_view"));
 
 
         assertEquals(Arrays.asList(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings,

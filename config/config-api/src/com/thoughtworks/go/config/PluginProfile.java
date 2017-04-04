@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 
@@ -95,15 +94,8 @@ public abstract class PluginProfile extends Configuration implements Validatable
         for (ConfigurationProperty property : configurations) {
             add(builder.create(property.getConfigKeyName(),
                     property.getConfigValue(),
-                    property.getEncryptedValue(),
-                    isSecure(property.getConfigKeyName())));
-        }
-    }
-
-    @PostConstruct
-    public void encryptSecureConfigurations() {
-        for (ConfigurationProperty configuration : this) {
-            configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName()));
+                    null,
+                    false));
         }
     }
 
@@ -138,8 +130,6 @@ public abstract class PluginProfile extends Configuration implements Validatable
     }
 
     protected abstract String getObjectDescription();
-
-    protected abstract boolean isSecure(String key);
 
     void validateIdUniquness(Map<String, PluginProfile> profiles) {
         PluginProfile profileWithSameId = profiles.get(id);

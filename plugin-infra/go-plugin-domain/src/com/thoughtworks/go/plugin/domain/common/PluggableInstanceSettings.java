@@ -35,10 +35,6 @@ public class PluggableInstanceSettings {
         return configurations;
     }
 
-    public PluginConfiguration getConfiguration(String key) {
-        return this.configurations.stream().filter(c -> c.getKey().equals(key)).findFirst().orElse(null);
-    }
-
     public PluginView getView() {
         return view;
     }

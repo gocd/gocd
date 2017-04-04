@@ -38,4 +38,12 @@ describe ApiV1::Elastic::ProfileRepresenter do
     expect(profile.getPluginId()).to eq('docker')
     expect(profile.getConfigurationAsMap(true)).to eq({'foo' => 'bar'})
   end
+
+  it 'should not accept a encrypted value' do
+    profile = ApiV1::Elastic::ProfileRepresenter.new(ElasticProfile.new).from_hash({id: 'foo', plugin_id: 'docker', properties: [{key: 'foo', encrypted_value: GoCipher.new.encrypt('bar')}]})
+
+    expect(profile.getId()).to eq('foo')
+    expect(profile.getPluginId()).to eq('docker')
+    expect(profile.getConfigurationAsMap(true)).to eq({'foo' => nil})
+  end
 end

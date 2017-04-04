@@ -42,7 +42,7 @@ public class AuthorizationMetadataLoaderTest {
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         infoBuilder = mock(AuthorizationPluginInfoBuilder.class);
-        metadataStore = mock(AuthorizationMetadataStore.class);
+        metadataStore = AuthorizationMetadataStore.newInstanceForTest();
         pluginManager = mock(PluginManager.class);
     }
 
@@ -64,7 +64,7 @@ public class AuthorizationMetadataLoaderTest {
 
         metadataLoader.pluginLoaded(descriptor);
 
-        verify(metadataStore).setPluginInfo(pluginInfo);
+        assertThat(metadataStore.getPluginInfo(descriptor.id()), is(pluginInfo));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class AuthorizationMetadataLoaderTest {
         metadataLoader.pluginLoaded(descriptor);
 
         verifyZeroInteractions(infoBuilder);
-        verifyZeroInteractions(metadataStore);
+        assertNull(metadataStore.getPluginInfo(descriptor.id()));
     }
 
     @Test
@@ -90,6 +90,6 @@ public class AuthorizationMetadataLoaderTest {
 
         metadataLoader.pluginUnLoaded(descriptor);
 
-        verify(metadataStore).remove(descriptor.id());
+        assertNull(metadataStore.getPluginInfo(descriptor.id()));
     }
 }

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.common.models;
 
-import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.junit.Test;
 
@@ -69,9 +68,17 @@ public class PluginProfileMetadataKeysTest {
 
         List<PluginConfiguration> pluginConfigurations = metadata.toPluginConfigurations();
 
+        HashMap<String, Object> usernameData = new HashMap<>();
+        usernameData.put("required", false);
+        usernameData.put("secure", true);
+
+        HashMap<String, Object> passwordData = new HashMap<>();
+        passwordData.put("required", true);
+        passwordData.put("secure", true);
+
         assertThat(pluginConfigurations, containsInAnyOrder(
-                new PluginConfiguration("username", new Metadata(false, true)),
-                new PluginConfiguration("password", new Metadata(true, true))));
+                new PluginConfiguration("username", usernameData),
+                new PluginConfiguration("password", passwordData)));
     }
 
     @Test
@@ -88,8 +95,16 @@ public class PluginProfileMetadataKeysTest {
 
         List<PluginConfiguration> pluginConfigurations = metadata.toPluginConfigurations();
 
+        HashMap<String, Object> usernameData = new HashMap<>();
+        usernameData.put("required", false);
+        usernameData.put("secure", false);
+
+        HashMap<String, Object> passwordData = new HashMap<>();
+        passwordData.put("required", true);
+        passwordData.put("secure", true);
+
         assertThat(pluginConfigurations, containsInAnyOrder(
-                new PluginConfiguration("username", new Metadata(false, false)),
-                new PluginConfiguration("password", new Metadata(true, true))));
+                new PluginConfiguration("username", usernameData),
+                new PluginConfiguration("password", passwordData)));
     }
 }

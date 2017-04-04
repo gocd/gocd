@@ -102,6 +102,13 @@
     </rule>
 
     <rule>
+        <name>Rails Current User API</name>
+        <from>^/api/current_users$</from>
+        <to last="true">/rails/api/current_user</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Rails Profiles API Index API</name>
         <from>^/api/elastic/profiles$</from>
         <to last="true">/rails/api/elastic/profiles</to>

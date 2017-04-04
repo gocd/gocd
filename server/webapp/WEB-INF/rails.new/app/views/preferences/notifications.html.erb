@@ -8,9 +8,18 @@
 </ul>
 <div class="sub-tab-content">
 
+  <% unless go_config_service.is_smtp_enabled %>
+    <div class="warning">
+      <i class="fa fa-exclamation-triangle"></i>
+      SMTP settings are currently not configured. If you are the administrator, you can configure email support at <%= link_to "Server Configuration", config_view_path %>.
+    </div>
+  <% end %>
+
+  <div id="validations"></div>
+
   <h2 class="my-notifications">My Notifications</h2>
 
   <div id="notification-prefs" class="notification-content"
-       data-user-url="<%= apiv1_user_path(current_user.username.to_s) %>">
+       data-user-url="<%= apiv4_current_user_path(current_user.username.to_s) %>">
   </div>
 </div>

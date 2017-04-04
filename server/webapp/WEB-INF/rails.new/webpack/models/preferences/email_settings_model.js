@@ -1,0 +1,111 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+;(function() {
+  "use strict";
+
+  const m = require("mithril");
+  const Stream = require("mithril/stream");
+  const _ = require("lodash");
+
+  function EmailSettingsModel(url, errors) {
+    const email = Stream();
+    const enableNotifications = Stream();
+    const checkinAliases = Stream();
+
+    function trim(string) {
+      return string.replace(/^\s+|\s+$/g, "");
+    }
+
+    function splitter(string) {
+      return _.compact(_.map(string.split(","), trim));
+    }
+
+    const payload = {
+      email:           email,
+      email_me:        enableNotifications,
+      checkin_aliases: checkinAliases.map(splitter)
+    };
+
+    let savedEmail;
+    let savedEnableNotifications;
+    let savedCheckinAliases;
+
+    function fetchUser() {
+      m.request({
+        method:  "GET",
+        url:     url,
+        type:    "json",
+        headers: {
+          Accept: "application/vnd.go.cd.v4+json"
+        }
+      }).then(function (data) {
+        updateUserBindings(data);
+      })
+    }
+
+    function updateUser(callback) {
+      return function onUpdate(e) {
+        e.preventDefault();
+        errors(null);
+
+        m.request({
+          method:  "PATCH",
+          url:     url,
+          type:    "json",
+          headers: {
+            "Accept":       "application/vnd.go.cd.v4+json",
+            "Content-Type": "application/json"
+          },
+          data: payload
+        }).then((data) => {
+          updateUserBindings(data);
+          callback();
+        }, (error) => {
+          // Strip the localized message orefix
+          errors(error.message.replace(/^Failed to add user\. Validations failed\. /, ""));
+        });
+      };
+    }
+
+    function resetUserFields() {
+      email(savedEmail);
+      enableNotifications(savedEnableNotifications);
+      checkinAliases(savedCheckinAliases);
+    }
+
+    function updateUserBindings(data) {
+      savedEmail = email(data.email);
+      savedEnableNotifications = enableNotifications(data.email_me);
+      savedCheckinAliases = checkinAliases(data.checkin_aliases.join(", "));
+    }
+
+    function config(attrs, updateCallback) {
+      return _.assign(attrs, {action: url, method: "PATCH", onsubmit: updateUser(updateCallback)});
+    }
+
+    return {
+      load: fetchUser,
+      reset: resetUserFields,
+      update: updateUser,
+      config: config,
+      get email() { return email; },
+      get enableNotifications() { return enableNotifications; },
+      get checkinAliases() { return checkinAliases; }
+    };
+  }
+
+  module.exports = EmailSettingsModel;
+})();

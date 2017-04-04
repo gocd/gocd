@@ -306,6 +306,9 @@ Go::Application.routes.draw do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
       end
 
+      get 'current_user', controller: 'current_user', action: 'show'
+      patch 'current_user', controller: 'current_user', action: 'update'
+
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member
       end

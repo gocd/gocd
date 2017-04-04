@@ -17,5 +17,51 @@
   "use strict";
 
   const m = require("mithril");
+  const Stream = require("mithril/stream");
+
+  const EmailSettingsView = require('views/preferences/email_settings');
+  const EmailSettingsModel = require('models/preferences/email_settings_model');
+
+  $(function ready() {
+
+    function dataAttr(node, name) {
+      return node.getAttribute("data-" + name);
+    }
+
+    const main        = document.getElementById("notification-prefs");
+    const validations = document.getElementById("validations");
+
+    const userUrl     = dataAttr(main, "user-url");
+
+    const errorsModel = Stream();
+    const emailSettingsModel = new EmailSettingsModel(userUrl, errorsModel);
+    const EmailSettings = new EmailSettingsView(emailSettingsModel);
+
+    const ErrorMessage = {
+      oninit(vnode) {
+        vnode.state.errors = vnode.attrs.errors;
+      },
+
+      view(vnode) {
+        if (vnode.state.errors()) {
+          return m("div", {class: "error"}, m("i", {class: "fa fa-exclamation-circle"}), vnode.state.errors());
+        }
+      }
+    };
+
+    m.mount(validations, {
+      view() {
+        return m(ErrorMessage, {errors: errorsModel});
+      }
+    });
+
+    m.mount(main, {
+      view() {
+        return [
+          m(EmailSettings)
+        ];
+      }
+    });
+  });
 
 })();

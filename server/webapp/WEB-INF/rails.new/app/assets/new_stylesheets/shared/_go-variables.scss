@@ -72,8 +72,8 @@ $modal-header-bg: #eeeee9;
 
 $tab-header-bg: $go-secondary;
 $tab-header-bg-hover: lighten($tab-header-bg, 8%);
-$current-tab-bg: #fff;
 $tab-bg: lighten($tab-header-bg, 5%);
+$current-tab-bg: #fff;
 
 //main navigation
 
@@ -109,8 +109,7 @@ $primary-btn-bg-hover: darken($go-primary, 10%);
 $btn-bg: #666;
 $btn-txt: #fff;
 
-$btn-bg-hover: #666;
-$btn-bg-hover-txt: #fff;
+$btn-bg-hover: darken($btn-bg, 10%);
 
 //light button
 

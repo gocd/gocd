@@ -309,7 +309,7 @@ Go::Application.routes.draw do
       get 'current_user', controller: 'current_user', action: 'show'
       patch 'current_user', controller: 'current_user', action: 'update'
 
-      resources :notification_filters, only: [:index, :destroy]
+      resources :notification_filters, only: [:index, :create, :destroy]
 
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member

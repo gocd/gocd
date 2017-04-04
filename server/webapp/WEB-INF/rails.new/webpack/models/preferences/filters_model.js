@@ -23,6 +23,11 @@
 
     const filters = Stream();
 
+    // persists checkbox state, defaulting to true. without this Stream,
+    // without this the checkbox will be reset each time a filter is created,
+    // which is an unexpected user experience.
+    const myCommits = Stream(true);
+
     function fetchFilters() {
       m.request({
         method:  "GET",
@@ -32,6 +37,38 @@
         }
       }).then(function (data) {
         filters(data);
+      });
+    }
+
+    function serialize(form) {
+      let data = new FormData(form);
+      let result = {}, i = data.entries(), current;
+
+      while (!(current = i.next()).done) {
+        let entry = current.value;
+        result[entry[0]] = entry[1];
+      }
+
+      return result;
+    }
+
+    function createFilter(e) {
+      e.preventDefault();
+      errors(null);
+
+      let form = e.currentTarget;
+
+      m.request({
+        method:  "POST",
+        url:     url,
+        data:    serialize(form),
+        headers: {
+          Accept: "application/vnd.go.cd.v4+json"
+        }
+      }).then(function (data) {
+        filters(data);
+      }, function fail(data) {
+        errors(data.message);
       });
     }
 
@@ -53,7 +90,9 @@
     }
 
     this.load    = fetchFilters;
+    this.save    = createFilter;
     this.delete  = deleteFilter;
+    this.myCommits = myCommits;
     this.filters = filters;
     this.errors = errors;
   }

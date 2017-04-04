@@ -14,13 +14,27 @@
 # limitations under the License.
 ##########################################################################
 
+java_import "com.thoughtworks.go.domain.NotificationFilter",
+            "com.thoughtworks.go.domain.StageEvent",
+            "com.thoughtworks.go.domain.exception.UncheckedValidationException"
+
 module ApiV4
   class NotificationFiltersController < ApiV4::BaseController
     before_action :check_user_and_404
     before_action :load_user
+    before_action :check_filter_params, only: :create
 
     def index
       render json: filters_for_current_user.to_json
+    end
+
+    def create
+      filter = filter_from_params
+      user_service.add_notification_filter(@user.id, filter)
+      @user = user_service.load(@user.id)
+      render json: filters_for_current_user.to_json
+    rescue com.thoughtworks.go.domain.exception::UncheckedValidationException => e
+      render json: {message: e.message}, status: 400
     end
 
     def destroy
@@ -32,8 +46,25 @@ module ApiV4
 
     private
 
+    def check_filter_params
+      (params["pipeline"].is_a?(String) && params["stage"].is_a?(String) && params["event"].is_a?(String)).tap do |params_present|
+        render(json: {message: "You must specify pipeline, stage, and event."}.to_json, status: 400) unless params_present
+      end
+    end
+
     def filters_for_current_user
       @user.notification_filters.to_a.map { |nf| Hash(nf.toMap) }
+    end
+
+    def filter_from_params
+      NotificationFilter.new(
+        params["pipeline"],
+        params["stage"],
+        StageEvent.valueOf(params["event"]),
+        # default checkbox behavior is to send value (defaults to "on") if checked, or to send
+        # nothing if unchecked; thus, only check for presence of the key
+        params.has_key?("myCheckin")
+      )
     end
 
     def load_user

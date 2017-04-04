@@ -21,6 +21,7 @@
 
   <div id="notification-prefs" class="notification-content"
        data-user-url="<%= apiv4_current_user_path(current_user.username.to_s) %>"
-       data-filters-url="<%= apiv4_notification_filters_path(current_user.username.to_s) %>">
+       data-filters-url="<%= apiv4_notification_filters_path(current_user.username.to_s) %>"
+       data-pipelines="<%= @pipelines.to_json %>">
   </div>
 </div>

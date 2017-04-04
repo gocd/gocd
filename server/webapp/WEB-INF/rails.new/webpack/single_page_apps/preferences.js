@@ -21,9 +21,11 @@
 
   const EmailSettingsView = require('views/preferences/email_settings');
   const FiltersListView   = require('views/preferences/filters_list');
+  const AddFilterView     = require('views/preferences/add_filter');
 
   const EmailSettingsModel = require('models/preferences/email_settings_model');
   const FiltersModel       = require('models/preferences/filters_model');
+  const PipelinesModel     = require('models/preferences/pipelines_model');
 
   $(function ready() {
 
@@ -33,6 +35,7 @@
 
     const main        = document.getElementById("notification-prefs");
     const validations = document.getElementById("validations");
+    const pipelines   = JSON.parse(dataAttr(main, "pipelines"));
 
     const userUrl     = dataAttr(main, "user-url");
     const filtersUrl  = dataAttr(main, "filters-url");
@@ -40,8 +43,10 @@
     const errorsModel = Stream();
     const emailSettingsModel = new EmailSettingsModel(userUrl, errorsModel);
     const filtersModel       = new FiltersModel(filtersUrl, errorsModel);
+    const pipelinesModel     = new PipelinesModel(pipelines);
 
     const EmailSettings = new EmailSettingsView(emailSettingsModel);
+    const AddFilter     = new AddFilterView(filtersModel, pipelinesModel);
     const Filters       = new FiltersListView(filtersModel);
 
     const ErrorMessage = {
@@ -67,6 +72,8 @@
         return [
           m(EmailSettings),
           m("div", {class: "filter-controls"},
+            m("h2", "Create Notification Filter"),
+            m(AddFilter),
             m("h2", "Current Notification Filters"),
             m(Filters)
           )

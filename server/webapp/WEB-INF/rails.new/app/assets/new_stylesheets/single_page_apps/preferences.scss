@@ -102,7 +102,11 @@
     display: inline;
   }
 
-  td, input[type='text'] {
+  select {
+    min-width: 10em;
+  }
+
+  select, td, input[type='text'] {
     font-size: 13px;
   }
 

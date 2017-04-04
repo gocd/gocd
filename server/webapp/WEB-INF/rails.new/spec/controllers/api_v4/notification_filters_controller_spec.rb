@@ -45,6 +45,35 @@ describe ApiV4::NotificationFiltersController do
     end
   end
 
+  describe :create do
+    it("creates a filter to match any commit") do
+      @user.stub(:notification_filters).and_return([]) # not verifying this
+      @user_service.should_receive(:add_notification_filter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
+
+      post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks")
+
+      assert_equal 200, response.status
+    end
+
+    it("creates a filter to match a user's own commits") do
+      @user.stub(:notification_filters).and_return([]) # not verifying this
+      @user_service.should_receive(:add_notification_filter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
+
+      post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks", myCheckin: "on")
+
+      assert_equal 200, response.status
+    end
+
+    it("validates input") do
+      @user.stub(:notification_filters).and_return([]) # not verifying this
+
+      post_with_api_header(:create, pipeline: "foo", event: "Breaks", myCheckin: "on")
+
+      assert_equal 400, response.status
+      assert_equal "You must specify pipeline, stage, and event.", JSON.parse(response.body)["message"]
+    end
+  end
+
   describe :destroy do
     it("returns destroys filter") do
       @user.stub(:notification_filters).and_return([]) # really don't care
@@ -56,7 +85,7 @@ describe ApiV4::NotificationFiltersController do
 
   private
 
-  def filter_for(pipeline, stage, event, own_commits, stubbed_id)
-    NotificationFilter.new(pipeline, stage, StageEvent.valueOf(event), own_commits).tap {|f| f.setId(stubbed_id)}
+  def filter_for(pipeline, stage, event, own_commits, stubbed_id=nil)
+    NotificationFilter.new(pipeline, stage, StageEvent.valueOf(event), own_commits).tap {|f| f.setId(stubbed_id) unless stubbed_id.nil?}
   end
 end

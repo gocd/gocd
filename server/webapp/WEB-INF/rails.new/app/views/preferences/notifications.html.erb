@@ -1,0 +1,16 @@
+<header class="page-header no-buttons">
+  <h1>Preferences</h1>
+</header>
+
+<ul class="sub-tab-navigation">
+  <li class="current"><a>Notifications</a></li>
+  <li><%= link_to "OAuth Access Token", oauth_engine.user_tokens_index_path %></li>
+</ul>
+<div class="sub-tab-content">
+
+  <h2 class="my-notifications">My Notifications</h2>
+
+  <div id="notification-prefs" class="notification-content"
+       data-user-url="<%= apiv1_user_path(current_user.username.to_s) %>">
+  </div>
+</div>

@@ -448,6 +448,8 @@ Go::Application.routes.draw do
     get '' => 'users#users', as: :user_listing
   end
 
+  get 'preferences/notifications', controller: 'preferences', action: 'notifications'
+
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail, constraints: {uuid: ALLOW_DOTS}
   get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent, constraints: {uuid: ALLOW_DOTS}
 

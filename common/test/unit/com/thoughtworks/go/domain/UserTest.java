@@ -210,7 +210,7 @@ public class UserTest {
             user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
             fail("shouldThrowExceptionIfFilterWithAllEventAlreadyExist");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("already exists"));
+            assertThat(e.getMessage(), containsString("Duplicate notification filter"));
         }
     }
 
@@ -222,7 +222,7 @@ public class UserTest {
             user.addNotificationFilter(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
             fail("shouldThrowExceptionIfFilterWithSameEventAlreadyExist");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("already exists"));
+            assertThat(e.getMessage(), containsString("Duplicate notification filter"));
         }
     }
 

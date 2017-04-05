@@ -63,7 +63,7 @@ let TaskViews = {
           return vnode.attrs.task.type();
         }
         const taskPlugin = vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId());
-        return vnode.attrs.isPluginMissing() ? vnode.attrs.task.type() : taskPlugin.displayName();
+        return vnode.attrs.isPluginMissing() ? vnode.attrs.task.type() : taskPlugin.about().name();
       };
     },
 

@@ -39,14 +39,14 @@
   border-radius: $global-border-radius;
   background:    $page-body-background;
 
-  font-size: 13px;
+  font-size:   13px;
   line-height: 28px;
 
   .fa {
-    position: relative;
-    top: 4px;
-    font-size: 28px;
-    line-height: 28px;
+    position:     relative;
+    top:          4px;
+    font-size:    28px;
+    line-height:  28px;
     margin-right: 10px;
   }
 }
@@ -56,7 +56,7 @@
 }
 
 .error .fa {
-  color: red;
+  color: #f00;
 }
 
 .notification-content {
@@ -69,8 +69,8 @@
   }
 
   .filter-controls {
-    flex: 1 1 auto;
-    border-left: 1px solid $border-color;
+    flex:         1 1 auto;
+    border-left:  1px solid $border-color;
     padding-left: 20px;
   }
 
@@ -86,41 +86,44 @@
 
   label {
     margin-right: 10px;
+
+    span {
+      display: block;
+    }
   }
 
   label span, th {
-    font-size: 13px;
+    font-size:   13px;
     font-weight: bold;
   }
 
-  label span {
-    display: block;
-  }
-
+  // scss-lint:disable QualifyingElement
   input[type='checkbox'] ~ span {
     font-weight: normal;
-    display: inline;
+    display:     inline;
   }
 
   select {
     min-width: 10em;
   }
 
+  // scss-lint:disable QualifyingElement
   select, td, input[type='text'] {
     font-size: 13px;
   }
 
+  // scss-lint:disable QualifyingElement
   input[type="submit"], input[type="reset"], input[type="button"], button {
     background:     $btn-bg;
     border-radius:  $global-border-radius;
-    border:         none;
+    border:         0;
     color:          $btn-txt;
     font-size:      10px;
     font-weight:    bold;
     margin-right:   5px;
     padding:        6px 10px;
     text-transform: uppercase;
-    cursor: pointer;
+    cursor:         pointer;
 
     &:hover {
       background: $btn-bg-hover;
@@ -149,9 +152,10 @@
 
   .value {
     font-weight: normal;
-    color:     gray;
+    color:       #808080;
   }
 
+  // scss-lint:disable QualifyingElement
   input[type="text"] {
     width: 200px;
   }

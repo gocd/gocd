@@ -132,33 +132,33 @@ html, body {
 
   li {
     border-radius: 3px 3px 0 0;
-    display:     inline-block;
-    background:  $tab-bg;
-    font-size:   .8125rem;
-    font-weight: 600;
+    display:       inline-block;
+    background:    $tab-bg;
+    font-size:     0.8125rem;
+    font-weight:   600;
 
     &:hover {
       background: $tab-header-bg-hover;
     }
-  }
 
-  li.current, li.current:hover {
-    background: $current-tab-bg;
-    box-shadow:  0px -1px 2px 1px rgba(0, 0, 0, 0.1);
+    &.current, &.current:hover {
+      background: $current-tab-bg;
+      box-shadow: 0 -1px 2px 1px rgba(0, 0, 0, 0.1);
+    }
   }
 
   a {
     display:     inline-block;
     padding:     7px 15px;
     line-height: 19px;
-    color:       black;
+    color:       #000;
   }
 }
 
 .sub-tab-content {
-  padding: 15px 20px;
-  background: white;
-  margin: 0 30px;
+  padding:    15px 20px;
+  background: #fff;
+  margin:     0 30px;
 }
 
 .page-spinner {

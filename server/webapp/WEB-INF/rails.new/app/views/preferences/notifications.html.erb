@@ -8,7 +8,7 @@
 </ul>
 <div class="sub-tab-content">
 
-  <% unless go_config_service.is_smtp_enabled %>
+  <% unless go_config_service.isSmtpEnabled %>
     <div class="warning">
       <i class="fa fa-exclamation-triangle"></i>
       SMTP settings are currently not configured. If you are the administrator, you can configure email support at <%= link_to "Server Configuration", config_view_path %>.

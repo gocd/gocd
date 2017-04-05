@@ -22,14 +22,14 @@ module ApiV1
     before_action :load_current_user
 
     def show
-      render DEFAULT_FORMAT => ApiV1::UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
+      render_user(@user_to_operate)
     end
 
     def update
       result           = HttpLocalizedOperationResult.new
-      @user_to_operate = save_user(result, @user_to_operate)
+      user = save_user(result, @user_to_operate)
       if result.isSuccessful
-        render DEFAULT_FORMAT => ApiV1::UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
+        render_user(user)
       else
         render_http_operation_result(result)
       end
@@ -37,8 +37,8 @@ module ApiV1
 
     private
 
-    def load_current_user
-      load_user(current_user.username.to_s)
+    def render_user(user)
+      render DEFAULT_FORMAT => ApiV1::UserRepresenter.new(user).to_hash(url_builder: self)
     end
 
   end

@@ -29,7 +29,7 @@ describe ApiV1::NotificationFiltersController do
 
   describe :index do
     it("returns a list of filters serialized to JSON") do
-      @user.stub(:notification_filters).and_return([
+      @user.stub(:notificationFilters).and_return([
         filter_for("pipeline1", "defaultStage", "Fails", true, 1),
         filter_for("[Any Pipeline]", "[Any Stage]", "Breaks", false, 2),
       ])
@@ -47,8 +47,8 @@ describe ApiV1::NotificationFiltersController do
 
   describe :create do
     it("creates a filter to match any commit") do
-      @user.stub(:notification_filters).and_return([]) # not verifying this
-      @user_service.should_receive(:add_notification_filter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
+      @user.stub(:notificationFilters).and_return([]) # not verifying this
+      @user_service.should_receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
 
       post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks")
 
@@ -56,8 +56,8 @@ describe ApiV1::NotificationFiltersController do
     end
 
     it("creates a filter to match a user's own commits") do
-      @user.stub(:notification_filters).and_return([]) # not verifying this
-      @user_service.should_receive(:add_notification_filter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
+      @user.stub(:notificationFilters).and_return([]) # not verifying this
+      @user_service.should_receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
 
       post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks", myCheckin: "on")
 
@@ -65,7 +65,7 @@ describe ApiV1::NotificationFiltersController do
     end
 
     it("validates input") do
-      @user.stub(:notification_filters).and_return([]) # not verifying this
+      @user.stub(:notificationFilters).and_return([]) # not verifying this
 
       post_with_api_header(:create, pipeline: "foo", event: "Breaks", myCheckin: "on")
 
@@ -76,8 +76,8 @@ describe ApiV1::NotificationFiltersController do
 
   describe :destroy do
     it("returns destroys filter") do
-      @user.stub(:notification_filters).and_return([]) # really don't care
-      @user_service.should_receive(:remove_notification_filter).with(@user.id, 5)
+      @user.stub(:notificationFilters).and_return([]) # really don't care
+      @user_service.should_receive(:removeNotificationFilter).with(@user.id, 5)
 
       delete_with_api_header(:destroy, id: "5")
     end

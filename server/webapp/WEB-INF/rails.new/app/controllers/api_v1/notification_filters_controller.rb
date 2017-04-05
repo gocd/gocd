@@ -14,47 +14,50 @@
 # limitations under the License.
 ##########################################################################
 
-java_import "com.thoughtworks.go.domain.NotificationFilter",
-            "com.thoughtworks.go.domain.StageEvent",
-            "com.thoughtworks.go.domain.exception.UncheckedValidationException"
-
 module ApiV1
   class NotificationFiltersController < ApiV1::BaseController
 
+    include ApiV1::UsersHelper
+
     before_action :check_user_and_404
-    before_action :load_user
+    before_action :load_current_user
     before_action :check_filter_params, only: :create
 
     def index
-      render json: filters_for_current_user.to_json
+      render_user_notification_filters
     end
 
     def create
       filter = filter_from_params
-      user_service.add_notification_filter(@user.id, filter)
-      @user = user_service.load(@user.id)
-      render json: filters_for_current_user.to_json
-    rescue com.thoughtworks.go.domain.exception::UncheckedValidationException => e
-      render json: {message: e.message}, status: 400
+      user_service.addNotificationFilter(@user_to_operate.id, filter)
+      @user_to_operate = user_service.load(@user_to_operate.id)
+
+      render_user_notification_filters
+    rescue UncheckedValidationException => e
+      render_message(e.message, :bad_request)
     end
 
     def destroy
-      user_service.remove_notification_filter(@user.id, params["id"].to_i)
-      @user = user_service.load(@user.id)
+      user_service.removeNotificationFilter(@user_to_operate.id, params["id"].to_i)
+      @user_to_operate = user_service.load(@user_to_operate.id)
 
-      render json: filters_for_current_user.to_json
+      render_user_notification_filters
     end
 
     private
 
+    def render_user_notification_filters
+      render DEFAULT_FORMAT => filters_for_current_user.to_json
+    end
+
     def check_filter_params
-      (params["pipeline"].is_a?(String) && params["stage"].is_a?(String) && params["event"].is_a?(String)).tap do |params_present|
-        render(json: {message: "You must specify pipeline, stage, and event."}.to_json, status: 400) unless params_present
+      unless %w(pipeline stage event).all? { |key| params[key].is_a?(String) }
+        render_message("You must specify pipeline, stage, and event.", :bad_request)
       end
     end
 
     def filters_for_current_user
-      @user.notification_filters.to_a.map { |nf| Hash(nf.toMap) }
+      @user_to_operate.notificationFilters.to_a.map { |nf| Hash(nf.toMap) }
     end
 
     def filter_from_params
@@ -68,12 +71,5 @@ module ApiV1
       )
     end
 
-    def load_user
-      @user = user_service.findUserByName(current_user.username.to_s)
-
-      if !@user || @user.instance_of?(com.thoughtworks.go.domain.NullUser)
-        raise ApiV1::RecordNotFound
-      end
-    end
   end
 end

@@ -38,5 +38,9 @@ module ApiV1
       end
     end
 
+    def load_current_user
+      load_user(current_user.username.to_s)
+    end
+
   end
 end

@@ -32,7 +32,7 @@
         <div class="sub_tabs_container">
           <ul>
             <li>
-              <%= link_to l.string("NOTIFICATIONS_LOWER"), system_environment.pathFor("/tab/mycruise/user") %>
+              <%= link_to l.string("NOTIFICATIONS_LOWER"), preferences_notifications_path %>
             </li>
             <li class="current_tab">
               <%= link_to l.string("OAUTH_ACCESS_TOKENS"), url_for(:controller => 'user_tokens', :action => :index) %>

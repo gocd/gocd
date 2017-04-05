@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.security.CertificateUtil.md5Fingerprint;
-import static com.thoughtworks.go.security.SelfSignedCertificateX509TrustManager.CRUISE_SERVER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
 
@@ -137,7 +136,6 @@ public class SslInfrastructureService {
         try {
             httpClient.reset();
             keyStoreManager.deleteEntry(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
-            keyStoreManager.deleteEntry(CRUISE_SERVER, GoAgentServerClientBuilder.AGENT_TRUST_FILE, httpClientBuilder().keystorePassword());
         } catch (Exception e) {
             LOGGER.fatal("[Agent Registration] Error while deleting key from key store", e);
             deleteKeyStores();
@@ -146,7 +144,6 @@ public class SslInfrastructureService {
 
     private void deleteKeyStores() {
         FileUtils.deleteQuietly(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE);
-        FileUtils.deleteQuietly(GoAgentServerClientBuilder.AGENT_TRUST_FILE);
     }
 
     public static class RemoteRegistrationRequester {

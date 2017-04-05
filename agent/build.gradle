@@ -54,8 +54,7 @@ clean.doFirst {
   delete 'plugins_work'
   delete 'agent-plugins.zip'
   delete 'tfs-impl.jar'
-  delete 'go-agent.log'
-  delete 'log4j.properties'
+  delete 'logs'
 }
 
 task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar']) {

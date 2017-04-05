@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GuidService {
-    private static final File AGENT_GUID_FILE = new File("config", "guid.txt");
+    private static final File AGENT_GUID_FILE = new File(new SystemEnvironment().getConfigDir(), "guid.txt");
 
     public static void storeGuid(String guid) {
         try {

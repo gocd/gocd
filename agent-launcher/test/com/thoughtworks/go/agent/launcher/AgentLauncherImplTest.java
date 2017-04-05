@@ -61,7 +61,6 @@ public class AgentLauncherImplTest {
     }
 
     private void cleanup() {
-        FileUtils.deleteQuietly(new File("go-agent-launcher.log"));
         FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
         FileUtils.deleteQuietly(AGENT_BINARY_JAR);
         FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);

@@ -39,8 +39,6 @@
     <property name="systemPropertiesMode" value="2"/>
   </bean>
 
-  <bean id="log4jDirectConfigurer" class="com.thoughtworks.go.util.Log4jDirectConfigurer"/>
-
   <bean id="buildLoopServer" class="com.thoughtworks.go.agent.service.HttpInvokerProxyFactoryWrapper"
         p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote">
     <property name="httpInvokerRequestExecutor">

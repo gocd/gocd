@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.build;
+package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -126,12 +126,13 @@ public abstract class LinuxPackagingTask extends DefaultTask {
       }
     }
 
-    File propertiesFile = project.fileTree(buildRoot()) { include("**/*/log4j.properties") }.files.first()
+    Set<File> propertiesFiles = project.fileTree(buildRoot()) { include("**/*/*log4j.properties") }.files
 
-    def text = propertiesFile.getText().replaceAll(/\.File=logs\/(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
+    propertiesFiles.each { propertyFile ->
+      def text = propertyFile.getText().replaceAll(/\.File=logs\/(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
 
-    propertiesFile.write(text)
-
+      propertyFile.write(text)
+    }
   }
 
 }

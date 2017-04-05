@@ -33,17 +33,12 @@ public class Capabilities {
     private final boolean canSearch;
 
     @Expose
-    @SerializedName("can_verify_connection")
-    private final boolean canVerifyConnection;
-
-    @Expose
     @SerializedName("can_authorize")
     private final boolean canAuthorize;
 
-    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch, boolean canVerifyConnection, boolean canAuthorize) {
+    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch, boolean canAuthorize) {
         this.supportedAuthType = supportedAuthType;
         this.canSearch = canSearch;
-        this.canVerifyConnection = canVerifyConnection;
         this.canAuthorize = canAuthorize;
     }
 
@@ -63,16 +58,12 @@ public class Capabilities {
         return GSON.fromJson(json, Capabilities.class);
     }
 
-    public boolean canVerifyConnection() {
-        return canVerifyConnection;
-    }
-
     public boolean canAuthorize() {
         return canAuthorize;
     }
 
     public com.thoughtworks.go.plugin.domain.authorization.Capabilities toCapabilites() {
         com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType = com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.valueOf(this.supportedAuthType.name());
-        return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch, canVerifyConnection, canAuthorize);
+        return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch, canAuthorize);
     }
 }

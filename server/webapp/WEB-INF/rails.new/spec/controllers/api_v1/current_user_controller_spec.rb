@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe ApiV4::CurrentUserController do
+describe ApiV1::CurrentUserController do
   include ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
 
   before(:each) do

@@ -33,7 +33,7 @@
         method:  "GET",
         url:     url,
         headers: {
-          Accept: "application/vnd.go.cd.v4+json"
+          Accept: "application/vnd.go.cd.v1+json"
         }
       }).then(function (data) {
         filters(data);
@@ -63,7 +63,7 @@
         url:     url,
         data:    serialize(form),
         headers: {
-          Accept: "application/vnd.go.cd.v4+json"
+          Accept: "application/vnd.go.cd.v1+json"
         }
       }).then(function (data) {
         filters(data);
@@ -82,7 +82,7 @@
         method:  "DELETE",
         url:     url + "/" + id,
         headers: {
-          Accept: "application/vnd.go.cd.v4+json"
+          Accept: "application/vnd.go.cd.v1+json"
         }
       }).then(function (data) {
         filters(data);

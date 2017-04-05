@@ -14,11 +14,12 @@
 # limitations under the License.
 ##########################################################################
 
-module Api
+module ApiV1
   module UsersHelper
 
     def save_user(result, user)
-      # sending empty array through JSON seems to become nil ????
+      # sending empty arrays through JSON are deserialized to nil
+      # yay rails. https://github.com/rails/rails/pull/8862
       params["checkin_aliases"] = [] if params.has_key?("checkin_aliases") && params["checkin_aliases"].nil?
 
       checkin_aliases = if params[:checkin_aliases].is_a?(Array)

@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
-  class CurrentUserController < ApiV4::BaseController
-    include Api::UsersHelper
+module ApiV1
+  class CurrentUserController < ApiV1::BaseController
+    include ApiV1::UsersHelper
 
     before_action :check_user_and_404
     before_action :load_current_user

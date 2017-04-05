@@ -218,6 +218,12 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv1, format: false do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
+
+      get 'current_user', controller: 'current_user', action: 'show'
+      patch 'current_user', controller: 'current_user', action: 'update'
+
+      resources :notification_filters, only: [:index, :create, :destroy]
+
       resources :backups, only: [:create], constraints: HeaderConstraint.new
 
       resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
@@ -305,11 +311,6 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
       end
-
-      get 'current_user', controller: 'current_user', action: 'show'
-      patch 'current_user', controller: 'current_user', action: 'update'
-
-      resources :notification_filters, only: [:index, :create, :destroy]
 
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member

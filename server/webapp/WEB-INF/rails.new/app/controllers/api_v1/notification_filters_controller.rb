@@ -18,8 +18,9 @@ java_import "com.thoughtworks.go.domain.NotificationFilter",
             "com.thoughtworks.go.domain.StageEvent",
             "com.thoughtworks.go.domain.exception.UncheckedValidationException"
 
-module ApiV4
-  class NotificationFiltersController < ApiV4::BaseController
+module ApiV1
+  class NotificationFiltersController < ApiV1::BaseController
+
     before_action :check_user_and_404
     before_action :load_user
     before_action :check_filter_params, only: :create

@@ -49,7 +49,7 @@
         url:     url,
         type:    "json",
         headers: {
-          Accept: "application/vnd.go.cd.v4+json"
+          Accept: "application/vnd.go.cd.v1+json"
         }
       }).then(function (data) {
         updateUserBindings(data);
@@ -66,7 +66,7 @@
           url:     url,
           type:    "json",
           headers: {
-            "Accept":       "application/vnd.go.cd.v4+json",
+            "Accept":       "application/vnd.go.cd.v1+json",
             "Content-Type": "application/json"
           },
           data: payload

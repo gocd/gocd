@@ -16,7 +16,7 @@
 
 module ApiV1
   class UsersController < ApiV1::BaseController
-    include Api::UsersHelper
+    include ApiV1::UsersHelper
 
     before_action :check_admin_user_and_401
     before_action :load_user, only: [:show, :update, :destroy]

@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe ApiV4::NotificationFiltersController do
+describe ApiV1::NotificationFiltersController do
   include ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
 
   before(:each) do

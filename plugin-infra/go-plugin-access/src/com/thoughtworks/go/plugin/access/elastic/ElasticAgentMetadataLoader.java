@@ -17,13 +17,14 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.access.common.MetadataLoader;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
 @Component
-public class ElasticAgentMetadataLoader extends MetadataLoader {
+public class ElasticAgentMetadataLoader extends MetadataLoader<ElasticAgentPluginInfo> {
     @Autowired
     public ElasticAgentMetadataLoader(PluginManager pluginManager, ElasticAgentPluginInfoBuilder builder, ElasticAgentExtension extension) {
         this(pluginManager, ElasticAgentMetadataStore.instance(), builder, extension);

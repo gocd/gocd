@@ -16,14 +16,35 @@
 
 package com.thoughtworks.go.config.elastic;
 
+import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import org.junit.After;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.*;
 
 public class ElasticProfileTest {
+
+    private ElasticAgentMetadataStore store = ElasticAgentMetadataStore.instance();
+
+    @After
+    public void tearDown() throws Exception {
+        store.clear();
+    }
 
     @Test
     public void shouldNotAllowNullPluginIdOrProfileId() throws Exception {
@@ -60,4 +81,94 @@ public class ElasticProfileTest {
         assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
     }
 
+    @Test
+    public void addConfigurations_shouldAddConfigurationsWithValue() throws Exception {
+        ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"));
+
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        profile.addConfigurations(Arrays.asList(property));
+
+        assertThat(profile.size(), is(1));
+        assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"))));
+    }
+
+    @Test
+    public void addConfigurations_shouldAddConfigurationsWithEncryptedValue() throws Exception {
+        ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"));
+
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        profile.addConfigurations(Arrays.asList(property));
+
+        assertThat(profile.size(), is(1));
+        assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"))));
+    }
+
+    @Test
+    public void addConfiguration_shouldEncryptASecureVariable() throws Exception {
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null);
+
+        store.setPluginInfo(pluginInfo);
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        profile.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+
+        assertThat(profile.size(), is(1));
+        assertTrue(profile.first().isSecure());
+    }
+
+    @Test
+    public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() throws Exception {
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null);
+
+        store.setPluginInfo(pluginInfo);
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        profile.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+
+        assertThat(profile.size(), is(1));
+        assertFalse(profile.first().isSecure());
+        assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+    }
+
+    @Test
+    public void postConstruct_shouldEncryptSecureConfigurations() throws Exception {
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null);
+
+        store.setPluginInfo(pluginInfo);
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+
+        profile.encryptSecureConfigurations();
+
+        assertThat(profile.size(), is(1));
+        assertTrue(profile.first().isSecure());
+    }
+
+    @Test
+    public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() throws Exception {
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+
+        profile.encryptSecureConfigurations();
+
+        assertThat(profile.size(), is(1));
+        assertFalse(profile.first().isSecure());
+    }
+
+    private PluginDescriptor pluginDescriptor(String pluginId) {
+        return new PluginDescriptor() {
+            @Override
+            public String id() {
+                return pluginId;
+            }
+
+            @Override
+            public String version() {
+                return null;
+            }
+
+            @Override
+            public About about() {
+                return null;
+            }
+        };
+    }
 }

@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 
 import java.util.Collection;
 
@@ -44,4 +46,25 @@ public class ElasticProfile extends PluginProfile {
         return "Elastic agent profile";
     }
 
+    @Override
+    protected boolean isSecure(String key) {
+        ElasticAgentPluginInfo pluginInfo = this.metadataStore().getPluginInfo(getPluginId());
+
+        if (pluginInfo == null
+                || pluginInfo.getProfileSettings() == null
+                || pluginInfo.getProfileSettings().getConfiguration(key) == null) {
+            return false;
+        }
+
+        return pluginInfo.getProfileSettings().getConfiguration(key).isSecure();
+    }
+
+    @Override
+    protected boolean hasPluginInfo() {
+        return this.metadataStore().getPluginInfo(getPluginId()) != null;
+    }
+
+    private ElasticAgentMetadataStore metadataStore() {
+        return ElasticAgentMetadataStore.instance();
+    }
 }

@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.core.Is;
@@ -99,17 +100,9 @@ public class AuthorizationExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_METADATA, null);
 
         assertThat(authConfigMetadata.size(), is(2));
-        HashMap<String, Object> usernameMetadata = new HashMap<>();
-        usernameMetadata.put("required", true);
-        usernameMetadata.put("secure", false);
-
-        HashMap<String, Object> passwordMetadata = new HashMap<>();
-        passwordMetadata.put("required", true);
-        passwordMetadata.put("secure", true);
-
         assertThat(authConfigMetadata, containsInAnyOrder(
-                new PluginConfiguration("username", usernameMetadata),
-                new PluginConfiguration("password", passwordMetadata)
+                new PluginConfiguration("username", new Metadata(true, false)),
+                new PluginConfiguration("password", new Metadata(true, true))
         ));
     }
 
@@ -164,11 +157,8 @@ public class AuthorizationExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ROLE_CONFIG_METADATA, null);
 
         assertThat(roleConfigurationMetadata.size(), is(1));
-        HashMap<String, Object> memberOfMetadata = new HashMap<>();
-        memberOfMetadata.put("required", true);
-        memberOfMetadata.put("secure", false);
         assertThat(roleConfigurationMetadata, containsInAnyOrder(
-                new PluginConfiguration("memberOf", memberOfMetadata)
+                new PluginConfiguration("memberOf", new Metadata(true, false))
         ));
     }
 

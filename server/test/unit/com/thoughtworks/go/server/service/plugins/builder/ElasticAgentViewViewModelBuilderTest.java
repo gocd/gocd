@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service.plugins.builder;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -29,10 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
@@ -87,14 +85,17 @@ public class ElasticAgentViewViewModelBuilderTest {
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));;
         ElasticAgentPluginInfo elasticAgentPluginInfo = new ElasticAgentPluginInfo(dockerPlugin,
-                new PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("foo", Collections.singletonMap("secure", true))),
+                new PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("foo", new Metadata(false, true))),
                 new com.thoughtworks.go.plugin.domain.common.PluginView("foo_template")), image);
 
         metadataStore.setPluginInfo(elasticAgentPluginInfo);
 
         PluginInfo pluginInfo = builder.pluginInfoFor(elasticAgentPluginInfo.getDescriptor().id());
 
-        PluginInfo info = new PluginInfo(dockerPlugin, "elastic-agent", null, new com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("foo", Collections.singletonMap("secure", true))),
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("required", false);
+        metadata.put("secure", true);
+        PluginInfo info = new PluginInfo(dockerPlugin, "elastic-agent", null, new com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("foo", metadata)),
                 new PluginView("foo_template")), new Image(image.getContentType(), image.getData()));
 
         assertEquals(info, pluginInfo);

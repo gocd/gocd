@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 
 import java.util.Collection;
 
@@ -40,7 +42,29 @@ public class SecurityAuthConfig extends PluginProfile {
         return "Security authorization configuration";
     }
 
+    @Override
+    protected boolean isSecure(String key) {
+        AuthorizationPluginInfo pluginInfo = this.metadataStore().getPluginInfo(getPluginId());
+
+        if (pluginInfo == null
+                || pluginInfo.getAuthConfigSettings() == null
+                || pluginInfo.getAuthConfigSettings().getConfiguration(key) == null) {
+            return false;
+        }
+
+        return pluginInfo.getAuthConfigSettings().getConfiguration(key).isSecure();
+    }
+
+    @Override
+    protected boolean hasPluginInfo() {
+        return this.metadataStore().getPluginInfo(getPluginId()) != null;
+    }
+
     public boolean hasRole(PluginRoleConfig role) {
         return role.getAuthConfigId().equals(id);
+    }
+
+    private AuthorizationMetadataStore metadataStore() {
+        return AuthorizationMetadataStore.instance();
     }
 }

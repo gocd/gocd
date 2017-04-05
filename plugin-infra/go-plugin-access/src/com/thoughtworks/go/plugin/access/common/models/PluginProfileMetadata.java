@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.common.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,12 +46,8 @@ public class PluginProfileMetadata {
         return secure;
     }
 
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("required", this.isRequired());
-        map.put("secure", this.isSecure());
-
-        return map;
+    public Metadata toMetadata() {
+        return new Metadata(isRequired(), isSecure());
     }
 
     @Override

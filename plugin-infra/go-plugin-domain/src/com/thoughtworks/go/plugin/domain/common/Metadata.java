@@ -16,43 +16,50 @@
 
 package com.thoughtworks.go.plugin.domain.common;
 
-public class PluginConfiguration {
-    private final String key;
-    private final Metadata metadata;
+import java.util.HashMap;
+import java.util.Map;
 
-    public PluginConfiguration(String key, Metadata metadata) {
-        this.key = key;
-        this.metadata = metadata != null ? metadata : new Metadata(false, false);
+public class Metadata {
+    private final boolean required;
+    private final boolean secure;
+
+    public Metadata(boolean required, boolean secure) {
+        this.required = required;
+        this.secure = secure;
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public Metadata getMetadata() {
-        return metadata;
+    public boolean isRequired() {
+        return required;
     }
 
     public boolean isSecure() {
-        return metadata.isSecure();
+        return secure;
     }
 
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("secure", isSecure());
+        map.put("required", isRequired());
+
+        return map;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PluginConfiguration that = (PluginConfiguration) o;
+        Metadata metadata = (Metadata) o;
 
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
+        if (required != metadata.required) return false;
+        return secure == metadata.secure;
 
     }
 
     @Override
     public int hashCode() {
-        int result = key != null ? key.hashCode() : 0;
-        result = 31 * result + (metadata != null ? metadata.hashCode() : 0);
+        int result = (required ? 1 : 0);
+        result = 31 * result + (secure ? 1 : 0);
         return result;
     }
 }

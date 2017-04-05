@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.plugin.domain.common.Image;
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
-import com.thoughtworks.go.plugin.domain.common.PluginView;
+import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
@@ -45,7 +42,7 @@ public class ElasticAgentPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithProfileSettings() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", Collections.singletonMap("secure", true)));
+        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
 
         when(extension.getProfileMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getProfileView(descriptor.id())).thenReturn("profile_view");

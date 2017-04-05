@@ -97,7 +97,7 @@ let TaskViews = {
             <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
               {children}
               <RunIfConditionsWidget task={vnode.attrs.task}/>
-              <CancelTaskWidget task={vnode.attrs.task}/>
+              <CancelTaskWidget task={vnode.attrs.task} pluginInfos={vnode.attrs.pluginInfos}/>
             </div>
           </div>
         </div>

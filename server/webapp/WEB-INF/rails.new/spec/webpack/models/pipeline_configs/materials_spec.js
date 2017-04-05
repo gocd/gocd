@@ -888,7 +888,7 @@ describe("Material Model", () => {
       });
 
       it("should initialize material model with pluginInfo", () => {
-        let data = {
+        const data = {
           type: 'scm',
           id:   'plugin_id'
         };

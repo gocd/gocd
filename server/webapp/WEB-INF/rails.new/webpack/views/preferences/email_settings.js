@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-;(function() {
+;(function() { // eslint-disable-line no-extra-semi
   "use strict";
 
   const m = require("mithril");
@@ -24,23 +24,29 @@
     const editMode = Stream(false);
 
     function enterEditMode(e) {
-      if (e) e.preventDefault();
+      if (e) {
+        e.preventDefault();
+      }
+
       editMode(true);
       model.reset();
     }
 
     function exitEditMode(e) {
-      if (e) e.preventDefault();
+      if (e) {
+        e.preventDefault();
+      }
+
       editMode(false);
       model.reset();
     }
 
     return {
-      oninit(vnode) {
+      oninit() {
         model.load();
       },
 
-      view(vnode) {
+      view() {
         return m("form", model.config({class: "email-settings"}, exitEditMode),
           m("legend", "Email Settings"),
           m("fieldset", [

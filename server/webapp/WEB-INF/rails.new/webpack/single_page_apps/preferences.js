@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function () {
+;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
   const m = require("mithril");
@@ -27,10 +27,10 @@
   const FiltersModel       = require('models/preferences/filters_model');
   const PipelinesModel     = require('models/preferences/pipelines_model');
 
-  $(function ready() {
+  document.addEventListener("DOMContentLoaded", () => {
 
     function dataAttr(node, name) {
-      return node.getAttribute("data-" + name);
+      return node.getAttribute(`data-${name}`);
     }
 
     const main        = document.getElementById("notification-prefs");

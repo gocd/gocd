@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-;(function () {
+;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
   const m = require("mithril");
@@ -22,10 +22,10 @@
 
   function AddFilter(filterModels, pipelineModel) {
     return {
-      oninit(vnode) {
+      oninit() {
         filterModels.load();
       },
-      view(vnode) {
+      view() {
         return m("form", {class: "create-notification-filter", onsubmit: filterModels.save},
           m(Dropdown, {
             label:      "Pipeline",
@@ -50,7 +50,7 @@
       _.assign(vnode.state, vnode.attrs);
     },
 
-    view(vnode) {
+    view() {
       return m("label",
         m("span", this.label),
         m("select", {name: this.name, onchange: this.onchange},

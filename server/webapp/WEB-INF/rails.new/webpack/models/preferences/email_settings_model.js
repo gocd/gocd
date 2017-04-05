@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function() {
+;(function() { // eslint-disable-line no-extra-semi
   "use strict";
 
   const m = require("mithril");
   const Stream = require("mithril/stream");
   const _ = require("lodash");
 
-  function EmailSettingsModel(url, errors) {
+  function EmailSettingsModel(apiUrl, errors) {
     const email = Stream();
     const enableNotifications = Stream();
     const checkinAliases = Stream();
@@ -33,11 +33,13 @@
       return _.compact(_.map(string.split(","), trim));
     }
 
+    /* eslint-disable camelcase, object-shorthand */
     const payload = {
       email:           email,
       email_me:        enableNotifications,
       checkin_aliases: checkinAliases.map(splitter)
     };
+    /* eslint-enable camelcase, object-shorthand */
 
     let savedEmail;
     let savedEnableNotifications;
@@ -46,14 +48,14 @@
     function fetchUser() {
       m.request({
         method:  "GET",
-        url:     url,
+        url:     apiUrl,
         type:    "json",
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then(function (data) {
+      }).then((data) => {
         updateUserBindings(data);
-      })
+      });
     }
 
     function updateUser(callback) {
@@ -63,7 +65,7 @@
 
         m.request({
           method:  "PATCH",
-          url:     url,
+          url:     apiUrl,
           type:    "json",
           headers: {
             "Accept":       "application/vnd.go.cd.v1+json",
@@ -93,14 +95,14 @@
     }
 
     function config(attrs, updateCallback) {
-      return _.assign(attrs, {action: url, method: "PATCH", onsubmit: updateUser(updateCallback)});
+      return _.assign(attrs, {action: apiUrl, method: "PATCH", onsubmit: updateUser(updateCallback)});
     }
 
     return {
       load: fetchUser,
       reset: resetUserFields,
       update: updateUser,
-      config: config,
+      config: config, // eslint-disable-line object-shorthand
       get email() { return email; },
       get enableNotifications() { return enableNotifications; },
       get checkinAliases() { return checkinAliases; }

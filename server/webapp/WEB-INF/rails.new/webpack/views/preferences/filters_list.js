@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-;(function () {
+;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
   const m = require("mithril");
@@ -22,10 +22,10 @@
 
   function FiltersList(model) {
     return {
-      oninit(vnode) {
+      oninit() {
         model.load();
       },
-      view(vnode) {
+      view() {
         return m("table", {class: "notification-filters-list"},
           m("thead",
             m("tr",

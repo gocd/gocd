@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-;(function () {
+;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
   const Stream = require("mithril/stream");
@@ -26,15 +26,16 @@
     const DEFAULT_STAGE    = "[Any Stage]";
 
     const pipelineNames    = _.map(json, "pipeline");
-    const events           = [
+    const events           = Stream([
       "All",
       "Passes",
       "Fails",
       "Breaks",
       "Fixed",
       "Cancelled"
-    ];
-    const stagesByPipeline = _.reduce(json, function (memo, entry) {
+    ]);
+
+    const stagesByPipeline = _.reduce(json, (memo, entry) => {
       memo[entry.pipeline] = [DEFAULT_STAGE].concat(entry.stages);
       return memo;
     }, {});
@@ -42,16 +43,17 @@
     pipelineNames.unshift(DEFAULT_PIPELINE);
     stagesByPipeline[DEFAULT_PIPELINE] = [DEFAULT_STAGE];
 
-    const current = Stream(DEFAULT_PIPELINE);
-    const stages  = current.map(function (pipeline) {
+    const pipelines = Stream(pipelineNames);
+    const currentPipeline = Stream(DEFAULT_PIPELINE);
+    const stages = currentPipeline.map((pipeline) => {
       return stagesByPipeline[pipeline];
     });
 
     return {
-      pipelines:       Stream(pipelineNames),
-      currentPipeline: current,
-      stages:          stages,
-      events:          Stream(events)
+      pipelines,
+      currentPipeline,
+      stages,
+      events
     };
   }
 

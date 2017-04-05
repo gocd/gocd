@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function () {
+;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
   const m      = require("mithril");
   const Stream = require("mithril/stream");
 
-  function FiltersModel(url, errors) {
+  function FiltersModel(apiUrl, errors) {
 
     const filters = Stream();
 
@@ -31,21 +31,21 @@
     function fetchFilters() {
       m.request({
         method:  "GET",
-        url:     url,
+        url:     apiUrl,
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then(function (data) {
+      }).then((data) => {
         filters(data);
       });
     }
 
     function serialize(form) {
-      let data = new FormData(form);
-      let result = {}, i = data.entries(), current;
+      const data = new FormData(form), result = {}, i = data.entries();
+      let current;
 
       while (!(current = i.next()).done) {
-        let entry = current.value;
+        const entry = current.value;
         result[entry[0]] = entry[1];
       }
 
@@ -56,35 +56,35 @@
       e.preventDefault();
       errors(null);
 
-      let form = e.currentTarget;
+      const form = e.currentTarget;
 
       m.request({
         method:  "POST",
-        url:     url,
+        url:     apiUrl,
         data:    serialize(form),
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then(function (data) {
+      }).then((data) => {
         filters(data);
-      }, function fail(data) {
+      }, (data) => {
         errors(data.message);
       });
     }
 
     function deleteFilter(e) {
       e.preventDefault();
-      let button = e.currentTarget;
 
-      let id = parseInt(button.getAttribute("data-filter-id"), 10);
+      const button = e.currentTarget;
+      const id = parseInt(button.getAttribute("data-filter-id"), 10);
 
       m.request({
         method:  "DELETE",
-        url:     url + "/" + id,
+        url:     `${apiUrl}/${id}`,
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then(function (data) {
+      }).then((data) => {
         filters(data);
       });
     }

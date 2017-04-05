@@ -32,7 +32,7 @@ describe("PipelineConfigWidget", () => {
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
 
-    spyOn(Pipelines, 'init').and.callFake(() => $.Deferred().promise());
+    spyOn(Pipelines, 'all').and.callFake(() => $.Deferred().promise());
   });
   afterEach(window.destroyDomElementForTest);
   let pipeline;

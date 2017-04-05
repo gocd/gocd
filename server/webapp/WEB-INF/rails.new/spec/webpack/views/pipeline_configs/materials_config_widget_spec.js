@@ -34,7 +34,7 @@ describe("Materials Config Widget", () => {
   afterEach(window.destroyDomElementForTest);
 
   beforeEach(() => {
-    spyOn(Pipelines, 'init').and.callFake(() => $.Deferred().promise());
+    spyOn(Pipelines, 'all').and.callFake(() => $.Deferred().promise());
   });
 
   afterEach(() => {

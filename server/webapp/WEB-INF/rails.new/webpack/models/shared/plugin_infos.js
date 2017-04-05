@@ -37,6 +37,16 @@ const PluginInfos = function (data) {
   this.filterByType = function (type) {
     return new PluginInfos(this.filterPluginInfo((pi) => pi.type() === type));
   };
+
+  this.pluggableTasksTypes = function () {
+    const pluggableTasks = {};
+    this.filterByType('task').eachPluginInfo((pluginInfo) => {
+      pluggableTasks[pluginInfo.id()] = {description: pluginInfo.id()};
+    });
+
+    return pluggableTasks;
+  };
+
 };
 
 PluginInfos.API_VERSION = 'v3';
@@ -48,7 +58,7 @@ CrudMixins.Index({
   dataPath: '_embedded.plugin_info'
 });
 
-PluginInfos.PluginInfo = function(type, {id, version, about, imageUrl}) {
+PluginInfos.PluginInfo = function (type, {id, version, about, imageUrl}) {
   this.constructor.modelType = 'pluginInfo';
   this.parent                = Mixins.GetterSetter();
   Mixins.HasUUID.call(this);

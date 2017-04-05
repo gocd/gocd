@@ -19,7 +19,7 @@ describe("Material Model", () => {
   const Stream      = require('mithril/stream');
   const Materials   = require("models/pipeline_configs/materials");
   const SCMs        = require("models/pipeline_configs/scms");
-  const PluginInfos = require('models/pipeline_configs/plugin_infos');
+  const PluginInfos = require('models/shared/plugin_infos');
 
   let materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
   afterEach(() => {
@@ -888,7 +888,11 @@ describe("Material Model", () => {
       });
 
       it("should initialize material model with pluginInfo", () => {
-        expect(Materials.create({pluginInfo: new PluginInfos.PluginInfo({id: 'plugin_id'})}).pluginInfo().id()).toBe('plugin_id');
+        const data = {
+          type: 'scm',
+          id:   'plugin_id'
+        };
+        expect(Materials.create({pluginInfo: PluginInfos.PluginInfo.fromJSON(data)}).pluginInfo().id()).toBe('plugin_id');
       });
 
       it("should initialize material model with invert_filter", () => {

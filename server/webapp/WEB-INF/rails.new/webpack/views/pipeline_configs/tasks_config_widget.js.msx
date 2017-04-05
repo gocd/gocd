@@ -40,12 +40,7 @@ let TaskTypeSelector = {
   },
 
   view (vnode) {
-    const pluggableTasks = {};
-    vnode.attrs.pluginInfos().filterByType('task').eachPluginInfo((pluginInfo) => {
-      pluggableTasks[pluginInfo.id()] = {description: pluginInfo.id()};
-    });
-
-    const items = _.reduce(_.merge({}, Tasks.Types, pluggableTasks), (accumulator, value, key) => {
+    const items = _.reduce(_.merge({}, Tasks.Types, vnode.attrs.pluginInfos().pluggableTasksTypes()), (accumulator, value, key) => {
       accumulator.push({id: key, text: value.description});
       return accumulator;
     }, []);

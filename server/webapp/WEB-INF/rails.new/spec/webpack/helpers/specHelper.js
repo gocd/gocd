@@ -17,13 +17,11 @@
 require('jasmine-jquery');
 require('jasmine-ajax');
 
-const PluginInfos   = require('models/pipeline_configs/plugin_infos');
-const PluggableSCMs = require('models/pipeline_configs/pluggable_scms');
-const SCMs          = require("models/pipeline_configs/scms");
-const Pipelines     = require("models/pipeline_configs/pipelines");
-const _             = require('lodash');
-const $             = require('jquery');
-const Modal         = require('views/shared/new_modal');
+const SCMs      = require("models/pipeline_configs/scms");
+const Pipelines = require("models/pipeline_configs/pipelines");
+const _         = require('lodash');
+const $         = require('jquery');
+const Modal     = require('views/shared/new_modal');
 
 let container;
 
@@ -54,10 +52,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  expect(PluginInfos().length).toBe(0);
   expect(Pipelines().length).toBe(0);
-
-  expect(_(PluggableSCMs.Types).isEqual({})).toBe(true);
 
   expect(SCMs().length).toBe(0);
   expect(_(SCMs.scmIdToEtag).isEqual({})).toBe(true);

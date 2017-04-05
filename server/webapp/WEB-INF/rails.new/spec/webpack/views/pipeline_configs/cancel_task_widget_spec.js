@@ -18,10 +18,12 @@ describe('Cancel Task Widget', () => {
 
   const $             = require("jquery");
   const m             = require("mithril");
+  const Stream        = require("mithril/stream");
   const simulateEvent = require('simulate-event');
   require('jasmine-jquery');
 
   const Tasks            = require("models/pipeline_configs/tasks");
+  const PluginInfos      = require("models/shared/plugin_infos");
   const CancelTaskWidget = require("views/pipeline_configs/cancel_task_widget");
 
   let $root, root;
@@ -170,7 +172,10 @@ describe('Cancel Task Widget', () => {
   const mount = (task) => {
     m.mount(root, {
       view() {
-        return m(CancelTaskWidget, {task});
+        return m(CancelTaskWidget, {
+          task,
+          pluginInfos: Stream(PluginInfos.fromJSON([]))
+        });
       }
     });
     m.redraw();

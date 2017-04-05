@@ -20,9 +20,8 @@ let f = require('helpers/form_helper');
 const _              = require('lodash');
 const tt             = require('helpers/pipeline_configs/tooltips');
 const Tasks          = require('models/pipeline_configs/tasks');
-const PluggableTasks = require('models/pipeline_configs/pluggable_tasks');
 const TaskBasicViews = require('views/pipeline_configs/task_basic_views_widget');
-const PluginInfos    = require('models/pipeline_configs/plugin_infos');
+const PluginInfos    = require('models/shared/plugin_infos');
 
 const CancelTaskWidget = {
   oninit (vnode) {
@@ -85,7 +84,7 @@ const CancelTaskWidget = {
 
     const taskSelector = function () {
       if (task.hasOnCancelTask()) {
-        const items = _.reduce(_.merge({}, Tasks.Types, PluggableTasks.Types), (accumulator, value, key) => {
+        const items = _.reduce(_.merge({}, Tasks.Types, vnode.attrs.pluginInfos().pluggableTasksTypes()), (accumulator, value, key) => {
           if (key !== 'fetchartifact') {
             accumulator.push({id: key, text: value.description});
           }

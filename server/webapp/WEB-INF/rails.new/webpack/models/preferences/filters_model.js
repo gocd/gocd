@@ -35,9 +35,7 @@
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then((data) => {
-        filters(data);
-      });
+      }).then(filters);
     }
 
     function serialize(form) {
@@ -65,9 +63,7 @@
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then((data) => {
-        filters(data);
-      }, (data) => {
+      }).then(filters, (data) => {
         errors(data.message);
       });
     }
@@ -84,9 +80,7 @@
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then((data) => {
-        filters(data);
-      });
+      }).then(filters);
     }
 
     this.load    = fetchFilters;

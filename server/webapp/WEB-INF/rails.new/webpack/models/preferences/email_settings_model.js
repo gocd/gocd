@@ -53,9 +53,7 @@
         headers: {
           Accept: "application/vnd.go.cd.v1+json"
         }
-      }).then((data) => {
-        updateUserBindings(data);
-      });
+      }).then(updateUserBindings);
     }
 
     function updateUser(callback) {

@@ -39,13 +39,14 @@
 
     const userUrl     = dataAttr(main, "user-url");
     const filtersUrl  = dataAttr(main, "filters-url");
+    const smtpEnabled = JSON.parse(dataAttr(main, "smtp-configured"));
 
     const errorsModel = Stream();
     const emailSettingsModel = new EmailSettingsModel(userUrl, errorsModel);
     const filtersModel       = new FiltersModel(filtersUrl, errorsModel);
     const pipelinesModel     = new PipelinesModel(pipelines);
 
-    const EmailSettings = new EmailSettingsView(emailSettingsModel);
+    const EmailSettings = new EmailSettingsView(emailSettingsModel, smtpEnabled);
     const AddFilter     = new AddFilterView(filtersModel, pipelinesModel);
     const Filters       = new FiltersListView(filtersModel);
 

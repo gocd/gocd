@@ -20,8 +20,9 @@
   const m = require("mithril");
   const Stream = require("mithril/stream");
 
-  function EmailSettings(model) {
+  function EmailSettings(model, smtpEnabled=false) {
     const editMode = Stream(false);
+    const allowCheckbox = editMode.map((value) => smtpEnabled && value);
 
     function enterEditMode(e) {
       if (e) {
@@ -51,7 +52,7 @@
           m("legend", "Email Settings"),
           m("fieldset", [
             m(LockableInput, {name: "email", label: "Email", value: model.email, unlocked: editMode, placeholder: "Email not set"}),
-            m(LockableCheckbox, {name: "email_me", label: "Enable notifications", value: model.enableNotifications, unlocked: editMode}),
+            m(LockableCheckbox, {name: "email_me", label: "Enable email notification", value: model.enableNotifications, unlocked: allowCheckbox}),
             m(LockableInput, {name: "checkin_aliases", label: "My check-in aliases", value: model.checkinAliases, unlocked: editMode, placeholder: "No matchers defined"}),
           ]),
           m("fieldset",

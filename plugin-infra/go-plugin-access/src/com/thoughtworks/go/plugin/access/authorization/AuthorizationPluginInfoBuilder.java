@@ -40,8 +40,10 @@ public class AuthorizationPluginInfoBuilder implements PluginInfoBuilder<Authori
     }
 
     public AuthorizationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        return new AuthorizationPluginInfo(descriptor, authConfigSettings(descriptor.id()), roleSettings(descriptor.id()),
-                image(descriptor.id()), capabilities(descriptor.id()));
+        Capabilities capabilities = capabilities(descriptor.id());
+
+        return new AuthorizationPluginInfo(descriptor, authConfigSettings(descriptor.id()), roleSettings(descriptor.id(), capabilities),
+                image(descriptor.id()), capabilities);
     }
 
     private Capabilities capabilities(String pluginId) {
@@ -53,9 +55,13 @@ public class AuthorizationPluginInfoBuilder implements PluginInfoBuilder<Authori
                 new PluginView(extension.getAuthConfigView(pluginId)));
     }
 
-    private PluggableInstanceSettings roleSettings(String pluginId) {
-        return new PluggableInstanceSettings(extension.getRoleConfigurationMetadata(pluginId),
-                new PluginView(extension.getRoleConfigurationView(pluginId)));
+    private PluggableInstanceSettings roleSettings(String pluginId, Capabilities capabilities) {
+        if (capabilities.canAuthorize()) {
+            return new PluggableInstanceSettings(extension.getRoleConfigurationMetadata(pluginId),
+                    new PluginView(extension.getRoleConfigurationView(pluginId)));
+        }
+
+        return null;
     }
 
     private Image image(String pluginId) {

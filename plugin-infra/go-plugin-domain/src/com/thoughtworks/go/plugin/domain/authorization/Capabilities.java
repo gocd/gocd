@@ -21,10 +21,14 @@ public class Capabilities {
     private final SupportedAuthType supportedAuthType;
 
     private final boolean canSearch;
+    private final boolean canVerifyConnection;
+    private final boolean canAuthorize;
 
-    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch) {
+    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch, boolean canVerifyConnection, boolean canAuthorize) {
         this.supportedAuthType = supportedAuthType;
         this.canSearch = canSearch;
+        this.canVerifyConnection = canVerifyConnection;
+        this.canAuthorize = canAuthorize;
     }
 
     public SupportedAuthType getSupportedAuthType() {
@@ -33,6 +37,14 @@ public class Capabilities {
 
     public boolean canSearch() {
         return canSearch;
+    }
+
+    public boolean canVerifyConnection() {
+        return canVerifyConnection;
+    }
+
+    public boolean canAuthorize() {
+        return canAuthorize;
     }
 
     @Override

@@ -16,6 +16,8 @@
 @import "go-variables";
 @import "notifications";
 
+$read-only-table-header-bg: #b9f6ca;
+
 %boxshadow {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
@@ -267,4 +269,17 @@ select {
       left:     -3px;
     }
   }
+}
+
+.read-only-table-header {
+  padding:    2px 15px;
+  background: $read-only-table-header-bg;
+  color:      #333;
+  font-size:  rem-calc(16px);
+}
+
+.read-only-table-row {
+  padding:   2px 15px;
+  color:     #333;
+  font-size: rem-calc(16px);
 }

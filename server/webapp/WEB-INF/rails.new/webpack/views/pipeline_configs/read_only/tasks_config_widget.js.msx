@@ -22,7 +22,7 @@ const f      = require('helpers/form_helper');
 
 const Tasks = require('models/pipeline_configs/tasks');
 
-const ArtifactsWidget = {
+const TasksConfigWidget = {
   oninit(vnode){
     const self = vnode.state;
 
@@ -31,15 +31,9 @@ const ArtifactsWidget = {
     };
 
     self.getProperties = function (task) {
-      const content = _.map(task.summary(), (v, k) => {
-        return <f.column>
-          {`${k  }: ${  v}`}
-        </f.column>;
-      });
-
-      return (<f.row>
-        {content}
-      </f.row>);
+      return _.map(task.summary(), (v, k) => {
+        return `${k  }: ${  v}`;
+      }).join(' ');
     };
 
     self.oncancelTaskClicked = function (task) {
@@ -96,10 +90,10 @@ const ArtifactsWidget = {
         <f.row>
           <f.readOnlyHeading value="Tasks:"/>
         </f.row>
-        {(<f.table rows={rows}/>)}
+        <f.table rows={rows}/>
       </div>
     );
   }
 };
 
-module.exports = ArtifactsWidget;
+module.exports = TasksConfigWidget;

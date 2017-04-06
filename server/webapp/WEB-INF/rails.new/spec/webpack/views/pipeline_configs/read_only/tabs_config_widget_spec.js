@@ -54,19 +54,18 @@ describe("Read Only Job Tabs Widget", () => {
     });
 
     it('should render the tabs heading in tabular format', () => {
-      const headings = $.find('table>tr>th');
-      expect(headings[0]).toContainText('name');
-      expect(headings[1]).toContainText('path');
+      const headings = $.find('.read-only-table-header');
+      expect(headings).toContainText('name');
+      expect(headings).toContainText('path');
     });
 
     it('should render the tabs', () => {
-      const row1 = $($.find('table>tr')[1]).children();
-      expect($(row1[0])).toContainText('cobertura');
-      expect($(row1[1])).toContainText('target/site/cobertura/index.html');
+      const row1 = $.find('.read-only-table-row span');
+      expect($(row1[0]).text()).toEqual('cobertura');
+      expect($(row1[1]).text()).toEqual('target/site/cobertura/index.html');
 
-      const row2 = $($.find('table>tr')[2]).children();
-      expect($(row2[0])).toContainText('cobertura2');
-      expect($(row2[1])).toContainText('target/site/cobertura/report.html');
+      expect($(row1[2]).text()).toEqual('cobertura2');
+      expect($(row1[3]).text()).toEqual('target/site/cobertura/report.html');
     });
   });
 

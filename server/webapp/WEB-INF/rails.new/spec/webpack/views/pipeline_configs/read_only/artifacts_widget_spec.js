@@ -56,22 +56,21 @@ describe("Read Only Job Artifacts Widget", () => {
     });
 
     it('should render the artifacts heading in tabular format', () => {
-      const headings = $.find('table>tr>th');
-      expect(headings[0]).toContainText('source');
-      expect(headings[1]).toContainText('destination');
-      expect(headings[2]).toContainText('type');
+      const headings = $.find('.read-only-table-header');
+      expect(headings).toContainText('source');
+      expect(headings).toContainText('destination');
+      expect(headings).toContainText('type');
     });
 
     it('should render the artifacts', () => {
-      const row1 = $($.find('table>tr')[1]).children();
-      expect($(row1[0])).toContainText('target');
-      expect($(row1[1])).toContainText('result');
-      expect($(row1[2])).toContainText('build');
+      const content = $.find('.read-only-table-row span');
+      expect($(content[0]).text()).toBe('target');
+      expect($(content[1]).text()).toBe('result');
+      expect($(content[2]).text()).toBe('build');
 
-      const row2 = $($.find('table>tr')[2]).children();
-      expect($(row2[0])).toContainText('test');
-      expect($(row2[1])).toContainText('res1');
-      expect($(row2[2])).toContainText('test');
+      expect($(content[3]).text()).toBe('test');
+      expect($(content[4]).text()).toBe('res1');
+      expect($(content[5]).text()).toBe('test');
     });
   });
 

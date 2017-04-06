@@ -51,17 +51,17 @@ describe("Read Only Job Properties Config Widget", () => {
     });
 
     it('should render the properties heading in tabular format', () => {
-      const headings = $.find('table>tr>th');
-      expect(headings[0]).toContainText('name');
-      expect(headings[1]).toContainText('source');
-      expect(headings[2]).toContainText('xpath');
+      const headings = $.find('.read-only-table-header');
+      expect(headings).toContainText('name');
+      expect(headings).toContainText('source');
+      expect(headings).toContainText('xpath');
     });
 
     it('should render the properties', () => {
-      const row1 = $($.find('table>tr')[1]).children();
-      expect($(row1[0])).toContainText('coverage.class');
-      expect($(row1[1])).toContainText('target/emma/coverage.xml');
-      expect($(row1[2])).toContainText("substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')");
+      const row1 = $.find('.read-only-table-row span');
+      expect($(row1[0]).text()).toEqual('coverage.class');
+      expect($(row1[1]).text()).toEqual('target/emma/coverage.xml');
+      expect($(row1[2]).text()).toEqual("substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')");
     });
   });
 

@@ -800,20 +800,26 @@ let f = {
   table: {
     view (vnode) {
       const headings = _.map(_.keys(vnode.attrs.rows[0]), (heading) => {
-        return (<th>{heading}</th>);
+        return (<f.column size={3} largeSize={3}><span>{heading}</span></f.column>);
       });
 
       const rows = _.map(vnode.attrs.rows, (row) => {
-        return (<tr>
-          {_.map(row, (cell) => <td>{cell}</td>)}
-        </tr>);
+        return (<f.row class="read-only-table-row">
+          {_.map(row, (cell) => {
+            return (<f.column size={3} largeSize={3}><span>{cell}</span></f.column>);
+          })}
+        </f.row>);
       });
 
       return (
-        <table>
-          <tr> {headings} </tr>
-          {rows}
-        </table>
+        <div class='read-only-table'>
+          <f.row class='read-only-table-header'>{headings}</f.row>
+          <div class='read-only-table-content'>
+            <f.row>
+              {rows}
+            </f.row>
+          </div>
+        </div>
       );
     }
   }

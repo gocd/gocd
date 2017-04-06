@@ -60,15 +60,15 @@ describe("Read Only Tasks Config Widget", () => {
     });
 
     it('should render the tasks heading in tabular format', () => {
-      const headings = $.find('table>tr>th');
-      expect(headings[0]).toContainText('Task Type');
-      expect(headings[1]).toContainText('Run If');
-      expect(headings[2]).toContainText('Properties');
-      expect(headings[3]).toContainText('On Cancel');
+      const headings = $.find('.read-only-table-header');
+      expect(headings).toContainText('Task Type');
+      expect(headings).toContainText('Run If');
+      expect(headings).toContainText('Properties');
+      expect(headings).toContainText('On Cancel');
     });
 
     it('should render the task', () => {
-      const row1 = $($.find('table>tr')[1]).children();
+      const row1 = $.find('.read-only-table-row span');
       expect($(row1[0])).toContainText('exec');
       expect($(row1[1])).toContainText('passed');
       expect($(row1[2])).toContainText('command: ls');
@@ -125,7 +125,7 @@ describe("Read Only Tasks Config Widget", () => {
     });
 
     it('should render the plugabble task', () => {
-      const row1 = $($.find('table>tr')[1]).children();
+      const row1 = $.find('.read-only-table-row span');
       expect($(row1[0])).toContainText('Script Executor');
       expect($(row1[1])).toContainText('failed');
       expect($(row1[2])).toContainText('Script: foobar');
@@ -170,7 +170,7 @@ describe("Read Only Tasks Config Widget", () => {
     });
 
     it('should render the oncancel task', () => {
-      const row1 = $($.find('table>tr')[1]).children();
+      const row1 = $.find('.read-only-table-row span');
       expect($(row1[3])).toContainText('exec');
 
       expect('.oncancel-task-description').toContainText('command: ls');

@@ -20,7 +20,7 @@
   const m = require("mithril");
   const _ = require("lodash");
 
-  function FiltersList(model) {
+  function NotificationFiltersListWidget(model) {
     return {
       oninit() {
         model.load();
@@ -54,6 +54,6 @@
     };
   }
 
-  module.exports = FiltersList;
+  module.exports = NotificationFiltersListWidget;
 })();
 

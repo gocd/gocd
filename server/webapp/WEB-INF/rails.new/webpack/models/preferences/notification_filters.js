@@ -19,7 +19,7 @@
   const m      = require("mithril");
   const Stream = require("mithril/stream");
 
-  function FiltersModel(apiUrl, errors) {
+  function NotificationFilters(apiUrl, errors) {
 
     const filters = Stream();
 
@@ -91,5 +91,5 @@
     this.errors = errors;
   }
 
-  module.exports = FiltersModel;
+  module.exports = NotificationFilters;
 })();

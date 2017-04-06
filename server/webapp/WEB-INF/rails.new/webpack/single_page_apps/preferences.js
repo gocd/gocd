@@ -16,22 +16,22 @@
 ;(function () { // eslint-disable-line no-extra-semi
   "use strict";
 
-  const m = require("mithril");
+  const m      = require("mithril");
   const Stream = require("mithril/stream");
 
-  const EmailSettingsView = require('views/preferences/email_settings');
-  const FiltersListView   = require('views/preferences/filters_list');
-  const AddFilterView     = require('views/preferences/add_filter');
+  const EmailSettingsWidget           = require("views/preferences/email_settings_widget");
+  const NotificationFiltersListWidget = require("views/preferences/notification_filters_list_widget");
+  const AddNotificationFilterWidget   = require("views/preferences/add_notification_filter_widget");
 
-  const EmailSettingsModel = require('models/preferences/email_settings_model');
-  const FiltersModel       = require('models/preferences/filters_model');
-  const PipelinesModel     = require('models/preferences/pipelines_model');
+  const EmailSettings       = require("models/preferences/email_settings");
+  const NotificationFilters = require("models/preferences/notification_filters");
+  const Pipelines           = require("models/preferences/pipelines");
+
+  function dataAttr(node, name) {
+    return node.getAttribute(`data-${name}`);
+  }
 
   document.addEventListener("DOMContentLoaded", () => {
-
-    function dataAttr(node, name) {
-      return node.getAttribute(`data-${name}`);
-    }
 
     const main        = document.getElementById("notification-prefs");
     const validations = document.getElementById("validations");
@@ -41,14 +41,14 @@
     const filtersUrl  = dataAttr(main, "filters-url");
     const smtpEnabled = JSON.parse(dataAttr(main, "smtp-configured"));
 
-    const errorsModel = Stream();
-    const emailSettingsModel = new EmailSettingsModel(userUrl, errorsModel);
-    const filtersModel       = new FiltersModel(filtersUrl, errorsModel);
-    const pipelinesModel     = new PipelinesModel(pipelines);
+    const errorsModel        = Stream();
+    const emailSettingsModel = new EmailSettings(userUrl, errorsModel);
+    const filtersModel       = new NotificationFilters(filtersUrl, errorsModel);
+    const pipelinesModel     = new Pipelines(pipelines);
 
-    const EmailSettings = new EmailSettingsView(emailSettingsModel, smtpEnabled);
-    const AddFilter     = new AddFilterView(filtersModel, pipelinesModel);
-    const Filters       = new FiltersListView(filtersModel);
+    const EmailSettingsView           = new EmailSettingsWidget(emailSettingsModel, smtpEnabled);
+    const AddNotificationFilterView   = new AddNotificationFilterWidget(filtersModel, pipelinesModel);
+    const NotificationFiltersListView = new NotificationFiltersListWidget(filtersModel);
 
     const ErrorMessage = {
       oninit(vnode) {
@@ -71,12 +71,12 @@
     m.mount(main, {
       view() {
         return [
-          m(EmailSettings),
+          m(EmailSettingsView),
           m("div", {class: "filter-controls"},
             m("h2", "Create Notification Filter"),
-            m(AddFilter),
+            m(AddNotificationFilterView),
             m("h2", "Current Notification Filters"),
-            m(Filters)
+            m(NotificationFiltersListView)
           )
         ];
       }

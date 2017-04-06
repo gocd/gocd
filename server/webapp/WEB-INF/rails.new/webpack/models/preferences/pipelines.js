@@ -20,7 +20,7 @@
   const Stream = require("mithril/stream");
   const _      = require("lodash");
 
-  function PipelinesModel(json) {
+  function Pipelines(json) {
 
     const DEFAULT_PIPELINE = "[Any Pipeline]";
     const DEFAULT_STAGE    = "[Any Stage]";
@@ -57,5 +57,5 @@
     };
   }
 
-  module.exports = PipelinesModel;
+  module.exports = Pipelines;
 })();

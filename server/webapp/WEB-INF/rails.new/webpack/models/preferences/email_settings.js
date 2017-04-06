@@ -20,7 +20,7 @@
   const Stream = require("mithril/stream");
   const _ = require("lodash");
 
-  function EmailSettingsModel(apiUrl, errors) {
+  function EmailSettings(apiUrl, errors) {
     const email = Stream();
     const enableNotifications = Stream();
     const checkinAliases = Stream();
@@ -107,5 +107,5 @@
     };
   }
 
-  module.exports = EmailSettingsModel;
+  module.exports = EmailSettings;
 })();

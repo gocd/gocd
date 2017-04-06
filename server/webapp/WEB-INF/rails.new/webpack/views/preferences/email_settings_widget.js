@@ -20,7 +20,7 @@
   const m = require("mithril");
   const Stream = require("mithril/stream");
 
-  function EmailSettings(model, smtpEnabled=false) {
+  function EmailSettingsWidget(model, smtpEnabled=false) {
     const editMode = Stream(false);
     const allowCheckbox = editMode.map((value) => smtpEnabled && value);
 
@@ -106,5 +106,5 @@
     }
   };
 
-  module.exports = EmailSettings;
+  module.exports = EmailSettingsWidget;
 })();

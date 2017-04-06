@@ -19,6 +19,7 @@
   const m      = require("mithril");
   const Stream = require("mithril/stream");
 
+  const f                             = require("helpers/form_helper");
   const EmailSettingsWidget           = require("views/preferences/email_settings_widget");
   const NotificationFiltersListWidget = require("views/preferences/notification_filters_list_widget");
   const AddNotificationFilterWidget   = require("views/preferences/add_notification_filter_widget");
@@ -50,21 +51,17 @@
     const AddNotificationFilterView   = new AddNotificationFilterWidget(filtersModel, pipelinesModel);
     const NotificationFiltersListView = new NotificationFiltersListWidget(filtersModel);
 
-    const ErrorMessage = {
-      oninit(vnode) {
-        vnode.state.errors = vnode.attrs.errors;
-      },
-
+    const ErrorMessageWidget = {
       view(vnode) {
-        if (vnode.state.errors()) {
-          return m("div", {class: "error"}, m("i", {class: "fa fa-exclamation-circle"}), vnode.state.errors());
+        if (vnode.attrs.errors()) {
+          return m(f.alert, vnode.attrs.errors());
         }
       }
     };
 
     m.mount(validations, {
       view() {
-        return m(ErrorMessage, {errors: errorsModel});
+        return m(ErrorMessageWidget, {errors: errorsModel});
       }
     });
 

@@ -154,35 +154,12 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     @Test
-    public void shouldOnlyUpdateRepoIfRevisionIsDifferent() throws Exception {
-        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
-        assertThat(console.output(),
-                containsString("Start updating files at revision " + REVISION_0.getRevision()));
-
-        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
-
-
-        updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
-    }
-
-    @Test
     public void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
         updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
         File shouldNotBeRemoved = new File(new File(workingFolder, ".hg"), "shouldNotBeRemoved");
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi");
         assertThat(shouldNotBeRemoved.exists(), is(true));
         updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
-    }
-
-    /* This is to test the functionality of the private method isRepositoryChanged() */
-    @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
-        File shouldNotBeRemoved = new File(new File(workingFolder, ".hg"), "shouldNotBeRemoved");
-        FileUtils.writeStringToFile(shouldNotBeRemoved, "Text file");
-
-        HgMaterial material1 = new HgMaterial(hgTestRepo.projectRepositoryUrl(), " ");
-        updateTo(material1, new RevisionContext(REVISION_0), JobResult.Passed);
         assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
     }
 

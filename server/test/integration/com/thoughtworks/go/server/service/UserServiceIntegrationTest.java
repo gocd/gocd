@@ -220,7 +220,7 @@ public class UserServiceIntegrationTest {
             userService.addNotificationFilter(user.getId(), filter);
             fail("shouldNotAddDuplicateNotificationFilter");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("already exist"));
+            assertThat(e.getMessage(), containsString("Duplicate notification filter"));
         }
     }
 
@@ -235,7 +235,7 @@ public class UserServiceIntegrationTest {
             userService.addNotificationFilter(user.getId(), new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
             fail("shouldNotAddUnnecessaryNotificationFilter");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("already exist"));
+            assertThat(e.getMessage(), containsString("Duplicate notification filter"));
         }
     }
 

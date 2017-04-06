@@ -43,7 +43,7 @@ describe("Read Only Job Settings Widget", () => {
   });
 
   it('should render job name', () => {
-    expect($root).toContainText('Job Name:');
+    expect($root).toContainText('Job Name');
     expect($root).toContainText(jobs.firstJob().name());
   });
 
@@ -58,7 +58,7 @@ describe("Read Only Job Settings Widget", () => {
       jobs                     = Jobs.fromJSON(rawJobsJSON);
       mount();
 
-      expect($root).toContainText('Resources:');
+      expect($root).toContainText('Resources');
       expect($root).toContainText(resources.join(', '));
     });
 
@@ -66,7 +66,8 @@ describe("Read Only Job Settings Widget", () => {
       jobs = Jobs.fromJSON(rawJobsJSON);
       mount();
 
-      expect($root).toContainText('Resources:Not Specified');
+      expect($root).toContainText('Resources');
+      expect($root).toContainText('Not Specified');
     });
   });
 
@@ -82,13 +83,15 @@ describe("Read Only Job Settings Widget", () => {
 
       mount();
 
-      expect($root).toContainText(`Elastic Profile ID:${id}`);
+      expect($root).toContainText('Elastic Profile ID');
+      expect($root).toContainText(id);
     });
 
     it('should render not specified message when no elastic profile id is specified', () => {
       jobs = Jobs.fromJSON(rawJobsJSON);
       mount();
-      expect($root).toContainText('Elastic Profile ID:Not Specified');
+      expect($root).toContainText('Elastic Profile ID');
+      expect($root).toContainText('Not Specified');
     });
   });
 
@@ -104,13 +107,15 @@ describe("Read Only Job Settings Widget", () => {
 
       mount();
 
-      expect($root).toContainText(`Timeout:${timeout}`);
+      expect($root).toContainText('Timeout');
+      expect($root).toContainText(timeout);
     });
 
     it('should render defauult timeout when not specified', () => {
       jobs = Jobs.fromJSON(rawJobsJSON);
       mount();
-      expect($root).toContainText('Timeout:Default (Never)');
+      expect($root).toContainText('Timeout');
+      expect($root).toContainText('Default (Never)');
     });
 
     it('should render cancel after timeout', () => {
@@ -121,7 +126,8 @@ describe("Read Only Job Settings Widget", () => {
 
       mount();
 
-      expect($root).toContainText(`Timeout:Cancel after ${timeout} minute(s) of inactivity`);
+      expect($root).toContainText('Timeout');
+      expect($root).toContainText(`Cancel after ${timeout} minute(s) of inactivity`);
     });
   });
 
@@ -136,7 +142,8 @@ describe("Read Only Job Settings Widget", () => {
       jobs = Jobs.fromJSON(rawJobsJSON);
       mount();
 
-      expect($root).toContainText(`Run Type:${runInstance}`);
+      expect($root).toContainText('Run Type');
+      expect($root).toContainText(runInstance);
     });
 
     it('should render job running on all agents', () => {
@@ -145,7 +152,8 @@ describe("Read Only Job Settings Widget", () => {
       jobs                                 = Jobs.fromJSON(rawJobsJSON);
       mount();
 
-      expect($root).toContainText(`Run Type:${runInstance}`);
+      expect($root).toContainText('Run Type');
+      expect($root).toContainText(runInstance);
     });
 
     it('should render specified job instances', () => {
@@ -155,7 +163,8 @@ describe("Read Only Job Settings Widget", () => {
       jobs                                 = Jobs.fromJSON(rawJobsJSON);
       mount();
 
-      expect($root).toContainText(`Run Type:${runInstance}`);
+      expect($root).toContainText('Run Type');
+      expect($root).toContainText(runInstance);
     });
 
   });

@@ -42,8 +42,11 @@ const StageSettingsWidget = {
     if (allVariables.length) {
       variablesList = (
         <f.row>
-          <f.KVPairs keys={allVariables}/>
+          <f.column>
+            <f.KVPairs keys={allVariables}/>
+          </f.column>
         </f.row>
+
       );
     } else {
       variablesList = (

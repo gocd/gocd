@@ -45,14 +45,14 @@ describe("Read Only Stage Operate Permissions Widget", () => {
     it('should render users', () => {
       const usersList = rawTemplateJSONWithPermissions().stages[0].approval.authorization.users.join(', ');
 
-      expect($root).toContainText('Users:');
+      expect($root).toContainText('Users');
       expect($root).toContainText(usersList);
     });
 
     it('should render roles', () => {
       const rolesList = rawTemplateJSONWithPermissions().stages[0].approval.authorization.roles.join(', ');
 
-      expect($root).toContainText('Roles:');
+      expect($root).toContainText('Roles');
       expect($root).toContainText(rolesList);
     });
   });
@@ -74,14 +74,14 @@ describe("Read Only Stage Operate Permissions Widget", () => {
     it('should render users', () => {
       const notSpecifiedMessage = 'Not specified.';
 
-      expect($root).toContainText('Users:');
+      expect($root).toContainText('Users');
       expect($root).toContainText(notSpecifiedMessage);
     });
 
     it('should render roles', () => {
       const notSpecifiedMessage = 'Not specified.';
 
-      expect($root).toContainText('Roles:');
+      expect($root).toContainText('Roles');
       expect($root).toContainText(notSpecifiedMessage);
     });
   });

@@ -60,8 +60,12 @@ const JobSettingsWidget = {
           <f.readOnlyHeading value="Job Settings:"/>
         </f.row>
         <f.row>
-          <f.KVPairs keys={jobDescription}/>
-          <f.KVPairs keys={jobRunInformation}/>
+          <f.column>
+            <f.KVPairs keys={jobDescription}/>
+          </f.column>
+          <f.column>
+            <f.KVPairs keys={jobRunInformation}/>
+          </f.column>
         </f.row>
       </div>
     );

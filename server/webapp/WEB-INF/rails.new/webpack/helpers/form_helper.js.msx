@@ -73,8 +73,8 @@ let f = {
       const children = vnode.children;
 
       const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
-        size      = deleteKeyAndReturnValue(args, 'size', 6),
-        largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
+            size      = deleteKeyAndReturnValue(args, 'size', 6),
+            largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
       return (
         <div class={compactClasses(args, 'columns', `medium-${  size}`, `large-${  largeSize}`, end)}
@@ -102,13 +102,13 @@ let f = {
       const ctrl = vnode.state;
 
       const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange');
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            onChange    = deleteKeyAndReturnValue(args, 'onChange');
 
       args.size      = args.size || 6;
       args.largeSize = args.largeSize || 4;
@@ -116,7 +116,7 @@ let f = {
       const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
 
       const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
+        <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
 
       return (
         <f.column {...args}>
@@ -157,17 +157,17 @@ let f = {
       const args = vnode.attrs;
 
       const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        labelText   = deleteKeyAndReturnValue(args, 'label'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false),
-        isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
-        disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
-        message     = deleteKeyAndReturnValue(args, 'message', '');
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            labelText   = deleteKeyAndReturnValue(args, 'label'),
+            onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
+            disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
+            message     = deleteKeyAndReturnValue(args, 'message', '');
 
       args.size      = args.size || 6;
       args.largeSize = args.largeSize || 4;
@@ -175,7 +175,7 @@ let f = {
       const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
 
       const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
+        <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
 
       let propertyMessage;
       if (message) {
@@ -239,20 +239,20 @@ let f = {
       const ctrl        = vnode.state;
       const args        = vnode.attrs;
       const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        labelText   = deleteKeyAndReturnValue(args, 'label'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false);
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            labelText   = deleteKeyAndReturnValue(args, 'label'),
+            onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false);
 
       args.size = args.size || 3;
 
       const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
 
       const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <small class='error'>{model.errors().errorsForDisplay(attrName)}</small>) : undefined;
+        <small class='error'>{model.errors().errorsForDisplay(attrName)}</small>) : undefined;
 
       return (
         <f.column {...args} class={propertyError ? 'error' : null}>
@@ -283,13 +283,13 @@ let f = {
       const args = vnode.attrs;
 
       const model      = deleteKeyAndReturnValue(args, 'model'),
-        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-        labelText  = deleteKeyAndReturnValue(args, 'label'),
-        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-        id         = s.uuid(),
-        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+            labelText  = deleteKeyAndReturnValue(args, 'label'),
+            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+            id         = s.uuid(),
+            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
       if (!args.size) {
         args.size = 3;
@@ -343,14 +343,14 @@ let f = {
       const ctrl = vnode.state;
 
       const model      = deleteKeyAndReturnValue(args, 'model'),
-        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-        value      = deleteKeyAndReturnValue(args, 'value'),
-        labelText  = deleteKeyAndReturnValue(args, 'label'),
-        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-        id         = s.uuid(),
-        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+            value      = deleteKeyAndReturnValue(args, 'value'),
+            labelText  = deleteKeyAndReturnValue(args, 'label'),
+            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+            id         = s.uuid(),
+            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
       if (!args.size) {
         args.size = 3;
@@ -484,14 +484,14 @@ let f = {
       const args = vnode.attrs;
 
       const items         = deleteKeyAndReturnValue(args, 'items', [{}]),
-        label         = deleteKeyAndReturnValue(args, 'label'),
-        model         = deleteKeyAndReturnValue(args, 'model'),
-        modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        attrName      = deleteKeyAndReturnValue(args, 'attrName'),
-        tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
-        disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
-        receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
-        message       = deleteKeyAndReturnValue(args, 'message', '');
+            label         = deleteKeyAndReturnValue(args, 'label'),
+            model         = deleteKeyAndReturnValue(args, 'model'),
+            modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            attrName      = deleteKeyAndReturnValue(args, 'attrName'),
+            tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
+            disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
+            receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
+            message       = deleteKeyAndReturnValue(args, 'message', '');
 
       if (!args.size) {
         args.size = 3;
@@ -655,10 +655,10 @@ let f = {
       }
 
       const direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
-        size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
-        content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
-        clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
-        type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
+            size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+            content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+            clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
+            type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
 
       let tooltipId = 'tooltip-';
 
@@ -756,17 +756,6 @@ let f = {
     }
   },
 
-  KVP: {
-    view (vnode) {
-      return (
-        <f.row>
-          <f.column size={3} largeSize={4} end>{vnode.attrs.key}:</f.column>
-          <f.column size={6} largeSize={8} end>{vnode.attrs.value}</f.column>
-        </f.row>
-      );
-    }
-  },
-
   checklist: {
     view (vnode) {
       const checkboxes = _.map(vnode.attrs.keys, (ele) => {
@@ -774,9 +763,9 @@ let f = {
       });
 
       return (
-        <f.column size={4} largeSize={5} end>
+        <div>
           {checkboxes}
-        </f.column>
+        </div>
       );
     }
   },
@@ -786,24 +775,25 @@ let f = {
       const keyValuePairs = _.map(vnode.attrs.keys, (ele) => {
         const value    = ele.modal()[ele.key]();
         const renderer = _.isFunction(ele.renderer) ? ele.renderer : _.identity.bind(ele, value);
-        return (<f.KVP key={ele.displayKey} value={renderer(value)}/>);
+        return (<div>
+          <dt>{ele.displayKey}</dt>
+          <dd>
+            <pre>{renderer(value)}</pre>
+          </dd>
+        </div>);
       });
 
       return (
-        <f.column>
+        <dl class="key-value-pair">
           {keyValuePairs}
-        </f.column>
+        </dl>
       );
     }
   },
 
   emptyMessage: {
     view (vnode) {
-      return (
-        <f.row>
-          <f.column size={4} class="empty-message">{vnode.attrs.message}</f.column>
-        </f.row>
-      );
+      return (<div class="empty-message">{vnode.attrs.message}</div> );
     }
   },
 

@@ -38,38 +38,29 @@ describe("Read Only Stage Settings Widget", () => {
   });
 
   it('should render stage setting heading', () => {
-    expect($('h5')).toContainText('Stage Settings:');
+    expect($('h5')).toContainText('Stage Settings');
   });
 
   it('should render stage name', () => {
-    expect($root).toContainText('Stage name:');
+    expect($root).toContainText('Stage name');
     expect($root).toContainText(rawTemplateJSON().stages[0].name);
   });
 
   it('should render stage type', () => {
-    expect($root).toContainText('Stage type:');
+    expect($root).toContainText('Stage type');
     expect($root).toContainText(rawTemplateJSON().stages[0].approval.type);
   });
 
   it('should render fetch material checkbox icon', () => {
-    const checklist     = $($('.columns.medium-4.large-5.end')).children();
-    const fetchMaterial = checklist[0];
-    expect($(fetchMaterial)).toContainText('Fetch materials');
-    expect($(fetchMaterial)).toHaveClass('checkbox-selected-icon');
+    expect($('.checkbox-selected-icon')).toContainText('Fetch materials');
   });
 
   it('should render never cleanup artifacts checkbox icon', () => {
-    const checklist             = $($('.columns.medium-4.large-5.end')).children();
-    const neverCleanupArtifacts = checklist[1];
-    expect($(neverCleanupArtifacts)).toContainText('Never cleanup artifacts');
-    expect($(neverCleanupArtifacts)).toHaveClass('checkbox-unselected-icon');
+    expect($($('.checkbox-unselected-icon')[0])).toContainText('Never cleanup artifacts');
   });
 
   it('should render delete working directory on every build checkbox icon', () => {
-    const checklist             = $($('.columns.medium-4.large-5.end')).children();
-    const neverCleanupArtifacts = checklist[2];
-    expect($(neverCleanupArtifacts)).toContainText('Delete working directory on every build');
-    expect($(neverCleanupArtifacts)).toHaveClass('checkbox-unselected-icon');
+    expect($($('.checkbox-unselected-icon')[1])).toContainText('Delete working directory on every build');
   });
 
   const mount = function () {

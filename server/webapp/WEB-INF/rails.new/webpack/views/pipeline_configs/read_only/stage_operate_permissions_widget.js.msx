@@ -51,7 +51,9 @@ const StageOperatePermissionsWidget = {
           <f.readOnlyHeading value="Stage Operate Permissions:"/>
         </f.row>
         <f.row>
-          <f.KVPairs keys={keyValuePairs}/>
+          <f.column>
+            <f.KVPairs keys={keyValuePairs}/>
+          </f.column>
         </f.row>
       </div>
     );

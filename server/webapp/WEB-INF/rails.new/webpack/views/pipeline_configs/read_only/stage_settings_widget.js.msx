@@ -36,9 +36,12 @@ const StageSettingsWidget = {
           <f.readOnlyHeading value="Stage Settings:"/>
         </f.row>
         <f.row>
-          <f.KVPairs keys={keyValuePairs}/>
-
-          <f.checklist keys={checklistItems}/>
+          <f.column>
+            <f.KVPairs keys={keyValuePairs}/>
+          </f.column>
+          <f.column>
+            <f.checklist keys={checklistItems}/>
+          </f.column>
         </f.row>
       </div>
     );

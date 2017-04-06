@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class CapabilitiesTest {
 
@@ -30,13 +31,15 @@ public class CapabilitiesTest {
         String json = "" +
                 "{\n" +
                 "  \"supported_auth_type\": \"web\",\n" +
-                "  \"can_search\": true\n" +
+                "  \"can_search\": true,\n" +
+                "  \"can_authorize\": true\n" +
                 "}";
 
         Capabilities capabilities = Capabilities.fromJSON(json);
 
         assertThat(capabilities.getSupportedAuthType(), is(SupportedAuthType.Web));
-        assertThat(capabilities.canSearch(), is(true));
+        assertTrue(capabilities.canSearch());
+        assertTrue(capabilities.canAuthorize());
     }
 
 }

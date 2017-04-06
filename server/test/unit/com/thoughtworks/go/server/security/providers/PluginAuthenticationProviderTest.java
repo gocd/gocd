@@ -261,7 +261,7 @@ public class PluginAuthenticationProviderTest {
     private void addPluginSupportingPasswordBasedAuthentication(String pluginId) {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
                 new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
-                new Capabilities(SupportedAuthType.Password, false));
+                new Capabilities(SupportedAuthType.Password, true, false));
         AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }
 }

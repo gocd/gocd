@@ -29,9 +29,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class AuthorizationPluginInfoBuilderTest {
 
@@ -40,6 +41,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
+        stub(extension.getCapabilities(any(String.class))).toReturn(new Capabilities(SupportedAuthType.Password, true, true));
     }
 
     @Test
@@ -69,6 +71,18 @@ public class AuthorizationPluginInfoBuilderTest {
     }
 
     @Test
+    public void shouldNotHaveRoleSettingsInPluginInfoIfPluginCannotAuthorize() throws Exception {
+        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, false);
+
+        when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
+
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+
+        assertNull(pluginInfo.getRoleSettings());
+    }
+
+    @Test
     public void shouldBuildPluginInfoWithPluginDescriptor() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
 
@@ -92,7 +106,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithCapablities() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true);
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true);
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 

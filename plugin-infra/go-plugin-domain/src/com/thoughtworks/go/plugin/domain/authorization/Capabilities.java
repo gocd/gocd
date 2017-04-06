@@ -21,10 +21,12 @@ public class Capabilities {
     private final SupportedAuthType supportedAuthType;
 
     private final boolean canSearch;
+    private final boolean canAuthorize;
 
-    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch) {
+    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch, boolean canAuthorize) {
         this.supportedAuthType = supportedAuthType;
         this.canSearch = canSearch;
+        this.canAuthorize = canAuthorize;
     }
 
     public SupportedAuthType getSupportedAuthType() {
@@ -35,6 +37,10 @@ public class Capabilities {
         return canSearch;
     }
 
+    public boolean canAuthorize() {
+        return canAuthorize;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -43,14 +49,15 @@ public class Capabilities {
         Capabilities that = (Capabilities) o;
 
         if (canSearch != that.canSearch) return false;
+        if (canAuthorize != that.canAuthorize) return false;
         return supportedAuthType == that.supportedAuthType;
-
     }
 
     @Override
     public int hashCode() {
         int result = supportedAuthType != null ? supportedAuthType.hashCode() : 0;
         result = 31 * result + (canSearch ? 1 : 0);
+        result = 31 * result + (canAuthorize ? 1 : 0);
         return result;
     }
 }

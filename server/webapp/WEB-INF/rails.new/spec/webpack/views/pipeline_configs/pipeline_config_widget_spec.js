@@ -25,14 +25,11 @@ describe("PipelineConfigWidget", () => {
   require('jasmine-jquery');
 
   const Pipeline             = require("models/pipeline_configs/pipeline");
-  const Pipelines            = require("models/pipeline_configs/pipelines");
   const PipelineConfigWidget = require("views/pipeline_configs/pipeline_config_widget");
 
   let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
-
-    spyOn(Pipelines, 'all').and.callFake(() => $.Deferred().promise());
   });
   afterEach(window.destroyDomElementForTest);
   let pipeline;
@@ -54,10 +51,11 @@ describe("PipelineConfigWidget", () => {
     });
 
     const component = PipelineConfigWidget({
-      url: Stream('/pipeline.json'), callback(controller) {
+      url:       Stream('/pipeline.json'), callback(controller) {
         pipeline = controller.pipeline();
         reallyDone();
-      }
+      },
+      pipelines: Stream([])
     });
 
     m.mount(root, {

@@ -24,7 +24,6 @@ describe("Materials Config Widget", () => {
 
   const Materials             = require("models/pipeline_configs/materials");
   const MaterialsConfigWidget = require("views/pipeline_configs/materials_config_widget");
-  const Pipelines             = require("models/pipeline_configs/pipelines");
   const PluginInfos           = require("models/shared/plugin_infos");
 
   let $root, root;
@@ -32,10 +31,6 @@ describe("Materials Config Widget", () => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-
-  beforeEach(() => {
-    spyOn(Pipelines, 'all').and.callFake(() => $.Deferred().promise());
-  });
 
   afterEach(() => {
     m.mount(root, null);
@@ -419,7 +414,8 @@ describe("Materials Config Widget", () => {
         return m(MaterialsConfigWidget, {
           materials:    Stream(materials),
           pluginInfos:  Stream(PluginInfos.fromJSON(pluginInfosJSON)),
-          pipelineName: Stream('testPipeLine')
+          pipelineName: Stream('testPipeLine'),
+          pipelines:    Stream([])
         });
       }
     });

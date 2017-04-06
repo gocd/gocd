@@ -441,13 +441,12 @@ const MaterialsConfigWidget = {
     const self     = this;
     self.args      = vnode.attrs;
     self.pipelines = Stream([]);
-    Pipelines.all().then((pipelines) => {
-      _.remove(pipelines, (pipeline) => {
-        return (pipeline.name === vnode.attrs.pipelineName());
-      });
 
-      self.pipelines(pipelines);
+    _.remove(vnode.attrs.pipelines(), (pipeline) => {
+      return (pipeline.name === vnode.attrs.pipelineName());
     });
+    self.pipelines(vnode.attrs.pipelines());
+
     ComponentMixins.HasViewModel.call(self);
 
     self.removeMaterial = function (materials) {

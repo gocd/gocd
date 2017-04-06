@@ -53,7 +53,7 @@ describe("Read Only Template Widget", () => {
   });
 
   it('should render template stages', () => {
-    expect($('.stages')).toBeInDOM();
+    expect($('.template-stages')).toBeInDOM();
   });
 
   const mount = function () {

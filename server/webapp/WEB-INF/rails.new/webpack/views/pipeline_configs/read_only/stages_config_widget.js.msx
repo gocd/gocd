@@ -34,33 +34,28 @@ const StagesConfigWidget = {
     };
 
     return (
-      <f.accordion accordionTitles={[(<span>Stages</span>)]}
-                   selectedIndex={vnode.state.vmState('pipelineFlowSelected', Stream(0))}
-                   accordionKeys={['stages']}
-                   class='stages'>
-        <div>
-
-          <div class="stage-boxes">
-            <div class="stages-wrapper">
-              {vnode.attrs.stages().mapStages((stage, stageIndex) => {
-                return (
-                  <div class={classes(stage, 'stage')}
-                       data-stage-index={stageIndex}
-                       onclick={vnode.state.currentSelection.bind(vnode.state, stage)}
-                       key={stage.uuid()}>
-                    <span class="drag-handle"/>
-                    <span class='label'>{stage.name()}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <StageDefinitionWidget stages={vnode.attrs.stages}
-                                   pluginInfos={vnode.attrs.pluginInfos}
-                                   currentSelection={vnode.state.currentSelection}
-                                   vm={vnode.state.vmState('stagesConfig')}/>
+      <div class="template-stages">
+        <f.readOnlyHeading value="Stages:"/>
+        <div class="stage-boxes">
+          <div class="stages-wrapper">
+            {vnode.attrs.stages().mapStages((stage, stageIndex) => {
+              return (
+                <div class={classes(stage, 'stage')}
+                     data-stage-index={stageIndex}
+                     onclick={vnode.state.currentSelection.bind(vnode.state, stage)}
+                     key={stage.uuid()}>
+                  <span class="drag-handle"/>
+                  <span class='label'>{stage.name()}</span>
+                </div>
+              );
+            })}
           </div>
+          <StageDefinitionWidget stages={vnode.attrs.stages}
+                                 pluginInfos={vnode.attrs.pluginInfos}
+                                 currentSelection={vnode.state.currentSelection}
+                                 vm={vnode.state.vmState('stagesConfig')}/>
         </div>
-      </f.accordion>
+      </div>
     );
   }
 };

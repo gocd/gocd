@@ -20,39 +20,39 @@
   const m = require("mithril");
   const _ = require("lodash");
 
-  function NotificationFiltersListWidget(model) {
-    return {
-      oninit() {
-        model.load();
-      },
-      view() {
-        return m("table", {class: "notification-filters-list"},
-          m("thead",
-            m("tr",
-              m("th", "Pipeline"),
-              m("th", "Stage"),
-              m("th", "Event"),
-              m("th", "Check-ins Matcher"),
-              m("th")
-            )
-          ),
-          m("tbody",
-            _.map(model.filters(), (filter) => {
-              return m("tr",
-                m("td", filter.pipelineName),
-                m("td", filter.stageName),
-                m("td", filter.event),
-                m("td", filter.myCheckin ? "Mine" : "All"),
-                m("td",
-                  m("button", {"data-filter-id": filter.id, onclick: model.delete}, "Delete")
-                )
-              );
-            })
+  const NotificationFiltersListWidget = {
+    oninit(vnode) {
+      vnode.attrs.model.load();
+    },
+    view(vnode) {
+      const model = vnode.attrs.model;
+
+      return m("table", {class: "notification-filters-list"},
+        m("thead",
+          m("tr",
+            m("th", "Pipeline"),
+            m("th", "Stage"),
+            m("th", "Event"),
+            m("th", "Check-ins Matcher"),
+            m("th")
           )
-        );
-      }
-    };
-  }
+        ),
+        m("tbody",
+          _.map(model.filters(), (filter) => {
+            return m("tr",
+              m("td", filter.pipelineName),
+              m("td", filter.stageName),
+              m("td", filter.event),
+              m("td", filter.myCheckin ? "Mine" : "All"),
+              m("td",
+                m("button", {"data-filter-id": filter.id, onclick: model.delete}, "Delete")
+              )
+            );
+          })
+        )
+      );
+    }
+  };
 
   module.exports = NotificationFiltersListWidget;
 })();

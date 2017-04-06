@@ -67,41 +67,26 @@
   }
 
   const LockableCheckbox = {
-    oninit(vnode) {
-      vnode.state.name = vnode.attrs.name;
-      vnode.state.value = vnode.attrs.value;
-      vnode.state.label = vnode.attrs.label;
-      vnode.state.unlocked = vnode.attrs.unlocked;
-    },
-
     view(vnode) {
       return m("label",
-        m("input", {name: vnode.state.name, type: "checkbox", disabled: !vnode.state.unlocked(), checked: vnode.state.value(), onchange: m.withAttr("checked", vnode.state.value)}),
-        m("span", vnode.state.label)
+        m("input", {name: vnode.attrs.name, type: "checkbox", disabled: !vnode.attrs.unlocked(), checked: vnode.attrs.value(), onchange: m.withAttr("checked", vnode.attrs.value)}),
+        m("span", vnode.attrs.label)
       );
     }
   };
 
   const LockableInput = {
-    oninit(vnode) {
-      vnode.state.name = vnode.attrs.name;
-      vnode.state.value = vnode.attrs.value;
-      vnode.state.label = vnode.attrs.label;
-      vnode.state.placeholder = vnode.attrs.placeholder;
-      vnode.state.unlocked = vnode.attrs.unlocked;
-    },
-
     view(vnode) {
-      if (vnode.state.unlocked()) {
+      if (vnode.attrs.unlocked()) {
         return m("label",
-          m("span", vnode.state.label),
-          m("input", {name: vnode.state.name, type: "text", value: vnode.state.value(), oninput: m.withAttr("value", vnode.state.value)})
+          m("span", vnode.attrs.label),
+          m("input", {name: vnode.attrs.name, type: "text", value: vnode.attrs.value(), oninput: m.withAttr("value", vnode.attrs.value)})
         );
       }
 
       return m("label",
-        m("span", vnode.state.label),
-        m("span", {class: "value"}, vnode.state.value() || vnode.state.placeholder)
+        m("span", vnode.attrs.label),
+        m("span", {class: "value"}, vnode.attrs.value() || vnode.attrs.placeholder)
       );
     }
   };

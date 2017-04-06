@@ -46,15 +46,11 @@
   }
 
   const Dropdown = {
-    oninit(vnode) {
-      _.assign(vnode.state, vnode.attrs);
-    },
-
-    view() {
+    view(vnode) {
       return m("label",
-        m("span", this.label),
-        m("select", {name: this.name, onchange: this.onchange},
-          _.map(this.options(), (option) => m("option", {value: option}, option))
+        m("span", vnode.attrs.label),
+        m("select", {name: vnode.attrs.name, onchange: vnode.attrs.onchange},
+          _.map(vnode.attrs.options(), (option) => m("option", {value: option}, option))
         )
       );
     }

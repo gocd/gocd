@@ -27,17 +27,14 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Date;
 
-import static com.thoughtworks.go.util.DateUtils.parseISO8601;
-import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static com.thoughtworks.go.helper.HgTestRepo.*;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -46,42 +43,14 @@ import static org.junit.Assert.assertThat;
 
 public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
     private HgMaterial hgMaterial;
-    private static final Date FROM = parseISO8601("2008-03-03 18:40:37 +0800");
-    private static final Date TO = parseISO8601("2008-03-03 23:13:50 +0800");
     private HgTestRepo hgTestRepo;
     private File workingFolder;
-    private InMemoryStreamConsumer outputStreamConsumer;
-    private static final String LINUX_HG_094 = "Mercurial Distributed SCM (version 0.9.4)\n"
-            + "\n"
-            + "Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String LINUX_HG_101 = "Mercurial Distributed SCM (version 1.0.1)\n"
-            + "\n"
-            + "Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String LINUX_HG_10 = "Mercurial Distributed SCM (version 1.0)\n"
-            + "\n"
-            + "Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String WINDOWS_HG_OFFICAL_102 = "Mercurial Distributed SCM (version 1.0.2+20080813)\n"
-            + "\n"
-            + "Copyright (C) 2005-2008 Matt Mackall <mpm@selenic.com>; and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String WINDOWS_HG_TORTOISE = "Mercurial Distributed SCM (version 626cb86a6523+tortoisehg)";
-    private static final StringRevision REVISION_0 = new StringRevision("b61d12de515d82d3a377ae3aae6e8abe516a2651");
-    private static final StringRevision REVISION_1 = new StringRevision("35ff2159f303ecf986b3650fc4299a6ffe5a14e1");
-    private static final StringRevision REVISION_2 = new StringRevision("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
 
     @Before
     public void setUp() throws Exception {
         hgTestRepo = new HgTestRepo("hgTestRepo1");
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         workingFolder = TestFileUtil.createTempFolder("workingFolder");
-        outputStreamConsumer = inMemoryConsumer();
     }
 
     @After
@@ -119,7 +88,7 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
     @Test
     public void failureCommandShouldNotLeakPasswordOnUrl() throws Exception {
         HgMaterial material = MaterialsMother.hgMaterial("https://foo:foopassword@this.is.absolute.not.exists");
-        updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Failed);
+        updateTo(material, new RevisionContext(REVISION_1), JobResult.Failed);
         assertThat(console.output(), containsString("https://foo:******@this.is.absolute.not.exists"));
         assertThat(console.output(), not(containsString("foopassword")));
     }

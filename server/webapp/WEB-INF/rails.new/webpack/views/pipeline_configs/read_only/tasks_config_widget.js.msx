@@ -20,15 +20,14 @@ const Stream = require('mithril/stream');
 const _      = require('lodash');
 const f      = require('helpers/form_helper');
 
-const Tasks       = require('models/pipeline_configs/tasks');
-const PluginInfos = require('models/pipeline_configs/plugin_infos');
+const Tasks = require('models/pipeline_configs/tasks');
 
 const ArtifactsWidget = {
   oninit(vnode){
     const self = vnode.state;
 
     self.getTaskDisplayName = function (task) {
-      return Tasks.isBuiltInTaskType(task.type()) ? task.type() : PluginInfos.findById(task.pluginId()).displayName();
+      return Tasks.isBuiltInTaskType(task.type()) ? task.type() : vnode.attrs.pluginInfos().findById(task.pluginId()).about().name();
     };
 
     self.getProperties = function (task) {

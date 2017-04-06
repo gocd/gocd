@@ -17,7 +17,8 @@
 describe("Read Only Tasks Config Widget", () => {
   const $             = require("jquery");
   const m             = require("mithril");
-  const PluginInfos   = require('models/pipeline_configs/plugin_infos');
+  const Stream        = require("mithril/stream");
+  const PluginInfos   = require('models/shared/plugin_infos');
   const simulateEvent = require('simulate-event');
   require('jasmine-jquery');
 
@@ -101,26 +102,31 @@ describe("Read Only Tasks Config Widget", () => {
         }
       ];
 
-      const scriptExecutor = new PluginInfos.PluginInfo({
-        "id":           'script-executor',
-        "display_name": 'script executor',
-        "type":         'task'
-      });
-      PluginInfos([scriptExecutor]);
+      const pluginInfosJSON = [{
+        "id":            "script-executor",
+        "type":          "task",
+        "about":         {
+          "name":    "Script Executor",
+          "version": "1",
+        },
+        "display_name":  "Script Executor",
+        "task_settings": {
+          "configurations": [],
+          "view":           {"template": "<div/>"}
+        }
+      }];
 
       jobs = Jobs.fromJSON(rawJobsJSON);
-
-      mount();
+      mount(pluginInfosJSON);
     });
 
     afterEach(() => {
       unmount();
-      PluginInfos([]);
     });
 
     it('should render the plugabble task', () => {
       const row1 = $($.find('table>tr')[1]).children();
-      expect($(row1[0])).toContainText('script executor');
+      expect($(row1[0])).toContainText('Script Executor');
       expect($(row1[1])).toContainText('failed');
       expect($(row1[2])).toContainText('Script: foobar');
       expect($(row1[2])).toContainText('Shtype: bash');
@@ -182,10 +188,13 @@ describe("Read Only Tasks Config Widget", () => {
     });
   });
 
-  const mount = function () {
+  const mount = function (pluginInfosJSON = []) {
     m.mount(root, {
       view () {
-        return m(TasksConfigWidget, {tasks: jobs.firstJob().tasks});
+        return m(TasksConfigWidget, {
+          tasks:       jobs.firstJob().tasks,
+          pluginInfos: Stream(PluginInfos.fromJSON(pluginInfosJSON))
+        });
       }
     });
 

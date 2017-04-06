@@ -55,6 +55,7 @@ const StagesConfigWidget = {
               })}
             </div>
             <StageDefinitionWidget stages={vnode.attrs.stages}
+                                   pluginInfos={vnode.attrs.pluginInfos}
                                    currentSelection={vnode.state.currentSelection}
                                    vm={vnode.state.vmState('stagesConfig')}/>
           </div>

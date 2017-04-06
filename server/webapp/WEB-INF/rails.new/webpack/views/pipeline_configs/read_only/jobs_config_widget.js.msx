@@ -49,7 +49,7 @@ const JobsConfigWidget = {
                 <f.row class='job-definition' key={job.uuid()}>
                   <JobSettingsWidget job={Stream(job)}/>
                   <EnvironmentVariablesWidget environmentVariables={job.environmentVariables}/>
-                  <TasksConfigWidget tasks={job.tasks}/>
+                  <TasksConfigWidget tasks={job.tasks} pluginInfos={vnode.attrs.pluginInfos}/>
                   <ArtifactsWidget artifacts={job.artifacts}/>
                   <TabsConfigWidget tabs={job.tabs}/>
                   <PropertiesConfigWidget properties={job.properties}/>

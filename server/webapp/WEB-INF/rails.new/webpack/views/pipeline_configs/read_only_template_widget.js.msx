@@ -43,7 +43,8 @@ const ReadOnlyTemplateWidget = {
                    class='template'>
         <f.row>
           <f.row> name: { template.name()} </f.row>
-          <ReadOnlyStagesWidget stages={vnode.state.template().stages}/>
+          <ReadOnlyStagesWidget stages={vnode.state.template().stages}
+                                pluginInfos={vnode.attrs.pluginInfos}/>
         </f.row>
       </f.accordion>
     );

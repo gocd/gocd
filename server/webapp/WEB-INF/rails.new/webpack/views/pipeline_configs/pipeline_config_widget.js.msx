@@ -165,7 +165,7 @@ const PipelineConfigWidget = function (options) {
 
       const pipelineFlowWidget = function () {
         if (!s.isBlank(vnode.state.pipeline().template())) {
-          return (<ReadOnlyTemplateWidget templateName={vnode.state.pipeline().template()}/>);
+          return (<ReadOnlyTemplateWidget templateName={vnode.state.pipeline().template()} pluginInfos={vnode.state.pluginInfos}/>);
         }
 
         return (

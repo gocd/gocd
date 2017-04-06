@@ -49,8 +49,7 @@ describe("Read Only Template Widget", () => {
   });
 
   it('should render template name', () => {
-    expect($('.accordion-content.show')).toContainText('name:');
-    expect($('.accordion-content.show')).toContainText(template.name());
+    expect($('.accordion-title')).toContainText('Template: template.name');
   });
 
   it('should render template stages', () => {

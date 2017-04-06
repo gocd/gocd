@@ -37,12 +37,11 @@ const ReadOnlyTemplateWidget = {
       return (<div />);
     }
     return (
-      <f.accordion accordionTitles={[(<span>Template</span>)]}
+      <f.accordion accordionTitles={[(<span>Template: {template.name()}</span>)]}
                    accordionKeys={['template']}
                    selectedIndex={vnode.state.vmState('templateSelected', Stream(0))}
                    class='template'>
         <f.row>
-          <f.row> name: { template.name()} </f.row>
           <ReadOnlyStagesWidget stages={vnode.state.template().stages}
                                 pluginInfos={vnode.attrs.pluginInfos}/>
         </f.row>

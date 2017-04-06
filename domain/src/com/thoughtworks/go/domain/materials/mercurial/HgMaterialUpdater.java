@@ -50,11 +50,33 @@ public class HgMaterialUpdater {
         return compose(
                 mkdirs(workDir).setTest(test("-nd", workDir)),
                 cleanWorkingDir(workDir),
-                cmdClone(workDir));
+                cmdClone(workDir).setTest(isNotRepository(workDir))
+        );
+    }
+
+    private BuildCommand isRepoUrlChanged(String workDir) {
+        return test("-neq",
+                material.getUrlArgument().forCommandline(),
+                exec("hg", "showconfig", "paths.default").setWorkingDirectory(workDir));
+    }
+
+    private BuildCommand isBranchChanged(String workDir) {
+        return test("-neq",
+                material.getBranch(),
+                exec("hg", "branch").setWorkingDirectory(workDir));
+    }
+
+    private BuildCommand isNotRepository(String workDir) {
+        return test("-nd", new File(workDir, ".hg").getPath());
     }
 
     private BuildCommand cleanWorkingDir(String workDir) {
-        return cleandir(workDir).setTest(test("-d", workDir));
+        return compose(
+                cleandir(workDir).setTest(isNotRepository(workDir)),
+                cleandir(workDir).setTest(isRepoUrlChanged(workDir)),
+                cleandir(workDir).setTest(isBranchChanged(workDir))
+
+        ).setTest(test("-d", workDir));
     }
 
     private BuildCommand cmdClone(String workingDir) {

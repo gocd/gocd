@@ -28,6 +28,7 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,6 +122,68 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Failed);
         assertThat(console.output(), containsString("https://foo:******@this.is.absolute.not.exists"));
         assertThat(console.output(), not(containsString("foopassword")));
+    }
+
+    @Test
+    public void shouldCreateBuildCommandUpdateToSpecificRevision() throws Exception {
+        File newFile = new File(workingFolder, "end2end/revision2.txt");
+        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
+        assertThat(console.output(),
+                containsString("Start updating files at revision " + REVISION_0.getRevision()));
+        assertThat(newFile.exists(), is(false));
+
+        console.clear();
+        updateTo(hgMaterial, new RevisionContext(REVISION_2, REVISION_1, 2), JobResult.Passed);
+
+        assertThat(console.output(),
+                containsString("Start updating files at revision " + REVISION_2.getRevision()));
+        assertThat(newFile.exists(), is(true));
+    }
+
+    @Test
+    public void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
+        File shouldBeRemoved = new File(workingFolder, "shouldBeRemoved");
+        shouldBeRemoved.createNewFile();
+        assertThat(shouldBeRemoved.exists(), is(true));
+
+        String repositoryUrl = new HgTestRepo().projectRepositoryUrl();
+        HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
+        updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
+        assertThat(material.getUrl(), is(repositoryUrl));
+        assertThat(shouldBeRemoved.exists(), is(false));
+    }
+
+    @Test
+    public void shouldOnlyUpdateRepoIfRevisionIsDifferent() throws Exception {
+        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
+        assertThat(console.output(),
+                containsString("Start updating files at revision " + REVISION_0.getRevision()));
+
+        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
+
+
+        updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
+    }
+
+    @Test
+    public void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
+        updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
+        File shouldNotBeRemoved = new File(new File(workingFolder, ".hg"), "shouldNotBeRemoved");
+        FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi");
+        assertThat(shouldNotBeRemoved.exists(), is(true));
+        updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
+        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+    }
+
+    /* This is to test the functionality of the private method isRepositoryChanged() */
+    @Test
+    public void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
+        File shouldNotBeRemoved = new File(new File(workingFolder, ".hg"), "shouldNotBeRemoved");
+        FileUtils.writeStringToFile(shouldNotBeRemoved, "Text file");
+
+        HgMaterial material1 = new HgMaterial(hgTestRepo.projectRepositoryUrl(), " ");
+        updateTo(material1, new RevisionContext(REVISION_0), JobResult.Passed);
+        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
     }
 
     private void updateTo(HgMaterial material, RevisionContext revisionContext, JobResult expectedResult) {

@@ -52,8 +52,8 @@ PipelineHistoryPage.prototype = {
     switchToPage: function(pipelineName, pageNumber) {
         var start = (pageNumber - 1) * paginator.perPage;
         var url = contextPath + "/pipelineHistory.json?pipelineName=" + pipelineName + "&start=" + start;
-        dashboard_periodical_executer.setUrl(url);
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.setUrl(url);
+        dashboard_periodical_executor.fireNow();
     },
     findLastStageNameFromConfiguration: function(stageConfigs) {
         this.lastStageName = stageConfigs[stageConfigs.length - 1].stageName;
@@ -155,8 +155,8 @@ PipelineHistoryPage.prototype = {
         return config.stages[stageIndex].isAutoApproved == 'true' ? "auto" : "manual";
     },
     getState: function(stageStatus){
-        return stageStatus.toLowerCase();        
-    },    
+        return stageStatus.toLowerCase();
+    },
     fixLayout: function(){
         var max_width = 0;
         $$('table').each(function(table){

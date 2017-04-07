@@ -20,10 +20,16 @@ describe("pipeline_history", function () {
     beforeEach(function () {
         page = new PipelineHistoryPage();
         pipelineActions = new PipelineActions();
+        paginator = new Paginator();
+        contextPath = '';
+        dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineHistory.json?pipelineName=up42');
     });
 
     afterEach(function () {
         pipelineActions = undefined;
+        paginator = undefined;
+        contextPath = undefined;
+        dashboard_periodical_executor = undefined;
     });
 
     it("testCompleteAutomatically", function () {
@@ -82,6 +88,13 @@ describe("pipeline_history", function () {
         assertFalse(page.isPipelineScheduleButtonEnabled(pipeline1Json));
     });
 
+    it("testShouldSwitchToPage", function () {
+      var pipelinesWithoutAnyBuildingStage = getPipelines()
+      var pipeline1Json = pipelinesWithoutAnyBuildingStage[0]
+      assertEquals(dashboard_periodical_executor.url, "/pipelineHistory.json?pipelineName=up42");
+      page.switchToPage(pipeline1Json.pipelineId, "1");
+      assertEquals(dashboard_periodical_executor.url, "//pipelineHistory.json?pipelineName=11&start=0");
+    });
 
     function getPipelines() {
         return [

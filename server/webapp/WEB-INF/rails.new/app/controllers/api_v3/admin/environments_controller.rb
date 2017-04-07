@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
 
 module ApiV3
   module Admin
-    class EnvironmentsController < ApiV3::BaseController
+    class EnvironmentsController < BaseController
       before_action :check_admin_user_and_401
       before_action :load_local_environment, only: [:put, :patch, :destroy]
       before_action :check_for_stale_request, only: [:put]
 
       def index
-        render DEFAULT_FORMAT => ApiV3::Admin::Environments::EnvironmentsConfigRepresenter.new(environment_config_service.getEnvironments()).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(environment_config_service.getEnvironments()).to_hash(url_builder: self)
       end
 
       def show
         is_query_param_provided = params.length > 3
-        is_with_remote = params[:withremote]
+        is_with_remote = params[:withconfigrepo]
         environment_name = params[:name]
 
         if is_with_remote.nil? and !is_query_param_provided
@@ -38,7 +38,7 @@ module ApiV3
           return render_not_found_error
         end
 
-        json = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
+        json = Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json if stale?(etag: etag_for(environment_config_service.getEnvironmentForEdit(environment_name)))
       end
 
@@ -69,7 +69,7 @@ module ApiV3
         env_vars = params[:environment_variables] || {}
 
         env_vars_to_add = (env_vars[:add] || []).map { |env_var|
-          ApiV3::Shared::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new).from_hash(env_var)
+          Shared::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new).from_hash(env_var)
         }
 
         env_vars_to_remove = env_vars[:remove] || []
@@ -89,27 +89,27 @@ module ApiV3
 
       def load_local_environment(environment_name = params[:name])
         @environment_config = environment_config_service.getEnvironmentForEdit(environment_name)
-        raise ApiV3::RecordNotFound if @environment_config.nil?
+        raise RecordNotFound if @environment_config.nil?
         @environment_config.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
       end
 
       def load_merged_environment(environment_name)
         result = HttpLocalizedOperationResult.new
         config_element = environment_config_service.getMergedEnvironmentforDisplay(environment_name, result)
-        raise ApiV3::RecordNotFound if config_element.nil?
+        raise RecordNotFound if config_element.nil?
         @environment_config = config_element.getConfigElement()
       end
 
       def get_environment_from_request
         @environment_config_from_request ||= BasicEnvironmentConfig.new.tap do |config|
-          ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(config).from_hash(params[:environment])
+          Admin::Environments::EnvironmentConfigRepresenter.new(config).from_hash(params[:environment])
         end
       end
 
       def handle_config_save_result(result, environment_name)
         if result.isSuccessful
           load_local_environment(environment_name)
-          json = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
+          json = Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
           response.etag = [etag_for(@environment_config)]
           render DEFAULT_FORMAT => json
         else

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ describe ApiV3::Admin::EnvironmentsController do
         it 'should render the environment' do
           login_as_admin
 
-          get_with_api_header :show, name: @environment_name, withremote: 'true'
+          get_with_api_header :show, name: @environment_name, withconfigrepo: 'true'
           expect(response).to be_ok
           expect(actual_response).to eq(expected_response(@environment_config, ApiV3::Admin::Environments::EnvironmentConfigRepresenter))
         end
@@ -139,7 +139,7 @@ describe ApiV3::Admin::EnvironmentsController do
 
           @environment_name = SecureRandom.hex
           @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(nil)
-          get_with_api_header :show, name: @environment_name, withremote: 'true'
+          get_with_api_header :show, name: @environment_name, withconfigrepo: 'true'
           expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
         end
       end
@@ -151,15 +151,15 @@ describe ApiV3::Admin::EnvironmentsController do
           login_as_admin
 
           @environment_name = SecureRandom.hex
-          get_with_api_header :show, name: @environment_name, alongwithremote: 'true'
+          get_with_api_header :show, name: @environment_name, alongwithconfigrepo: 'true'
           expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
         end
 
-        it 'should render 404 when unknown value for withremote query param is specified' do
+        it 'should render 404 when unknown value for withconfigrepo query param is specified' do
           login_as_admin
 
           @environment_name = SecureRandom.hex
-          get_with_api_header :show, name: @environment_name, withremote: 'false'
+          get_with_api_header :show, name: @environment_name, withconfigrepo: 'false'
           expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
         end
       end

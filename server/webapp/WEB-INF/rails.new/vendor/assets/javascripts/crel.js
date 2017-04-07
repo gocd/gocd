@@ -122,7 +122,11 @@
 
         for(var key in settings){
             if(!attributeMap[key]){
-                element[setAttribute](key, settings[key]);
+                if(isType(settings[key],fn)){
+                    element[key] = settings[key];
+                }else{
+                    element[setAttribute](key, settings[key]);
+                }
             }else{
                 var attr = attributeMap[key];
                 if(typeof attr === fn){

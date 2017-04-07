@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-const Stream    = require('mithril/stream');
 const _         = require('lodash');
 const $         = require('jquery');
 const Routes    = require('gen/js-routes');
 const mrequest  = require('helpers/mrequest');
-const Pipelines = Stream([]);
+const Pipelines = {};
 
-Pipelines.Pipeline = function({name, stages}) {
+Pipelines.Pipeline = function ({name, stages}) {
   this.name   = name;
   this.stages = _.map(stages, ({name, jobs}) => new function () {
     this.name = name;
@@ -29,7 +28,10 @@ Pipelines.Pipeline = function({name, stages}) {
   });
 };
 
-Pipelines.init = (rejectPipeline) => {
+
+Pipelines.all = () => $.Deferred(function () {
+  const deferred = this;
+
   const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv1AdminInternalPipelinesPath(),
@@ -39,14 +41,14 @@ Pipelines.init = (rejectPipeline) => {
   });
 
   const didFulfill = ({_embedded}, _textStatus, _jqXHR) => {
-    const pipelines = _.reject(_embedded.pipelines, ({name}) => name === rejectPipeline);
-
-    Pipelines(_.map(pipelines, (pipeline) => new Pipelines.Pipeline(pipeline)));
+    deferred.resolve(_.map(_embedded.pipelines, (pipeline) => new Pipelines.Pipeline(pipeline)));
   };
 
-  jqXHR.then(didFulfill);
+  const didReject = (jqXHR) => {
+    deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+  };
 
-  return Pipelines;
-};
+  jqXHR.then(didFulfill, didReject);
+}).promise();
 
 module.exports = Pipelines;

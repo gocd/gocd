@@ -20,6 +20,7 @@ const Stream               = require('mithril/stream');
 const Resources            = require('models/pipeline_configs/resources');
 const Users                = require('models/pipeline_configs/users');
 const Roles                = require('models/pipeline_configs/roles');
+const Pipelines            = require('models/pipeline_configs/pipelines');
 const PipelineConfigWidget = require('views/pipeline_configs/pipeline_config_widget');
 const PluginInfos          = require('models/shared/plugin_infos');
 const SCMs                 = require('models/pipeline_configs/scms');
@@ -38,11 +39,12 @@ $(() => {
   Users.initializeWith(allUserNames);
   Roles.initializeWith(allRoleNames);
   new VersionUpdater().update();
-  Promise.all([PluginInfos.all(), SCMs.init(), ElasticProfiles.all()]).then((args) => {
+  Promise.all([PluginInfos.all(), SCMs.init(), ElasticProfiles.all(), Pipelines.all()]).then((args) => {
     m.mount(pipelineConfigElem.get(0), PipelineConfigWidget({
       url:             Stream(url),
       elasticProfiles: Stream(args[2]),
-      pluginInfos:     Stream(args[0])
+      pluginInfos:     Stream(args[0]),
+      pipelines:       Stream(args[3])
     }));
     $(document).foundation();
   });

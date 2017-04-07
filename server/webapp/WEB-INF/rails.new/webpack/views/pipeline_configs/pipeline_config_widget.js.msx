@@ -53,6 +53,7 @@ const PipelineConfigWidget = function (options) {
       self.url              = options.url;
       self.callback         = options.callback;
       self.elasticProfiles  = options.elasticProfiles;
+      self.pipelines        = options.pipelines;
       self.pluginInfos      = options.pluginInfos;
       self.vm               = new Pipeline.vm();
 
@@ -185,6 +186,7 @@ const PipelineConfigWidget = function (options) {
               <PipelineSettingsWidget pipeline={vnode.state.pipeline}
                                       vm={vnode.state.vmState('pipelineSettingsConfig')}/>
               <MaterialsConfigWidget materials={pipeline.materials}
+                                     pipelines={vnode.state.pipelines}
                                      pluginInfos={vnode.state.pluginInfos}
                                      key={pipeline.materials().uuid}
                                      pipelineName={pipeline.name}

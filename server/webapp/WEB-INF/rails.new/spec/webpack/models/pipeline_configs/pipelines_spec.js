@@ -16,13 +16,8 @@
 describe('Pipelines', () => {
   const Pipelines = require("models/pipeline_configs/pipelines");
 
-  describe('init', () => {
-
-    afterEach(() => {
-      Pipelines([]);
-    });
-
-    it('should get pipelines except rejected ones from admin internal api', () => {
+  describe('all', () => {
+    it('should get all pipelines', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/internal/pipelines', undefined, 'GET').andReturn({
           responseText: JSON.stringify({
@@ -30,7 +25,6 @@ describe('Pipelines', () => {
               pipelines: [
                 {name: 'p1', stages: [{name: 's1', jobs: ['job1', 'job2']}]},
                 {name: 'p2', stages: [{name: 's2', jobs: ['job3', 'job4']}]},
-                {name: 'p3', stages: [{name: 's3', jobs: ['job5', 'job6']}]}
               ]
             }
           }),
@@ -40,12 +34,13 @@ describe('Pipelines', () => {
           }
         });
 
-        expect(Pipelines()).toEqual([]);
-        Pipelines.init('p3');
+        const errorCallback = jasmine.createSpy().and.callFake((pipelines) => {
+          expect(pipelines.length).toBe(2);
+          expect(pipelines[0].name).toBe('p1');
+          expect(pipelines[1].name).toBe('p2');
+        });
 
-        expect(Pipelines().length).toBe(2);
-        expect(Pipelines()[0].name).toBe('p1');
-        expect(Pipelines()[1].name).toBe('p2');
+        Pipelines.all().then(errorCallback);
       });
     });
   });

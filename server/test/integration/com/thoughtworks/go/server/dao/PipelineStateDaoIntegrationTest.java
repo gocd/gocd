@@ -92,11 +92,11 @@ public class PipelineStateDaoIntegrationTest {
     public void shouldFindLockedPipelinesCaseInsensitively() throws Exception {
         Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "stage1", "stage2"));
         pipelineStateDao.lockPipeline(minglePipeline);
-        PipelineState lockedPipelineState = pipelineStateDao.lockedPipeline("mingle");
+        PipelineState lockedPipelineState = pipelineStateDao.pipelineStateFor("mingle");
         assertThat(lockedPipelineState.getLockedBy().pipelineIdentifier(), is(minglePipeline.getIdentifier()));
         assertThat(lockedPipelineState.getLockedByPipelineId(), is(minglePipeline.getId()));
         assertThat(lockedPipelineState.getLockedByPipelineId(), is(not(0L)));
-        lockedPipelineState = pipelineStateDao.lockedPipeline("mInGlE");
+        lockedPipelineState = pipelineStateDao.pipelineStateFor("mInGlE");
         assertThat(lockedPipelineState.getLockedBy().pipelineIdentifier(), is(minglePipeline.getIdentifier()));
         assertThat(lockedPipelineState.getLockedByPipelineId(), is(minglePipeline.getId()));
         assertThat(lockedPipelineState.getLockedByPipelineId(), is(not(0L)));
@@ -110,7 +110,7 @@ public class PipelineStateDaoIntegrationTest {
 
         pipelineStateDao.lockPipeline(minglePipeline1);
 
-        assertThat(pipelineStateDao.lockedPipeline(pipelineName).getLockedBy(), is(minglePipeline1.getFirstStage().getIdentifier()));
+        assertThat(pipelineStateDao.pipelineStateFor(pipelineName).getLockedBy(), is(minglePipeline1.getFirstStage().getIdentifier()));
 
         try {
             pipelineStateDao.lockPipeline(minglePipeline2);
@@ -127,7 +127,7 @@ public class PipelineStateDaoIntegrationTest {
 
         pipelineStateDao.lockPipeline(minglePipeline1);
 
-        assertThat(pipelineStateDao.lockedPipeline(pipelineName).getLockedBy(), is(minglePipeline1.getFirstStage().getIdentifier()));
+        assertThat(pipelineStateDao.pipelineStateFor(pipelineName).getLockedBy(), is(minglePipeline1.getFirstStage().getIdentifier()));
 
         try {
             pipelineStateDao.lockPipeline(minglePipeline1);
@@ -141,11 +141,11 @@ public class PipelineStateDaoIntegrationTest {
         String pipelineName = UUID.randomUUID().toString();
         Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
         pipelineStateDao.lockPipeline(minglePipeline);
-        PipelineState pipelineState = pipelineStateDao.lockedPipeline(pipelineName);
+        PipelineState pipelineState = pipelineStateDao.pipelineStateFor(pipelineName);
         assertThat(pipelineState.getLockedBy(), is(minglePipeline.getFirstStage().getIdentifier()));
         assertThat(pipelineState.getLockedByPipelineId(), is(minglePipeline.getId()));
         pipelineStateDao.unlockPipeline(pipelineName);
-        PipelineState pipelineState1 = pipelineStateDao.lockedPipeline(pipelineName);
+        PipelineState pipelineState1 = pipelineStateDao.pipelineStateFor(pipelineName);
         assertThat(pipelineState1.getLockedBy(), is(nullValue()));
         assertThat(pipelineState1.getLockedByPipelineId(), is(0L));
     }

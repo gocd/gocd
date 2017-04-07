@@ -93,10 +93,10 @@ public class PipelineStateDaoCachingTest {
         String pipelineName = "mingle";
         when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallback.class))).thenReturn(new PipelineState(pipelineName, new StageIdentifier(pipelineName, 1, "1", 1L, "s1", "1")));
 
-        PipelineState pipelineState = pipelineStateDao.lockedPipeline(pipelineName);
+        PipelineState pipelineState = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName)), is(pipelineState));
-        PipelineState secondAttempt = pipelineStateDao.lockedPipeline(pipelineName);
+        PipelineState secondAttempt = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertSame(pipelineState, secondAttempt);
         verify(transactionTemplate, times(1)).execute(any(TransactionCallback.class));
@@ -105,8 +105,8 @@ public class PipelineStateDaoCachingTest {
     @Test
     public void lockedPipeline_shouldReturnNullIfPipelineIsNotLocked() throws Exception {
         String pipelineName = UUID.randomUUID().toString();
-        pipelineStateDao.lockedPipeline(pipelineName);
-        PipelineState actual = pipelineStateDao.lockedPipeline(pipelineName);
+        pipelineStateDao.pipelineStateFor(pipelineName);
+        PipelineState actual = pipelineStateDao.pipelineStateFor(pipelineName);
 
         assertNull("got " + actual, actual);
         assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName)), is(NOT_LOCKED));
@@ -140,9 +140,9 @@ public class PipelineStateDaoCachingTest {
     @Test
     public void lockPipeline_shouldHandleSerializationProperly() throws Exception {
         when(mockTemplate.queryForObject(eq("lockedPipeline"), any())).thenReturn(null);
-        assertNull(pipelineStateDao.lockedPipeline("mingle"));
+        assertNull(pipelineStateDao.pipelineStateFor("mingle"));
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey("mingle"), NOT_LOCKED);
-        assertNull(pipelineStateDao.lockedPipeline("mingle"));
+        assertNull(pipelineStateDao.pipelineStateFor("mingle"));
     }
 
     @Test

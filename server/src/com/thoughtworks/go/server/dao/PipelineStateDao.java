@@ -85,12 +85,12 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     }
 
     public void lockPipeline(final Pipeline pipeline) {
-        synchronized (pipeline.getName().toLowerCase()) {
+        synchronized (pipelineLockStateCacheKey(pipeline.getName())) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     final String pipelineName = pipeline.getName();
-                    PipelineState state = lockedPipeline(pipelineName);
+                    PipelineState state = pipelineStateFor(pipelineName);
                     if (state != null && state.isLocked() && !pipeline.getIdentifier().equals(state.getLockedBy().pipelineIdentifier())) {
                         throw new RuntimeException(String.format("Pipeline '%s' is already locked (counter = %s)", pipelineName, state.getLockedBy().getPipelineCounter()));
                     }
@@ -110,12 +110,12 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     }
 
     public void unlockPipeline(final String pipelineName) {
-        synchronized (pipelineName.toLowerCase()) {
+        synchronized (pipelineLockStateCacheKey(pipelineName)) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     final String cacheKey = pipelineLockStateCacheKey(pipelineName);
-                    PipelineState state = lockedPipeline(pipelineName);
+                    PipelineState state = pipelineStateFor(pipelineName);
                     if (state == null) {
                         state = new PipelineState(pipelineName);
                     }
@@ -127,13 +127,13 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         }
     }
 
-    public PipelineState lockedPipeline(String pipelineName) {
+    public PipelineState pipelineStateFor(String pipelineName) {
         String cacheKey = pipelineLockStateCacheKey(pipelineName);
         PipelineState pipelineState = (PipelineState) goCache.get(cacheKey);
         if (pipelineState != null) {
             return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;
         }
-        synchronized (pipelineName.toLowerCase()) {
+        synchronized (cacheKey) {
             pipelineState = (PipelineState) goCache.get(cacheKey);
             if (pipelineState != null) {
                 return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;

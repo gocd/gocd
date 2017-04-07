@@ -73,7 +73,7 @@ public class PipelineLockService implements ConfigChangedListener {
     }
 
     public StageIdentifier lockedPipeline(String pipelineName) {
-        PipelineState pipelineState = pipelineStateDao.lockedPipeline(pipelineName);
+        PipelineState pipelineState = pipelineStateDao.pipelineStateFor(pipelineName);
         if (pipelineState != null && pipelineState.isLocked()) {
             return pipelineState.getLockedBy();
         } else {

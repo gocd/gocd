@@ -27,7 +27,6 @@ const s               = require('string-plus');
 const tt              = require('helpers/pipeline_configs/tooltips');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const Materials       = require('models/pipeline_configs/materials');
-const Pipelines       = require('models/pipeline_configs/pipelines');
 
 let PasswordField = {
   view (vnode) {
@@ -359,7 +358,9 @@ let MaterialViews = {
           <f.row>
             <NameField material={material}/>
             <f.column size={4} end='true'>
-              <PipelineStageField material={material} pipelines={vnode.attrs.pipelines}/>
+              <PipelineStageField material={material}
+                                  pipelineName={vnode.attrs.pipelineName}
+                                  pipelines={vnode.attrs.pipelines}/>
             </f.column>
           </f.row>
         </MaterialViews.base>
@@ -438,15 +439,8 @@ let MaterialTypeSelector = {
 
 const MaterialsConfigWidget = {
   oninit (vnode) {
-    const self     = this;
-    self.args      = vnode.attrs;
-    self.pipelines = Stream([]);
-
-    _.remove(vnode.attrs.pipelines(), (pipeline) => {
-      return (pipeline.name === vnode.attrs.pipelineName());
-    });
-    self.pipelines(vnode.attrs.pipelines());
-
+    const self = this;
+    self.args  = vnode.attrs;
     ComponentMixins.HasViewModel.call(self);
 
     self.removeMaterial = function (materials) {
@@ -489,7 +483,7 @@ const MaterialsConfigWidget = {
               key:          material.uuid(),
               pluginInfos:  vnode.attrs.pluginInfos,
               pipelineName: vnode.attrs.pipelineName,
-              pipelines:    vnode.state.pipelines,
+              pipelines:    vnode.attrs.pipelines,
               vm:           vnode.state.vmState(`material-${  index}`)
             }));
           })}

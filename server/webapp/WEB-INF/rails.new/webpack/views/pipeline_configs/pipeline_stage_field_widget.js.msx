@@ -103,18 +103,23 @@ const PipelineStageFieldWidget = {
     vnode.state.vm = new PipelineStageFieldWidget.vm(vnode.attrs.material);
 
     vnode.state.pipelineStages = function () {
-      const data = _.map(vnode.attrs.pipelines, (pipeline) => {
+      const pipelines = _.filter(vnode.attrs.pipelines(), (pipeline) => {
+        return pipeline.name !== vnode.attrs.pipelineName();
+      });
+
+      const data = _.map(pipelines, (pipeline) => {
         return _.map(pipeline.stages, (stage) => {
           return _.join([pipeline.name, ' ', '[', stage.name, ']'], '');
         });
       });
+
       return _.flattenDeep(data);
     };
   },
 
   view (vnode) {
     const propertyError = vnode.state.vm.hasErrors() ? (
-        <span class='form-error is-visible'>{vnode.state.vm.errorsForDisplay()}</span>) : undefined;
+      <span class='form-error is-visible'>{vnode.state.vm.errorsForDisplay()}</span>) : undefined;
 
     return (
       <div

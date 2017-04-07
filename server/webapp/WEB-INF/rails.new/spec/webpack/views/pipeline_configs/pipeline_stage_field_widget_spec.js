@@ -16,15 +16,16 @@
 
 describe("PipelineStageField Widget", () => {
 
-  const m = require("mithril");
-  const _ = require("lodash");
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
+  const _      = require("lodash");
 
   require('jasmine-jquery');
 
   const PipelineStageFieldWidget = require("views/pipeline_configs/pipeline_stage_field_widget");
-  const Pipelines                = require("models/pipeline_configs/pipelines");
   const Materials                = require("models/pipeline_configs/materials");
 
+  const pipelines = Stream([]);
   let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
@@ -60,7 +61,7 @@ describe("PipelineStageField Widget", () => {
         stage:    "first_stage"
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       expect($root.find("input[name='pipeline-stage']")).toHaveValue('p1 [first_stage]');
       expect('.form-error').not.toBeInDOM();
@@ -71,7 +72,7 @@ describe("PipelineStageField Widget", () => {
         type: "dependency"
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       expect($root.find("input[name='pipeline-stage']")).toHaveValue('');
     });
@@ -81,7 +82,7 @@ describe("PipelineStageField Widget", () => {
         type: "dependency"
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       $root.find("input[name='pipeline-stage']").val('pipeline [stage]');
       $root.find("input[name='pipeline-stage']").blur();
@@ -98,7 +99,7 @@ describe("PipelineStageField Widget", () => {
         stage:    "first_stage"
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       $root.find("input[name='pipeline-stage']").val('invalid-input');
       $root.find("input[name='pipeline-stage']").blur();
@@ -116,7 +117,7 @@ describe("PipelineStageField Widget", () => {
         type: "dependency"
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       $root.find("input[name='pipeline-stage']").val('invalid-input');
       $root.find("input[name='pipeline-stage']").blur();
@@ -143,7 +144,7 @@ describe("PipelineStageField Widget", () => {
         }
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       $root.find("input[name='pipeline-stage']").val('invalid-input');
 
@@ -161,7 +162,7 @@ describe("PipelineStageField Widget", () => {
         }
       });
 
-      mount(material, Pipelines);
+      mount(material, pipelines);
 
       $root.find("input[name='pipeline-stage']").val('invalid-input');
 

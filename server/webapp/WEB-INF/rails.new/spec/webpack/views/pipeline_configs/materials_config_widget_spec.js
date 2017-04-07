@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 describe("Materials Config Widget", () => {
-
-  const $      = require("jquery");
   const m      = require('mithril');
   const Stream = require('mithril/stream');
 

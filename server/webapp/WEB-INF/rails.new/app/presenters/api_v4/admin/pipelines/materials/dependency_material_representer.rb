@@ -15,19 +15,17 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      module Materials
+        class DependencyMaterialRepresenter < BaseRepresenter
+          alias_method :material_config, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+          property :pipeline_name, as: :pipeline, case_insensitive_string: true
+          property :stage_name, as: :stage, case_insensitive_string: true
+          property :name, case_insensitive_string: true
+          property :auto_update
         end
-        hash
       end
     end
   end

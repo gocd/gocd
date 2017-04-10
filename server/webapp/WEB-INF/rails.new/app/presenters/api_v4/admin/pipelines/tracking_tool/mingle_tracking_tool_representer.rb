@@ -15,19 +15,29 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      module TrackingTool
+        class MingleTrackingToolRepresenter < BaseRepresenter
+          alias_method :mingle, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
+          ERROR_KEYS = {
+            'baseUrl' => 'base_url',
+            'projectIdentifier' => 'project_identifier'
+          }
+
+          property :base_url
+          property :project_identifier
+          property :mql_grouping_conditions, exec_context: :decorator
+
+          def mql_grouping_conditions
+            mingle.getMqlCriteria().getMql
+          end
+
+          def mql_grouping_conditions=(value)
+            mingle.setMqlCriteria(value)
           end
         end
-        hash
       end
     end
   end

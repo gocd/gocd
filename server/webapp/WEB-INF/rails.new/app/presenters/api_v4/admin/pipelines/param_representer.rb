@@ -15,19 +15,14 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      class ParamRepresenter < BaseRepresenter
+        alias_method :param, :represented
+        error_representer
+        property :name
+        property :value
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
       end
     end
   end

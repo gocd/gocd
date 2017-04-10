@@ -15,19 +15,24 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      module Materials
+        class PluggableScmMaterialRepresenter < BaseRepresenter
+          alias_method :material_config, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+          property :scmId, as: :ref, setter: lambda { |value, options|
+            scm = options[:go_config].getSCMs().find(value)
+            self.setSCMConfig(scm)
+            self.setScmId(value)
+          }
+
+          property :filter,
+                   decorator: FilterRepresenter,
+                   class: com.thoughtworks.go.config.materials.Filter,
+                   skip_parse: SkipParseOnBlank
+          property :folder, as: :destination, skip_parse: SkipParseOnBlank
         end
-        hash
       end
     end
   end

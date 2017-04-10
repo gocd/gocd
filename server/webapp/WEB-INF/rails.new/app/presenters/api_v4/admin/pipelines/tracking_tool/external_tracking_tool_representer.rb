@@ -15,19 +15,17 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      module TrackingTool
+        class ExternalTrackingToolRepresenter < BaseRepresenter
+          alias_method :tracking_tool, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+          ERROR_KEYS = {'link' => 'url_pattern'}
+
+          property :link, as: :url_pattern
+          property :regex
         end
-        hash
       end
     end
   end

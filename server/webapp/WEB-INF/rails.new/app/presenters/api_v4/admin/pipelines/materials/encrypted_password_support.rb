@@ -15,19 +15,18 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
-
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
+  module Admin
+    module Pipelines
+      module Materials
+        module EncryptedPasswordSupport
+          def from_hash(data, options={})
+            super
+            data = data.with_indifferent_access
+            encrypted_password = Services.password_deserializer.deserialize(data[:password], data[:encrypted_password], represented)
+            represented.setEncryptedPassword(encrypted_password)
+            represented
           end
         end
-        hash
       end
     end
   end

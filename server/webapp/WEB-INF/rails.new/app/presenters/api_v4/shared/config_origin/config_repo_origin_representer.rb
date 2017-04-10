@@ -15,19 +15,23 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module ConfigOrigin
+      class ConfigRepoOriginRepresenter < BaseRepresenter
+        alias_method :config_repo, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+        property :type, exec_context: :decorator
+        property :repo, exec_context: :decorator
+
+        def type
+          'config repo'
         end
-        hash
+
+        def repo
+          material = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(config_repo.getMaterial).to_hash(url_builder: self)
+          material[:revision] = config_repo.getRevision()
+          material
+        end
       end
     end
   end

@@ -15,19 +15,24 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      module Materials
+        class TfsMaterialRepresenter < ScmMaterialRepresenter
+          include EncryptedPasswordSupport
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+          property :domain
+          property :user_name, as: :username
+          property :password,
+                   skip_render: true,
+                   skip_nil: true,
+                   skip_parse: true
+
+          property :encrypted_password, skip_nil: true, skip_parse: true
+
+          property :project_path
+
         end
-        hash
       end
     end
   end

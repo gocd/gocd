@@ -112,4 +112,5 @@ module JavaSpecImports
   java_import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionContext unless defined? CheckConnectionSubprocessExecutionContext
   java_import com.thoughtworks.go.config.remote.RepoConfigOrigin unless defined? RepoConfigOrigin
   java_import com.thoughtworks.go.config.remote.ConfigRepoConfig unless defined? ConfigRepoConfig
+  java_import com.thoughtworks.go.config.remote.FileConfigOrigin unless defined? FileConfigOrigin
 end

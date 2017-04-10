@@ -15,19 +15,17 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      class PropertyConfigRepresenter < BaseRepresenter
+        alias_method :property, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
+        error_representer({"name" => "name", "src" => "source", "xpath" => "xpath"})
+
+        property :name
+        property :src, as: :source
+        property :xpath
+
       end
     end
   end

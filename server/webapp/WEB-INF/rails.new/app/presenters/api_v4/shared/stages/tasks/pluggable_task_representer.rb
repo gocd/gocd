@@ -15,19 +15,23 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      module Tasks
+        class PluggableTaskRepresenter < BaseTaskRepresenter
+          alias_method :pluggable_task, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
+          property :plugin_configuration, decorator: Shared::Stages::PluginConfigurationRepresenter, class: com.thoughtworks.go.domain.config.PluginConfiguration
+          collection :configuration, exec_context: :decorator, decorator: PluginConfigurationPropertyRepresenter, class: com.thoughtworks.go.domain.config.ConfigurationProperty
+
+          def configuration
+            pluggable_task.getConfiguration()
+          end
+
+          def configuration=(value)
+            pluggable_task.addConfigurations(value)
           end
         end
-        hash
       end
     end
   end

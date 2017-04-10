@@ -15,19 +15,24 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      module Materials
+        class FilterRepresenter < BaseRepresenter
+          alias_method :filter, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
+          collection :ignore, exec_context: :decorator
+
+          def to_hash(*options)
+            ignored_files=filter.map { |item| item.getPattern() }
+            {ignore: ignored_files} if !ignored_files.empty?
+          end
+
+          def ignore=(value)
+            filter.clear()
+            value.each { |pattern| filter.add(IgnoredFiles.new(pattern)) }
           end
         end
-        hash
       end
     end
   end

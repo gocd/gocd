@@ -15,19 +15,17 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module ConfigOrigin
+      class ConfigXmlOriginRepresenter < BaseRepresenter
+        alias_method :origin, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+        property :type, exec_context: :decorator
+        property :displayName, as: :file
+
+        def type
+          'local'
         end
-        hash
       end
     end
   end

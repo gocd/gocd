@@ -14,21 +14,27 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+require 'spec_helper'
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
-      end
-    end
+describe ApiV4::Admin::Pipelines::ParamRepresenter do
+
+  it "should represent a param" do
+    presenter = ApiV4::Admin::Pipelines::ParamRepresenter.new(ParamConfig.new("command","echo"))
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+    expect(actual_json).to eq(param_hash)
+  end
+
+  it "should deserialize" do
+    presenter = ApiV4::Admin::Pipelines::ParamRepresenter.new(ParamConfig.new)
+    deserialized_object = presenter.from_hash(param_hash)
+    expected = ParamConfig.new("command","echo")
+    expect(deserialized_object).to eq(expected)
+  end
+
+  def param_hash
+    {
+      name:         "command",
+      value:       "echo"
+    }
   end
 end

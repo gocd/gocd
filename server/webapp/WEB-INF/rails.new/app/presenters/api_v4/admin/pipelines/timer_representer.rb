@@ -15,19 +15,16 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Pipelines
+      class TimerRepresenter < BaseRepresenter
+        alias_method :timer, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
+        error_representer({"timerSpec" => "spec"})
+
+        property :timer_spec, as: :spec
+        property :onlyOnChanges, as: :only_on_changes
+
       end
     end
   end

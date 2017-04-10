@@ -14,21 +14,23 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+require 'spec_helper'
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
-      end
-    end
+describe ApiV4::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
+  it 'should render local config origin' do
+    presenter = ApiV4::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(get_config_xml_origin)
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+    expect(actual_json).to eq(expected_json)
+  end
+
+  def get_config_xml_origin
+    FileConfigOrigin.new
+  end
+
+  def expected_json
+    {
+      type: 'local',
+      file: 'cruise-config.xml'
+    }
   end
 end

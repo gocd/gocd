@@ -15,19 +15,22 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      module Tasks
+        class OnCancelRepresenter < BaseRepresenter
+          alias_method :on_cancel_config, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
+          def from_hash(hash, options={})
+            representer = TaskRepresenter.from_hash(hash, options)
+            com.thoughtworks.go.config.OnCancelConfig.new(representer.task)
+          end
+
+          def to_hash(*options)
+            return nil if on_cancel_config.getTask.getTaskType.eql?("killallchildprocess")
+            TaskRepresenter.new(on_cancel_config.getTask).to_hash
           end
         end
-        hash
       end
     end
   end

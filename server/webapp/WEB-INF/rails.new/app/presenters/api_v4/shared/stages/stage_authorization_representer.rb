@@ -15,19 +15,18 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      class StageAuthorizationRepresenter < BaseRepresenter
+        alias_method :authorization, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
+        error_representer
+
+        collection :roles,
+                   getter: lambda { |roles| roles().map { |role| role.getName().to_s } },
+                   setter: lambda { |val, options| val.map { |role| self.add(com.thoughtworks.go.config.AdminRole.new(CaseInsensitiveString.new(role))) } }
+        collection :users, getter: lambda { |users| users().map { |user| user.getName().to_s } },
+                   setter: lambda { |val, options| val.each { |user| self.add(com.thoughtworks.go.config.AdminUser.new(CaseInsensitiveString.new(user))) } }
       end
     end
   end

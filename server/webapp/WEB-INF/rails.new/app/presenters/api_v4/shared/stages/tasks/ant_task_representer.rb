@@ -15,19 +15,22 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      module Tasks
+        class AntTaskRepresenter < BaseTaskRepresenter
+          alias_method :task, :represented
+          ERROR_KEYS = {
+            'buildFile' => 'build_file',
+            'onCancelConfig' => 'on_cancel',
+            'runIf' => 'run_if'
+          }
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+          property :working_directory, skip_parse: SkipParseOnBlank
+          property :build_file, skip_parse: SkipParseOnBlank
+          property :target, skip_parse: SkipParseOnBlank
+
         end
-        hash
       end
     end
   end

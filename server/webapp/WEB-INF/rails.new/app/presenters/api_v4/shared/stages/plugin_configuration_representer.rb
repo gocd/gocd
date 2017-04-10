@@ -15,19 +15,16 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      class PluginConfigurationRepresenter < BaseRepresenter
+        alias_method :plugin_configuration, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
+        error_representer
+
+        property :id
+        property :version
+
       end
     end
   end

@@ -15,19 +15,15 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Shared
+    module Stages
+      class ApprovalRepresenter < BaseRepresenter
+        alias_method :approval, :represented
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
-        end
-        hash
+        error_representer
+
+        property :type
+        property :auth_config, as: :authorization, decorator: StageAuthorizationRepresenter, class: AuthConfig
       end
     end
   end

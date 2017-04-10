@@ -28,14 +28,3 @@ public class PerformanceLogger {
         LOGGER.debug(format, arguments);
     }
 }
-
-/* Use with these log4j settings:
-log4j.logger.PerformanceLogger=DEBUG, PerformanceLoggerAppender
-log4j.additivity.PerformanceLogger=false
-log4j.appender.PerformanceLoggerAppender=org.apache.log4j.RollingFileAppender
-log4j.appender.PerformanceLoggerAppender.File=go-perf.log
-log4j.appender.PerformanceLoggerAppender.MaxFileSize=10240KB
-log4j.appender.PerformanceLoggerAppender.MaxBackupIndex=50
-log4j.appender.PerformanceLoggerAppender.layout=org.apache.log4j.PatternLayout
-log4j.appender.PerformanceLoggerAppender.layout.conversionPattern=%d{ISO8601} |%t| %m%n
-*/

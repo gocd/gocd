@@ -105,7 +105,7 @@ var BuildCause = Class.create({
         this._buildCauseKey = buildCauseKey;
     },
     _linkElementId: function(id){
-        return this._buildCauseKey + '-' + id + '-buildCause'; 
+        return this._buildCauseKey + '-' + id + '-buildCause';
     },
     hideOrShowBuildCause: function(id) {
         ExclusivePopup.create(this._linkElementId(id)).toggle();
@@ -287,8 +287,8 @@ var PipelinePage = Class.create({
         var start = (pageNumber - 1) * paginator.perPage;
         var url = contextPath + "/stageHistory.json?pipelineName="
                 + pipelineName + "&stageName=" + stageName + "&start=" + start;
-        dashboard_periodical_executer.setUrl(url);
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.setUrl(url);
+        dashboard_periodical_executor.fireNow();
     },
     fixIEZIndexBugs: function(zindex_seed) {
         if (zindex_seed) {
@@ -368,7 +368,7 @@ var PipelineActions = Class.create({
                     Confirm: 'true'
                 },
                 onComplete: function() {
-                    dashboard_periodical_executer.fireNow();
+                    dashboard_periodical_executor.fireNow();
                 }
             });
         }
@@ -391,7 +391,7 @@ var PipelineActions = Class.create({
                 Confirm: 'true'
             },
             onComplete: function() {
-                dashboard_periodical_executer.fireNow();
+                dashboard_periodical_executor.fireNow();
             },
             on406: function(transport) {
                 var json = transport.responseText.evalJSON();
@@ -437,7 +437,7 @@ var PipelineActions = Class.create({
                     Confirm: 'true'
                 },
                 onComplete: function() {
-                    dashboard_periodical_executer.fireNow();
+                    dashboard_periodical_executor.fireNow();
                 }
             });
         }
@@ -459,14 +459,14 @@ var PipelineActions = Class.create({
         if($(linkElement)){
             linkElement.addClassName('submiting-link');
         }
-        
+
         new Ajax.Request(url, {
             method: 'post',
             requestHeaders: {
                 Confirm: 'true'
             },
             onComplete: function() {
-                dashboard_periodical_executer.fireNow();
+                dashboard_periodical_executor.fireNow();
             }
         });
     },
@@ -504,7 +504,7 @@ var StageActions = Class.create({
                     Confirm: 'true'
                 },
                 onComplete: function() {
-                    dashboard_periodical_executer.fireNow();
+                    dashboard_periodical_executor.fireNow();
                 },
                 on401: function(transport) {
                     alert("Not authorized to approve this stage.");

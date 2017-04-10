@@ -100,6 +100,26 @@ h4 {
 }
 
 .application_nav {
+  .error_messaging_counter {
+    float: right;
+    .cruise_messages {
+      position: static;
+      padding-top: 9px;
+
+      a {
+        border: initial;
+        border-radius: 4px;
+        background-color: #a50000;
+        font-weight: 700;
+        line-height: 11px;
+
+        span {
+          line-height: 11px;
+        }
+      }
+    }
+  }
+
   .tabs {
     margin-top:    0px;
     margin-bottom: 0;

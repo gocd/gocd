@@ -63,7 +63,8 @@ const TestConnectionWidget = {
       m.redraw();
 
       this.material.testConnection(this.pipelineName)
-        .then(connectionState.markSuccess, connectionState.markFailure);
+        .then(connectionState.markSuccess, connectionState.markFailure)
+        .always(m.redraw);
     };
   },
 

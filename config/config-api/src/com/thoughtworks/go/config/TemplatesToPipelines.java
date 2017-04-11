@@ -21,13 +21,39 @@ import java.util.*;
 /**
  * @understands a custom data structure for templates to editable pipelines.
  */
-public class TemplatesToPipelines {
-    private CaseInsensitiveString templateName;
-    private Map<CaseInsensitiveString, Boolean> editablePipelines = new HashMap<>();
 
-    public TemplatesToPipelines(CaseInsensitiveString name) {
-        this.templateName = name;
+public class TemplatesToPipelines {
+    private  List<PipelineWithAuthorization> pipelines = new ArrayList<>();
+    private CaseInsensitiveString templateName;
+    private boolean canEdit;
+    private boolean isAdmin;
+
+    public TemplatesToPipelines(CaseInsensitiveString templateName, boolean canEdit, boolean isAdmin) {
+        this.templateName = templateName;
+        this.canEdit = canEdit;
+        this.isAdmin = isAdmin;
     }
+
+    public void add(PipelineWithAuthorization pipelineWithAuthorization) {
+        pipelines.add(pipelineWithAuthorization);
+    }
+
+    public List<PipelineWithAuthorization> getPipelines() {
+        return pipelines;
+    }
+
+    public CaseInsensitiveString getTemplateName() {
+        return templateName;
+    }
+
+    public boolean canEditTemplate() {
+        return canEdit;
+    }
+
+    public boolean isAdminUser() {
+        return isAdmin;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -36,34 +62,18 @@ public class TemplatesToPipelines {
 
         TemplatesToPipelines that = (TemplatesToPipelines) o;
 
-        if (templateName != null ? !templateName.equals(that.templateName) : that.templateName != null) {
-            return false;
-        }
-        return editablePipelines != null ? editablePipelines.equals(that.editablePipelines) : that.editablePipelines == null;
+        if (canEdit != that.canEdit) return false;
+        if (isAdmin != that.isAdmin) return false;
+        if (!pipelines.equals(that.pipelines)) return false;
+        return templateName.equals(that.templateName);
     }
 
     @Override
     public int hashCode() {
-        int result = templateName != null ? templateName.hashCode() : 0;
-        result = 31 * result + (editablePipelines != null ? editablePipelines.hashCode() : 0);
+        int result = pipelines.hashCode();
+        result = 31 * result + templateName.hashCode();
+        result = 31 * result + (canEdit ? 1 : 0);
+        result = 31 * result + (isAdmin ? 1 : 0);
         return result;
-    }
-
-    public CaseInsensitiveString getTemplateName() {
-        return templateName;
-    }
-
-    public void addPipeline(CaseInsensitiveString name, Boolean isEditable) {
-        editablePipelines.put(name, isEditable);
-    }
-
-    public List<CaseInsensitiveString> getPipelines() {
-        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
-        pipelineNames.addAll(editablePipelines.keySet());
-        return pipelineNames;
-    }
-
-    public Map<CaseInsensitiveString, Boolean> getEditablePipelines() {
-        return editablePipelines;
     }
 }

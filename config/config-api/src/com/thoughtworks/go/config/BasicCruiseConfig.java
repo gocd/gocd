@@ -88,6 +88,9 @@ public class BasicCruiseConfig implements CruiseConfig {
     @IgnoreTraversal
     private List<PartialConfig> partials = new ArrayList<>();
 
+    @IgnoreTraversal
+    private transient Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesWithAssociatedPipelines;
+
     public BasicCruiseConfig() {
         strategy = new BasicStrategy();
     }
@@ -468,18 +471,40 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isAuthorizedToEditTemplate(String templateName, CaseInsensitiveString username) {
-        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
-        return isAdministrator(username.toString()) || getTemplates().canUserEditTemplate(template, username, rolesForUser(username));
+    public boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username) {
+        if (isAdministrator(username.toString())) {
+            return true;
+        }
+
+        PipelineTemplateConfig template = getTemplateByName(templateName);
+        return isAuthorizedToEditTemplate(template, username);
     }
 
     @Override
-    public boolean isAuthorizedToViewTemplate(String templateName, CaseInsensitiveString username) {
-        if (isAuthorizedToEditTemplate(templateName, username)) {
+    public boolean isAuthorizedToEditTemplate(PipelineTemplateConfig templateConfig, CaseInsensitiveString username) {
+        if (isAdministrator(username.toString())) {
             return true;
         }
-        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
-        return getTemplates().hasViewAccessToTemplate(template, username, rolesForUser(username), isGroupAdministrator(username));
+        return templateConfig.getAuthorization().isUserAnAdmin(username, rolesForUser(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username) {
+        if (isAdministrator(username.toString())) {
+            return true;
+        }
+
+        PipelineTemplateConfig template = getTemplateByName(templateName);
+        return isAuthorizedToViewTemplate(template, username);
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplate(PipelineTemplateConfig templateConfig, CaseInsensitiveString username) {
+        if (isAuthorizedToEditTemplate(templateConfig, username)) {
+            return true;
+        }
+        return templateConfig.getAuthorization().isViewUser(username, rolesForUser(username)) || (templateConfig.isAllowGroupAdmins() && isGroupAdministrator(username));
+
     }
 
     @Override
@@ -1309,33 +1334,26 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public List<TemplatesToPipelines> templatesWithPipelinesForUser(String username, List<Role> roles) {
-        ArrayList<TemplatesToPipelines> templatesToPipelines = new ArrayList<>();
+    public Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines() {
+        if(allTemplatesWithAssociatedPipelines == null){
+            allTemplatesWithAssociatedPipelines = new HashMap<>();
+            for (PipelineTemplateConfig templateConfig: getTemplates()) {
+                if (!allTemplatesWithAssociatedPipelines.containsKey(templateConfig.name())) {
+                    allTemplatesWithAssociatedPipelines.put(templateConfig.name(), new HashMap<>());
+                }
+            }
 
-        for (PipelineTemplateConfig templateConfig : getTemplates()) {
-            if (isAuthorizedToAccessTemplate(new CaseInsensitiveString(username), roles, templateConfig)) {
-                templatesToPipelines.add(new TemplatesToPipelines(templateConfig.name()));
+            for (PipelineConfigs pipelineConfigs : getGroups()) {
+                List<PipelineConfig> pipelines = pipelineConfigs.getPipelines();
+                for (PipelineConfig pipeline : pipelines) {
+                    if (pipeline.hasTemplate()) {
+                        Map<CaseInsensitiveString, Authorization> authorizationMap = allTemplatesWithAssociatedPipelines.get(pipeline.getTemplateName());
+                        authorizationMap.put(pipeline.getName(), pipelineConfigs.getAuthorization());
+                    }
+                }
             }
         }
-
-        for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
-            CaseInsensitiveString name = pipelineConfig.getTemplateName();
-            TemplatesToPipelines template = findTemplateToPipelines(templatesToPipelines, name);
-            if (pipelineConfig.hasTemplate() && template != null) {
-                template.addPipeline(pipelineConfig.name(), isAuthorizedToAdministerPipelines(username, findGroupOfPipeline(pipelineConfig).getGroup()));
-            }
-        }
-
-        return templatesToPipelines;
-    }
-
-    private TemplatesToPipelines findTemplateToPipelines(ArrayList<TemplatesToPipelines> templatesToPipelines, CaseInsensitiveString name) {
-        for (TemplatesToPipelines templatesToPipeline : templatesToPipelines) {
-            if (templatesToPipeline.getTemplateName().equals(name)) {
-                return templatesToPipeline;
-            }
-        }
-        return null;
+        return allTemplatesWithAssociatedPipelines;
     }
 
     @Override
@@ -1485,17 +1503,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.strategy.setOrigins(origins);
     }
 
-    private boolean isAuthorizedToAccessTemplate(CaseInsensitiveString username, List<Role> roles, PipelineTemplateConfig template) {
-        return isAdministrator(username.toString()) || template.getAuthorization().hasAdminOrViewPermissions(username, roles) || (template.isAllowGroupAdmins() && isGroupAdministrator(username));
-    }
-
-    private boolean isAuthorizedToAdministerPipelines(String username, String group) {
+    private boolean isAuthorizedToAdministerPipelines(CaseInsensitiveString username, String group) {
         PipelineConfigs pipelineGroup = groups.findGroup(group);
         if (pipelineGroup == null) {
             return false;
         }
-        CaseInsensitiveString userName = new CaseInsensitiveString(username);
-        return isAdministrator(username) || pipelineGroup.isUserAnAdmin(userName, rolesForUser(userName));
+        return isAdministrator(username.toString()) || pipelineGroup.isUserAnAdmin(username, rolesForUser(username));
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

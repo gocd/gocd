@@ -114,4 +114,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.remote.ConfigRepoConfig unless defined? ConfigRepoConfig
   java_import com.thoughtworks.go.config.remote.FileConfigOrigin unless defined? FileConfigOrigin
   java_import com.thoughtworks.go.config.TemplatesToPipelines unless defined? TemplatesToPipelines
+  java_import com.thoughtworks.go.config.PipelineWithAuthorization unless defined? PipelineWithAuthorization
+  java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString
 end

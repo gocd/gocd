@@ -21,7 +21,7 @@ module ApiV4
         alias_method :pipeline, :represented
 
         link :self do |opts|
-          opts[:url_builder].apiv3_admin_pipeline_url(represented.first)
+          opts[:url_builder].apiv3_admin_pipeline_url(represented.getPipelineName)
         end
 
         link :doc do |opts|
@@ -35,12 +35,14 @@ module ApiV4
         property :name, case_insensitive_string: true, exec_context: :decorator
         property :can_edit, exec_context: :decorator
 
+        private
+
         def name
-          represented.first
+          represented.getPipelineName
         end
 
         def can_edit
-          represented.last
+          represented.canUserEditPipeline()
         end
       end
     end

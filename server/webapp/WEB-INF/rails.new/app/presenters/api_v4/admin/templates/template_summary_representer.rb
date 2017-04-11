@@ -32,6 +32,8 @@ module ApiV4
         end
 
         property :name, case_insensitive_string: true, exec_context: :decorator
+        property :can_edit, exec_context: :decorator
+        property :is_admin, exec_context: :decorator
         collection :pipelines,
                    embedded: true,
                    exec_context: :decorator,
@@ -40,11 +42,19 @@ module ApiV4
         private
 
         def pipelines
-          represented.getEditablePipelines()
+          represented.getPipelines
+        end
+
+        def can_edit
+          represented.canEditTemplate
+        end
+
+        def is_admin
+          represented.isAdminUser
         end
 
         def name
-          represented.getTemplateName()
+          represented.getTemplateName
         end
       end
     end

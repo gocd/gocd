@@ -13,7 +13,7 @@
               <%= link_to('View', config_view_templates_show_path(:name => template), :class => "view_icon action_icon view_template_link skip_dirty_stop", :id => "#{template}", :title => "View Configuration") -%>
             </li>
             <li>
-              <%- if is_user_a_template_admin_for_template? template.to_s %>
+              <%- if is_user_a_template_admin_for_template? template %>
                   <%= action_icon({:type => "edit", :text => l.string("EDIT"), :href => template_edit_path(:stage_parent => "templates", :pipeline_name => template, :current_tab => "general")}) %>
               <%- else %>
                   <%= action_icon({:type => "edit", :text => l.string("EDIT"), :title => l.string("UNAUTHORIZED_TO_EDIT_TEMPLATE", template), :disabled => true}) %>
@@ -27,7 +27,7 @@
               <%- end -%>
             </li>
             <li>
-              <%- if !is_user_a_template_admin_for_template? template.to_s -%>
+              <%- if !is_user_a_template_admin_for_template? template -%>
                   <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("UNAUTHORIZED_TO_DELETE_TEMPLATE"), :disabled => true}) %>
               <%- elsif !is_pipeline_empty -%>
                   <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("CANNOT_DELETE_TEMPLATE", template, pipelines), :disabled => true}) %>

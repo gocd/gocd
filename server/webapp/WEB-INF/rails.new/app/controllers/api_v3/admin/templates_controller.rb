@@ -24,7 +24,7 @@ module ApiV3
       before_action :check_for_stale_request, :check_for_attempted_template_rename, only: [:update]
 
       def index
-        templates = template_config_service.templatesWithPipelinesForUser(current_user.getUsername.toString)
+        templates = template_config_service.getTemplatesList(current_user)
         json = ApiV3::Admin::Templates::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json
       end

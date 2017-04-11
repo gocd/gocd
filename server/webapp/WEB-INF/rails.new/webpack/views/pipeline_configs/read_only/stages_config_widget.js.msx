@@ -16,7 +16,6 @@
 
 const m                     = require('mithril');
 const _                     = require('lodash');
-const f                     = require('helpers/form_helper');
 const Stream                = require('mithril/stream');
 const ComponentMixins       = require('helpers/mithril_component_mixins');
 const StageDefinitionWidget = require('views/pipeline_configs/read_only/stage_definition_widget');

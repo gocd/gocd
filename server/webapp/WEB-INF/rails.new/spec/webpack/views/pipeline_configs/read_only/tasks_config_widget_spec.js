@@ -71,7 +71,8 @@ describe("Read Only Tasks Config Widget", () => {
       const row1 = $.find('.read-only-table-row span');
       expect($(row1[0])).toContainText('exec');
       expect($(row1[1])).toContainText('passed');
-      expect($(row1[2])).toContainText('command: ls');
+      expect(row1[2]).toContainText('command');
+      expect(row1[2]).toContainText('ls');
       expect($(row1[3])).toContainText('-');
     });
   });
@@ -128,8 +129,10 @@ describe("Read Only Tasks Config Widget", () => {
       const row1 = $.find('.read-only-table-row span');
       expect($(row1[0])).toContainText('Script Executor');
       expect($(row1[1])).toContainText('failed');
-      expect($(row1[2])).toContainText('Script: foobar');
-      expect($(row1[2])).toContainText('Shtype: bash');
+      expect(row1[2]).toContainText('Script');
+      expect(row1[2]).toContainText('foobar');
+      expect(row1[2]).toContainText('Shtype');
+      expect(row1[2]).toContainText('bash');
       expect($(row1[3])).toContainText('-');
     });
   });
@@ -173,8 +176,10 @@ describe("Read Only Tasks Config Widget", () => {
       const row1 = $.find('.read-only-table-row span');
       expect($(row1[3])).toContainText('exec');
 
-      expect('.oncancel-task-description').toContainText('command: ls');
-      expect('.oncancel-task-description').toContainText('args: something');
+      expect($('.oncancel-task-description')).toContainText('command');
+      expect($('.oncancel-task-description')).toContainText('ls');
+      expect($('.oncancel-task-description')).toContainText('args');
+      expect($('.oncancel-task-description')).toContainText('something');
     });
 
     it('should toggle the oncancel task view', () => {

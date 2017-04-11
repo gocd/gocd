@@ -279,7 +279,7 @@ $task-body-bg: #f5f5f5;
 .remove-stage {
   position: absolute;
   right:    -15px;
-  top: inherit;
+  top:      inherit;
 }
 
 //tasks
@@ -435,21 +435,23 @@ $task-body-bg: #f5f5f5;
   }
 }
 
-//templates
 .template-stages {
   .stage-definition-container {
-    padding: 0px 5px 20px;
+    padding: 0 5px 20px;
   }
-  h5{
-    font-size:rem-calc(16px);
-    margin:20px 0 10px;
+
+  h5 {
+    font-size: rem-calc(16px);
+    margin:    20px 0 10px;
   }
-  pre{
+
+  pre {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   }
+
   .empty-message {
     padding-left: 40px;
-    font-size:rem-calc(13px);
-    font-style: italic;
+    font-size:    rem-calc(13px);
+    font-style:   italic;
   }
 }

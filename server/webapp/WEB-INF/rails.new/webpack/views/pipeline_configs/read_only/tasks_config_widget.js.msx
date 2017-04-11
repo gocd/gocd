@@ -31,9 +31,18 @@ const TasksConfigWidget = {
     };
 
     self.getProperties = function (task) {
-      return _.map(task.summary(), (v, k) => {
-        return `${k  }: ${  v}`;
-      }).join(' ');
+      const properties = _.map(task.summary(), (v, k) => {
+        return (<div>
+          <dt>{k}</dt>
+          <dd>
+            <pre>{v}</pre>
+          </dd>
+        </div>);
+      });
+
+      return (<dl class="key-value-pair">
+        {properties}
+      </dl>);
     };
 
     self.oncancelTaskClicked = function (task) {

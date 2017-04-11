@@ -91,7 +91,7 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
 
         JsonTester tester = new JsonTester(presenter.toJsonHash());
-        tester.shouldContain(" { 'agent' : 'Not yet assigned' } ");
+        tester.shouldContain(" { 'agent' : 'Agent not found' } ");
     }
 
     @Test

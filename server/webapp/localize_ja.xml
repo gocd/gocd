@@ -143,7 +143,7 @@
     <entry key="NEXT">next</entry>
     <entry key="STAGE_HISTORY">Stage History</entry>
     <entry key="INTERNAL_SERVER_ERROR">Server error occured. Check log for details.</entry>
-    <entry key="NOT_YET_ASSIGNED">Not yet assigned</entry>
+    <entry key="AGENT_NOT_FOUND">Agent not found</entry>
     <entry key="NO_VIEW_PERMISSION_ON_PIPELINE">User ''{0}'' does not have view permission on pipeline ''{1}''</entry>
     <entry key="ENVIRONMENTS">Environments</entry>
     <entry key="NO_PERMISSION_TO_ADD_ENVIRONMENT">Failed to add environment. User ''{0}'' does not have permission to add environments</entry>

@@ -21,7 +21,7 @@ module ApiV3
         alias_method :pipeline, :represented
 
         link :self do |opts|
-          opts[:url_builder].apiv3_admin_pipeline_url(pipeline.getName())
+          opts[:url_builder].apiv3_admin_pipeline_url(represented.getPipelineName)
         end
 
         link :doc do |opts|
@@ -32,7 +32,13 @@ module ApiV3
           opts[:url_builder].apiv3_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
         end
 
-        property :name, case_insensitive_string: true
+        property :name, case_insensitive_string: true, exec_context: :decorator
+
+        private
+
+        def name
+          represented.getPipelineName
+        end
       end
     end
   end

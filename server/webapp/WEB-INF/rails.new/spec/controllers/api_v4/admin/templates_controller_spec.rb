@@ -76,9 +76,9 @@ describe ApiV4::Admin::TemplatesController do
         enable_security
         login_as_admin
 
-        templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template"))
-        templates.addPipeline(CaseInsensitiveString.new("pipeline1"), true)
-        templates.addPipeline(CaseInsensitiveString.new("pipeline2"), false)
+        templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template"), true, true)
+        templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+        templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
 
         @template_config_service.should_receive(:getTemplatesList).and_return([templates])
 

@@ -19,7 +19,9 @@ require 'spec_helper'
 describe ApiV3::Admin::Templates::TemplateSummaryRepresenter do
 
   it 'should render a template name and its associated pipelines in hal representation' do
-    template_with_pipelines = ['template-name', ['pipeline1', 'pipeline2']]
+    template_with_pipelines = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    template_with_pipelines.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+    template_with_pipelines.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
     actual_json = ApiV3::Admin::Templates::TemplateSummaryRepresenter.new(template_with_pipelines).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)

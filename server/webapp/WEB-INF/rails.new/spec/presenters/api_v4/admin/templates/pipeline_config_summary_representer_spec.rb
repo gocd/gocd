@@ -20,7 +20,7 @@ require 'spec_helper'
 describe ApiV4::Admin::Templates::PipelineConfigSummaryRepresenter do
 
   it 'renders pipeline summary' do
-    presenter = ApiV4::Admin::Templates::PipelineConfigSummaryRepresenter.new(['pipeline1', true])
+    presenter = ApiV4::Admin::Templates::PipelineConfigSummaryRepresenter.new(PipelineWithAuthorization.new(CaseInsensitiveString.new('pipeline1'), true))
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :find, :doc)

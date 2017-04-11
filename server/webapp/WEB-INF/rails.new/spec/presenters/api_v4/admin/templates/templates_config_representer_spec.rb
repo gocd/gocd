@@ -19,9 +19,9 @@ require 'spec_helper'
 describe ApiV4::Admin::Templates::TemplatesConfigRepresenter do
 
   it 'should render links' do
-    templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"))
-    templates.addPipeline(CaseInsensitiveString.new("pipeline1"), true)
-    templates.addPipeline(CaseInsensitiveString.new("pipeline2"), false)
+    templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
 
     actual_json = ApiV4::Admin::Templates::TemplatesConfigRepresenter.new([templates]).to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)

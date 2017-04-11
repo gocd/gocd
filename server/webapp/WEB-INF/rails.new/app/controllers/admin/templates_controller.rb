@@ -132,7 +132,7 @@ class Admin::TemplatesController < AdminController
   end
 
   def load_templates from
-    assert_load :template_to_pipelines, from.templatesWithPipelinesForUser(current_user.getUsername.toString)
+    assert_load :template_to_pipelines, from.templatesWithPipelinesForUser(current_user.getUsername)
   end
 
   def load_cruise_config

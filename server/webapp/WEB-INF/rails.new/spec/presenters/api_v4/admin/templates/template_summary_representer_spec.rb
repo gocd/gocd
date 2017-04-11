@@ -19,9 +19,9 @@ require 'spec_helper'
 describe ApiV4::Admin::Templates::TemplateSummaryRepresenter do
 
   it 'should render a template name and its associated pipelines in hal representation' do
-    templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"))
-    templates.addPipeline(CaseInsensitiveString.new("pipeline1"), true)
-    templates.addPipeline(CaseInsensitiveString.new("pipeline2"), false)
+    templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
 
 
     actual_json = ApiV4::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)
@@ -38,6 +38,8 @@ describe ApiV4::Admin::Templates::TemplateSummaryRepresenter do
   def index_hash
     {
       name: 'template-name',
+      can_edit: true,
+      is_admin: true,
       _embedded: {
         pipelines: [
           {

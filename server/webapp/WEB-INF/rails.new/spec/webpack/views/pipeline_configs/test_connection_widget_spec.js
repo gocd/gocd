@@ -15,9 +15,10 @@
  */
 describe("Test Connection Widget", () => {
 
-  const $      = require('jquery');
-  const m      = require('mithril');
-  const Stream = require('mithril/stream');
+  const $             = require('jquery');
+  const m             = require('mithril');
+  const Stream        = require('mithril/stream');
+  const simulateEvent = require('simulate-event');
 
   const Materials            = require("models/pipeline_configs/materials");
   const TestConnectionWidget = require("views/pipeline_configs/test_connection_widget");
@@ -57,10 +58,29 @@ describe("Test Connection Widget", () => {
       expect($($root.find(".callout")[0])).toHaveText('Test Connection Failed');
     });
 
+    it('should show the check connection result', () => {
+      mount(material);
+
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest('/go/api/admin/internal/material_test', undefined, 'POST').andReturn({
+          responseText: JSON.stringify({status: 'failure'}),
+          status:       500,
+          headers:      {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          }
+        });
+
+        simulateEvent.simulate($root.find('.test-connection').get(0), 'click');
+        m.redraw();
+
+        expect($('.alert').text()).toContain('There was an unknown error while checking connection');
+      });
+    });
+
     function mount(material, vm) {
       m.mount(root, {
         view() {
-          return m(TestConnectionWidget, {material, pipelineName: 'testPipeLine', vm});
+          return m(TestConnectionWidget, {material, pipelineName: Stream('testPipeLine'), vm});
         }
       });
       m.redraw();
@@ -84,7 +104,7 @@ describe("Test Connection Widget", () => {
       vnode.attrs = {
         material,
         pipelineName,
-        vm:           {connectionState: vm}
+        vm: {connectionState: vm}
       };
       vnode.state = {};
 

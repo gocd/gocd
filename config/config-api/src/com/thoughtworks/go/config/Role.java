@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.isBlank;
+
 @ConfigInterface
 public interface Role extends Validatable {
     CaseInsensitiveString getName();
@@ -33,9 +35,20 @@ public interface Role extends Validatable {
 
     void removeUser(RoleUser roleUser);
 
+    default boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return !hasErrors();
+    }
+
     default void validate(ValidationContext validationContext) {
-        if (getName().isBlank() || !new NameTypeValidator().isNameValid(getName())) {
+        if (isBlank(getName()) || !new NameTypeValidator().isNameValid(getName())) {
             addError("name", NameTypeValidator.errorMessage("role name", getName()));
+        }
+
+        RolesConfig roles = validationContext.getServerSecurityConfig().getRoles();
+
+        if(!isBlank(getName()) && !roles.isUniqueRoleName(getName())) {
+            addError("name", "Role names should be unique. Role with the same name exists.");
         }
 
         Set<RoleUser> roleUsers = new HashSet<>();
@@ -71,6 +84,8 @@ public interface Role extends Validatable {
     default List<ConfigErrors> getAllErrors() {
         return ErrorCollector.getAllErrors(this);
     }
+
+    boolean hasErrors();
 
     class ErrorMarkingDuplicateHandler {
 

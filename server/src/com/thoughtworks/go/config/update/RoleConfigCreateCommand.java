@@ -23,9 +23,11 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.isBlank;
+
 public class RoleConfigCreateCommand extends RoleConfigCommand {
-    public RoleConfigCreateCommand(GoConfigService goConfigService, Role newRole, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
-        super(goConfigService, newRole, extension, currentUser, result);
+    public RoleConfigCreateCommand(GoConfigService goConfigService, Role newRole, Username currentUser, LocalizedOperationResult result) {
+        super(goConfigService, newRole, currentUser, result);
     }
 
     @Override
@@ -35,6 +37,11 @@ public class RoleConfigCreateCommand extends RoleConfigCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        return isValidForCreateOrUpdate(preprocessedConfig);
+        if (isBlank(role.getName())) {
+            role.validateTree(validationContextWithSecurityConfig(preprocessedConfig));
+            return false;
+        }
+
+        return super.isValid(preprocessedConfig);
     }
 }

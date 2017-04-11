@@ -24,6 +24,8 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
 import java.util.List;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 @ConfigTag("pluginRole")
 @ConfigCollection(value = ConfigurationProperty.class)
 public class PluginRoleConfig extends Configuration implements Role {
@@ -56,8 +58,17 @@ public class PluginRoleConfig extends Configuration implements Role {
     @Override
     public void validate(ValidationContext validationContext) {
         Role.super.validate(validationContext);
+
         if (!new NameTypeValidator().isNameValid(authConfigId)) {
             configErrors.add("authConfigId", NameTypeValidator.errorMessage("plugin role authConfigId", authConfigId));
+        }
+
+        if (isNotBlank(authConfigId)) {
+            SecurityAuthConfig securityAuthConfig = validationContext.getServerSecurityConfig().securityAuthConfigs().find(authConfigId);
+
+            if (securityAuthConfig == null) {
+                addError("authConfigId", String.format("No such security auth configuration present for id: `%s`", getAuthConfigId()));
+            }
         }
     }
 
@@ -91,6 +102,11 @@ public class PluginRoleConfig extends Configuration implements Role {
     @Override
     public List<RoleUser> getUsers() {
         return PluginRoleUsersStore.instance().usersInRole(this);
+    }
+
+    @Override
+    public boolean hasErrors() {
+        return super.hasErrors() || !configErrors.isEmpty();
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurations) {

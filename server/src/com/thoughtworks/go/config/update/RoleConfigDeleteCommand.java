@@ -18,16 +18,18 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class RoleConfigDeleteCommand extends RoleConfigCommand {
 
     public RoleConfigDeleteCommand(GoConfigService goConfigService, Role role, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
-        super(goConfigService, role, extension, currentUser, result);
+        super(goConfigService, role, currentUser, result);
     }
 
     @Override
@@ -42,6 +44,19 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
         removeFromAllGroups(preprocessedConfig);
         removeFromAllTemplates(preprocessedConfig);
         removeFromSecurity(preprocessedConfig);
+    }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!roleExists(cruiseConfig)) {
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "role", role.getName()), HealthStateType.notFound());
+            return false;
+        }
+        return super.canContinue(cruiseConfig);
+    }
+
+    private boolean roleExists(CruiseConfig cruiseConfig) {
+        return findExistingRole(cruiseConfig) != null;
     }
 
     private void removeFromServerAdmins(CruiseConfig preprocessedConfig) {

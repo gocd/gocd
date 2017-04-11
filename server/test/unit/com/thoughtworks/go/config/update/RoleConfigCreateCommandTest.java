@@ -21,21 +21,18 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Matchers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.eq;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,29 +47,40 @@ public class RoleConfigCreateCommandTest {
     }
 
     @Test
-    public void shouldAddPluginRoleConfig() throws Exception {
+    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+        GoConfigService goConfigService = mock(GoConfigService.class);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username viewUser = mock(Username.class);
+
+        when(goConfigService.isUserAdmin(viewUser)).thenReturn(false);
+
+        RoleConfigCreateCommand command = new RoleConfigCreateCommand(goConfigService, null, viewUser, result);
+
+        assertFalse(command.canContinue(null));
+        assertFalse(result.isSuccessful());
+        assertThat(result.httpCode(), is(401));
+    }
+
+    @Test
+    public void update_shouldAddPluginRoleConfigToRoles() throws Exception {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
-        RoleConfigCreateCommand command = new RoleConfigCreateCommand(null, role, extension, null, null);
+        RoleConfigCreateCommand command = new RoleConfigCreateCommand(null, role, null, null);
+
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("blackbird")), equalTo(role));
     }
 
     @Test
-    public void shouldInvokePluginValidationsBeforeSave() throws Exception {
-        ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("key", "error"));
-        when(extension.validateRoleConfiguration(eq("aws"), Matchers.any())).thenReturn(validationResult);
-        PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
-        RoleConfigCreateCommand command = new RoleConfigCreateCommand(mock(GoConfigService.class), role, extension, null, new HttpLocalizedOperationResult());
-        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+    public void isValid_shouldSkipUpdatedRoleValidation() throws Exception {
+        PluginRoleConfig pluginRoleConfig = new PluginRoleConfig(null, "ldap");
+        RoleConfigCreateCommand command = new RoleConfigCreateCommand(null, pluginRoleConfig, null, null);
 
-        thrown.expect(RoleNotFoundException.class);
-        thrown.expectMessage("Role `blackbird` does not exist.");
-        command.isValid(cruiseConfig);
-        command.update(cruiseConfig);
-        assertThat(role.first().errors().size(), is(1));
-        assertThat(role.first().errors().asString(), is("error"));
+        assertFalse(command.isValid(GoConfigMother.defaultCruiseConfig()));
+        assertThat(pluginRoleConfig.errors().size(), is(2));
+        assertThat(pluginRoleConfig.errors().get("name").get(0), is("Invalid role name name 'null'. This must be " +
+                "alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0), is("No such security auth configuration present for id: `ldap`"));
     }
 }

@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -101,6 +102,10 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return null;
     }
 
+
+    public boolean isUniqueRoleName(final CaseInsensitiveString roleName) {
+        return Collections.frequency(roleNames(), roleName) <= 1;
+    }
 
     public PluginRoleConfig findPluginRoleByName(CaseInsensitiveString pluginRoleName) {
         for (PluginRoleConfig pluginRoleConfig : getPluginRoleConfigs()) {

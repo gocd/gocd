@@ -17,6 +17,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -34,6 +37,7 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -43,7 +47,6 @@ public class RoleConfigCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
-
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -98,18 +101,22 @@ public class RoleConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateWithErrorIfNameIsNull() {
+    public void isValid_shouldValidateTheUpdatedRoleConfig() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig(null, "ldap");
         cruiseConfig.server().security().addRole(pluginRoleConfig);
 
         RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
-        thrown.expectMessage("Role name cannot be null.");
-        command.isValid(cruiseConfig);
+
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(pluginRoleConfig.errors().size(), is(2));
+        assertThat(pluginRoleConfig.errors().get("name").get(0), is("Invalid role name name 'null'. This must be " +
+                "alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0), is("No such security auth configuration present for id: `ldap`"));
     }
 
     @Test
-    public void shouldPassValidationIfNameIsNotNull() {
+    public void shouldPassValidationForValidRole() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("foo", "ldap");
         cruiseConfig.server().security().addRole(pluginRoleConfig);
@@ -150,17 +157,12 @@ public class RoleConfigCommandTest {
     private class StubCommand extends RoleConfigCommand {
 
         public StubCommand(GoConfigService goConfigService, Role role, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
-            super(goConfigService, role, extension, currentUser, result);
+            super(goConfigService, role, currentUser, result);
         }
 
         @Override
         public void update(CruiseConfig preprocessedConfig) throws Exception {
 
-        }
-
-        @Override
-        public boolean isValid(CruiseConfig preprocessedConfig) {
-            return isValidForCreateOrUpdate(preprocessedConfig);
         }
     }
 }

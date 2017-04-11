@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,62 +14,17 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.update;
+package com.thoughtworks.go.config.helper;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
-abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
-    protected final GoConfigService goConfigService;
-    protected final Role role;
-    protected final Username currentUser;
-    protected final LocalizedOperationResult result;
-    protected Role preprocessedRole;
+public class ValidationContextMother {
 
-    public RoleConfigCommand(GoConfigService goConfigService, Role role, Username currentUser, LocalizedOperationResult result) {
-        this.goConfigService = goConfigService;
-        this.role = role;
-        this.currentUser = currentUser;
-        this.result = result;
-    }
-
-    @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(role);
-    }
-
-    @Override
-    public Role getPreprocessedEntityConfig() {
-        return preprocessedRole;
-    }
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
-    }
-
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        preprocessedRole = preprocessedConfig.server().security().getRoles().findByName(role.getName());
-
-        if (!preprocessedRole.validateTree(validationContextWithSecurityConfig(preprocessedConfig))) {
-            BasicCruiseConfig.copyErrors(preprocessedRole, role);
-            return false;
-        }
-
-        return true;
-    }
-
-    protected ValidationContext validationContextWithSecurityConfig(final CruiseConfig preprocessedConfig) {
+    public static ValidationContext validationContext(SecurityConfig securityConfig) {
         return new ValidationContext() {
             @Override
             public ConfigReposConfig getConfigRepos() {
@@ -138,7 +93,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
 
             @Override
             public SecurityConfig getServerSecurityConfig() {
-                return preprocessedConfig.server().security();
+                return securityConfig;
             }
 
             @Override
@@ -172,17 +127,4 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
             }
         };
     }
-
-    final Role findExistingRole(CruiseConfig cruiseConfig) {
-        return cruiseConfig.server().security().getRoles().findByName(role.getName());
-    }
-
-    protected final boolean isAuthorized() {
-        if (goConfigService.isUserAdmin(currentUser)) {
-            return true;
-        }
-        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-        return false;
-    }
-
 }

@@ -21,6 +21,9 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -34,18 +37,56 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RoleConfigDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private AuthorizationExtension extension;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private GoConfigService goConfigService;
 
 
     @Before
     public void setUp() throws Exception {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         extension = mock(AuthorizationExtension.class);
+        goConfigService = mock(GoConfigService.class);
+    }
+
+    @Test
+    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username viewUser = mock(Username.class);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        PluginRoleConfig role = new PluginRoleConfig("foo", "ldap");
+
+
+        cruiseConfig.server().security().addRole(role);
+        when(goConfigService.isUserAdmin(viewUser)).thenReturn(false);
+
+        RoleConfigDeleteCommand command = new RoleConfigDeleteCommand(goConfigService, role, null, viewUser, result);
+
+        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(result.isSuccessful());
+        assertThat(result.httpCode(), is(401));
+    }
+
+    @Test
+    public void canContinue_shouldCheckIfRoleExists() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username viewUser = mock(Username.class);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        PluginRoleConfig role = new PluginRoleConfig("foo", "ldap");
+
+        when(goConfigService.isUserAdmin(viewUser)).thenReturn(true);
+
+        RoleConfigDeleteCommand command = new RoleConfigDeleteCommand(goConfigService, role, null, viewUser, result);
+
+        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(result.isSuccessful());
+        assertThat(result.httpCode(), is(404));
+
     }
 
     @Test
@@ -123,5 +164,4 @@ public class RoleConfigDeleteCommandTest {
         RoleConfigCommand command = new RoleConfigDeleteCommand(null, role, extension, null, new HttpLocalizedOperationResult());
         assertTrue(command.isValid(cruiseConfig));
     }
-
 }

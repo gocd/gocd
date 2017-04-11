@@ -35,7 +35,6 @@ const StagesConfigWidget = {
 
     return (
       <div class="template-stages">
-        <f.readOnlyHeading value="Stages:"/>
         <div class="stage-boxes">
           <div class="stages-wrapper">
             {vnode.attrs.stages().mapStages((stage, stageIndex) => {

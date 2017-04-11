@@ -434,3 +434,22 @@ $task-body-bg: #f5f5f5;
     margin-right: 40px;
   }
 }
+
+//templates
+.template-stages {
+  .stage-definition-container {
+    padding: 0px 5px 20px;
+  }
+  h5{
+    font-size:rem-calc(16px);
+    margin:20px 0 10px;
+  }
+  pre{
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  }
+  .empty-message {
+    padding-left: 40px;
+    font-size:rem-calc(13px);
+    font-style: italic;
+  }
+}

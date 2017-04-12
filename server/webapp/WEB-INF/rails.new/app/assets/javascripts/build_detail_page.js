@@ -111,19 +111,20 @@
         e.preventDefault();
 
         var trigger = $(e.currentTarget).removeData("collapsed");
-        var consoleArea = trigger.closest(".console-area");
-        var foldableSections = consoleArea.find(".log-fs-type");
+        var consoleArea = trigger.closest(".console-action-bar").siblings(".buildoutput_pre");
+        var foldableSections = consoleArea.children(".log-fs-type");
 
         if (!foldableSections.length) return;
 
-        if (trigger.data("collapsed")) {
+        if (trigger.attr("data-collapsed") === "true") {
           foldableSections.addClass("open");
           trigger.attr("data-collapsed", "false");
         } else {
           foldableSections.removeClass("open");
           trigger.attr("data-collapsed", "true");
         }
-        consoleArea.find(".buildoutput_pre").trigger("consoleUpdated");
+
+        consoleArea.trigger("consoleUpdated");
       });
 
       var multiTransformer = new MultiplexingTransformer(transformers);

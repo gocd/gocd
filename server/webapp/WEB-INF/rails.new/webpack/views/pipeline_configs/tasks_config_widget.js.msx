@@ -70,28 +70,26 @@ const TasksConfigWidget = {
 
   view (vnode) {
 
-    const dragDropConfig = function (elem, isInitialized) {
-      if (!isInitialized) {
-        const onDrop = function () {
-          const reorderedTasks = _.map($(elem).find('.task-definition:not(.gu-mirror)'), (eachTaskElem) => {
-            return vnode.attrs.tasks().taskAtIndex($(eachTaskElem).attr('data-task-index'));
-          });
-          vnode.attrs.tasks().setTasks(reorderedTasks);
-        };
+    const dragDropConfig = function (elem) {
+      const onDrop = function () {
+        const reorderedTasks = _.map($(elem.dom).find('.task-definition:not(.gu-mirror)'), (eachTaskElem) => {
+          return vnode.attrs.tasks().taskAtIndex($(eachTaskElem).attr('data-task-index'));
+        });
+        vnode.attrs.tasks().setTasks(reorderedTasks);
+      };
 
-        const disableDrag = function (_el, h) {
-          return !($('.task-summary').has(h).length > 0);
-        };
+      const disableDrag = function (_el, h) {
+        return !($('.task-summary').has(h).length > 0);
+      };
 
-        const options = {
-          dragulaOptions: {
-            invalid: disableDrag
-          },
-          onDropCallback: onDrop
-        };
+      const options = {
+        dragulaOptions: {
+          invalid: disableDrag
+        },
+        onDropCallback: onDrop
+      };
 
-        dragulaConfig(elem, options);
-      }
+      dragulaConfig(elem.dom, options);
     };
 
     return (
@@ -107,7 +105,7 @@ const TasksConfigWidget = {
             <f.column size={2} largeSize={2}><span>On Cancel</span></f.column>
           </f.row>
 
-          <span config={dragDropConfig}>
+          <span oncreate={dragDropConfig}>
           {vnode.attrs.tasks().mapTasks((task, taskIndex) => {
             const taskView = TaskViews[task.type()];
             return (m(taskView, {

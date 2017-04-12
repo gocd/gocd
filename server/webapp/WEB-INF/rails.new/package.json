@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "angular": "1.0.8",
-    "dragula": "3.1.0",
+    "dragula": "^3.7.2",
     "filesize": "^3.5.6",
     "foundation-sites": "^6.2.3",
     "jquery": "^2.2.0",

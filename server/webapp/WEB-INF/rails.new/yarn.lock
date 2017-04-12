@@ -1073,12 +1073,12 @@ contextify@~0.1.5:
     bindings "^1.2.1"
     nan "^2.1.0"
 
-contra@1.9.1:
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/contra/-/contra-1.9.1.tgz#60e498274b3d2d332896d60f82900aefa2ecac8c"
+contra@1.9.4:
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/contra/-/contra-1.9.4.tgz#f53bde42d7e5b5985cae4d99a8d610526de8f28d"
   dependencies:
     atoa "1.0.0"
-    ticky "1.0.0"
+    ticky "1.0.1"
 
 convert-source-map@^1.1.0:
   version "1.3.0"
@@ -1317,11 +1317,11 @@ domutils@1.5.1, domutils@^1.5.1:
     dom-serializer "0"
     domelementtype "1"
 
-dragula@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/dragula/-/dragula-3.1.0.tgz#78aeaccfa92a5a87e344f09b4c61395003622db4"
+dragula@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/dragula/-/dragula-3.7.2.tgz#4a35c9d3981ffac1a949c29ca7285058e87393ce"
   dependencies:
-    contra "1.9.1"
+    contra "1.9.4"
     crossvent "1.5.4"
 
 ecc-jsbn@~0.1.1:
@@ -3423,9 +3423,9 @@ tar@~2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-ticky@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/ticky/-/ticky-1.0.0.tgz#e87f38ee0491ea32f62e8f0567ba9638b29f049c"
+ticky@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ticky/-/ticky-1.0.1.tgz#b7cfa71e768f1c9000c497b9151b30947c50e46d"
 
 timers-browserify@^2.0.2:
   version "2.0.2"

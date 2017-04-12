@@ -48,17 +48,15 @@ const PipelineFlowWidget = {
       return _(['pipeline-flow-box', additionalClasses, (vnode.state.currentSelection() === selection) ? 'active' : null]).flatten().compact().value().join(' ');
     };
 
-    const dragDropConfig = function (elem, isInitialized) {
-      if (!isInitialized) {
-        const onDrop = function () {
-          const reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), (eachStageElem) => {
-            return vnode.attrs.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
-          });
-          vnode.attrs.pipeline().stages().setStages(reorderedStages);
-        };
+    const dragDropConfig = function (elem) {
+      const onDrop = function () {
+        const reorderedStages = _.map($(elem.dom).find('.stage:not(.gu-mirror)'), (eachStageElem) => {
+          return vnode.attrs.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
+        });
+        vnode.attrs.pipeline().stages().setStages(reorderedStages);
+      };
 
-        dragulaConfig(elem, {dragulaOptions: {}, onDropCallback: onDrop});
-      }
+      dragulaConfig(elem.dom, {dragulaOptions: {}, onDropCallback: onDrop});
     };
 
     return (
@@ -69,7 +67,7 @@ const PipelineFlowWidget = {
         <div>
 
           <div class="stage-boxes">
-            <div config={dragDropConfig} class="stages-wrapper">
+            <div oncreate={dragDropConfig} class="stages-wrapper">
               {vnode.attrs.pipeline().stages().mapStages((stage, stageIndex) => {
                 return (
                   <div class={classes(stage, 'stage')}

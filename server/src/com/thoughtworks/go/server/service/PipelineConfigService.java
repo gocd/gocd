@@ -32,6 +32,8 @@ import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.util.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +49,7 @@ public class PipelineConfigService {
     private final SecurityService securityService;
     private final PluggableTaskService pluggableTaskService;
     private final EntityHashingService entityHashingService;
-    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(PipelineConfigService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigService.class);
 
     @Autowired
     public PipelineConfigService(GoConfigService goConfigService, SecurityService securityService, PluggableTaskService pluggableTaskService, EntityHashingService entityHashingService) {

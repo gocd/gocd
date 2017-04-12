@@ -21,15 +21,14 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.apache.log4j.Logger.getLogger;
-
 @Component
 public class AuthenticationPluginRegistrar implements PluginChangeListener {
-    private static Logger LOGGER = getLogger(AuthenticationPluginRegistrar.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AuthenticationPluginRegistrar.class);
 
     private AuthenticationExtension authenticationExtension;
     private AuthenticationPluginRegistry authenticationPluginRegistry;

@@ -21,6 +21,8 @@ import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +38,7 @@ public class PluginsInitializer implements Initializer {
     private final PluginManager pluginManager;
     private final SystemEnvironment systemEnvironment;
     private final ServerVersion serverVersion;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluginsInitializer.class);
     private ZipUtil zipUtil;
 
     @Autowired

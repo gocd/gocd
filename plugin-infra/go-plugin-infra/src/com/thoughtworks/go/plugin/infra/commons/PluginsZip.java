@@ -20,6 +20,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipBuilder;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +31,7 @@ import static com.thoughtworks.go.util.FileDigester.md5DigestOfFolderContent;
 
 @Component
 public class PluginsZip {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsZip.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluginsZip.class);
     private ZipUtil zipUtil;
     private String md5DigestOfPlugins;
     private final File destZipFile;
@@ -83,7 +85,7 @@ public class PluginsZip {
         boolean external = externalPlugins.canRead();
         if (!bundled || !external) {
             String folder = bundled ? externalPlugins.getAbsolutePath() : bundledPlugins.getAbsolutePath();
-            LOG.error(String.format("Could not read plugins. Please check access rights on files in folder: %s.", folder));
+            LOG.error("Could not read plugins. Please check access rights on files in folder: {}.", folder);
             throw new FileAccessRightsCheckException(String.format("Could not read plugins. Please check access rights in folder: %s", folder));
         }
     }

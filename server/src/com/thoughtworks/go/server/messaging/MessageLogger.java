@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.server.messaging;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MessageLogger implements GoMessageListener {
-    private static final Logger LOG = Logger.getLogger(MessageLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessageLogger.class);
 
     @Autowired
     public MessageLogger(EmailNotificationTopic emailNotificationTopic, JobStatusTopic jobStatusTopic) {
@@ -32,7 +33,7 @@ public class MessageLogger implements GoMessageListener {
 
     public void onMessage(GoMessage message) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug(message);
+            LOG.debug(message.toString());
         }
     }
 }

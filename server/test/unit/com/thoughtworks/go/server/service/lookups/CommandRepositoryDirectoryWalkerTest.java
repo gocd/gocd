@@ -142,8 +142,8 @@ public class CommandRepositoryDirectoryWalkerTest {
 
         walker.getAllCommandSnippets(sampleDir.getPath());
 
-        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in Go Server Directory at " + sampleDir.getPath() +
-                ". The directory does not exist or Go does not have sufficient permissions to access it."));
+        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in GoCD Server Directory at " + sampleDir.getPath() +
+                ". The directory does not exist or GoCD does not have sufficient permissions to access it."));
     }
 
     @Test
@@ -154,8 +154,8 @@ public class CommandRepositoryDirectoryWalkerTest {
 
         walker.getAllCommandSnippets(sampleDir.getPath());
 
-        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in Go Server Directory at " + sampleDir.getPath() +
-                ". The directory does not exist or Go does not have sufficient permissions to access it."));
+        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in GoCD Server Directory at " + sampleDir.getPath() +
+                ". The directory does not exist or GoCD does not have sufficient permissions to access it."));
     }
 
     @Test
@@ -164,8 +164,8 @@ public class CommandRepositoryDirectoryWalkerTest {
         File nonExistentDirectory = new File("dirDoesNotExist");
         walker.getAllCommandSnippets(nonExistentDirectory.getPath());
 
-        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in Go Server Directory at " + nonExistentDirectory.getPath() +
-                ". The directory does not exist or Go does not have sufficient permissions to access it."));
+        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in GoCD Server Directory at " + nonExistentDirectory.getPath() +
+                ". The directory does not exist or GoCD does not have sufficient permissions to access it."));
     }
 
     @Test
@@ -174,8 +174,8 @@ public class CommandRepositoryDirectoryWalkerTest {
         sampleDir.setReadable(false);
         walker.getAllCommandSnippets(sampleDir.getPath());
 
-        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in Go Server Directory at " + sampleDir.getPath() +
-                ". The directory does not exist or Go does not have sufficient permissions to access it."));
+        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in GoCD Server Directory at " + sampleDir.getPath() +
+                ". The directory does not exist or GoCD does not have sufficient permissions to access it."));
 
         sampleDir.setReadable(true);
         walker.getAllCommandSnippets(sampleDir.getPath());
@@ -194,8 +194,8 @@ public class CommandRepositoryDirectoryWalkerTest {
         unreadableFile.setReadable(false);
         walker.getAllCommandSnippets(dirWithUnreadableFile.getPath());
 
-        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command snippet XML file located in Go Server Directory at " + unreadableFile.getPath() +
-                ". Go does not have sufficient permissions to access it."));
+        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command snippet XML file located in GoCD Server Directory at " + unreadableFile.getPath() +
+                ". GoCD does not have sufficient permissions to access it."));
 
         unreadableFile.setReadable(true);
         walker.getAllCommandSnippets(dirWithUnreadableFile.getPath());
@@ -209,8 +209,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     public void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsActuallyAFile() throws IOException {
         walker.getAllCommandSnippets(xmlFile.getPath());
 
-        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in Go Server Directory at " + xmlFile.getPath() +
-                ". The directory does not exist or Go does not have sufficient permissions to access it."));
+        verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in GoCD Server Directory at " + xmlFile.getPath() +
+                ". The directory does not exist or GoCD does not have sufficient permissions to access it."));
     }
 
     private ServerHealthState serverHealthMessageWhichSaysItsOk() {

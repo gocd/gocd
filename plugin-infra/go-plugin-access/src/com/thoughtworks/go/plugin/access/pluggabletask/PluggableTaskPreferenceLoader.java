@@ -22,18 +22,14 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static org.apache.log4j.Logger.getLogger;
 
 @Component
 public class PluggableTaskPreferenceLoader implements PluginChangeListener {
 
     private PluginManager pluginManager;
     private TaskExtension taskExtension;
-    private static final Logger LOGGER = getLogger(PluggableTaskPreferenceLoader.class);
 
     @Autowired
     public PluggableTaskPreferenceLoader(PluginManager pluginManager, TaskExtension taskExtension) {

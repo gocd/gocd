@@ -9,4 +9,4 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by opening an issue or contacting one or more of the project maintainers.
 
-We promise to extend courtesy and respect to everyone involved in this project regardless of gender, gender identity, sexual orientation, ability or disability, ethnicity, religion, or level of experience.
+We promise to extend courtesy and respect to everyone involved in this project regardless of gender identity, sexual orientation, ability or disability, ethnicity, religion, or level of experience.

@@ -15,10 +15,10 @@ function applyLabelFilter() {
 // Filters histories that match the search text. Rerenders the view with histories that match the text
 function filterHistories(pipelineHistory, filter) {
     //Need to stop periodic executor to show only the pipelines matching the filter
-    dashboard_periodical_executer.stop();
+    dashboard_periodical_executor.stop();
     $('page_links').innerHTML = "";
 
-    var histories = pipelineHistory.groups[0].history;
+    var histories = pipelineHistory.groups[0] ? pipelineHistory.groups[0].history : [];
     var count = histories.length;
     if(count == 0) {
         jQuery('.pipeline-history-group').html("");
@@ -42,8 +42,8 @@ function removeLabelFilter() {
     jQuery('#search-message').text("");
     jQuery('#labelFilterClear').hide();
 
-    if(!dashboard_periodical_executer.is_execution_start)
-        dashboard_periodical_executer.start();
+    if(!dashboard_periodical_executor.is_execution_start)
+        dashboard_periodical_executor.start();
 }
 
 jQuery( document ).ready(function() {

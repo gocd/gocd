@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-describe("dashboard_periodical_executer", function(){
+describe("dashboard_periodical_executor", function(){
     var dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineStatus.json');
 
     beforeEach(function(){
@@ -278,16 +278,16 @@ describe("dashboard_periodical_executer", function(){
             invoked = true;
         }};
 
-        var pausable_dashboard_periodical_executer = new DashboardPeriodicalExecutor('pipelineStatus.json', function(data) {return data.pause;});
-        pausable_dashboard_periodical_executer.start();
+        var pausable_dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineStatus.json', function(data) {return data.pause;});
+        pausable_dashboard_periodical_executor.start();
 
-        pausable_dashboard_periodical_executer.fireNow();
+        pausable_dashboard_periodical_executor.fireNow();
 
-        pausable_dashboard_periodical_executer.register(fakeOb);
-        pausable_dashboard_periodical_executer.start();
-        pausable_dashboard_periodical_executer.fireNow();
+        pausable_dashboard_periodical_executor.register(fakeOb);
+        pausable_dashboard_periodical_executor.start();
+        pausable_dashboard_periodical_executor.fireNow();
 
-        assertEquals(pausable_dashboard_periodical_executer.is_paused, true);
+        assertEquals(pausable_dashboard_periodical_executor.is_paused, true);
         assertFalse(invoked);
     });
 

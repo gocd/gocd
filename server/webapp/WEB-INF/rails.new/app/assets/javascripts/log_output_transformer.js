@@ -18,7 +18,7 @@
 
   function LogOutputTransformer(consoleElement, Section, deferTransform) {
     var self = this, writer = new Section.LineWriter();
-    var currentSection, currentLine, lineNumber = 0;
+    var currentSection, currentLine;
     var deferred = [];
 
     var PREFIXED_LOG_LINE = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/, // parses prefix, timestamp, and line content
@@ -79,7 +79,6 @@
       resetBuffers();
 
       for (var i = 0, prefix, line, timestamp, len = logLines.length; i < len; i++) {
-        lineNumber++;
         rawLine = logLines[i];
         match = rawLine.match(PREFIXED_LOG_LINE);
 
@@ -122,7 +121,6 @@
           currentLine = writer.insertBasic(currentSection, line);
         }
 
-        currentLine.setAttribute("data-line", lineNumber);
         currentLine.setAttribute("data-timestamp", timestamp);
       }
 

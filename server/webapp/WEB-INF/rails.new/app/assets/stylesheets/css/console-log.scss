@@ -78,13 +78,17 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
   }
 }
 
+.fs-multiline {
+  display: none;
+}
+
+.open .fs-multiline {
+  display: block;
+}
+
 .foldable-section {
   margin-left: 25px;
   position: relative;
-
-  dd {
-    display: none;
-  }
 
   .toggle {
     float: left;
@@ -105,10 +109,6 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
 
 
   &.open {
-    dd {
-      display: block;
-    }
-
     .toggle {
       margin-left: -13px;
     }

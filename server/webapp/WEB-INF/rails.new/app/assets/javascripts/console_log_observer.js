@@ -65,11 +65,11 @@
 
         finished = jobResultJson[0].building_info.is_completed.toLowerCase() === "true";
         if (options && "function" === typeof options.onUpdate) {
-          options.onUpdate();
+          transformer.invoke(options.onUpdate);
         }
 
         if (finished && options && "function" === typeof options.onComplete) {
-          options.onComplete();
+          transformer.invoke(options.onComplete);
         }
       }).fail($.noop).always(clearLock);
     }

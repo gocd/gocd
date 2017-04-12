@@ -18,19 +18,26 @@
   "use strict";
 
   function MultiplexingTransformer(transformers) {
-    this.transform = function processAllTransformers(logLines) {
+    this.transform = function processTransformOnAllTransformers(logLines) {
       for (var i = 0, len = transformers.length; i < len; i++) {
         transformers[i].transform(logLines);
       }
     };
 
+    this.invoke = function processInvokeOnAllTransformers(callback, args) {
+      for (var i = 0, len = transformers.length; i < len; i++) {
+        transformers[i].invoke(callback, args);
+      }
+    };
+
+    // slightly different signature to allow selective dequeue
     this.dequeue = function dequeueTransformers(name) {
       for (var i = 0, len = transformers.length; i < len; i++) {
         if (!name || transformers[i].name === name) {
           transformers[i].dequeue();
         }
       }
-    }
+    };
   }
 
   $(function initConsolePageDomReady() {

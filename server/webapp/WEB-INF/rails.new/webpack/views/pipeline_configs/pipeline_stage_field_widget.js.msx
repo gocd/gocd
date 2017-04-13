@@ -27,10 +27,6 @@ const PipelineStageFieldWidget = {
     return function (elem) {
       const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
 
-      elem.onunload = function () {
-        $inputElem.textcomplete('destroy');
-      };
-
       $inputElem.textcomplete([
         {
           words: values,

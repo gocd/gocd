@@ -33,10 +33,6 @@ const autoComplete = function (values, model, attrName) {
   return function (elem) {
     const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
 
-    elem.onunload = function () {
-      $inputElem.textcomplete('destroy');
-    };
-
     $inputElem.textcomplete([
       {
         words: values, //the list of auto-completes

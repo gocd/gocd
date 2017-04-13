@@ -45,10 +45,6 @@ const autoComplete = function (values, model, attrName, match, matchIndex, repla
   return function (elem) {
     const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
 
-    elem.onunload = function () {
-      $inputElem.textcomplete('destroy');
-    };
-
     $inputElem.textcomplete([
       {
         match,

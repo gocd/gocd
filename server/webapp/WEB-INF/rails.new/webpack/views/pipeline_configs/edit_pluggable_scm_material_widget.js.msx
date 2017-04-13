@@ -97,10 +97,6 @@ const EditPluggableSCMMaterialWidget = {
       return <div />; //todo: this should be a page spinner
     }
 
-    ctrl.onunload = function () {
-      ctrl.modal.destroy();
-    };
-
     const data = {Name: scm.name(), AutoUpdate: scm.autoUpdate()};
 
     scm.configuration().mapConfigurations((conf) => {

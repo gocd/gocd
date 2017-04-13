@@ -21,6 +21,7 @@ describe("PipelineConfigWidget", () => {
   const _             = require('lodash');
   const s             = require('string-plus');
   const simulateEvent = require('simulate-event');
+  const Modal         = require('views/shared/new_modal');
 
   require('jasmine-jquery');
 
@@ -70,12 +71,36 @@ describe("PipelineConfigWidget", () => {
   afterEach(() => {
     m.mount(root, null);
     m.redraw();
+    Modal.destroyAll();
   });
 
   function inputFieldFor(propName, modelType) {
     modelType = s.defaultToIfBlank(modelType, 'pipeline');
     return $root.find(`.pipeline input[data-model-type=${modelType}][data-prop-name=${propName}]`);
   }
+
+  it("should render normal edit button", () => {
+    expect($root.find("a.toggle-old-view")).toContainText("Normal Edit");
+  });
+
+  it("should show the proceed confirm modal when clicked on normal edit link", () => {
+    simulateEvent.simulate($root.find("a.toggle-old-view").get(0), 'click');
+    m.redraw();
+
+    expect($(".modal-title")).toContainText("Unsaved Changes");
+    expect($(".modal-content > p")).toContainText("'Proceed' will discard any unsaved data.");
+
+    expect($(".actions > a.secondary")).toContainText("Cancel");
+    expect($(".actions > a.primary")).toContainText("Proceed");
+  });
+
+  it("should contain the appropriate href link on proceed button", () => {
+    simulateEvent.simulate($root.find("a.toggle-old-view").get(0), 'click');
+    m.redraw();
+
+    const proceedButton = $(".actions > a.primary");
+    expect(proceedButton.attr('href')).toBe('/go/admin/pipelines/yourproject/general');
+  });
 
   it("should render the pipeline name", () => {
     expect($root.find('.pipeline .heading h1')).toHaveText('Pipeline configuation for pipeline yourproject');

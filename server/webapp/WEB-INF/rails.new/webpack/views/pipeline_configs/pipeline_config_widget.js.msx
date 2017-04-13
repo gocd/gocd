@@ -24,7 +24,7 @@ const Stream          = require('mithril/stream');
 const s               = require('string-plus');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const Pipeline        = require('models/pipeline_configs/pipeline');
-const Modal           = require('views/shared/modal');
+const Modal           = require('views/shared/new_modal');
 
 const ToggleViewWarning = {
   view (vnode) {
@@ -33,7 +33,7 @@ const ToggleViewWarning = {
         <p> 'Proceed' will discard any unsaved data.</p>
         <div class='actions'>
           <a class='button secondary' href="javascript:void(0)"
-             onclick={vnode.attrs.parentView.close.bind(vnode.attrs.parentView)}>Cancel</a>
+             onclick={vnode.attrs.modal.destroy.bind(vnode.attrs.modal)}>Cancel</a>
           <a class='button primary'
              href={['/go/admin/pipelines/', vnode.attrs.pipeline().name(), '/general'].join('')}>Proceed</a>
         </div>
@@ -59,11 +59,16 @@ const PipelineConfigWidget = function (options) {
 
       ComponentMixins.HasViewModel.call(this);
 
-      self.modal = new Modal({
-        subView: {component: ToggleViewWarning, args: {pipeline: self.pipeline}},
-        title:   'Unsaved Changes'
-      });
+      self.normalEditConfirm      = function () {
+        const modal = new Modal({
+          title:    'Unsaved Changes',
+          body:     () => (<ToggleViewWarning pipeline={self.pipeline} modal={modal}/>),
+          oncancel: () => modal.destroy(),
+          buttons:  () => []
+        });
 
+        modal.render();
+      };
       window.pipelineConfigWidget = Stream(this);
 
       self.setPipelineAndPreserveSelection = function (newPipeline) {
@@ -143,7 +148,7 @@ const PipelineConfigWidget = function (options) {
                   {pipeline.name()}
                 </h1>
                 <a class='toggle-old-view' href="javascript:void(0)"
-                   onclick={vnode.state.modal.open.bind(vnode.state.modal)}>Normal Edit</a>
+                   onclick={vnode.state.normalEditConfirm.bind(vnode.state)}>Normal Edit</a>
               </f.column>
               <f.column size={1}>
                 <f.button onclick={vnode.state.onSavePipeline.bind(vnode.state)}
@@ -195,7 +200,6 @@ const PipelineConfigWidget = function (options) {
             </f.column>
           </f.row>
           <f.row class={vnode.state.vm.pageSaveSpinner()}/>
-          {vnode.state.modal.view()}
         </form>
       );
     }

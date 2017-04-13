@@ -161,12 +161,19 @@
     });
 
     it("markMultiline prepends the toggle widget exactly once", function () {
+      assert(!el.body); // initially, there is no body wrapping element
+
       el.appendChild(c("dt", "a message"));
       fs.markMultiline();
-      // "the widget should be the first child"
+
+      // the widget should be the first child
       assertEquals(1, $(el).find(".toggle:first-child").length);
-      fs.markMultiline();
+
+      // the wrapper element should be set
+      assert(el.body instanceof Node);
+
       // subsequent invocations should not add more widgets; markMultiline() must be idempotent
+      fs.markMultiline();
       assertEquals(1, $(el).find(".toggle").length);
     });
 
@@ -266,12 +273,14 @@
     });
 
     it("LineWriter insertLine/Header handles ANSI color", function () {
+      fs.markMultiline(); // insertLine() requires a section body element
       var l = $(lw.insertLine(fs, t.OUT, "Starting \u001B[1;33;40mcolor"));
       assertEquals(1, l.find(".ansi-bright-yellow-fg.ansi-black-bg").length);
       assertEquals("color", l.find(".ansi-bright-yellow-fg.ansi-black-bg").text());
     });
 
     it("LineWriter insertLine", function () {
+      fs.markMultiline(); // insertLine() requires a section body element
       var l = $(lw.insertLine(fs, t.OUT, "Starting build"));
       assertEquals(l.is("dd.log-fs-line-OUT"));
     });

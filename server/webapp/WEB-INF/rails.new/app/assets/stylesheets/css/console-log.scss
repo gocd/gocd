@@ -78,17 +78,21 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
   }
 }
 
-.foldable-section {
-  margin-left: 20px;
-  position: relative;
+.fs-multiline {
+  display: none;
+}
 
-  dd {
-    display: none;
-  }
+.open .fs-multiline {
+  display: block;
+}
+
+.foldable-section {
+  margin-left: 25px;
+  position: relative;
 
   .toggle {
     float: left;
-    margin-left: -9px;
+    margin-left: -11px;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
@@ -105,37 +109,13 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
 
 
   &.open {
-    dd {
-      display: block;
-    }
-
     .toggle {
-      margin-left: -11px;
+      margin-left: -13px;
     }
 
     .toggle:before {
       content: $fa-var-caret-down;
     }
-  }
-}
-
-.log-fs-line {
-  position: relative;
-  margin-left: 2.5rem;
-  padding-left: 1ex;
-
-  &:after {
-    position: absolute;
-    content: attr(data-line);
-    color: #666;
-    left: -2.5rem;
-    top: 0;
-    width: 2.5rem;
-    text-align: right;
-
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
   }
 }
 
@@ -178,7 +158,7 @@ dt.log-fs-line, dt.log-fs-line:before {
   &:before {
     @include fa-icon;
     position: absolute;
-    left: -25px;
+    left: -30px;
     top: 3px;
   }
 

@@ -27,6 +27,12 @@
       node.appendChild(el);
     }
 
+    function detectPrefixesWhichArePartOfSection(section) {
+      return _.filter(t, function(val, key) {
+        return section.isPartOfSection(val);
+      }).sort();
+    }
+
     beforeEach(reset);
 
     it("assignType", function () {
@@ -38,6 +44,15 @@
 
       fs.assignType(t.PREP);
       assertEquals("prep", fs.type());
+
+      fs.assignType(t.PUBLISH);
+      assertEquals("publish", fs.type());
+
+      fs.assignType(t.COMPLETED);
+      assertEquals("end", fs.type());
+
+      fs.assignType(t.PUBLISH_ERR);
+      assertEquals("publish", fs.type());
 
       fs.assignType(t.CANCEL_TASK_START);
       assertEquals("cancel", fs.type());
@@ -72,92 +87,37 @@
 
     it("isPartOfSection info", function () {
       el.priv.type = "info";
-      assert(fs.isPartOfSection(t.INFO));
-      assert(!fs.isPartOfSection(t.PREP));
-      assert(!fs.isPartOfSection(t.PREP_ERR));
-      assert(!fs.isPartOfSection(t.TASK_START));
-      assert(!fs.isPartOfSection(t.OUT));
-      assert(!fs.isPartOfSection(t.ERR));
-      assert(!fs.isPartOfSection(t.PASS));
-      assert(!fs.isPartOfSection(t.FAIL));
-      assert(!fs.isPartOfSection(t.CANCELLED));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
-      assert(!fs.isPartOfSection(t.JOB_PASS));
-      assert(!fs.isPartOfSection(t.JOB_FAIL));
+      assert(_.isEqual([t.INFO], detectPrefixesWhichArePartOfSection(fs)));
     });
 
     it("isPartOfSection prep", function () {
       el.priv.type = "prep";
-      assert(!fs.isPartOfSection(t.INFO));
-      assert(fs.isPartOfSection(t.PREP));
-      assert(fs.isPartOfSection(t.PREP_ERR));
-      assert(!fs.isPartOfSection(t.TASK_START));
-      assert(!fs.isPartOfSection(t.OUT));
-      assert(!fs.isPartOfSection(t.ERR));
-      assert(!fs.isPartOfSection(t.PASS));
-      assert(!fs.isPartOfSection(t.FAIL));
-      assert(!fs.isPartOfSection(t.CANCELLED));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
-      assert(!fs.isPartOfSection(t.JOB_PASS));
-      assert(!fs.isPartOfSection(t.JOB_FAIL));
+      assert(_.isEqual([t.PREP, t.PREP_ERR].sort(), detectPrefixesWhichArePartOfSection(fs)));
+    });
+
+    it("isPartOfSection publish", function () {
+      el.priv.type = "publish";
+      assert(_.isEqual([t.PUBLISH, t.PUBLISH_ERR].sort(), detectPrefixesWhichArePartOfSection(fs)));
     });
 
     it("isPartOfSection task", function () {
       el.priv.type = "task";
-      assert(!fs.isPartOfSection(t.INFO));
-      assert(!fs.isPartOfSection(t.PREP));
-      assert(!fs.isPartOfSection(t.PREP_ERR));
-      assert(!fs.isPartOfSection(t.TASK_START));
-      assert(fs.isPartOfSection(t.OUT));
-      assert(fs.isPartOfSection(t.ERR));
-      assert(fs.isPartOfSection(t.PASS));
-      assert(fs.isPartOfSection(t.FAIL));
-      assert(fs.isPartOfSection(t.CANCELLED));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
-      assert(!fs.isPartOfSection(t.JOB_PASS));
-      assert(!fs.isPartOfSection(t.JOB_FAIL));
+      assert(_.isEqual([t.OUT, t.ERR, t.PASS, t.FAIL, t.CANCELLED].sort(), detectPrefixesWhichArePartOfSection(fs)));
     });
 
     it("isPartOfSection cancel", function () {
       el.priv.type = "cancel";
-      assert(!fs.isPartOfSection(t.INFO));
-      assert(!fs.isPartOfSection(t.PREP));
-      assert(!fs.isPartOfSection(t.PREP_ERR));
-      assert(!fs.isPartOfSection(t.TASK_START));
-      assert(fs.isPartOfSection(t.OUT));
-      assert(fs.isPartOfSection(t.ERR));
-      assert(!fs.isPartOfSection(t.PASS));
-      assert(!fs.isPartOfSection(t.FAIL));
-      assert(!fs.isPartOfSection(t.CANCELLED));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
-      assert(fs.isPartOfSection(t.CANCEL_TASK_PASS));
-      assert(fs.isPartOfSection(t.CANCEL_TASK_FAIL));
-      assert(!fs.isPartOfSection(t.JOB_PASS));
-      assert(!fs.isPartOfSection(t.JOB_FAIL));
+      assert(_.isEqual([t.OUT, t.ERR, t.CANCEL_TASK_PASS, t.CANCEL_TASK_FAIL].sort(), detectPrefixesWhichArePartOfSection(fs)));
     });
 
     it("isPartOfSection result", function () {
       el.priv.type = "result";
-      assert(!fs.isPartOfSection(t.INFO));
-      assert(!fs.isPartOfSection(t.PREP));
-      assert(!fs.isPartOfSection(t.PREP_ERR));
-      assert(!fs.isPartOfSection(t.TASK_START));
-      assert(!fs.isPartOfSection(t.OUT));
-      assert(!fs.isPartOfSection(t.ERR));
-      assert(!fs.isPartOfSection(t.PASS));
-      assert(!fs.isPartOfSection(t.FAIL));
-      assert(!fs.isPartOfSection(t.CANCELLED));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
-      assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
-      assert(!fs.isPartOfSection(t.JOB_PASS));
-      assert(!fs.isPartOfSection(t.JOB_FAIL));
+      assertEquals(0, detectPrefixesWhichArePartOfSection(fs).length);
+    });
+
+    it("isPartOfSection end", function () {
+      el.priv.type = "end";
+      assertEquals(0, detectPrefixesWhichArePartOfSection(fs).length);
     });
 
     it("markMultiline prepends the toggle widget exactly once", function () {

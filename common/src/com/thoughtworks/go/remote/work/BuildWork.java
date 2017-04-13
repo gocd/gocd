@@ -145,9 +145,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        JobResult result = buildJob(environmentVariableContext);
-        completeJob(result);
-        return result;
+        return completeJob(buildJob(environmentVariableContext));
     }
 
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
@@ -208,9 +206,9 @@ public class BuildWork implements Work {
         return execute(environmentVariableContext);
     }
 
-    private void completeJob(JobResult result) throws SocketTimeoutException {
+    private JobResult completeJob(JobResult result) throws SocketTimeoutException {
         if (goPublisher.isIgnored()) {
-            return;
+            return result;
         }
 
         String tag = result.isPassed() ? DefaultGoPublisher.JOB_PASS : DefaultGoPublisher.JOB_FAIL;
@@ -220,8 +218,17 @@ public class BuildWork implements Work {
         goPublisher.reportAction("Start to create properties");
         harvestProperties(goPublisher);
 
-        goPublisher.reportAction("Start to upload");
-        plan.publishArtifacts(goPublisher, workingDirectory);
+        goPublisher.reportAction(DefaultGoPublisher.PUBLISH, "Start to upload");
+
+        try {
+            plan.publishArtifacts(goPublisher, workingDirectory);
+        } catch (Exception e) {
+            LOGGER.error(e);
+            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, e.getMessage());
+            return JobResult.Failed;
+        }
+
+        return result;
     }
 
     private JobResult execute(EnvironmentVariableContext environmentVariableContext) {

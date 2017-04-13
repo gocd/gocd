@@ -110,7 +110,7 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void reportCompletedAction() {
-        reportAction("Job completed");
+        reportAction(COMPLETED, "Job completed");
     }
 
     public boolean isIgnored() {

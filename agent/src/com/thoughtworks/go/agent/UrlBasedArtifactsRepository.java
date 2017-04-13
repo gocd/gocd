@@ -18,12 +18,8 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.UrlUtil;
-import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -40,6 +36,8 @@ import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.removeStart;
 
@@ -59,10 +57,10 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
     }
 
     @Override
-    public void upload(StreamConsumer console, File file, String destPath, String buildId) {
+    public void upload(TaggedStreamConsumer console, File file, String destPath, String buildId) {
         if (!file.exists()) {
             String message = "Failed to find " + file.getAbsolutePath();
-            consumeLineWithPrefix(console, message);
+            taggedConsumeLineWithPrefix(console, PUBLISH_ERR, message);
             throw bomb(message);
         }
 
@@ -84,7 +82,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
                     size = file.length();
                 }
 
-                consumeLineWithPrefix(console,
+                taggedConsumeLineWithPrefix(console, PUBLISH,
                         format("Uploading artifacts from %s to %s", file.getAbsolutePath(), getDestPath(destPath)));
 
                 String normalizedDestPath = normalizePath(destPath);
@@ -95,7 +93,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
                 if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE) {
                     String message = format("Artifact upload for file %s (Size: %s) was denied by the server. This usually happens when server runs out of disk space.",
                             file.getAbsolutePath(), size);
-                    consumeLineWithPrefix(console, message);
+                    taggedConsumeLineWithPrefix(console, PUBLISH_ERR, message);
                     LOGGER.error("[Artifact Upload] Artifact upload was denied by the server. This usually happens when server runs out of disk space.");
                     publishingAttempts = PUBLISH_MAX_RETRIES;
                     throw bomb(message + ".  HTTP return code is " + statusCode);
@@ -107,7 +105,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
             } catch (Throwable e) {
                 String message = "Failed to upload " + file.getAbsolutePath();
                 LOGGER.error(message, e);
-                consumeLineWithPrefix(console, message);
+                taggedConsumeLineWithPrefix(console, PUBLISH_ERR, message);
                 lastException = e;
             } finally {
                 FileUtil.deleteFolder(tmpDir);
@@ -136,8 +134,8 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
         return UrlUtil.concatPath(artifactsBaseUrl, path);
     }
 
-    private void consumeLineWithPrefix(StreamConsumer console, String message) {
-        console.consumeLine(format("[%s] %s", GoConstants.PRODUCT_NAME, message));
+    private void taggedConsumeLineWithPrefix(TaggedStreamConsumer console, String tag, String message) {
+        console.taggedConsumeLine(tag, format("[%s] %s", GoConstants.PRODUCT_NAME, message));
     }
 
     private String getDestPath(String file) {

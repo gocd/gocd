@@ -30,35 +30,36 @@ const Roles           = require('models/pipeline_configs/roles');
 require('jquery-textcomplete');
 
 const autoComplete = function (values, model, attrName) {
-  return function (elem, isInitialized, context) {
-    if (!isInitialized) {
-      const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
+  return function (elem) {
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
 
-      context.onunload = function () {
-        $inputElem.textcomplete('destroy');
-      };
-
-      $inputElem.textcomplete([
-        {
-          words: values, //the list of auto-completes
-          match: /(^|,)\s*([^,]+)$/,
-          index: 2, // use the second match in the regex to extract the search term
-          search (term, callback) {
-            term = term.toLowerCase();
-            callback($.map(this.words, (word) => {
-              return word.toLowerCase().indexOf(term) === 0 ? word : null;
-            }));
-          },
-          replace (word) {
-            return `$1 ${  word  }, `;
-          }
+    $inputElem.textcomplete([
+      {
+        words: values, //the list of auto-completes
+        match: /(^|,)\s*([^,]+)$/,
+        index: 2, // use the second match in the regex to extract the search term
+        search (term, callback) {
+          term = term.toLowerCase();
+          callback($.map(this.words, (word) => {
+            return word.toLowerCase().indexOf(term) === 0 ? word : null;
+          }));
+        },
+        replace (word) {
+          return `$1 ${  word  }, `;
         }
-      ]);
+      }
+    ]);
 
-      $inputElem.on('textComplete:select', () => {
-        model[attrName]($inputElem.val());
-      });
-    }
+    $inputElem.on('textComplete:select', () => {
+      model[attrName]($inputElem.val());
+    });
+  };
+};
+
+const destroyAutoComplete = function (attrName) {
+  return function (elem) {
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
+    $inputElem.textcomplete('destroy');
   };
 };
 
@@ -79,10 +80,12 @@ let ApprovalWidget = {
             <f.warning>Permissions will be inherited from the pipeline group if not specified.</f.warning>
           </f.row>
           <f.row>
-            <f.inputWithLabel config={autoComplete(Users.list, vnode.attrs.approval().authorization(), 'users')}
+            <f.inputWithLabel oncreate={autoComplete(Users.list, vnode.attrs.approval().authorization(), 'users')}
+                              onremove={destroyAutoComplete('users')}
                               attrName='users'
                               model={vnode.attrs.approval().authorization()}/>
-            <f.inputWithLabel config={autoComplete(Roles.list, vnode.attrs.approval().authorization(), 'roles')}
+            <f.inputWithLabel oncreate={autoComplete(Roles.list, vnode.attrs.approval().authorization(), 'roles')}
+                              onremove={destroyAutoComplete('roles')}
                               attrName='roles'
                               model={vnode.attrs.approval().authorization()} end/>
 

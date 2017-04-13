@@ -28,26 +28,27 @@ require('jquery-textcomplete');
 const LookupCommandWidget = {
   Command: {
     textComplete (attrName, selectSnippet, searchSnippets) {
-      return function (elem, isInitialized, context) {
-        if (!isInitialized) {
-          const $inputElem = $(elem).find(`input[name='${  attrName  }']`);
+      return function (elem) {
+        const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
 
-          context.onunload = function () {
-            $inputElem.textcomplete('destroy');
-          };
-
-          $inputElem.textcomplete([
-            {
-              match:  /([^\s].*)$/,
-              index:  1,
-              search: searchSnippets,
-              replace (word) {
-                return word;
-              }
+        $inputElem.textcomplete([
+          {
+            match:  /([^\s].*)$/,
+            index:  1,
+            search: searchSnippets,
+            replace (word) {
+              return word;
             }
-          ]);
-          $inputElem.on('textComplete:select', selectSnippet);
-        }
+          }
+        ]);
+        $inputElem.on('textComplete:select', selectSnippet);
+      };
+    },
+
+    removeTextComplete (attrName) {
+      return function (elem) {
+        const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
+        $inputElem.textcomplete('destroy');
       };
     },
 
@@ -180,7 +181,8 @@ const LookupCommandWidget = {
       <div class="lookup">
         <f.row>
           <f.column
-            config={LookupCommandWidget.Command.textComplete('lookup', vnode.state.selectSnippet, vnode.state.searchSnippets)}
+            oncreate={LookupCommandWidget.Command.textComplete('lookup', vnode.state.selectSnippet, vnode.state.searchSnippets)}
+            onremove={LookupCommandWidget.Command.removeTextComplete('lookup')}
             size={4}>
             <label>Look up
               <f.tooltip tooltip={{

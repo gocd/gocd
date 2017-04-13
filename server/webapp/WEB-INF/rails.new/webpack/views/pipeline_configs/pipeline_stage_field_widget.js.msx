@@ -24,31 +24,32 @@ require('jquery-textcomplete');
 
 const PipelineStageFieldWidget = {
   textComplete (attrName, values) {
-    return function (elem, isInitialized, context) {
-      if (!isInitialized) {
-        const $inputElem = $(elem).find(`input[name='${  attrName  }']`);
+    return function (elem) {
+      const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
 
-        context.onunload = function () {
-          $inputElem.textcomplete('destroy');
-        };
-
-        $inputElem.textcomplete([
-          {
-            words: values,
-            match: /(^|,)\s*([^,]+)$/,
-            index: 2,
-            search (term, callback) {
-              term = term.toLowerCase();
-              callback($.map(this.words, (word) => {
-                return word.toLowerCase().indexOf(term) === 0 ? word : null;
-              }));
-            },
-            replace (word) {
-              return word;
-            }
+      $inputElem.textcomplete([
+        {
+          words: values,
+          match: /(^|,)\s*([^,]+)$/,
+          index: 2,
+          search (term, callback) {
+            term = term.toLowerCase();
+            callback($.map(this.words, (word) => {
+              return word.toLowerCase().indexOf(term) === 0 ? word : null;
+            }));
+          },
+          replace (word) {
+            return word;
           }
-        ]);
-      }
+        }
+      ]);
+    };
+  },
+
+  destroyTextComplete (attrName) {
+    return function (elem) {
+      const $inputElem = $(elem.dom).find(`input[name='${  attrName  }']`);
+      $inputElem.textcomplete('destroy');
     };
   },
 
@@ -122,8 +123,9 @@ const PipelineStageFieldWidget = {
       <span class='form-error is-visible'>{vnode.state.vm.errorsForDisplay()}</span>) : undefined;
 
     return (
-      <div
-        config={PipelineStageFieldWidget.textComplete('pipeline-stage', vnode.state.pipelineStages())}>
+      <div oncreate={PipelineStageFieldWidget.textComplete('pipeline-stage', vnode.state.pipelineStages())}
+           onremove={PipelineStageFieldWidget.destroyTextComplete('pipeline-stage')}>
+
         <label>Pipeline [Stage]
           <span class='asterisk'>*</span>
         </label>

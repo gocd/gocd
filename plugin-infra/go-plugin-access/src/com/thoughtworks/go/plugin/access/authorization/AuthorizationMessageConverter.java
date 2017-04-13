@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public interface AuthorizationMessageConverter {
 
     String getRoleConfigurationViewFromResponseBody(String responseBody);
 
-    ValidationResult getVerifyConnectionResultFromResponseBody(String responseBody);
+    VerifyConnectionResponse getVerifyConnectionResultFromResponseBody(String responseBody);
 
     String verifyConnectionRequestBody(Map<String, String> configuration);
 

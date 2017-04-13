@@ -136,7 +136,7 @@ public class AuthorizationExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_VerifyConnection() throws Exception {
-        String responseBody = "[]";
+        String responseBody = "{\"status\":\"success\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
         AuthorizationExtension authorizationExtensionSpy = spy(authorizationExtension);
 
@@ -144,7 +144,7 @@ public class AuthorizationExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VERIFY_CONNECTION, "{}");
 
-        verify(authorizationExtensionSpy).validateAuthConfig(PLUGIN_ID, Collections.emptyMap());
+        verify(authorizationExtensionSpy).verifyConnection(PLUGIN_ID, Collections.emptyMap());
     }
 
     @Test

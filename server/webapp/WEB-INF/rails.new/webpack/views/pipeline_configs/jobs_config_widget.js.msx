@@ -42,32 +42,37 @@ const profileIdReplaceFunc = function (word) {
 };
 
 const autoComplete = function (values, model, attrName, match, matchIndex, replaceFunc) {
-  return function (elem, isInitialized, context) {
-    if (!isInitialized) {
-      const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
+  return function (elem) {
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
 
-      context.onunload = function () {
-        $inputElem.textcomplete('destroy');
-      };
+    elem.onunload = function () {
+      $inputElem.textcomplete('destroy');
+    };
 
-      $inputElem.textcomplete([
-        {
-          match,
-          index:   matchIndex, // use the second match in the regex to extract the search term
-          search (term, callback) {
-            term = term.toLowerCase();
-            callback($.map(values, (word) => {
-              return word.toLowerCase().indexOf(term) === 0 ? word : null;
-            }));
-          },
-          replace: replaceFunc
-        }
-      ]);
+    $inputElem.textcomplete([
+      {
+        match,
+        index:   matchIndex, // use the second match in the regex to extract the search term
+        search (term, callback) {
+          term = term.toLowerCase();
+          callback($.map(values, (word) => {
+            return word.toLowerCase().indexOf(term) === 0 ? word : null;
+          }));
+        },
+        replace: replaceFunc
+      }
+    ]);
 
-      $inputElem.on('textComplete:select', () => {
-        model[attrName]($inputElem.val());
-      });
-    }
+    $inputElem.on('textComplete:select', () => {
+      model[attrName]($inputElem.val());
+    });
+  };
+};
+
+const destroyAutoComplete = function (attrName) {
+  return function (elem) {
+    const $inputElem = $($(elem.dom).find(`input[data-prop-name='${  attrName  }']`));
+    $inputElem.textcomplete('destroy');
   };
 };
 
@@ -305,7 +310,8 @@ const JobsConfigWidget = {
                     </f.row>
                     <f.row>
                       <f.inputWithLabel
-                        config={autoComplete(Resources.list, job, 'resources', /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
+                        oncreate={autoComplete(Resources.list, job, 'resources', /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
+                        onremove={destroyAutoComplete('resources')}
                         attrName='resources'
                         model={job}
                         disabled={disableResourceTextbox}
@@ -318,7 +324,8 @@ const JobsConfigWidget = {
                         size={4}
                         largeSize={4}/>
                       <f.inputWithLabel
-                        config={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty('id'), job, 'elasticProfileId', /(.*)$/, 1, profileIdReplaceFunc)}
+                        oncreate={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty('id'), job, 'elasticProfileId', /(.*)$/, 1, profileIdReplaceFunc)}
+                        onremove={destroyAutoComplete('elasticProfileId')}
                         model={job}
                         attrName='elasticProfileId'
                         label='Elastic Profile Id'

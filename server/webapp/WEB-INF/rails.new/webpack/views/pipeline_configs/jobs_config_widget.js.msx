@@ -231,6 +231,94 @@ let RunOnAgent = {
   }
 };
 
+const JobSettingsWidget = {
+  oninit (vnode) {
+    this.args = vnode.attrs;
+    ComponentMixins.HasViewModel.call(this);
+  },
+
+  view(vnode) {
+    const job                            = vnode.attrs.job;
+    const jobIndex                       = vnode.attrs.jobIndex;
+    const disableElasticProfileSelection = job.isRunOnAllAgents() || !s.isBlank(job.resources());
+
+    let elasticProfileIdDisabledMessage;
+    if (disableElasticProfileSelection) {
+      elasticProfileIdDisabledMessage = (
+        <div>
+          Elastic profile id cannot be set for a job if:
+          <ul>
+            <li>"Run on all agents" option is selected</li>
+            <li>job uses "Resources"</li>
+          </ul>
+        </div>
+      );
+    }
+
+    const disableResourceTextbox = job.requiresElasticAgent();
+    let resourcesDisabledMessage;
+    if (disableResourceTextbox) {
+      resourcesDisabledMessage = (<div>Resources cannot be set on a job if "Elastic Profile Id" is set.</div>);
+    }
+
+
+    return (<f.accordion accordionTitles={[(<span>Job Settings</span>)]}
+                         accordionKeys={['job-settings']}
+                         selectedIndex={vnode.state.vmState(`jobSettingsSelected${  jobIndex}`, Stream(s.isBlank(job.name()) ? 0 : -1))}
+                         class="accordion-inner">
+      <div>
+        <f.row>
+          <f.inputWithLabel
+            attrName='name'
+            model={job}
+            validate={true}
+            isRequired={true}
+            size={4}
+            largeSize={4}/>
+        </f.row>
+        <f.row>
+          <f.inputWithLabel
+            oncreate={autoComplete(Resources.list, job, 'resources', /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
+            onremove={destroyAutoComplete('resources')}
+            attrName='resources'
+            model={job}
+            disabled={disableResourceTextbox}
+            message={resourcesDisabledMessage}
+            tooltip={{
+              content:   tt.job.resources,
+              direction: 'bottom',
+              size:      'small'
+            }}
+            size={4}
+            largeSize={4}/>
+          <f.inputWithLabel
+            oncreate={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty('id'), job, 'elasticProfileId', /(.*)$/, 1, profileIdReplaceFunc)}
+            onremove={destroyAutoComplete('elasticProfileId')}
+            model={job}
+            attrName='elasticProfileId'
+            label='Elastic Profile Id'
+            disabled={disableElasticProfileSelection}
+            message={elasticProfileIdDisabledMessage}
+            tooltip={{
+              content:   tt.job.elasticProfile,
+              direction: 'bottom',
+              size:      'small'
+            }}
+            size={4}
+            largeSize={4}
+            end={true}/>
+        </f.row>
+        <f.row>
+          <JobTimeout job={job}/>
+        </f.row>
+        <f.row>
+          <RunOnAgent job={job}/>
+        </f.row>
+      </div>
+    </f.accordion>);
+  }
+};
+
 const JobsConfigWidget = {
   oninit (vnode) {
     this.args = vnode.attrs;
@@ -265,86 +353,16 @@ const JobsConfigWidget = {
               isVertical={true}
               selectedIndex={vnode.state.vmState('selectedJobIndex', Stream(0))}>
         {vnode.state.map((job) => {
-          const jobIndex                       = vnode.attrs.jobs().indexOfJob(job);
-          const disableElasticProfileSelection = job.isRunOnAllAgents() || !s.isBlank(job.resources());
-          let elasticProfileIdDisabledMessage;
-          if (disableElasticProfileSelection) {
-            elasticProfileIdDisabledMessage = (
-              <div>
-                Elastic profile id cannot be set for a job if:
-                <ul>
-                  <li>"Run on all agents" option is selected</li>
-                  <li>job uses "Resources"</li>
-                </ul>
-              </div>
-            );
-          }
-
-          const disableResourceTextbox = job.requiresElasticAgent();
-          let resourcesDisabledMessage;
-          if (disableResourceTextbox) {
-            resourcesDisabledMessage = (<div>Resources cannot be set on a job if "Elastic Profile Id" is set.</div>);
-          }
+          const jobIndex = vnode.attrs.jobs().indexOfJob(job);
 
           return (
-            <f.row class='job-definition' key={job.uuid()}>
+            <f.row class='job-definition' collapse="true" key={job.uuid()}>
               <f.column size={12}>
                 <f.removeButton onclick={vnode.state.removeJob.bind(vnode.state, job)} class='remove-job'/>
-                <f.accordion accordionTitles={[(<span>Job Settings</span>)]}
-                             accordionKeys={['job-settings']}
-                             selectedIndex={vnode.state.vmState(`jobSettingsSelected${  jobIndex}`, Stream(s.isBlank(job.name()) ? 0 : -1))}
-                             class="accordion-inner">
-                  <div>
-                    <f.row>
-                      <f.inputWithLabel
-                        attrName='name'
-                        model={job}
-                        validate={true}
-                        isRequired={true}
-                        size={4}
-                        largeSize={4}/>
-                    </f.row>
-                    <f.row>
-                      <f.inputWithLabel
-                        oncreate={autoComplete(Resources.list, job, 'resources', /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
-                        onremove={destroyAutoComplete('resources')}
-                        attrName='resources'
-                        model={job}
-                        disabled={disableResourceTextbox}
-                        message={resourcesDisabledMessage}
-                        tooltip={{
-                          content:   tt.job.resources,
-                          direction: 'bottom',
-                          size:      'small'
-                        }}
-                        size={4}
-                        largeSize={4}/>
-                      <f.inputWithLabel
-                        oncreate={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty('id'), job, 'elasticProfileId', /(.*)$/, 1, profileIdReplaceFunc)}
-                        onremove={destroyAutoComplete('elasticProfileId')}
-                        model={job}
-                        attrName='elasticProfileId'
-                        label='Elastic Profile Id'
-                        disabled={disableElasticProfileSelection}
-                        message={elasticProfileIdDisabledMessage}
-                        tooltip={{
-                          content:   tt.job.elasticProfile,
-                          direction: 'bottom',
-                          size:      'small'
-                        }}
-                        size={4}
-                        largeSize={4}
-                        end={true}/>
-                    </f.row>
-                    <f.row>
-                      <JobTimeout job={job}/>
-                    </f.row>
-                    <f.row>
-                      <RunOnAgent job={job}/>
-                    </f.row>
-                  </div>
-                </f.accordion>
                 <f.row>
+                  <JobSettingsWidget job={job}
+                                     elasticProfiles={vnode.attrs.elasticProfiles}
+                                     jobs={vnode.attrs.jobs}/>
                   <EnvironmentVariablesConfigWidget title='Jobs Environment Variables'
                                                     variables={job.environmentVariables}
                                                     key={job.environmentVariables().uuid()}

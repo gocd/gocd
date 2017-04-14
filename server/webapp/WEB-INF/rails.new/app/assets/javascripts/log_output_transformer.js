@@ -42,12 +42,29 @@
       }
     }
 
+    function enqueue(fn, args) {
+      deferred.push([fn, args]);
+    }
+
     function dequeue() {
-      var lines;
-      while (lines = deferred.shift()) {
-        buildDomFromLogs(lines);
+      var entry; // entry is [fn, args]
+      while (entry = deferred.shift()) {
+        entry[0].apply(self, entry[1]);
       }
       deferTransform = !consoleElement.is(":visible");
+    }
+
+    function invokeOrDefer(callback, args) {
+      args = "undefined" === typeof args ? [] : args;
+
+      if (deferTransform) {
+        enqueue(callback, args);
+        return;
+      }
+
+      dequeue();
+
+      callback.apply(self, args);
     }
 
     function buildDomFromLogs(logLines) {
@@ -134,17 +151,12 @@
       flushToDOM();
     }
 
+
     self.transform = function buildOrDeferLogLines(logLines) {
-      if (deferTransform) {
-        deferred.push(logLines);
-        return;
-      }
-
-      dequeue();
-
-      buildDomFromLogs(logLines);
+      invokeOrDefer(buildDomFromLogs, [logLines]);
     };
 
+    self.invoke = invokeOrDefer;
     self.dequeue = dequeue;
   }
 

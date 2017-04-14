@@ -271,11 +271,11 @@ dt.log-fs-line, dt.log-fs-line:before {
     background-color: $CONSOLE_SECTION_HEADER_WHITE;
   }
 
-  .log-fs-line-PREP {
+  .log-fs-line-PREP, .log-fs-line-PUBLISH {
     color: $CONSOLE_SETUP_WHITE;
   }
 
-  .log-fs-line-PREP_ERR {
+  .log-fs-line-PREP_ERR, .log-fs-line-PUBLISH_ERR {
     color: $CONSOLE_SETUP_ERR_WHITE;
   }
 

@@ -24,10 +24,10 @@ import org.junit.Before;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 
-public class P4MaterialUpdaterTest extends P4MaterialUpdaterTestBase {
+public class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
     @Before
     public void setup() throws Exception {
-        repo = P4TestRepo.createP4TestRepo();
+        repo = P4TestRepo.createP4TestRepoWithTickets();
         repo.onSetup();
         p4Fixture = new P4Fixture();
         p4Fixture.setRepo(this.repo);

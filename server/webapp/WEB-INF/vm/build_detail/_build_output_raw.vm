@@ -12,6 +12,7 @@
         <a class='change-theme' href="javascript:void(0);">Change theme</a>
     </div>
 </div>
+<div class="console-log-loading">Waiting for console logs&hellip;</div>
 <pre class="buildoutput_pre"></pre>
 <div class="console-footer-action-bar">
     <div>

@@ -122,7 +122,7 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
         File[] files = scanner.getFiles();
         if (files.length == 0) {
             String message = "The rule [" + getSrc() + "] cannot match any resource under [" + rootPath + "]";
-            publisher.consumeLineWithPrefix(message);
+            publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
             throw new RuntimeException(message);
         }
         for (File file : files) {

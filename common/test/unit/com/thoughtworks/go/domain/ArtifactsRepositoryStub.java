@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class ArtifactsRepositoryStub implements ArtifactsRepository {
     }
 
     @Override
-    public void upload(StreamConsumer console, File file, String destPath, String buildId) {
+    public void upload(TaggedStreamConsumer console, File file, String destPath, String buildId) {
         if(this.error != null) {
             throw error;
         }

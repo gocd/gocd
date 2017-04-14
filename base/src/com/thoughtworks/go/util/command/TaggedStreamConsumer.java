@@ -17,7 +17,8 @@
 package com.thoughtworks.go.util.command;
 
 /**
- * Created by marqueslee on 2/15/17.
+ * Adds ability to annotate lines received by {@link StreamConsumer} so that console
+ * log lines can be meaningfully parsed.
  */
 public interface TaggedStreamConsumer extends StreamConsumer {
     String NOTICE = "##";
@@ -34,6 +35,9 @@ public interface TaggedStreamConsumer extends StreamConsumer {
     String TASK_CANCELLED = "^C";
     String JOB_PASS = "j0";
     String JOB_FAIL = "j1";
+    String PUBLISH = "ar";
+    String PUBLISH_ERR = "ae";
+    String COMPLETED = "ex";
 
     void taggedConsumeLine(String tag, String line);
 }

@@ -17,8 +17,9 @@
   "use strict";
 
   var Types = {
-    INFO: "##",
+    INFO: "##", COMPLETED: "ex",
     PREP: "pr", PREP_ERR: "pe",
+    PUBLISH: "ar", PUBLISH_ERR: "ae",
     TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1", CANCELLED: "^C",
     CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
     JOB_PASS: "j0", JOB_FAIL: "j1"
@@ -177,6 +178,10 @@
         section.classList.add("log-fs-status");
         section.classList.add("log-fs-job-status-failed");
         section.priv.errored = true;
+      } else if (Types.PUBLISH_ERR === prefix) { // we only care if it failed, so no need to detect a success status
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-publish-failed");
+        section.priv.errored = true;
       }
     }
 
@@ -185,12 +190,16 @@
         section.priv.type = "info";
       } else if ([Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1) {
         section.priv.type = "prep";
+      } else if ([Types.PUBLISH, Types.PUBLISH_ERR].indexOf(prefix) > -1) {
+        section.priv.type = "publish";
       } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL, Types.CANCELLED].indexOf(prefix) > -1) {
         section.priv.type = "task";
       } else if ([Types.CANCEL_TASK_START, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1) {
         section.priv.type = "cancel";
       } else if ([Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1) {
         section.priv.type = "result";
+      } else if (Types.COMPLETED === prefix) {
+        section.priv.type = "end";
       } else {
         section.priv.type = "info";
       }
@@ -206,6 +215,10 @@
 
       if (section.priv.type === "prep") {
         return [Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1;
+      }
+
+      if (section.priv.type === "publish") {
+        return [Types.PUBLISH, Types.PUBLISH_ERR].indexOf(prefix) > -1;
       }
 
       if (section.priv.type === "task") {

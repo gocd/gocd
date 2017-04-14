@@ -45,6 +45,8 @@ import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
+import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.removeStart;
 
@@ -65,7 +67,7 @@ public class GoArtifactsManipulator {
     public void publish(DefaultGoPublisher goPublisher, String destPath, File source, JobIdentifier jobIdentifier) {
         if (!source.exists()) {
             String message = "Failed to find " + source.getAbsolutePath();
-            goPublisher.consumeLineWithPrefix(message);
+            goPublisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
             bomb(message);
         }
 
@@ -87,7 +89,7 @@ public class GoArtifactsManipulator {
                     size = source.length();
                 }
 
-                goPublisher.consumeLineWithPrefix("Uploading artifacts from " + source.getAbsolutePath() + " to " + getDestPath(destPath));
+                goPublisher.taggedConsumeLineWithPrefix(PUBLISH, "Uploading artifacts from " + source.getAbsolutePath() + " to " + getDestPath(destPath));
 
                 String normalizedDestPath = normalizePath(destPath);
                 String url = urlService.getUploadUrlOfAgent(jobIdentifier, normalizedDestPath, publishingAttempts);
@@ -97,7 +99,7 @@ public class GoArtifactsManipulator {
                 if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE) {
                     String message = String.format("Artifact upload for file %s (Size: %s) was denied by the server. This usually happens when server runs out of disk space.",
                             source.getAbsolutePath(), size);
-                    goPublisher.consumeLineWithPrefix(message);
+                    goPublisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
                     LOGGER.error("[Artifact Upload] Artifact upload was denied by the server. This usually happens when server runs out of disk space.");
                     publishingAttempts = PUBLISH_MAX_RETRIES;
                     bomb(message + ".  HTTP return code is " + statusCode);
@@ -109,7 +111,7 @@ public class GoArtifactsManipulator {
             } catch (Throwable e) {
                 String message = "Failed to upload " + source.getAbsolutePath();
                 LOGGER.error(message, e);
-                goPublisher.consumeLineWithPrefix(message);
+                goPublisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
                 lastException = e;
             } finally {
                 FileUtil.deleteFolder(tmpDir);

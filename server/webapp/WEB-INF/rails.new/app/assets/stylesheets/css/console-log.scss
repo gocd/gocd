@@ -162,15 +162,15 @@ dt.log-fs-line, dt.log-fs-line:before {
   background: $CONSOLE_SECTION_HEADER;
 }
 
-.log-fs-line-PREP {
+.log-fs-line-PREP, .log-fs-line-PUBLISH {
   color: $CONSOLE_SETUP;
 }
 
-.log-fs-line-PREP_ERR {
+.log-fs-line-PREP_ERR, .log-fs-line-PUBLISH_ERR {
   color: $CONSOLE_SETUP_ERR;
 }
 
-.log-fs-line-INFO {
+.log-fs-line-INFO, .log-fs-line-COMPLETED {
   color: $CONSOLE_INFO;
 }
 
@@ -213,7 +213,7 @@ dt.log-fs-line, dt.log-fs-line:before {
   }
 }
 
-.log-fs-task-status-failed, .log-fs-job-status-failed {
+.log-fs-task-status-failed, .log-fs-job-status-failed, .log-fs-publish-failed {
   &:before {
     content: $fa-var-exclamation-circle;
     color: red;

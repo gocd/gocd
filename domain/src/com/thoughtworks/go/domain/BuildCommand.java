@@ -147,6 +147,8 @@ public class BuildCommand {
     private String runIfConfig = "passed";
     @Expose
     private BuildCommand onCancel;
+    @Expose
+    private String[] execInput;
 
     public BuildCommand(String name) {
         this.name = name;
@@ -250,6 +252,15 @@ public class BuildCommand {
         return this;
     }
 
+    public BuildCommand setExecInput(String... input) {
+       this.execInput = input;
+       return this;
+    }
+
+    public String[] getExecInput() {
+        return execInput;
+    }
+
     public String getWorkingDirectory() {
         return workingDirectory == null ? "" : workingDirectory;
     }
@@ -317,5 +328,4 @@ public class BuildCommand {
         }
         return GSON.fromJson(args.get(arg), String[].class);
     }
-
 }

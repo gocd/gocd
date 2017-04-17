@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -77,8 +78,8 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public ValidationResult getVerifyConnectionResultFromResponseBody(String responseBody) {
-        return getPluginConfigurationValidationResultFromResponseBody(responseBody);
+    public VerifyConnectionResponse getVerifyConnectionResultFromResponseBody(String responseBody) {
+        return com.thoughtworks.go.plugin.access.authorization.models.VerifyConnectionResponse.fromJSON(responseBody).response();
     }
 
     @Override

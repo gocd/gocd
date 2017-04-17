@@ -327,4 +327,10 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     public List<ConfigErrors> getAllErrors() {
         return ErrorCollector.getAllErrors(this);
     }
+
+    public void cleanupAllUsagesOfRole(Role roleToDelete) {
+        for (StageConfig stage : getStages()) {
+            stage.cleanupAllUsagesOfRole(roleToDelete);
+        }
+    }
 }

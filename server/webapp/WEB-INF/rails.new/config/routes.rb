@@ -233,6 +233,7 @@ Go::Application.routes.draw do
           resources :auth_configs, param: :auth_config_id, except: [:new, :edit,], constraints: {auth_config_id: ALLOW_DOTS}
           resources :roles, param: :role_name, except: [:new, :edit], constraints: {role_name: ROLE_NAME_FORMAT}
         end
+        post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection', as: :internal_verify_connection
 
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
@@ -242,7 +243,6 @@ Go::Application.routes.draw do
         end
 
         post 'encrypt', controller: :encryption, action: :encrypt_value
-        post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection_internal_api', as: :internal_verify_connection
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
         namespace :internal do
           post :material_test, controller: :material_test, action: :test, as: :material_test

@@ -24,13 +24,25 @@ module ApiV1
         include ProfilesControllerActions
 
         def verify_connection
-          result = HttpLocalizedOperationResult.new
           entity_from_request = entity_representer.new(create_config_entity).from_hash(entity_json_from_request)
-          security_auth_config_service.verify_connection(entity_from_request, result)
-          handle_create_or_update_response(result, entity_from_request)
+          response = security_auth_config_service.verify_connection(entity_from_request)
+          handle_verify_connection_response(response, entity_from_request)
         end
 
         protected
+
+        def handle_verify_connection_response(response, auth_config)
+          if response.isSuccessful()
+            render_verify_response_message(response, auth_config, 200)
+          else
+            render_verify_response_message(response, auth_config, 422)
+          end
+        end
+
+        def render_verify_response_message(response, auth_config, status)
+          auth_config_json = entity_representer.new(auth_config).to_hash(url_builder: self)
+          render DEFAULT_FORMAT => {status: response.getStatus(), message: response.getMessage(), auth_config: auth_config_json}, status: status
+        end
 
         def entity_json_from_request
           params[:auth_config]

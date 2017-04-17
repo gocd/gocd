@@ -39,4 +39,29 @@ public class VerifyConnectionResponse {
 
         return status;
     }
+
+    public boolean isSuccessful() {
+        return status.equals("success");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        VerifyConnectionResponse that = (VerifyConnectionResponse) o;
+
+        if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        if (message != null ? !message.equals(that.message) : that.message != null) return false;
+        return validationResult != null ? validationResult.equals(that.validationResult) : that.validationResult == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = status != null ? status.hashCode() : 0;
+        result = 31 * result + (message != null ? message.hashCode() : 0);
+        result = 31 * result + (validationResult != null ? validationResult.hashCode() : 0);
+        return result;
+    }
 }

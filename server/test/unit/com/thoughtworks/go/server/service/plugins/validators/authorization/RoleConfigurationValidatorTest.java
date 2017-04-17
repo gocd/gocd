@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -74,7 +75,7 @@ public class RoleConfigurationValidatorTest {
     }
 
     @Test
-    public void shouldMapValidationErrorsToRoleInAbsenceOfConfiguration() throws Exception {
+    public void shouldAddConfigurationAndMapErrorsInAbsenceOfConfiguration() throws Exception {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
         ValidationResult result = new ValidationResult();
@@ -85,7 +86,8 @@ public class RoleConfigurationValidatorTest {
         validator.validate(roleConfig, "pluginId");
 
         assertTrue(roleConfig.hasErrors());
-        assertThat(roleConfig.errors().get("password").get(0), is("password is required"));
+        assertThat(roleConfig.getProperty("password").errors().get("password").get(0), is("password is required"));
+        assertNull(roleConfig.getProperty("password").getValue());
     }
 
     @Test

@@ -17,86 +17,89 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.plugin.domain.common.ValidationError;
+import com.thoughtworks.go.plugin.domain.common.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.Password;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SecurityAuthConfigServiceTest {
 
-    private AuthorizationMetadataStore store;
     private AuthorizationExtension extension;
     private EntityHashingService hashingService;
     private GoConfigService goConfigService;
     private SecurityAuthConfigService securityAuthConfigService;
-    private LocalizedOperationResult resultSpy;
-    private SecurityAuthConfig ldap;
-    private AuthorizationPluginInfo pluginInfo;
 
     @Before
     public void setUp() throws Exception {
-        store = mock(AuthorizationMetadataStore.class);
         extension = mock(AuthorizationExtension.class);
         hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);
-        securityAuthConfigService = new SecurityAuthConfigService(goConfigService, hashingService, extension, store);
-        resultSpy = spy(new HttpLocalizedOperationResult());
-        ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
-        pluginInfo = mock(AuthorizationPluginInfo.class);
+        securityAuthConfigService = new SecurityAuthConfigService(goConfigService, hashingService, extension);
     }
 
     @Test
     public void verifyConnection_shouldSendSuccessResponseOnSuccessfulVerification() throws Exception {
-        final Capabilities capabilities = new Capabilities(Password, true, true);
-        final ValidationResult validationResult = new ValidationResult();
+        VerifyConnectionResponse success = new VerifyConnectionResponse("success", "Connection check passed", new ValidationResult());
+        SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
-        when(store.getPluginInfo("cd.go.ldap")).thenReturn(pluginInfo);
-        when(pluginInfo.getCapabilities()).thenReturn(capabilities);
-        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenReturn(validationResult);
+        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenReturn(success);
 
-        securityAuthConfigService.verifyConnection(ldap, resultSpy);
+        VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
-        verifyNoMoreInteractions(resultSpy);
+        assertThat(response, is(success));
     }
 
     @Test
-    //Authorization extension validates the security auth config before verify connection call
-    public void verifyConnection_shouldSendConnectionFailedResponseOnValidationFailed() throws Exception {
-        final Capabilities capabilities = new Capabilities(Password, true, true);
-        final ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("url", "some-error"));
+    public void verifyConnection_shouldFailForAInvalidAuthConfig() throws Exception {
+        SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap",
+                new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue()));
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("password", "Password cannot be blank"));
+        validationResult.addError(new ValidationError("username", "Username cannot be blank"));
 
-        when(store.getPluginInfo("cd.go.ldap")).thenReturn(pluginInfo);
-        when(pluginInfo.getCapabilities()).thenReturn(capabilities);
-        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenReturn(validationResult);
+        VerifyConnectionResponse validationFailed = new VerifyConnectionResponse("validation-failed", "Connection check passed", validationResult);
 
-        securityAuthConfigService.verifyConnection(ldap, resultSpy);
+        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenReturn(validationFailed);
 
-        verify(resultSpy).unprocessableEntity(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "ldap", "Could not verify connection!"));
+        VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
+
+        assertThat(response, is(validationFailed));
+        assertThat(ldap.getProperty("username").errors().get("username").get(0), is("Username cannot be blank"));
+        assertThat(ldap.getProperty("password").errors().get("password").get(0), is("Password cannot be blank"));
     }
 
     @Test
     public void verifyConnection_shouldSendConnectionFailedResponseOnUnSuccessfulVerification() throws Exception {
-        final Capabilities capabilities = new Capabilities(Password, true, true);
-        final ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("", "some-error"));
+        VerifyConnectionResponse success = new VerifyConnectionResponse("failure", "Connection check failed", new ValidationResult());
+        SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
-        when(store.getPluginInfo("cd.go.ldap")).thenReturn(pluginInfo);
-        when(pluginInfo.getCapabilities()).thenReturn(capabilities);
-        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenReturn(validationResult);
+        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenReturn(success);
 
-        securityAuthConfigService.verifyConnection(ldap, resultSpy);
+        VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
-        verify(resultSpy).unprocessableEntity(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "ldap", "some-error"));
+        assertThat(response, is(success));
+    }
+
+    @Test
+    public void verifyConnection_shouldFailInAbsenceOfPlugin() throws Exception {
+        SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
+
+        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException(""));
+
+        VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
+
+        assertThat(response, is(new VerifyConnectionResponse("failure", "Unable to verify connection, missing plugin: cd.go.ldap",
+                new com.thoughtworks.go.plugin.domain.common.ValidationResult())));
     }
 }

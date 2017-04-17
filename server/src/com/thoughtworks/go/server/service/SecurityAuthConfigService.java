@@ -24,12 +24,10 @@ import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.ValidationError;
+import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,20 +36,11 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.string;
 @Component
 public class SecurityAuthConfigService extends PluginProfilesService<SecurityAuthConfig> {
     private final AuthorizationExtension authorizationExtension;
-    private final AuthorizationMetadataStore store;
 
     @Autowired
     public SecurityAuthConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension) {
         super(goConfigService, hashingService);
         this.authorizationExtension = authorizationExtension;
-        this.store = AuthorizationMetadataStore.instance();
-    }
-
-    SecurityAuthConfigService(GoConfigService goConfigService, EntityHashingService hashingService,
-                              AuthorizationExtension authorizationExtension, AuthorizationMetadataStore store) {
-        super(goConfigService, hashingService);
-        this.authorizationExtension = authorizationExtension;
-        this.store = store;
     }
 
     protected SecurityAuthConfigs getPluginProfiles() {
@@ -73,37 +62,39 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         update(currentUser, securityAuthConfig, result, new SecurityAuthConfigCreateCommand(goConfigService, securityAuthConfig, authorizationExtension, currentUser, result));
     }
 
-    public void verifyConnection(SecurityAuthConfig securityAuthConfig, LocalizedOperationResult result) {
+    public VerifyConnectionResponse verifyConnection(SecurityAuthConfig securityAuthConfig) {
         final String pluginId = securityAuthConfig.getPluginId();
 
         try {
-            ValidationResult validationResult = authorizationExtension.verifyConnection(pluginId, securityAuthConfig.getConfigurationAsMap(true));
-            if (validationResult.isSuccessful()) {
-                return;
+            VerifyConnectionResponse response = authorizationExtension.verifyConnection(pluginId, securityAuthConfig.getConfigurationAsMap(true));
+
+            if (!response.isSuccessful()) {
+                mapErrors(response, securityAuthConfig);
             }
 
-            validationResultToLocalizedOperationResult(securityAuthConfig, result, validationResult);
-
-            if (!result.hasMessage()) {
-                result.unprocessableEntity(string("CHECK_CONNECTION_FAILED", securityAuthConfig.getId(), "Could not verify connection!"));
-            }
-
+            return response;
         } catch (PluginNotFoundException e) {
-            result.internalServerError(string("ASSOCIATED_PLUGIN_NOT_FOUND", pluginId));
+            String message = String.format("Unable to verify connection, missing plugin: %s", pluginId);
+
+            return new VerifyConnectionResponse("failure", message, new com.thoughtworks.go.plugin.domain.common.ValidationResult());
         }
     }
 
-    private void validationResultToLocalizedOperationResult(SecurityAuthConfig securityAuthConfig, LocalizedOperationResult result, ValidationResult validationResult) {
-        for (ValidationError validationError : validationResult.getErrors()) {
-            if (StringUtils.isBlank(validationError.getKey())) {
-                result.unprocessableEntity(string("CHECK_CONNECTION_FAILED", securityAuthConfig.getId(), validationError.getMessage()));
-            } else {
-                ConfigurationProperty property = securityAuthConfig.getProperty(validationError.getKey());
-                if (property != null) {
-                    property.addError(validationError.getKey(), validationError.getMessage());
-                }
+    private void mapErrors(VerifyConnectionResponse response, SecurityAuthConfig authConfig) {
+        com.thoughtworks.go.plugin.domain.common.ValidationResult validationResult = response.getValidationResult();
+
+        if(validationResult == null) {
+            return;
+        }
+
+        for (ValidationError error : validationResult.getErrors()) {
+            ConfigurationProperty property = authConfig.getProperty(error.getKey());
+
+            if (property == null) {
+                authConfig.addNewConfiguration(error.getKey(), false);
+                property = authConfig.getProperty(error.getKey());
             }
+            property.addError(error.getKey(), error.getMessage());
         }
     }
-
 }

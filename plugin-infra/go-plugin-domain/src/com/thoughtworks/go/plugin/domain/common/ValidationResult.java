@@ -36,4 +36,20 @@ public class ValidationResult {
     public List<ValidationError> getErrors() {
         return new ArrayList<>(errors);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ValidationResult that = (ValidationResult) o;
+
+        return errors != null ? errors.equals(that.errors) : that.errors == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return errors != null ? errors.hashCode() : 0;
+    }
 }

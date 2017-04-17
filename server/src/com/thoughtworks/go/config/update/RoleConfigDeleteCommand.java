@@ -72,6 +72,7 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
 
         for (PipelineTemplateConfig template : templates) {
             template.getAuthorization().removeAllUsagesOfRole(role);
+            template.cleanupAllUsagesOfRole(role);
         }
     }
 

@@ -501,6 +501,96 @@ describe ApiV1::Admin::Security::AuthConfigsController do
     end
   end
 
+  describe :verify_connection do
+    describe :security do
+      it 'should allow all with security disabled' do
+        disable_security
+
+        expect(controller).to allow_action(:post, :verify_connection)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+
+        expect(controller).to disallow_action(:post, :verify_connection).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should disallow normal users, with security enabled' do
+        enable_security
+        login_as_user
+
+        expect(controller).to disallow_action(:post, :verify_connection).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin, with security enabled' do
+        enable_security
+        login_as_admin
+
+        expect(controller).to allow_action(:post, :verify_connection)
+      end
+
+      it 'should disallow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+        expect(controller).to disallow_action(:post, :verify_connection)
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        it 'should route to verify_connection action of controller' do
+          expect(:post => 'api/admin/internal/security/auth_configs/verify_connection').to route_to(action: 'verify_connection', controller: 'api_v1/admin/security/auth_configs')
+        end
+      end
+
+      describe :without_header do
+        before :each do
+          teardown_header
+        end
+
+        it 'should not route to verify action of controller without header' do
+          expect(:post => 'api/admin/internal/security/auth_configs/verify_connection').to_not route_to(action: 'verify_connection', controller: 'api_v1/admin/security/auth_configs')
+          expect(:post => 'api/admin/internal/security/auth_configs/verify_connection').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/security/auth_configs/verify_connection')
+        end
+      end
+    end
+
+    describe :as_admin do
+      before(:each) do
+        enable_security
+        login_as_admin
+      end
+
+      it 'should verify connection for the given auth_config' do
+        auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
+        verify_response = VerifyConnectionResponse.new('success', 'Connection check passed', nil)
+
+        @security_auth_config_service.should_receive(:verify_connection).with(auth_config).and_return(verify_response)
+        post_with_api_header :verify_connection, {auth_config: auth_config_hash}
+
+        expect(response).to be_ok
+        expect(actual_response).to eq({
+                                        :status => 'success',
+                                        :message => 'Connection check passed',
+                                        :auth_config => expected_response(auth_config, ApiV1::Security::AuthConfigRepresenter)})
+      end
+
+      it 'should respond with errors if verify_connection fails' do
+        auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
+        verify_response = VerifyConnectionResponse.new('failure', 'Connection check failed', nil)
+
+        @security_auth_config_service.should_receive(:verify_connection).with(auth_config).and_return(verify_response)
+        post_with_api_header :verify_connection, {auth_config: auth_config_hash}
+
+        expect(response.code).to eq('422')
+        expect(actual_response).to eq({
+                                        :status => 'failure',
+                                        :message => 'Connection check failed',
+                                        :auth_config => expected_response(auth_config, ApiV1::Security::AuthConfigRepresenter)})
+      end
+    end
+  end
+
   def auth_config_hash
     {
       id: 'ldap',

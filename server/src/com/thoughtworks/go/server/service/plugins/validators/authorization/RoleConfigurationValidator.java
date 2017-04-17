@@ -38,11 +38,11 @@ public class RoleConfigurationValidator {
                 for (ValidationError error : result.getErrors()) {
                     ConfigurationProperty property = role.getProperty(error.getKey());
 
-                    if (property != null) {
-                        property.addError(error.getKey(), error.getMessage());
-                    } else {
-                        role.addError(error.getKey(), error.getMessage());
+                    if (property == null) {
+                        role.addNewConfiguration(error.getKey(), false);
+                        property = role.getProperty(error.getKey());
                     }
+                    property.addError(error.getKey(), error.getMessage());
                 }
             }
         } catch (PluginNotFoundException e) {

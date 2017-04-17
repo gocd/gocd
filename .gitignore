@@ -151,3 +151,4 @@ build/
 out/
 config/config-server/warnings.log
 server/dev
+**/.DS_Store

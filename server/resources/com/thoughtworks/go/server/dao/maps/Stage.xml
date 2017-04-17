@@ -743,11 +743,11 @@
         ORDER BY builds.name, buildstatetransitions.id
     </select>
 
-    <select id="lockedPipeline" resultMap="Stage.stageIdentifier" parameterClass="string">
+    <select id="lockedPipeline" resultMap="Stage.stageIdentifier">
         SELECT pipelineName, pipelineCounter, pipelineLabel, id as stageId, name as stageName, counter as stageCounter
         FROM _stages
         WHERE locked = true
-            AND LOWER(pipelineName) = LOWER(#value#)
+            AND pipelineId = #pipelineId#
             AND latestRun = true
         ORDER BY id DESC
         LIMIT 1

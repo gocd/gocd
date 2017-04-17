@@ -18,11 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.dao.PipelineStateDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,14 +37,14 @@ import static org.mockito.Mockito.*;
 
 public class PipelineLockServiceTest {
     private PipelineLockService pipelineLockService;
-    private PipelineSqlMapDao pipelineDao;
+    private PipelineStateDao pipelineStateDao;
     private GoConfigService goConfigService;
 
     @Before
     public void setup() throws Exception {
-        pipelineDao = mock(PipelineSqlMapDao.class);
+        pipelineStateDao = mock(PipelineStateDao.class);
         goConfigService = mock(GoConfigService.class);
-        pipelineLockService = new PipelineLockService(goConfigService, pipelineDao);
+        pipelineLockService = new PipelineLockService(goConfigService, pipelineStateDao);
         pipelineLockService.initialize();
     }
 
@@ -53,7 +54,7 @@ public class PipelineLockServiceTest {
 
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
         pipelineLockService.lockIfNeeded(pipeline);
-        verify(pipelineDao).lockPipeline(pipeline);
+        verify(pipelineStateDao).lockPipeline(pipeline);
     }
 
     @Test
@@ -62,28 +63,31 @@ public class PipelineLockServiceTest {
 
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
         pipelineLockService.lockIfNeeded(pipeline);
-        verify(pipelineDao, never()).lockPipeline(pipeline);
+        verify(pipelineStateDao, never()).lockPipeline(pipeline);
     }
 
     @Test
     public void shouldKnowIfPipelineIsLocked() throws Exception {
-        when(pipelineDao.lockedPipeline("mingle")).thenReturn(new StageIdentifier("mingle", 1, "1", "stage", "1"));
+        String pipelineName = "mingle";
+        PipelineState pipelineState = new PipelineState(pipelineName, new StageIdentifier(pipelineName, 1, "1", "stage", "1"));
+        pipelineState.lock(1);
+        when(pipelineStateDao.pipelineStateFor(pipelineName)).thenReturn(pipelineState);
 
-        assertThat(pipelineLockService.isLocked("mingle"), is(true));
+        assertThat(pipelineLockService.isLocked(pipelineName), is(true));
         assertThat(pipelineLockService.isLocked("twist"), is(false));
     }
 
     @Test
     public void shouldUnlockPipelineIrrespectiveOfItBeingLockable() throws Exception {
         pipelineLockService.unlock("mingle");
-        verify(pipelineDao).unlockPipeline("mingle");
+        verify(pipelineStateDao).unlockPipeline("mingle");
     }
 
     @Test
     public void shouldAllowStageFromCurrentPipelineToBeScheduled() throws Exception {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
 
-        when(pipelineDao.lockedPipeline("mingle")).thenReturn(pipeline.getStages().get(0).getIdentifier());
+        when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), pipeline.getStages().get(0).getIdentifier()));
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);
@@ -94,7 +98,9 @@ public class PipelineLockServiceTest {
     public void shouldNotAllowStageFromLockedPipelineToBeScheduled() throws Exception {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
 
-        when(pipelineDao.lockedPipeline("mingle")).thenReturn(new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1"));
+        PipelineState pipelineState = new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1"));
+        pipelineState.lock(1);
+        when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(pipelineState);
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);
@@ -106,7 +112,7 @@ public class PipelineLockServiceTest {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
 
 
-        when(pipelineDao.lockedPipeline("mingle")).thenReturn(new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1"));
+        when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1")));
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(false);
 
         pipelineLockService.lockIfNeeded(pipeline);
@@ -117,7 +123,7 @@ public class PipelineLockServiceTest {
     public void shouldAllowStageFromAnotherPipelineIfThePipelineIsLockable() throws Exception {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
 
-        when(pipelineDao.lockedPipeline("another-pipeline")).thenReturn(null);
+        when(pipelineStateDao.pipelineStateFor(pipeline.getName())).thenReturn(null);
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);
@@ -128,7 +134,7 @@ public class PipelineLockServiceTest {
     public void shouldUnlockAnyCurrentlyLockedPipelinesThatAreNoLongerLockable() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-        when(pipelineDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(true);
         when(cruiseConfig.isPipelineLocked("mingle")).thenReturn(true);
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
@@ -136,15 +142,15 @@ public class PipelineLockServiceTest {
 
         pipelineLockService.onConfigChange(cruiseConfig);
 
-        verify(pipelineDao, never()).unlockPipeline("mingle");
-        verify(pipelineDao).unlockPipeline("twist");
+        verify(pipelineStateDao, never()).unlockPipeline("mingle");
+        verify(pipelineStateDao).unlockPipeline("twist");
     }
 
     @Test
     public void shouldUnlockAnyCurrentlyLockedPipelinesThatNoLongerExist() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-        when(pipelineDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);
         when(cruiseConfig.isPipelineLocked("mingle")).thenThrow(new PipelineNotFoundException("mingle not there"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
@@ -152,8 +158,8 @@ public class PipelineLockServiceTest {
 
         pipelineLockService.onConfigChange(cruiseConfig);
 
-        verify(pipelineDao).unlockPipeline("mingle");
-        verify(pipelineDao).unlockPipeline("twist");
+        verify(pipelineStateDao).unlockPipeline("mingle");
+        verify(pipelineStateDao).unlockPipeline("twist");
     }
 
     private EntityConfigChangedListener<PipelineConfig> getPipelineConfigEntityConfigChangedListener() {
@@ -171,14 +177,14 @@ public class PipelineLockServiceTest {
         EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
-        when(pipelineDao.lockedPipelines()).thenReturn(asList("locked_pipeline", "other_pipeline"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("locked_pipeline", "other_pipeline"));
         when(pipelineConfig.isLock()).thenReturn(false);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
         changedListener.onEntityConfigChange(pipelineConfig);
 
-        verify(pipelineDao, never()).unlockPipeline("other_pipeline");
-        verify(pipelineDao).unlockPipeline("locked_pipeline");
+        verify(pipelineStateDao, never()).unlockPipeline("other_pipeline");
+        verify(pipelineStateDao).unlockPipeline("locked_pipeline");
     }
 
     @Test
@@ -186,19 +192,19 @@ public class PipelineLockServiceTest {
         EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
-        when(pipelineDao.lockedPipelines()).thenReturn(asList("locked_pipeline"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("locked_pipeline"));
         when(pipelineConfig.isLock()).thenReturn(true);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
         changedListener.onEntityConfigChange(pipelineConfig);
 
-        verify(pipelineDao, never()).unlockPipeline("locked_pipeline");
+        verify(pipelineStateDao, never()).unlockPipeline("locked_pipeline");
     }
 
     @Test
     public void shouldRegisterItselfAsAConfigChangeListener() throws Exception {
         GoConfigService mockGoConfigService = mock(GoConfigService.class);
-        PipelineLockService service = new PipelineLockService(mockGoConfigService, pipelineDao);
+        PipelineLockService service = new PipelineLockService(mockGoConfigService, pipelineStateDao);
         service.initialize();
         verify(mockGoConfigService).register(service);
     }

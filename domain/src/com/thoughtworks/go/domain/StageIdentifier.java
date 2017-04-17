@@ -37,6 +37,15 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         this(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()));
     }
 
+    public StageIdentifier(String pipelineName, Integer pipelineCounter, String pipelineLabel, Long stageId, String stageName, String stageCounter) {
+        this.pipelineName = pipelineName;
+        this.pipelineCounter = pipelineCounter;
+        this.pipelineLabel = pipelineLabel;
+        id = stageId;
+        this.stageName = stageName;
+        this.stageCounter = stageCounter;
+    }
+
     public StageIdentifier(String pipelineName, Integer pipelineCounter, String pipelineLabel, String stageName, String stageCounter) {
         String label = StringUtils.isBlank(pipelineLabel) ? "latest" : pipelineLabel;
         setLocatorAttributes(pipelineName, pipelineCounter, label, stageName, stageCounter);

@@ -16,21 +16,7 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import javax.sql.DataSource;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineNotFoundException;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -57,10 +43,8 @@ import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.service.PipelinePauseService;
-import com.thoughtworks.go.server.service.ScheduleService;
-import com.thoughtworks.go.server.service.ScheduleTestUtil;
+import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.lang.StringUtils;
@@ -74,44 +58,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.ibatis.SqlMapClientTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static com.thoughtworks.go.helper.ModificationsMother.EMAIL_ADDRESS;
-import static com.thoughtworks.go.helper.ModificationsMother.MOD_COMMENT;
-import static com.thoughtworks.go.helper.ModificationsMother.MOD_COMMENT_2;
-import static com.thoughtworks.go.helper.ModificationsMother.MOD_USER;
-import static com.thoughtworks.go.helper.ModificationsMother.MOD_USER_COMMITTER;
-import static com.thoughtworks.go.helper.ModificationsMother.TODAY_CHECKIN;
-import static com.thoughtworks.go.helper.ModificationsMother.YESTERDAY_CHECKIN;
-import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationsInHg;
+import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -134,6 +103,10 @@ public class PipelineSqlMapDaoIntegrationTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private DatabaseStrategy database;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired private ServerStatusService serverStatusService;
+    @Autowired private PipelineHistoryService pipelineHistoryService;
+    @Autowired private PipelineLockService pipelineLockService;
+    @Autowired private GoConfigService goConfigService;
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
@@ -657,21 +630,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void loadHistoryByIds_shouldLoadHistoryByIdWhenOnlyASingleIdIsNeedeSoThatItUsesTheExistingCacheForEnvironmentsPage() throws Exception {
-        SqlMapClientTemplate origTemplate = pipelineDao.getSqlMapClientTemplate();
-        try {
-            SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
-            when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(2L));
-            pipelineDao.setSqlMapClientTemplate(mockTemplate);
-            PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory("pipelineName", 1, 0);
-            verify(mockTemplate, never()).queryForList(eq("getPipelineHistoryByName"), any());
-            verify(mockTemplate, times(1)).queryForList(eq("getPipelineRange"), any());
-        } finally {
-            pipelineDao.setSqlMapClientTemplate(origTemplate);
-        }
-    }
-
-    @Test
     public void shouldLoadPipelineHistoryOnlyForSuppliedPipeline() throws Exception {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         PipelineConfig otherConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("other", "dev");
@@ -877,22 +835,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         BuildCause buildCause = pipelineFromDB.getBuildCause();
         //TODO: This is a known bug #3248 in the way that the pipeline user is stored. We should fix with the new UI.
         assertThat(buildCause.getBuildCauseMessage(), is("Forced by " + Username.ANONYMOUS.getDisplayName()));
-    }
-
-    @Test
-    public void shouldGetLatestRevisionFromOrderedLists() {
-        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, systemEnvironment, goConfigDao, database);
-        ArrayList list1 = new ArrayList();
-        ArrayList list2 = new ArrayList();
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is((String) null));
-        Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
-                YESTERDAY_CHECKIN, ModificationsMother.nextRevision());
-        list1.add(modification1);
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is(ModificationsMother.currentRevision()));
-        Modification modification2 = new Modification(MOD_USER_COMMITTER, MOD_COMMENT_2, EMAIL_ADDRESS,
-                TODAY_CHECKIN, ModificationsMother.nextRevision());
-        list2.add(modification2);
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is(ModificationsMother.currentRevision()));
     }
 
     @Test
@@ -1273,73 +1215,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertEquals(buildCause, loaded.getBuildCause());
     }
 
-    @Test
-    public void shouldFindLockedPipelinesCaseInsensitively() throws Exception {
-        Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "stage1", "stage2"));
-        pipelineDao.lockPipeline(minglePipeline);
-        StageIdentifier locked = pipelineDao.lockedPipeline("mingle");
-        assertThat(locked, is(minglePipeline.getFirstStage().getIdentifier()));
-        locked = pipelineDao.lockedPipeline("mInGlE");
-        assertThat(locked, is(minglePipeline.getFirstStage().getIdentifier()));
-    }
-
-    @Test
-    public void shouldBombWhenLockingPipelineThatHasAlreadyBeenLocked() throws Exception {
-        Pipeline minglePipeline1 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
-        Pipeline minglePipeline2 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
-
-        pipelineDao.lockPipeline(minglePipeline1);
-
-        assertThat(pipelineDao.lockedPipeline("mingle"), is(minglePipeline1.getStages().get(0).getIdentifier()));
-
-        try {
-            pipelineDao.lockPipeline(minglePipeline2);
-            fail("Should not be able to lock a different instance of an already locked pipeline");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline 'mingle' is already locked (counter = 1)"));
-        }
-    }
-
-    @Test
-    public void shouldNotBombWhenLockingTheSamePipelineInstanceThatHasAlreadyBeenLocked() throws Exception {
-        Pipeline minglePipeline1 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
-
-        pipelineDao.lockPipeline(minglePipeline1);
-
-        assertThat(pipelineDao.lockedPipeline("mingle"), is(minglePipeline1.getStages().get(0).getIdentifier()));
-
-        try {
-            pipelineDao.lockPipeline(minglePipeline1);
-        } catch (Exception e) {
-            fail("Should not bomb trying to lock a locked pipeline instance but got: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldUnlockPipelineInstance() throws Exception {
-        Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
-        pipelineDao.lockPipeline(minglePipeline);
-        assertThat(pipelineDao.lockedPipeline("mingle"), is(minglePipeline.getStages().get(0).getIdentifier()));
-        pipelineDao.unlockPipeline("mingle");
-        assertThat(pipelineDao.lockedPipeline("mingle"), is(nullValue()));
-    }
-
-    @Test
-    public void shouldReturnListOfAllLockedPipelines() throws Exception {
-        Pipeline minglePipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
-        Pipeline twistPipeline = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "defaultStage"));
-        pipelineDao.lockPipeline(minglePipeline);
-        pipelineDao.lockPipeline(twistPipeline);
-        List<String> lockedPipelines = pipelineDao.lockedPipelines();
-        assertThat(lockedPipelines.size(), is(2));
-        assertThat(lockedPipelines, hasItem("mingle"));
-        assertThat(lockedPipelines, hasItem("twist"));
-
-        pipelineDao.unlockPipeline("mingle");
-        lockedPipelines = pipelineDao.lockedPipelines();
-        assertThat(lockedPipelines.size(), is(1));
-        assertThat(lockedPipelines, hasItem("twist"));
-    }
 
     @Test
     public void shouldFindPipelineThatPassedForStage() throws Exception {
@@ -1754,6 +1629,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pim2, is(not(pim1)));
         assertThat(pim2.getStageHistory().get(0).getIdentifier().getStageCounter(), is("2"));
     }
+
 
     public static MaterialRevisions revisions(boolean changed) {
         MaterialRevisions revisions = new MaterialRevisions();

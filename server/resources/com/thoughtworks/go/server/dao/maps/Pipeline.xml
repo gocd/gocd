@@ -106,27 +106,11 @@
         WHERE pipelineName = #pipelineName#
     </update>
 
-    <update id="lockPipeline">
-        UPDATE pipelines
-        SET locked = true
-        WHERE id = #value#
-    </update>
-
-    <update id="unlockLockedPipeline" parameterClass="string">
-        UPDATE pipelines
-        SET locked = false
-        WHERE name = #value# and locked = true
-    </update>
-
     <update id="updatePipelineComment">
         UPDATE pipelines
         SET comment = #comment#
         WHERE name = #pipelineName# and counter = #pipelineCounter#
     </update>
-
-    <select id="allLockedPipelines" resultClass="String">
-        SELECT name FROM pipelines WHERE locked = true
-    </select>
 
     <select id="getPipelineHistoryCount" resultClass="java.lang.Integer">
         SELECT COUNT(1) FROM pipelines WHERE name = #value#

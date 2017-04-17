@@ -16,26 +16,36 @@
 
 package com.thoughtworks.go.server.dao;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.hibernate.SessionFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
+import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.helper.ModificationsMother.TODAY_CHECKIN;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineSqlMapDaoTest {
 
@@ -51,7 +61,7 @@ public class PipelineSqlMapDaoTest {
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
         sqlMapClient = mock(SqlMapClient.class);
         materialRepository = mock(MaterialRepository.class);
-        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, sqlMapClient, null, null, null, null);
+        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, sqlMapClient, null, null, null, null, null);
         pipelineSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
     }
 
@@ -102,6 +112,32 @@ public class PipelineSqlMapDaoTest {
 
         verify(sqlMapClientTemplate, times(1)).update("updatePipelineComment", args);
         verify(goCache, times(1)).remove("com.thoughtworks.go.server.dao.PipelineSqlMapDao_pipelineHistory_102413");
+    }
+
+    @Test
+    public void shouldGetLatestRevisionFromOrderedLists() {
+        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), mock(SessionFactory.class));
+        ArrayList list1 = new ArrayList();
+        ArrayList list2 = new ArrayList();
+        Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is((String) null));
+        Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
+                YESTERDAY_CHECKIN, ModificationsMother.nextRevision());
+        list1.add(modification1);
+        Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is(ModificationsMother.currentRevision()));
+        Modification modification2 = new Modification(MOD_USER_COMMITTER, MOD_COMMENT_2, EMAIL_ADDRESS,
+                TODAY_CHECKIN, ModificationsMother.nextRevision());
+        list2.add(modification2);
+        Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is(ModificationsMother.currentRevision()));
+    }
+
+    @Test
+    public void loadHistoryByIds_shouldLoadHistoryByIdWhenOnlyASingleIdIsNeedeSoThatItUsesTheExistingCacheForEnvironmentsPage() throws Exception {
+        SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
+        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(2L));
+        pipelineSqlMapDao.setSqlMapClientTemplate(mockTemplate);
+        PipelineInstanceModels pipelineHistories = pipelineSqlMapDao.loadHistory("pipelineName", 1, 0);
+        verify(mockTemplate, never()).queryForList(eq("getPipelineHistoryByName"), any());
+        verify(mockTemplate, times(1)).queryForList(eq("getPipelineRange"), any());
     }
 
 }

@@ -57,7 +57,6 @@ public class SvnMaterialUpdater {
    private BuildCommand freshCheckout(String workingDir, Revision revision) {
       return compose(
               cleandir(workingDir).setTest(test("-d", workingDir)),
-              exec("rm", workingDir).setTest(test("-f", workingDir)),
               mkdirs(workingDir).setTest(test("-nd", workingDir)),
               checkout(workingDir, revision)
       );

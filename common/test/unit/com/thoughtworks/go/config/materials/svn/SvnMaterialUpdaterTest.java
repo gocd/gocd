@@ -86,16 +86,6 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     @Test
-    public void shouldDoAFreshCheckoutIfDestinationIsNotADir() throws Exception {
-        File fileDest = new File(workingDir, "dest");
-        FileUtils.writeStringToFile(fileDest, "eek barba durkle");
-        svnMaterial.setFolder("dest");
-        updateTo(svnMaterial, new RevisionContext(revision), JobResult.Passed);
-        assertThat(console.output(), containsString("Checked out revision"));
-        assertThat(console.output(), not(containsString("Updating")));
-    }
-
-    @Test
     public void shouldDoAFreshCheckoutIfDestIsNotARepo() throws Exception {
         updateTo(svnMaterial, new RevisionContext(revision), JobResult.Passed);
         console.clear();

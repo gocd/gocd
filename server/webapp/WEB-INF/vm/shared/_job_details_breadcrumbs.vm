@@ -15,7 +15,7 @@
  *************************GO-LICENSE-END***********************************#
 
 #if($_page_title)
-<div class="job_details entity_title page_header">
+<div id="job_details_header" class="job_details entity_title page_header">
   <div class="row">
     <ul class="entity_title">
       <li class="name"><a href="$req.getContextPath()/tab/pipeline/history/$presenter.pipelineName"

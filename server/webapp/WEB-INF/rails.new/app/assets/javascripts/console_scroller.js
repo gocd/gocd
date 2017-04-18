@@ -31,7 +31,8 @@
     this.consoleContainer.on("consoleUpdated", function () {
       self.scrollToBottom();
     });
-    this.consoleContainer.on("consoleCompleted", function () {
+
+    this.consoleContainer.on("consoleCompleted, consoleInteraction", function () {
       self.stopScroll();
     });
 

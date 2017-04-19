@@ -16,92 +16,63 @@
 ;(function() { // eslint-disable-line no-extra-semi
   "use strict";
 
-  const m  = require("mithril"),
-    Stream = require("mithril/stream"),
-    _      = require("lodash"),
-    $      = require("jquery"),
-    mr     = require("helpers/mrequest");
+  const m      = require("mithril"),
+    Stream     = require("mithril/stream"),
+    _          = require("lodash"),
+    $          = require("jquery"),
+    CrudMixins = require("models/mixins/crud_mixins");
 
   function splitter(string) {
     return _.compact(_.map(string.split(","), $.trim));
   }
 
-  const API_VERSION = "v1";
+  function EmailSettings(resourceUrl, errors) {
+    this.email               = Stream();
+    this.enableNotifications = Stream();
+    this.checkinAliases      = Stream();
+    this.etag                = Stream();
 
-  function EmailSettings(apiUrl, errors) {
-    const email           = Stream(),
-      enableNotifications = Stream(),
-      checkinAliases      = Stream();
+    let savedEmail, savedEnableNotifications, savedCheckinAliases;
 
-    /* eslint-disable camelcase, object-shorthand */
     const payload = {
-      email:           email,
-      email_me:        enableNotifications,
-      checkin_aliases: checkinAliases.map(splitter)
+      email:          this.email,
+      emailMe:        this.enableNotifications,
+      checkinAliases: this.checkinAliases.map(splitter)
     };
-    /* eslint-enable camelcase, object-shorthand */
 
-    let savedEmail;
-    let savedEnableNotifications;
-    let savedCheckinAliases;
+    this.toJSON = function serialize() { return payload; };
+    this.fromJSON = (data) => {
+      savedEmail               = this.email(data.email);
+      savedEnableNotifications = this.enableNotifications(data.email_me);
+      savedCheckinAliases      = this.checkinAliases(data.checkin_aliases.join(", "));
 
-    function load() {
-      $.ajax({
-        method:   "GET",
-        url:      apiUrl,
-        dataType: "json",
-        headers:  {
-          Accept: mr.versionHeader(API_VERSION)
-        }
-      }).done(updateUserBindings).always(() => m.redraw());
-    }
+      return this;
+    };
 
-    function reset() {
-      email(savedEmail);
-      enableNotifications(savedEnableNotifications);
-      checkinAliases(savedCheckinAliases);
-    }
+    this.load = () => {
+      this.refresh().then($.noop, $.noop).always(() => m.redraw());
+    };
 
-    function updateUserBindings(data) {
-      savedEmail = email(data.email);
-      savedEnableNotifications = enableNotifications(data.email_me);
-      savedCheckinAliases = checkinAliases(data.checkin_aliases.join(", "));
-    }
+    this.reset = () => {
+      this.email(savedEmail);
+      this.enableNotifications(savedEnableNotifications);
+      this.checkinAliases(savedCheckinAliases);
+    };
 
-    function config(attrs, updateCallback) {
-      return _.assign(attrs, {action: apiUrl, method: "PATCH", onsubmit: function save(e) {
+    this.config = (attrs, updateCallback) => {
+      return _.assign(attrs, {action: resourceUrl, method: "PATCH", onsubmit: (e) => {
         e.preventDefault();
         errors(null);
 
-        $.ajax({
-          method:   "PATCH",
-          url:      apiUrl,
-          dataType: "json",
-          headers:  {
-            "Accept":       mr.versionHeader(API_VERSION),
-            "Content-Type": "application/json"
-          },
-          data:     JSON.stringify(payload)
-        }).done((data) => {
-          updateUserBindings(data);
-
-          if ("function" === typeof updateCallback) {
-            updateCallback(e, data);
-          }
-        }).fail(({responseJSON}) => {
-          errors(responseJSON.message.replace(/^Failed to add user\. Validations failed\. /, "")); // Strip the localized message orefix
+        this.update().then((data) => {
+          updateCallback(e, data);
+        }, (message) => {
+          errors(message.replace(/^Failed to add user\. Validations failed\. /, "")); // Strip the localized message orefix
         }).always(() => m.redraw());
       }});
-    }
-
-    return {
-      load,
-      reset,
-      config,
-      get email() { return email; },
-      get enableNotifications() { return enableNotifications; },
-      get checkinAliases() { return checkinAliases; }
     };
+
+    CrudMixins.AllOperations.call(this, ["refresh", "update"], {type: this, resourceUrl, version: "v1"}, {update: {method: "PATCH"}});
   }
 
   module.exports = EmailSettings;

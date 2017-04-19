@@ -190,19 +190,13 @@ CrudMixins.Refresh = function (options) {
   };
 };
 
-CrudMixins.AllOperations = function (operations, options) {
-  if (_.includes(operations, 'create')) {
-    CrudMixins.Create.call(this, options);
-  }
-  if (_.includes(operations, 'refresh')) {
-    CrudMixins.Refresh.call(this, options);
-  }
-  if (_.includes(operations, 'update')) {
-    CrudMixins.Update.call(this, options);
-  }
-  if (_.includes(operations, 'delete')) {
-    CrudMixins.Delete.call(this, options);
-  }
+CrudMixins.AllOperations = function (operations, options, overrides={}) {
+  _.each(operations, (op) => {
+    const mixin = CrudMixins[_.capitalize(op)];
+    if ("function" === typeof mixin) {
+      mixin.call(this, _.assign({}, options, overrides[op] || {}));
+    }
+  });
 };
 
 module.exports = CrudMixins;

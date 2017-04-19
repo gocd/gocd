@@ -21,12 +21,19 @@
   const f = require("helpers/form_helper");
 
   function AddNotificationFilterWidget(filterModels, pipelineModel) {
+
+    function onreset(e) { // don't preventDefault() here; still want the native behavior too!
+      filterModels.reset();
+      pipelineModel.reset();
+      e.currentTarget.querySelector("input[type='checkbox']").setAttribute("checked", filterModels.myCommits());
+    }
+
     return {
       oninit() {
         filterModels.load();
       },
       view() {
-        return m("form", {class: "create-notification-filter", onsubmit: filterModels.save, onreset: (e) => {filterModels.myCommits(true); e.currentTarget.querySelector("input[type='checkbox']").setAttribute("checked", true);}},
+        return m("form", {class: "create-notification-filter", onsubmit: filterModels.save, onreset},
           m(f.select, {
             label:      "Pipeline",
             name:       "pipeline",

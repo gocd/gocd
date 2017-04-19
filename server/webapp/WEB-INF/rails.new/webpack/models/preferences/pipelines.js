@@ -48,11 +48,16 @@
       return stagesByPipeline[pipeline];
     });
 
+    function reset() {
+      currentPipeline(DEFAULT_PIPELINE);
+    }
+
     return {
       pipelines,
       currentPipeline,
       stages,
-      events
+      events,
+      reset
     };
   }
 

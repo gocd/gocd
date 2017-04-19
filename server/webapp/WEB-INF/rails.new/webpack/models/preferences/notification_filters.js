@@ -69,9 +69,14 @@
       req("DELETE", `${apiUrl}/${id}`).done(filters).fail(handleError).always(redraw);
     }
 
+    function reset() {
+      this.myCommits(true);
+    }
+
     this.load    = fetchFilters;
     this.save    = createFilter;
     this.delete  = deleteFilter;
+    this.reset   = reset;
     this.errors  = errors;
   }
 

@@ -63,7 +63,7 @@ public class TestArtifactPlanTest {
                 new TestArtifactPlan("some_random_path_that_does_not_exist",
                         "testoutput"));
         compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
-        verify(mockArtifactPublisher).consumeLineWithPrefix("The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
+        verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
     }
 
     @Test

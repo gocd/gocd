@@ -61,8 +61,8 @@ Jobs.Job = function (data) {
   this.artifacts            = s.collectionToJSON(Stream(s.defaultToIfBlank(data.artifacts, new Artifacts())));
   this.tabs                 = s.collectionToJSON(Stream(s.defaultToIfBlank(data.tabs, new Tabs())));
   this.properties           = s.collectionToJSON(Stream(s.defaultToIfBlank(data.properties, new Properties())));
-  const _elasticProfileId     = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
-  this.elasticProfileId     = function(...args) {
+  const _elasticProfileId   = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
+  this.elasticProfileId     = function (...args) {
     if (args.length === 1) {
       // setter
       if (args[0] === 'null' || args[0] === 'undefined') {
@@ -76,6 +76,16 @@ Jobs.Job = function (data) {
   };
 
   this.elasticProfileId.toJSON = _elasticProfileId.toJSON.bind(_elasticProfileId);
+
+  this.isBlank = function () {
+    return s.isBlank(this.name()) &&
+      s.isBlank(this.resources()) || s.isBlank(this.elasticProfileId()) &&
+      this.environmentVariables().everyVariable((variable) => variable.isBlank()) &&
+      this.tasks().everyTask((task) => task.isEmpty()) &&
+      this.tabs().everyTab((tab) => tab.isBlank()) &&
+      this.properties().everyProperty((property) => property.isBlank()) &&
+      this.artifacts().everyArtifact((artifact) => artifact.isBlank());
+  };
 
   this.isRunOnAllAgents = function () {
     return this.runInstanceCount() === 'all';

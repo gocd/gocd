@@ -28,6 +28,7 @@ module Admin
       @all_users     = user_service.allUsernames()
       @all_roles     = user_service.allRoleNames()
       @view_title    = "Edit Pipeline - #{params[:pipeline_name]}"
+      @enable_new_quick_edit_page = Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SPA_ON_NEW_MITHRIL_TOGGLE_KEY)
     end
 
     private

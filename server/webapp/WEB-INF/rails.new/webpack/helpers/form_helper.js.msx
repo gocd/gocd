@@ -35,6 +35,14 @@ function compactClasses(args) {
   return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
 }
 
+function unwrapStream(maybeStream) {
+  if ("function" === typeof maybeStream) { // heuristic is good enough; no need to test with `instanceof`
+    return maybeStream();
+  }
+
+  return maybeStream;
+}
+
 // ensures the input is either an array or is wrapped in an array.
 // also removes blank members (empty strings, null, etc) and optionally
 // applies a transform on each item.
@@ -221,10 +229,10 @@ let f = {
 
       const model        = wireUpModel(args), // alters args, should be called first
         validationErrors = validateModel(model, args),
-        items            = s.defaultToStream(deleteKeyAndReturnValue(args, "items", [])),
+        items            = coerceArray(unwrapStream(deleteKeyAndReturnValue(args, "items", []))),
         label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
         contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
-        selected         = args.value;
+        selected         = unwrapStream(args.value);
 
       args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
       const labelAttrs = {};
@@ -235,11 +243,11 @@ let f = {
       }
 
       const selectElement = [<select {...args}>{
-        _.map(items(), (item) => {
-          // item can be either a string or an object
-          const text = s.defaultToStream(item.text, item)();
-          const id = s.defaultToStream(item.id, text)();
-          return <option value={id} selected={("function" === typeof selected ? selected() : selected) === id}>{text}</option>;
+        _.map(items, (item) => {
+          // item may be a string or an object
+          const text = item.text || item;
+          const id = item.id || text;
+          return <option value={id} selected={selected === id}>{text}</option>;
         })
       }</select>, contentAfter];
 

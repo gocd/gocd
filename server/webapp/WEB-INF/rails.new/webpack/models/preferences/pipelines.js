@@ -28,15 +28,15 @@
     const data = json.slice(); // duplicate because we will modify
     data.unshift({pipeline: DEFAULT_PIPELINE, stages: [DEFAULT_STAGE]});
 
-    const pipelines = Stream(_.map(data, "pipeline"));
-    const events    = Stream([
+    const pipelines = _.map(data, "pipeline");
+    const events    = [
       "All",
       "Passes",
       "Fails",
       "Breaks",
       "Fixed",
       "Cancelled"
-    ]);
+    ];
 
     const stagesByPipeline = _.reduce(data, (memo, entry) => {
       memo[entry.pipeline] = (entry.stages.indexOf(DEFAULT_STAGE) === -1) ? [DEFAULT_STAGE].concat(entry.stages) : entry.stages;
@@ -44,7 +44,7 @@
     }, {});
 
     const currentPipeline = Stream(DEFAULT_PIPELINE);
-    const stages = currentPipeline.map((pipeline) => {
+    const stages          = currentPipeline.map((pipeline) => {
       return stagesByPipeline[pipeline];
     });
 

@@ -75,11 +75,11 @@ define([
     this.isBlank = function () {
       return s.isBlank(this.name()) &&
         s.isBlank(this.resources()) || s.isBlank(this.elasticProfileId()) &&
-        this.environmentVariables().everyVariable((variable) => variable.isBlank()) &&
-        this.tasks().everyTask((task) => task.isEmpty()) &&
-        this.tabs().everyTab((tab) => tab.isBlank()) &&
-        this.properties().everyProperty((property) => property.isBlank()) &&
-        this.artifacts().everyArtifact((artifact) => artifact.isBlank());
+        this.environmentVariables().everyVariable(function (variable) { return variable.isBlank(); }) &&
+        this.tasks().everyTask(function (task) { return task.isEmpty(); }) &&
+        this.tabs().everyTab(function (tab) { return tab.isBlank(); }) &&
+        this.properties().everyProperty(function (property) { return property.isBlank(); }) &&
+        this.artifacts().everyArtifact(function (artifact) { return artifact.isBlank(); });
     };
 
     this.isRunOnAllAgents = function () {

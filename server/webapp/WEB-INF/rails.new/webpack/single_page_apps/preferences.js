@@ -47,7 +47,6 @@
     const filtersModel       = new NotificationFilters(filtersUrl, errorsModel);
     const pipelinesModel     = new Pipelines(pipelines);
 
-    const EmailSettingsView           = new EmailSettingsWidget(emailSettingsModel, smtpEnabled);
     const AddNotificationFilterView   = new AddNotificationFilterWidget(filtersModel, pipelinesModel);
 
     const ErrorMessageWidget = {
@@ -67,7 +66,7 @@
     m.mount(main, {
       view() {
         return [
-          m(EmailSettingsView),
+          m(EmailSettingsWidget, {model: emailSettingsModel, smtpEnabled}),
           m("div", {class: "filter-controls"},
             m("h2", "Create Notification Filter"),
             m(AddNotificationFilterView),

@@ -18,77 +18,61 @@
 
   const m      = require("mithril");
   const Stream = require("mithril/stream");
+  const mr     = require("helpers/mrequest");
+  const _      = require("lodash");
+  const $      = require("jquery");
+
+  function req(method, url, data) {
+    const headers = { "Accept": mr.versionHeader("v1") }, timeout = mr.timeout, contentType = "application/json", dataType = "json";
+    return $.ajax(_.omitBy({ method, url, timeout, headers, data, contentType, dataType }, _.isEmpty));
+  }
+
+  function serialize(form) {
+    const data = new FormData(form), result = {}, iter = data.entries();
+    let current;
+
+    while (!(current = iter.next()).done) {
+      const entry = current.value;
+      result[entry[0]] = entry[1];
+    }
+
+    return JSON.stringify(result);
+  }
 
   function NotificationFilters(apiUrl, errors) {
-
-    const filters = Stream();
+    const filters = this.filters = Stream();
 
     // persists checkbox state, defaulting to true. without this Stream,
     // without this the checkbox will be reset each time a filter is created,
     // which is an unexpected user experience.
-    const myCommits = Stream(true);
+    this.myCommits = Stream(true);
+
+    const handleError = ({responseJSON}) => errors(responseJSON.message);
+    const redraw      = () => m.redraw();
 
     function fetchFilters() {
-      m.request({
-        method:  "GET",
-        url:     apiUrl,
-        headers: {
-          Accept: "application/vnd.go.cd.v1+json"
-        }
-      }).then(filters);
-    }
-
-    function serialize(form) {
-      const data = new FormData(form), result = {}, i = data.entries();
-      let current;
-
-      while (!(current = i.next()).done) {
-        const entry = current.value;
-        result[entry[0]] = entry[1];
-      }
-
-      return result;
+      req("GET", apiUrl).done(filters).fail(handleError).always(redraw);
     }
 
     function createFilter(e) {
       e.preventDefault();
       errors(null);
 
-      const form = e.currentTarget;
-
-      m.request({
-        method:  "POST",
-        url:     apiUrl,
-        data:    serialize(form),
-        headers: {
-          Accept: "application/vnd.go.cd.v1+json"
-        }
-      }).then(filters, (data) => {
-        errors(data.message);
-      });
+      req("POST", apiUrl, serialize(e.currentTarget)).done(filters).fail(handleError).always(redraw);
     }
 
     function deleteFilter(e) {
       e.preventDefault();
+      errors(null);
 
-      const button = e.currentTarget;
-      const id = parseInt(button.getAttribute("data-filter-id"), 10);
-
-      m.request({
-        method:  "DELETE",
-        url:     `${apiUrl}/${id}`,
-        headers: {
-          Accept: "application/vnd.go.cd.v1+json"
-        }
-      }).then(filters);
+      const id = parseInt(e.currentTarget.getAttribute("data-filter-id"), 10);
+      req("DELETE", `${apiUrl}/${id}`).done(filters).fail(handleError).always(redraw);
     }
 
     this.load    = fetchFilters;
     this.save    = createFilter;
     this.delete  = deleteFilter;
-    this.myCommits = myCommits;
-    this.filters = filters;
-    this.errors = errors;
+    this.errors  = errors;
   }
 
   module.exports = NotificationFilters;

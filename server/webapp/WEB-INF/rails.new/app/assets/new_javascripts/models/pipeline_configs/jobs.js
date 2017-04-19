@@ -72,16 +72,6 @@ define([
 
     this.elasticProfileId.toJSON = _elasticProfileId.toJSON;
 
-    this.isBlank = function () {
-      return s.isBlank(this.name()) &&
-        s.isBlank(this.resources()) || s.isBlank(this.elasticProfileId()) &&
-        this.environmentVariables().everyVariable((variable) => variable.isBlank()) &&
-        this.tasks().everyTask((task) => task.isEmpty()) &&
-        this.tabs().everyTab((tab) => tab.isBlank()) &&
-        this.properties().everyProperty((property) => property.isBlank()) &&
-        this.artifacts().everyArtifact((artifact) => artifact.isBlank());
-    };
-
     this.isRunOnAllAgents = function () {
       return this.runInstanceCount() === 'all';
     };

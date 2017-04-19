@@ -17,7 +17,7 @@
 require 'spec_helper'
 
 describe ApiV1::Security::AuthConfigRepresenter do
-  it 'Represents a authconfig' do
+  it 'should serialize AuthConfig to json' do
     authConfig = SecurityAuthConfig.new('foo', 'docker', ConfigurationPropertyMother.create('foo', false, 'bar'))
     actual_json = ApiV1::Security::AuthConfigRepresenter.new(authConfig).to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:doc, :self, :find)

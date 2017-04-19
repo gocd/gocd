@@ -16,22 +16,46 @@
 
 module ApiV1
   module Security
-    class RoleConfigRepresenter < RoleRepresenter
+    class RoleConfigRepresenter < ApiV1::BaseRepresenter
+      alias_method :role, :represented
 
-      error_representer({})
-      collection :users, exec_context: :decorator
+      TYPE_TO_ROLE = {
+        'gocd'   => RoleConfig,
+        'plugin' => PluginRoleConfig
+      }
 
-      protected
-      def users
-        role.usersOfRole
+      ROLE_TO_TYPE = TYPE_TO_ROLE.invert
+
+      ROLE_TO_REPRESENTER = {
+        PluginRoleConfig => PluginRoleConfigRepresenter,
+        RoleConfig       => GocdRoleConfigRepresenter,
+      }
+
+      error_representer({'authConfigId' => 'auth_config_id'})
+
+      link :self do |opts|
+        opts[:url_builder].apiv1_admin_security_role_url(role_name: role.name.to_s) unless role.name.blank?
       end
 
-      def users=(new_users)
-        new_users.each do |user|
-          role.addUser(RoleUser.new(user))
+      link :doc do |opts|
+        'https://api.gocd.io/#roles'
+      end
+
+      link :find do |opts|
+        opts[:url_builder].apiv1_admin_security_role_url(role_name: '__role_name__').gsub('__role_name__', ':role_name')
+      end
+
+      property :name, case_insensitive_string: true
+
+      property :type, getter: lambda { |options| ROLE_TO_TYPE[self.class] }, skip_parse: true
+
+      nested :attributes, decorator: lambda { |role, *| ROLE_TO_REPRESENTER[role.class] }
+
+      class << self
+        def get_role_type(type)
+          TYPE_TO_ROLE[type] or (raise UnprocessableEntity, "Invalid role type '#{type}'. It has to be one of '#{TYPE_TO_ROLE.keys.join(' ')}'")
         end
       end
-
     end
   end
 end

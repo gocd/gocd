@@ -46,7 +46,6 @@ public class RoleConfigUpdateCommandTest {
     public ExpectedException thrown = ExpectedException.none();
     private EntityHashingService entityHashingService;
 
-
     @Before
     public void setUp() throws Exception {
         currentUser = new Username("bob");

@@ -63,10 +63,12 @@ describe ApiV1::Admin::Security::RolesController do
     end
 
     describe 'admin' do
-      it 'should list all security auth configs' do
+      before :each do
         enable_security
         login_as_admin
+      end
 
+      it 'should list all security auth configs' do
         role = PluginRoleConfig.new('foo', 'ldap')
         @service.should_receive(:listAll).and_return([role])
 
@@ -74,6 +76,24 @@ describe ApiV1::Admin::Security::RolesController do
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response([role], ApiV1::Security::RolesConfigRepresenter))
+      end
+
+      it 'should list roles by type' do
+        plugin_role_config = PluginRoleConfig.new('foo', 'ldap')
+        gocd_role_config = RoleConfig.new(CaseInsensitiveString.new('bar'))
+
+        @service.should_receive(:listAll).and_return([plugin_role_config, gocd_role_config])
+
+        get_with_api_header :index, type: 'plugin'
+
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response([plugin_role_config], ApiV1::Security::RolesConfigRepresenter))
+      end
+
+      it 'should error out if listing roles by a wrong type' do
+        get_with_api_header :index, type: 'invalid'
+
+        expect(response).to have_api_message_response(400, 'Bad role type `invalid`. Valid values are `gocd` and `plugin`')
       end
     end
 
@@ -154,7 +174,7 @@ describe ApiV1::Admin::Security::RolesController do
         get_with_api_header :show, role_name: 'blackbird'
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(role, ApiV1::Security::PluginRoleConfigRepresenter))
+        expect(actual_response).to eq(expected_response(role, ApiV1::Security::RoleConfigRepresenter))
       end
 
       it 'should return 404 if the security auth config does not exist' do
@@ -204,6 +224,10 @@ describe ApiV1::Admin::Security::RolesController do
 
   describe :create do
     describe :security do
+      before :each do
+        @service.stub(:findRole).with(anything).and_return(nil)
+      end
+
       it 'should allow all with security disabled' do
         disable_security
 
@@ -234,9 +258,11 @@ describe ApiV1::Admin::Security::RolesController do
       it 'should disallow pipeline group admin users, with security enabled' do
         enable_security
         login_as_group_admin
+
         expect(controller).to disallow_action(:post, :create)
       end
     end
+
     describe 'admin' do
       before(:each) do
         enable_security
@@ -246,11 +272,12 @@ describe ApiV1::Admin::Security::RolesController do
       it 'should deserialize auth config from given parameters' do
         role = PluginRoleConfig.new('blackbird', 'blackbird', ConfigurationPropertyMother.create('foo', false, 'bar'))
         controller.stub(:etag_for).and_return('some-md5')
+        @service.should_receive(:findRole).with(anything).and_return(nil)
         @service.should_receive(:create).with(anything, an_instance_of(PluginRoleConfig), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, role: plugin_role_hash
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(role, ApiV1::Security::PluginRoleConfigRepresenter))
+        expect(actual_response).to eq(expected_response(role, ApiV1::Security::RoleConfigRepresenter))
       end
 
       it 'should fail to save if there are validation errors' do
@@ -259,11 +286,21 @@ describe ApiV1::Admin::Security::RolesController do
         result.stub(:isSuccessful).and_return(false)
         result.stub(:message).with(anything()).and_return('Save failed')
         result.stub(:httpCode).and_return(422)
+        @service.should_receive(:findRole).with(anything).and_return(nil)
         @service.should_receive(:create).with(anything, an_instance_of(RoleConfig), result)
 
         post_with_api_header :create, role: role_hash
 
         expect(response).to have_api_message_response(422, 'Save failed')
+      end
+
+      it 'should check for existence of role with same name' do
+        @service.should_receive(:findRole).with('blackbird').and_return(PluginRoleConfig.new)
+
+        post_with_api_header :create, role: role_hash
+
+        expect(@service).not_to receive(:create)
+        expect(response).to have_api_message_response(422, "Failed to add role. The role 'blackbird' already exists.")
       end
     end
     describe :route do
@@ -356,7 +393,7 @@ describe ApiV1::Admin::Security::RolesController do
         put_with_api_header :update, role_name: 'blackbird', role: plugin_role_hash
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(role, ApiV1::Security::PluginRoleConfigRepresenter))
+        expect(actual_response).to eq(expected_response(role, ApiV1::Security::RoleConfigRepresenter))
       end
     end
 
@@ -504,15 +541,21 @@ describe ApiV1::Admin::Security::RolesController do
   def role_hash
     {
       name: 'blackbird',
-      users: %w(bob alice)
+      type: 'gocd',
+      attributes: {
+        users: %w(bob alice)
+      }
     }
   end
 
   def plugin_role_hash
     {
       name: 'blackbird',
-      auth_config_id: 'blackbird',
-      properties: [{key: 'foo', value: 'bar'}]
+      type: 'plugin',
+      attributes: {
+        auth_config_id: 'blackbird',
+        properties: [{key: 'foo', value: 'bar'}]
+      }
     }
   end
 end

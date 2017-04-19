@@ -61,5 +61,4 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
         }
         return freshRequest;
     }
-
 }

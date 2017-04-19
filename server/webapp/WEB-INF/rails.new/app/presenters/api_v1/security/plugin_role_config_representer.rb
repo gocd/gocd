@@ -16,9 +16,8 @@
 
 module ApiV1
   module Security
-    class PluginRoleConfigRepresenter < RoleRepresenter
-
-      error_representer({'authConfigId' => 'auth_config_id'})
+    class PluginRoleConfigRepresenter < BaseRepresenter
+      alias_method :role, :represented
 
       property :auth_config_id
       collection :properties, exec_context: :decorator, decorator: ApiV1::Config::PluginConfigurationPropertyRepresenter, class: ConfigurationProperty

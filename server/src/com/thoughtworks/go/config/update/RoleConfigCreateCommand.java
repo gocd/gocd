@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -34,6 +33,7 @@ public class RoleConfigCreateCommand extends RoleConfigCommand {
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         preprocessedConfig.server().security().addRole(role);
     }
+
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,22 +16,21 @@
 
 module ApiV1
   module Security
-    class RoleRepresenter < ApiV1::BaseRepresenter
+    class GocdRoleConfigRepresenter < BaseRepresenter
       alias_method :role, :represented
 
-      link :self do |opts|
-        opts[:url_builder].apiv1_admin_security_role_url(role_name: role.name.to_s) unless role.name.blank?
+      collection :users, exec_context: :decorator
+
+      protected
+      def users
+        role.usersOfRole
       end
 
-      link :doc do |opts|
-        'https://api.gocd.io/#roles'
+      def users=(new_users)
+        new_users.each do |user|
+          role.addUser(RoleUser.new(user))
+        end
       end
-
-      link :find do |opts|
-        opts[:url_builder].apiv1_admin_security_role_url(role_name: '__role_name__').gsub('__role_name__', ':role_name')
-      end
-
-      property :name, case_insensitive_string: true
 
     end
   end

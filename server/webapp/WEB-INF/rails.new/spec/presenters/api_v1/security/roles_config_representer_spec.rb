@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe ApiV1::Security::RolesConfigRepresenter do
 
-  it 'should serialize role to json' do
+  it 'should serialize gocd role to json' do
     role = RoleConfig.new(CaseInsensitiveString.new('foo'), RoleUser.new('bob'), RoleUser.new('alice'))
     actual_json = ApiV1::Security::RolesConfigRepresenter.new([role]).to_hash(url_builder: UrlBuilder.new)
 
@@ -48,7 +48,7 @@ describe ApiV1::Security::RolesConfigRepresenter do
     actual_json.delete(:_links)
 
     expect(actual_json).to eq(_embedded: {
-      roles: [ApiV1::Security::PluginRoleConfigRepresenter.new(role).to_hash(url_builder: UrlBuilder.new)]
+      roles: [ApiV1::Security::RoleConfigRepresenter.new(role).to_hash(url_builder: UrlBuilder.new)]
     })
   end
 

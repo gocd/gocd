@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ describe ApiV1::Elastic::ProfilesController do
   describe :show do
     describe :security do
       before :each do
-        controller.stub(:load_profile).and_return(nil)
+        controller.stub(:load_entity_from_config).and_return(nil)
       end
 
       it 'should allow all with security disabled' do
@@ -284,7 +284,7 @@ describe ApiV1::Elastic::ProfilesController do
   describe :update do
     describe :security do
       before :each do
-        controller.stub(:load_profile).and_return(nil)
+        controller.stub(:load_entity_from_config).and_return(nil)
         controller.stub(:check_for_stale_request).and_return(nil)
       end
       it 'should allow all with security disabled' do
@@ -327,17 +327,17 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should not allow rename of profile id' do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:load_profile).and_return(profile)
+        controller.stub(:load_entity_from_config).and_return(profile)
         controller.stub(:check_for_stale_request).and_return(nil)
 
         put_with_api_header :update, profile_id: 'foo', profile: profile_hash
 
-        expect(response).to have_api_message_response(422, 'Renaming of profile IDs is not supported by this API.')
+        expect(response).to have_api_message_response(422, 'Renaming of elastic agent profile IDs is not supported by this API.')
       end
 
       it 'should fail update if etag does not match' do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:load_profile).and_return(profile)
+        controller.stub(:load_entity_from_config).and_return(profile)
         controller.stub(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = 'some-etag'
 
@@ -349,7 +349,7 @@ describe ApiV1::Elastic::ProfilesController do
       it 'should proceed with update if etag matches' do
         controller.request.env['HTTP_IF_MATCH'] = %Q{"#{Digest::MD5.hexdigest('md5')}"}
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:load_profile).twice.and_return(profile)
+        controller.stub(:load_entity_from_config).twice.and_return(profile)
 
         @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).exactly(3).times.and_return('md5')
         @elastic_profile_service.should_receive(:update).with(anything, 'md5', an_instance_of(ElasticProfile), anything)
@@ -398,7 +398,7 @@ describe ApiV1::Elastic::ProfilesController do
   describe :destroy do
     describe :security do
       before :each do
-        controller.stub(:load_profile).and_return(nil)
+        controller.stub(:load_entity_from_config).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security

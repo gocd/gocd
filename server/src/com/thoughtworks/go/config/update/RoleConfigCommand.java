@@ -18,31 +18,25 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import static com.thoughtworks.go.util.StringUtil.isBlank;
-
 abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
     protected final GoConfigService goConfigService;
-    private AuthorizationExtension extension;
     protected final Role role;
     protected final Username currentUser;
     protected final LocalizedOperationResult result;
     protected Role preprocessedRole;
 
-    public RoleConfigCommand(GoConfigService goConfigService, Role role, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
+    public RoleConfigCommand(GoConfigService goConfigService, Role role, Username currentUser, LocalizedOperationResult result) {
         this.goConfigService = goConfigService;
-        this.extension = extension;
         this.role = role;
         this.currentUser = currentUser;
         this.result = result;
@@ -63,71 +57,124 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         return isAuthorized();
     }
 
-    protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
-        preprocessedRole = findExistingRole(preprocessedConfig);
-        preprocessedRole.validate(null);
-        validate(preprocessedConfig);
+    @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        preprocessedRole = preprocessedConfig.server().security().getRoles().findByName(role.getName());
 
-        if (preprocessedRole.errors().isEmpty()) {
-            preprocessedConfig.server().security().getRoles().validate(null);
+        if (!preprocessedRole.validateTree(validationContextWithSecurityConfig(preprocessedConfig))) {
             BasicCruiseConfig.copyErrors(preprocessedRole, role);
-            return preprocessedRole.getAllErrors().isEmpty() && role.errors().isEmpty();
+            return false;
         }
 
-        BasicCruiseConfig.copyErrors(preprocessedRole, role);
-        return false;
+        return true;
     }
 
-    private void validate(CruiseConfig preprocessedConfig) {
-        if (role instanceof PluginRoleConfig) {
-            PluginRoleConfig role = (PluginRoleConfig) this.role;
-            PluginRoleConfig preprocessedRole = (PluginRoleConfig) this.preprocessedRole;
-
-            SecurityAuthConfig securityAuthConfig = preprocessedConfig.server().security().securityAuthConfigs().find(role.getAuthConfigId());
-            if (securityAuthConfig == null) {
-                role.addError("authConfigId", "No such security auth configuration present " + role.getAuthConfigId());
-                return;
+    protected ValidationContext validationContextWithSecurityConfig(final CruiseConfig preprocessedConfig) {
+        return new ValidationContext() {
+            @Override
+            public ConfigReposConfig getConfigRepos() {
+                return null;
             }
-            try {
-                ValidationResult result = extension.validateRoleConfiguration(securityAuthConfig.getPluginId(), role.getConfigurationAsMap(true));
-                if (!result.isSuccessful()) {
-                    for (ValidationError validationError : result.getErrors()) {
-                        ConfigurationProperty property = preprocessedRole.getProperty(validationError.getKey());
-                        if (property == null) {
-                            role.addNewConfiguration(validationError.getKey(), false);
-                            preprocessedRole.addNewConfiguration(validationError.getKey(), false);
-                            property = preprocessedRole.getProperty(validationError.getKey());
-                        }
-                        property.addError(validationError.getKey(), validationError.getMessage());
 
-                    }
-                }
-            } catch (PluginNotFoundException e) {
-                role.addError("authConfigId", "Could not find a security authorization config with id '" + role.getAuthConfigId() + "'.");
+            @Override
+            public boolean isWithinPipelines() {
+                return false;
             }
-        }
+
+            @Override
+            public PipelineConfig getPipeline() {
+                return null;
+            }
+
+            @Override
+            public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
+                return null;
+            }
+
+            @Override
+            public StageConfig getStage() {
+                return null;
+            }
+
+            @Override
+            public boolean isWithinTemplates() {
+                return false;
+            }
+
+            @Override
+            public String getParentDisplayName() {
+                return null;
+            }
+
+            @Override
+            public Validatable getParent() {
+                return null;
+            }
+
+            @Override
+            public JobConfig getJob() {
+                return null;
+            }
+
+            @Override
+            public PipelineConfigs getPipelineGroup() {
+                return null;
+            }
+
+            @Override
+            public PipelineTemplateConfig getTemplate() {
+                return null;
+            }
+
+            @Override
+            public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
+                return null;
+            }
+
+            @Override
+            public boolean shouldCheckConfigRepo() {
+                return false;
+            }
+
+            @Override
+            public SecurityConfig getServerSecurityConfig() {
+                return preprocessedConfig.server().security();
+            }
+
+            @Override
+            public boolean doesTemplateExist(CaseInsensitiveString template) {
+                return false;
+            }
+
+            @Override
+            public SCM findScmById(String scmID) {
+                return null;
+            }
+
+            @Override
+            public PackageRepository findPackageById(String packageId) {
+                return null;
+            }
+
+            @Override
+            public ValidationContext withParent(Validatable validatable) {
+                return null;
+            }
+
+            @Override
+            public boolean isValidProfileId(String profileId) {
+                return false;
+            }
+
+            @Override
+            public boolean shouldNotCheckRole() {
+                return false;
+            }
+        };
     }
-
 
     final Role findExistingRole(CruiseConfig cruiseConfig) {
-        if (role == null || isBlank(role.getName().toString())) {
-            if (role != null) {
-                role.addError("name", "Plugin role config cannot have a blank name.");
-            }
-            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "plugin role config", "name"));
-            throw new IllegalArgumentException("Plugin role config name cannot be null.");
-        } else {
-            Role t = cruiseConfig.server().security().getRoles().findByName(role.getName());
-            if (t == null) {
-                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", getTagName(), role.getName()), HealthStateType.notFound());
-                throw new RoleNotFoundException("Plugin role config `" + role.getName() + "` does not exist.");
-            }
-            return t;
-        }
-    }
-
-    private String getTagName() {
-        return role.getClass().getAnnotation(ConfigTag.class).value();
+        return cruiseConfig.server().security().getRoles().findByName(role.getName());
     }
 
     protected final boolean isAuthorized() {

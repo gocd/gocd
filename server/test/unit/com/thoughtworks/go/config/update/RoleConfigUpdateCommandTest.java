@@ -33,6 +33,8 @@ import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,21 +44,14 @@ public class RoleConfigUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
+    private EntityHashingService entityHashingService;
 
     @Before
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-    }
-
-    @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistentRole() throws Exception {
-        cruiseConfig.server().security().getRoles().clear();
-        RoleConfigCommand command = new RoleConfigUpdateCommand(null, new RoleConfig(new CaseInsensitiveString("foo")), null, null, new HttpLocalizedOperationResult(), null, null);
-        thrown.expect(RoleNotFoundException.class);
-        command.update(cruiseConfig);
+        entityHashingService = mock(EntityHashingService.class);
     }
 
     @Test
@@ -71,16 +66,26 @@ public class RoleConfigUpdateCommandTest {
     }
 
     @Test
-    public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+    public void currentUserShouldBeAnAdminToAddRole() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username viewUser = mock(Username.class);
 
+        when(goConfigService.isUserAdmin(viewUser)).thenReturn(false);
+
+        RoleConfigUpdateCommand command = new RoleConfigUpdateCommand(goConfigService, null, null, viewUser, result, mock(EntityHashingService.class), "md5");
+
+        assertFalse(command.canContinue(null));
+        assertFalse(result.isSuccessful());
+        assertThat(result.httpCode(), is(401));
+    }
+
+    @Test
+    public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         PluginRoleConfig oldRole = new PluginRoleConfig("foo", "ldap");
         PluginRoleConfig updatedRole = new PluginRoleConfig("foo", "github");
 
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         cruiseConfig.server().security().getRoles().add(oldRole);
-
-        EntityHashingService entityHashingService = mock(EntityHashingService.class);
-
         when(entityHashingService.md5ForEntity(oldRole)).thenReturn("md5");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -88,5 +93,19 @@ public class RoleConfigUpdateCommandTest {
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
+    }
+
+    @Test
+    public void shouldNotContinueIfExistingRoleIsDeleted() throws Exception {
+        PluginRoleConfig updatedRole = new PluginRoleConfig("foo", "github");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+
+        RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, null, currentUser, result, entityHashingService, "bad-md5");
+
+        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertFalse(result.isSuccessful());
+        assertThat(result.httpCode(), is(404));
     }
 }

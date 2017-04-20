@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo;
@@ -49,10 +51,11 @@ public class AuthorizationPluginInfoBuilderTest {
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings roleSettings =
                 new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("memberOf", new Metadata(true, false))),
                         new com.thoughtworks.go.plugin.domain.common.PluginView("role_config_view"));
+        final Capabilities domainCapabilities = new Capabilities(SupportedAuthType.Password, true, true);
 
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
         AuthorizationMetadataStore authorizationMetadataStore = AuthorizationMetadataStore.instance();
-        authorizationMetadataStore.setPluginInfo(new com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo(plugin, authSettings, roleSettings, image, null));
+        authorizationMetadataStore.setPluginInfo(new com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo(plugin, authSettings, roleSettings, image, domainCapabilities));
 
         AuthorizationPluginInfoBuilder builder = new AuthorizationPluginInfoBuilder(authorizationMetadataStore);
         AuthorizationPluginInfo pluginInfo = builder.pluginInfoFor(plugin.id());
@@ -68,9 +71,11 @@ public class AuthorizationPluginInfoBuilderTest {
         PluggableInstanceSettings authConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", passwordMetadata)), new PluginView("auth_config_view"));
         PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("memberOf", memberOfMetadata)), new PluginView("role_config_view"));
 
+        com.thoughtworks.go.plugin.access.authorization.models.Capabilities capabilities = new com.thoughtworks.go.plugin.access.authorization.models.Capabilities(com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType.valueOf(domainCapabilities.getSupportedAuthType().name()),
+                domainCapabilities.canSearch(), domainCapabilities.canAuthorize());
 
         assertEquals(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings,
-                new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData())), pluginInfo);
+                new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData()), capabilities), pluginInfo);
     }
 
     @Test
@@ -92,10 +97,11 @@ public class AuthorizationPluginInfoBuilderTest {
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings roleSettings =
                 new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("memberOf", new Metadata(true, false))),
                         new com.thoughtworks.go.plugin.domain.common.PluginView("role_config_view"));
+        final Capabilities domainCapabilities = new Capabilities(SupportedAuthType.Password, true, true);
 
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
         AuthorizationMetadataStore authorizationMetadataStore = AuthorizationMetadataStore.instance();
-        authorizationMetadataStore.setPluginInfo(new com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo(plugin, authSettings, roleSettings, image, null));
+        authorizationMetadataStore.setPluginInfo(new com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo(plugin, authSettings, roleSettings, image, domainCapabilities));
 
         AuthorizationPluginInfoBuilder builder = new AuthorizationPluginInfoBuilder(authorizationMetadataStore);
         Collection<AuthorizationPluginInfo> pluginInfos = builder.allPluginInfos();
@@ -112,7 +118,9 @@ public class AuthorizationPluginInfoBuilderTest {
         PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("memberOf", memberOfMetadata)), new PluginView("role_config_view"));
 
 
+        com.thoughtworks.go.plugin.access.authorization.models.Capabilities capabilities = new com.thoughtworks.go.plugin.access.authorization.models.Capabilities(com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType.valueOf(domainCapabilities.getSupportedAuthType().name()),
+                domainCapabilities.canSearch(), domainCapabilities.canAuthorize());
         assertEquals(Arrays.asList(new AuthorizationPluginInfo(plugin, authConfigSettings, roleConfigSettings,
-                new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData()))), pluginInfos);
+                new com.thoughtworks.go.plugin.access.common.models.Image(image.getContentType(), image.getData()), capabilities)), pluginInfos);
     }
 }

@@ -313,7 +313,7 @@ public class PackageRepositoryServiceTest {
         service.checkConnection(packageRepository, result);
 
         assertThat(result.isSuccessful(), is(false));
-        when(localizer.localize("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", "Check Connection not implemented!!")).thenReturn("error_msg");
+        when(localizer.localize("CHECK_CONNECTION_FAILED", "package repository", "Check Connection not implemented!!")).thenReturn("error_msg");
         assertThat(result.message(localizer), is("error_msg"));
         verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
     }
@@ -334,7 +334,7 @@ public class PackageRepositoryServiceTest {
         PackageMaterialTestHelper.assertPackageConfiguration(packageConfigurations.list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful(), is(false));
 
-        when(localizer.localize("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", "Repo invalid!!\nCould not connect")).thenReturn("error_msg");
+        when(localizer.localize("CHECK_CONNECTION_FAILED", "package repository","Repo invalid!!\nCould not connect")).thenReturn("error_msg");
         assertThat(result.message(localizer), is("error_msg"));
         verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
 

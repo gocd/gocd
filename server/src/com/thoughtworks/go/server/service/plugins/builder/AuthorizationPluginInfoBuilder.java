@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
+import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
 import com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo;
 
 public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBasedPluginInfoBuilder<AuthorizationPluginInfo, AuthorizationMetadataStore> {
@@ -29,11 +31,19 @@ public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBas
     public AuthorizationPluginInfo pluginInfoFor(String pluginId) {
         com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo pluginInfo = store.getPluginInfo(pluginId);
 
-        if(pluginInfo == null) {
+        if (pluginInfo == null) {
             return null;
         }
 
         return new AuthorizationPluginInfo(pluginInfo.getDescriptor(), settings(pluginInfo.getAuthConfigSettings()),
-                settings(pluginInfo.getRoleSettings()), image(pluginInfo.getImage()));
+                settings(pluginInfo.getRoleSettings()), image(pluginInfo.getImage()), capabilities(pluginInfo.getCapabilities()));
+    }
+
+    private Capabilities capabilities(com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities) {
+        return new Capabilities(supportedAuthType(capabilities.getSupportedAuthType()), capabilities.canSearch(), capabilities.canAuthorize());
+    }
+
+    private SupportedAuthType supportedAuthType(com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType) {
+        return SupportedAuthType.valueOf(supportedAuthType.name());
     }
 }

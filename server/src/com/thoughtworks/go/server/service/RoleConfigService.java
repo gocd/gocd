@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RolesConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.RoleConfigCreateCommand;
@@ -28,6 +25,7 @@ import com.thoughtworks.go.config.update.RoleConfigUpdateCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.validators.authorization.RoleConfigurationValidator;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +37,22 @@ public class RoleConfigService {
     private final AuthorizationExtension authorizationExtension;
     private final GoConfigService goConfigService;
     private final EntityHashingService hashingService;
+    private final RoleConfigurationValidator roleConfigurationValidator;
 
     @Autowired
     public RoleConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension) {
         this.goConfigService = goConfigService;
         this.hashingService = hashingService;
         this.authorizationExtension = authorizationExtension;
+        roleConfigurationValidator = new RoleConfigurationValidator(authorizationExtension);
+    }
+
+    protected RoleConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension,
+                                RoleConfigurationValidator roleConfigurationValidator) {
+        this.authorizationExtension = authorizationExtension;
+        this.goConfigService = goConfigService;
+        this.hashingService = hashingService;
+        this.roleConfigurationValidator = roleConfigurationValidator;
     }
 
     public Role findRole(String name) {
@@ -60,7 +68,7 @@ public class RoleConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", getTagName(role), role.getName(), e.getMessage()));
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", getTagName(role), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
@@ -79,18 +87,40 @@ public class RoleConfigService {
     }
 
     public void update(Username currentUser, String md5, Role newRole, LocalizedOperationResult result) {
+        validatePluginRoleMetadata(newRole);
         update(currentUser, newRole, result, new RoleConfigUpdateCommand(goConfigService, newRole, authorizationExtension, currentUser, result, hashingService, md5));
     }
 
     public void delete(Username currentUser, Role role, LocalizedOperationResult result) {
         update(currentUser, role, result, new RoleConfigDeleteCommand(goConfigService, role, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "plugin role config", role.getName()));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", getTagName(role).toLowerCase(), role.getName()));
         }
     }
 
     public void create(Username currentUser, Role newRole, LocalizedOperationResult result) {
-        update(currentUser, newRole, result, new RoleConfigCreateCommand(goConfigService, newRole, authorizationExtension, currentUser, result));
+        validatePluginRoleMetadata(newRole);
+        update(currentUser, newRole, result, new RoleConfigCreateCommand(goConfigService, newRole, currentUser, result));
     }
 
+    private void validatePluginRoleMetadata(Role newRole) {
+        if(newRole instanceof PluginRoleConfig) {
+            PluginRoleConfig role = (PluginRoleConfig) newRole;
+            String pluginId = pluginIdForRole(role);
+
+            if(pluginId == null) {
+                return;
+            }
+
+            roleConfigurationValidator.validate(role, pluginId);
+        }
+    }
+
+    private String pluginIdForRole(PluginRoleConfig role) {
+        SecurityAuthConfig authConfig = goConfigService.cruiseConfig().server().security().securityAuthConfigs().find(role.getAuthConfigId());
+        if (authConfig == null) {
+            return null;
+        }
+        return authConfig.getPluginId();
+    }
 }

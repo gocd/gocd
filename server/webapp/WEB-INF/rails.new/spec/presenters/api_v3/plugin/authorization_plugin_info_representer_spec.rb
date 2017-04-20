@@ -28,9 +28,11 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
 
     role_config_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('role_config_view_template')
     role_config_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('memberOf', {required: true, secure: false, display_name: 'Member Of', display_order: '1'}, nil)], role_config_view)
+    capabilities = Capabilities.new(SupportedAuthType::Password, true, true);
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image)
+    plugin_info = com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities)
     actual_json = ApiV3::Plugin::AuthorizationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+    print actual_json
 
     expect(actual_json).to have_links(:self, :doc, :find, :image)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
@@ -54,7 +56,8 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
                                     url: 'https://bob.example.com'}
                                 },
                                 auth_config_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(auth_config_settings).to_hash(url_builder: UrlBuilder.new),
-                                role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new)
+                                role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                capabilities: ApiV3::Plugin::CapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
                               })
 
   end

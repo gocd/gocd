@@ -17,9 +17,7 @@
 package com.thoughtworks.go.plugin.domain.authorization;
 
 public class Capabilities {
-
     private final SupportedAuthType supportedAuthType;
-
     private final boolean canSearch;
     private final boolean canAuthorize;
 

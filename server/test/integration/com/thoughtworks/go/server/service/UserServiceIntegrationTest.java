@@ -591,8 +591,9 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void getRoleSelectionOnlyForNonPluginRoles() throws Exception {
+        configFileHelper.addSecurityAuthConfig(new SecurityAuthConfig("auth_id", "plugin_id"));
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("core-role")));
-        configFileHelper.addRole(new PluginRoleConfig("plugin-role", "foo"));
+        configFileHelper.addRole(new PluginRoleConfig("plugin-role", "auth_id"));
         addUser(new User("yogi"));
         addUser(new User("shilpa"));
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("core-role", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());

@@ -287,6 +287,12 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
+    public void addSecurityAuthConfig(SecurityAuthConfig securityAuthConfig) {
+        CruiseConfig config = loadForEdit();
+        config.server().security().securityAuthConfigs().add(securityAuthConfig);
+        writeConfigFile(config);
+    }
+
     public interface Updater<T>{
         void update(T t);
     }

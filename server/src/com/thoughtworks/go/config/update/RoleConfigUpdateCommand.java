@@ -24,15 +24,21 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class RoleConfigUpdateCommand extends RoleConfigCommand {
     private final EntityHashingService hashingService;
     private final String md5;
 
     public RoleConfigUpdateCommand(GoConfigService goConfigService, Role newRole, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
-        super(goConfigService, newRole, extension, currentUser, result);
+        super(goConfigService, newRole, currentUser, result);
         this.hashingService = hashingService;
         this.md5 = md5;
+    }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);
     }
 
     @Override
@@ -40,24 +46,19 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
         preprocessedConfig.server().security().getRoles().replace(findExistingRole(preprocessedConfig), role);
     }
 
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        return isValidForCreateOrUpdate(preprocessedConfig);
-    }
-
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);
-    }
-
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        Role existing = findExistingRole(cruiseConfig);
-        boolean freshRequest = hashingService.md5ForEntity(existing).equals(md5);
+        Role existingRole = findExistingRole(cruiseConfig);
+
+        if (existingRole == null) {
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "role", role.getName()), HealthStateType.notFound());
+            return false;
+        }
+
+        boolean freshRequest = hashingService.md5ForEntity(existingRole).equals(md5);
+
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "role config", existing.getName()));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "role config", existingRole.getName()));
         }
         return freshRequest;
     }
-
 }

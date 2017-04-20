@@ -19,13 +19,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -44,6 +43,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -177,6 +177,38 @@ public class ElasticAgentPluginServiceTest {
             assertThat(serverHealthState.getType().getScope().isForJob(), is(true));
             assertThat(serverHealthState.getType().getScope().getScope(), is("pipeline-1/stage/job"));
         }
+    }
+
+    @Test
+    public void shouldAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_AndThePluginAgreesToTheAssignment(){
+        String uuid = UUID.randomUUID().toString();
+        String elasticPluginId = "plugin-1";
+        ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
+        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
+
+        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(true);
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(true));
+    }
+
+    @Test
+    public void shouldNotAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_ButThePluginRefusesToTheAssignment(){
+        String uuid = UUID.randomUUID().toString();
+        String elasticPluginId = "plugin-1";
+        ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
+        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
+        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(false);
+
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(false));
+    }
+
+    @Test
+    public void shouldNotAssignJobToAnAgentBroughtUpByADifferentElasticPlugin(){
+        String uuid = UUID.randomUUID().toString();
+        ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
+        ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
+        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(true);
+
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(false));
     }
 
     private JobPlan plan(int jobId, String pluginId) {

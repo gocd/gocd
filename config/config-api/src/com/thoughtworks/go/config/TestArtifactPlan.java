@@ -83,7 +83,7 @@ public class TestArtifactPlan extends ArtifactPlan {
             } else {
                 final String message = MessageFormat.format("The Directory {0} specified as a test artifact was not found."
                         + " Please check your configuration", FileUtil.normalizePath(source));
-                publisher.consumeLineWithPrefix(message);
+                publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
                 LOG.error(message);
             }
         }
@@ -108,7 +108,7 @@ public class TestArtifactPlan extends ArtifactPlan {
 
         } else {
             String message = "No files were found in the Test Results folders";
-            publisher.consumeLineWithPrefix(message);
+            publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
             LOG.warn(message);
         }
     }

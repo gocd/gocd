@@ -32,7 +32,7 @@ let TaskSummaryView = {
       <ul class='task-type'>
         {_.map(vnode.attrs.task.summary(), (v, k) => {
           return !s.isBlank(v) ? (
-              <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
+            <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
         })}
       </ul>
     );
@@ -61,17 +61,33 @@ let TaskViews = {
       self.taskDisplayName = function () {
         if (Tasks.isBuiltInTaskType(vnode.attrs.task.type())) {
           return vnode.attrs.task.type();
-        } else {
-          return vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId()).about().name();
         }
+        const taskPlugin = vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId());
+        return vnode.attrs.isPluginMissing() ? vnode.attrs.task.type() : taskPlugin.about().name();
       };
     },
 
     view (vnode) {
+      const pluggableTask = !Tasks.isBuiltInTaskType(vnode.attrs.task.type());
+
       const children             = vnode.children;
       const classNameForTaskBody = function () {
         return vnode.state.isEditing() ? 'show' : 'hide';
       };
+
+      let taskActions = (
+        <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
+          {children}
+          <RunIfConditionsWidget task={vnode.attrs.task}/>
+          <CancelTaskWidget task={vnode.attrs.task} pluginInfos={vnode.attrs.pluginInfos}/>
+        </div>
+      );
+
+      if (pluggableTask && vnode.attrs.isPluginMissing()) {
+        taskActions = (<div class={`task-body ${  classNameForTaskBody()}`}>
+          {children}
+        </div>);
+      }
 
       return (
         <div class={`task-definition task-type-${  vnode.attrs.task.type()}`} data-task-index={vnode.attrs.taskIndex}>
@@ -83,22 +99,18 @@ let TaskViews = {
               </f.column>
               <f.column size={2} largeSize={2}>
                 {!vnode.state.isEditing() ? (
-                    <span>{_.capitalize(vnode.attrs.task.runIf().data().join(' '))}</span>) : undefined}
+                  <span>{_.capitalize(vnode.attrs.task.runIf().data().join(' '))}</span>) : undefined}
               </f.column>
               <f.column size={2} largeSize={2}>
                 {!vnode.state.isEditing() ? (
-                    <span>{_.isNil(vnode.attrs.task.onCancelTask) ? 'No' : vnode.attrs.task.onCancelTask.type()}</span>) : undefined}
+                  <span>{_.isNil(vnode.attrs.task.onCancelTask) ? 'No' : vnode.attrs.task.onCancelTask.type()}</span>) : undefined}
                 <div class='actions'>
                   <f.removeButton onclick={vnode.attrs.onRemove} class="remove-task"/>
                   <f.editButton class={vnode.state.isEditing() ? 'done' : null}/>
                 </div>
               </f.column>
             </f.row>
-            <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
-              {children}
-              <RunIfConditionsWidget task={vnode.attrs.task}/>
-              <CancelTaskWidget task={vnode.attrs.task} pluginInfos={vnode.attrs.pluginInfos}/>
-            </div>
+            {taskActions}
           </div>
         </div>
       );
@@ -157,6 +169,19 @@ let TaskViews = {
 
   pluggable_task: { //eslint-disable-line camelcase
     view (vnode) {
+      const taskPlugin            = vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId());
+      vnode.attrs.isPluginMissing = Stream(!taskPlugin);
+
+      if (vnode.attrs.isPluginMissing()) {
+        return (<TaskViews.base {...vnode.attrs}>
+          <div id={`pluggable-task-template-${  vnode.attrs.task.uuid()}`} class='task-basic'>
+            <div class='pluggable-task'>
+              <f.alert>Plugin '{vnode.attrs.task.pluginId()}' not found.</f.alert>
+            </div>
+          </div>
+        </TaskViews.base>);
+      }
+
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.pluggable_task {...vnode.attrs}/>

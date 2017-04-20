@@ -153,6 +153,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
             jsonMap.put("label", item.getLabel());
             jsonMap.put("counterOrLabel", item.getPipelineIdentifier().instanceIdentifier());
             jsonMap.put("scheduled_date", timeConverter.getHumanReadableString(item.getScheduledDate()));
+            jsonMap.put("scheduled_timestamp", item.getScheduledDate() != null ? item.getScheduledDate().getTime() : null);
             jsonMap.put("buildCauseBy", item.getApprovedByForDisplay());
             jsonMap.put("modification_date", getModificationDate(item));
             jsonMap.put("materialRevisions", materialRevisionsJson(item));

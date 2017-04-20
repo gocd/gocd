@@ -54,7 +54,8 @@ describe "/environments/_environment_pipeline.html.erb" do
     Capybara.string(response.body).find(".status .label", :text => /Label:\s+1/).tap do |label|
       expect(label).to have_selector("a", :text => "1")
     end
-    expect(response.body).to have_selector(".status .schedule_time[title='#{now.toDate()}']")
+    expect(response.body).to have_selector(".status .schedule_time[title='Server Time: #{now.toDate()}']")
+    expect(response.body).to have_selector(".status .schedule_time[data='#{now.toDate().getTime()}']")
   end
 
   it "should display status for last active stage" do

@@ -21,12 +21,24 @@
 
 <script type="text/javascript">
   Util.on_load(function () {
+    var reformatAllBuildTimes = function() {
+      jQuery(".pipeline_instance .schedule_time").map(function(idx, timeDiv) {
+        var timestamp = parseInt(jQuery(timeDiv).attr("data"));
+        if (isNaN(timestamp)) return;
+        var time = new Date(timestamp);
+        jQuery(timeDiv).find("span.time").text(moment(time).format('DD MMM YYYY HH:mm:ss'));
+      });
+    };
+
+    reformatAllBuildTimes();
     <% if auto_refresh? %>
     var dashboard_ajax_refresher = new DashboardAjaxRefresher('<%= pipeline_dashboard_path(:action => 'index', :format=>"json") %>', {
       redirectUrl: '<%= url_for_login %>', className: '.pipeline_group', refreshCompleted: function (isPartialRefresh) {
         if (!isPartialRefresh) {
           Util.enable('show_pipelines_selector');
         }
+
+        reformatAllBuildTimes();
 
         jQuery(document).trigger("dashboard-refresh-completed", isPartialRefresh);
       }

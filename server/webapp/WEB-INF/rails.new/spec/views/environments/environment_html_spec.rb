@@ -107,9 +107,9 @@ describe "/environments/_environment.html.erb" do
       expect(response).to have_selector(".pipelines .status .label a[href='/pipelines/value_stream_map/blahPipeline1/1']", :text => "1")
     end
 
-    it "should set the input to time that the pipeline was run for javascript to display the converted time" do
+    it "should set the the pipeline scheduled timestamp as data to be used by javascript" do
       expect(response).to have_selector(".pipeline .status .schedule_time", :text => /Triggered/)
-      expect(response).to have_selector(".pipeline .status .schedule_time input[type='hidden'][value='#{@stages_for_pipeline_1.getScheduledDate()}']")
+      expect(response).to have_selector(".pipeline .status .schedule_time[data='#{@stages_for_pipeline_1.getScheduledDate().getTime()}']")
     end
 
     it "should display all stages for the pipeline" do

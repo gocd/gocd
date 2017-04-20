@@ -30,6 +30,7 @@
 
       var section = $(e.currentTarget).closest(".foldable-section");
       section.toggleClass("open");
+      consoleElement.trigger("consoleInteraction");
     });
 
     var loading = consoleElement.siblings(".console-log-loading");

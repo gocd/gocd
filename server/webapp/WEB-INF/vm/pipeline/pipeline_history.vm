@@ -100,9 +100,26 @@
   var stageActions = new StageActions();
   var paginator = new Paginator();
 
+  var ReformatAllBuildTimes = Class.create();
+  ReformatAllBuildTimes.prototype = {
+    initialize: function () {
+    },
+    notify: function () {
+      jQuery(".pipeline-info.scheduled-date").map(function (idx, scheduledDate) {
+        var timestamp = parseInt(jQuery(scheduledDate).attr("data"));
+        if (isNaN(timestamp)) return;
+        var time = new Date(timestamp);
+        jQuery(scheduledDate).text(moment(time).format('DD MMM YYYY HH:mm:ss'));
+      });
+    }
+  }
+
+  new ReformatAllBuildTimes().notify();
+
   var dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineHistory.json?pipelineName=$pipelineName');
   var pipelineHistoryObserver = new PipelineHistoryObserver('history');
   dashboard_periodical_executor.register(pipelineHistoryObserver);
+  dashboard_periodical_executor.register(new ReformatAllBuildTimes());
 
   dashboard_periodical_executor.start();
 

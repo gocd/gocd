@@ -62,13 +62,13 @@ describe PipelinesHelper do
       java.util.TimeZone.setDefault(@default_timezone)
     end
 
-    it "should display the trigger message with username and isodate in title" do
+    it "should display the trigger message with username" do
       triggered_date = java.util.Date.new
       pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
       message = trigger_message(triggered_date, pim)
 
       expect(message).to have_selector(".who", text: "Anonymous")
-      expect(message).to have_selector("input[value='#{triggered_date}']")
+      expect(message).to have_selector("span.time", text: "")
     end
 
     it "should not display the trigger message when the pipeline is being scheduled for the first time" do

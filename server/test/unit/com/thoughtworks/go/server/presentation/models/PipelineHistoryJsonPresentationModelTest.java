@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
+import com.sdicons.json.model.JSONInteger;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -233,6 +234,19 @@ public class PipelineHistoryJsonPresentationModelTest {
         JsonValue json = JsonUtils.from(presenter.toJson());
         String stageLocator = json.getString("groups", 0, "history", 0, "stages", 0, "stageLocator");
         assertThat(stageLocator, is("mingle-%25/1/stage1-%25/1"));
+    }
+
+    @Test
+    public void shouldGetScheduleTimestamp(){
+        PipelineConfig pipelineConfig1 = PipelineConfigMother.createPipelineConfigWithStages("mingle-%", "stage1-%",
+                "stage2");
+        PipelineHistoryJsonPresentationModel presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
+                preparePipelineHistoryGroups(pipelineConfig1),
+                pipelineConfig1,
+                pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
+        JsonValue json = JsonUtils.from(presenter.toJson());
+        long scheduledTimestamp = ((JSONInteger) json.getValue("groups", 0, "history", 0, "scheduled_timestamp")).getValue().longValue();
+        assertThat(scheduledTimestamp, is(modificationDate.getTime()));
     }
 
 }

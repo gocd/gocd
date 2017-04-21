@@ -56,6 +56,7 @@
 //= require "lib/ui.dialog-1.7.3.js"
 //= require "lib/ansi_up.js"
 //= require "lib/lodash.js"
+//= require "lib/moment-2.18.1.js"
 //= require "crel.js"
 //= require "json_to_css.js"
 //= require "util.js"

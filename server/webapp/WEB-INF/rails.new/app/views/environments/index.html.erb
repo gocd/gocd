@@ -7,10 +7,22 @@
 
 <script type="text/javascript">
     Util.on_load(function() {
+        var reformatAllBuildTimes = function() {
+          jQuery(".pipeline_instance .schedule_time").map(function(idx, timeDiv) {
+            var timestamp = parseInt(jQuery(timeDiv).attr("data"));
+            if (isNaN(timestamp)) return;
+            var time = new Date(timestamp);
+            jQuery(timeDiv).find("span.time").text(moment(time).format('DD MMM YYYY HH:mm:ss'));
+          });
+        };
+        reformatAllBuildTimes();
+
         <% if auto_refresh? %>
-        AjaxRefreshers.addRefresher(new DashboardAjaxRefresher('<%= url_for(:action => 'index', :format=>"json") %>',
+        var dashboardAjaxRefresher = new DashboardAjaxRefresher('<%= url_for(:action => 'index', :format=>"json") %>',
         {redirectUrl: '<%= url_for_login %>', className: '.environment', refreshCompleted: function(isPartialRefresh) {
-        } }), true);
+          reformatAllBuildTimes();
+        } })
+        AjaxRefreshers.addRefresher(dashboardAjaxRefresher, true);
         <% end %>
         ElementAligner.hookupAlignEvents();
     });

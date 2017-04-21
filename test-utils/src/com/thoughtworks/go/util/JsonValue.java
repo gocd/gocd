@@ -39,8 +39,12 @@ public class JsonValue {
     }
 
     public String getString(Object... keys) {
-        String jsString = getObject(keys).jsonValue.render(false);
+        String jsString = getValue(keys).render(false);
         return jsString.substring(1, jsString.length() - 1);
+    }
+
+    public JSONValue getValue(Object... keys) {
+        return getObject(keys).jsonValue;
     }
 
     public JsonValue getObject(Object... keys) {

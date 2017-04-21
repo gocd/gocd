@@ -88,7 +88,7 @@ AuthConfigs.AuthConfig = function (data) {
       };
 
       const didReject = (jqXHR, _textStatus, _errorThrown) => {
-        deferred.reject(mrequest.unwrapMessageOrEntity(AuthConfigs.AuthConfig)(jqXHR.responseJSON, jqXHR));
+        deferred.reject(VerifyConnectionResponse(jqXHR, entity.etag()));
       };
 
       jqXHR.then(didFulfill, didReject);
@@ -118,5 +118,20 @@ Mixins.fromJSONCollection({
   childType:  AuthConfigs.AuthConfig,
   via:        'addAuthConfig'
 });
+
+const VerifyConnectionResponse = function (xhr, etag) {
+  if (xhr.status === 422) {
+    const authConfig = new AuthConfigs.AuthConfig.fromJSON(xhr.responseJSON.auth_config);
+    authConfig.etag(etag);
+
+    return {
+      authConfig,
+      errorMessage: xhr.responseJSON.message,
+      status:       xhr.responseJSON.status
+    };
+  } else {
+    return {errorMessage: mrequest.unwrapErrorExtractMessage(xhr.responseJSON, xhr)};
+  }
+};
 
 module.exports = AuthConfigs;

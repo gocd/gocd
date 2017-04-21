@@ -255,7 +255,6 @@ describe("AuthConfigsWidget", () => {
 
       simulateEvent.simulate($root.find('.add-auth-config').get(0), 'click');
       m.redraw();
-
       const authConfigId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
       $(authConfigId).val("ldap");
       simulateEvent.simulate(authConfigId, 'input');
@@ -314,7 +313,6 @@ describe("AuthConfigsWidget", () => {
       });
 
       simulateEvent.simulate($root.find('.edit-auth-config').get(0), 'click');
-      m.redraw();
 
       expect($('.alert')).toContainText('Boom!');
     });

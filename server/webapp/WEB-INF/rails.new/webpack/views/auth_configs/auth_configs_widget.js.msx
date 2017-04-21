@@ -25,26 +25,30 @@ const AuthConfigWidget    = require('views/auth_configs/auth_config_widget');
 const AuthConfigModalBody = require('views/auth_configs/auth_config_modal_body');
 require('jquery-textcomplete');
 
-function showErrors(modal, ctrl, newAuthConfig) {
+function showErrors(ctrl, newAuthConfig, callback) {
   return function (errorMessageOrAuthConfigWithErrors) {
     if (_.isString(errorMessageOrAuthConfigWithErrors)) {
-      modal.destroy();
       ctrl.message({type: 'alert', message: errorMessageOrAuthConfigWithErrors});
     } else {
       ctrl.clearMessage();
       newAuthConfig(errorMessageOrAuthConfigWithErrors);
     }
+
+    if (callback) {
+      callback();
+    }
   };
 }
 
 function showErrorInModal(newAuthConfig, errorMessage, callback) {
-  return function (errorMessageOrAuthConfigWithErrors) {
-    if (_.isString(errorMessageOrAuthConfigWithErrors)) {
-      errorMessage({type: 'alert', message: errorMessageOrAuthConfigWithErrors});
+  return function (verifyConnectionResponse) {
+    if (verifyConnectionResponse.authConfig) {
+      newAuthConfig(verifyConnectionResponse.authConfig);
     } else {
       errorMessage({});
-      newAuthConfig(errorMessageOrAuthConfigWithErrors);
     }
+    errorMessage({type: 'alert', message: verifyConnectionResponse.errorMessage});
+
     if (callback) {
       callback();
     }
@@ -153,7 +157,7 @@ const AuthConfigsWidget = {
         checkConnectionClasses,
         modalTitle: `Edit auth config ${authConfig.id()}`,
         callback:   () => {
-          newAuthConfig().update().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was updated successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
+          newAuthConfig().update().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was updated successfully.`), showErrors(ctrl, newAuthConfig)).always(m.redraw);
         }
       });
 
@@ -164,7 +168,7 @@ const AuthConfigsWidget = {
       };
 
       modal.render();
-      AuthConfigs.AuthConfig.get(authConfig.id()).then(onFulfilled, showErrors(modal, ctrl, newAuthConfig)).always(m.redraw);
+      AuthConfigs.AuthConfig.get(authConfig.id()).then(onFulfilled, showErrors(ctrl, newAuthConfig, modal.destroy)).always(m.redraw);
     };
 
     this.clone = function (authConfig) {
@@ -181,7 +185,7 @@ const AuthConfigsWidget = {
         checkConnectionClasses,
         modalTitle: `Clone auth config ${authConfig.id()}`,
         callback:   () => {
-          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was cloned successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
+          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was cloned successfully.`), showErrors(ctrl, newAuthConfig)).always(m.redraw);
         }
       });
 
@@ -194,7 +198,7 @@ const AuthConfigsWidget = {
       };
 
       modal.render();
-      AuthConfigs.AuthConfig.get(authConfig.id()).then(onFulfilled, showErrors(modal, ctrl, newAuthConfig)).always(m.redraw);
+      AuthConfigs.AuthConfig.get(authConfig.id()).then(onFulfilled, showErrors(ctrl, newAuthConfig, modal.destroy)).always(m.redraw);
     };
 
     this.add = function () {
@@ -211,7 +215,7 @@ const AuthConfigsWidget = {
         checkConnectionClasses,
         modalTitle: 'Add a new auth config',
         callback:   () => {
-          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${  newAuthConfig().id()  } was created successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
+          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${  newAuthConfig().id()  } was created successfully.`), showErrors(ctrl, newAuthConfig)).always(m.redraw);
         }
       });
       modal.render();

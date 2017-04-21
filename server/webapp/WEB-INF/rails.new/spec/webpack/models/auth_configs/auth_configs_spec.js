@@ -414,7 +414,7 @@ describe('Authorization Configuration', () => {
         authConfig.verifyConnection().then(_.noop, errorCallback);
 
         expect(errorCallback).toHaveBeenCalled();
-        expect(errorCallback).toHaveBeenCalledWith('Boom!');
+        expect(errorCallback).toHaveBeenCalledWith({errorMessage: 'Boom!'});
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();

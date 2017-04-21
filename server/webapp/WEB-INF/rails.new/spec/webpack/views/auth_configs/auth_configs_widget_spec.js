@@ -293,8 +293,11 @@ describe("AuthConfigsWidget", () => {
 
     it("should render a new modal to edit existing auth config", () => {
       jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${  authConfigJSON.id}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(authConfigJSON),
-        status:       200
+        responseText:    JSON.stringify(authConfigJSON),
+        status:          200,
+        responseHeaders: {
+          'ETag': '"foo"'
+        }
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
 
@@ -411,14 +414,6 @@ describe("AuthConfigsWidget", () => {
       simulateEvent.simulate($('.reveal:visible .modal-buttons .verify-connection').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-body .callout.alert').text()).toEqual('Unable to connect ldap server.');
-    });
-
-    it("should disable verify connection button if plugin is not supporting can verify connection call", () => {
-      simulateEvent.simulate($root.find('.add-auth-config').get(0), 'click');
-      $('.reveal [data-prop-name=pluginId]').val("cd.go.authorization.github");
-      simulateEvent.simulate($('.reveal [data-prop-name=pluginId]').get(0), 'change');
-
-      expect($('.reveal:visible .modal-buttons .verify-connection').get(0)).toBeDisabled();
     });
   });
 

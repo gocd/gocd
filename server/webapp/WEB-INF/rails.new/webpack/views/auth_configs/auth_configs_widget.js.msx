@@ -86,12 +86,11 @@ const AuthConfigsWidget = {
 
     this.reloadPage();
 
-    this.verifyConnectionButton = (authConfig, isDisabled, classes) => {
+    this.verifyConnectionButton = (authConfig, classes) => {
       return {
-        text:     'Check connection',
-        class:    classes(),
-        disabled: isDisabled,
-        onclick:  () => {
+        text:    'Check connection',
+        class:   classes(),
+        onclick: () => {
           classes().splice(classes().indexOf("green-check"), 1, "in-progress");
           m.redraw(true);
 
@@ -110,23 +109,18 @@ const AuthConfigsWidget = {
     };
 
     this.createModal = function (options) {
-      const operationType            = options.operationType;
-      const newAuthConfig            = options.newAuthConfig;
-      const pluginInfo               = options.pluginInfo;
-      const verifyConnectionDisabled = options.verifyConnectionDisabled;
-      const checkConnectionClasses   = options.checkConnectionClasses;
-      const modalTitle               = options.modalTitle;
-      const isNew                    = (operationType === 'add' || operationType === 'clone');
-      const buttonName               = (operationType === 'add' || operationType === 'edit') ? 'Save' : 'Clone';
+      const newAuthConfig          = options.newAuthConfig;
+      const pluginInfo             = options.pluginInfo;
+      const checkConnectionClasses = options.checkConnectionClasses;
+      const modalTitle             = options.modalTitle;
+      const callback               = options.callback || _.noop;
 
       const modal = new Modal({
         size:    'large',
         title:   modalTitle,
         body:    () => (<AuthConfigModalBody authConfig={newAuthConfig}
                                              pluginInfo={pluginInfo}
-                                             newAuthConfig={isNew}
                                              pluginInfos={vnode.attrs.pluginInfos}
-                                             verifyConnectionDisabled={verifyConnectionDisabled}
                                              errorMessage={ctrl.modalErrorMessage}/>),
         onclose: () => modal.destroy(),
         buttons: () => {
@@ -135,14 +129,10 @@ const AuthConfigsWidget = {
           }
           return [
             {
-              text:  buttonName,
-              class: 'save primary',
-              onclick () {
-                if (options.callback) {
-                  options.callback();
-                }
-              }
-            }, this.verifyConnectionButton(newAuthConfig, verifyConnectionDisabled, checkConnectionClasses)
+              text:    "Save",
+              class:   'save primary',
+              onclick: callback
+            }, this.verifyConnectionButton(newAuthConfig, checkConnectionClasses)
           ];
         }
       });
@@ -150,10 +140,9 @@ const AuthConfigsWidget = {
     };
 
     this.edit = function (authConfig) {
-      const newAuthConfig            = Stream(authConfig);
-      const pluginInfo               = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
-      const checkConnectionClasses   = Stream(['verify-connection', 'save', 'primary']);
-      const verifyConnectionDisabled = Stream(!(pluginInfo() && pluginInfo().capabilities().canVerifyConnection()));
+      const newAuthConfig          = Stream(authConfig);
+      const pluginInfo             = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
+      const checkConnectionClasses = Stream(['verify-connection', 'save', 'primary']);
 
       ctrl.clearMessage();
       ctrl.modalErrorMessage({});
@@ -161,11 +150,9 @@ const AuthConfigsWidget = {
       const modal = this.createModal({
         newAuthConfig,
         pluginInfo,
-        verifyConnectionDisabled,
         checkConnectionClasses,
-        operationType: 'edit',
-        modalTitle:    `Edit auth config ${authConfig.id()}`,
-        callback:      () => {
+        modalTitle: `Edit auth config ${authConfig.id()}`,
+        callback:   () => {
           newAuthConfig().update().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was updated successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
         }
       });
@@ -181,10 +168,9 @@ const AuthConfigsWidget = {
     };
 
     this.clone = function (authConfig) {
-      const newAuthConfig            = Stream(authConfig);
-      const pluginInfo               = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
-      const checkConnectionClasses   = Stream(['verify-connection', 'save', 'primary']);
-      const verifyConnectionDisabled = Stream(!(pluginInfo() && pluginInfo().capabilities().canVerifyConnection()));
+      const newAuthConfig          = Stream(authConfig);
+      const pluginInfo             = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
+      const checkConnectionClasses = Stream(['verify-connection', 'save', 'primary']);
 
       ctrl.clearMessage();
       ctrl.modalErrorMessage({});
@@ -192,11 +178,9 @@ const AuthConfigsWidget = {
       const modal = this.createModal({
         newAuthConfig,
         pluginInfo,
-        verifyConnectionDisabled,
         checkConnectionClasses,
-        operationType: 'clone',
-        modalTitle:    `Clone auth config ${authConfig.id()}`,
-        callback:      () => {
+        modalTitle: `Clone auth config ${authConfig.id()}`,
+        callback:   () => {
           newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was cloned successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
         }
       });
@@ -204,6 +188,7 @@ const AuthConfigsWidget = {
       const onFulfilled = function (authConfigFromAjax) {
         newAuthConfig(authConfigFromAjax);
         newAuthConfig().id('');
+        newAuthConfig().etag(null);
         newAuthConfig().errors().add('id', 'Provide id to your clone');
         ctrl.clearMessage();
       };
@@ -213,22 +198,19 @@ const AuthConfigsWidget = {
     };
 
     this.add = function () {
-      const newAuthConfig            = Stream(new AuthConfigs.AuthConfig({}));
-      const newPluginInfo            = Stream(null);
-      const checkConnectionClasses   = Stream(['verify-connection', 'save', 'primary']);
-      const verifyConnectionDisabled = Stream(true);
+      const newAuthConfig          = Stream(new AuthConfigs.AuthConfig({}));
+      const newPluginInfo          = Stream(null);
+      const checkConnectionClasses = Stream(['verify-connection', 'save', 'primary']);
 
       ctrl.clearMessage();
       ctrl.modalErrorMessage({});
 
       const modal = this.createModal({
         newAuthConfig,
-        pluginInfo:    newPluginInfo,
-        verifyConnectionDisabled,
+        pluginInfo: newPluginInfo,
         checkConnectionClasses,
-        operationType: 'add',
-        modalTitle:    'Add a new auth config',
-        callback:      () => {
+        modalTitle: 'Add a new auth config',
+        callback:   () => {
           newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${  newAuthConfig().id()  } was created successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
         }
       });

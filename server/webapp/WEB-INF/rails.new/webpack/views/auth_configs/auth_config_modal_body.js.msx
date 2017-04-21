@@ -23,7 +23,6 @@ const AuthConfigModalBody = {
   oninit (vnode) {
     this.setPluginInfo = function (pluginInfo) {
       vnode.attrs.pluginInfo(pluginInfo);
-      vnode.attrs.verifyConnectionDisabled(!pluginInfo.capabilities().canVerifyConnection());
     };
 
     this.pluginIdChange = function () {
@@ -67,7 +66,7 @@ const AuthConfigModalBody = {
       this.setPluginInfo(firstPluginInfo);
       vnode.attrs.authConfig().pluginId(firstPluginInfo.id());
     }
-    
+
     if (!vnode.attrs.authConfig()) {
       return (
         <div class="modal-spinner"/>
@@ -75,7 +74,7 @@ const AuthConfigModalBody = {
     }
 
     let authConfigIdDisabledMessage;
-    if (!vnode.attrs.newAuthConfig) {
+    if (vnode.attrs.authConfig().etag()) {
       authConfigIdDisabledMessage = (<div>Editing of auth config ID is disabled</div>);
     }
 
@@ -95,7 +94,7 @@ const AuthConfigModalBody = {
                               attrName="id"
                               validate="true"
                               isRequired="true"
-                              disabled={!vnode.attrs.newAuthConfig}
+                              disabled={vnode.attrs.authConfig().etag()}
                               message={authConfigIdDisabledMessage}
                               label="Id"
                               key="auth-config-id"/>

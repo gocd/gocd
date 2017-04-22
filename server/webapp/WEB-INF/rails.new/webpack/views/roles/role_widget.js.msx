@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-const m                   = require('mithril');
-const Stream              = require('mithril/stream');
-const f                   = require('helpers/form_helper');
-const ComponentMixins     = require('helpers/mithril_component_mixins');
-const RoleUserWidget      = require('views/roles/role_user_widget');
-const ConfigurationWidget = require('views/roles/configuration_widget');
+const m               = require('mithril');
+const Stream          = require('mithril/stream');
+const f               = require('helpers/form_helper');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const RoleUserWidget  = require('views/roles/role_user_widget');
 
 const RoleWidget = {
   oninit (vnode) {
@@ -36,90 +35,31 @@ const RoleWidget = {
     this.showState = function () {
       return this.vmState(vmStateKey)() ? 'show' : 'hide';
     };
-
-    this.isPluginRole = (role) => {
-      return role.authConfigId() ? true : false;
-    };
   },
 
   view (vnode) {
-    const role      = vnode.attrs.role;
     const showState = vnode.state.showState();
-
-    let image, errorMessage = '', disabled = false, pluginName;
-
-    if (this.isPluginRole(role())) {
-      const authConfig = vnode.attrs.authConfigs().findById(role().authConfigId());
-
-      if (authConfig) {
-        const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
-
-        if (pluginInfo) {
-          image      = (<img src={vnode.attrs.pluginInfo.imageUrl()}/>);
-          pluginName = pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id();
-        } else {
-          image        = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
-          errorMessage = `Plugin '${authConfig.pluginId()}' not found`;
-          pluginName   = authConfig.pluginId();
-          disabled     = true;
-        }
-
-      } else {
-        image        = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
-        disabled     = true;
-        errorMessage = `Authorization config '${role().authConfigId()}' is missing`;
-      }
-
-    } else {
-      image = (<img src="/go/assets/cruise.ico"/>);
-    }
-
-    const actionIcons = (
-      <div class="role-actions">
-        <f.link onclick={disabled ? null : vnode.attrs.onEdit} class={disabled ? 'edit-role disabled' : 'edit-role'}
-                title={errorMessage} disabled={disabled}/>
-        <f.link onclick={disabled ? null : vnode.attrs.onClone} class={disabled ? 'clone-role disabled' : 'clone-role'}
-                title={errorMessage} disabled={disabled}/>
-        <f.link class='delete-role-confirm' onclick={vnode.attrs.onDelete}/>
-      </div>
-    );
-
-    let pluginInfoView;
-    if (pluginName && !errorMessage) {
-      pluginInfoView = (
-        <div class="plugin-name">
-          <span class="key">Plugin: </span>
-          <span class="value"><small>{pluginName}</small></span>
-        </div>);
-    }
-    let authConfigInfoView;
-    if (this.isPluginRole(role())) {
-      authConfigInfoView = (
-        <div class="auth-config-id">
-          <span class="key">Auth Config ID: </span>
-          <span class="value">{vnode.attrs.role().authConfigId()}</span>
-        </div>
-      );
-    }
 
     return (
       <div class="role">
         <div class="role-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
-          <span class="plugin-icon">{image}</span>
+          <span class="plugin-icon">
+            <img src="/go/assets/cruise.ico"/>
+          </span>
           <div class="role-description">
             <div class="role-name">
               <span class="key">Name: </span><span class="value">{vnode.attrs.role().name()}</span>
             </div>
-            {authConfigInfoView}
-            {pluginInfoView}
-            <small class={disabled ? 'disabled' : null}>{errorMessage}</small>
           </div>
         </div>
 
         <RoleUserWidget role={vnode.attrs.role} showState={showState}/>
-        <ConfigurationWidget role={vnode.attrs.role()} showState={showState}/>
 
-        {actionIcons}
+        <div class="role-actions">
+          <f.link onclick={vnode.attrs.onEdit} class={'edit-role'}/>
+          <f.link onclick={vnode.attrs.onClone} class={'clone-role'}/>
+          <f.link class='delete-role-confirm' onclick={vnode.attrs.onDelete}/>
+        </div>
       </div>
     );
   }

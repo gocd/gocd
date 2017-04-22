@@ -22,41 +22,66 @@ describe('Roles Configuration', () => {
   const Roles        = require('models/roles/roles');
   const roleIndexUrl = '/go/api/admin/security/roles';
 
-  const roleJSON     = {
-    "name":           "blackbird",
-    "auth_config_id": "ldap",
-    "properties":     [
-      {
-        "key":   "AttributeName",
-        "value": "memberOf"
-      },
-      {
-        "key":   "AttributeValue",
-        "value": "ou=group-name,ou=system,dc=example,dc=com"
-      }
-    ]
-  };
-  const allRolesJSON = {
-    "_embedded": {
-      "roles": [roleJSON]
+  const pluginRoleJSON = {
+    "name":       "blackbird",
+    "type":       "plugin",
+    "attributes": {
+      "auth_config_id": "ldap",
+      "properties":     [
+        {
+          "key":   "AttributeName",
+          "value": "memberOf"
+        },
+        {
+          "key":   "AttributeValue",
+          "value": "ou=group-name,ou=system,dc=example,dc=com"
+        }
+      ]
     }
   };
 
-  it('should deserialize a role from JSON', () => {
-    const role = Roles.Role.fromJSON(roleJSON);
+  const gocdRoleJSON = {
+    "name":       "admin",
+    "type":       "gocd",
+    "attributes": {
+      "users": ["bob", "alice"]
+    }
+  };
+
+  const allRolesJSON = {
+    "_embedded": {
+      "roles": [pluginRoleJSON, gocdRoleJSON]
+    }
+  };
+
+  it('should deserialize a plugin role from JSON', () => {
+    const role = Roles.Role.fromJSON(pluginRoleJSON);
     expect(role.name()).toBe("blackbird");
     expect(role.authConfigId()).toBe("ldap");
+    expect(role.type()).toBe("plugin");
     expect(role.properties().collectConfigurationProperty('key')).toEqual(['AttributeName', 'AttributeValue']);
     expect(role.properties().collectConfigurationProperty('value')).toEqual(['memberOf', 'ou=group-name,ou=system,dc=example,dc=com']);
   });
 
-  it('should serialize a role to JSON', () => {
-    const role = Roles.Role.fromJSON(roleJSON);
-    expect(JSON.parse(JSON.stringify(role, s.snakeCaser))).toEqual(roleJSON);
+  it('should deserialize a gocd role from JSON', () => {
+    const role = Roles.Role.fromJSON(gocdRoleJSON);
+    expect(role.name()).toBe("admin");
+    expect(role.type()).toBe("gocd");
+    expect(role.users()).toEqual(['bob', 'alice']);
+  });
+
+  it('should serialize a plugin role to JSON', () => {
+    const pluginRole = Roles.Role.fromJSON(pluginRoleJSON);
+    expect(JSON.parse(JSON.stringify(pluginRole, s.snakeCaser))).toEqual(pluginRoleJSON);
+  });
+
+  it('should serialize a gocd role to JSON', () => {
+    const gocdRole = Roles.Role.fromJSON(gocdRoleJSON);
+    expect(JSON.parse(JSON.stringify(gocdRole, s.snakeCaser))).toEqual(gocdRoleJSON);
   });
 
   describe("list all roles", () => {
-    it('should get all  roles and call the success callback', () => {
+    it('should get all roles and call the success callback', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(roleIndexUrl).andReturn({
           responseText:    JSON.stringify(allRolesJSON),
@@ -67,7 +92,7 @@ describe('Roles Configuration', () => {
         });
 
         const successCallback = jasmine.createSpy().and.callFake((roles) => {
-          expect(roles.countRole()).toBe(1);
+          expect(roles.countRole()).toBe(2);
           expect(roles.firstRole().name()).toBe("blackbird");
           expect(roles.firstRole().authConfigId()).toBe("ldap");
         });
@@ -97,12 +122,16 @@ describe('Roles Configuration', () => {
 
   describe("update a role", () => {
     it('should update a role and call success callback', () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
       role.etag("some-etag");
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${roleIndexUrl}/${role.name()}`, undefined, 'PUT').andReturn({
-          responseText:    JSON.stringify({name: 'spacetiger', 'auth_config_id': 'passwordfile'}),
+          responseText:    JSON.stringify({
+            name:       'spacetiger',
+            type:       'plugin',
+            attributes: {'auth_config_id': 'passwordfile'}
+          }),
           status:          200,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -128,12 +157,12 @@ describe('Roles Configuration', () => {
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(request.requestHeaders['If-Match']).toBe('some-etag');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
       });
     });
 
     it('should update a role and call error callback on error', () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
       role.etag("some-etag");
 
       jasmine.Ajax.withMock(() => {
@@ -160,18 +189,18 @@ describe('Roles Configuration', () => {
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(request.requestHeaders['If-Match']).toBe('some-etag');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
       });
     });
   });
 
   describe("create a role", () => {
     it("should create a role and call the success callback", () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(roleIndexUrl, undefined, 'POST').andReturn({
-          responseText:    JSON.stringify(roleJSON),
+          responseText:    JSON.stringify(pluginRoleJSON),
           status:          200,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -183,25 +212,25 @@ describe('Roles Configuration', () => {
         role.create().then(successCallback);
 
         expect(successCallback).toHaveBeenCalled();
-        expect(successCallback.calls.mostRecent().args[0].name()).toEqual(roleJSON['name']);
-        expect(successCallback.calls.mostRecent().args[0].authConfigId()).toEqual(roleJSON['auth_config_id']);
+        expect(successCallback.calls.mostRecent().args[0].name()).toEqual(pluginRoleJSON.name);
+        expect(successCallback.calls.mostRecent().args[0].authConfigId()).toEqual(pluginRoleJSON.attributes.auth_config_id);
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
         const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
         expect(request.url).toBe(roleIndexUrl);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
       });
 
     });
 
     it("should not create a role and call the error callback on non-422 failure code", () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(roleIndexUrl, undefined, 'POST').andReturn({
@@ -223,20 +252,20 @@ describe('Roles Configuration', () => {
         const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
         expect(request.url).toBe(roleIndexUrl);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
       });
     });
 
     it("should not create a role and call the error callback on 422 failure code with the role object", () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(roleIndexUrl, undefined, 'POST').andReturn({
-          responseText:    JSON.stringify({data: roleJSON}),
+          responseText:    JSON.stringify({data: pluginRoleJSON}),
           status:          422,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -257,11 +286,11 @@ describe('Roles Configuration', () => {
         const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
         expect(request.url).toBe(roleIndexUrl);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-        expect(JSON.parse(request.params)).toEqual(roleJSON);
+        expect(JSON.parse(request.params)).toEqual(pluginRoleJSON);
       });
     });
   });
@@ -269,8 +298,8 @@ describe('Roles Configuration', () => {
   describe("find a role", () => {
     it('should find a role and call the success callback', () => {
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(`${roleIndexUrl}/${roleJSON['name']}`, undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(roleJSON),
+        jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON['name']}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(pluginRoleJSON),
           responseHeaders: {
             ETag:           'foo',
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -286,21 +315,21 @@ describe('Roles Configuration', () => {
           expect(role.etag()).toBe("foo");
         });
 
-        Roles.Role.get(roleJSON['name']).then(successCallback);
+        Roles.Role.get(pluginRoleJSON['name']).then(successCallback);
 
         expect(successCallback).toHaveBeenCalled();
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe(`${roleIndexUrl}/${roleJSON['name']}`);
+        expect(request.url).toBe(`${roleIndexUrl}/${pluginRoleJSON['name']}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
       });
     });
 
     it("should find a role and call the error callback on error", () => {
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(`${roleIndexUrl}/${roleJSON['name']}`, undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON['name']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          401,
           responseHeaders: {
@@ -311,14 +340,14 @@ describe('Roles Configuration', () => {
 
         const failureCallback = jasmine.createSpy();
 
-        Roles.Role.get(roleJSON['name']).then(_.noop, failureCallback);
+        Roles.Role.get(pluginRoleJSON['name']).then(_.noop, failureCallback);
 
         expect(failureCallback).toHaveBeenCalledWith('Boom!');
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe(`${roleIndexUrl}/${roleJSON['name']}`);
+        expect(request.url).toBe(`${roleIndexUrl}/${pluginRoleJSON['name']}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
       });
     });
@@ -326,7 +355,7 @@ describe('Roles Configuration', () => {
 
   describe('delete a role', () => {
     it("should call the success callback with the message", () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${roleIndexUrl}/${role.name()}`).andReturn({
           responseText:    JSON.stringify({message: 'Success!'}),
@@ -349,7 +378,7 @@ describe('Roles Configuration', () => {
     });
 
     it("should call the error callback with the message", () => {
-      const role = Roles.Role.fromJSON(roleJSON);
+      const role = Roles.Role.fromJSON(pluginRoleJSON);
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${roleIndexUrl}/${role.name()}`).andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),

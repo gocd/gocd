@@ -16,7 +16,6 @@
 
 const m             = require("mithril");
 const f             = require('helpers/form_helper');
-const Roles         = require('models/roles/roles');
 const AngularPlugin = require('views/shared/angular_plugin');
 
 const PluginRoleModalBody = {
@@ -26,9 +25,7 @@ const PluginRoleModalBody = {
         return;
       }
       const authConfig = vnode.attrs.authConfigs().findById(vnode.attrs.role().authConfigId());
-      const newRole    = new Roles.Role({name: vnode.attrs.role().name(), authConfigId: authConfig.id()});
-      newRole.etag(vnode.attrs.role().etag());
-      vnode.attrs.role(newRole);
+      vnode.attrs.role().authConfigId(authConfig.id());
     };
 
     this.authConfigItems = () => {
@@ -91,7 +88,7 @@ const PluginRoleModalBody = {
     }
 
     let roleNameDisabledMessage;
-    if (!vnode.attrs.newRole) {
+    if (vnode.attrs.role().etag()) {
       roleNameDisabledMessage = (<div>Editing of role NAME is disabled</div>);
     }
 
@@ -103,7 +100,7 @@ const PluginRoleModalBody = {
                               attrName="name"
                               validate="true"
                               isRequired="true"
-                              disabled={!vnode.attrs.newRole}
+                              disabled={vnode.attrs.role().etag()}
                               message={roleNameDisabledMessage}
                               label="Role name"
                               key="role-name"/>

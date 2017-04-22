@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m      = require('mithril');
-const Roles  = require('models/roles/roles');
-const Stream = require('mithril/stream');
-const f      = require('helpers/form_helper');
-const _      = require('lodash');
+const m = require('mithril');
+const f = require('helpers/form_helper');
+const _ = require('lodash');
 
 const RoleUserWidget = {
   oninit(vnode) {
     vnode.state.currentUser   = '';
     vnode.state.valueHolder   = '';
     vnode.state.isUsersSorted = false;
-
-    this.updateRole = (role, users) => {
-      const newRole = new Roles.Role({name: role.name(), users});
-      newRole.etag(role.etag());
-      vnode.attrs.role(newRole);
-    };
 
     this.deleteUser = (username) => {
       vnode.state.currentUser = '';
@@ -39,7 +31,7 @@ const RoleUserWidget = {
 
       if (index > -1) {
         users.splice(index, 1);
-        this.updateRole(role, users);
+        vnode.attrs.role().users(users);
       }
     };
 
@@ -63,7 +55,7 @@ const RoleUserWidget = {
       const index = _.findIndex(users, (item) => username.toLowerCase() === item.toLowerCase());
       if (index < 0) {
         users.push(username);
-        this.updateRole(vnode.attrs.role(), users);
+        vnode.attrs.role().users(users);
         vnode.state.isUsersSorted = false;
       } else {
         vnode.state.currentUser = users[index];
@@ -92,11 +84,9 @@ const RoleUserWidget = {
       showState = 'hide';
     }
 
-    const noRoleUsers = !role().users() || role().users().length === 0;
+    const noRoleUsers = role().users().length === 0;
     if (noRoleUsers && !editable.valueOf()) {
       return;
-    } else if (noRoleUsers) {
-      role().users = Stream([]);
     }
 
     this.sortUsers();

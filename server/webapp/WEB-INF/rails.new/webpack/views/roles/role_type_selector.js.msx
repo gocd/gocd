@@ -20,10 +20,13 @@ const PluginRoleModalBody = require('views/roles/plugin_role_modal_body');
 
 const RoleTypeSelector = {
   oninit(vnode){
-    const ctrl        = vnode.state;
-    ctrl.selectedType = vnode.attrs.selectedType;
-    this.onClick      = (type) => {
-      vnode.state.selectedType(type);
+
+    this.changeRoleType = (type) => {
+      vnode.attrs.role(vnode.attrs.role().changeRoleType(type));
+    };
+
+    this.toPluginRole = () => {
+      vnode.attrs.role();
     };
 
     this.noAuthConfig = () => {
@@ -40,7 +43,7 @@ const RoleTypeSelector = {
     }
 
     let selectRoleTypeView = '';
-    if (vnode.attrs.newRole) {
+    if (!vnode.attrs.role().etag()) {
       selectRoleTypeView = (<div class="row">
         <label class="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
         <input
@@ -48,9 +51,9 @@ const RoleTypeSelector = {
           id="core-role"
           name="role-type-selector"
           type="radio"
-          checked={vnode.state.selectedType() === 'role' ? true : false}
-          onclick={vnode.state.onClick.bind(vnode.state, "role")}/>
-        <label class='inline' for="core-role">Role</label>
+          checked={!vnode.attrs.role().isPluginRole()}
+          onclick={vnode.state.changeRoleType.bind(vnode.state, "gocd")}/>
+        <label class='inline' for="core-role">GoCD Role</label>
 
         <input
           class="plugin-role"
@@ -58,17 +61,16 @@ const RoleTypeSelector = {
           id="plugin-role"
           type="radio"
           disabled={this.noAuthConfig()}
-          checked={vnode.state.selectedType() === 'pluginRole' ? true : false}
-          onclick={vnode.state.onClick.bind(vnode.state, "pluginRole")}/>
+          checked={vnode.attrs.role().isPluginRole()}
+          onclick={vnode.state.changeRoleType.bind(vnode.state, "plugin")}/>
         <label class={this.noAuthConfig() ? 'disabled inline' : 'inline'} for="plugin-role"
                disabled={this.noAuthConfig()}>Plugin Role</label>
       </div>);
     }
 
     this.getRoleModalBody = (role) => {
-      if (vnode.state.selectedType() === "pluginRole") {
+      if (vnode.attrs.role().isPluginRole()) {
         return (<PluginRoleModalBody role={role}
-                                     newRole={vnode.attrs.newRole}
                                      pluginInfos={vnode.attrs.pluginInfos}
                                      authConfigs={vnode.attrs.authConfigs}/>);
       } else {

@@ -38,35 +38,43 @@ describe("RolesWidget", () => {
 
   afterEach(window.destroyDomElementForTest);
 
-  const pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled = {
-    "name":           "blackbird",
-    "auth_config_id": "ldap",
-    "properties":     [
-      {
-        "key":   "AttributeName",
-        "value": "memberOf"
-      },
-      {
-        "key":   "AttributeValue",
-        "value": "ou=group-name,ou=system,dc=example,dc=com"
-      }
-    ]
+  const pluginRoleJSON = {
+    "name":       "blackbird",
+    "type":       "plugin",
+    "attributes": {
+      "auth_config_id": "ldap",
+      "properties":     [
+        {
+          "key":   "AttributeName",
+          "value": "memberOf"
+        },
+        {
+          "key":   "AttributeValue",
+          "value": "ou=group-name,ou=system,dc=example,dc=com"
+        }
+      ]
+    }
   };
 
-  const pluginRoleJSONForWhichAuthConfigExistButPluginRemoved = {
-    "name":           "no-plugin-for-this-role",
-    "auth_config_id": "auth-config-without-plugin",
-    "properties":     []
+  const pluginRoleJSONButPluginRemoved = {
+    "name":       "no-plugin-for-this-role",
+    "type":       "plugin",
+    "attributes": {
+      "properties": []
+    }
   };
 
   const roleJSON = {
-    "name":  "admin",
-    "users": ["bob", "alice"]
+    "name":       "admin",
+    "type":       "gocd",
+    "attributes": {
+      "users": ["bob", "alice"]
+    }
   };
 
   const allRolesJSON = {
     "_embedded": {
-      "roles": [pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled, roleJSON, pluginRoleJSONForWhichAuthConfigExistButPluginRemoved]
+      "roles": [pluginRoleJSON, roleJSON, pluginRoleJSONButPluginRemoved]
     }
   };
 
@@ -172,8 +180,8 @@ describe("RolesWidget", () => {
     it("should list existing roles in absence of authorization plugin", () => {
       const rows = $root.find('.role-description');
 
-      expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name);
-      expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.auth_config_id);
+      expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
+      expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
 
       expect(rows.eq(1).find('.role-name .value').text()).toEqual(roleJSON.name);
       expect(rows.eq(1).find('.auth-config-id .value').get(0)).toEqual(undefined);
@@ -183,8 +191,8 @@ describe("RolesWidget", () => {
       const rows    = $root.find('.role-description');
       const actions = $root.find('.role-actions');
 
-      expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name);
-      expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.auth_config_id);
+      expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
+      expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
       expect(actions.eq(0).find('.edit-role').hasClass('disabled')).toEqual(true);
       expect(actions.eq(0).find('.clone-role').hasClass('disabled')).toEqual(true);
     });
@@ -216,8 +224,8 @@ describe("RolesWidget", () => {
     it("should render a list of all roles", () => {
       const rows = $root.find('.role');
 
-      expect(rows.eq(0).find('.role-description').find('.role-name .value').text()).toEqual(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name);
-      expect(rows.eq(0).find('.role-description').find('.auth-config-id .value').text()).toEqual(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.auth_config_id);
+      expect(rows.eq(0).find('.role-description').find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
+      expect(rows.eq(0).find('.role-description').find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
       expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dt').eq(0).text()).toEqual("AttributeName");
       expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dt').eq(1).text()).toEqual("AttributeValue");
       expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dd pre').eq(0).text()).toEqual("memberOf");
@@ -312,21 +320,20 @@ describe("RolesWidget", () => {
 
     it("should make request to save role on click of save button", () => {
       jasmine.Ajax.stubRequest(roleIndexUrl, undefined, 'POST').andReturn({
-        responseText: JSON.stringify({data: pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled}),
+        responseText: JSON.stringify(pluginRoleJSON),
         status:       200
       });
 
       simulateEvent.simulate($root.find('.add-role').get(0), 'click');
-      m.redraw();
 
       const roleName = $('.reveal:visible .modal-body').find('[data-prop-name="name"]').get(0);
       $(roleName).val("ldap");
       simulateEvent.simulate(roleName, 'input');
-
       m.redraw();
+
       simulateEvent.simulate($('.reveal:visible .modal-buttons').find('.save').get(0), 'click');
-
       m.redraw();
+
       expect($('.success')).toContainText('The role ldap was created successfully');
     });
 
@@ -391,8 +398,12 @@ describe("RolesWidget", () => {
 
     it("should render a modal to edit existing core role", () => {
       jasmine.Ajax.stubRequest(`${roleIndexUrl}/${roleJSON.name}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(roleJSON),
-        status:       200
+        responseText:    JSON.stringify(roleJSON),
+        status:          200,
+        responseHeaders: {
+          'ETag':         '"foo"',
+          'Content-Type': 'application/json'
+        }
       });
 
       expect($root.find('.reveal:visible')).not.toBeInDOM();
@@ -412,9 +423,13 @@ describe("RolesWidget", () => {
     });
 
     it("should render a modal to edit existing plugin role", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled),
-        status:       200
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'GET').andReturn({
+        responseText:    JSON.stringify(pluginRoleJSON),
+        status:          200,
+        responseHeaders: {
+          'ETag':         '"foo"',
+          'Content-Type': 'application/json'
+        }
       });
 
       expect($root.find('.reveal:visible')).not.toBeInDOM();
@@ -427,12 +442,12 @@ describe("RolesWidget", () => {
     });
 
     it("should display error message if fails to fetch role", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled),
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify(pluginRoleJSON),
         status:       200
       });
 
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'PUT').andReturn({
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'PUT').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });
@@ -447,8 +462,8 @@ describe("RolesWidget", () => {
 
 
     it("should keep the role expanded while edit modal is open", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled),
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify(pluginRoleJSON),
         status:       200
       });
 
@@ -475,7 +490,7 @@ describe("RolesWidget", () => {
     });
 
     it("should show success message when role is deleted", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${  pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${  pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Success!'}),
         status:       200
       });
@@ -489,7 +504,7 @@ describe("RolesWidget", () => {
     });
 
     it("should show error message when deletion of role fails", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${  pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${  pluginRoleJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });
@@ -506,8 +521,8 @@ describe("RolesWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should show modal with data from cloning role", () => {
-      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled.name}`, undefined, 'GET').andReturn({
-        responseText: JSON.stringify(pluginRoleJSONForWhichAuthConfigAndPluginInfoInstalled),
+      jasmine.Ajax.stubRequest(`${roleIndexUrl}/${pluginRoleJSON.name}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify(pluginRoleJSON),
         status:       200
       });
 

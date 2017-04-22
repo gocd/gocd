@@ -22,6 +22,7 @@ const Modal            = require('views/shared/new_modal');
 const ComponentMixins  = require('helpers/mithril_component_mixins');
 const Roles            = require('models/roles/roles');
 const RoleWidget       = require('views/roles/role_widget');
+const PluginRoleWidget = require('views/roles/plugin_role_widget');
 const RoleTypeSelector = require('views/roles/role_type_selector');
 require('jquery-textcomplete');
 
@@ -78,21 +79,15 @@ const RolesWidget = function (options) {
       this.reloadPage();
 
       this.createModal = function (options) {
-        const newRole       = options.newRole;
-        const selectedType  = options.selectedType;
-        const operationType = options.operationType;
-        const modalTitle    = options.modalTitle;
-        const isNew         = operationType === 'add' || operationType === 'clone';
-        const buttonName    = (operationType === 'add' || operationType === 'edit') ? 'Save' : 'Clone';
+        const newRole    = options.newRole;
+        const modalTitle = options.modalTitle;
 
         const modal = new Modal({
           size:    'large',
           title:   modalTitle,
           body:    () => (<RoleTypeSelector role={newRole}
-                                            newRole={isNew}
                                             pluginInfos={vnode.state.pluginInfos}
-                                            authConfigs={vnode.state.authConfigsOfInstalledPlugin}
-                                            selectedType={selectedType}/>),
+                                            authConfigs={vnode.state.authConfigsOfInstalledPlugin}/>),
           onclose: () => modal.destroy(),
           buttons: () => {
             if (!newRole()) {
@@ -100,7 +95,7 @@ const RolesWidget = function (options) {
             }
             return [
               {
-                text:  buttonName,
+                text:  "Save",
                 class: 'save primary',
                 onclick () {
                   if (options.callback) {
@@ -118,15 +113,12 @@ const RolesWidget = function (options) {
       this.edit = function (role) {
         const newRole      = Stream();
         const errorMessage = Stream();
-        const selectedType = Stream((role.authConfigId && role.authConfigId()) ? 'pluginRole' : 'role');
         ctrl.clearMessage();
 
         const modal = this.createModal({
           newRole,
-          selectedType,
-          operationType: 'edit',
-          modalTitle:    `Edit role ${role.name()}`,
-          callback:      () => {
+          modalTitle: `Edit role ${role.name()}`,
+          callback:   () => {
             newRole().update().then(showSuccess(modal, ctrl, `The role ${newRole().name()} was updated successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
           }
         });
@@ -141,15 +133,12 @@ const RolesWidget = function (options) {
       };
 
       this.addRole = function () {
-        const newRole      = Stream(new Roles.Role({}));
-        const selectedType = Stream('role');
+        const newRole = Stream(new Roles.Role.Gocd({}));
 
         const modal = this.createModal({
           newRole,
-          selectedType,
-          operationType: 'add',
-          modalTitle:    'Add a new role',
-          callback:      () => {
+          modalTitle: 'Add a new role',
+          callback:   () => {
             newRole().create().then(showSuccess(modal, ctrl, `The role ${  newRole().name()  } was created successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
           }
         });
@@ -159,15 +148,12 @@ const RolesWidget = function (options) {
       this.clone = function (role) {
         const newRole      = Stream();
         const errorMessage = Stream();
-        const selectedType = Stream((role.authConfigId && role.authConfigId()) ? 'pluginRole' : 'role');
         ctrl.clearMessage();
 
         const modal = this.createModal({
           newRole,
-          selectedType,
-          operationType: 'clone',
-          modalTitle:    `Clone role ${role.name()}`,
-          callback:      () => {
+          modalTitle: `Clone role ${role.name()}`,
+          callback:   () => {
             newRole().create().then(showSuccess(modal, ctrl, `The role ${newRole().name()} was cloned successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
           }
         });
@@ -175,6 +161,7 @@ const RolesWidget = function (options) {
         const onFulfilled = function (roleFromAjax) {
           newRole(roleFromAjax);
           newRole().name('');
+          newRole().etag(null);
           newRole().errors().add('name', 'Provide name to your clone');
           errorMessage(null);
         };
@@ -229,7 +216,6 @@ const RolesWidget = function (options) {
     view (vnode) {
 
       const noPluginThatSupportsAuthorization = vnode.state.pluginInfos().countPluginInfo() === 0;
-
       let errorMessage;
       if (vnode.state.message().message) {
         errorMessage = (
@@ -284,24 +270,27 @@ const RolesWidget = function (options) {
             <f.row>
 
               {vnode.state.roles().mapRoles((role) => {
-                const authConfig = vnode.state.allAuthConfigs().findById(role.authConfigId());
-                let pluginInfo   = null;
-                if (authConfig) {
-                  pluginInfo = vnode.state.pluginInfos().findById(authConfig.pluginId());
-                }
-
-                return (
-                  <RoleWidget
+                if (role.isPluginRole()) {
+                  return (
+                    <PluginRoleWidget
+                      role={Stream(role)}
+                      key={role.name()}
+                      vm={vnode.state.vmState(role.name())}
+                      onEdit={vnode.state.edit.bind(vnode.state, role)}
+                      onDelete={vnode.state.deleteConfirm.bind(vnode.state, role)}
+                      onClone={vnode.state.clone.bind(vnode.state, role)}
+                      pluginInfos={vnode.state.pluginInfos}
+                      authConfigs={vnode.state.allAuthConfigs}/>
+                  );
+                } else {
+                  return (<RoleWidget
                     role={Stream(role)}
-                    pluginInfo={pluginInfo}
                     key={role.name()}
                     vm={vnode.state.vmState(role.name())}
                     onEdit={vnode.state.edit.bind(vnode.state, role)}
                     onDelete={vnode.state.deleteConfirm.bind(vnode.state, role)}
-                    onClone={vnode.state.clone.bind(vnode.state, role)}
-                    pluginInfos={vnode.state.pluginInfos}
-                    authConfigs={vnode.state.allAuthConfigs}/>
-                );
+                    onClone={vnode.state.clone.bind(vnode.state, role)}/>);
+                }
               })}
             </f.row>
           </div>

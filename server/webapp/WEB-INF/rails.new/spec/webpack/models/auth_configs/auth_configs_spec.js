@@ -22,7 +22,7 @@ describe('Authorization Configuration', () => {
   const AuthConfigs        = require('models/auth_configs/auth_configs');
   const authConfigIndexUrl = '/go/api/admin/security/auth_configs';
 
-  const authConfigJSON    = {
+  const authConfigJSON = () => ({
     "id":         "ldap",
     "plugin_id":  "cd.go.authorization.ldap",
     "properties": [
@@ -33,26 +33,32 @@ describe('Authorization Configuration', () => {
       {
         "key":   "ManagerDN",
         "value": "uid=admin,ou=system"
+      },
+      {
+        "key":             "Password",
+        "secure":          true,
+        "encrypted_value": "gGx7G+4+BAQ="
       }
     ]
-  };
+  });
+
   const allAuthConfigJSON = {
     "_embedded": {
-      "auth_configs": [authConfigJSON]
+      "auth_configs": [authConfigJSON()]
     }
   };
 
   it('should deserialize a auth config from JSON', () => {
-    const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+    const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
     expect(authConfig.id()).toBe("ldap");
     expect(authConfig.pluginId()).toBe("cd.go.authorization.ldap");
-    expect(authConfig.properties().collectConfigurationProperty('key')).toEqual(['Url', 'ManagerDN']);
-    expect(authConfig.properties().collectConfigurationProperty('value')).toEqual(['ldap://ldap.server.url', 'uid=admin,ou=system']);
+    expect(authConfig.properties().collectConfigurationProperty('key')).toEqual(['Url', 'ManagerDN', 'Password']);
+    expect(authConfig.properties().collectConfigurationProperty('value')).toEqual(['ldap://ldap.server.url', 'uid=admin,ou=system', "gGx7G+4+BAQ="]);
   });
 
   it('should serialize a auth config to JSON', () => {
-    const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
-    expect(JSON.parse(JSON.stringify(authConfig, s.snakeCaser))).toEqual(authConfigJSON);
+    const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
+    expect(JSON.parse(JSON.stringify(authConfig, s.snakeCaser))).toEqual(authConfigJSON());
   });
 
   describe("list all auth configs", () => {
@@ -97,7 +103,7 @@ describe('Authorization Configuration', () => {
 
   describe("update a auth config", () => {
     it('should update a auth config and call success callback', () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
       authConfig.etag("some-etag");
 
       jasmine.Ajax.withMock(() => {
@@ -128,12 +134,12 @@ describe('Authorization Configuration', () => {
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(request.requestHeaders['If-Match']).toBe('some-etag');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
       });
     });
 
     it('should update a auth config and call error callback on error', () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
       authConfig.etag("some-etag");
 
       jasmine.Ajax.withMock(() => {
@@ -160,18 +166,28 @@ describe('Authorization Configuration', () => {
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(request.requestHeaders['If-Match']).toBe('some-etag');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
       });
     });
   });
 
   describe("create a auth config", () => {
+
+    it('should serialize and deserialize auth config with secure field', () => {
+      const authConfig       = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
+      const sortedProperties = authConfig.properties().sortByConfigurations();
+
+      expect(sortedProperties[0].toJSON()).toEqual({key: "Url", value: "ldap://ldap.server.url"});
+      expect(sortedProperties[1].toJSON()).toEqual({key: "ManagerDN", value: "uid=admin,ou=system"});
+      expect(sortedProperties[2].toJSON()).toEqual({key: "Password", secure: true, "encrypted_value": "gGx7G+4+BAQ="});
+    });
+
     it("should create a auth  config and call the success callback", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(authConfigIndexUrl, undefined, 'POST').andReturn({
-          responseText:    JSON.stringify(authConfigJSON),
+          responseText:    JSON.stringify(authConfigJSON()),
           status:          200,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -183,25 +199,25 @@ describe('Authorization Configuration', () => {
         authConfig.create().then(successCallback);
 
         expect(successCallback).toHaveBeenCalled();
-        expect(successCallback.calls.mostRecent().args[0].id()).toEqual(authConfigJSON['id']);
-        expect(successCallback.calls.mostRecent().args[0].pluginId()).toEqual(authConfigJSON['plugin_id']);
+        expect(successCallback.calls.mostRecent().args[0].id()).toEqual(authConfigJSON()['id']);
+        expect(successCallback.calls.mostRecent().args[0].pluginId()).toEqual(authConfigJSON()['plugin_id']);
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
         const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
         expect(request.url).toBe(authConfigIndexUrl);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
       });
 
     });
 
     it("should not create a auth config and call the error callback on non-422 failure code", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(authConfigIndexUrl, undefined, 'POST').andReturn({
@@ -223,20 +239,20 @@ describe('Authorization Configuration', () => {
         const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
         expect(request.url).toBe(authConfigIndexUrl);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
       });
     });
 
     it("should not create a auth config and call the error callback on 422 failure code with the auth config object", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
 
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(authConfigIndexUrl, undefined, 'POST').andReturn({
-          responseText:    JSON.stringify({data: authConfigJSON}),
+          responseText:    JSON.stringify({data: authConfigJSON()}),
           status:          422,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -257,11 +273,11 @@ describe('Authorization Configuration', () => {
         const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
         expect(request.url).toBe(authConfigIndexUrl);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-        expect(JSON.parse(request.params)).toEqual(authConfigJSON);
+        expect(JSON.parse(request.params)).toEqual(authConfigJSON());
       });
     });
   });
@@ -269,8 +285,8 @@ describe('Authorization Configuration', () => {
   describe("find a auth config", () => {
     it('should find a auth config and call the success callback', () => {
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfigJSON['id']}`, undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(authConfigJSON),
+        jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfigJSON()['id']}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(authConfigJSON()),
           responseHeaders: {
             ETag:           'foo',
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -281,26 +297,26 @@ describe('Authorization Configuration', () => {
         const successCallback = jasmine.createSpy().and.callFake((authConfig) => {
           expect(authConfig.id()).toBe("ldap");
           expect(authConfig.pluginId()).toBe("cd.go.authorization.ldap");
-          expect(authConfig.properties().collectConfigurationProperty('key')).toEqual(['Url', 'ManagerDN']);
-          expect(authConfig.properties().collectConfigurationProperty('value')).toEqual(['ldap://ldap.server.url', 'uid=admin,ou=system']);
+          expect(authConfig.properties().collectConfigurationProperty('key')).toEqual(['Url', 'ManagerDN', 'Password']);
+          expect(authConfig.properties().collectConfigurationProperty('value')).toEqual(['ldap://ldap.server.url', 'uid=admin,ou=system', 'gGx7G+4+BAQ=']);
           expect(authConfig.etag()).toBe("foo");
         });
 
-        AuthConfigs.AuthConfig.get(authConfigJSON['id']).then(successCallback);
+        AuthConfigs.AuthConfig.get(authConfigJSON()['id']).then(successCallback);
 
         expect(successCallback).toHaveBeenCalled();
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe(`${authConfigIndexUrl}/${authConfigJSON['id']}`);
+        expect(request.url).toBe(`${authConfigIndexUrl}/${authConfigJSON()['id']}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
       });
     });
 
     it("should find a auth config and call the error callback on error", () => {
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfigJSON['id']}`, undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfigJSON()['id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          401,
           responseHeaders: {
@@ -311,14 +327,14 @@ describe('Authorization Configuration', () => {
 
         const failureCallback = jasmine.createSpy();
 
-        AuthConfigs.AuthConfig.get(authConfigJSON['id']).then(_.noop, failureCallback);
+        AuthConfigs.AuthConfig.get(authConfigJSON()['id']).then(_.noop, failureCallback);
 
         expect(failureCallback).toHaveBeenCalledWith('Boom!');
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe(`${authConfigIndexUrl}/${authConfigJSON['id']}`);
+        expect(request.url).toBe(`${authConfigIndexUrl}/${authConfigJSON()['id']}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
       });
     });
@@ -326,7 +342,7 @@ describe('Authorization Configuration', () => {
 
   describe('delete a auth config', () => {
     it("should call the success callback with the message", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfig.id()}`).andReturn({
           responseText:    JSON.stringify({message: 'Success!'}),
@@ -349,7 +365,7 @@ describe('Authorization Configuration', () => {
     });
 
     it("should call the error callback with the message", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`${authConfigIndexUrl}/${authConfig.id()}`).andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
@@ -374,10 +390,10 @@ describe('Authorization Configuration', () => {
 
   describe('verify connection', () => {
     it("should call the success callback with message", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
-          responseText:    JSON.stringify(authConfigJSON),
+          responseText:    JSON.stringify(authConfigJSON()),
           status:          200,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -389,8 +405,8 @@ describe('Authorization Configuration', () => {
         authConfig.verifyConnection().then(successCallback);
 
         expect(successCallback).toHaveBeenCalled();
-        expect(successCallback.calls.mostRecent().args[0].id()).toEqual(authConfigJSON['id']);
-        expect(successCallback.calls.mostRecent().args[0].pluginId()).toEqual(authConfigJSON['plugin_id']);
+        expect(successCallback.calls.mostRecent().args[0].id()).toEqual(authConfigJSON()['id']);
+        expect(successCallback.calls.mostRecent().args[0].pluginId()).toEqual(authConfigJSON()['plugin_id']);
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();
@@ -400,7 +416,7 @@ describe('Authorization Configuration', () => {
     });
 
     it("should call the error callback with the message", () => {
-      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON);
+      const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
 
     return m.request({
       method:        'GET',
-      url:           Routes.apiv3AdminPluginInfoIndexPath({'type': type}),
+      url:           Routes.apiv2AdminPluginInfoIndexPath({'type': type}),
       background:    true,
-      config:        mrequest.xhrConfig.v3,
+      config:        mrequest.xhrConfig.v2,
       unwrapSuccess: unwrap,
       type:          PluginInfos.PluginInfo
     });
@@ -50,13 +50,19 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
   };
 
   PluginInfos.PluginInfo = function (data) {
-    this.id              = m.prop(data.id);
-    this.name            = m.prop(data.name);
-    this.displayName     = m.prop(s.defaultToIfBlank(data.display_name, data.name));
-    this.version         = m.prop(data.version);
-    this.type            = m.prop(data.type);
-    this.profileSettings = data.pluggable_instance_settings ? m.prop(s.defaultToIfBlank(data.pluggable_instance_settings, {})) : m.prop({});
-    this.roleSettings    = data.role_settings ? m.prop(s.defaultToIfBlank(data.role_settings, {})) : m.prop({});
+    var view = function (settings) {
+      return settings ? settings.view : {};
+    };
+
+    this.id             = m.prop(data.id);
+    this.name           = m.prop(data.name);
+    this.displayName    = m.prop(s.defaultToIfBlank(data.display_name, data.name));
+    this.version        = m.prop(data.version);
+    this.type           = m.prop(data.type);
+    this.configurations = data.pluggable_instance_settings ?
+      m.prop(s.defaultToIfBlank(data.pluggable_instance_settings.configurations, {})) :
+      m.prop({});
+    this.viewTemplate   = m.prop(s.defaultToIfBlank(view(data.pluggable_instance_settings).template, ''));
 
     if (data.image) {
       this.image = m.prop(new Image(data.image.content_type, data.image.data));
@@ -66,8 +72,8 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
   PluginInfos.PluginInfo.get = function (id) {
     return m.request({
       method:      'GET',
-      url:         Routes.apiv3AdminPluginInfoPath({id: id}),
-      config:      mrequest.xhrConfig.v3,
+      url:         Routes.apiv2AdminPluginInfoPath({id: id}),
+      config:      mrequest.xhrConfig.v2,
       type:        PluginInfos.PluginInfo,
       unwrapError: mrequest.unwrapErrorExtractMessage
     });

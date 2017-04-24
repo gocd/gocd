@@ -359,7 +359,7 @@ describe('SCMs', () => {
         expect(JSON.parse(JSON.stringify(configurations))).toEqual([{
           key:   'username',
           value: 'some_name'
-        }, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
+        }, {key: 'password', secure: true, encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
       });
     });
 

@@ -34,6 +34,17 @@
 
     var loading = consoleElement.siblings(".console-log-loading");
 
+    function removeLoadingBar() {
+      if (loading) {
+        loading.remove();
+        loading = null;
+      }
+    }
+
+    consoleElement.on("consoleCompleted", function () {
+      removeLoadingBar();
+    });
+
     function injectFragment(fragment, parentElement) {
       if (!!fragment.childNodes.length) {
         window.requestAnimationFrame(function attachSubtree() {
@@ -68,10 +79,7 @@
     }
 
     function buildDomFromLogs(logLines) {
-      if (loading) {
-        loading.remove();
-        loading = null;
-      }
+      removeLoadingBar();
 
       var rawLine, match, continuedSection;
       var residual, queue;

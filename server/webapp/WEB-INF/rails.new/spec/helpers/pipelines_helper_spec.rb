@@ -68,7 +68,6 @@ describe PipelinesHelper do
       message = trigger_message(triggered_date, pim)
 
       expect(message).to have_selector(".who", text: "Anonymous")
-      expect(message).to have_selector("span.time", text: "")
     end
 
     it "should not display the trigger message when the pipeline is being scheduled for the first time" do

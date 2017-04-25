@@ -30,7 +30,7 @@ module PipelinesHelper
 
   def trigger_message(actual_date_time, pim)
     if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance
-      "Triggered&nbsp;#{l.string('BY')}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>&nbsp;on&nbsp;<span class='time'></span>"
+      "Triggered&nbsp;#{l.string('BY')}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>"
     else
     ""
     end

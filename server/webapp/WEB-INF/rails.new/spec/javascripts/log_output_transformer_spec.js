@@ -17,7 +17,7 @@
   "use strict";
 
   describe("LogOutputTransformerSpec", function LogOutputTransformerSpec() {
-      var transformer, output;
+      var transformer, output, fixture;
 
       function extractText(collection) {
         return _.map(collection, function (el) { return $(el).text(); });
@@ -32,7 +32,8 @@
       }
 
       beforeEach(function () {
-          setFixtures("<div id=\"console\"></div>");
+          setFixtures("<div id='fixture'><div class='console-log-loading'></div><div id=\"console\"></div></div>");
+          fixture = $('#fixture');
           transformer = new LogOutputTransformer(output = $("#console"), FoldableSection, false);
       });
 
@@ -67,6 +68,24 @@
         assertEquals(["Starting build", "Build finished in no time!"].join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
       });
 
+      it("should remove loading bar when console has lines to show", function() {
+        var lines = [
+          "##|01:01:00.123 Starting build",
+          "##|01:02:00.123 Build finished in no time!"
+        ];
+
+        assertTrue(fixture.find(".console-log-loading").is(':visible'));
+        transformer.transform(lines);
+
+        assertFalse(fixture.find(".console-log-loading").is(':visible'));
+      });
+
+      it("should remove loading bar when build has finished and there is no output", function() {
+        assertTrue(fixture.find(".console-log-loading").is(':visible'));
+        output.trigger('consoleCompleted');
+
+        assertFalse(fixture.find(".console-log-loading").is(':visible'));
+      });
   });
 
 })(jQuery);

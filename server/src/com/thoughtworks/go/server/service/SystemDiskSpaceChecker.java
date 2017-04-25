@@ -20,6 +20,10 @@ import java.io.File;
 
 public class SystemDiskSpaceChecker {
     public long getUsableSpace(File targetFolder) {
-        return targetFolder.getUsableSpace();
+        long usableSpace = targetFolder.getUsableSpace();
+        if (usableSpace < 0) {
+            usableSpace = Long.MAX_VALUE;
+        }
+        return usableSpace;
     }
 }

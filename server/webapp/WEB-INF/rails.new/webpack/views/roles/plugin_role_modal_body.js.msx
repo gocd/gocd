@@ -89,7 +89,7 @@ const PluginRoleModalBody = {
 
     let roleNameDisabledMessage;
     if (vnode.attrs.role().etag()) {
-      roleNameDisabledMessage = (<div>Editing of role NAME is disabled</div>);
+      roleNameDisabledMessage = (<div>Editing of role NAME is not allowed</div>);
     }
 
     return (

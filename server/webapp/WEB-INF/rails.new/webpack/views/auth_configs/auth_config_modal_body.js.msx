@@ -75,7 +75,7 @@ const AuthConfigModalBody = {
 
     let authConfigIdDisabledMessage;
     if (vnode.attrs.authConfig().etag()) {
-      authConfigIdDisabledMessage = (<div>Editing of auth config ID is disabled</div>);
+      authConfigIdDisabledMessage = (<div>Editing of auth config ID is not allowed</div>);
     }
 
     let angularPlugin;

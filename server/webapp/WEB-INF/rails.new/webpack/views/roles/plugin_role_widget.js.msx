@@ -18,7 +18,7 @@ const m                   = require('mithril');
 const Stream              = require('mithril/stream');
 const f                   = require('helpers/form_helper');
 const ComponentMixins     = require('helpers/mithril_component_mixins');
-const ConfigurationWidget = require('views/roles/configuration_widget');
+const ConfigurationWidget = require('views/roles/plugin_role_configuration_widget');
 
 const PluginRoleWidget = {
   oninit (vnode) {

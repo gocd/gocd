@@ -133,7 +133,7 @@ const RolesWidget = function (options) {
       };
 
       this.addRole = function () {
-        const newRole = Stream(new Roles.Role.Gocd({}));
+        const newRole = Stream(new Roles.Role.GoCD({}));
 
         const modal = this.createModal({
           newRole,

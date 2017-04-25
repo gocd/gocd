@@ -16,7 +16,7 @@
 
 const m              = require("mithril");
 const f              = require('helpers/form_helper');
-const RoleUserWidget = require('views/roles/role_user_widget');
+const RoleUserWidget = require('views/roles/gocd_role_user_widget');
 
 const RoleModalBody = {
   view (vnode) {

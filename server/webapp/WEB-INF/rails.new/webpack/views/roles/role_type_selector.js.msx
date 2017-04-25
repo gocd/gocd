@@ -15,7 +15,7 @@
  */
 
 const m                   = require("mithril");
-const RoleModalBody       = require('views/roles/role_modal_body');
+const RoleModalBody       = require('views/roles/gocd_role_modal_body');
 const PluginRoleModalBody = require('views/roles/plugin_role_modal_body');
 
 const RoleTypeSelector = {

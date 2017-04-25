@@ -90,7 +90,7 @@ Roles.Role = function (type, data) {
 };
 
 Roles.Role.get = function (name) {
-  return new Roles.Role.Gocd({name}).refresh();
+  return new Roles.Role.GoCD({name}).refresh();
 };
 
 const ErrorsFromJSON = function (data) {
@@ -109,7 +109,7 @@ Roles.Role.fromJSON = function (data = {}) {
   return Roles.Types[data.type].fromJSON(data);
 };
 
-Roles.Role.Gocd = function (data) {
+Roles.Role.GoCD = function (data) {
   Roles.Role.call(this, "gocd", data);
   this.users = Stream(s.defaultToIfBlank(data.users, []));
 
@@ -142,14 +142,14 @@ Roles.Role.Plugin.fromJSON = (data = {}) => new Roles.Role.Plugin({
   properties:   PluginConfigurations.fromJSON(data.attributes.properties)
 });
 
-Roles.Role.Gocd.fromJSON = (data = {}) => new Roles.Role.Gocd({
+Roles.Role.GoCD.fromJSON = (data = {}) => new Roles.Role.GoCD({
   name:  data.name,
   type:  data.type,
   users: data.attributes.users
 });
 
 Roles.Types = {
-  'gocd':   Roles.Role.Gocd,
+  'gocd':   Roles.Role.GoCD,
   'plugin': Roles.Role.Plugin
 };
 

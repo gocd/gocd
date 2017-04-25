@@ -308,6 +308,9 @@ $arrow-color: #000;
   .select-agent {
     margin: 0;
   }
+  .content {
+    position: relative;
+  }
 }
 
 .agents-table-body {
@@ -351,7 +354,8 @@ $arrow-color: #000;
     padding:       4px 10px;
   }
   a {
-    display: block;
+    display:     block;
+    white-space: nowrap;
   }
 }
 

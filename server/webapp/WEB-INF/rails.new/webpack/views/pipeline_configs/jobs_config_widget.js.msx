@@ -88,13 +88,7 @@ let JobTimeout = {
           <f.column size={12}>
             <label>
               Timeout
-              <f.tooltip tooltip={{
-                content:   tt.job.timeout,
-                size:      'small',
-                direction: 'bottom'
-              }}
-                         model={job}
-                         attrName='timeout'/>
+              <f.tooltip tooltip={{content: tt.job.timeout, size:'small'}} model={job} attrName='timeout'/>
             </label>
           </f.column>
         </f.row>
@@ -171,13 +165,7 @@ let RunOnAgent = {
           <f.column size={12}>
             <label>
               Number of jobs
-              <f.tooltip tooltip={{
-                content:   tt.job.runInstanceCount.main,
-                size:      'small',
-                direction: 'bottom'
-              }}
-                         model={job}
-                         attrName='runInstanceCount'/>
+              <f.tooltip tooltip={{content: tt.job.runInstanceCount.main, size: 'small'}} model={job} attrName='runInstanceCount'/>
             </label>
           </f.column>
         </f.row>

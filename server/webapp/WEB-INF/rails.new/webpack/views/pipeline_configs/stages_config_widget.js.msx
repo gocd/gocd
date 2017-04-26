@@ -128,12 +128,9 @@ let SettingsWidget = {
                          validate={true} />
               </f.column>
             </f.row>
-            <label>Stage Type
-              <f.tooltip tooltip={{
-                content:   tt.stage.stageType,
-                direction: 'bottom',
-                size:      'small'
-              }}/>
+            <label>
+              <span>Stage Type</span>
+              <f.tooltip tooltip={{ content: tt.stage.stageType, size: "small"}} />
             </label>
             <f.row>
               <f.column size={6} largeSize={6}>

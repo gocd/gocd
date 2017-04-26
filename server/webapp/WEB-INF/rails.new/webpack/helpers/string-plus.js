@@ -24,7 +24,7 @@ const mixins = {
     return s.isBlank(value) ? defaultValue : value;
   },
 
-  coerceToMprop(param, defaultValue) {
+  defaultToStream(param, defaultValue) {
     return typeof param === 'function' ? param : Stream(typeof param === 'undefined' ? defaultValue : param);
   },
 

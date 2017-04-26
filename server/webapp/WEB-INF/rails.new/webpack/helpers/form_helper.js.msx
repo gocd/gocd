@@ -259,7 +259,7 @@ let f = {
 
   tabs: {
     oninit (vnode) {
-      this.selectedIndex = s.coerceToMprop(vnode.attrs.selectedIndex || 0);
+      this.selectedIndex = s.defaultToStream(vnode.attrs.selectedIndex || 0);
 
       this.classNameForTab = function (tabIndex) {
         return this.selectedIndex() === tabIndex ? 'is-active' : '';
@@ -351,7 +351,7 @@ let f = {
 
   accordion: {
     oninit (vnode) {
-      this.selectedIndex = Mixin.TogglingGetterSetter(s.coerceToMprop(vnode.attrs.selectedIndex || 0));
+      this.selectedIndex = Mixin.TogglingGetterSetter(s.defaultToStream(vnode.attrs.selectedIndex || 0));
 
       this.classNameForAccordionIndex = function (tabIndex) {
         return this.selectedIndex() === tabIndex ? 'is-active' : null;

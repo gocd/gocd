@@ -63,12 +63,13 @@ const PipelineSettingsWidget = {
             </f.column>
 
             <f.column size={4} largeSize={5} end={true} class="pipeline-schedule">
-              <label>{pipelineAutoScheduleMessage}</label>
-              <f.tooltip tooltip={{
-                content:   pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
-                direction: 'bottom',
-                size:      'small'
-              }}/>
+              <label>
+                {pipelineAutoScheduleMessage}
+                <f.tooltip tooltip={{
+                  content:   pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
+                  size:      'small'
+                }}/>
+              </label>
             </f.column>
           </f.row>
           <f.row>

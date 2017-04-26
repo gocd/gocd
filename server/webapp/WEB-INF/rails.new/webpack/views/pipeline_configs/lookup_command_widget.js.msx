@@ -187,7 +187,6 @@ const LookupCommandWidget = {
             <label>Look up
               <f.tooltip tooltip={{
                 content:   tt.task.lookup,
-                direction: 'bottom',
                 size:      'small'
               }}/>
             </label>

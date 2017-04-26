@@ -157,7 +157,7 @@
   }
 
   // scss-lint:disable QualifyingElement
-  input[type="text"] {
+  input[type="text"], input[type="email"] {
     width: 200px;
   }
 }

@@ -17,31 +17,21 @@
 ;(function() { // eslint-disable-line no-extra-semi
   "use strict";
 
-  const m = require("mithril");
-  const Stream = require("mithril/stream");
-  const _ = require("lodash");
-
-  function yank(object, key, defaultValue) {
-    let value = object[key];
-
-    if ("undefined" === typeof value) {
-      value = defaultValue;
-    }
-
-    delete object[key];
-    return value;
-  }
+  const m  = require("mithril"),
+    Stream = require("mithril/stream"),
+    _      = require("lodash"),
+    f      = require("helpers/form_helper");
 
   function EmailSettingsFormEditableState(model, smtpEnabled) {
-    const editMode = Stream(false);
-    const allowCheckbox = editMode.map((value) => smtpEnabled && value);
+    const readonly = Stream(true),
+      rejectToggle = readonly.map((value) => !smtpEnabled || value);
 
     function enterEditMode(e) {
       if (e) {
         e.preventDefault();
       }
 
-      editMode(true);
+      readonly(false);
       model.reset();
     }
 
@@ -50,12 +40,12 @@
         e.preventDefault();
       }
 
-      editMode(false);
+      readonly(true);
       model.reset();
     }
 
-    this.editMode      = editMode;
-    this.allowCheckbox = allowCheckbox;
+    this.readonly      = readonly;
+    this.rejectToggle  = rejectToggle;
     this.enterEditMode = enterEditMode;
     this.exitEditMode  = exitEditMode;
   }
@@ -68,70 +58,41 @@
     },
 
     view(vnode) {
-      const model      = vnode.attrs.model,
-        editMode       = this.editableState.editMode,
-        allowCheckbox  = this.editableState.allowCheckbox,
-        enterEditMode  = this.editableState.enterEditMode,
-        exitEditMode   = this.editableState.exitEditMode;
+      const model     = vnode.attrs.model,
+        readonly      = this.editableState.readonly(),
+        rejectToggle  = this.editableState.rejectToggle(),
+        enterEditMode = this.editableState.enterEditMode,
+        exitEditMode  = this.editableState.exitEditMode;
 
       return m("form", model.config({class: "email-settings"}, exitEditMode),
         m("legend", "Email Settings"),
         m("fieldset", [
-          m(LockableInput, {name: "email", label: "Email", type: "email", value: model.email, unlocked: editMode, placeholder: "Email not set"}),
-          m(LockableCheckbox, {name: "email_me", label: "Enable email notification", value: model.enableNotifications, unlocked: allowCheckbox}),
-          m(LockableInput, {name: "checkin_aliases", label: "My check-in aliases", value: model.checkinAliases, unlocked: editMode, placeholder: "No matchers defined"}),
+          m(LockableInput, {name: "email", label: "Email", type: "email", model, attrName: "email", readonly, placeholder: "Email not set"}),
+          m(f.checkbox, {name: "email_me", label: "Enable email notification", model, attrName: "enableNotifications", disabled: rejectToggle}),
+          m(LockableInput, {name: "checkin_aliases", label: "My check-in aliases", model, attrName: "checkinAliases", readonly, placeholder: "No matchers defined"}),
         ]),
         m("fieldset",
-          editMode() ? [
+          readonly ? m("input", {type: "button", value: "Edit", onclick: enterEditMode}) : [
             m("input", {type: "submit", value: "Save", class: "primary"}),
             m("input", {type: "reset", value: "Cancel", onclick: exitEditMode})
-          ] : m("input", {type: "button", value: "Edit", onclick: enterEditMode})
+          ]
         )
-      );
-    }
-  };
-
-  const LockableCheckbox = {
-    view(vnode) {
-      const args     = _.assign({}, vnode.attrs);
-      const label    = yank(args, "label");
-      const value    = yank(args, "value");
-      const unlocked = yank(args, "unlocked");
-      const attrs    = _.assign({type: "checkbox", disabled: !unlocked(), checked: value(), onchange: m.withAttr("checked", value)}, args);
-
-      return m("label",
-        m("input", attrs),
-        m("span", label)
       );
     }
   };
 
   const LockableInput = {
     view(vnode) {
-      const args        = _.assign({}, vnode.attrs);
-      const label       = yank(args, "label");
-      const value       = yank(args, "value");
-      const placeholder = yank(args, "placeholder");
-      const unlocked    = yank(args, "unlocked");
+      const args = _.assign({}, vnode.attrs),
+        value    = args.model[args.attrName],
+        readonly = args.readonly;
 
-      const dontBeAnnoying = {
-        autocapitalize: "off",
-        autocorrect: "off",
-        spellcheck: false,
-      };
+      args.autocomplete = "on"; // it's nice to remember past entries for things like "email"
 
-      if (unlocked()) {
-        const attrs = _.assign({type: "text", value: value(), oninput: m.withAttr("value", value)}, dontBeAnnoying, args);
-        return m("label",
-          m("span", label),
-          m("input", attrs)
-        );
-      }
-
-      return m("label",
-        m("span", label),
-        m("span", {class: "value"}, value() || placeholder)
-      );
+      return readonly ? m("label",
+        m("span", args.label),
+        m("span", {class: "value"}, value() || args.placeholder)
+      ) : m(f.input, args);
     }
   };
 

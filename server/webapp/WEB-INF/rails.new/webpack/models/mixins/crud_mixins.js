@@ -100,7 +100,7 @@ CrudMixins.Delete = function (options) {
 
       const jqXHR = $.ajax({
         method:      'DELETE',
-        url:         url(entity),
+        url:         "function" === typeof url ? url(entity) : url,
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(version),
         contentType: false
@@ -123,6 +123,7 @@ CrudMixins.Update = function (options) {
   const url     = options.resourceUrl;
   const version = options.version;
   const type    = options.type;
+  const method  = options.method; // some API requests use "PATCH"
 
   this.update = function () {
     const entity = this;
@@ -131,8 +132,8 @@ CrudMixins.Update = function (options) {
       const deferred = this;
 
       const jqXHR = $.ajax({
-        method:      'PUT',
-        url:         url(entity),
+        method:      method || "PUT",
+        url:         "function" === typeof url ? url(entity) : url,
         timeout:     mrequest.timeout,
         beforeSend(xhr) {
           mrequest.xhrConfig.forVersion(version)(xhr);
@@ -167,8 +168,8 @@ CrudMixins.Refresh = function (options) {
       const deferred = this;
 
       const jqXHR = $.ajax({
-        method:      'GET',
-        url:         url(entity),
+        method:      "GET",
+        url:         "function" === typeof url ? url(entity) : url,
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(version),
         contentType: false

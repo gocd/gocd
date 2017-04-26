@@ -92,12 +92,11 @@ const CancelTaskWidget = {
         }, []);
 
         return (
-          <f.select model={vnode.state}
+          <f.column size={3} end="true">
+            <f.select model={vnode.state}
                     attrName='selected'
-                    items={items}
-                    size={3}
-                    largeSize={3}
-                    end="true"/>
+                    items={items} />
+          </f.column>
         );
       }
     };

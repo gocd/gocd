@@ -436,14 +436,13 @@ let MaterialTypeSelector = {
 
     return (
       <f.row class='material-selector'>
-        <f.select
-          model={vnode.state}
-          attrName='selected'
-          class='inline'
-          label='Add a new material of type'
-          items={items}
-          size={3}
-          largeSize={3}/>
+        <f.column size={3}>
+          <f.select
+            model={vnode.state}
+            attrName='selected'
+            label='Add a new material of type'
+            items={items} />
+        </f.column>
         <f.column size={2} end={true}>
           <f.link class='add-button button'
                   onclick={vnode.attrs.createMaterial.bind(vnode.state, vnode.state.selected)}>Add

@@ -58,22 +58,17 @@ const ArtifactsConfigWidget = {
                          contentAfter={<f.tooltip tooltip={{content: tt.artifacts.destination}} model={artifact} attrName="destination" />}
                          placeholder="Destination" />
               </f.column>
+              <f.column size={2}>
                 <f.select model={artifact}
-                          attrName='type'
-                          class='inline'
-                          items={[
-                            {
-                              id: 'build', text: 'build'
-                            }, {
-                              id: 'test', text: 'test'
-                            }
-                          ]}
-                          size={2}
-                          tooltip={{
-                            content:   tt.artifacts.type,
-                            direction: 'bottom',
-                            size:      'medium'
-                          }}/>
+                        attrName='type'
+                        items={[
+                          {id: 'build', text: 'build'},
+                          {id: 'test', text: 'test'}
+                        ]}
+                        label={
+                          <f.tooltip tooltip={{content: tt.artifacts.type}} />
+                        } />
+              </f.column>
               <f.column size={1} end={true}>
                 {vnode.state.removeLink.call(vnode.state, artifact)}
               </f.column>

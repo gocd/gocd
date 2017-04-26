@@ -138,14 +138,13 @@ const NewPluggableSCMMaterialWidget = {
     if (!_.isEmpty(items)) {
       return (
         <f.row class='scm-selector'>
-          <f.select
-            model={ctrl}
-            attrName='selected'
-            label='Select an existing SCM'
-            items={items}
-            size={4}
-            largeSize={2}
-          />
+          <f.column size={4} largeSize={2}>
+            <f.select
+              model={ctrl}
+              attrName='selected'
+              label='Select an existing SCM'
+              items={items} />
+          </f.column>
           <f.column size={6} largeSize={6} end>
             <a class='add-button button' onclick={ctrl.selectSCM.bind(ctrl, ctrl.selected())}>Add</a>
             <label class='or'>Or</label>

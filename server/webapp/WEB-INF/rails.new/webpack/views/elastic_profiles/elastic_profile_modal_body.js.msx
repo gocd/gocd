@@ -95,15 +95,13 @@ const ElasticProfileModalBody = {
                        disabled={vnode.attrs.profile().etag()}
                        key="profile-id" />
             </f.column>
-
-            <f.select model={vnode.attrs.profile()}
-                      attrName='pluginId'
-                      label='Plugin Id'
-                      onchange={vnode.state.selectPluginId.bind(vnode.state)}
-                      items={vnode.state.pluginInfoItems()}
-                      largeSize={4}
-                      size={6}
-                      end={"true"}/>
+            <f.column size={6} largeSize={4} end={true}>
+              <f.select model={vnode.attrs.profile()}
+                        attrName="pluginId"
+                        label="Plugin Id"
+                        onModelUpdate={vnode.state.selectPluginId.bind(vnode.state)}
+                        items={vnode.state.pluginInfoItems()} />
+            </f.column>
 
           </div>
         </f.row>

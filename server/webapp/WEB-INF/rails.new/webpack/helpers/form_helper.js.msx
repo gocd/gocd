@@ -99,21 +99,6 @@ function validateModel(model, attrs) {
   return validationErrors;
 }
 
-function setValue(items, cb) {
-  return function (e) {
-    e                   = e || window.event;
-    const currentTarget = e.currentTarget || this;
-
-    const mappings = _.reduce(items, (memo, item) => {
-      const id = s.coerceToMprop(item.id)();
-      memo[id] = item;
-      return memo;
-    }, {});
-
-    cb(mappings[currentTarget.value]);
-  };
-}
-
 let f = {
   row: {
     view (vnode) {
@@ -253,6 +238,41 @@ let f = {
     }
   },
 
+  select: {
+    view (vnode) {
+      const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
+
+      const model        = wireUpModel(args), // alters args, should be called first
+        validationErrors = validateModel(model, args),
+        items            = s.defaultToStream(deleteKeyAndReturnValue(args, "items", [])),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
+        selected         = args.value;
+
+      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      const labelAttrs = {};
+
+      if (validationErrors) {
+        labelAttrs["class"] = "is-invalid-label";
+        contentAfter.push(validationErrors);
+      }
+
+      const selectElement = [<select {...args}>{
+        _.map(items(), (item) => {
+          // item can be either a string or an object
+          const text = s.defaultToStream(item.text, item)();
+          const id = s.defaultToStream(item.id, text)();
+          return <option value={id} selected={("function" === typeof selected ? selected() : selected) === id}>{text}</option>;
+        })
+      }</select>, contentAfter];
+
+      return _.isEmpty(label) ? selectElement : <label {...labelAttrs}>
+        {label}
+        {selectElement}
+      </label>;
+    }
+  },
+
   resetAttrButton: {
     view(vnode) {
       const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
@@ -347,80 +367,6 @@ let f = {
             {tabs}
             {tabsContent}
           </div>
-        );
-      }
-    }
-  },
-
-  select: {
-    oninit (vnode) {
-      this.value = s.coerceToMprop(vnode.attrs.value, '');
-    },
-
-    view (vnode) {
-      const args = vnode.attrs;
-
-      const items     = deleteKeyAndReturnValue(args, 'items', [{}]),
-        label         = deleteKeyAndReturnValue(args, 'label'),
-        model         = deleteKeyAndReturnValue(args, 'model'),
-        modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        attrName      = deleteKeyAndReturnValue(args, 'attrName'),
-        tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
-        disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
-        receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
-        validate      = deleteKeyAndReturnValue(args, 'validate', false),
-        message       = deleteKeyAndReturnValue(args, 'message', '');
-
-      if (!args.size) {
-        args.size = 3;
-      }
-
-      let propertyMessage;
-      if (message) {
-        propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
-      }
-
-      const onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
-
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
-
-      const selectedValue = model[attrName]();
-      const selectElem    = (
-        <select value={selectedValue}
-                disabled={disabled}
-                data-prop-name={attrName}
-                data-model-type={modelType}
-                onchange={onchange}>
-          {_.map(items, (item) => {
-            const id   = s.coerceToMprop(item.id)();
-            const text = s.coerceToMprop(item.text)();
-
-            return (
-              <option value={id} selected={id === selectedValue}>{text}</option>
-            );
-          })}
-        </select>
-      );
-
-      if (s.isBlank(label)) {
-        return (
-          <f.column {...args}>
-            <f.tooltip tooltip={tooltip}/>
-            {propertyMessage}
-            {selectElem}
-          </f.column>);
-      } else {
-        return (
-          <f.column {...args}>
-            <label>
-              {label}
-            </label>
-            <f.tooltip tooltip={tooltip}/>
-            {propertyMessage}
-            {selectElem}
-            {propertyError}
-          </f.column>
         );
       }
     }

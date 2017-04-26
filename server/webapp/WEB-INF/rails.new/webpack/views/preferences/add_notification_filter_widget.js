@@ -18,7 +18,7 @@
   "use strict";
 
   const m = require("mithril");
-  const _ = require("lodash");
+  const f = require("helpers/form_helper");
 
   function AddNotificationFilterWidget(filterModels, pipelineModel) {
     return {
@@ -27,15 +27,15 @@
       },
       view() {
         return m("form", {class: "create-notification-filter", onsubmit: filterModels.save},
-          m(Dropdown, {
+          m(f.select, {
             label:      "Pipeline",
             name:       "pipeline",
-            options:    pipelineModel.pipelines,
+            items:    pipelineModel.pipelines,
             onchange:   m.withAttr("value", pipelineModel.currentPipeline)
           }),
-          m(Dropdown, {label: "Stage", name: "stage", defaultOpt: "[Any Stage]", options: pipelineModel.stages}),
-          m(Dropdown, {label: "Event", name: "event", defaultOpt: "All", options: pipelineModel.events}),
-          m("label", m("input", {type: "checkbox", name: "myCheckin", checked: filterModels.myCommits(), onchange: m.withAttr("checked", filterModels.myCommits)}), m("span", "Only if it contains my check-ins")),
+          m(f.select, {label: "Stage", name: "stage", items: pipelineModel.stages}),
+          m(f.select, {label: "Event", name: "event", items: pipelineModel.events}),
+          m(f.checkbox, {label: "Only if it contains my check-ins", name: "myCheckin", checked: filterModels.myCommits(), onchange: m.withAttr("checked", filterModels.myCommits)}),
           m("fieldset",
             m("input", {type: "submit", value: "Add", class: "primary"}),
             m("input", {type: "reset", value: "Reset"})
@@ -44,17 +44,6 @@
       }
     };
   }
-
-  const Dropdown = {
-    view(vnode) {
-      return m("label",
-        m("span", vnode.attrs.label),
-        m("select", {name: vnode.attrs.name, onchange: vnode.attrs.onchange},
-          _.map(vnode.attrs.options(), (option) => m("option", {value: option}, option))
-        )
-      );
-    }
-  };
 
   module.exports = AddNotificationFilterWidget;
 })();

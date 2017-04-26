@@ -47,8 +47,6 @@
     const filtersModel       = new NotificationFilters(filtersUrl, errorsModel);
     const pipelinesModel     = new Pipelines(pipelines);
 
-    const AddNotificationFilterView   = new AddNotificationFilterWidget(filtersModel, pipelinesModel);
-
     const ErrorMessageWidget = {
       view(vnode) {
         if (vnode.attrs.errors()) {
@@ -69,7 +67,7 @@
           m(EmailSettingsWidget, {model: emailSettingsModel, smtpEnabled}),
           m("div", {class: "filter-controls"},
             m("h2", "Create Notification Filter"),
-            m(AddNotificationFilterView),
+            m(AddNotificationFilterWidget, {filtersModel, pipelinesModel}),
             m("h2", "Current Notification Filters"),
             m(NotificationFiltersListWidget, {model: filtersModel})
           )

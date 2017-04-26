@@ -20,37 +20,41 @@
   const m = require("mithril");
   const f = require("helpers/form_helper");
 
-  function AddNotificationFilterWidget(filterModels, pipelineModel) {
+  const AddNotificationFilterWidget = {
+    oninit(vnode) {
+      const filtersModel = vnode.attrs.filtersModel,
+        pipelinesModel   = vnode.attrs.pipelinesModel;
 
-    function onreset(e) { // don't preventDefault() here; still want the native behavior too!
-      filterModels.reset();
-      pipelineModel.reset();
-      e.currentTarget.querySelector("input[type='checkbox']").setAttribute("checked", filterModels.myCommits());
+      this.onreset = function onreset(e) { // don't preventDefault() here; still want the native behavior too!
+        filtersModel.reset();
+        pipelinesModel.reset();
+        e.currentTarget.querySelector("input[type='checkbox']").setAttribute("checked", filtersModel.myCommits());
+      };
+
+      filtersModel.load();
+    },
+
+    view(vnode) {
+      const filtersModel = vnode.attrs.filtersModel,
+        pipelinesModel   = vnode.attrs.pipelinesModel;
+
+      return m("form", {class: "create-notification-filter", onsubmit: filtersModel.save, onreset: this.onreset},
+        m(f.select, {
+          label:    "Pipeline",
+          name:     "pipeline",
+          items:    pipelinesModel.pipelines,
+          onchange: m.withAttr("value", pipelinesModel.currentPipeline)
+        }),
+        m(f.select, {label: "Stage", name: "stage", items: pipelinesModel.stages}),
+        m(f.select, {label: "Event", name: "event", items: pipelinesModel.events}),
+        m(f.checkbox, {label: "Only if it contains my check-ins", name: "myCheckin", checked: filtersModel.myCommits(), onchange: m.withAttr("checked", filtersModel.myCommits)}),
+        m("fieldset",
+          m("input", {type: "submit", value: "Add", class: "primary"}),
+          m("input", {type: "reset", value: "Reset"})
+        )
+      );
     }
-
-    return {
-      oninit() {
-        filterModels.load();
-      },
-      view() {
-        return m("form", {class: "create-notification-filter", onsubmit: filterModels.save, onreset},
-          m(f.select, {
-            label:      "Pipeline",
-            name:       "pipeline",
-            items:    pipelineModel.pipelines,
-            onchange:   m.withAttr("value", pipelineModel.currentPipeline)
-          }),
-          m(f.select, {label: "Stage", name: "stage", items: pipelineModel.stages}),
-          m(f.select, {label: "Event", name: "event", items: pipelineModel.events}),
-          m(f.checkbox, {label: "Only if it contains my check-ins", name: "myCheckin", checked: filterModels.myCommits(), onchange: m.withAttr("checked", filterModels.myCommits)}),
-          m("fieldset",
-            m("input", {type: "submit", value: "Add", class: "primary"}),
-            m("input", {type: "reset", value: "Reset"})
-          )
-        );
-      }
-    };
-  }
+  };
 
   module.exports = AddNotificationFilterWidget;
 })();

@@ -23,58 +23,50 @@
     f      = require("helpers/form_helper");
 
   function EmailSettingsFormEditableState(model, smtpEnabled) {
-    const readonly = Stream(true),
-      rejectToggle = readonly.map((value) => !smtpEnabled || value);
+    const readonly    = this.readonly = Stream(true);
+    this.rejectToggle = readonly.map((value) => !smtpEnabled || value);
 
-    function enterEditMode(e) {
+    this.enterEditMode = function enterEditMode(e) {
       if (e) {
         e.preventDefault();
       }
 
       readonly(false);
       model.reset();
-    }
+    };
 
-    function exitEditMode(e) {
+    this.exitEditMode = function exitEditMode(e) {
       if (e) {
         e.preventDefault();
       }
 
       readonly(true);
       model.reset();
-    }
-
-    this.readonly      = readonly;
-    this.rejectToggle  = rejectToggle;
-    this.enterEditMode = enterEditMode;
-    this.exitEditMode  = exitEditMode;
+    };
   }
 
   const EmailSettingsWidget = {
     oninit(vnode) {
       const model = vnode.attrs.model;
-      this.editableState = new EmailSettingsFormEditableState(model, vnode.attrs.smtpEnabled);
+      this.es = new EmailSettingsFormEditableState(model, vnode.attrs.smtpEnabled);
       model.load();
     },
 
     view(vnode) {
       const model     = vnode.attrs.model,
-        readonly      = this.editableState.readonly(),
-        rejectToggle  = this.editableState.rejectToggle(),
-        enterEditMode = this.editableState.enterEditMode,
-        exitEditMode  = this.editableState.exitEditMode;
+        readonly      = this.es.readonly();
 
-      return m("form", model.config({class: "email-settings"}, exitEditMode),
+      return m("form", model.config({class: "email-settings"}, this.es.exitEditMode),
         m("legend", "Email Settings"),
         m("fieldset", [
           m(LockableInput, {name: "email", label: "Email", type: "email", model, attrName: "email", readonly, placeholder: "Email not set"}),
-          m(f.checkbox, {name: "email_me", label: "Enable email notification", model, attrName: "enableNotifications", disabled: rejectToggle}),
+          m(f.checkbox, {name: "email_me", label: "Enable email notification", model, attrName: "enableNotifications", disabled: this.es.rejectToggle()}),
           m(LockableInput, {name: "checkin_aliases", label: "My check-in aliases", model, attrName: "checkinAliases", readonly, placeholder: "No matchers defined"}),
         ]),
         m("fieldset",
-          readonly ? m("input", {type: "button", value: "Edit", onclick: enterEditMode}) : [
+          readonly ? m("input", {type: "button", value: "Edit", onclick: this.es.enterEditMode}) : [
             m("input", {type: "submit", value: "Save", class: "primary"}),
-            m("input", {type: "reset", value: "Cancel", onclick: exitEditMode})
+            m("input", {type: "reset", value: "Cancel", onclick: this.es.exitEditMode})
           ]
         )
       );

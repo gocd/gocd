@@ -30,7 +30,7 @@ $(() => {
     const component = {
       view () {
         return m(AuthConfigsWidget, {
-          pluginInfos: Stream(pluginInfos.filterByType('authorization'))
+          pluginInfos: Stream(pluginInfos)
         });
       }
     };
@@ -45,5 +45,5 @@ $(() => {
     );
   };
 
-  PluginInfos.all().then(onSuccess, onFailure);
+  PluginInfos.all(null, {type: 'authorization'}).then(onSuccess, onFailure);
 });

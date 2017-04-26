@@ -35,7 +35,6 @@ const AuthConfigs = function (data) {
   this.findById = function (authConfigId) {
     return this.findAuthConfig((authConfig) => authConfig.id() === authConfigId);
   };
-
 };
 
 AuthConfigs.API_VERSION = 'v1';
@@ -80,7 +79,7 @@ AuthConfigs.AuthConfig = function (data) {
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(AuthConfigs.API_VERSION),
         data:        JSON.stringify(entity, s.snakeCaser),
-        contentType: 'application/json',
+        contentType: 'application/json'
       });
 
       const didFulfill = (data, _textStatus, jqXHR) => {

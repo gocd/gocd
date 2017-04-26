@@ -15,6 +15,11 @@
          "key": "pipeline_config_spa_on_new_mithril_toggle_key",
          "description": "Enables the new pipeline config single page application on mithril 1.0. Default: disabled.",
          "value": false
+      },
+      {
+         "key": "auth_and_role_config_spa_toggle_key",
+         "description": "Enables the auth and role config SPA's. Default: disabled.",
+         "value": false
       }
    ]
 }

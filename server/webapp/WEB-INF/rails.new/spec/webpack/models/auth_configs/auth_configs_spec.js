@@ -36,7 +36,6 @@ describe('Authorization Configuration', () => {
       },
       {
         "key":             "Password",
-        "secure":          true,
         "encrypted_value": "gGx7G+4+BAQ="
       }
     ]
@@ -179,7 +178,7 @@ describe('Authorization Configuration', () => {
 
       expect(sortedProperties[0].toJSON()).toEqual({key: "Url", value: "ldap://ldap.server.url"});
       expect(sortedProperties[1].toJSON()).toEqual({key: "ManagerDN", value: "uid=admin,ou=system"});
-      expect(sortedProperties[2].toJSON()).toEqual({key: "Password", secure: true, "encrypted_value": "gGx7G+4+BAQ="});
+      expect(sortedProperties[2].toJSON()).toEqual({key: "Password", "encrypted_value": "gGx7G+4+BAQ="});
     });
 
     it("should create a auth  config and call the success callback", () => {

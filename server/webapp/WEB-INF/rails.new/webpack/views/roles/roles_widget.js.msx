@@ -23,7 +23,7 @@ const ComponentMixins  = require('helpers/mithril_component_mixins');
 const Roles            = require('models/roles/roles');
 const GoCDRoleWidget   = require('views/roles/gocd_role_widget');
 const PluginRoleWidget = require('views/roles/plugin_role_widget');
-const RoleTypeSelector = require('views/roles/role_type_selector');
+const RoleWidget = require('views/roles/role_widget');
 require('jquery-textcomplete');
 
 function showErrors(modal, ctrl, newRole) {
@@ -85,7 +85,7 @@ const RolesWidget = function (options) {
         const modal = new Modal({
           size:    'large',
           title:   modalTitle,
-          body:    () => (<RoleTypeSelector role={newRole}
+          body:    () => (<RoleWidget role={newRole}
                                             pluginInfos={vnode.state.pluginInfos}
                                             authConfigs={vnode.state.authConfigsOfInstalledPlugin}/>),
           onclose: () => modal.destroy(),

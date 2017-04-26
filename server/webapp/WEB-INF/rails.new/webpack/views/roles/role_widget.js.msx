@@ -15,22 +15,24 @@
  */
 
 const m                   = require("mithril");
+const _                   = require('lodash');
+const Roles               = require('models/roles/roles');
 const GoCDRoleModalBody   = require('views/roles/gocd_role_modal_body');
 const PluginRoleModalBody = require('views/roles/plugin_role_modal_body');
 
 const RoleTypeSelector = {
   oninit(vnode){
 
-    this.changeRoleType = (type) => {
-      vnode.attrs.role(vnode.attrs.role().changeRoleType(type));
-    };
-
-    this.toPluginRole = () => {
-      vnode.attrs.role();
+    this.changeRoleType = (roleType) => {
+      vnode.attrs.role(Roles.Role.fromJSON({name: vnode.attrs.role().name(), type: roleType, attributes: {}}));
     };
 
     this.noAuthConfig = () => {
       return vnode.attrs.authConfigs().countAuthConfig() === 0;
+    };
+
+    this.isNewRole = () =>  {
+      return _.isEmpty(vnode.attrs.role().etag());
     };
   },
 
@@ -43,7 +45,7 @@ const RoleTypeSelector = {
     }
 
     let selectRoleTypeView = '';
-    if (!vnode.attrs.role().etag()) {
+    if (vnode.state.isNewRole()) {
       selectRoleTypeView = (<div class="row">
         <label class="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
         <input

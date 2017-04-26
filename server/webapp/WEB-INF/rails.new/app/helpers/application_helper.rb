@@ -465,6 +465,10 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
+  def is_auth_and_role_config_spa_enabled?
+    Toggles.isToggleOn(Toggles.AUTH_AND_ROLE_CONFIG_SPA_TOGGLE_KEY)
+  end
+
   private
   def form_remote_tag(options = {})
     options[:form] = true

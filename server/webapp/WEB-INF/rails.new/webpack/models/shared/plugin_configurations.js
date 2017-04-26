@@ -56,7 +56,6 @@ const PluginConfigurations = function (data) {
       if (existingConfig.isSecureValue()) {
         existingConfig.editValue();
         existingConfig.value(value);
-        existingConfig.becomeSecureValue();
       } else {
         existingConfig.value(value);
       }
@@ -90,19 +89,10 @@ PluginConfigurations.Configuration = function (data) {
         value: this.value()
       };
     } else {
-      if (this.isDirtyValue()) {
-        return {
-          key:    this.key(),
-          secure: true,
-          value:  this.value()
-        };
-      } else {
-        return {
-          key:               this.key(),
-          secure:            true,
-          "encrypted_value": this.value()
-        };
-      }
+      return {
+        key:               this.key(),
+        "encrypted_value": this.value()
+      };
     }
   };
 

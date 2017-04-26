@@ -53,22 +53,15 @@ Roles.Role = function (type, data) {
   role.etag   = Mixins.GetterSetter();
   role.errors = ErrorsFromJSON(data);
 
-  role.isPluginRole = function () {
-    return role.type() === 'plugin';
-  };
-
-  role.changeRoleType = function (newType) {
-    if (newType === role.type()) {
-      return role;
-    }
-    return Roles.Types[newType].fromJSON({name: role.name(), attributes: {}});
-  };
-
   Mixins.HasUUID.call(this);
   Validatable.call(this, data);
 
   role.validatePresenceOf('name');
   role.validatePresenceOf('type');
+
+  role.isPluginRole = function () {
+    return role.type() === 'plugin';
+  };
 
   this.toJSON = () => {
     return {
@@ -76,7 +69,6 @@ Roles.Role = function (type, data) {
       name:       role.name(),
       attributes: this._attributesToJSON()
     };
-
   };
 
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
@@ -113,12 +105,45 @@ Roles.Role.GoCD = function (data) {
   Roles.Role.call(this, "gocd", data);
   this.users = Stream(s.defaultToIfBlank(data.users, []));
 
+  this.hasUsers = function () {
+    return !_.isEmpty(this.users());
+  };
+
+  this.addUser = function (username) {
+    if (_.isEmpty(username) || this.hasUser(username)) {
+      return;
+    }
+
+    this.users().push(username);
+    this.sortUsers();
+  };
+
+  this.deleteUser = function (username) {
+    this.users(_.remove(this.users(), (user) => user === username));
+  };
+
+  this.sortUsers = function () {
+    this.users(_.sortBy(this.users(), (user) => user.toLowerCase()));
+  };
+
+  this.hasUser = function (username) {
+    return _.some(this.users(), (user) => username.toLowerCase() === user.toLowerCase());
+  };
+
+  this.sortUsers();
+
   this._attributesToJSON = function () {
     return {
-      users: this.users(),
+      users: this.users()
     };
   };
 };
+
+Roles.Role.GoCD.fromJSON = (data = {}) => new Roles.Role.GoCD({
+  name:  data.name,
+  type:  data.type,
+  users: data.attributes.users
+});
 
 Roles.Role.Plugin = function (data) {
   Roles.Role.call(this, "plugin", data);
@@ -140,12 +165,6 @@ Roles.Role.Plugin.fromJSON = (data = {}) => new Roles.Role.Plugin({
   type:         data.type,
   authConfigId: data.attributes.auth_config_id,
   properties:   PluginConfigurations.fromJSON(data.attributes.properties)
-});
-
-Roles.Role.GoCD.fromJSON = (data = {}) => new Roles.Role.GoCD({
-  name:  data.name,
-  type:  data.type,
-  users: data.attributes.users
 });
 
 Roles.Types = {

@@ -67,7 +67,7 @@ describe('Roles Configuration', () => {
     const role = Roles.Role.fromJSON(gocdRoleJSON);
     expect(role.name()).toBe("admin");
     expect(role.type()).toBe("gocd");
-    expect(role.users()).toEqual(['bob', 'alice']);
+    expect(role.users()).toEqual(['alice', 'bob']);
   });
 
   it('should serialize a plugin role to JSON', () => {
@@ -77,7 +77,32 @@ describe('Roles Configuration', () => {
 
   it('should serialize a gocd role to JSON', () => {
     const gocdRole = Roles.Role.fromJSON(gocdRoleJSON);
-    expect(JSON.parse(JSON.stringify(gocdRole, s.snakeCaser))).toEqual(gocdRoleJSON);
+    const expectedJSON = {
+      "name":       "admin",
+      "type":       "gocd",
+      "attributes": {
+        "users": ["alice", "bob"]
+      }
+    };
+    expect(JSON.parse(JSON.stringify(gocdRole, s.snakeCaser))).toEqual(expectedJSON);
+  });
+
+  describe('addUser', () => {
+    it('should add a user', () =>  {
+      const gocdRole = Roles.Role.fromJSON(gocdRoleJSON);
+
+      gocdRole.addUser('some');
+
+      expect(gocdRole.hasUser('some')).toBe(true);
+    });
+
+    it('should add and sort users', () => {
+      const gocdRole = Roles.Role.fromJSON(gocdRoleJSON);
+
+      gocdRole.addUser('some');
+
+      expect(gocdRole.users()).toEqual(['alice', 'bob', 'some']);
+    });
   });
 
   describe("list all roles", () => {

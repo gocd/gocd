@@ -25,9 +25,9 @@ require('foundation-sites');
 $(() => {
   new VersionUpdater().update();
 
-  Promise.all([PluginInfos.all(), AuthConfigs.all()]).then((args) => {
+  Promise.all([PluginInfos.all(null, {type: 'authorization'}), AuthConfigs.all()]).then((args) => {
 
-    let authorizationPluginInfos = args[0].filterByType('authorization');
+    let authorizationPluginInfos = args[0];
     authorizationPluginInfos     = new PluginInfos(authorizationPluginInfos.filterPluginInfo((pi) => pi.capabilities().canAuthorize()));
 
     const authConfigsOfInstalledPlugin = new AuthConfigs(args[1].filterAuthConfig((ac) => authorizationPluginInfos.findById(ac.pluginId()) !== undefined));

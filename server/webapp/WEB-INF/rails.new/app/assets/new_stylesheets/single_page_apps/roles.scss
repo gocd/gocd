@@ -145,6 +145,9 @@ $role-icon-hover-color: #000;
   .key-value-pair {
     dt {
       width: 20%;
+      @media only screen and (min-width: 90.063em) {
+        width: 15%;
+      }
     }
     dd {
       width: 80%;
@@ -170,7 +173,7 @@ $role-icon-hover-color: #000;
 
 .tag {
   margin-right:  5px;
-  padding:       7px 13px;
+  padding:       2px 10px;
   display:       inline-block;
   font-size:     13px;
   color:         #444;
@@ -207,6 +210,11 @@ $role-icon-hover-color: #000;
   border-top: 1px solid $light-grey;
   padding:    10px;
   cursor:     auto;
+}
+
+.no-users-message {
+  font-size: 13px;
+  margin:    10px 0 10px 50px;
 }
 
 .role-edit-only {

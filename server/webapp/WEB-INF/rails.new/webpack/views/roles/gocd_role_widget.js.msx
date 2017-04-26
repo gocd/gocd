@@ -18,7 +18,7 @@ const m               = require('mithril');
 const Stream          = require('mithril/stream');
 const f               = require('helpers/form_helper');
 const ComponentMixins = require('helpers/mithril_component_mixins');
-const RoleUserWidget  = require('views/roles/gocd_role_user_widget');
+const RoleUserReadOnlyWidget  = require('views/roles/gocd_role_user_readonly_widget');
 
 const RoleWidget = {
   oninit (vnode) {
@@ -53,7 +53,7 @@ const RoleWidget = {
           </div>
         </div>
 
-        <RoleUserWidget role={vnode.attrs.role} showState={showState}/>
+        <RoleUserReadOnlyWidget role={vnode.attrs.role} showState={showState}/>
 
         <div class="role-actions">
           <f.link onclick={vnode.attrs.onEdit} class={'edit-role'}/>

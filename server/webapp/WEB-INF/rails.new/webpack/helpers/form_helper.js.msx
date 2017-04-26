@@ -21,19 +21,83 @@ const s     = require('string-plus');
 const Mixin = require('models/mixins/model_mixins');
 require('foundation-sites');
 
-const deleteKeyAndReturnValue = function (object, key, defaultValue) {
+function deleteKeyAndReturnValue(object, key, defaultValue) {
   if (_.isNil(object)) {
     return defaultValue;
   }
   const value = object[key];
   delete object[key];
   return _.isNil(value) ? defaultValue : value;
-};
+}
 
-const compactClasses = function (args) {
+function compactClasses(args) {
   const initialClasses = [].slice.call(arguments, 1);
   return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
-};
+}
+
+// ensures the input is either an array or is wrapped in an array.
+// also removes blank members (empty strings, null, etc) and optionally
+// applies a transform on each item.
+function coerceArray(maybeArray, transform) {
+  const normalized = _.isArray(maybeArray) ? maybeArray : [maybeArray];
+
+  if ("function" === typeof transform) {
+    const result = [];
+    _.each(normalized, (el) => {
+      if (!s.isBlank(el)) {
+        result.push(transform(el));
+      }
+    });
+
+    return result;
+  }
+
+  return _.reject(normalized, (el) => s.isBlank(el));
+}
+
+function wrapTextInSpan(thing) {
+  if ("string" === typeof thing) {
+    thing = <span>{thing}</span>;
+  }
+  return thing;
+}
+
+function wireUpModel(attrs, property="value", listener="onchange") {
+  const model = deleteKeyAndReturnValue(attrs, "model");
+
+  if (model) {
+    let attrName;
+    attrs["data-model-type"] = deleteKeyAndReturnValue(attrs, "modelType", (model.constructor ? model.constructor.modelType : null));
+    attrs["data-prop-name"]  = attrName = deleteKeyAndReturnValue(attrs, "attrName");
+    attrs[property]          = deleteKeyAndReturnValue(attrs, property, model[attrName]());
+
+    const chainedCallback    = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
+      onUpdate               = deleteKeyAndReturnValue(attrs, listener, m.withAttr(property, model[attrName]));
+
+    attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) { onUpdate(e); chainedCallback(e); } : onUpdate;
+  }
+
+  return model;
+}
+
+function validateModel(model, attrs) {
+  if (!model) { return; }
+
+  const performValidations = deleteKeyAndReturnValue(attrs, 'validate', false),
+    attrName               = attrs["attrName"] || attrs["data-prop-name"];
+
+  let validationErrors;
+
+  if (performValidations) {
+    attrs["onblur"] = model.validate.bind(model, performValidations !== "all" ? attrName : undefined);
+
+    if (model.errors().hasErrors(attrName)) {
+      validationErrors = <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>;
+    }
+  }
+
+  return validationErrors;
+}
 
 function setValue(items, cb) {
   return function (e) {
@@ -72,7 +136,7 @@ let f = {
       const args     = vnode.attrs;
       const children = vnode.children;
 
-      const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
+      const end   = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
         size      = deleteKeyAndReturnValue(args, 'size', 6),
         largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
@@ -86,140 +150,35 @@ let f = {
   },
 
   input: {
-    oninit () {
-      this.onInput = function (model, attrName, callback, e) {
-        const currentTarget = (e || event).currentTarget;
-        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
-        model[attrName](newValue);
-        if (callback) {
-          callback();
-        }
-      };
-    },
-
     view (vnode) {
-      const args = vnode.attrs;
-      const ctrl = vnode.state;
-
-      const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange');
-
-      args.size      = args.size || 6;
-      args.largeSize = args.largeSize || 4;
-
-      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
-
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
-
-      return (
-        <f.column {...args}>
-          <input
-            autocomplete="off"
-            autocapitalize="off"
-            autocorrect="off"
-            spellcheck="off"
-            data-prop-name={attrName}
-            data-model-type={modelType}
-            value={model[attrName]()}
-            type={type}
-            placeholder={placeholder}
-            class={propertyError ? 'is-invalid-input' : ''}
-            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
-            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-          {propertyError}
-        </f.column>
-      );
-    }
-  },
-
-  inputWithLabel: {
-    oninit () {
-      this.onInput = function (model, attrName, callback, e) {
-        const currentTarget = (e || event).currentTarget;
-        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
-        model[attrName](newValue);
-        if (callback) {
-          callback();
-        }
+      const defaultAttrs = {
+        autocomplete: "off",
+        autocapitalize: "off",
+        autocorrect: "off",
+        spellcheck: false,
+        type: "text"
       };
-    },
 
-    view (vnode) {
-      const ctrl = vnode.state;
-      const args = vnode.attrs;
+      const args     = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
 
-      const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        labelText   = deleteKeyAndReturnValue(args, 'label'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false),
-        isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
-        disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
-        message     = deleteKeyAndReturnValue(args, 'message', '');
+      const model        = wireUpModel(args, "value", "oninput"),
+        validationErrors = validateModel(model, args),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
-      args.size      = args.size || 6;
-      args.largeSize = args.largeSize || 4;
+      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      const labelAttrs = {};
 
-      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
-
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
-
-      let propertyMessage;
-      if (message) {
-        propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
+      if (validationErrors) {
+        labelAttrs["class"] = "is-invalid-label";
+        contentAfter.push(validationErrors);
       }
 
-      const resetButton = function () {
-        if (args.withReset && model[attrName]()) {
-          const capitalizedAttrName = _.upperFirst(attrName);
-          return (
-            <f.resetButton onclick={model[`resetToOriginal${  capitalizedAttrName}`].bind(model)}/>
-          );
-        }
-      };
-
-      return (
-        <f.column {...args} class={_.compact([propertyError ? 'is-invalid-label' : null, args.class]).join(' ')}>
-          <label
-            class={_.compact([propertyError ? 'is-invalid-label' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
-            {labelText || s.humanize(attrName)}
-            {isRequired ? (<span class='asterisk'>*</span>) : undefined}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-          {propertyMessage}
-
-          <input
-            autocomplete="off"
-            autocapitalize="off"
-            autocorrect="off"
-            spellcheck="off"
-            data-prop-name={attrName}
-            data-model-type={modelType}
-            value={model[attrName]()}
-            type={type}
-            placeholder={placeholder}
-            class={propertyError ? 'is-invalid-input' : ''}
-            disabled={disabled}
-            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
-            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
-          {resetButton()}
-          {propertyError}
-        </f.column>
-      );
+      const element = [<input {...args} />, contentAfter];
+      return _.isEmpty(label) ? element : <label {...labelAttrs}>
+          {label}
+          {element}
+        </label>;
     }
   },
 
@@ -275,6 +234,13 @@ let f = {
           {propertyError}
         </f.column>
       );
+    }
+  },
+
+  resetAttrButton: {
+    view(vnode) {
+      const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
+      return <f.resetButton onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
     }
   },
 

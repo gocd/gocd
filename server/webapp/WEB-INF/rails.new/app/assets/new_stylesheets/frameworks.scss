@@ -31,10 +31,6 @@
   }
 }
 
-label {
-  display: inline-block;
-}
-
 .tooltip-info {
   @include icon-after(info-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
     margin-left:  10px;

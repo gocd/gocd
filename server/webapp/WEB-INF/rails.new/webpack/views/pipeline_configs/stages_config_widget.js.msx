@@ -80,14 +80,20 @@ let ApprovalWidget = {
             <f.warning>Permissions will be inherited from the pipeline group if not specified.</f.warning>
           </f.row>
           <f.row>
-            <f.inputWithLabel oncreate={autoComplete(Users.list, vnode.attrs.approval().authorization(), 'users')}
-                              onremove={destroyAutoComplete('users')}
-                              attrName='users'
-                              model={vnode.attrs.approval().authorization()}/>
-            <f.inputWithLabel oncreate={autoComplete(Roles.list, vnode.attrs.approval().authorization(), 'roles')}
-                              onremove={destroyAutoComplete('roles')}
-                              attrName='roles'
-                              model={vnode.attrs.approval().authorization()} end/>
+            <f.column largeSize={4}>
+              <f.input model={vnode.attrs.approval().authorization()}
+                       attrName="users"
+                       label="Users"
+                       oncreate={autoComplete(Users.list, vnode.attrs.approval().authorization(), "users")}
+                       onremove={destroyAutoComplete('users')} />
+            </f.column>
+            <f.column largeSize={4} end={true}>
+              <f.input model={vnode.attrs.approval().authorization()}
+                       attrName="roles"
+                       label="Roles"
+                       oncreate={autoComplete(Roles.list, vnode.attrs.approval().authorization(), "roles")}
+                       onremove={destroyAutoComplete("roles")} />
+            </f.column>
 
           </f.row>
         </div>
@@ -115,13 +121,12 @@ let SettingsWidget = {
         <f.row>
           <f.column size={4}>
             <f.row collapse>
-              <f.inputWithLabel attrName='name'
-                                label='Stage name'
-                                model={stage}
-                                validate={true}
-                                isRequired={true}
-                                size={12}
-                                largeSize={12}/>
+              <f.column size={12}>
+                <f.input model={stage}
+                         attrName="name"
+                         label={<span class="required">Stage name</span>}
+                         validate={true} />
+              </f.column>
             </f.row>
             <label>Stage Type
               <f.tooltip tooltip={{

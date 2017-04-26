@@ -268,45 +268,38 @@ const JobSettingsWidget = {
                          class="accordion-inner">
       <div>
         <f.row>
-          <f.inputWithLabel
-            attrName='name'
-            model={job}
-            validate={true}
-            isRequired={true}
-            size={4}
-            largeSize={4}/>
+          <f.column size={4}>
+            <f.input model={job}
+                     attrName="name"
+                     label={<span class="required">Name</span>}
+                     validate={true} />
+          </f.column>
         </f.row>
         <f.row>
-          <f.inputWithLabel
-            oncreate={autoComplete(Resources.list, job, 'resources', /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
-            onremove={destroyAutoComplete('resources')}
-            attrName='resources'
-            model={job}
-            disabled={disableResourceTextbox}
-            message={resourcesDisabledMessage}
-            tooltip={{
-              content:   tt.job.resources,
-              direction: 'bottom',
-              size:      'small'
-            }}
-            size={4}
-            largeSize={4}/>
-          <f.inputWithLabel
-            oncreate={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty('id'), job, 'elasticProfileId', /(.*)$/, 1, profileIdReplaceFunc)}
-            onremove={destroyAutoComplete('elasticProfileId')}
-            model={job}
-            attrName='elasticProfileId'
-            label='Elastic Profile Id'
-            disabled={disableElasticProfileSelection}
-            message={elasticProfileIdDisabledMessage}
-            tooltip={{
-              content:   tt.job.elasticProfile,
-              direction: 'bottom',
-              size:      'small'
-            }}
-            size={4}
-            largeSize={4}
-            end={true}/>
+          <f.column size={4}>
+            <f.input model={job}
+                     attrName="resources"
+                     label={[
+                       "Resources",
+                       <f.tooltip tooltip={{content: tt.job.resources, size: "small"}} model={job} attrName="resources" />,
+                       resourcesDisabledMessage ? <f.tooltip tooltip={{type: "info", content: resourcesDisabledMessage}} /> : null
+                     ]}
+                     oncreate={autoComplete(Resources.list, job, "resources", /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
+                     onremove={destroyAutoComplete("resources")}
+                     disabled={disableResourceTextbox} />
+          </f.column>
+          <f.column size={4} end={true}>
+            <f.input model={job}
+                     attrName="elasticProfileId"
+                     label={[
+                       "Elastic Profile Id",
+                       <f.tooltip tooltip={{content: tt.job.elasticProfile, size: "small"}} model={job} attrName="elasticProfileId" />,
+                       elasticProfileIdDisabledMessage ? <f.tooltip tooltip={{type: "info", content: elasticProfileIdDisabledMessage}} /> : null
+                     ]}
+                     oncreate={autoComplete(vnode.attrs.elasticProfiles().collectProfileProperty("id"), job, "elasticProfileId", /(.*)$/, 1, profileIdReplaceFunc)}
+                     onremove={destroyAutoComplete("elasticProfileId")}
+                     disabled={disableElasticProfileSelection} />
+          </f.column>
         </f.row>
         <f.row>
           <JobTimeout job={job}/>

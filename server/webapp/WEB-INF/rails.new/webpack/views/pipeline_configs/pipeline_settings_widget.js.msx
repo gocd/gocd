@@ -44,16 +44,15 @@ const PipelineSettingsWidget = {
                    class='pipeline-settings'>
         <div>
           <f.row>
-            <f.inputWithLabel model={pipeline}
-                              attrName='labelTemplate'
-                              validate={true}
-                              isRequired={true}
-                              size={4}
-                              tooltip={{
-                                content:   <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
-                                direction: 'bottom',
-                                size:      'large'
-                              }}/>
+            <f.column size={4}>
+              <f.input model={pipeline}
+                       attrName="labelTemplate"
+                       label={[
+                         <span class="required">Label template</span>,
+                         <f.tooltip tooltip={{content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>, size: "large"}} model={pipeline} attrName="labelTemplate" />
+                       ]}
+                       validate={true} />
+            </f.column>
             <f.checkBox model={pipeline}
                         attrName='enablePipelineLocking'
                         addPadding={true}
@@ -75,15 +74,15 @@ const PipelineSettingsWidget = {
             </f.column>
           </f.row>
           <f.row>
-            <f.inputWithLabel model={pipeline.timer()}
-                              attrName='spec'
-                              label='Cron timer specification'
-                              validate={true}
-                              tooltip={{
-                                content:   <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
-                                direction: 'bottom',
-                                size:      'large'
-                              }}/>
+            <f.column largeSize={4}>
+              <f.input model={pipeline.timer()}
+                       attrName="spec"
+                       label={[
+                         "Cron timer specification",
+                         <f.tooltip tooltip={{content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>, size: "large"}} model={pipeline.timer()} attrName="spec" />
+                       ]}
+                       validate={true} />
+            </f.column>
 
             <f.checkBox model={pipeline.timer()}
                         class="end"

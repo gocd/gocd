@@ -167,10 +167,6 @@
   }
 }
 
-.tooltip-spacing {
-  margin-left: -15px;
-}
-
 .position-tooltip {
   .columns {
     position: relative;
@@ -187,7 +183,8 @@
   top:      2px;
 }
 
-.asterisk {
+.required:after {
+  content:      "*";
   color:        #c00;
   padding-left: 3px;
 }

@@ -47,13 +47,13 @@ let ScmConfigModalBody = {
       <div>
         {errorMessageElem}
         <f.row collapse>
-          <f.inputWithLabel attrName='name'
-                            class='align'
-                            size={12}
-                            largeSize={12}
-                            validate={true}
-                            isRequired={true}
-                            model={vnode.attrs.scm}/>
+          <f.column size={12}>
+            <f.input model={vnode.attrs.scm}
+                     attrName="name"
+                     label={<span class="required">Name</span>}
+                     validate={true}
+                     class="align" />
+          </f.column>
         </f.row>
         <f.row collapse>
           <f.checkBox model={vnode.attrs.scm}

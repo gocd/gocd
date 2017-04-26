@@ -126,8 +126,8 @@ const PipelineStageFieldWidget = {
       <div oncreate={PipelineStageFieldWidget.textComplete('pipeline-stage', vnode.state.pipelineStages())}
            onremove={PipelineStageFieldWidget.destroyTextComplete('pipeline-stage')}>
 
-        <label>Pipeline [Stage]
-          <span class='asterisk'>*</span>
+        <label>
+          <span class="required">Pipeline [Stage]</span>
         </label>
         <input type='text'
                name='pipeline-stage'

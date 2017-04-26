@@ -116,10 +116,11 @@ const TaskBasicViews = {
         if (task.args().isList()) {
           return (
             <f.column size={8}>
-              <f.textareaWithLabel attrName="data"
-                                   model={vm}
-                                   label="Args"
-                                   size={12}/>
+              <f.column size={12}>
+                <f.textarea model={vm}
+                            attrName="data"
+                            label="Args" />
+              </f.column>
             </f.column>);
         }
         return (

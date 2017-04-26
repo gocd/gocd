@@ -302,11 +302,12 @@ let MaterialViews = {
                            attrName='passwordValue'/>
           </f.row>
           <f.row>
-            <f.textareaWithLabel attrName='view'
-                                 validate={true}
-                                 isRequired={true}
-                                 model={material}
-                                 size={4}/>
+            <f.column size={4}>
+              <f.textarea model={material}
+                          attrName="view"
+                          label={<span class="required">View</span>}
+                          validate={true} />
+            </f.column>
             <f.column class="align-with-control" size={3} end={true}>
               <f.checkbox name="material[use_tickets]"
                           model={material}

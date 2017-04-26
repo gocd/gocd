@@ -167,58 +167,35 @@ let f = {
     }
   },
 
-  textareaWithLabel: {
-    oninit () {
-      this.onInput = function (model, attrName, callback, e) {
-        const currentTarget = (e || event).currentTarget;
-        const newValue      = currentTarget.value || "";
-        model[attrName](newValue);
-        if (callback) {
-          callback();
-        }
-      };
-    },
-
+  textarea: {
     view (vnode) {
-      const ctrl        = vnode.state;
-      const args        = vnode.attrs;
-      const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        labelText   = deleteKeyAndReturnValue(args, 'label'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false);
+      const defaultAttrs = {
+        autocomplete: "off",
+        autocapitalize: "off",
+        autocorrect: "off",
+        spellcheck: "off"
+      };
 
-      args.size = args.size || 3;
+      const args     = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
 
-      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      const model        = wireUpModel(args, "value", "oninput"),
+        validationErrors = validateModel(model, args),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <small class='error'>{model.errors().errorsForDisplay(attrName)}</small>) : undefined;
+      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      const labelAttrs = {};
 
-      return (
-        <f.column {...args} class={propertyError ? 'error' : null}>
-          <label class={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
-            {_.isNil(labelText) ? s.humanize(attrName) : labelText}
-          </label>
+      if (validationErrors) {
+        labelAttrs["class"] = "is-invalid-label";
+        contentAfter.push(validationErrors);
+      }
 
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-
-          <textarea
-            data-prop-name={attrName}
-            data-model-type={modelType}
-            spellcheck="off"
-            placeholder={placeholder}
-            class={propertyError ? 'error' : ''}
-            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
-            value={model[attrName]()}
-            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}>
-            </textarea>
-          {propertyError}
-        </f.column>
-      );
+      const element = [<textarea {...args}></textarea>, contentAfter];
+      return _.isEmpty(label) ? element : <label {...labelAttrs}>
+          {label}
+          {element}
+        </label>;
     }
   },
 

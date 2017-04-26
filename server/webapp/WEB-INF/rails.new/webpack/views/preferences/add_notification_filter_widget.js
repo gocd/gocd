@@ -26,7 +26,7 @@
         filterModels.load();
       },
       view() {
-        return m("form", {class: "create-notification-filter", onsubmit: filterModels.save},
+        return m("form", {class: "create-notification-filter", onsubmit: filterModels.save, onreset: (e) => {filterModels.myCommits(true); e.currentTarget.querySelector("input[type='checkbox']").setAttribute("checked", true);}},
           m(f.select, {
             label:      "Pipeline",
             name:       "pipeline",

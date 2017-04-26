@@ -12,7 +12,7 @@
             var timestamp = parseInt(jQuery(timeSpan).attr("data"));
             if (isNaN(timestamp)) return;
             var time = new Date(timestamp);
-            jQuery(timeSpan).text(moment(time).format('[On] DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+            jQuery(timeSpan).text(moment(time).format('[on] DD MMM YYYY [at] HH:mm:ss [Local Time]'));
           });
         };
         reformatAllBuildTimes();

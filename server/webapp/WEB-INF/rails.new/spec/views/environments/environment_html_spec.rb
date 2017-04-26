@@ -109,7 +109,7 @@ describe "/environments/_environment.html.erb" do
 
     it "should set the the pipeline scheduled timestamp as data to be used by javascript" do
       expect(response).to have_selector(".pipeline .status .schedule_time", :text => /Triggered/)
-      expect(response).to have_selector(".pipeline .status .schedule_time[data='#{@stages_for_pipeline_1.getScheduledDate().getTime()}']")
+      expect(response).to have_selector(".pipeline .status .schedule_time span.time[data='#{@stages_for_pipeline_1.getScheduledDate().getTime()}']")
     end
 
     it "should display all stages for the pipeline" do

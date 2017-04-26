@@ -22,11 +22,11 @@
 <script type="text/javascript">
   Util.on_load(function () {
     var reformatAllBuildTimes = function() {
-      jQuery(".pipeline_instance .schedule_time").map(function(idx, timeDiv) {
-        var timestamp = parseInt(jQuery(timeDiv).attr("data"));
+      jQuery(".pipeline_instance .schedule_time span.time").each(function(idx, timeSpan) {
+        var timestamp = parseInt(jQuery(timeSpan).attr("data"));
         if (isNaN(timestamp)) return;
         var time = new Date(timestamp);
-        jQuery(timeDiv).find("span.time").text(moment(time).format('DD MMM YYYY HH:mm:ss'));
+        jQuery(timeSpan).text(moment(time).format('[On] DD MMM YYYY [at] HH:mm:ss [Local Time]'));
       });
     };
 

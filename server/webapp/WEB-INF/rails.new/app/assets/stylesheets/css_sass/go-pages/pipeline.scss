@@ -163,6 +163,11 @@
   float:      left;
 }
 
+.pipeline_instance .schedule_time span.time{
+  display: block;
+  margin-top: 3px;
+}
+
 .highlight {
   background: #ff2;
 }

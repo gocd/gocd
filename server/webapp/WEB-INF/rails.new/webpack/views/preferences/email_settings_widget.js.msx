@@ -56,20 +56,20 @@
       const model     = vnode.attrs.model,
         readonly      = this.es.readonly();
 
-      return m("form", model.config({class: "email-settings"}, this.es.exitEditMode),
-        m("legend", "Email Settings"),
-        m("fieldset", [
-          m(LockableInput, {name: "email", label: "Email", type: "email", model, attrName: "email", readonly, placeholder: "Email not set"}),
-          m(f.checkbox, {name: "email_me", label: "Enable email notification", model, attrName: "enableNotifications", disabled: this.es.rejectToggle()}),
-          m(LockableInput, {name: "checkin_aliases", label: "My check-in aliases", model, attrName: "checkinAliases", readonly, placeholder: "No matchers defined"}),
-        ]),
-        m("fieldset",
-          readonly ? m("input", {type: "button", value: "Edit", onclick: this.es.enterEditMode}) : [
-            m("input", {type: "submit", value: "Save", class: "primary"}),
-            m("input", {type: "reset", value: "Cancel", onclick: this.es.exitEditMode})
-          ]
-        )
-      );
+      return <form {...model.config({class: "email-settings"}, this.es.exitEditMode)}>
+        <legend>Email Settings</legend>
+        <fieldset>
+          <LockableInput name="email" label="Email" type="email" model={model} attrName="email" readonly={readonly} placeholder="Email not set" />
+          <f.checkbox name="email_me" label="Enable email notification" model={model} attrName="enableNotifications" disabled={this.es.rejectToggle()} />
+          <LockableInput name="checkin_aliases" label="My check-in aliases" model={model} attrName="checkinAliases" readonly={readonly} placeholder="No matchers defined" />
+        </fieldset>
+        <fieldset>
+          {readonly ? <input type="button" value="Edit" onclick={this.es.enterEditMode} /> : [
+            <input type="submit" value="Save" class="primary" />,
+            <input type="reset" value="Cancel" onclick={this.es.exitEditMode} />
+          ]}
+        </fieldset>
+      </form>;
     }
   };
 
@@ -81,10 +81,10 @@
 
       args.autocomplete = "on"; // it's nice to remember past entries for things like "email"
 
-      return readonly ? m("label",
-        m("span", args.label),
-        m("span", {class: "value"}, value() || args.placeholder)
-      ) : m(f.input, args);
+      return readonly ? <label>
+        <span>{args.label}</span>
+        <span class="value">{value() || args.placeholder}</span>
+      </label> : <f.input {...args} />;
     }
   };
 

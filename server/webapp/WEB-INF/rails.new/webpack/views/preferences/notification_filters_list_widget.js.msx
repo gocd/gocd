@@ -27,30 +27,30 @@
     view(vnode) {
       const model = vnode.attrs.model;
 
-      return m("table", {class: "notification-filters-list"},
-        m("thead",
-          m("tr",
-            m("th", "Pipeline"),
-            m("th", "Stage"),
-            m("th", "Event"),
-            m("th", "Check-ins Matcher"),
-            m("th")
-          )
-        ),
-        m("tbody",
-          _.map(model.filters(), (filter) => {
-            return m("tr",
-              m("td", filter.pipelineName),
-              m("td", filter.stageName),
-              m("td", filter.event),
-              m("td", filter.myCheckin ? "Mine" : "All"),
-              m("td",
-                m("button", {"data-filter-id": filter.id, onclick: model.delete}, "Delete")
-              )
-            );
-          })
-        )
-      );
+      return <table class="notification-filters-list">
+        <thead>
+          <tr>
+            <th>Pipeline</th>
+            <th>Stage</th>
+            <th>Event</th>
+            <th>Check-ins Matcher</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {_.map(model.filters(), (filter) => {
+            return <tr>
+              <td>{filter.pipelineName}</td>
+              <td>{filter.stageName}</td>
+              <td>{filter.event}</td>
+              <td>{filter.myCheckin ? "Mine" : "All"}</td>
+              <td>
+                <button data-filter-id={filter.id} onclick={model.delete}>Delete</button>
+              </td>
+            </tr>;
+          })}
+        </tbody>
+      </table>;
     }
   };
 

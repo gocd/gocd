@@ -75,6 +75,14 @@ PluginConfigurations.Configuration = function (data) {
 
   Validatable.call(this, data);
 
+  this.displayValue = () => {
+    if (this.isSecureValue()) {
+      return this.value().replace(/./gi, "*");
+    } else {
+      return this.value();
+    }
+  };
+
   this.toJSON = function () {
     if (this.isPlainValue()) {
       return {

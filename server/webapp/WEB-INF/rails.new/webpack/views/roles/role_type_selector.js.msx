@@ -15,7 +15,7 @@
  */
 
 const m                   = require("mithril");
-const RoleModalBody       = require('views/roles/gocd_role_modal_body');
+const GoCDRoleModalBody   = require('views/roles/gocd_role_modal_body');
 const PluginRoleModalBody = require('views/roles/plugin_role_modal_body');
 
 const RoleTypeSelector = {
@@ -74,8 +74,8 @@ const RoleTypeSelector = {
                                      pluginInfos={vnode.attrs.pluginInfos}
                                      authConfigs={vnode.attrs.authConfigs}/>);
       } else {
-        return (<RoleModalBody role={role}
-                               newRole={vnode.attrs.newRole}/>);
+        return (<GoCDRoleModalBody role={role}
+                                   newRole={vnode.attrs.newRole}/>);
       }
     };
 

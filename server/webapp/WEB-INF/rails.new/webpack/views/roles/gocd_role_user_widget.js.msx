@@ -86,7 +86,11 @@ const RoleUserWidget = {
 
     const noRoleUsers = role().users().length === 0;
     if (noRoleUsers && !editable.valueOf()) {
-      return;
+      return (
+        <div>
+          <div class={`role-read-only row ${showState} disabled`}>No users in this role.</div>
+        </div>
+      );
     }
 
     this.sortUsers();

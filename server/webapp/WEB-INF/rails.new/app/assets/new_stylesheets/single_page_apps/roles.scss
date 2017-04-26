@@ -177,7 +177,6 @@ $role-icon-hover-color: #000;
   font-weight:   600;
   border-radius: 2px;
   border:        1px solid #ddd;
-  cursor:        pointer;
   margin-bottom: 10px;
   a {
     float: right;
@@ -203,15 +202,11 @@ $role-icon-hover-color: #000;
   }
 }
 
-.tag:hover {
-  border-color: #2ba6cb;
-  cursor:       pointer;
-}
-
 .role-read-only {
   box-sizing: border-box;
   border-top: 1px solid $light-grey;
   padding:    10px;
+  cursor:     auto;
 }
 
 .role-edit-only {

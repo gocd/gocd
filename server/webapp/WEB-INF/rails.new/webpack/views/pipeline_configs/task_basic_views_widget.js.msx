@@ -253,12 +253,12 @@ const TaskBasicViews = {
                          <f.tooltip tooltip={{content: tt.task.fetchArtifacts.destination}} model={task} attrName="destination" />
                        ]} />
             </f.column>
-            <f.checkBox attrName='isSourceAFile'
-                        model={task}
-                        class='check'
-                        label='Source is a file'
-                        addPadding={true}
-                        end={true}/>
+            <f.column size={3} end={true} class="align-with-control">
+              <f.checkbox model={task}
+                          attrName="isSourceAFile"
+                          label="Source is a file"
+                          class="check" />
+            </f.column>
           </f.row>
         </div>
       );

@@ -237,115 +237,26 @@ let f = {
     }
   },
 
+  checkbox: {
+    view (vnode) {
+      const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
+
+      wireUpModel(args, "checked");
+
+      const label    = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        inputElement = <input type="checkbox" {...args} />;
+
+      return _.isEmpty(label) ? inputElement : <label>
+        {inputElement}
+        {label}
+      </label>;
+    }
+  },
+
   resetAttrButton: {
     view(vnode) {
       const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
       return <f.resetButton onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
-    }
-  },
-
-  checkBox: {
-    view (vnode) {
-      const args = vnode.attrs;
-
-      const model      = deleteKeyAndReturnValue(args, 'model'),
-        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-        labelText  = deleteKeyAndReturnValue(args, 'label'),
-        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-        id         = s.uuid(),
-        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
-
-      if (!args.size) {
-        args.size = 3;
-      }
-
-      let padding;
-
-      if (addPadding) {
-        padding = (<label class='check-box-spacing' style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
-      }
-
-      return (
-        <f.column {...args}>
-          {padding}
-          <input type="checkbox"
-                 data-prop-name={attrName}
-                 data-model-type={modelType}
-                 id={id}
-                 disabled={disabled}
-                 checked={model[attrName]()}
-                 onchange={m.withAttr('checked', model[attrName])}/>
-          <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
-            {labelText || s.humanize(attrName)}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-        </f.column>
-      );
-    }
-  },
-
-  multiSelectionBox: {
-    oninit (vnode) {
-      const args = vnode.attrs;
-      this.attr  = args.model[args.attrName];
-
-      this.onChange = function (e) {
-        const currentTarget = (e || event).currentTarget;
-
-        currentTarget.checked ? this.attr().push(currentTarget.value)
-          : this.attr().pop(currentTarget.value);
-      };
-
-      this.isChecked = function (value) {
-        return _.includes(this.attr().data(), value);
-      };
-    },
-
-    view (vnode) {
-      const args = vnode.attrs;
-      const ctrl = vnode.state;
-
-      const model      = deleteKeyAndReturnValue(args, 'model'),
-        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-        value      = deleteKeyAndReturnValue(args, 'value'),
-        labelText  = deleteKeyAndReturnValue(args, 'label'),
-        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-        id         = s.uuid(),
-        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
-
-      if (!args.size) {
-        args.size = 3;
-      }
-
-      let padding;
-
-      if (addPadding) {
-        padding = (<label style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
-      }
-
-      return (
-        <f.column {...args}>
-          {padding}
-          <input type="checkbox"
-                 data-prop-name={attrName}
-                 data-model-type={modelType}
-                 id={id}
-                 disabled={disabled}
-                 value={value}
-                 checked={ctrl.isChecked(value)}
-                 onchange={ctrl.onChange.bind(ctrl)}/>
-          <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
-            {labelText || s.humanize(attrName)}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-        </f.column>
-      );
     }
   },
 

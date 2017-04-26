@@ -158,36 +158,34 @@ let SettingsWidget = {
           <f.column size={4} largeSize={5} end>
             <label></label>
             <f.row>
-              <f.checkBox model={stage}
-                          attrName='fetchMaterials'
-                          size={12}
-                          tooltip={{
-                            content:   tt.stage.fetchMaterials,
-                            direction: 'bottom',
-                            size:      'small'
-                          }}/>
+              <f.column size={12}>
+                <f.checkbox model={stage}
+                            attrName='fetchMaterials'
+                            label={[
+                              "Fetcb materials",
+                              <f.tooltip tooltip={{content: tt.stage.fetchMaterials, size: 'small'}} />
+                            ]} />
+              </f.column>
             </f.row>
             <f.row>
-              <f.checkBox model={stage}
-                          attrName='neverCleanupArtifacts'
-                          size={12}
-                          tooltip={{
-                            content:   tt.stage.neverCleanupArtifacts,
-                            direction: 'bottom',
-                            size:      'small'
-                          }}/>
+              <f.column size={12}>
+                <f.checkbox model={stage}
+                            attrName='neverCleanupArtifacts'
+                            label={[
+                              "Naver clean up artifacts",
+                              <f.tooltip tooltip={{content: tt.stage.neverCleanupArtifacts, size: 'small'}} />
+                            ]} />
+              </f.column>
             </f.row>
             <f.row>
-              <f.checkBox model={stage}
-                          attrName='cleanWorkingDirectory'
-                          label='Delete working directory on every build'
-                          size={12}
-                          tooltip={{
-                            content:   tt.stage.cleanWorkingDirectory,
-                            direction: 'bottom',
-                            size:      'small'
-                          }}
-                          end={true}/>
+              <f.column size={12} end={true}>
+                <f.checkbox model={stage}
+                            attrName='cleanWorkingDirectory'
+                            label={[
+                              'Delete working directory on every build',
+                              <f.tooltip tooltip={{content: tt.stage.cleanWorkingDirectory, size: 'small'}} />
+                            ]} />
+              </f.column>
             </f.row>
           </f.column>
         </f.row>

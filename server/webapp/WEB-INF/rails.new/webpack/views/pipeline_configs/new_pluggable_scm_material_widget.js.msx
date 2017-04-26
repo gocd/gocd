@@ -56,11 +56,12 @@ let ScmConfigModalBody = {
           </f.column>
         </f.row>
         <f.row collapse>
-          <f.checkBox model={vnode.attrs.scm}
-                      attrName='autoUpdate'
-                      class='align'
-                      size={6}
-                      end={true}/>
+          <f.column size={6} end={true}>
+            <f.checkbox model={vnode.attrs.scm}
+                        attrName='autoUpdate'
+                        label="Auto update"
+                        class='align' />
+          </f.column>
         </f.row>
         <f.row collapse>
           <AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().scmSettings}

@@ -137,10 +137,11 @@ let BranchField = {
 let AutoUpdateField = {
   view (vnode) {
     return (
-      <f.checkBox model={vnode.attrs.material}
-                  attrName='autoUpdate'
-                  addPadding={true}
-                  end={true}/>
+      <f.column class="align-with-control" size={3} end={true}>
+        <f.checkbox model={vnode.attrs.material}
+                    attrName='autoUpdate'
+                    label="Auto update" />
+      </f.column>
     );
   }
 };
@@ -214,11 +215,12 @@ let MaterialViews = {
             <UsernameField material={material}/>
             <PasswordField model={material}
                            attrName='passwordValue'/>
-            <f.checkBox type="checkbox"
-                        model={material}
-                        attrName='checkExternals'
-                        addPadding={true}
-                        end={true}/>
+            <f.column class="align-with-control" size={3} end={true}>
+              <f.checkbox type="checkbox"
+                          model={material}
+                          attrName='checkExternals'
+                          label="Check externals" />
+            </f.column>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -243,11 +245,11 @@ let MaterialViews = {
           </f.row>
           <f.row>
             <BranchField material={material}/>
-            <f.checkBox model={vnode.attrs.material}
-                        attrName='shallowClone'
-                        label="Shallow clone (recommended for large repositories)"
-                        addPadding={true}
-                        end={true}/>
+            <f.column class="align-with-control" size={3} end={true}>
+              <f.checkbox model={vnode.attrs.material}
+                          attrName='shallowClone'
+                          label="Shallow clone (recommended for large repositories)" />
+            </f.column>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -305,12 +307,12 @@ let MaterialViews = {
                                  isRequired={true}
                                  model={material}
                                  size={4}/>
-            <f.checkBox name="material[use_tickets]"
-                        type="checkbox"
-                        model={material}
-                        attrName='useTickets'
-                        addPadding={true}
-                        end={true}/>
+            <f.column class="align-with-control" size={3} end={true}>
+              <f.checkbox name="material[use_tickets]"
+                          model={material}
+                          attrName='useTickets'
+                          label="Use tickets" />
+            </f.column>
           </f.row>
           <f.row>
             <DestinationField material={material}/>

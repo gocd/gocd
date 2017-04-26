@@ -53,16 +53,14 @@ const PipelineSettingsWidget = {
                        ]}
                        validate={true} />
             </f.column>
-            <f.checkBox model={pipeline}
-                        attrName='enablePipelineLocking'
-                        addPadding={true}
-                        size={4}
-                        largeSize={3}
-                        tooltip={{
-                          content:   tt.pipeline.enablePipelineLocking,
-                          direction: 'bottom',
-                          class:     'tooltip-spacing'
-                        }}/>
+            <f.column class="align-with-control" size={4} largeSize={3}>
+              <f.checkbox model={pipeline}
+                          attrName='enablePipelineLocking'
+                          label={[
+                            "Enable pipeline locking",
+                            <f.tooltip tooltip={{content: tt.pipeline.enablePipelineLocking}} />
+                          ]} />
+            </f.column>
 
             <f.column size={4} largeSize={5} end={true} class="pipeline-schedule">
               <label>{pipelineAutoScheduleMessage}</label>
@@ -83,18 +81,16 @@ const PipelineSettingsWidget = {
                        ]}
                        validate={true} />
             </f.column>
+            <f.column size={3} end={true} class="align-with-control">
+              <f.checkbox model={pipeline.timer()}
+                          attrName='onlyOnChanges'
+                          label={[
+                            'Run only on new material',
+                            <f.tooltip tooltip={{content: tt.pipeline.timer.onlyOnChanges}} />
+                          ]}
+                          disabled={s.isBlank(pipeline.timer().spec())} />
+            </f.column>
 
-            <f.checkBox model={pipeline.timer()}
-                        class="end"
-                        addPadding={true}
-                        attrName='onlyOnChanges'
-                        label='Run only on new material'
-                        disabled={s.isBlank(pipeline.timer().spec())}
-                        tooltip={{
-                          content:   tt.pipeline.timer.onlyOnChanges,
-                          direction: 'bottom',
-                          class:     'tooltip-spacing'
-                        }}/>
 
           </f.row>
           <f.row>

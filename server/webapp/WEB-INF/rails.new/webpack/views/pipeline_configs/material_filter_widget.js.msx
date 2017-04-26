@@ -36,11 +36,11 @@ const MaterialFilterWidget = {
           </f.column>
         </f.row>
         <f.row>
-          <f.checkBox model={material}
-                      attrName='invertFilter'
-                      label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.'
-                      size={12}
-                      largeSize={12}/>
+          <f.column size={12} largeSize={12}>
+            <f.checkbox model={material}
+                        attrName='invertFilter'
+                        label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.' />
+          </f.column>
         </f.row>
       </div>
     );

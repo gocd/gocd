@@ -61,7 +61,7 @@
         startLine = 0;
 
         if (options && "function" === typeof options.onComplete) {
-          options.onComplete();
+          transformer.invoke(options.onComplete);
         }
         return;
       }
@@ -83,7 +83,7 @@
         }
 
         if (options && "function" === typeof options.onUpdate) {
-          options.onUpdate();
+          transformer.invoke(options.onUpdate);
         }
       }
     }

@@ -90,13 +90,6 @@
         var tfm = new LogOutputTransformer(container, FoldableSection, tabsManager.getCurrentTab() !== name);
         tfm.name = name;
         transformers.push(tfm);
-
-        container.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
-          e.stopPropagation();
-          e.preventDefault();
-
-          container.toggleClass("with-timestamps");
-        });
       });
 
       build.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
@@ -104,9 +97,7 @@
         e.preventDefault();
 
         $(e.currentTarget).closest(".console-area").toggleClass("with-timestamps");
-      });
-
-      build.find(".console-action-bar").on("click", ".toggle-folding", function toggleCollapseAll(e) {
+      }).on("click", ".toggle-folding", function toggleCollapseAll(e) {
         e.stopPropagation();
         e.preventDefault();
 

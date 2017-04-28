@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -48,6 +49,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
@@ -145,6 +149,23 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         } else {
             result.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
         }
+    }
+
+    public boolean updateGitMaterial(String branchName, Collection<String> possibleUrls) {
+        final CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
+        Set<Material> allUniquePostCommitSchedulableMaterials = materialConfigConverter.toMaterials(cruiseConfig.getAllUniquePostCommitSchedulableMaterials());
+
+        Predicate<Material> predicate = new MaterialPredicate(branchName, possibleUrls);
+        Set<Material> allGitMaterials = allUniquePostCommitSchedulableMaterials.stream().filter(predicate).collect(Collectors.toSet());
+
+        allGitMaterials.forEach(new Consumer<Material>() {
+            @Override
+            public void accept(Material material) {
+                MaterialUpdateService.this.updateMaterial(material);
+            }
+        });
+
+        return !allGitMaterials.isEmpty();
     }
 
     public boolean updateMaterial(Material material) {
@@ -252,9 +273,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     //used in tests
     public boolean isInProgress(Material material) {
-        for(Material m : this.inProgress.keySet())
-        {
-            if(m.isSameFlyweight(material))
+        for (Material m : this.inProgress.keySet()) {
+            if (m.isSameFlyweight(material))
                 return true;
         }
         return false;
@@ -262,5 +282,22 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public void registerMaterialUpdateCompleteListener(MaterialUpdateCompleteListener materialUpdateCompleteListener) {
         this.materialUpdateCompleteListeners.add(materialUpdateCompleteListener);
+    }
+
+    private static class MaterialPredicate implements Predicate<Material> {
+        private final String branchName;
+        private final Set<String> possibleUrls;
+
+        public MaterialPredicate(String branchName, Collection<String> possibleUrls) {
+            this.branchName = branchName;
+            this.possibleUrls = new HashSet<>(possibleUrls);
+        }
+
+        @Override
+        public boolean test(Material material) {
+            return material instanceof GitMaterial &&
+                    ((GitMaterial) material).getBranch().equals(branchName) &&
+                    possibleUrls.contains(((GitMaterial) material).getUrlArgument().withoutCredentials());
+        }
     }
 }

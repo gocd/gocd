@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.config.ConfigAttributeValue;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import com.thoughtworks.go.config.ConfigAttributeValue;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -61,7 +61,7 @@ public class UrlArgument extends CommandArgument {
     protected String hostInfoForDisplay() {
         try {
             URI uri = new URI(url);
-            if (uri.getUserInfo()!=null) {
+            if (uri.getUserInfo() != null) {
                 //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
                 uri = new URI(uri.getScheme(), clean(uri.getUserInfo()), uri.getHost(), uri.getPort(), null, null, null);
             }
@@ -75,7 +75,7 @@ public class UrlArgument extends CommandArgument {
     protected String hostInfoForCommandline() {
         try {
             URI uri = new URI(url);
-            if (uri.getUserInfo()!=null) {
+            if (uri.getUserInfo() != null) {
                 //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
                 uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
             }
@@ -90,7 +90,7 @@ public class UrlArgument extends CommandArgument {
         String[] userAndPassword = userInfo.split(":");
         StringBuilder result = new StringBuilder();
         result.append(userAndPassword[0]);
-        if (userAndPassword.length>1) {
+        if (userAndPassword.length > 1) {
             result.append(":");
             result.append("******");
         }
@@ -102,7 +102,7 @@ public class UrlArgument extends CommandArgument {
     }
 
     public String replaceSecretInfo(String line) {
-        if(forCommandline().length() > 0){
+        if (forCommandline().length() > 0) {
             line = line.replace(hostInfoForCommandline(), hostInfoForDisplay());
         }
 
@@ -126,4 +126,14 @@ public class UrlArgument extends CommandArgument {
         return path;
     }
 
+    public String withoutCredentials() {
+        try {
+            URI uri = null;
+            uri = new URI(url);
+            uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+            return uriToDisplay(uri);
+        } catch (URISyntaxException e) {
+            return url;
+        }
+    }
 }

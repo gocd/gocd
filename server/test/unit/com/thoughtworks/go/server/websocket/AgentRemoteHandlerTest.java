@@ -204,7 +204,6 @@ public class AgentRemoteHandlerTest {
 
         handler.remove(agent);
         assertEquals(0, handler.connectedAgents().size());
-        assertEquals(AgentStatus.LostContact, instance.getStatus());
     }
 
     @Test

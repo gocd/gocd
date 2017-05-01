@@ -30,7 +30,7 @@
   function LineWriter() {
 
     var cmd_re = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/,
-        status_re = /^(\s*\[go] (?:Current job|Task) status: )(.*)/,
+        status_re = /^(\s*\[go] (?:Current job|Task) status: )(?:(\w+)(?: \((\d+) ms\))?.*)$/,
         ansi = new AnsiUp(),
         formatter = new AnsiFormatter();
 
@@ -42,8 +42,8 @@
       return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
-    function formatContent(node, prefix, line) {
-      var parts;
+    function formatContent(cursor, node, prefix, line) {
+      var parts, duration;
 
       if (isTaskLine(prefix)) {
         parts = line.match(cmd_re);
@@ -51,7 +51,13 @@
       } else if (isStatusLine(prefix)) {
         parts = line.match(status_re);
         if (parts) {
-          c(node, parts[1], c("code", parts[2]));
+          if (parts[3] && !isNaN(parseInt(parts[3], 10))) {
+            duration = parseInt(parts[3], 10);
+            cursor.recordDuration(duration);
+            c(node, parts[1], c("code", parts[2] + " (" + humanizeMilliseconds(duration) + ")"));
+          } else {
+            c(node, parts[1], c("code", parts[2]));
+          }
         } else {
           c(node, line); // Usually the end of an onCancel task
         }
@@ -64,37 +70,80 @@
       }
     }
 
-    function insertBasic(cursor, line) {
-      var output = c("dd", {class: "log-fs-line"}, ansi.ansi_to(line, formatter));
-
-      cursor.write(output);
-      return output;
+    function lpad3(num) {
+      return ("00" + num).slice(-3);
     }
 
-    function insertHeader(cursor, prefix, line) {
-      var header = c("dt", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix]});
+    // no, moment.js doesn't make this easy (at least not without some plugin)
+    function humanizeMilliseconds(duration) {
+      var ms, sec, min, hr, out;
 
-      formatContent(header, prefix, line);
-      cursor.write(header);
-      return header;
+      ms = duration % 1000;
+      duration = (duration - ms) / 1000;
+
+      if (duration !== 0) {
+        sec = duration % 60;
+        duration = (duration - sec) / 60;
+        out = sec + "." + lpad3(ms) + "s";
+      } else {
+        out = "0." + lpad3(ms) + "s";
+      }
+
+      if (duration > 0) {
+        min = duration % 60;
+        duration = (duration - min) / 60;
+        out = min + "m " + out;
+      }
+
+      if (duration > 0) {
+        hr = duration;
+        out = hr + "h " + out;
+      }
+
+      return out;
     }
 
-    function insertLine(cursor, prefix, line) {
-      var output = c("div", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix]});
+    function insertPlain(cursor, timestamp, line) {
+      var node = c("dd", {class: "log-fs-line", "data-timestamp": timestamp}, ansi.ansi_to(line, formatter));
 
-      formatContent(output, prefix, line);
-      cursor.writeBody(output);
-
-      return output;
+      cursor.write(node);
+      return node;
     }
 
+    function insertHeader(cursor, prefix, timestamp, line) {
+      var node = c("dt", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix], "data-timestamp": timestamp});
+
+      formatContent(cursor, node, prefix, line);
+      cursor.writeHeader(node);
+      return node;
+    }
+
+    function insertContent(cursor, prefix, timestamp, line) {
+      var node = c("div", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix], "data-timestamp": timestamp});
+
+      formatContent(cursor, node, prefix, line);
+      cursor.writeBody(node);
+      return node;
+    }
+
+    function markWithDuration(cursor, duration) {
+      var node = cursor.header();
+
+      if (!node) {
+        return;
+      }
+
+      node.appendChild(c("span", {class: "log-fs-duration"}, humanizeMilliseconds(duration)));
+    }
+
+    this.markWithDuration = markWithDuration;
     this.insertHeader = insertHeader;
-    this.insertLine = insertLine;
-    this.insertBasic = insertBasic;
+    this.insertContent = insertContent;
+    this.insertPlain = insertPlain;
   }
 
   function SectionCursor(node, section) {
-    var cursor;
+    var cursor, self = this;
 
     if (!section) section = blankSectionElement();
 
@@ -130,8 +179,17 @@
       cursor.appendChild(childNode);
     }
 
+    function writeHeader(childNode) {
+      section.priv.header = childNode;
+      cursor.appendChild(childNode);
+    }
+
     function writeBody(childNode) {
       cursor.body.appendChild(childNode);
+    }
+
+    function recordDuration(duration) {
+      section.priv.duration = duration;
     }
 
     function type() {
@@ -140,6 +198,10 @@
 
     function getSection() {
       return section;
+    }
+
+    function getHeader() {
+      return section.priv.header;
     }
 
     function markMultiline() {
@@ -151,9 +213,13 @@
       }
     }
 
-    function onFinishSection() {
+    function onFinishSection(writer) {
       if (!section.priv.errored) {
         section.classList.remove("open");
+      }
+
+      if ("undefined" !== typeof section.priv.duration && writer) {
+        writer.markWithDuration(self, section.priv.duration);
       }
     }
 
@@ -237,9 +303,9 @@
       return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
-    function closeAndStartNew(parentNode) {
+    function closeAndStartNew(parentNode, writer) {
       // close section and start a new one
-      onFinishSection();
+      onFinishSection(writer);
 
       return addAnotherCursor(parentNode);
     }
@@ -251,14 +317,17 @@
 
     this.type = type;
     this.assignType = assignType;
+    this.recordDuration = recordDuration;
     this.isPartOfSection = isPartOfSection;
     this.isExplicitEndBoundary = isExplicitEndBoundary;
     this.closeAndStartNew = closeAndStartNew;
 
     this.write = write;
+    this.writeHeader = writeHeader;
     this.writeBody = writeBody;
 
     this.element = getSection;
+    this.header = getHeader;
     this.cloneTo = cloneTo;
   }
 

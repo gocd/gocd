@@ -273,7 +273,7 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
         assertThat(actual, containsString("[go] Task: echo run when status is failed, passed or cancelled"));
-        assertThat(actual, containsString("[go] Task status: passed"));
+        assertThat(actual, matches("\\[go] Task status: passed \\(\\d+ ms\\)"));
         assertThat(actual, containsString("[go] Current job status: passed"));
         assertThat(actual, containsString("run when status is failed, passed or cancelled"));
     }

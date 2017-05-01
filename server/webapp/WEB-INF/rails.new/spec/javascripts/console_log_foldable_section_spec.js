@@ -215,62 +215,88 @@
       }, false));
     });
 
-    it("LineWriter insertBasic", function () {
-      var h = $($(lw.insertBasic(fs, "Starting build")));
+    it("LineWriter insertPlain", function () {
+      var h = $($(lw.insertPlain(fs, "00:00:00.000", "Starting build")));
       assert(h.is("dd"));
       assertEquals("Starting build", h.text());
     });
 
     it("LineWriter insertHeader", function () {
-      var h = $($(lw.insertHeader(fs, t.INFO, "Starting build")));
+      var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
       assert(h.is("dt.log-fs-line-INFO"));
     });
 
-    it("LineWriter insertBasic handles ANSI color", function () {
-      var l = $(lw.insertBasic(fs, "Starting \u001B[1;33;40mcolor"));
+    it("LineWriter insertPlain handles ANSI color", function () {
+      var l = $(lw.insertPlain(fs, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
       assertEquals(1, l.find(".ansi-bright-yellow-fg.ansi-black-bg").length);
       assertEquals("color", l.find(".ansi-bright-yellow-fg.ansi-black-bg").text());
     });
 
-    it("LineWriter insertLine/Header handles ANSI color", function () {
-      fs.markMultiline(); // insertLine() requires a section body element
-      var l = $(lw.insertLine(fs, t.OUT, "Starting \u001B[1;33;40mcolor"));
+    it("LineWriter insertContent/Header handles ANSI color", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      var l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
       assertEquals(1, l.find(".ansi-bright-yellow-fg.ansi-black-bg").length);
       assertEquals("color", l.find(".ansi-bright-yellow-fg.ansi-black-bg").text());
     });
 
-    it("LineWriter insertLine", function () {
-      fs.markMultiline(); // insertLine() requires a section body element
-      var l = $(lw.insertLine(fs, t.OUT, "Starting build"));
+    it("LineWriter formats durations from milliseconds into a human-friendly stamp", function () {
+      var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
+      lw.markWithDuration(fs, 4998315);
+      assertEquals("1h 23m 18.315s", h.find(".log-fs-duration").text());
+    });
+
+    it("LineWriter parses durations from status line if available", function () {
+      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      fs.markMultiline();
+      var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms)")));
+      fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
+
+      assertEquals("2h 24m 35.309s", h.find(".log-fs-duration").text());
+      assertEquals("[go] Task status: passed (2h 24m 35.309s)", l.text());
+    });
+
+    it("LineWriter just prints if there is no duration information", function () {
+      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      fs.markMultiline();
+      var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed")));
+      fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
+
+      assertEquals(0, h.find(".log-fs-duration").length);
+      assertEquals("[go] Task status: passed", l.text());
+    });
+
+    it("LineWriter insertContent", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      var l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting build"));
       assertEquals(l.is("dd.log-fs-line-OUT"));
     });
 
     it("LineWriter parses task", function () {
-      var h = $(lw.insertHeader(fs, t.TASK_START, "[go] Task: about to happen"));
+      var h = $(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: about to happen"));
       assertEquals(1, h.find("code").length);
       assertEquals("about to happen", h.find("code").text());
     });
 
     it("LineWriter parses job status", function () {
-      var h = $(lw.insertHeader(fs, t.JOB_PASS, "[go] Current job status: passed"));
+      var h = $(lw.insertHeader(fs, t.JOB_PASS, "00:00:00.000", "[go] Current job status: passed"));
       assertEquals(1, h.find("code").length);
       assertEquals("passed", h.find("code").text());
     });
 
     it("LineWriter parses task status", function () {
-      var h = $(lw.insertHeader(fs, t.FAIL, "[go] Task status: failed"));
+      var h = $(lw.insertHeader(fs, t.FAIL, "00:00:00.000", "[go] Task status: failed"));
       assertEquals(1, h.find("code").length);
       assertEquals("failed", h.find("code").text());
     });
 
     it("LineWriter parses cancel task", function () {
-      var h = $(lw.insertHeader(fs, t.CANCEL_TASK_START, "[go] On Cancel Task: not so great"));
+      var h = $(lw.insertHeader(fs, t.CANCEL_TASK_START, "00:00:00.000", "[go] On Cancel Task: not so great"));
       assertEquals(1, h.find("code").length);
       assertEquals("not so great", h.find("code").text());
     });
 
     it("LineWriter handles empty lines", function () {
-      var h = $(lw.insertHeader(fs, t.INFO, ""));
+      var h = $(lw.insertHeader(fs, t.INFO, "00:00:00.000", ""));
       assertEquals("\n", h.text());
     });
 

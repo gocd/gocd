@@ -30,8 +30,6 @@
         pipelinesModel.reset();
         e.currentTarget.querySelector("input[type='checkbox']").setAttribute("checked", filtersModel.myCommits());
       };
-
-      filtersModel.load();
     },
 
     view(vnode) {

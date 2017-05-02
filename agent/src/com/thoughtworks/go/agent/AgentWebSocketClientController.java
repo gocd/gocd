@@ -251,11 +251,14 @@ public class AgentWebSocketClientController extends AgentController {
             @Override
             public void run() {
                 try {
+                    LOG.debug("Processing message[" + msg + "].");
                     process(msg);
                 } catch (InterruptedException e) {
                     LOG.error("Process message[" + msg + "] is interruptted.", e);
                 } catch (RuntimeException e) {
                     LOG.error("Unexpected error while processing message[" + msg + "]: " + e.getMessage(), e);
+                } finally {
+                    LOG.debug("Finished trying to process message[" + msg + "].");
                 }
             }
         });

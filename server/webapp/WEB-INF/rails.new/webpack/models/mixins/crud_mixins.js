@@ -27,12 +27,13 @@ CrudMixins.Index = (options) => {
   const version  = options.version;
   const dataPath = options.dataPath;
 
-  type.all = (cb) => $.Deferred(function () {
+  type.all = (cb, queryParams={}) => $.Deferred(function () {
     const deferred = this;
 
     const jqXHR = $.ajax({
       method:      'GET',
       url,
+      data: queryParams,
       timeout:     mrequest.timeout,
       beforeSend(xhr) {
         mrequest.xhrConfig.forVersion(version)(xhr);

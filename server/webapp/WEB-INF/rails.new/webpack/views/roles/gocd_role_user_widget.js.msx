@@ -1,0 +1,97 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const m = require('mithril');
+const f = require('helpers/form_helper');
+
+const RoleUserWidget = {
+  oninit(vnode) {
+    vnode.state.currentUser   = '';
+    vnode.state.valueHolder   = '';
+
+    this.onInputChange = (e) => {
+      const key               = e.which || e.keyCode;
+      const currentTarget     = (e || event).currentTarget;
+      const username          = currentTarget.value || currentTarget.getAttribute('value');
+      vnode.state.currentUser = username;
+      vnode.state.valueHolder = username;
+      if (key === 13) {
+        this.addUser(username);
+      }
+    };
+
+    this.deleteUser = (username) => {
+      vnode.attrs.role().deleteUser(username);
+      vnode.state.currentUser = '';
+    };
+
+    this.addUser = (username) => {
+      vnode.attrs.role().addUser(username);
+      vnode.state.currentUser = username;
+      vnode.state.valueHolder = '';
+    };
+  },
+
+  view (vnode) {
+    const role       = vnode.attrs.role;
+    const showState  = vnode.attrs.showState;
+
+    const addUserInput = (
+      <div class="add-role-user row show">
+        <div class="medium-3">
+          <input onkeyup={vnode.state.onInputChange.bind(vnode.state)} value={vnode.state.valueHolder}
+                 placeholder="username" type="text" class="columns medium-3 role-user"/>
+        </div>
+        <div class="columns medium-3 end">
+          <f.button onclick={vnode.state.addUser.bind(vnode.state, vnode.state.currentUser)}
+                    class="add-role-user-button">
+            Add
+          </f.button>
+        </div>
+      </div>
+    );
+
+    this.getDeleteButton = (user) => {
+      return (<span aria-hidden="true" class="role-user-delete-icon"
+                    onclick={vnode.state.deleteUser.bind(vnode.state, user)}>&times;</span>);
+    };
+
+    this.getClass = (user) => {
+      return vnode.state.currentUser === user ? "tag current-user-tag" : "tag";
+    };
+
+    return (
+      <div>
+        <div class={`role-edit-only row ${showState}`}>
+          {
+            role().users().map((user) => {
+              return (
+                <div data-alert
+                     class={this.getClass(user)}>
+                  {user}
+                  {this.getDeleteButton(user)}
+                </div>
+              );
+            })
+          }
+        </div>
+        {addUserInput}
+      </div>);
+  }
+};
+
+module.exports = RoleUserWidget;
+
+

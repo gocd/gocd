@@ -1,0 +1,116 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m                   = require('mithril');
+const Stream              = require('mithril/stream');
+const f                   = require('helpers/form_helper');
+const ComponentMixins     = require('helpers/mithril_component_mixins');
+const ConfigurationWidget = require('views/roles/plugin_role_configuration_widget');
+
+const PluginRoleWidget = {
+  oninit (vnode) {
+    this.args = vnode.attrs;
+    ComponentMixins.HasViewModel.call(this);
+
+    const vmStateKey = `show-${  vnode.attrs.role().name()}`;
+    this.vmState(vmStateKey, Stream(false));
+
+    this.toggleHide = function () {
+      this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
+    };
+
+    this.showState = function () {
+      return this.vmState(vmStateKey)() ? 'show' : 'hide';
+    };
+  },
+
+  view (vnode) {
+    const role      = vnode.attrs.role;
+    const showState = vnode.state.showState();
+
+    let image, errorMessage = '', disabled = false, pluginName;
+    const authConfig        = vnode.attrs.authConfigs().findById(role().authConfigId());
+
+    if (authConfig) {
+      const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
+
+      if (pluginInfo) {
+        image      = (<img src={pluginInfo.imageUrl()}/>);
+        pluginName = pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id();
+      } else {
+        image        = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+        errorMessage = `Plugin '${authConfig.pluginId()}' not found`;
+        pluginName   = authConfig.pluginId();
+        disabled     = true;
+      }
+
+    } else {
+      image        = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+      disabled     = true;
+      errorMessage = `Authorization config '${role().authConfigId()}' is missing`;
+    }
+
+
+    const actionIcons = (
+      <div class="role-actions">
+        <f.link onclick={disabled ? null : vnode.attrs.onEdit} class={disabled ? 'edit-role disabled' : 'edit-role'}
+                title={errorMessage} disabled={disabled}/>
+        <f.link onclick={disabled ? null : vnode.attrs.onClone} class={disabled ? 'clone-role disabled' : 'clone-role'}
+                title={errorMessage} disabled={disabled}/>
+        <f.link class='delete-role-confirm' onclick={vnode.attrs.onDelete}/>
+      </div>
+    );
+
+    let pluginInfoView;
+    if (pluginName && !errorMessage) {
+      pluginInfoView = (
+        <div class="plugin-name">
+          <span class="key">Plugin: </span>
+          <span class="value"><small>{pluginName}</small></span>
+        </div>);
+    }
+
+    let authConfigInfoView;
+    if (role().isPluginRole()) {
+      authConfigInfoView = (
+        <div class="auth-config-id">
+          <span class="key">Auth Config ID: </span>
+          <span class="value">{vnode.attrs.role().authConfigId()}</span>
+        </div>
+      );
+    }
+
+    return (
+      <div class="role">
+        <div class="role-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+          <span class="plugin-icon">{image}</span>
+          <div class="role-description">
+            <div class="role-name">
+              <span class="key">Name: </span><span class="value">{vnode.attrs.role().name()}</span>
+            </div>
+            {authConfigInfoView}
+            {pluginInfoView}
+            <small class={disabled ? 'disabled' : null}>{errorMessage}</small>
+          </div>
+        </div>
+        <ConfigurationWidget role={vnode.attrs.role()} showState={showState}/>
+        {actionIcons}
+      </div>
+    );
+  }
+};
+
+module.exports = PluginRoleWidget;

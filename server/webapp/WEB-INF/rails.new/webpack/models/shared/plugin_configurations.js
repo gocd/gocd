@@ -50,11 +50,15 @@ const PluginConfigurations = function (data) {
 
   this.setConfiguration = function (key, value) {
     const existingConfig = configForKey.call(this, key);
-
     if (!existingConfig) {
       this.createConfiguration({key, value});
     } else {
-      existingConfig.value(value);
+      if (existingConfig.isSecureValue()) {
+        existingConfig.editValue();
+        existingConfig.value(value);
+      } else {
+        existingConfig.value(value);
+      }
     }
   };
 };
@@ -63,12 +67,20 @@ PluginConfigurations.Configuration = function (data) {
   this.parent                = Mixins.GetterSetter();
   this.constructor.modelType = 'plugin-configuration';
 
-  this.key   = Stream(s.defaultToIfBlank(data.key, ''));
+  this.key     = Stream(s.defaultToIfBlank(data.key, ''));
   const _value = Stream(plainOrCipherValue(data));
 
   Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 
   Validatable.call(this, data);
+
+  this.displayValue = () => {
+    if (this.isSecureValue()) {
+      return this.value().replace(/./gi, "*");
+    } else {
+      return this.value();
+    }
+  };
 
   this.toJSON = function () {
     if (this.isPlainValue()) {
@@ -79,7 +91,7 @@ PluginConfigurations.Configuration = function (data) {
     } else {
       return {
         key:               this.key(),
-        'encrypted_value': this.value()
+        "encrypted_value": this.value()
       };
     }
   };

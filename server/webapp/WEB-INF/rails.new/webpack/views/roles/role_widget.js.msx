@@ -1,0 +1,93 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m                   = require("mithril");
+const _                   = require('lodash');
+const Roles               = require('models/roles/roles');
+const GoCDRoleModalBody   = require('views/roles/gocd_role_modal_body');
+const PluginRoleModalBody = require('views/roles/plugin_role_modal_body');
+
+const RoleTypeSelector = {
+  oninit(vnode){
+
+    this.changeRoleType = (roleType) => {
+      vnode.attrs.role(Roles.Role.fromJSON({name: vnode.attrs.role().name(), type: roleType, attributes: {}}));
+    };
+
+    this.noAuthConfig = () => {
+      return vnode.attrs.authConfigs().countAuthConfig() === 0;
+    };
+
+    this.isNewRole = () =>  {
+      return _.isEmpty(vnode.attrs.role().etag());
+    };
+  },
+
+  view (vnode) {
+
+    if (!vnode.attrs.role()) {
+      return (
+        <div class="modal-spinner"/>
+      );
+    }
+
+    let selectRoleTypeView = '';
+    if (vnode.state.isNewRole()) {
+      selectRoleTypeView = (<div class="row">
+        <label class="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
+        <input
+          class="core-role"
+          id="core-role"
+          name="role-type-selector"
+          type="radio"
+          checked={!vnode.attrs.role().isPluginRole()}
+          onclick={vnode.state.changeRoleType.bind(vnode.state, "gocd")}/>
+        <label class='inline' for="core-role">GoCD Role</label>
+
+        <input
+          class="plugin-role"
+          name="role-type-selector"
+          id="plugin-role"
+          type="radio"
+          disabled={this.noAuthConfig()}
+          checked={vnode.attrs.role().isPluginRole()}
+          onclick={vnode.state.changeRoleType.bind(vnode.state, "plugin")}/>
+        <label class={this.noAuthConfig() ? 'disabled inline' : 'inline'} for="plugin-role"
+               disabled={this.noAuthConfig()}>Plugin Role</label>
+      </div>);
+    }
+
+    this.getRoleModalBody = (role) => {
+      if (vnode.attrs.role().isPluginRole()) {
+        return (<PluginRoleModalBody role={role}
+                                     pluginInfos={vnode.attrs.pluginInfos}
+                                     authConfigs={vnode.attrs.authConfigs}/>);
+      } else {
+        return (<GoCDRoleModalBody role={role}
+                                   newRole={vnode.attrs.newRole}/>);
+      }
+    };
+
+    return (
+      <div>
+        {selectRoleTypeView}
+        {this.getRoleModalBody(vnode.attrs.role)}
+      </div>
+    );
+  }
+};
+
+module.exports = RoleTypeSelector;

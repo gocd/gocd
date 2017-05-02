@@ -234,6 +234,33 @@ h4 {
         }
       }
     }
+    .sub-menu {
+      position: relative;
+      &:after {
+        content:       "";
+        position:      absolute;
+        width:         0;
+        height:        0;
+        border-top:    4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left:   4px solid #d6d6d6;
+        right:         8px;
+        top:           15px;
+      }
+      .dropdown {
+        display:    none;
+        position:   absolute;
+        right:      -202px;
+        top:        0;
+        background: #fff;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+      }
+      &:hover {
+        .dropdown {
+          display: block;
+        }
+      }
+    }
   }
   .dropdown-menu {
     border-radius: 0;

@@ -483,7 +483,7 @@ let f = {
     view (vnode) {
       const args = vnode.attrs;
 
-      const items         = deleteKeyAndReturnValue(args, 'items', [{}]),
+      const items     = deleteKeyAndReturnValue(args, 'items', [{}]),
         label         = deleteKeyAndReturnValue(args, 'label'),
         model         = deleteKeyAndReturnValue(args, 'model'),
         modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
@@ -491,6 +491,7 @@ let f = {
         tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
         disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
         receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
+        validate      = deleteKeyAndReturnValue(args, 'validate', false),
         message       = deleteKeyAndReturnValue(args, 'message', '');
 
       if (!args.size) {
@@ -503,6 +504,9 @@ let f = {
       }
 
       const onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
+
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
 
       const selectedValue = model[attrName]();
       const selectElem    = (
@@ -538,6 +542,7 @@ let f = {
             <f.tooltip tooltip={tooltip}/>
             {propertyMessage}
             {selectElem}
+            {propertyError}
           </f.column>
         );
       }

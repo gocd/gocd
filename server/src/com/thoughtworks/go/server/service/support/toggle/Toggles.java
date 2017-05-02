@@ -19,6 +19,7 @@ public class Toggles {
     public static String PIPELINE_COMMENT_FEATURE_TOGGLE_KEY = "pipeline_comment_feature_toggle_key";
     public static String PIPELINE_CONFIG_SINGLE_PAGE_APP = "pipeline_config_single_page_app_key";
     public static String PIPELINE_CONFIG_SPA_ON_NEW_MITHRIL_TOGGLE_KEY = "pipeline_config_spa_on_new_mithril_toggle_key";
+    public static String AUTH_AND_ROLE_CONFIG_SPA_TOGGLE_KEY = "auth_and_role_config_spa_toggle_key";
 
     private static FeatureToggleService service;
 

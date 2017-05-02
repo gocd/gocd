@@ -1,0 +1,97 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m               = require('mithril');
+const Stream          = require('mithril/stream');
+const f               = require('helpers/form_helper');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+
+const AuthConfigWidget = {
+  oninit (vnode) {
+    this.args = vnode.attrs;
+    ComponentMixins.HasViewModel.call(this);
+
+    const vmStateKey = `show-${  vnode.attrs.authConfig.id()}`;
+
+    this.vmState(vmStateKey, Stream(false));
+
+    this.toggleHide = function () {
+      this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
+    };
+
+    this.showState = function () {
+      return this.vmState(vmStateKey)() ? 'show' : 'hide';
+    };
+  },
+
+  view (vnode) {
+    const authConfig = vnode.attrs.authConfig;
+    let image;
+    let actionIcons;
+
+    if (vnode.attrs.pluginInfo) {
+      image       = (<img src={vnode.attrs.pluginInfo.imageUrl()}/>);
+      actionIcons = (
+        <div class="plugin-actions">
+          <f.link class='edit-auth-config' onclick={vnode.attrs.onEdit}/>
+          <f.link class='clone-auth-config' onclick={vnode.attrs.onClone}/>
+          <f.link class='delete-auth-config-confirm' onclick={vnode.attrs.onDelete}/>
+        </div>
+      );
+    } else {
+      image       = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+      actionIcons = (
+        <div class="plugin-actions">
+          <f.link class='edit-auth-config disabled' title="Plugin not found"/>
+          <f.link class='clone-auth-config disabled' title="Plugin not found"/>
+          <f.link class='delete-auth-config-confirm disabled' title="Plugin not found" onclick={vnode.attrs.onDelete}/>
+        </div>
+      );
+    }
+    return (
+      <div class="auth-config">
+        <div class="auth-config-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+            <span class="plugin-icon">
+              {image}
+            </span>
+          <div class="plugin-description">
+            <div class="auth-config-id"><span class="key">Id: </span><span class="value">{authConfig.id()}</span></div>
+            <div class="plugin-id"><span class="key">Plugin ID:</span> <span
+              class="value">{authConfig.pluginId()}</span>
+            </div>
+          </div>
+
+        </div>
+        <div class={`plugin-config-read-only ${  vnode.state.showState()}`}>
+          <dl class="key-value-pair">
+
+            {authConfig.properties().mapConfigurations((configuration) => {
+              return [
+                (<dt>{configuration.key()}</dt>),
+                (<dd>
+                  <pre>{configuration.displayValue()}</pre>
+                </dd>)
+              ];
+            })}
+          </dl>
+        </div>
+        {actionIcons}
+      </div>
+    );
+  }
+};
+
+module.exports = AuthConfigWidget;

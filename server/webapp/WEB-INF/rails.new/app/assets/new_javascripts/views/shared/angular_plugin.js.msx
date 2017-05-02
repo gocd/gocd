@@ -127,8 +127,7 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
           {pluginTemplate(args.pluginInfo())}
         </div>
       );
-    }
-  };
+    }  };
 
   return AngularPlugin;
 });

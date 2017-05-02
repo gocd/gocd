@@ -47,17 +47,13 @@ module ApiV1
     private
 
     def render_user_notification_filters
-      render DEFAULT_FORMAT => filters_for_current_user.to_json
+      render DEFAULT_FORMAT => NotificationFiltersRepresenter.new(@user_to_operate.notificationFilters).to_hash
     end
 
     def check_filter_params
       unless %w(pipeline stage event).all? { |key| params[key].is_a?(String) }
         render_message("You must specify pipeline, stage, and event.", :bad_request)
       end
-    end
-
-    def filters_for_current_user
-      @user_to_operate.notificationFilters.to_a.map { |nf| Hash(nf.toMap) }
     end
 
     def filter_from_params

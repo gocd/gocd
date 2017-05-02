@@ -40,10 +40,10 @@
         <tbody>
           {_.map(model.filters(), (filter) => {
             return <tr>
-              <td>{filter.pipelineName}</td>
-              <td>{filter.stageName}</td>
+              <td>{filter.pipeline_name}</td>
+              <td>{filter.stage_name}</td>
               <td>{filter.event}</td>
-              <td>{filter.myCheckin ? "Mine" : "All"}</td>
+              <td>{filter.match_commits ? "Mine" : "All"}</td>
               <td>
                 <button data-filter-id={filter.id} onclick={model.delete}>Delete</button>
               </td>

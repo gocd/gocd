@@ -129,11 +129,6 @@ public class AgentRemoteHandler {
             return;
         }
         agentSessions.remove(uuid);
-        AgentInstance instance = agentService.findAgent(uuid);
-        if (instance != null) {
-            instance.lostContact();
-            LOGGER.info("{} lost contact because websocket connection is closed", instance.getAgentIdentifier());
-        }
     }
 
     public Map<String, Agent> connectedAgents() {

@@ -49,7 +49,7 @@ const ParametersConfigWidget = {
                 <f.column largeSize={4}>
                   <f.input model={parameter}
                            attrName="name"
-                           validate={true}
+                           validate
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
                            placeholder="Name" />
                 </f.column>
@@ -59,7 +59,7 @@ const ParametersConfigWidget = {
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
                            placeholder="Value" />
                 </f.column>
-                <f.column size={1} end={true}>
+                <f.column size={1} end>
                   {vnode.state.removeLink.call(vnode.state, parameter)}
                 </f.column>
               </f.row>

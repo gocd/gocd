@@ -51,12 +51,12 @@ let ScmConfigModalBody = {
             <f.input model={vnode.attrs.scm}
                      attrName="name"
                      label={<span class="required">Name</span>}
-                     validate={true}
+                     validate
                      class="align" />
           </f.column>
         </f.row>
         <f.row collapse>
-          <f.column size={6} end={true}>
+          <f.column size={6} end>
             <f.checkbox model={vnode.attrs.scm}
                         attrName='autoUpdate'
                         label="Auto update"

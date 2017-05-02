@@ -44,7 +44,7 @@ const RoleModalBody = {
             <f.column largeSize={4}>
               <f.input model={vnode.attrs.role()}
                        attrName="name"
-                       validate={true}
+                       validate
                        label={[
                          <span class="required">Role name</span>,
                          <f.tooltip type="info" content={roleNameDisabledMessage} />

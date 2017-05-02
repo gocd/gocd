@@ -32,15 +32,15 @@ let EnvironmentVariableWidget = {
         <f.row class='environment-variable'
                data-variable-type={variable.isSecureValue() ? 'secure' : 'plain'}
                data-variable-name={variable.name()}>
-          <f.column size={5} largeSize={4} end={true}>
+          <f.column size={5} largeSize={4} end>
             <f.input model={variable}
                      attrName="name"
                      onModelUpdate={vnode.attrs.onChange}
-                     validate={true}
+                     validate
                      placeholder="Name" />
           </f.column>
           {children}
-          <f.column size={2} largeSize={2} end={true}>
+          <f.column size={2} largeSize={2} end>
             {vnode.attrs.removeChildPreContent}
             {vnode.attrs.removeWidget}
           </f.column>

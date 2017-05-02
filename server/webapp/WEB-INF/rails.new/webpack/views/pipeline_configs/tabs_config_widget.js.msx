@@ -47,7 +47,7 @@ const TabsConfigWidget = {
                   <f.input model={tab}
                            attrName="name"
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
-                           validate={true}
+                           validate
                            contentAfter={<f.tooltip tooltip={{content: tt.tabs.name, size: 'small'}} model={tab} attrName="name" />}
                            placeholder="Tab name" />
                 </f.column>
@@ -59,7 +59,7 @@ const TabsConfigWidget = {
                            contentAfter={<f.tooltip tooltip={{content: tt.tabs.path}} model={tab} attrName="path" />}
                            placeholder="Path of artifact" />
                 </f.column>
-                <f.column size={3} end={true}>
+                <f.column size={3} end>
                   {vnode.state.removeLink.call(vnode.state, tab)}
                 </f.column>
               </f.row>

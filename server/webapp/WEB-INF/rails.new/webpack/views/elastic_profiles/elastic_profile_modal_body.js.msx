@@ -91,11 +91,11 @@ const ElasticProfileModalBody = {
                          <span class="required">Id</span>,
                          profileIdDisabledMessage ? <f.tooltip tooltip={{type: "info", content: profileIdDisabledMessage}} /> : null
                        ]}
-                       validate={true}
+                       validate
                        disabled={vnode.attrs.profile().etag()}
                        key="profile-id" />
             </f.column>
-            <f.column size={6} largeSize={4} end={true}>
+            <f.column size={6} largeSize={4} end>
               <f.select model={vnode.attrs.profile()}
                         attrName="pluginId"
                         label="Plugin Id"

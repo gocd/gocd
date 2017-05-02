@@ -87,7 +87,7 @@ let ApprovalWidget = {
                        oncreate={autoComplete(Users.list, vnode.attrs.approval().authorization(), "users")}
                        onremove={destroyAutoComplete('users')} />
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={vnode.attrs.approval().authorization()}
                        attrName="roles"
                        label="Roles"
@@ -125,7 +125,7 @@ let SettingsWidget = {
                 <f.input model={stage}
                          attrName="name"
                          label={<span class="required">Stage name</span>}
-                         validate={true} />
+                         validate />
               </f.column>
             </f.row>
             <label>
@@ -133,21 +133,25 @@ let SettingsWidget = {
               <f.tooltip tooltip={{ content: tt.stage.stageType, size: "small"}} />
             </label>
             <f.row>
-              <f.column size={6} largeSize={6}>
-                <input type='radio'
-                       name={radioName}
-                       id={`${radioName  }-success`}
-                       checked={stage.approval().isSuccess()}
-                       onchange={stage.approval().makeOnSuccess.bind(stage.approval())}/>
-                <label for={`${radioName  }-success`}>On Success</label>
+              <f.column>
+                <label>
+                  <input type="radio"
+                         name={radioName}
+                         id={`${radioName  }-success`}
+                         checked={stage.approval().isSuccess()}
+                         onchange={stage.approval().makeOnSuccess.bind(stage.approval())} />
+                  On Success
+                </label>
               </f.column>
-              <f.column size={6} largeSize={6} end>
-                <input type='radio'
-                       name={radioName}
-                       id={`${radioName  }-manual`}
-                       checked={stage.approval().isManual()}
-                       onchange={stage.approval().makeManual.bind(stage.approval())}/>
-                <label for={`${radioName  }-manual`}>Manual</label>
+              <f.column end>
+                <label>
+                  <input type="radio"
+                         name={radioName}
+                         id={`${radioName  }-manual`}
+                         checked={stage.approval().isManual()}
+                         onchange={stage.approval().makeManual.bind(stage.approval())} />
+                  Manual
+                </label>
               </f.column>
             </f.row>
           </f.column>
@@ -175,7 +179,7 @@ let SettingsWidget = {
               </f.column>
             </f.row>
             <f.row>
-              <f.column size={12} end={true}>
+              <f.column size={12} end>
                 <f.checkbox model={stage}
                             attrName='cleanWorkingDirectory'
                             label={[
@@ -215,7 +219,7 @@ let StageConfigDefinitionWidget = {
                                           vm={vnode.state.vmState(`environmentVariablesConfig-${  stageIndex}`)}/>
 
         <f.row>
-          <f.column size={12} end={true}>
+          <f.column size={12} end>
             <JobsConfigWidget jobs={stage.jobs}
                               pluginInfos={vnode.attrs.pluginInfos}
                               elasticProfiles={vnode.attrs.elasticProfiles}

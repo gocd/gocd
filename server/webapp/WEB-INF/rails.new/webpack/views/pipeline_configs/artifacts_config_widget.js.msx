@@ -46,7 +46,7 @@ const ArtifactsConfigWidget = {
                 <f.input model={artifact}
                          attrName="source"
                          onModelUpdate={vnode.state.changed.bind(vnode.state)}
-                         validate={true}
+                         validate
                          contentAfter={<f.tooltip tooltip={{content: tt.artifacts.source}} model={artifact} attrName="source" />}
                          placeholder="Source" />
               </f.column>
@@ -69,7 +69,7 @@ const ArtifactsConfigWidget = {
                           <f.tooltip tooltip={{content: tt.artifacts.type}} />
                         } />
               </f.column>
-              <f.column size={1} end={true}>
+              <f.column size={1} end>
                 {vnode.state.removeLink.call(vnode.state, artifact)}
               </f.column>
             </f.row>;

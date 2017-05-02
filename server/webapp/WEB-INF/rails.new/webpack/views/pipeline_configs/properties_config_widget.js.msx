@@ -46,7 +46,7 @@ const PropertiesConfigWidget = {
                 <f.column size={3}>
                   <f.input model={property}
                            attrName="name"
-                           validate={true}
+                           validate
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
                            placeholder="Property Name" />
                 </f.column>
@@ -64,7 +64,7 @@ const PropertiesConfigWidget = {
                            onModelUpdate={vnode.state.changed.bind(vnode.state)}
                            placeholder="XPath" />
                 </f.column>
-                <f.column size={1} largeSize={3} end={true}>
+                <f.column size={1} largeSize={3} end>
                   {vnode.state.removeLink.call(vnode.state, property)}
                 </f.column>
               </f.row>

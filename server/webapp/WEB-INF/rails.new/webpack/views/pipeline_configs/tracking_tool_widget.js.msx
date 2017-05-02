@@ -41,7 +41,7 @@ const TrackingToolViews = {
                        <f.tooltip tooltip={{content: <tt.trackingTool.mingle.baseUrl callback={model.baseUrl} />}} model={model} attrName="baseUrl" />
                      ]}
                      type="url"
-                     validate={true} />
+                     validate />
           </f.column>
         </f.row>
 
@@ -53,7 +53,7 @@ const TrackingToolViews = {
                        <span class="required">Project identifier</span>,
                        <f.tooltip tooltip={{content: <tt.trackingTool.mingle.projectIdentifier callback={model.projectIdentifier} />}} model={model} attrName="projectIdentifier" />
                      ]}
-                     validate={true} />
+                     validate />
           </f.column>
         </f.row>
 
@@ -65,7 +65,7 @@ const TrackingToolViews = {
                        "MQL grouping conditions",
                        <f.tooltip tooltip={{content: <tt.trackingTool.mingle.mqlGroupingConditions callback={model.mqlGroupingConditions} />}} model={model} attrName="mqlGroupingConditions" />
                      ]}
-                     validate={true} />
+                     validate />
           </f.column>
         </f.row>
       </div>
@@ -85,7 +85,7 @@ const TrackingToolViews = {
                        <span class="required">Regular expression</span>,
                        <f.tooltip tooltip={{content: <tt.trackingTool.generic.regex callback={model.regex} />, size: "large"}} model={model} attrName="regex" />
                      ]}
-                     validate={true} />
+                     validate />
           </f.column>
         </f.row>
         <f.row collapse>
@@ -97,7 +97,7 @@ const TrackingToolViews = {
                        <span class="required">URL pattern</span>,
                        <f.tooltip tooltip={{content: <tt.trackingTool.generic.urlPattern callback={model.urlPattern} />, size: "large"}} model={model} attrName="urlPattern" />
                      ]}
-                     validate={true} />
+                     validate />
           </f.column>
         </f.row>
       </div>
@@ -139,7 +139,7 @@ const TrackingToolWidget = {
                    class="tracking-tool accordion-inner">
         <div>
           <f.row>
-            <f.column size={4} end={true}>
+            <f.column size={4} end>
               {_.map(trackingTools, (value, key) => {
                 return (
                   <span>
@@ -157,7 +157,7 @@ const TrackingToolWidget = {
 
           <f.row
             class={`tracking-tool tracking-tool-${  vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'}`}>
-            <f.column size={6} end={true}>
+            <f.column size={6} end>
               {TrackingToolViews[vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'](vnode.attrs.trackingTool)}
             </f.column>
           </f.row>

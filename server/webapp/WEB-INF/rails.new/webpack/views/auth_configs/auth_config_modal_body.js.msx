@@ -93,7 +93,7 @@ const AuthConfigModalBody = {
             <f.column largeSize={4}>
               <f.input model={vnode.attrs.authConfig()}
                        attrName="id"
-                       validate={true}
+                       validate
                        label={[
                          <span class="required">Id</span>,
                          <f.tooltip type="info" content={authConfigIdDisabledMessage} />
@@ -101,7 +101,7 @@ const AuthConfigModalBody = {
                        disabled={vnode.attrs.authConfig().etag()}
                        key="auth-config-id" />
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.select model={vnode.attrs.authConfig()}
                         attrName="pluginId"
                         label="Plugin Id"

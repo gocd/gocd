@@ -99,7 +99,7 @@ const PluginRoleModalBody = {
             <f.column largeSize={4}>
               <f.input model={role}
                        attrName="name"
-                       validate={true}
+                       validate
                        label={[
                          <span class="required">Role name</span>,
                          <f.tooltip type="info" content={roleNameDisabledMessage} />
@@ -107,13 +107,13 @@ const PluginRoleModalBody = {
                        disabled={vnode.attrs.role().etag()}
                        key="role-name"/>
             </f.column>
-            <f.column size={7} largeSize={5} end={true}>
+            <f.column size={7} largeSize={5} end>
               <f.select model={role}
                         attrName="authConfigId"
                         label={<span class="required">Auth Config Id</span>}
                         items={vnode.state.authConfigItems()}
                         onModelUpdate={vnode.state.changeAuthConfig.bind(vnode.state)}
-                        validate={true} />
+                        validate />
               </f.column>
           </f.row>
         </f.row>

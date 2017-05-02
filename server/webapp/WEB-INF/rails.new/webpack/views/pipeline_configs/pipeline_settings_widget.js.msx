@@ -51,7 +51,7 @@ const PipelineSettingsWidget = {
                          <span class="required">Label template</span>,
                          <f.tooltip tooltip={{content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>, size: "large"}} model={pipeline} attrName="labelTemplate" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
             <f.column class="align-with-control" size={4} largeSize={3}>
               <f.checkbox model={pipeline}
@@ -62,7 +62,7 @@ const PipelineSettingsWidget = {
                           ]} />
             </f.column>
 
-            <f.column size={4} largeSize={5} end={true} class="pipeline-schedule">
+            <f.column size={4} largeSize={5} end class="pipeline-schedule">
               <label>
                 {pipelineAutoScheduleMessage}
                 <f.tooltip tooltip={{
@@ -80,9 +80,9 @@ const PipelineSettingsWidget = {
                          "Cron timer specification",
                          <f.tooltip tooltip={{content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>, size: "large"}} model={pipeline.timer()} attrName="spec" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
-            <f.column size={3} end={true} class="align-with-control">
+            <f.column size={3} end class="align-with-control">
               <f.checkbox model={pipeline.timer()}
                           attrName='onlyOnChanges'
                           label={[

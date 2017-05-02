@@ -45,14 +45,14 @@ const TaskBasicViews = {
                          <f.tooltip tooltip={{content: tt.task.ant.target, size: "small"}} model={task} attrName="target" />
                        ]} />
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={task}
                        attrName="workingDirectory"
                        label={[
                          "Working directory",
                          <f.tooltip tooltip={{content: tt.task.ant.workingDirectory, size: "small"}} model={task} attrName="workingDirectory" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
           </f.row>
         </div>
@@ -82,19 +82,19 @@ const TaskBasicViews = {
                          <f.tooltip tooltip={{content: tt.task.nant.target}} model={task} attrName="target" />
                        ]} />
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={task}
                        attrName="workingDirectory"
                        label={[
                          "Working directory",
                          <f.tooltip tooltip={{content: tt.task.nant.workingDirectory, size: "small"}} model={task} attrName="workingDirectory" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
 
           </f.row>
           <f.row>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={task}
                        attrName="nantPath"
                        label={[
@@ -145,16 +145,16 @@ const TaskBasicViews = {
                              <span class="required">Command</span>,
                              <f.tooltip tooltip={{content: tt.task.custom.command, size: "small"}} model={task} attrName="command" />
                            ]}
-                           validate={true} />
+                           validate />
                 </f.column>
-                <f.column size={12} end={true}>
+                <f.column size={12} end>
                   <f.input model={task}
                            attrName="workingDirectory"
                            label={[
                              "Working directory",
                              <f.tooltip tooltip={{content: tt.task.custom.workingDirectory}} model={task} attrName="workingDirectory" />
                            ]}
-                           validate={true} />
+                           validate />
                 </f.column>
               </f.row>
             </f.column>
@@ -188,14 +188,14 @@ const TaskBasicViews = {
                          <f.tooltip tooltip={{content: tt.task.rake.target}} model={task} attrName="target" />
                        ]} />
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={task}
                        attrName="workingDirectory"
                        label={[
                          "Working directory",
                          <f.tooltip tooltip={{content: tt.task.rake.workingDirectory, size: "small"}} model={task} attrName="workingDirectory" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
           </f.row>
         </div>
@@ -224,16 +224,16 @@ const TaskBasicViews = {
                          <span class="required">Stage</span>,
                          <f.tooltip tooltip={{content: tt.task.fetchArtifacts.stage, size: "small"}} model={task} attrName="stage" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={task}
                        attrName="job"
                        label={[
                          <span class="required">Job</span>,
                          <f.tooltip tooltip={{content: tt.task.fetchArtifacts.job, size: "small"}} model={task} attrName="job" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
           </f.row>
           <f.row>
@@ -244,7 +244,7 @@ const TaskBasicViews = {
                          <span class="required">Source</span>,
                          <f.tooltip tooltip={{content: tt.task.fetchArtifacts.source}} model={task} attrName="source" />
                        ]}
-                       validate={true} />
+                       validate />
             </f.column>
             <f.column largeSize={4}>
               <f.input model={task}
@@ -254,7 +254,7 @@ const TaskBasicViews = {
                          <f.tooltip tooltip={{content: tt.task.fetchArtifacts.destination}} model={task} attrName="destination" />
                        ]} />
             </f.column>
-            <f.column size={3} end={true} class="align-with-control">
+            <f.column size={3} end class="align-with-control">
               <f.checkbox model={task}
                           attrName="isSourceAFile"
                           label="Source is a file"

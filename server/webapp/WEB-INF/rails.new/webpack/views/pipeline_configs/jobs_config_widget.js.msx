@@ -95,38 +95,38 @@ let JobTimeout = {
 
         <f.row>
           <f.column size={12}>
-            <input type='radio'
-                   name={radioName}
-                   id={`${radioName  }-never`}
-                   checked={job.isTimeoutNever()}
-                   onchange={job.timeout.bind(job, 'never')}/>
-            <label for={`${radioName  }-never`}>Never</label>
-            <input type='radio'
-                   name={radioName}
-                   id={`${radioName  }-default`}
-                   checked={job.isTimeoutDefault()}
-                   onchange={job.timeout.bind(job, null)}/>
-            <label for={`${radioName  }-default`}>Default</label>
+            <label>
+              <input type="radio"
+                     name={radioName}
+                     id={`${radioName  }-never`}
+                     checked={job.isTimeoutNever()}
+                     onchange={job.timeout.bind(job, "never")} />
+              Never
+            </label>
+            <label>
+              <input type="radio"
+                     name={radioName}
+                     id={`${radioName  }-default`}
+                     checked={job.isTimeoutDefault()}
+                     onchange={job.timeout.bind(job, null)} />
+              Default
+            </label>
 
-            <input type='radio'
-                   name={radioName}
-                   id={`${radioName  }-custom`}
-                   checked={!(job.isTimeoutNever() || job.isTimeoutDefault())}
-                   onchange={job.timeout.bind(job, '')}/>
-            <label for={`${radioName  }-custom`}>
+            <label>
+              <input type="radio"
+                     name={radioName}
+                     id={`${radioName  }-custom`}
+                     checked={!(job.isTimeoutNever() || job.isTimeoutDefault())}
+                     onchange={job.timeout.bind(job, "")} />
               Cancel after
-              <span style={{display: 'inline-table'}}>
-              {m.trust('&nbsp;')}
-                <input type='number'
-                       min="1"
-                       style={{display: 'inline', width: '60px'}} size={3}
-                       oninput={m.withAttr('value', job.timeout)}
-                       class={timeoutError ? 'error' : ''}
-                       value={(!(job.isTimeoutNever() || job.isTimeoutDefault())) ? job.timeout() : null}/>
-                {m.trust('&nbsp;')}
-                minute(s) of inactivity
-                {timeoutError}
-                </span>
+              <input type="number"
+                     min="1"
+                     style={{display: "inline", width: "60px"}} size={3}
+                     oninput={m.withAttr("value", job.timeout)}
+                     class={timeoutError && "error"}
+                     value={(!(job.isTimeoutNever() || job.isTimeoutDefault())) ? job.timeout() : null} />
+              minute(s) of inactivity
+              {timeoutError}
             </label>
           </f.column>
         </f.row>
@@ -172,45 +172,42 @@ let RunOnAgent = {
 
         <f.row>
           <f.column size={12}>
-            <input type='radio'
-                   name={radioName}
-                   id={`${radioName  }-one`}
-                   checked={job.isRunOnOneAgent()}
-                   onchange={job.runInstanceCount.bind(job, null)}/>
-            <label for={`${radioName  }-one`}>Run on one agent</label>
+            <label>
+              <input type="radio"
+                     name={radioName}
+                     id={`${radioName  }-one`}
+                     checked={job.isRunOnOneAgent()}
+                     onchange={job.runInstanceCount.bind(job, null)} />
+              Run on one agent
+            </label>
 
-            <input type='radio'
-                   name={radioName}
-                   class={requiresElasticAgent ? 'disabled-radio' : ''}
-                   id={`${radioName  }-all`}
-                   disabled={requiresElasticAgent}
-                   checked={job.isRunOnAllAgents()}
-                   onchange={job.runInstanceCount.bind(job, 'all')}/>
-            <label for={`${radioName  }-all`}>
+            <label>
+              <input type="radio"
+                     name={radioName}
+                     class={requiresElasticAgent && "disabled-radio"}
+                     id={`${radioName  }-all`}
+                     disabled={requiresElasticAgent}
+                     checked={job.isRunOnAllAgents()}
+                     onchange={job.runInstanceCount.bind(job, 'all')} />
               Run on all agents
               {runOnAllAgentsMessage}
             </label>
 
-            <input type='radio'
-                   name={radioName}
-                   id={`${radioName  }-custom`}
-                   checked={!(job.isRunOnOneAgent() || job.isRunOnAllAgents())}
-                   onchange={job.runInstanceCount.bind(job, '')}/>
-            <label for={`${radioName  }-custom`}>
+            <label>
+              <input type="radio"
+                     name={radioName}
+                     id={`${radioName  }-custom`}
+                     checked={!(job.isRunOnOneAgent() || job.isRunOnAllAgents())}
+                     onchange={job.runInstanceCount.bind(job, "")} />
               Run
-              <span style={{display: 'inline-table'}}>
-                {m.trust('&nbsp;')}
-                <input type='number'
-                       min="1"
-                       style={{display: 'inline', width: '60px'}} size={3}
-                       value={!(job.isRunOnOneAgent() || job.isRunOnAllAgents()) ? job.runInstanceCount() : null}
-                       class={runInstanceCounteError ? 'error' : ''}
-                       oninput={m.withAttr('value', job.runInstanceCount)}/>
-                {m.trust('&nbsp;')}
-                instances of job
-                {runInstanceCounteError}
-              </span>
-
+              <input type="number"
+                     min="1"
+                     style={{display: "inline", width: "60px"}} size={3}
+                     value={!(job.isRunOnOneAgent() || job.isRunOnAllAgents()) ? job.runInstanceCount() : null}
+                     class={runInstanceCounteError && "error"}
+                     oninput={m.withAttr("value", job.runInstanceCount)}/>
+              instances of job
+              {runInstanceCounteError}
             </label>
           </f.column>
         </f.row>
@@ -260,7 +257,7 @@ const JobSettingsWidget = {
             <f.input model={job}
                      attrName="name"
                      label={<span class="required">Name</span>}
-                     validate={true} />
+                     validate />
           </f.column>
         </f.row>
         <f.row>
@@ -276,7 +273,7 @@ const JobSettingsWidget = {
                      onremove={destroyAutoComplete("resources")}
                      disabled={disableResourceTextbox} />
           </f.column>
-          <f.column size={4} end={true}>
+          <f.column size={4} end>
             <f.input model={job}
                      attrName="elasticProfileId"
                      label={[

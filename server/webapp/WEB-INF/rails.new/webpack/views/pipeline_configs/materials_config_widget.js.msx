@@ -70,7 +70,7 @@ let UrlField = {
         <f.input model={vnode.attrs.material}
                  attrName="url"
                  label={<span class="required">URL</span>}
-                 validate={true}
+                 validate
                  type="url" />
       </f.column>
     );
@@ -99,7 +99,7 @@ let DestinationField = {
                    "Destination",
                    <f.tooltip tooltip={{content: tt.material.destination, size: "small"}} model={vnode.attrs.material} attrName="destination" />
                  ]}
-                 validate={true} />
+                 validate />
       </f.column>
     );
   }
@@ -112,7 +112,7 @@ let NameField = {
       <f.column largeSize={4}>
         <f.input model={vnode.attrs.material}
                  attrName="name"
-                 validate={true}
+                 validate
                  label={[
                    "Name",
                    <f.tooltip tooltip={{content: tt.material.name, size: "small"}} model={vnode.attrs.material} attrName="name" />
@@ -137,7 +137,7 @@ let BranchField = {
 let AutoUpdateField = {
   view (vnode) {
     return (
-      <f.column class="align-with-control" size={3} end={true}>
+      <f.column class="align-with-control" size={3} end>
         <f.checkbox model={vnode.attrs.material}
                     attrName='autoUpdate'
                     label="Auto update" />
@@ -215,7 +215,7 @@ let MaterialViews = {
             <UsernameField material={material}/>
             <PasswordField model={material}
                            attrName='passwordValue'/>
-            <f.column class="align-with-control" size={3} end={true}>
+            <f.column class="align-with-control" size={3} end>
               <f.checkbox type="checkbox"
                           model={material}
                           attrName='checkExternals'
@@ -245,7 +245,7 @@ let MaterialViews = {
           </f.row>
           <f.row>
             <BranchField material={material}/>
-            <f.column class="align-with-control" size={3} end={true}>
+            <f.column class="align-with-control" size={3} end>
               <f.checkbox model={vnode.attrs.material}
                           attrName='shallowClone'
                           label="Shallow clone (recommended for large repositories)" />
@@ -292,7 +292,7 @@ let MaterialViews = {
               <f.input model={material}
                        attrName="port"
                        label={<span class="required">Server and Port</span>}
-                       validate={true} />
+                       validate />
             </f.column>
             <AutoUpdateField material={material}/>
           </f.row>
@@ -306,9 +306,9 @@ let MaterialViews = {
               <f.textarea model={material}
                           attrName="view"
                           label={<span class="required">View</span>}
-                          validate={true} />
+                          validate />
             </f.column>
-            <f.column class="align-with-control" size={3} end={true}>
+            <f.column class="align-with-control" size={3} end>
               <f.checkbox name="material[use_tickets]"
                           model={material}
                           attrName='useTickets'
@@ -339,11 +339,11 @@ let MaterialViews = {
             <f.column largeSize={4}>
               <f.input model={material} attrName="domain" label="Domain"/>
             </f.column>
-            <f.column largeSize={4} end={true}>
+            <f.column largeSize={4} end>
               <f.input model={material}
                        attrName="projectPath"
                        label={<span class="required">Project path</span>}
-                       validate={true} />
+                       validate />
             </f.column>
           </f.row>
           <f.row>
@@ -351,11 +351,11 @@ let MaterialViews = {
               <f.input model={material}
                        attrName="username"
                        label={<span class="required">Username</span>}
-                       validate={true} />
+                       validate />
             </f.column>
             <PasswordField model={material}
                            attrName='passwordValue'
-                           end={true}/>
+                           end/>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -444,7 +444,7 @@ let MaterialTypeSelector = {
             label='Add a new material of type'
             items={items} />
         </f.column>
-        <f.column size={2} end={true}>
+        <f.column size={2} end>
           <f.link class='add-button button'
                   onclick={vnode.attrs.createMaterial.bind(vnode.state, vnode.state.selected)}>Add
           </f.link>

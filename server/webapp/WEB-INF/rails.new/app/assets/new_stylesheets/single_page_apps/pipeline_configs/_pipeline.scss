@@ -189,6 +189,18 @@
   padding-left: 3px;
 }
 
+
+/* legacy SPA styles; TODO: remove when new quick edit becomes default again */
+.has-tooltip {
+  display: inline;
+}
+
+.asterisk {
+  color:        #c00;
+  padding-left: 3px;
+}
+/* end legacy SPA styles */
+
 .toggle-old-view {
   display:       inline-block;
   margin:        0 0 0 10px;

@@ -90,23 +90,24 @@ const AuthConfigModalBody = {
         <f.row collapse={true}>
           {errorMessage}
           <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
-            <f.inputWithLabel model={vnode.attrs.authConfig()}
-                              attrName="id"
-                              validate="true"
-                              isRequired="true"
-                              disabled={vnode.attrs.authConfig().etag()}
-                              message={authConfigIdDisabledMessage}
-                              label="Id"
-                              key="auth-config-id"/>
-
-            <f.select model={vnode.attrs.authConfig()}
-                      attrName='pluginId'
-                      label='Plugin Id'
-                      onchange={vnode.state.pluginIdChange.bind(vnode.state)}
-                      items={vnode.state.pluginInfoItems()}
-                      largeSize={4}
-                      size={6}
-                      end={"true"}/>
+            <f.column largeSize={4}>
+              <f.input model={vnode.attrs.authConfig()}
+                       attrName="id"
+                       validate={true}
+                       label={[
+                         <span class="required">Id</span>,
+                         <f.tooltip type="info" content={authConfigIdDisabledMessage} />
+                       ]}
+                       disabled={vnode.attrs.authConfig().etag()}
+                       key="auth-config-id" />
+            </f.column>
+            <f.column largeSize={4} end={true}>
+              <f.select model={vnode.attrs.authConfig()}
+                        attrName="pluginId"
+                        label="Plugin Id"
+                        items={vnode.state.pluginInfoItems()}
+                        onModelUpdate={vnode.state.pluginIdChange.bind(vnode.state)} />
+            </f.column>
           </f.row>
         </f.row>
 

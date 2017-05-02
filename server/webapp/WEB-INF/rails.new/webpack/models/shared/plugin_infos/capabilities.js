@@ -20,14 +20,12 @@ const Capabilities = function (data) {
   this.canSearch           = Stream(data.canSearch);
   this.supportedAuthType   = Stream(data.supportedAuthType);
   this.canAuthorize        = Stream(data.canAuthorize);
-  this.canVerifyConnection = Stream(data.canVerifyConnection);
 };
 
 Capabilities.fromJSON = (data = {}) => new Capabilities({
   canSearch:           data.can_search,
   supportedAuthType:   data.supported_auth_type,
   canAuthorize:        data.can_authorize,
-  canVerifyConnection: data.can_verify_connection
 });
 
 module.exports = Capabilities;

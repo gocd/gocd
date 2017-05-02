@@ -167,10 +167,11 @@ let f = {
         contentAfter.push(validationErrors);
       }
 
-      const element = [<input {...args} />, contentAfter];
-      return _.isEmpty(label) ? element : <label {...labelAttrs}>
+      const element = <input {...args} />;
+      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
           {label}
           {element}
+          {contentAfter}
         </label>;
     }
   },
@@ -199,10 +200,11 @@ let f = {
         contentAfter.push(validationErrors);
       }
 
-      const element = [<textarea {...args}></textarea>, contentAfter];
-      return _.isEmpty(label) ? element : <label {...labelAttrs}>
+      const element = <textarea {...args}></textarea>;
+      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
           {label}
           {element}
+          {contentAfter}
         </label>;
     }
   },
@@ -242,18 +244,19 @@ let f = {
         contentAfter.push(validationErrors);
       }
 
-      const selectElement = [<select {...args}>{
+      const element = <select {...args}>{
         _.map(items, (item) => {
           // item may be a string or an object
           const text = item.text || item;
           const id = item.id || text;
           return <option value={id} selected={selected === id}>{text}</option>;
         })
-      }</select>, contentAfter];
+      }</select>;
 
-      return _.isEmpty(label) ? selectElement : <label {...labelAttrs}>
+      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
         {label}
-        {selectElement}
+        {element}
+        {contentAfter}
       </label>;
     }
   },

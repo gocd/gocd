@@ -440,7 +440,7 @@ describe("value_stream_map_renderer", function () {
         assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #current ul ul").find(".stage_bar").length);
         assertEquals("stage details for pipeline instances are not populated correctly.", "/go/pipelines/current/1/defaultStage/1",
             jQuery("#vsm-container #current ul ul li.stage_bar.Passed a").attr("href"));
-        assertEquals("stage hover message is not correctly populated", "defaultStage: took 10 seconds", jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title'));
+        assertEquals("stage hover message is not correctly populated", "defaultStage: took 00:00:10", jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title'));
         assertEquals("stage details for pipeline instances are not populated correctly.", 1, jQuery("#vsm-container #current ul ul li.stage_bar.Unknown > span").length);
     });
 

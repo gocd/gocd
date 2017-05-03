@@ -26,10 +26,7 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.ModifiedAction;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -428,8 +425,10 @@ public class ScheduleTestUtil {
             public Object doInTransaction(TransactionStatus status) {
                 for (int i = 0; i < revisions.length; i++) {
                     String revision = revisions[i];
+                    Modification modification = new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision);
+                    modification.setModifiedFiles(Arrays.asList(new ModifiedFile("build.xml", "", ModifiedAction.modified)));
                     materialRepository.saveMaterialRevision(new MaterialRevision(material,
-                            new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision)));
+                            modification));
                 }
                 return null;
             }

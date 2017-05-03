@@ -11,6 +11,3 @@ WORKDIR /root/work
 VOLUME /root/.m2
 VOLUME /root/.gradle
 
-ENTRYPOINT '/root/work/gradlew'
-
-CMD ['tasks']

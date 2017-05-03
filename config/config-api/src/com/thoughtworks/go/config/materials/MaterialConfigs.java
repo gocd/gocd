@@ -122,6 +122,15 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return null;
     }
 
+    public MaterialConfig getByNonUniqueFingerPrint(String fingerPrint) {
+        for (MaterialConfig material : this) {
+            if (material.getFingerprint().equals(fingerPrint)) {
+                return material;
+            }
+        }
+        return null;
+    }
+
     // TODO: Probably will go away when filter.shouldIgnore is handled.
     public MaterialConfig get(MaterialConfig other) {
         for (MaterialConfig material : this) {

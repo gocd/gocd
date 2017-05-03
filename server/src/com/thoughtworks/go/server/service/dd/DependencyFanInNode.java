@@ -17,11 +17,16 @@
 package com.thoughtworks.go.server.service.dd;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.util.Pair;
@@ -42,6 +47,7 @@ public class DependencyFanInNode extends FanInNode {
     StageIdentifier currentRevision;
     private Map<StageIdentifier, Set<FaninScmMaterial>> stageIdentifierScmMaterial = new LinkedHashMap<>();
     public Set<FanInNode> children = new HashSet<>();
+    private MaterialConfigs pipelineMaterials;
 
     public Set<? extends FaninScmMaterial> stageIdentifierScmMaterialForCurrentRevision() {
         return stageIdentifierScmMaterial.get(currentRevision);
@@ -51,8 +57,9 @@ public class DependencyFanInNode extends FanInNode {
         NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED, NEED_MORE_REVISIONS
     }
 
-    DependencyFanInNode(MaterialConfig material) {
+    DependencyFanInNode(MaterialConfig material, MaterialConfigs pipelineMaterials) {
         super(material);
+        this.pipelineMaterials = pipelineMaterials;
     }
 
     public void populateRevisions(CaseInsensitiveString pipelineName, FanInGraphContext context) {
@@ -117,7 +124,7 @@ public class DependencyFanInNode extends FanInNode {
         int batchOffset = currentCount;
         for (int i = 1; i <= context.revBatchCount; ++i) {
             final Pair<StageIdentifier, List<FaninScmMaterial>> sIdScmPair = getRevisionNthFor(i + batchOffset, context);
-            if (!validateAllScmRevisionsAreSameWithinAFingerprint(sIdScmPair)) {
+            if (!validateAllScmRevisionsAreSameWithinAFingerprint(sIdScmPair, context)) {
                 ++currentCount;
                 if (!hasMoreInstances()) {
                     break;
@@ -156,13 +163,21 @@ public class DependencyFanInNode extends FanInNode {
         return new Pair<>(dependentStageIdentifier, scmMaterials);
     }
 
-    private boolean validateAllScmRevisionsAreSameWithinAFingerprint(Pair<StageIdentifier, List<FaninScmMaterial>> pIdScmPair) {
+    private boolean validateAllScmRevisionsAreSameWithinAFingerprint(Pair<StageIdentifier, List<FaninScmMaterial>> pIdScmPair, FanInGraphContext context) {
         if (pIdScmPair == null) {
             return false;
         }
+        StageIdentifier stageId = pIdScmPair.first();
+        PipelineInstanceModel pipeline = context.pipelineDao.findPipelineHistoryByNameAndCounter(stageId.getPipelineName(), stageId.getPipelineCounter());
+        MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         Map<FaninScmMaterial, PipelineTimelineEntry.Revision> versionsByMaterial = new HashMap<>();
         List<FaninScmMaterial> scmMaterialList = pIdScmPair.last();
         for (final FaninScmMaterial scmMaterial : scmMaterialList) {
+            MaterialRevision actualRevision = materialRevisions.findRevisionForFingerPrint(scmMaterial.fingerprint);
+            if (actualRevision != null &&
+                    !this.changeExistsInAnyOfChildren(actualRevision.getModifications(), scmMaterial.fingerprint)) {
+                continue;
+            }
             PipelineTimelineEntry.Revision revision = versionsByMaterial.get(scmMaterial);
             if (revision == null) {
                 versionsByMaterial.put(scmMaterial, scmMaterial.revision);
@@ -276,5 +291,46 @@ public class DependencyFanInNode extends FanInNode {
             stageIdScmPairs.add(pIdScmPair);
         }
         return stageIdScmPairs;
+    }
+
+    public boolean changeExistsInNodeOrChildren(MaterialRevisions materialRevisions, String scmFingerprint) {
+        MaterialRevision revision = materialRevisions.findRevisionForFingerPrint(scmFingerprint);
+        return revision == null || changeExistsInNodeOrChildren(revision.getModifications(), scmFingerprint);
+    }
+
+    public boolean changeExistsInNodeOrChildren(Modifications modifications, String scmFingerprint) {
+        MaterialConfig materialConfig = pipelineMaterials.getByNonUniqueFingerPrint(scmFingerprint);
+        boolean changeExistsForNode = materialConfig == null || !modifications.shouldBeIgnoredByFilterIn(materialConfig);
+        return changeExistsForNode || changeExistsInAnyOfChildren(modifications, scmFingerprint);
+    }
+
+    public boolean changeExistsInAnyOfChildren(Modifications modifications, String scmFingerprint) {
+        for (FanInNode child: children) {
+            if (child instanceof DependencyFanInNode &&
+                    ((DependencyFanInNode)child).changeExistsInNodeOrChildren(modifications, scmFingerprint)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public DependencyFanInNode childByPipelineName(DependencyFanInNode node, CaseInsensitiveString pipelineName) {
+        return childByPipelineName(node, pipelineName, new ArrayList<>());
+    }
+
+    private DependencyFanInNode childByPipelineName(DependencyFanInNode node, CaseInsensitiveString pipelineName, List<DependencyFanInNode> visitedNodes) {
+        if (((DependencyMaterialConfig) node.materialConfig).getPipelineName().equals(pipelineName)) {
+            return node;
+        }
+        for (FanInNode child: node.children) {
+            if (child instanceof DependencyFanInNode && !visitedNodes.contains(child)) {
+                visitedNodes.add(node);
+                DependencyFanInNode childMatchingPipelineName = childByPipelineName((DependencyFanInNode) child, pipelineName, visitedNodes);
+                if (childMatchingPipelineName != null) {
+                    return childMatchingPipelineName;
+                }
+            }
+        }
+        return null;
     }
 }

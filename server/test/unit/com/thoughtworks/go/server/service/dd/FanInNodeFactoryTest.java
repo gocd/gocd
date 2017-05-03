@@ -16,19 +16,36 @@
 
 package com.thoughtworks.go.server.service.dd;
 
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FanInNodeFactoryTest {
+
+    @Mock
+    private CruiseConfig cruiseConfig;
+
+    @Before
+    public void setup() {
+        cruiseConfig = mock(CruiseConfig.class);
+    }
+
     @Test
     public void shouldCreateRootNodeForScmMaterial() {
         MaterialConfig material = MaterialConfigsMother.svnMaterialConfig();
-        FanInNode node = FanInNodeFactory.create(material);
+        FanInNode node = FanInNodeFactory.create(material, cruiseConfig);
         assertThat(node instanceof RootFanInNode, is(true));
         assertThat(node.materialConfig, is(material));
     }
@@ -36,7 +53,7 @@ public class FanInNodeFactoryTest {
     @Test
     public void shouldCreateRootNodeForPackageMaterial() {
         MaterialConfig material = MaterialConfigsMother.packageMaterialConfig();
-        FanInNode node = FanInNodeFactory.create(material);
+        FanInNode node = FanInNodeFactory.create(material, cruiseConfig);
         assertThat(node instanceof RootFanInNode, is(true));
         assertThat(node.materialConfig, is(material));
     }
@@ -44,7 +61,7 @@ public class FanInNodeFactoryTest {
     @Test
     public void shouldCreateRootNodeForPluggableSCMMaterial() {
         MaterialConfig material = MaterialConfigsMother.pluggableSCMMaterialConfig();
-        FanInNode node = FanInNodeFactory.create(material);
+        FanInNode node = FanInNodeFactory.create(material, cruiseConfig);
         assertThat(node instanceof RootFanInNode, is(true));
         assertThat(node.materialConfig, is(material));
     }
@@ -52,7 +69,10 @@ public class FanInNodeFactoryTest {
     @Test
     public void shouldCreateDependencyNodeForScmMaterial() {
         MaterialConfig material = MaterialConfigsMother.dependencyMaterialConfig();
-        FanInNode node = FanInNodeFactory.create(material);
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        when(pipelineConfig.materialConfigs()).thenReturn(new MaterialConfigs());
+        when(cruiseConfig.pipelineConfigByName(((DependencyMaterialConfig)material).getPipelineName())).thenReturn(pipelineConfig);
+        FanInNode node = FanInNodeFactory.create(material, cruiseConfig);
         assertThat(node instanceof DependencyFanInNode, is(true));
         assertThat(node.materialConfig, is(material));
     }
@@ -60,7 +80,7 @@ public class FanInNodeFactoryTest {
     @Test
     public void shouldNotCreateNodeForUnregisteredMaterials() {
         try {
-            FanInNodeFactory.create(new SomeRandomMaterialConfig());
+            FanInNodeFactory.create(new SomeRandomMaterialConfig(), cruiseConfig);
             fail("should have failed");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Not a valid material type"));

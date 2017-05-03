@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require "spec_helper"
 
 describe ApiV1::NotificationFiltersController do
   include ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
@@ -36,12 +36,12 @@ describe ApiV1::NotificationFiltersController do
 
       get_with_api_header(:index)
       expected = [
-        {"pipelineName" => "pipeline1", "stageName" => "defaultStage", "event" => "Fails", "id" => 1, "myCheckin" => true},
-        {"pipelineName" => "[Any Pipeline]", "stageName" => "[Any Stage]", "event" => "Breaks", "id" => 2, "myCheckin" => false}
+        {"pipeline_name" => "pipeline1", "stage_name" => "defaultStage", "event" => "Fails", "id" => 1, "match_commits" => true},
+        {"pipeline_name" => "[Any Pipeline]", "stage_name" => "[Any Stage]", "event" => "Breaks", "id" => 2, "match_commits" => false}
       ].sort_by {|h| h["id"]}
 
       assert_equal 200, response.status
-      assert_equal expected, JSON.parse(response.body).sort_by {|h| h["id"]}
+      assert_equal expected, JSON.parse(response.body)["filters"].sort_by {|h| h["id"]}
     end
   end
 
@@ -75,11 +75,12 @@ describe ApiV1::NotificationFiltersController do
   end
 
   describe :destroy do
-    it("returns destroys filter") do
+    it("destroys a filter") do
       @user.stub(:notificationFilters).and_return([]) # really don't care
       @user_service.should_receive(:removeNotificationFilter).with(@user.id, 5)
 
       delete_with_api_header(:destroy, id: "5")
+      assert_equal 200, response.status
     end
   end
 

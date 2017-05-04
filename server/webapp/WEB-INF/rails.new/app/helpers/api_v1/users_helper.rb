@@ -20,7 +20,7 @@ module ApiV1
     def save_user(result, user)
       # sending empty arrays through JSON are deserialized to nil
       # yay rails. https://github.com/rails/rails/pull/8862
-      params["checkin_aliases"] = [] if params.has_key?("checkin_aliases") && params["checkin_aliases"].nil?
+      params["checkin_aliases"] = [] if params.has_key?("checkin_aliases") && params["checkin_aliases"].blank?
 
       checkin_aliases = if params[:checkin_aliases].is_a?(Array)
                           params[:checkin_aliases].join(',')

@@ -19,11 +19,10 @@
   const m      = require("mithril"),
     Stream     = require("mithril/stream"),
     _          = require("lodash"),
-    $          = require("jquery"),
     CrudMixins = require("models/mixins/crud_mixins");
 
   function splitter(string) {
-    return _.compact(_.map(string.split(","), $.trim));
+    return _.compact(_.map(string.split(","), _.trim));
   }
 
   function EmailSettings(resourceUrl, errors) {
@@ -50,7 +49,7 @@
     };
 
     this.load = () => {
-      this.refresh().then($.noop, $.noop).always(() => m.redraw());
+      this.refresh().always(() => m.redraw());
     };
 
     this.reset = () => {

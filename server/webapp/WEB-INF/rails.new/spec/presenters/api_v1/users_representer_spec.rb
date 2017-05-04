@@ -23,10 +23,11 @@ describe ApiV1::UsersRepresenter do
     presenter   = ApiV1::UsersRepresenter.new([user])
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc)
+    expect(actual_json).to have_links(:self, :doc, :current_user)
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/users')
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#users')
+    expect(actual_json).to have_link(:current_user).with_url('http://test.host/api/current_user')
 
     actual_json.fetch(:_embedded).should == { :users => [ApiV1::UserRepresenter.new(user).to_hash(url_builder: UrlBuilder.new)] }
   end

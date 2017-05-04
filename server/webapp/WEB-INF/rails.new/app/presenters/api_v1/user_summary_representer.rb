@@ -23,6 +23,10 @@ module ApiV1
       'https://api.gocd.io/#users'
     end
 
+    link :current_user do |opts|
+      opts[:url_builder].apiv1_current_user_url
+    end
+
     link :self do |opts|
       opts[:url_builder].apiv1_user_url(login_name: login_name)
     end

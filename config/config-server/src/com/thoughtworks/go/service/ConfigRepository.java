@@ -69,6 +69,7 @@ public class ConfigRepository {
         workingDir = this.systemEnvironment.getConfigRepoDir();
         File configRepoDir = new File(workingDir, ".git");
         gitRepo = new FileRepositoryBuilder().setGitDir(configRepoDir).build();
+        gitRepo.getConfig().setInt("gc", null, "auto", 0);
         git = new Git(gitRepo);
     }
 

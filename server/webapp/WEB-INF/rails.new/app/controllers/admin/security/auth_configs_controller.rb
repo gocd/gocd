@@ -17,7 +17,7 @@
 module Admin
   module Security
     class AuthConfigsController < ::ApplicationController
-      include ApiV1::AuthenticationHelper
+      include AuthenticationHelper
 
       layout 'single_page_app'
       before_action :check_admin_user_and_401

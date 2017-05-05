@@ -60,22 +60,19 @@ def getVersion = { ... args ->
 }
 
 ext.partitionFiles = { Collection originalFiles ->
-  // no partitioning needed!
-  if (!(System.getenv().containsKey('GO_JOB_RUN_COUNT') && System.getenv().containsKey('GO_JOB_RUN_INDEX'))) {
-    project.logger.log(LogLevel.WARN, "You're attempting to partition files without specifying both GO_JOB_RUN_COUNT and GO_JOB_RUN_INDEX.")
-    return originalFiles
-  }
-
-  Integer totalWorkers = System.getenv('GO_JOB_RUN_COUNT').toInteger()
-  Integer currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX').toInteger()
   def files = new LinkedHashSet(originalFiles).sort()
+  def seed = System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
+  def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
+  def currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX')?.toInteger() ?: 1
 
   Integer testsPerBucket = Math.ceil((double) files.size() / totalWorkers)
 
-  rootProject.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket.")
+  rootProject.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket. Using seed ${seed}.")
+  rootProject.logger.quiet("To reproduce the test failure, run with:")
+  rootProject.logger.quiet("PARTITION_SEED=${seed} GO_JOB_RUN_COUNT=${totalWorkers} GO_JOB_RUN_INDEX=${currentWorkerIndex} ./gradlew YOUR_TARGET")
 
   // random shuffle, every agent uses the same seed, so shuffling is predictable
-  Collections.shuffle(files, new Random(System.getenv('GO_PIPELINE_COUNTER').toInteger()))
+  Collections.shuffle(files, new Random(seed))
 
   def allPartitions = files.collate(testsPerBucket)
   allPartitions[currentWorkerIndex - 1]

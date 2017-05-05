@@ -4,16 +4,17 @@
  *  http://github.com/drudru/ansi_up
  */
 (function (factory) {
+    var v;
     if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
+        v = factory(require, exports);
+        if ("undefined" !== typeof v) module.exports = v;
     }
-    else if (typeof define === "function" && define.amd) {
+    else if ("function" === typeof define && define.amd) {
         define(["require", "exports"], factory);
     }
     else {
         var req, exp = {};
-        var v = factory(req, exp);
+        v = factory(req, exp);
         window.AnsiUp = exp.default;
     }
 })(function (require, exports) {
@@ -152,15 +153,15 @@ var AnsiUp = (function () {
         for (var r = 0; r < 6; ++r) {
             for (var g = 0; g < 6; ++g) {
                 for (var b = 0; b < 6; ++b) {
-                    var c = { rgb: [levels[r], levels[g], levels[b]], class_name: 'truecolor' };
-                    this.palette_256.push(c);
+                    var col = { rgb: [levels[r], levels[g], levels[b]], class_name: 'truecolor' };
+                    this.palette_256.push(col);
                 }
             }
         }
         var grey_level = 8;
         for (var i = 0; i < 24; ++i, grey_level += 10) {
-            var c = { rgb: [grey_level, grey_level, grey_level], class_name: 'truecolor' };
-            this.palette_256.push(c);
+            var gry = { rgb: [grey_level, grey_level, grey_level], class_name: 'truecolor' };
+            this.palette_256.push(gry);
         }
     };
     AnsiUp.prototype.old_escape_for_html = function (txt) {
@@ -242,9 +243,9 @@ var AnsiUp = (function () {
                 console.log(chunks);
                 console.log(last_chunk);
             }
-            if ((chunks.length === 2)
-                && (chunks[1] === '')
-                && (chunks[0].slice(-1) === "\x1B")) {
+            if (chunks.length === 2 &&
+                chunks[1] === "" &&
+                chunks[0].slice(-1) === "\x1B") {
                 this._buffer = "\x1B";
                 last_chunk = chunks.shift();
                 chunks.unshift(last_chunk.substr(0, last_chunk.length - 1));

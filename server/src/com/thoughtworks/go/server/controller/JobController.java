@@ -112,7 +112,7 @@ public class JobController {
         Agent agent =  agentService.findAgentObjectByUuid(instance.getAgentUuid());
 
         if (null == agent) {
-            agent = Agent.blankAgent(instance.getAgentUuid());
+            agent = Agent.fromConfig(goConfigService.agentByUuid(instance.getAgentUuid()));
         }
 
         return getModelAndView(instance, agent);

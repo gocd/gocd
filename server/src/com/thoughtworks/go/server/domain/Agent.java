@@ -56,7 +56,7 @@ public class Agent extends PersistentObject {
     }
 
     public static Agent fromConfig(AgentConfig config) {
-        return new Agent(config.getUuid(), "None", config.getHostname(), config.getIpAddress());
+        return new Agent(config.getUuid(), "None", config.getHostNameForDisplay(), config.getIpAddress());
     }
 
     @Deprecated //for hibernate

@@ -193,7 +193,7 @@ public class AgentConfig implements Validatable {
         this.hostName = hostName;
     }
 
-    public String getHostNameForDispaly() {
+    public String getHostNameForDisplay() {
         return this.hostName;
     }
 

@@ -65,8 +65,22 @@ public class WebSocketSessionHandler {
     }
 
     private void send(Message message) {
-        LOG.debug("{} send message: {}", sessionName(), message);
-        session.getRemote().sendBytesByFuture(ByteBuffer.wrap(MessageEncoding.encodeMessage(message)));
+        for (int retries = 1; retries <= systemEnvironment.getWebsocketSendRetryCount(); retries++) {
+            try {
+                LOG.debug("{} attempt {} to send message: {}", sessionName(), retries, message);
+                session.getRemote().sendBytesByFuture(ByteBuffer.wrap(MessageEncoding.encodeMessage(message)));
+                break;
+            } catch (Throwable e) {
+                try {
+                    LOG.debug("{} attempt {} failed to send message: {}.", sessionName(), retries, message);
+                    if (retries == systemEnvironment.getWebsocketSendRetryCount()) {
+                        bomb(e);
+                    }
+                    Thread.sleep(2000L);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
     }
 
     void sendAndWaitForAcknowledgement(Message message) {

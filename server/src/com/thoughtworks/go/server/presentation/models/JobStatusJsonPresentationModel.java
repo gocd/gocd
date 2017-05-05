@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.presentation.models;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.web.JsonView;
@@ -40,12 +41,17 @@ public class JobStatusJsonPresentationModel {
 
     public JobStatusJsonPresentationModel(JobInstance instance, Agent agent, DurationBean durationBean) {
         this.instance = instance;
-        this.agent = agent == null ? Agent.blankAgent(instance.getAgentUuid()) : agent;
-        this.durationBean = durationBean;
-    }
 
-    public JobStatusJsonPresentationModel(JobInstance instance, Agent agent) {
-        this(instance, agent, new DurationBean(instance.getId()));
+        if (null == instance.getAgentUuid()) {
+            agent = Agent.fromConfig(NullAgent.createNullAgent());
+        }
+
+        if (null == agent) {
+            agent = Agent.blankAgent(instance.getAgentUuid());
+        }
+
+        this.agent = agent;
+        this.durationBean = durationBean;
     }
 
     public JobStatusJsonPresentationModel(JobInstance instance) {

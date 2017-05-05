@@ -37,12 +37,14 @@ let PasswordField = {
     if (model[`isEditing${  capitalizedAttrName}`]()) {
       return (
         <div>
-          <f.inputWithLabel model={model}
-                            attrName={attrName}
-                            label={['Password ']}
-                            placeholder="Password"
-                            type='password'
-                            withReset={true}/>
+          <f.column largeSize={4}>
+            <f.input model={model}
+                     attrName={attrName}
+                     label="Password "
+                     contentAfter={<f.resetAttrButton model={model} attrName={attrName} />}
+                     type="password"
+                     placeholder="Password" />
+          </f.column>
         </div>
       );
     } else {
@@ -64,11 +66,13 @@ let PasswordField = {
 let UrlField = {
   view (vnode) {
     return (
-      <f.inputWithLabel attrName='url'
-                        type='url'
-                        validate={true}
-                        isRequired={true}
-                        model={vnode.attrs.material}/>
+      <f.column largeSize={4}>
+        <f.input model={vnode.attrs.material}
+                 attrName="url"
+                 label={<span class="required">URL</span>}
+                 validate
+                 type="url" />
+      </f.column>
     );
   }
 };
@@ -76,8 +80,11 @@ let UrlField = {
 let UsernameField = {
   view (vnode) {
     return (
-      <f.inputWithLabel attrName='username'
-                        model={vnode.attrs.material}/>
+      <f.column largeSize={4}>
+        <f.input model={vnode.attrs.material}
+                 attrName="username"
+                 label="Username" />
+      </f.column>
     );
   }
 };
@@ -85,15 +92,15 @@ let UsernameField = {
 let DestinationField = {
   view (vnode) {
     return (
-      <f.inputWithLabel attrName='destination'
-                        label="Destination"
-                        model={vnode.attrs.material}
-                        validate={true}
-                        tooltip={{
-                          content:   tt.material.destination,
-                          direction: 'bottom',
-                          size:      'small'
-                        }}/>
+      <f.column largeSize={4}>
+        <f.input model={vnode.attrs.material}
+                 attrName="destination"
+                 label={[
+                   "Destination",
+                   <f.tooltip tooltip={{content: tt.material.destination, size: "small"}} model={vnode.attrs.material} attrName="destination" />
+                 ]}
+                 validate />
+      </f.column>
     );
   }
 };
@@ -102,14 +109,15 @@ let DestinationField = {
 let NameField = {
   view (vnode) {
     return (
-      <f.inputWithLabel attrName='name'
-                        validate={true}
-                        model={vnode.attrs.material}
-                        tooltip={{
-                          content:   tt.material.name,
-                          direction: 'bottom',
-                          size:      'small'
-                        }}/>
+      <f.column largeSize={4}>
+        <f.input model={vnode.attrs.material}
+                 attrName="name"
+                 validate
+                 label={[
+                   "Name",
+                   <f.tooltip tooltip={{content: tt.material.name, size: "small"}} model={vnode.attrs.material} attrName="name" />
+                 ]} />
+      </f.column>
     );
   }
 };
@@ -117,8 +125,11 @@ let NameField = {
 let BranchField = {
   view (vnode) {
     return (
-      <f.inputWithLabel attrName='branch'
-                        model={vnode.attrs.material}/>
+      <f.column largeSize={4}>
+        <f.input model={vnode.attrs.material}
+                 attrName="branch"
+                 label="Branch" />
+      </f.column>
     );
   }
 };
@@ -126,10 +137,11 @@ let BranchField = {
 let AutoUpdateField = {
   view (vnode) {
     return (
-      <f.checkBox model={vnode.attrs.material}
-                  attrName='autoUpdate'
-                  addPadding={true}
-                  end={true}/>
+      <f.column class="align-with-control" size={3} end>
+        <f.checkbox model={vnode.attrs.material}
+                    attrName='autoUpdate'
+                    label="Auto update" />
+      </f.column>
     );
   }
 };
@@ -203,11 +215,12 @@ let MaterialViews = {
             <UsernameField material={material}/>
             <PasswordField model={material}
                            attrName='passwordValue'/>
-            <f.checkBox type="checkbox"
-                        model={material}
-                        attrName='checkExternals'
-                        addPadding={true}
-                        end={true}/>
+            <f.column class="align-with-control" size={3} end>
+              <f.checkbox type="checkbox"
+                          model={material}
+                          attrName='checkExternals'
+                          label="Check externals" />
+            </f.column>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -232,11 +245,11 @@ let MaterialViews = {
           </f.row>
           <f.row>
             <BranchField material={material}/>
-            <f.checkBox model={vnode.attrs.material}
-                        attrName='shallowClone'
-                        label="Shallow clone (recommended for large repositories)"
-                        addPadding={true}
-                        end={true}/>
+            <f.column class="align-with-control" size={3} end>
+              <f.checkbox model={vnode.attrs.material}
+                          attrName='shallowClone'
+                          label="Shallow clone (recommended for large repositories)" />
+            </f.column>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -275,12 +288,12 @@ let MaterialViews = {
         <MaterialViews.base {...vnode.attrs}>
           <f.row>
             <NameField material={material}/>
-            <f.inputWithLabel attrName='port'
-                              model={material}
-                              validate={true}
-                              isRequired={true}
-                              label="Server and Port"
-                              onChange={m.withAttr('value', material.port)}/>
+            <f.column largeSize={4}>
+              <f.input model={material}
+                       attrName="port"
+                       label={<span class="required">Server and Port</span>}
+                       validate />
+            </f.column>
             <AutoUpdateField material={material}/>
           </f.row>
           <f.row>
@@ -289,17 +302,18 @@ let MaterialViews = {
                            attrName='passwordValue'/>
           </f.row>
           <f.row>
-            <f.textareaWithLabel attrName='view'
-                                 validate={true}
-                                 isRequired={true}
-                                 model={material}
-                                 size={4}/>
-            <f.checkBox name="material[use_tickets]"
-                        type="checkbox"
-                        model={material}
-                        attrName='useTickets'
-                        addPadding={true}
-                        end={true}/>
+            <f.column size={4}>
+              <f.textarea model={material}
+                          attrName="view"
+                          label={<span class="required">View</span>}
+                          validate />
+            </f.column>
+            <f.column class="align-with-control" size={3} end>
+              <f.checkbox name="material[use_tickets]"
+                          model={material}
+                          attrName='useTickets'
+                          label="Use tickets" />
+            </f.column>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -322,22 +336,26 @@ let MaterialViews = {
             <AutoUpdateField material={material}/>
           </f.row>
           <f.row>
-            <f.inputWithLabel attrName='domain'
-                              model={material}/>
-            <f.inputWithLabel attrName='projectPath'
-                              model={material}
-                              validate={true}
-                              isRequired={true}
-                              end={true}/>
+            <f.column largeSize={4}>
+              <f.input model={material} attrName="domain" label="Domain"/>
+            </f.column>
+            <f.column largeSize={4} end>
+              <f.input model={material}
+                       attrName="projectPath"
+                       label={<span class="required">Project path</span>}
+                       validate />
+            </f.column>
           </f.row>
           <f.row>
-            <f.inputWithLabel attrName='username'
-                              model={material}
-                              isRequired={true}
-                              validate={true}/>
+            <f.column largeSize={4}>
+              <f.input model={material}
+                       attrName="username"
+                       label={<span class="required">Username</span>}
+                       validate />
+            </f.column>
             <PasswordField model={material}
                            attrName='passwordValue'
-                           end={true}/>
+                           end/>
           </f.row>
           <f.row>
             <DestinationField material={material}/>
@@ -419,15 +437,14 @@ let MaterialTypeSelector = {
 
     return (
       <f.row class='material-selector'>
-        <f.select
-          model={vnode.state}
-          attrName='selected'
-          class='inline'
-          label='Add a new material of type'
-          items={items}
-          size={3}
-          largeSize={3}/>
-        <f.column size={2} end={true}>
+        <f.column size={3}>
+          <f.select
+            model={vnode.state}
+            attrName='selected'
+            label='Add a new material of type'
+            items={items} />
+        </f.column>
+        <f.column size={2} end>
           <f.link class='add-button button'
                   onclick={vnode.attrs.createMaterial.bind(vnode.state, vnode.state.selected)}>Add
           </f.link>

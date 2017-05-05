@@ -20,12 +20,13 @@
 $menu-hover: #3e3d3d;
 
 .app-header {
-  position:   fixed;
-  background: $header-bg;
-  height:     $main-nav-height;
-  width:      100%;
-  top:        0;
-  z-index:    $app-header-z-index;
+  position:      fixed;
+  background:    $header-bg;
+  border-bottom: 1px solid #333;
+  height:        $main-nav-height;
+  width:         100%;
+  top:           0;
+  z-index:       $app-header-z-index;
 }
 
 .logo {

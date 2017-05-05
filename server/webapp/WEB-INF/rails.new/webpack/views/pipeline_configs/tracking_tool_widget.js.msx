@@ -28,87 +28,77 @@ const TrackingToolViews = {
   },
 
   mingle (trackingTool) {
+    const model = trackingTool();
+
     return (
       <div>
         <f.row collapse>
-          <f.inputWithLabel model={trackingTool()}
-                            attrName='baseUrl'
-                            label='Base URL'
-                            type='url'
-                            validate={true}
-                            isRequired={true}
-                            tooltip={{
-                              content:   <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
-                              direction: 'bottom',
-                              size:      'medium'
-                            }}
-                            size={8}
-                            largeSize={6}/>
+          <f.column size={8} largeSize={6}>
+            <f.input model={model}
+                     attrName="baseUrl"
+                     label={[
+                       <span class="required">Base URL</span>,
+                       <f.tooltip tooltip={{content: <tt.trackingTool.mingle.baseUrl callback={model.baseUrl} />}} model={model} attrName="baseUrl" />
+                     ]}
+                     type="url"
+                     validate />
+          </f.column>
         </f.row>
 
         <f.row collapse>
-          <f.inputWithLabel model={trackingTool()}
-                            attrName='projectIdentifier'
-                            validate={true}
-                            isRequired={true}
-                            tooltip={{
-                              content:   <tt.trackingTool.mingle.projectIdentifier
-                                           callback={trackingTool().projectIdentifier}/>,
-                              direction: 'bottom',
-                              size:      'medium'
-                            }}
-                            size={8}
-                            largeSize={6}/>
+          <f.column size={8} largeSize={6}>
+            <f.input model={model}
+                     attrName="projectIdentifier"
+                     label={[
+                       <span class="required">Project identifier</span>,
+                       <f.tooltip tooltip={{content: <tt.trackingTool.mingle.projectIdentifier callback={model.projectIdentifier} />}} model={model} attrName="projectIdentifier" />
+                     ]}
+                     validate />
+          </f.column>
         </f.row>
 
         <f.row collapse>
-          <f.inputWithLabel model={trackingTool()}
-                            attrName='mqlGroupingConditions'
-                            validate={true}
-                            tooltip={{
-                              content:   <tt.trackingTool.mingle.mqlGroupingConditions
-                                           callback={trackingTool().mqlGroupingConditions}/>,
-                              direction: 'bottom',
-                              size:      'medium'
-                            }}
-                            size={8}
-                            largeSize={6}/>
+          <f.column size={8} largeSize={6}>
+            <f.input model={model}
+                     attrName="mqlGroupingConditions"
+                     label={[
+                       "MQL grouping conditions",
+                       <f.tooltip tooltip={{content: <tt.trackingTool.mingle.mqlGroupingConditions callback={model.mqlGroupingConditions} />}} model={model} attrName="mqlGroupingConditions" />
+                     ]}
+                     validate />
+          </f.column>
         </f.row>
       </div>
     );
   },
 
   generic (trackingTool) {
+    const model = trackingTool();
+
     return (
       <div>
         <f.row collapse>
-          <f.inputWithLabel model={trackingTool()}
-                            attrName='regex'
-                            label='Regular expression'
-                            validate={true}
-                            isRequired={true}
-                            tooltip={{
-                              content:   <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
-                              direction: 'bottom',
-                              size:      'large'
-                            }}
-                            size={8}
-                            largeSize={6}/>
+          <f.column size={8} largeSize={6}>
+            <f.input model={model}
+                     attrName="regex"
+                     label={[
+                       <span class="required">Regular expression</span>,
+                       <f.tooltip tooltip={{content: <tt.trackingTool.generic.regex callback={model.regex} />, size: "large"}} model={model} attrName="regex" />
+                     ]}
+                     validate />
+          </f.column>
         </f.row>
         <f.row collapse>
-          <f.inputWithLabel model={trackingTool()}
-                            attrName='urlPattern'
-                            label='URL Pattern'
-                            type='url'
-                            validate={true}
-                            isRequired={true}
-                            tooltip={{
-                              content:   <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
-                              direction: 'bottom',
-                              size:      'large'
-                            }}
-                            size={8}
-                            largeSize={6}/>
+          <f.column size={8} largeSize={6}>
+            <f.input model={model}
+                     attrName="urlPattern"
+                     type="url"
+                     label={[
+                       <span class="required">URL pattern</span>,
+                       <f.tooltip tooltip={{content: <tt.trackingTool.generic.urlPattern callback={model.urlPattern} />, size: "large"}} model={model} attrName="urlPattern" />
+                     ]}
+                     validate />
+          </f.column>
         </f.row>
       </div>
     );
@@ -149,7 +139,7 @@ const TrackingToolWidget = {
                    class="tracking-tool accordion-inner">
         <div>
           <f.row>
-            <f.column size={4} end={true}>
+            <f.column size={4} end>
               {_.map(trackingTools, (value, key) => {
                 return (
                   <span>
@@ -167,7 +157,7 @@ const TrackingToolWidget = {
 
           <f.row
             class={`tracking-tool tracking-tool-${  vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'}`}>
-            <f.column size={6} end={true}>
+            <f.column size={6} end>
               {TrackingToolViews[vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'](vnode.attrs.trackingTool)}
             </f.column>
           </f.row>

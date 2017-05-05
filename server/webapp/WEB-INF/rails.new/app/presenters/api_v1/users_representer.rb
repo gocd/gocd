@@ -21,6 +21,10 @@ module ApiV1
       opts[:url_builder].apiv1_users_url
     end
 
+    link :current_user do |opts|
+      opts[:url_builder].apiv1_current_user_url
+    end
+
     link :doc do
       'https://api.gocd.io/#users'
     end

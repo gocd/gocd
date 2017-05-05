@@ -43,31 +43,23 @@ const TabsConfigWidget = {
           {vnode.state.map((tab) => {
             return (
               <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
-                <f.input model={tab}
-                         attrName='name'
-                         placeholder='Tab name'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={true}
-                         size={3}
-                         largeSize={3}
-                         tooltip={{
-                           content:   tt.tabs.name,
-                           direction: 'bottom',
-                           size:      'small'
-                         }}/>
-                <f.input model={tab}
-                         attrName='path'
-                         placeholder='Path of artifact'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={'all'}
-                         size={3}
-                         largeSize={3}
-                         tooltip={{
-                           content:   tt.tabs.path,
-                           direction: 'bottom',
-                           size:      'medium'
-                         }}/>
-                <f.column size={3} end={true}>
+                <f.column size={3}>
+                  <f.input model={tab}
+                           attrName="name"
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           validate
+                           contentAfter={<f.tooltip tooltip={{content: tt.tabs.name, size: 'small'}} model={tab} attrName="name" />}
+                           placeholder="Tab name" />
+                </f.column>
+                <f.column size={3}>
+                  <f.input model={tab}
+                           attrName="path"
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           validate="all"
+                           contentAfter={<f.tooltip tooltip={{content: tt.tabs.path}} model={tab} attrName="path" />}
+                           placeholder="Path of artifact" />
+                </f.column>
+                <f.column size={3} end>
                   {vnode.state.removeLink.call(vnode.state, tab)}
                 </f.column>
               </f.row>

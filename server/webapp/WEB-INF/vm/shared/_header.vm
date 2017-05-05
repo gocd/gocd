@@ -75,11 +75,11 @@
                                 <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
                                 <ul class="enhanced_dropdown hidden">
                                   <li>
-                                    <a href="$req.getContextPath()/tab/mycruise/user">$l.localize(
+                                    <a href="$req.getContextPath()/preferences/notifications">$l.localize(
                                         "PREFERENCES_LOWER")</a>
                                   </li>
                                   <li class="logout">
-                                    <a id="nav-logout" class="sign_out" href="/go/auth/logout">$l.localize(
+                                    <a id="nav-logout" class="sign_out" href="$req.getContextPath()/auth/logout">$l.localize(
                                         "SIGN_OUT")</a>
                                   </li>
                                 </ul>

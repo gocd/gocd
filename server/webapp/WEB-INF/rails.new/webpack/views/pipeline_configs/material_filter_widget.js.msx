@@ -26,23 +26,21 @@ const MaterialFilterWidget = {
     return (
       <div class='ignore-pattern'>
         <f.row>
-          <f.inputWithLabel attrName='ignore'
-                            label="Ignore pattern"
-                            model={material.filter()}
-                            size={12}
-                            largeSize={12}
-                            tooltip={{
-                              content:   tt.material.filter(material.invertFilter() ? 'included' : 'excluded'),
-                              direction: 'bottom',
-                              size:      'small'
-                            }}/>
+          <f.column size={12}>
+            <f.input model={material.filter()}
+                     attrName="ignore"
+                     label={[
+                       "Ignore pattern",
+                       <f.tooltip tooltip={{content: tt.material.filter(material.invertFilter() ? 'included' : 'excluded'), size: 'small'}} model={material.filter()} attrName="ignore" />
+                     ]} />
+          </f.column>
         </f.row>
         <f.row>
-          <f.checkBox model={material}
-                      attrName='invertFilter'
-                      label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.'
-                      size={12}
-                      largeSize={12}/>
+          <f.column size={12} largeSize={12}>
+            <f.checkbox model={material}
+                        attrName='invertFilter'
+                        label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.' />
+          </f.column>
         </f.row>
       </div>
     );

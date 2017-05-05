@@ -41,15 +41,17 @@ const RoleModalBody = {
       <div>
         <f.row collapse="true">
           <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
-            <f.inputWithLabel model={vnode.attrs.role()}
-                              attrName="name"
-                              validate="true"
-                              isRequired="true"
-                              disabled={vnode.attrs.role().etag()}
-                              message={roleNameDisabledMessage}
-                              label="Role name"
-                              key="role-name"/>
-
+            <f.column largeSize={4}>
+              <f.input model={vnode.attrs.role()}
+                       attrName="name"
+                       validate
+                       label={[
+                         <span class="required">Role name</span>,
+                         <f.tooltip type="info" content={roleNameDisabledMessage} />
+                       ]}
+                       disabled={vnode.attrs.role().etag()}
+                       key="role-name"/>
+            </f.column>
           </f.row>
         </f.row>
 

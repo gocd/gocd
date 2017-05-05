@@ -84,23 +84,24 @@ const ElasticProfileModalBody = {
       <div>
         <f.row collapse="true">
           <div class='row' key="static-stuff">
-            <f.inputWithLabel model={vnode.attrs.profile()}
-                              attrName="id"
-                              validate="true"
-                              isRequired="true"
-                              disabled={vnode.attrs.profile().etag()}
-                              message={profileIdDisabledMessage}
-                              label="Id"
-                              key="profile-id"/>
-
-            <f.select model={vnode.attrs.profile()}
-                      attrName='pluginId'
-                      label='Plugin Id'
-                      onchange={vnode.state.selectPluginId.bind(vnode.state)}
-                      items={vnode.state.pluginInfoItems()}
-                      largeSize={4}
-                      size={6}
-                      end={"true"}/>
+            <f.column largeSize={4}>
+              <f.input model={vnode.attrs.profile()}
+                       attrName="id"
+                       label={[
+                         <span class="required">Id</span>,
+                         profileIdDisabledMessage ? <f.tooltip tooltip={{type: "info", content: profileIdDisabledMessage}} /> : null
+                       ]}
+                       validate
+                       disabled={vnode.attrs.profile().etag()}
+                       key="profile-id" />
+            </f.column>
+            <f.column size={6} largeSize={4} end>
+              <f.select model={vnode.attrs.profile()}
+                        attrName="pluginId"
+                        label="Plugin Id"
+                        onModelUpdate={vnode.state.selectPluginId.bind(vnode.state)}
+                        items={vnode.state.pluginInfoItems()} />
+            </f.column>
 
           </div>
         </f.row>

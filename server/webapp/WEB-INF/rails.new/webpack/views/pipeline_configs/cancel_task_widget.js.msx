@@ -92,12 +92,11 @@ const CancelTaskWidget = {
         }, []);
 
         return (
-          <f.select model={vnode.state}
+          <f.column size={3} end="true">
+            <f.select model={vnode.state}
                     attrName='selected'
-                    items={items}
-                    size={3}
-                    largeSize={3}
-                    end="true"/>
+                    items={items} />
+          </f.column>
         );
       }
     };
@@ -105,17 +104,15 @@ const CancelTaskWidget = {
     return (
       <div class='on-cancel'>
         <f.row>
-          <f.checkBox model={vnode.state}
-                      attrName='checked'
-                      label='On cancel task'
-                      class="check"
-                      size={3}
-                      largeSize={3}
-                      tooltip={{
-                        content:   tt.onCancelTask,
-                        direction: 'bottom',
-                        size:      'small'
-                      }}/>
+          <f.column size={3}>
+            <f.checkbox model={vnode.state}
+                        attrName='checked'
+                        label={[
+                          'On cancel task',
+                          <f.tooltip tooltip={{content: tt.onCancelTask, size: 'small'}} />
+                        ]}
+                        class="check" />
+          </f.column>
           {taskSelector()}
         </f.row>
         {cancelTask()}

@@ -14,41 +14,57 @@
  * limitations under the License.
  */
 
-let m                       = require('mithril');
-let f                       = require('helpers/form_helper');
-const RunIfConditionsWidget = {
-  view (vnode) {
-    const args = vnode.attrs;
-    const task = args.task;
-    return (
-      <div class='runif'>
-        <f.row>
-          <f.column>
-            <label>Run If Current Job Status
-              <span class='asterisk'>*</span>
-            </label>
-          </f.column>
-        </f.row>
-        <f.row>
-          <f.multiSelectionBox value='passed'
-                               attrName='runIf'
-                               model={task}
-                               label='Passed'
-                               size={2}/>
-          <f.multiSelectionBox value='failed'
-                               attrName='runIf'
-                               model={task}
-                               label='Failed'
-                               size={2}/>
-          <f.multiSelectionBox value='any'
-                               attrName='runIf'
-                               model={task}
-                               label='Any'
-                               size={2}
-                               end={true}/>
-        </f.row>
-      </div>
-    );
-  }
-};
-module.exports              = RunIfConditionsWidget;
+(function () {
+  "use strict";
+
+  const _ = require('lodash');
+  const m = require('mithril');
+  const f = require('helpers/form_helper');
+
+  const RunIfConditionsWidget = {
+    view (vnode) {
+      const task     = vnode.attrs.task,
+        attrName     = "runIf",
+        conds        = ["Passed", "Failed", "Any"],
+        len          = conds.length;
+
+      function onChange(e) {
+        const input = e.currentTarget;
+        input.checked ? task[attrName]().push(input.value) : task[attrName]().pop(input.value);
+      }
+
+      function isChecked(value) {
+        return _.includes(task[attrName]().data(), value);
+      }
+
+      return (
+        <div class='runif'>
+          <f.row>
+            <f.column>
+              <label>
+                <span class="required">Run If Current Job Status</span>
+              </label>
+            </f.column>
+          </f.row>
+          <f.row>
+            {_.map(conds, (runIfCond, idx) => {
+              const value = runIfCond.toLowerCase();
+
+              return <f.column size={2} end={idx === (len - 1)}>
+                <f.checkbox model={task}
+                            attrName={attrName}
+                            label={runIfCond}
+                            value={value}
+                            checked={isChecked(value)}
+                            onchange={onChange} />
+              </f.column>;
+
+            })}
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  module.exports = RunIfConditionsWidget;
+})();

@@ -18,6 +18,9 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.GoConstants;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class NotificationFilter extends PersistentObject {
     private String pipelineName;
     private String stageName;
@@ -95,6 +98,23 @@ public class NotificationFilter extends PersistentObject {
 
     public String toString() {
         return "NotificationFilter[" + description() + "]";
+    }
+
+    /**
+     * Used for JSON serialization in Rails
+     *
+     * @return a Map representation of this {@link NotificationFilter} instance that is serializable by JRuby
+     */
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("id", id);
+        map.put("pipelineName", pipelineName);
+        map.put("stageName", stageName);
+        map.put("myCheckin", myCheckin);
+        map.put("event", event.toString());
+
+        return map;
     }
 
     public boolean equals(Object o) {

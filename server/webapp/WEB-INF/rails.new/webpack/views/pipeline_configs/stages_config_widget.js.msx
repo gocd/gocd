@@ -80,14 +80,20 @@ let ApprovalWidget = {
             <f.warning>Permissions will be inherited from the pipeline group if not specified.</f.warning>
           </f.row>
           <f.row>
-            <f.inputWithLabel oncreate={autoComplete(Users.list, vnode.attrs.approval().authorization(), 'users')}
-                              onremove={destroyAutoComplete('users')}
-                              attrName='users'
-                              model={vnode.attrs.approval().authorization()}/>
-            <f.inputWithLabel oncreate={autoComplete(Roles.list, vnode.attrs.approval().authorization(), 'roles')}
-                              onremove={destroyAutoComplete('roles')}
-                              attrName='roles'
-                              model={vnode.attrs.approval().authorization()} end/>
+            <f.column largeSize={4}>
+              <f.input model={vnode.attrs.approval().authorization()}
+                       attrName="users"
+                       label="Users"
+                       oncreate={autoComplete(Users.list, vnode.attrs.approval().authorization(), "users")}
+                       onremove={destroyAutoComplete('users')} />
+            </f.column>
+            <f.column largeSize={4} end>
+              <f.input model={vnode.attrs.approval().authorization()}
+                       attrName="roles"
+                       label="Roles"
+                       oncreate={autoComplete(Roles.list, vnode.attrs.approval().authorization(), "roles")}
+                       onremove={destroyAutoComplete("roles")} />
+            </f.column>
 
           </f.row>
         </div>
@@ -115,37 +121,37 @@ let SettingsWidget = {
         <f.row>
           <f.column size={4}>
             <f.row collapse>
-              <f.inputWithLabel attrName='name'
-                                label='Stage name'
-                                model={stage}
-                                validate={true}
-                                isRequired={true}
-                                size={12}
-                                largeSize={12}/>
+              <f.column size={12}>
+                <f.input model={stage}
+                         attrName="name"
+                         label={<span class="required">Stage name</span>}
+                         validate />
+              </f.column>
             </f.row>
-            <label>Stage Type
-              <f.tooltip tooltip={{
-                content:   tt.stage.stageType,
-                direction: 'bottom',
-                size:      'small'
-              }}/>
+            <label>
+              <span>Stage Type</span>
+              <f.tooltip tooltip={{ content: tt.stage.stageType, size: "small"}} />
             </label>
             <f.row>
-              <f.column size={6} largeSize={6}>
-                <input type='radio'
-                       name={radioName}
-                       id={`${radioName  }-success`}
-                       checked={stage.approval().isSuccess()}
-                       onchange={stage.approval().makeOnSuccess.bind(stage.approval())}/>
-                <label for={`${radioName  }-success`}>On Success</label>
+              <f.column>
+                <label>
+                  <input type="radio"
+                         name={radioName}
+                         id={`${radioName  }-success`}
+                         checked={stage.approval().isSuccess()}
+                         onchange={stage.approval().makeOnSuccess.bind(stage.approval())} />
+                  On Success
+                </label>
               </f.column>
-              <f.column size={6} largeSize={6} end>
-                <input type='radio'
-                       name={radioName}
-                       id={`${radioName  }-manual`}
-                       checked={stage.approval().isManual()}
-                       onchange={stage.approval().makeManual.bind(stage.approval())}/>
-                <label for={`${radioName  }-manual`}>Manual</label>
+              <f.column end>
+                <label>
+                  <input type="radio"
+                         name={radioName}
+                         id={`${radioName  }-manual`}
+                         checked={stage.approval().isManual()}
+                         onchange={stage.approval().makeManual.bind(stage.approval())} />
+                  Manual
+                </label>
               </f.column>
             </f.row>
           </f.column>
@@ -153,36 +159,34 @@ let SettingsWidget = {
           <f.column size={4} largeSize={5} end>
             <label></label>
             <f.row>
-              <f.checkBox model={stage}
-                          attrName='fetchMaterials'
-                          size={12}
-                          tooltip={{
-                            content:   tt.stage.fetchMaterials,
-                            direction: 'bottom',
-                            size:      'small'
-                          }}/>
+              <f.column size={12}>
+                <f.checkbox model={stage}
+                            attrName='fetchMaterials'
+                            label={[
+                              "Fetcb materials",
+                              <f.tooltip tooltip={{content: tt.stage.fetchMaterials, size: 'small'}} />
+                            ]} />
+              </f.column>
             </f.row>
             <f.row>
-              <f.checkBox model={stage}
-                          attrName='neverCleanupArtifacts'
-                          size={12}
-                          tooltip={{
-                            content:   tt.stage.neverCleanupArtifacts,
-                            direction: 'bottom',
-                            size:      'small'
-                          }}/>
+              <f.column size={12}>
+                <f.checkbox model={stage}
+                            attrName='neverCleanupArtifacts'
+                            label={[
+                              "Naver clean up artifacts",
+                              <f.tooltip tooltip={{content: tt.stage.neverCleanupArtifacts, size: 'small'}} />
+                            ]} />
+              </f.column>
             </f.row>
             <f.row>
-              <f.checkBox model={stage}
-                          attrName='cleanWorkingDirectory'
-                          label='Delete working directory on every build'
-                          size={12}
-                          tooltip={{
-                            content:   tt.stage.cleanWorkingDirectory,
-                            direction: 'bottom',
-                            size:      'small'
-                          }}
-                          end={true}/>
+              <f.column size={12} end>
+                <f.checkbox model={stage}
+                            attrName='cleanWorkingDirectory'
+                            label={[
+                              'Delete working directory on every build',
+                              <f.tooltip tooltip={{content: tt.stage.cleanWorkingDirectory, size: 'small'}} />
+                            ]} />
+              </f.column>
             </f.row>
           </f.column>
         </f.row>
@@ -215,7 +219,7 @@ let StageConfigDefinitionWidget = {
                                           vm={vnode.state.vmState(`environmentVariablesConfig-${  stageIndex}`)}/>
 
         <f.row>
-          <f.column size={12} end={true}>
+          <f.column size={12} end>
             <JobsConfigWidget jobs={stage.jobs}
                               pluginInfos={vnode.attrs.pluginInfos}
                               elasticProfiles={vnode.attrs.elasticProfiles}

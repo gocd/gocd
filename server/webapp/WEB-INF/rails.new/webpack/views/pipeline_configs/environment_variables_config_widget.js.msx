@@ -32,16 +32,15 @@ let EnvironmentVariableWidget = {
         <f.row class='environment-variable'
                data-variable-type={variable.isSecureValue() ? 'secure' : 'plain'}
                data-variable-name={variable.name()}>
-          <f.input model={variable}
-                   attrName='name'
-                   placeholder='Name'
-                   onChange={vnode.attrs.onChange}
-                   validate={true}
-                   end={true}
-                   size={5}
-                   largeSize={4}/>
+          <f.column size={5} largeSize={4} end>
+            <f.input model={variable}
+                     attrName="name"
+                     onModelUpdate={vnode.attrs.onChange}
+                     validate
+                     placeholder="Name" />
+          </f.column>
           {children}
-          <f.column size={2} largeSize={2} end={true}>
+          <f.column size={2} largeSize={2} end>
             {vnode.attrs.removeChildPreContent}
             {vnode.attrs.removeWidget}
           </f.column>
@@ -54,13 +53,13 @@ let EnvironmentVariableWidget = {
     view (vnode) {
       return (
         <EnvironmentVariableWidget.base {...vnode.attrs}>
-          <f.input model={vnode.attrs.variable}
-                   attrName='value'
-                   placeholder='Value'
-                   onChange={vnode.attrs.onChange}
-                   validate={'all'}
-                   size={5}
-                   largeSize={4}/>
+          <f.column size={5} largeSize={4}>
+            <f.input model={vnode.attrs.variable}
+                     attrName="value"
+                     onModelUpdate={vnode.attrs.onChange}
+                     validate="all"
+                     placeholder="Value" />
+          </f.column>
         </EnvironmentVariableWidget.base>
       );
     }
@@ -73,14 +72,13 @@ let EnvironmentVariableWidget = {
 
       if (variable.isEditingValue()) {
         content = [
-          (<f.input model={variable}
-                    attrName='value'
-                    placeholder='Value'
-                    onChange={vnode.attrs.onChange}
-                    type={variable.isSecureValue() ? 'password' : 'text'}
-                    size={5}
-                    largeSize={4}/>
-          )
+          <f.column size={5} largeSize={4}>
+            <f.input model={variable}
+                     attrName="value"
+                     onModelUpdate={vnode.attrs.onChange}
+                     type={variable.isSecureValue() ? "password" : "text"}
+                     placeholder="Value" />
+          </f.column>
         ];
 
         if (variable.isDirtyValue()) {

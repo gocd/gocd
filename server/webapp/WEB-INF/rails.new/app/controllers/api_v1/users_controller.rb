@@ -16,6 +16,8 @@
 
 module ApiV1
   class UsersController < ApiV1::BaseController
+    include ApiV1::UsersHelper
+
     before_action :check_admin_user_and_401
     before_action :load_user, only: [:show, :update, :destroy]
 
@@ -69,23 +71,6 @@ module ApiV1
     end
 
     private
-    def save_user(result, user)
-      checkin_aliases = if params[:checkin_aliases].is_a?(Array)
-                          params[:checkin_aliases].join(',')
-                        else
-                          params[:checkin_aliases]
-                        end
-
-      user_service.save(user, to_tristate(params[:enabled]), to_tristate(params[:email_me]), params[:email], checkin_aliases, result)
-    end
-
-    def load_user
-      @user_to_operate = user_service.findUserByName(params[:login_name])
-
-      if !@user_to_operate || @user_to_operate.instance_of?(com.thoughtworks.go.domain.NullUser)
-        raise ApiV1::RecordNotFound
-      end
-    end
 
   end
 end

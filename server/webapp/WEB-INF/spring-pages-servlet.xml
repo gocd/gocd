@@ -35,7 +35,6 @@
         <property name="interceptors">
             <list>
                 <ref bean="authorizationInterceptor"/>
-                <ref bean="myGoInterceptor"/>
             </list>
         </property>
         <property name="alwaysUseFullPath" value="true"></property>

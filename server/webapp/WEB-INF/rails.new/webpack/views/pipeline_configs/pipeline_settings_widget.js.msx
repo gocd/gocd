@@ -44,58 +44,54 @@ const PipelineSettingsWidget = {
                    class='pipeline-settings'>
         <div>
           <f.row>
-            <f.inputWithLabel model={pipeline}
-                              attrName='labelTemplate'
-                              validate={true}
-                              isRequired={true}
-                              size={4}
-                              tooltip={{
-                                content:   <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
-                                direction: 'bottom',
-                                size:      'large'
-                              }}/>
-            <f.checkBox model={pipeline}
-                        attrName='enablePipelineLocking'
-                        addPadding={true}
-                        size={4}
-                        largeSize={3}
-                        tooltip={{
-                          content:   tt.pipeline.enablePipelineLocking,
-                          direction: 'bottom',
-                          class:     'tooltip-spacing'
-                        }}/>
+            <f.column size={4}>
+              <f.input model={pipeline}
+                       attrName="labelTemplate"
+                       label={[
+                         <span class="required">Label template</span>,
+                         <f.tooltip tooltip={{content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>, size: "large"}} model={pipeline} attrName="labelTemplate" />
+                       ]}
+                       validate />
+            </f.column>
+            <f.column class="align-with-control" size={4} largeSize={3}>
+              <f.checkbox model={pipeline}
+                          attrName='enablePipelineLocking'
+                          label={[
+                            "Enable pipeline locking",
+                            <f.tooltip tooltip={{content: tt.pipeline.enablePipelineLocking}} />
+                          ]} />
+            </f.column>
 
-            <f.column size={4} largeSize={5} end={true} class="pipeline-schedule">
-              <label>{pipelineAutoScheduleMessage}</label>
-              <f.tooltip tooltip={{
-                content:   pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
-                direction: 'bottom',
-                size:      'small'
-              }}/>
+            <f.column size={4} largeSize={5} end class="pipeline-schedule">
+              <label>
+                {pipelineAutoScheduleMessage}
+                <f.tooltip tooltip={{
+                  content:   pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
+                  size:      'small'
+                }}/>
+              </label>
             </f.column>
           </f.row>
           <f.row>
-            <f.inputWithLabel model={pipeline.timer()}
-                              attrName='spec'
-                              label='Cron timer specification'
-                              validate={true}
-                              tooltip={{
-                                content:   <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
-                                direction: 'bottom',
-                                size:      'large'
-                              }}/>
+            <f.column largeSize={4}>
+              <f.input model={pipeline.timer()}
+                       attrName="spec"
+                       label={[
+                         "Cron timer specification",
+                         <f.tooltip tooltip={{content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>, size: "large"}} model={pipeline.timer()} attrName="spec" />
+                       ]}
+                       validate />
+            </f.column>
+            <f.column size={3} end class="align-with-control">
+              <f.checkbox model={pipeline.timer()}
+                          attrName='onlyOnChanges'
+                          label={[
+                            'Run only on new material',
+                            <f.tooltip tooltip={{content: tt.pipeline.timer.onlyOnChanges}} />
+                          ]}
+                          disabled={s.isBlank(pipeline.timer().spec())} />
+            </f.column>
 
-            <f.checkBox model={pipeline.timer()}
-                        class="end"
-                        addPadding={true}
-                        attrName='onlyOnChanges'
-                        label='Run only on new material'
-                        disabled={s.isBlank(pipeline.timer().spec())}
-                        tooltip={{
-                          content:   tt.pipeline.timer.onlyOnChanges,
-                          direction: 'bottom',
-                          class:     'tooltip-spacing'
-                        }}/>
 
           </f.row>
           <f.row>

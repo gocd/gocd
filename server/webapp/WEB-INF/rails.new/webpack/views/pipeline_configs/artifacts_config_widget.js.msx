@@ -41,53 +41,38 @@ const ArtifactsConfigWidget = {
                    class="accordion-inner">
         <div class='job-artifacts position-tooltip'>
           {vnode.state.map((artifact) => {
-            return (
-              <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
+            return <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
+              <f.column size={3}>
                 <f.input model={artifact}
-                         attrName='source'
-                         placeholder='Source'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={true}
-                         size={3}
-                         largeSize={3}
-                         tooltip={{
-                           content:   tt.artifacts.source,
-                           direction: 'bottom',
-                           size:      'medium'
-                         }}/>
+                         attrName="source"
+                         onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                         validate
+                         contentAfter={<f.tooltip tooltip={{content: tt.artifacts.source}} model={artifact} attrName="source" />}
+                         placeholder="Source" />
+              </f.column>
+              <f.column size={3}>
                 <f.input model={artifact}
-                         attrName='destination'
-                         placeholder='Destination'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={'all'}
-                         size={3}
-                         largeSize={3}
-                         tooltip={{
-                           content:   tt.artifacts.destination,
-                           direction: 'bottom',
-                           size:      'medium'
-                         }}/>
+                         attrName="destination"
+                         onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                         validate="all"
+                         contentAfter={<f.tooltip tooltip={{content: tt.artifacts.destination}} model={artifact} attrName="destination" />}
+                         placeholder="Destination" />
+              </f.column>
+              <f.column size={2}>
                 <f.select model={artifact}
-                          attrName='type'
-                          class='inline'
-                          items={[
-                            {
-                              id: 'build', text: 'build'
-                            }, {
-                              id: 'test', text: 'test'
-                            }
-                          ]}
-                          size={2}
-                          tooltip={{
-                            content:   tt.artifacts.type,
-                            direction: 'bottom',
-                            size:      'medium'
-                          }}/>
-                <f.column size={1} end={true}>
-                  {vnode.state.removeLink.call(vnode.state, artifact)}
-                </f.column>
-              </f.row>
-            );
+                        attrName='type'
+                        items={[
+                          {id: 'build', text: 'build'},
+                          {id: 'test', text: 'test'}
+                        ]}
+                        label={
+                          <f.tooltip tooltip={{content: tt.artifacts.type}} />
+                        } />
+              </f.column>
+              <f.column size={1} end>
+                {vnode.state.removeLink.call(vnode.state, artifact)}
+              </f.column>
+            </f.row>;
           })}
         </div>
       </f.accordion>

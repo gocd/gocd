@@ -47,13 +47,13 @@ let TaskTypeSelector = {
 
     return (
       <f.row class='task-selector'>
-        <f.select model={vnode.state}
+        <f.column size={3}>
+          <f.select model={vnode.state}
                   attrName='selected'
-                  class='inline'
                   label='Add task of type'
-                  items={items}
-                  size={3}/>
-        <f.column size={2} end={true}>
+                  items={items} />
+        </f.column>
+        <f.column size={2} end>
           <a class='button add-button' href="javascript:void(0)"
              onclick={vnode.state.addTask.bind(vnode.state, vnode.state.selected)}>Add</a>
         </f.column>

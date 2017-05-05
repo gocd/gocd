@@ -21,33 +21,90 @@ const s     = require('string-plus');
 const Mixin = require('models/mixins/model_mixins');
 require('foundation-sites');
 
-const deleteKeyAndReturnValue = function (object, key, defaultValue) {
+function deleteKeyAndReturnValue(object, key, defaultValue) {
   if (_.isNil(object)) {
     return defaultValue;
   }
   const value = object[key];
   delete object[key];
   return _.isNil(value) ? defaultValue : value;
-};
+}
 
-const compactClasses = function (args) {
+function compactClasses(args) {
   const initialClasses = [].slice.call(arguments, 1);
   return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
-};
+}
 
-function setValue(items, cb) {
-  return function (e) {
-    e                   = e || window.event;
-    const currentTarget = e.currentTarget || this;
+function unwrapStream(maybeStream) {
+  if ("function" === typeof maybeStream) { // heuristic is good enough; no need to test with `instanceof`
+    return maybeStream();
+  }
 
-    const mappings = _.reduce(items, (memo, item) => {
-      const id = s.coerceToMprop(item.id)();
-      memo[id] = item;
-      return memo;
-    }, {});
+  return maybeStream;
+}
 
-    cb(mappings[currentTarget.value]);
-  };
+// ensures the input is either an array or is wrapped in an array.
+// also removes blank members (empty strings, null, etc) and optionally
+// applies a transform on each item.
+function coerceArray(maybeArray, transform) {
+  const normalized = _.isArray(maybeArray) ? maybeArray : [maybeArray];
+
+  if ("function" === typeof transform) {
+    const result = [];
+    _.each(normalized, (el) => {
+      if (!s.isBlank(el)) {
+        result.push(transform(el));
+      }
+    });
+
+    return result;
+  }
+
+  return _.reject(normalized, (el) => s.isBlank(el));
+}
+
+function wrapTextInSpan(thing) {
+  if ("string" === typeof thing) {
+    thing = <span>{thing}</span>;
+  }
+  return thing;
+}
+
+function wireUpModel(attrs, property="value", listener="onchange") {
+  const model = deleteKeyAndReturnValue(attrs, "model");
+
+  if (model) {
+    let attrName;
+    attrs["data-model-type"] = deleteKeyAndReturnValue(attrs, "modelType", (model.constructor ? model.constructor.modelType : null));
+    attrs["data-prop-name"]  = attrName = deleteKeyAndReturnValue(attrs, "attrName");
+    attrs[property]          = deleteKeyAndReturnValue(attrs, property, model[attrName]());
+
+    const chainedCallback    = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
+      onUpdate               = deleteKeyAndReturnValue(attrs, listener, m.withAttr(property, model[attrName]));
+
+    attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) { onUpdate(e); chainedCallback(e); } : onUpdate;
+  }
+
+  return model;
+}
+
+function validateModel(model, attrs) {
+  if (!model) { return; }
+
+  const performValidations = deleteKeyAndReturnValue(attrs, 'validate', false),
+    attrName               = attrs["attrName"] || attrs["data-prop-name"];
+
+  let validationErrors;
+
+  if (performValidations) {
+    attrs["onblur"] = model.validate.bind(model, performValidations !== "all" ? attrName : undefined);
+
+    if (model.errors().hasErrors(attrName)) {
+      validationErrors = <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>;
+    }
+  }
+
+  return validationErrors;
 }
 
 let f = {
@@ -72,7 +129,7 @@ let f = {
       const args     = vnode.attrs;
       const children = vnode.children;
 
-      const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
+      const end   = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
         size      = deleteKeyAndReturnValue(args, 'size', 6),
         largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
@@ -86,306 +143,134 @@ let f = {
   },
 
   input: {
-    oninit () {
-      this.onInput = function (model, attrName, callback, e) {
-        const currentTarget = (e || event).currentTarget;
-        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
-        model[attrName](newValue);
-        if (callback) {
-          callback();
-        }
-      };
-    },
-
     view (vnode) {
-      const args = vnode.attrs;
-      const ctrl = vnode.state;
+      const defaultAttrs = {
+        autocomplete: "off",
+        autocapitalize: "off",
+        autocorrect: "off",
+        spellcheck: false,
+        type: "text"
+      };
 
-      const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange');
+      const args     = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
 
-      args.size      = args.size || 6;
-      args.largeSize = args.largeSize || 4;
+      const model        = wireUpModel(args, "value", "oninput"),
+        validationErrors = validateModel(model, args),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
-      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      const labelAttrs = {};
 
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
+      if (validationErrors) {
+        labelAttrs["class"] = "is-invalid-label";
+        contentAfter.push(validationErrors);
+      }
 
-      return (
-        <f.column {...args}>
-          <input
-            autocomplete="off"
-            autocapitalize="off"
-            autocorrect="off"
-            spellcheck="off"
-            data-prop-name={attrName}
-            data-model-type={modelType}
-            value={model[attrName]()}
-            type={type}
-            placeholder={placeholder}
-            class={propertyError ? 'is-invalid-input' : ''}
-            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
-            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-          {propertyError}
-        </f.column>
-      );
+      const element = <input {...args} />;
+      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
+          {label}
+          {element}
+          {contentAfter}
+        </label>;
     }
   },
 
-  inputWithLabel: {
-    oninit () {
-      this.onInput = function (model, attrName, callback, e) {
-        const currentTarget = (e || event).currentTarget;
-        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
-        model[attrName](newValue);
-        if (callback) {
-          callback();
-        }
-      };
-    },
-
+  textarea: {
     view (vnode) {
-      const ctrl = vnode.state;
-      const args = vnode.attrs;
+      const defaultAttrs = {
+        autocomplete: "off",
+        autocapitalize: "off",
+        autocorrect: "off",
+        spellcheck: "off"
+      };
 
-      const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        labelText   = deleteKeyAndReturnValue(args, 'label'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false),
-        isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
-        disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
-        message     = deleteKeyAndReturnValue(args, 'message', '');
+      const args     = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
 
-      args.size      = args.size || 6;
-      args.largeSize = args.largeSize || 4;
+      const model        = wireUpModel(args, "value", "oninput"),
+        validationErrors = validateModel(model, args),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
-      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      const labelAttrs = {};
 
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
-
-      let propertyMessage;
-      if (message) {
-        propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
+      if (validationErrors) {
+        labelAttrs["class"] = "is-invalid-label";
+        contentAfter.push(validationErrors);
       }
 
-      const resetButton = function () {
-        if (args.withReset && model[attrName]()) {
-          const capitalizedAttrName = _.upperFirst(attrName);
-          return (
-            <f.resetButton onclick={model[`resetToOriginal${  capitalizedAttrName}`].bind(model)}/>
-          );
-        }
-      };
-
-      return (
-        <f.column {...args} class={_.compact([propertyError ? 'is-invalid-label' : null, args.class]).join(' ')}>
-          <label
-            class={_.compact([propertyError ? 'is-invalid-label' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
-            {labelText || s.humanize(attrName)}
-            {isRequired ? (<span class='asterisk'>*</span>) : undefined}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-          {propertyMessage}
-
-          <input
-            autocomplete="off"
-            autocapitalize="off"
-            autocorrect="off"
-            spellcheck="off"
-            data-prop-name={attrName}
-            data-model-type={modelType}
-            value={model[attrName]()}
-            type={type}
-            placeholder={placeholder}
-            class={propertyError ? 'is-invalid-input' : ''}
-            disabled={disabled}
-            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
-            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
-          {resetButton()}
-          {propertyError}
-        </f.column>
-      );
+      const element = <textarea {...args}></textarea>;
+      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
+          {label}
+          {element}
+          {contentAfter}
+        </label>;
     }
   },
 
-  textareaWithLabel: {
-    oninit () {
-      this.onInput = function (model, attrName, callback, e) {
-        const currentTarget = (e || event).currentTarget;
-        const newValue      = currentTarget.value || "";
-        model[attrName](newValue);
-        if (callback) {
-          callback();
-        }
-      };
-    },
-
+  checkbox: {
     view (vnode) {
-      const ctrl        = vnode.state;
-      const args        = vnode.attrs;
-      const model       = deleteKeyAndReturnValue(args, 'model'),
-        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-        labelText   = deleteKeyAndReturnValue(args, 'label'),
-        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        validate    = deleteKeyAndReturnValue(args, 'validate', false);
+      const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
 
-      args.size = args.size || 3;
+      wireUpModel(args, "checked");
 
-      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      const label    = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        inputElement = <input type="checkbox" {...args} />;
 
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <small class='error'>{model.errors().errorsForDisplay(attrName)}</small>) : undefined;
-
-      return (
-        <f.column {...args} class={propertyError ? 'error' : null}>
-          <label class={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
-            {_.isNil(labelText) ? s.humanize(attrName) : labelText}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-
-          <textarea
-            data-prop-name={attrName}
-            data-model-type={modelType}
-            spellcheck="off"
-            placeholder={placeholder}
-            class={propertyError ? 'error' : ''}
-            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
-            value={model[attrName]()}
-            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}>
-            </textarea>
-          {propertyError}
-        </f.column>
-      );
+      return _.isEmpty(label) ? inputElement : <label>
+        {inputElement}
+        {label}
+      </label>;
     }
   },
 
-  checkBox: {
+  select: {
     view (vnode) {
-      const args = vnode.attrs;
+      const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
 
-      const model      = deleteKeyAndReturnValue(args, 'model'),
-        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-        labelText  = deleteKeyAndReturnValue(args, 'label'),
-        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-        id         = s.uuid(),
-        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+      const model        = wireUpModel(args), // alters args, should be called first
+        validationErrors = validateModel(model, args),
+        items            = coerceArray(unwrapStream(deleteKeyAndReturnValue(args, "items", []))),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
+        selected         = unwrapStream(args.value);
 
-      if (!args.size) {
-        args.size = 3;
+      args["class"] = compactClasses(args, validationErrors ? "is-invalid-input" : null);
+      const labelAttrs = {};
+
+      if (validationErrors) {
+        labelAttrs["class"] = "is-invalid-label";
+        contentAfter.push(validationErrors);
       }
 
-      let padding;
+      const element = <select {...args}>{
+        _.map(items, (item) => {
+          // item may be a string or an object
+          const text = item.text || item;
+          const id = item.id || text;
+          return <option value={id} selected={selected === id}>{text}</option>;
+        })
+      }</select>;
 
-      if (addPadding) {
-        padding = (<label class='check-box-spacing' style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
-      }
-
-      return (
-        <f.column {...args}>
-          {padding}
-          <input type="checkbox"
-                 data-prop-name={attrName}
-                 data-model-type={modelType}
-                 id={id}
-                 disabled={disabled}
-                 checked={model[attrName]()}
-                 onchange={m.withAttr('checked', model[attrName])}/>
-          <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
-            {labelText || s.humanize(attrName)}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-        </f.column>
-      );
+      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
+        {label}
+        {element}
+        {contentAfter}
+      </label>;
     }
   },
 
-  multiSelectionBox: {
-    oninit (vnode) {
-      const args = vnode.attrs;
-      this.attr  = args.model[args.attrName];
-
-      this.onChange = function (e) {
-        const currentTarget = (e || event).currentTarget;
-
-        currentTarget.checked ? this.attr().push(currentTarget.value)
-          : this.attr().pop(currentTarget.value);
-      };
-
-      this.isChecked = function (value) {
-        return _.includes(this.attr().data(), value);
-      };
-    },
-
-    view (vnode) {
-      const args = vnode.attrs;
-      const ctrl = vnode.state;
-
-      const model      = deleteKeyAndReturnValue(args, 'model'),
-        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-        value      = deleteKeyAndReturnValue(args, 'value'),
-        labelText  = deleteKeyAndReturnValue(args, 'label'),
-        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-        id         = s.uuid(),
-        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
-
-      if (!args.size) {
-        args.size = 3;
-      }
-
-      let padding;
-
-      if (addPadding) {
-        padding = (<label style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
-      }
-
-      return (
-        <f.column {...args}>
-          {padding}
-          <input type="checkbox"
-                 data-prop-name={attrName}
-                 data-model-type={modelType}
-                 id={id}
-                 disabled={disabled}
-                 value={value}
-                 checked={ctrl.isChecked(value)}
-                 onchange={ctrl.onChange.bind(ctrl)}/>
-          <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
-            {labelText || s.humanize(attrName)}
-          </label>
-
-          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
-        </f.column>
-      );
+  resetAttrButton: {
+    view(vnode) {
+      const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
+      return <f.resetButton onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)} />;
     }
   },
 
   tabs: {
     oninit (vnode) {
-      this.selectedIndex = s.coerceToMprop(vnode.attrs.selectedIndex || 0);
+      this.selectedIndex = s.defaultToStream(vnode.attrs.selectedIndex || 0);
 
       this.classNameForTab = function (tabIndex) {
         return this.selectedIndex() === tabIndex ? 'is-active' : '';
@@ -475,83 +360,9 @@ let f = {
     }
   },
 
-  select: {
-    oninit (vnode) {
-      this.value = s.coerceToMprop(vnode.attrs.value, '');
-    },
-
-    view (vnode) {
-      const args = vnode.attrs;
-
-      const items     = deleteKeyAndReturnValue(args, 'items', [{}]),
-        label         = deleteKeyAndReturnValue(args, 'label'),
-        model         = deleteKeyAndReturnValue(args, 'model'),
-        modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-        attrName      = deleteKeyAndReturnValue(args, 'attrName'),
-        tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
-        disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
-        receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
-        validate      = deleteKeyAndReturnValue(args, 'validate', false),
-        message       = deleteKeyAndReturnValue(args, 'message', '');
-
-      if (!args.size) {
-        args.size = 3;
-      }
-
-      let propertyMessage;
-      if (message) {
-        propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
-      }
-
-      const onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
-
-      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
-          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
-
-      const selectedValue = model[attrName]();
-      const selectElem    = (
-        <select value={selectedValue}
-                disabled={disabled}
-                data-prop-name={attrName}
-                data-model-type={modelType}
-                onchange={onchange}>
-          {_.map(items, (item) => {
-            const id   = s.coerceToMprop(item.id)();
-            const text = s.coerceToMprop(item.text)();
-
-            return (
-              <option value={id} selected={id === selectedValue}>{text}</option>
-            );
-          })}
-        </select>
-      );
-
-      if (s.isBlank(label)) {
-        return (
-          <f.column {...args}>
-            <f.tooltip tooltip={tooltip}/>
-            {propertyMessage}
-            {selectElem}
-          </f.column>);
-      } else {
-        return (
-          <f.column {...args}>
-            <label>
-              {label}
-            </label>
-            <f.tooltip tooltip={tooltip}/>
-            {propertyMessage}
-            {selectElem}
-            {propertyError}
-          </f.column>
-        );
-      }
-    }
-  },
-
   accordion: {
     oninit (vnode) {
-      this.selectedIndex = Mixin.TogglingGetterSetter(s.coerceToMprop(vnode.attrs.selectedIndex || 0));
+      this.selectedIndex = Mixin.TogglingGetterSetter(s.defaultToStream(vnode.attrs.selectedIndex || 0));
 
       this.classNameForAccordionIndex = function (tabIndex) {
         return this.selectedIndex() === tabIndex ? 'is-active' : null;

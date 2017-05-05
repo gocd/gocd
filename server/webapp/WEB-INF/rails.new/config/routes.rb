@@ -218,6 +218,12 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv1, format: false do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
+
+      get 'current_user', controller: 'current_user', action: 'show'
+      patch 'current_user', controller: 'current_user', action: 'update'
+
+      resources :notification_filters, only: [:index, :create, :destroy]
+
       resources :backups, only: [:create], constraints: HeaderConstraint.new
 
       resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
@@ -447,6 +453,8 @@ Go::Application.routes.draw do
     post 'operate' => 'users#operate', as: :user_operate
     get '' => 'users#users', as: :user_listing
   end
+
+  get 'preferences/notifications', controller: 'preferences', action: 'notifications'
 
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail, constraints: {uuid: ALLOW_DOTS}
   get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent, constraints: {uuid: ALLOW_DOTS}

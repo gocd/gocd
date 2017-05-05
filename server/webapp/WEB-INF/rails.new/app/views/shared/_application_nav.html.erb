@@ -9,7 +9,7 @@
                 <a href="#" class="current_user_name dropdown-arrow-icon"><%= @user.display_name %></a>
                 <ul class='enhanced_dropdown hidden'>
                     <li>
-                        <%= link_to l.string('PREFERENCES_LOWER'), url_for_path('/tab/mycruise/user') %>
+                        <%= link_to l.string('PREFERENCES_LOWER'), preferences_notifications_path %>
                     </li>
                     <li class="logout">
                         <%= link_to l.string('Sign out'), url_for_path('auth/logout'), :id => "nav-logout", :class => "sign_out" %>

@@ -47,20 +47,21 @@ let ScmConfigModalBody = {
       <div>
         {errorMessageElem}
         <f.row collapse>
-          <f.inputWithLabel attrName='name'
-                            class='align'
-                            size={12}
-                            largeSize={12}
-                            validate={true}
-                            isRequired={true}
-                            model={vnode.attrs.scm}/>
+          <f.column size={12}>
+            <f.input model={vnode.attrs.scm}
+                     attrName="name"
+                     label={<span class="required">Name</span>}
+                     validate
+                     class="align" />
+          </f.column>
         </f.row>
         <f.row collapse>
-          <f.checkBox model={vnode.attrs.scm}
-                      attrName='autoUpdate'
-                      class='align'
-                      size={6}
-                      end={true}/>
+          <f.column size={6} end>
+            <f.checkbox model={vnode.attrs.scm}
+                        attrName='autoUpdate'
+                        label="Auto update"
+                        class='align' />
+          </f.column>
         </f.row>
         <f.row collapse>
           <AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().scmSettings}
@@ -137,14 +138,13 @@ const NewPluggableSCMMaterialWidget = {
     if (!_.isEmpty(items)) {
       return (
         <f.row class='scm-selector'>
-          <f.select
-            model={ctrl}
-            attrName='selected'
-            label='Select an existing SCM'
-            items={items}
-            size={4}
-            largeSize={2}
-          />
+          <f.column size={4} largeSize={2}>
+            <f.select
+              model={ctrl}
+              attrName='selected'
+              label='Select an existing SCM'
+              items={items} />
+          </f.column>
           <f.column size={6} largeSize={6} end>
             <a class='add-button button' onclick={ctrl.selectSCM.bind(ctrl, ctrl.selected())}>Add</a>
             <label class='or'>Or</label>

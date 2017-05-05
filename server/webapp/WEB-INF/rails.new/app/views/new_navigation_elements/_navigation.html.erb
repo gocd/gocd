@@ -13,7 +13,7 @@
           <% unless can_view_admin_page? -%>
               <span>Admin</span>
           <% else -%>
-              <a href="#">Admin</a>
+              <a href="#" onclick="return false;">Admin</a>
               <ul class="menu vertical admin-dropdown">
                 <%- if is_user_an_admin? -%>
                     <%= render partial: 'navigation_elements/dropdown_admin' -%>
@@ -36,9 +36,9 @@
         <li><%= link_to(l.string('HELP_SMALL'), 'https://gocd.io/help', :target => '_blank') %></li>
         <% unless @user.anonymous? %>
             <li class="current-user">
-              <a href="#"><i class="user"></i><%= @user.display_name %></a>
+              <a href="#" onclick="return false;"><i class="user"></i><%= @user.display_name %></a>
               <ul class="menu vertical">
-                <li><%= link_to 'Preferences', url_for_path('/tab/mycruise/user') %></li>
+                <li><%= link_to 'Preferences', preferences_notifications_path %></li>
                 <li><%= link_to 'Sign out', url_for_path('auth/logout') %></li>
               </ul>
             </li>

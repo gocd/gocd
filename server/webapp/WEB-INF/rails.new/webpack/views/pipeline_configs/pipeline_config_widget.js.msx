@@ -187,7 +187,7 @@ const PipelineConfigWidget = function (options) {
           {header()}
           <f.row class={`pipeline-body ${vnode.state.vm.pageSaveState()}`}>
             {errors}
-            <f.column end={true} size={12}>
+            <f.column end size={12}>
               <PipelineSettingsWidget pipeline={vnode.state.pipeline}
                                       vm={vnode.state.vmState('pipelineSettingsConfig')}/>
               <MaterialsConfigWidget materials={pipeline.materials}

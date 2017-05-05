@@ -355,7 +355,7 @@ const pipelineTimerSpec          = {
               </tbody>
             </table>
           </f.column>
-          <f.column size={5} end={true} class='cron-field-explanation'>
+          <f.column size={5} end class='cron-field-explanation'>
             <p>
               A field may be an asterix (<code>*</code>), which stands for "all possible values".
             </p>

@@ -93,11 +93,12 @@ const SCMConfigEditWidget = {
             <label>Name</label><span>{vnode.state.scmForEdit.name()}</span>
           </div>
           <f.row>
-            <f.checkBox model={vnode.state.scmForEdit}
-                        attrName='autoUpdate'
-                        class='align'
-                        size={6}
-                        end={true}/>
+            <f.column size={6} end>
+              <f.checkbox model={vnode.state.scmForEdit}
+                          attrName='autoUpdate'
+                          label="Auto update"
+                          class='align' />
+            </f.column>
           </f.row>
           <AngularPlugin pluginInfoSettings={vnode.state.pluginInfo().scmSettings}
                          configuration={vnode.attrs.scm().configuration}

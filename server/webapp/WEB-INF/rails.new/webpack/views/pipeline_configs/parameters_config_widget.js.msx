@@ -46,16 +46,20 @@ const ParametersConfigWidget = {
           {vnode.state.map((parameter) => {
             return (
               <f.row class='parameter' data-parameter-name={parameter.name()} key={parameter.uuid()}>
-                <f.input model={parameter}
-                         attrName='name'
-                         placeholder='Name'
-                         validate={true}
-                         onChange={vnode.state.changed.bind(vnode.state)}/>
-                <f.input model={parameter}
-                         attrName='value'
-                         placeholder='Value'
-                         onChange={vnode.state.changed.bind(vnode.state)}/>
-                <f.column size={1} end={true}>
+                <f.column largeSize={4}>
+                  <f.input model={parameter}
+                           attrName="name"
+                           validate
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           placeholder="Name" />
+                </f.column>
+                <f.column largeSize={4}>
+                  <f.input model={parameter}
+                           attrName="value"
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           placeholder="Value" />
+                </f.column>
+                <f.column size={1} end>
                   {vnode.state.removeLink.call(vnode.state, parameter)}
                 </f.column>
               </f.row>

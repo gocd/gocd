@@ -32,7 +32,6 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
 
     plugin_info = com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities)
     actual_json = ApiV3::Plugin::AuthorizationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
-    print actual_json
 
     expect(actual_json).to have_links(:self, :doc, :find, :image)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')

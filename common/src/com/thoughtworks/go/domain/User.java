@@ -16,12 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.domain.Username;
@@ -30,10 +26,14 @@ import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang.StringUtils;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import static java.lang.String.format;
 
-public class  User extends PersistentObject {
+public class User extends PersistentObject {
     private String name;
     private String displayName;
     private String matcher;
@@ -46,7 +46,7 @@ public class  User extends PersistentObject {
     }
 
     public User(String name) {
-        this(name,"", "");
+        this(name, "", "");
     }
 
     public User(String name, String displayName, String email) {
@@ -70,7 +70,7 @@ public class  User extends PersistentObject {
         this.emailMe = emailMe;
     }
 
-    public User(User user){
+    public User(User user) {
         this(user.name, user.displayName, new String[]{user.matcher}, user.email, user.emailMe);
         this.id = user.id;
         for (NotificationFilter filter : user.notificationFilters) {
@@ -105,6 +105,7 @@ public class  User extends PersistentObject {
     public Username getUsername() {
         return Username.valueOf(name);
     }
+
     /**
      * only used by ibatis
      *
@@ -272,15 +273,15 @@ public class  User extends PersistentObject {
     private void checkForDuplicates(NotificationFilter another) {
         for (NotificationFilter filter : notificationFilters) {
             if (filter.include(another)) {
-                bomb(format("Notification filter for [%s] event of stage[%s] already exists", filter.getEvent(),
-                    filter.getPipelineName() + "/" + filter.getStageName()));
+                throw new UncheckedValidationException(format("Duplicate notification filter found for: {pipeline: \"%s\", stage: \"%s\", event: \"%s\"}",
+                        filter.getPipelineName(), filter.getStageName(), filter.getEvent()));
             }
         }
     }
 
     public void removeNotificationFilter(final long filterId) {
         ArrayList<NotificationFilter> toBeDeleted = new ArrayList<>();
-        ListUtil.filterInto(toBeDeleted,notificationFilters, new Filter<NotificationFilter>() {
+        ListUtil.filterInto(toBeDeleted, notificationFilters, new Filter<NotificationFilter>() {
             @Override
             public boolean matches(NotificationFilter filter) {
                 return filter.getId() == filterId;

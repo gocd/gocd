@@ -167,10 +167,6 @@
   }
 }
 
-.tooltip-spacing {
-  margin-left: -15px;
-}
-
 .position-tooltip {
   .columns {
     position: relative;
@@ -187,10 +183,23 @@
   top:      2px;
 }
 
+.required:after {
+  content:      "*";
+  color:        #c00;
+  padding-left: 3px;
+}
+
+
+/* legacy SPA styles; TODO: remove when new quick edit becomes default again */
+.has-tooltip {
+  display: inline;
+}
+
 .asterisk {
   color:        #c00;
   padding-left: 3px;
 }
+/* end legacy SPA styles */
 
 .toggle-old-view {
   display:       inline-block;
@@ -206,7 +215,7 @@
   top:           -2px;
   &:hover, &:active, &:focus {
     background: $btn-bg-hover;
-    color:      $btn-bg-hover-txt;
+    color:      $btn-txt;
   }
 }
 

@@ -124,15 +124,15 @@ const EditPluggableSCMMaterialWidget = {
           </f.row>
         </div>
         <f.row>
-          <f.inputWithLabel attrName='destination'
-                            label="Destination"
-                            model={args.material}
-                            validate={true}
-                            tooltip={{
-                              content:   tt.material.destination,
-                              direction: 'bottom',
-                              size:      'small'
-                            }}/>
+          <f.column largeSize={4}>
+            <f.input model={args.material}
+                     attrName="destination"
+                     label={[
+                       "Destination",
+                       <f.tooltip tooltip={{content: tt.material.destination, size: 'small'}} model={args.material} attrName="destination" />
+                     ]}
+                     validate />
+          </f.column>
         </f.row>
         <MaterialFilterWidget material={args.material}/>
       </div>

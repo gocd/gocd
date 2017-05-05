@@ -43,28 +43,28 @@ const PropertiesConfigWidget = {
           {vnode.state.map((property) => {
             return (
               <f.row class='property' data-property-source={property.source()} key={property.uuid()}>
-                <f.input model={property}
-                         attrName='name'
-                         placeholder='Property Name'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={true}
-                         size={3}
-                         largeSize={3}/>
-                <f.input model={property}
-                         attrName='source'
-                         placeholder='The XML file source'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={'all'}
-                         size={3}
-                         largeSize={3}/>
-                <f.input model={property}
-                         attrName='xpath'
-                         placeholder='XPath'
-                         onChange={vnode.state.changed.bind(vnode.state)}
-                         validate={'all'}
-                         size={3}
-                         largeSize={3}/>
-                <f.column size={1} largeSize={3} end={true}>
+                <f.column size={3}>
+                  <f.input model={property}
+                           attrName="name"
+                           validate
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           placeholder="Property Name" />
+                </f.column>
+                <f.column size={3}>
+                  <f.input model={property}
+                           attrName="source"
+                           validate="all"
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           placeholder="The XML file source" />
+                </f.column>
+                <f.column size={3}>
+                  <f.input model={property}
+                           attrName="xpath"
+                           validate="all"
+                           onModelUpdate={vnode.state.changed.bind(vnode.state)}
+                           placeholder="XPath" />
+                </f.column>
+                <f.column size={1} largeSize={3} end>
                   {vnode.state.removeLink.call(vnode.state, property)}
                 </f.column>
               </f.row>

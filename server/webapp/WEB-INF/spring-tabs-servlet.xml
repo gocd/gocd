@@ -42,7 +42,6 @@
             <list>
                 <ref bean="authorizationInterceptor"/>
                 <ref bean="tabInterceptor"/>
-                <ref bean="myGoInterceptor"/>
                 <ref bean="flashMessageInterceptor"/>
                 <ref bean="tokenInterceptor"/>
             </list>

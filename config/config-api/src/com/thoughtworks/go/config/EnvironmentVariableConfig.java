@@ -73,8 +73,8 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     public EnvironmentVariableConfig(GoCipher goCipher, String name, String value, boolean isSecure) {
         this(goCipher);
-        this.name = name;
         this.isSecure = isSecure;
+        setName(name);
         setValue(value);
     }
 
@@ -149,7 +149,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.trim();
     }
 
     void addTo(EnvironmentVariableContext context) {
@@ -288,7 +288,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     public void setConfigAttributes(Object attributes) {
         Map attributeMap = (Map) attributes;
-        this.name = (String) attributeMap.get(EnvironmentVariableConfig.NAME);
+        setName((String) attributeMap.get(EnvironmentVariableConfig.NAME));
         String value = (String) attributeMap.get(EnvironmentVariableConfig.VALUE);
         if (StringUtil.isBlank(name) && StringUtil.isBlank(value)) {
             throw new IllegalArgumentException(String.format("Need not null/empty name & value %s:%s", this.name, value));

@@ -111,11 +111,11 @@ public class EnvironmentVariableContext implements Serializable {
     }
 
     public void setProperty(String key, String value, boolean isSecure) {
-        properties.add(new EnvironmentVariable(key, value, isSecure));
+        properties.add(new EnvironmentVariable(key.trim(), value, isSecure));
     }
 
     public void setPropertyWithEscape(String key, String value) {
-        properties.add(new EnvironmentVariable(escapeEnvironmentVariable(key), value));
+        properties.add(new EnvironmentVariable(escapeEnvironmentVariable(key.trim()), value));
     }
 
     public String getProperty(String key) {

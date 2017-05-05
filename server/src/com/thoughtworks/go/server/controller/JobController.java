@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -55,6 +56,8 @@ public class JobController {
     @Autowired
     private JobInstanceService jobInstanceService;
     @Autowired
+    private AgentService agentService;
+    @Autowired
     private JobDetailService jobDetailService;
     @Autowired
     private GoConfigService goConfigService;
@@ -75,10 +78,11 @@ public class JobController {
     }
 
     JobController(
-            JobInstanceService jobInstanceService, JobDetailService jobDetailService,
+            JobInstanceService jobInstanceService, AgentService agentService, JobDetailService jobDetailService,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
             ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService, Localizer localizer) {
         this.jobInstanceService = jobInstanceService;
+        this.agentService = agentService;
         this.jobDetailService = jobDetailService;
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
@@ -105,15 +109,22 @@ public class JobController {
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(), stageName, stageCounter);
 
         JobInstance instance = jobDetailService.findMostRecentBuild(new JobIdentifier(stageIdentifier, jobName));
-        return getModelAndView(instance);
+        Agent agent =  agentService.findAgentObjectByUuid(instance.getAgentUuid());
+
+        if (null == agent) {
+            agent = Agent.blankAgent(instance.getAgentUuid());
+        }
+
+        return getModelAndView(instance, agent);
     }
 
-    private ModelAndView getModelAndView(JobInstance jobDetail) throws Exception {
+    private ModelAndView getModelAndView(JobInstance jobDetail, Agent agent) throws Exception {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);
         data.put("l", localizer);
         data.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(jobDetail.getPipelineName()));
+        data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
         return new ModelAndView("build_detail/build_detail_page", data);
     }
 
@@ -151,7 +162,7 @@ public class JobController {
             JobInstance mostRecentJobInstance = jobDetailService.findMostRecentBuild(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
-                    goConfigService.agentByUuid(mostRecentJobInstance.getAgentUuid()),
+                    agentService.findAgentObjectByUuid(mostRecentJobInstance.getAgentUuid()),
                     stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {

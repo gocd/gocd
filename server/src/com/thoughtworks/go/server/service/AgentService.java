@@ -24,6 +24,7 @@ import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
@@ -58,7 +59,6 @@ public class AgentService {
     private final AgentConfigService agentConfigService;
     private final SecurityService securityService;
     private final EnvironmentConfigService environmentConfigService;
-    private final GoConfigService goConfigService;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
     private final AgentDao agentDao;
@@ -69,9 +69,9 @@ public class AgentService {
 
     @Autowired
     public AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
-                        final GoConfigService goConfigService, SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
+                        SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
                         final EmailSender emailSender) {
-        this(agentConfigService, systemEnvironment, null, environmentConfigService, goConfigService, securityService, agentDao, uuidGenerator, serverHealthService);
+        this(agentConfigService, systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService);
         this.agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
             public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
             }
@@ -79,12 +79,11 @@ public class AgentService {
     }
 
     AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, AgentInstances agentInstances,
-                 EnvironmentConfigService environmentConfigService, GoConfigService goConfigService, SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
+                 EnvironmentConfigService environmentConfigService, SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
                  ServerHealthService serverHealthService) {
         this.systemEnvironment = systemEnvironment;
         this.agentConfigService = agentConfigService;
         this.environmentConfigService = environmentConfigService;
-        this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.agentInstances = agentInstances;
         this.agentDao = agentDao;
@@ -98,7 +97,14 @@ public class AgentService {
     }
 
     public void sync(Agents agents) {
+        syncWithDB(agents);
         agentInstances.sync(agents);
+    }
+
+    private void syncWithDB(Agents agentConfigs) {
+        for (AgentConfig agentConfig : agentConfigs) {
+            agentDao.syncAgent(agentConfig.getAgentIdentifier());
+        }
     }
 
     public List<String> getUniqueAgentNames() {
@@ -366,6 +372,13 @@ public class AgentService {
         String cookie = uuidGenerator.randomUuid();
         agentDao.associateCookie(identifier, cookie);
         return cookie;
+    }
+
+    public Agent findAgentObjectByUuid(String uuid) {
+        AgentConfig agentConfig = agentConfigService.agents().getAgentByUuid(uuid);
+
+        Agent agent = agentDao.agentByIdentifier(agentConfig.getAgentIdentifier());
+        return null == agent ? Agent.fromConfig(agentConfig) : agent;
     }
 
     public AgentsViewModel filter(List<String> uuids) {

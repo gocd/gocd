@@ -130,6 +130,10 @@ public class JobInstanceModel {
         return true;
     }
 
+    public boolean hasLiveAgent(){
+        return !agentInstance.isNullAgent();
+    }
+
     @Override
     public int hashCode() {
         int result = instance != null ? instance.hashCode() : 0;

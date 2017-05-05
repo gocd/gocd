@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBeans;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.TimeConverter;
 import com.thoughtworks.go.util.json.JsonAware;
 
@@ -36,7 +36,7 @@ public class StageJsonPresentationModel implements JsonAware {
     private final Pipeline pipeline;
     private final Stage stage;
     private final StageIdentifier lastSuccessfulStage;
-    private Agents agents;
+    private AgentService agentService;
     private DurationBeans durations;
     private final TrackingTool trackingTool;
     private TimeConverter timeConverter = new TimeConverter();
@@ -46,21 +46,21 @@ public class StageJsonPresentationModel implements JsonAware {
     private boolean canCancel;
 
     StageJsonPresentationModel(Pipeline pipeline, Stage stage, StageIdentifier lastSuccessfulStage,
-                               Agents agents) {
-        this(pipeline, stage, lastSuccessfulStage, agents, NO_DURATIONS, new TrackingTool());
+                               AgentService agentService) {
+        this(pipeline, stage, lastSuccessfulStage, agentService, NO_DURATIONS, new TrackingTool());
     }
 
-    public StageJsonPresentationModel(Pipeline pipeline, Stage stage, Agents agents, DurationBeans durations,
+    public StageJsonPresentationModel(Pipeline pipeline, Stage stage, AgentService agentService, DurationBeans durations,
                                       TrackingTool trackingTool) {
-        this(pipeline, stage, null, agents, durations, trackingTool);
+        this(pipeline, stage, null, agentService, durations, trackingTool);
     }
 
     public StageJsonPresentationModel(Pipeline pipeline, Stage stage, StageIdentifier lastSuccessfuleStage,
-                                      Agents agents, DurationBeans durations, TrackingTool trackingTool) {
+                                      AgentService agentService, DurationBeans durations, TrackingTool trackingTool) {
         this.pipeline = pipeline;
         this.stage = stage;
         this.lastSuccessfulStage = lastSuccessfuleStage;
-        this.agents = agents;
+        this.agentService = agentService;
         this.durations = durations;
         this.trackingTool = trackingTool;
         this.summaries = pipeline.toModificationSummaries();
@@ -126,7 +126,7 @@ public class StageJsonPresentationModel implements JsonAware {
         List plans = new ArrayList();
         for (JobInstance job : builds) {
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(job,
-                    agents.getAgentByUuid(job.getAgentUuid()),
+                    agentService.findAgentObjectByUuid(job.getAgentUuid()),
                     durations.byId(job.getId()));
             Map jsonMap = presenter.toJsonHash();
             jsonMap.put("buildLocator", job.buildLocator());

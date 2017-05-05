@@ -31,6 +31,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.helper.JobIdentifierMother unless defined? JobIdentifierMother
   java_import com.thoughtworks.go.helper.JobInstanceMother unless defined? JobInstanceMother
   java_import com.thoughtworks.go.helper.JobInstanceMother unless defined? JobInstanceMother
+  java_import com.thoughtworks.go.domain.Agent unless defined? Agent
   java_import com.thoughtworks.go.helper.MaterialsMother unless defined? MaterialsMother
   java_import com.thoughtworks.go.helper.MaterialConfigsMother unless defined? MaterialConfigsMother
   java_import com.thoughtworks.go.helper.ModificationsMother unless defined? ModificationsMother

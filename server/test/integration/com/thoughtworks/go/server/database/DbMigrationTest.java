@@ -171,6 +171,24 @@ public class DbMigrationTest {
         hasColumn("PIPELINES", "COMMENT");
     }
 
+    @Test
+    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
+    public void testMigration_1705001_add_hostname_and_ip_to_agents_table() throws Exception {
+        dbFixture.copyDeltas();
+        dbFixture.copyH2Db("with-usernames-in-different-cases.zip");
+
+        h2Database = new H2Database(dbFixture.env());
+        h2Database.startDatabase();
+
+        doesNotHaveColumn("AGENTS", "HOSTNAME");
+        doesNotHaveColumn("AGENTS", "IPADDRESS");
+
+        h2Database.upgrade();
+
+        hasColumn("AGENTS", "HOSTNAME");
+        hasColumn("AGENTS", "IPADDRESS");
+    }
+
     private void columnHasDefault(String table, String column, String defaultValue) {
         assertThat(DatabaseFixture.query(String.format("SELECT COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE COLUMN_NAME='%s' AND TABLE_NAME='%s' AND TABLE_SCHEMA='PUBLIC'", column, table), h2Database),
                 is(new Object[][]{{defaultValue}}));

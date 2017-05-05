@@ -19,11 +19,13 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.server.domain.AgentCookie" table="agents" >
+    <class name="com.thoughtworks.go.server.domain.Agent" table="agents" >
         <id name="id" column="id">
             <generator class="identity"/>
         </id>
         <property name="uuid"/>
         <property name="cookie"/>
+        <property name="hostname"/>
+        <property name="ipaddress"/>
     </class>
 </hibernate-mapping>

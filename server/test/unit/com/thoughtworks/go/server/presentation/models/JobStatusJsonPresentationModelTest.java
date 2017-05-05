@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.util.JsonTester;
 import com.thoughtworks.go.util.JsonUtils;
 import org.joda.time.DateTime;
@@ -40,10 +41,10 @@ public class JobStatusJsonPresentationModelTest {
         instance.setId(12);
         instance.setAgentUuid("1234");
 
-        final Agents agents = new Agents(new AgentConfig("1234", "localhost", "1234"));
+        final Agent agent = new Agent("1234", "cookie", "localhost", "1234");
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
-                agents.getAgentByUuid(instance.getAgentUuid()));
+                agent);
         Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
@@ -99,10 +100,9 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = JobInstanceMother.building("Plan1");
         instance.setAgentUuid("1234");
 
-
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
-                        new AgentConfig("1234", "localhost", null));
+                        new Agent("1234", "cookie","localhost", "address"));
         JsonTester tester = new JsonTester(presenter.toJsonHash());
         tester.shouldContain(" { 'agent' : 'localhost' } ");
     }

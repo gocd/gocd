@@ -42,6 +42,7 @@ public class JobControllerTest {
     private JobInstanceService jobInstanceService;
     private JobDetailService jobDetailService;
     private GoConfigService jobConfigService;
+    private AgentService agentService;
     private StageService stageService;
     private MockHttpServletResponse response;
 
@@ -52,7 +53,7 @@ public class JobControllerTest {
         jobConfigService = mock(GoConfigService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, jobDetailService, jobConfigService, null, null, null, null, stageService, null);
+        jobController = new JobController(jobInstanceService, agentService, jobDetailService, jobConfigService, null, null, null, null, stageService, null);
     }
 
     @Test

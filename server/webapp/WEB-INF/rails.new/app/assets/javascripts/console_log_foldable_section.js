@@ -70,37 +70,22 @@
       }
     }
 
-    function lpad3(num) {
-      return ("00" + num).slice(-3);
-    }
-
-    // no, moment.js doesn't make this easy (at least not without some plugin)
     function humanizeMilliseconds(duration) {
-      var ms, sec, min, hr, out;
+      var d = moment.duration(duration, "ms");
 
-      ms = duration % 1000;
-      duration = (duration - ms) / 1000;
-
-      if (duration !== 0) {
-        sec = duration % 60;
-        duration = (duration - sec) / 60;
-        out = sec + "." + lpad3(ms) + "s";
-      } else {
-        out = "0." + lpad3(ms) + "s";
+      if (d >= 86400000 /* 24 hrs */) {
+        return d.format("d[d] h:m:s.S");
       }
 
-      if (duration > 0) {
-        min = duration % 60;
-        duration = (duration - min) / 60;
-        out = min + "m " + out;
+      if (d >= 3600000 /* 1 hr */) {
+        return d.format("h[h] m[m] s.S[s]")
       }
 
-      if (duration > 0) {
-        hr = duration;
-        out = hr + "h " + out;
+      if (d >= 60000 /* 1 min */) {
+        return d.format("m[m] s.S[s]")
       }
 
-      return out;
+      return d.format("s.S[s]", {trim: false});
     }
 
     function insertPlain(cursor, timestamp, line) {

@@ -415,7 +415,8 @@ public class UserService {
         Users users = userDao.findNotificationSubscribingUsers();
         return users.filter(new Filter<User>() {
             public boolean matches(User user) {
-                return user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
+                return user.isEnabled() &&
+                        user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
                         securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName());
             }
         });

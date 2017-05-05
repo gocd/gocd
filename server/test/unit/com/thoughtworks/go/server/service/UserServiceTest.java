@@ -46,6 +46,7 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -494,6 +495,22 @@ public class UserServiceTest {
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
+    }
+
+    @Test
+    public void shouldFindOnlyEnabledUser() {
+        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
+        foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
+        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        bar.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
+
+        bar.disable();
+
+        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
+        when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(true);
+        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
+        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), not(contains(bar)));
     }
 
     @Test

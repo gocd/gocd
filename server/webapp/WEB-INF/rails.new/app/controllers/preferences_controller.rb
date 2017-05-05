@@ -15,7 +15,7 @@
 ##########################################################################
 
 class PreferencesController < ApplicationController
-  include ApiV1::AuthenticationHelper
+  include AuthenticationHelper
 
   before_action :check_user_and_401, :load_pipelines
 

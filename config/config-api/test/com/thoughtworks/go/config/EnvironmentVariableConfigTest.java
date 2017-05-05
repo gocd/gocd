@@ -49,6 +49,12 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
+    public void shouldTrimNameBeforeConstructed() throws Exception {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("foo ", "password");
+        assertThat(environmentVariableConfig.getName(), is("foo"));
+    }
+
+    @Test
     public void shouldEncryptValueWhenConstructedAsSecure() throws InvalidCipherTextException {
         GoCipher goCipher = mock(GoCipher.class);
         String encryptedText = "encrypted";

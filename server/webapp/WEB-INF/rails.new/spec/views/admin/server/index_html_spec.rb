@@ -161,6 +161,7 @@ describe "admin/server/index.html.erb" do
 
             expect(form_items[7]).to have_selector("label", :text => "Admin mail*")
             expect(form_items[7]).to have_selector("input[type='text'][name='server_configuration_form[adminMail]']")
+            expect(form_items[7].length).to have(254).characters 
           end
         end
       end

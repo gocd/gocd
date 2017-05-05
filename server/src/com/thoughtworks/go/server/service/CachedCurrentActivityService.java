@@ -42,17 +42,20 @@ public class CachedCurrentActivityService implements CurrentActivityService {
     private PipelineScheduleQueue pipelineScheduleQueue;
     private PipelineService pipelineService;
     private PipelinePauseService pipelinePauseService;
+    private AgentService agentService;
 
     @Autowired
     public CachedCurrentActivityService(GoConfigService goConfigService,
                                         StageService stageService,
                                         PipelineScheduleQueue pipelineScheduleQueue,
-                                        PipelineService pipelineService, PipelinePauseService pipelinePauseService) {
+                                        PipelineService pipelineService, PipelinePauseService pipelinePauseService,
+                                        AgentService agentService) {
         this.goConfigService = goConfigService;
         this.stageService = stageService;
         this.pipelineScheduleQueue = pipelineScheduleQueue;
         this.pipelineService = pipelineService;
         this.pipelinePauseService = pipelinePauseService;
+        this.agentService = agentService;
     }
 
     public boolean isStageActive(String pipelineName, String stageName) {
@@ -89,6 +92,6 @@ public class CachedCurrentActivityService implements CurrentActivityService {
         StageIdentifier lastSuccessfulPipelineForStage = pipelineService.findLastSuccessfulStageIdentifier(currentPipeline.getName(), stage.getName());
         final DurationBeans durations = stageService.getBuildDurations(currentPipeline.getName(), stage);
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(currentPipeline.getName())).trackingTool();
-        return new StageJsonPresentationModel(currentPipeline, stage, lastSuccessfulPipelineForStage, goConfigService.agents(), durations, trackingTool);
+        return new StageJsonPresentationModel(currentPipeline, stage, lastSuccessfulPipelineForStage, agentService, durations, trackingTool);
     }
 }

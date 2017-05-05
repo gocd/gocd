@@ -20,7 +20,7 @@ import java.sql.SQLException;
 
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.domain.AgentCookie;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import org.hibernate.Query;
@@ -53,18 +53,23 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public String cookieFor(final AgentIdentifier agentIdentifier) {
+        Agent agent = agentByIdentifier(agentIdentifier);
+
+        return null == agent ? null : agent.getCookie();
+    }
+
+    public Agent agentByIdentifier(AgentIdentifier agentIdentifier) {
         String key = agentCacheKey(agentIdentifier);
-        AgentCookie cookie = (AgentCookie) cache.get(key);
-        if (cookie == null) {
+        Agent agent = (Agent) cache.get(key);
+
+        if (agent == null) {
             synchronized (key) {
-                cookie = findAgentCookieByUuid(agentIdentifier);
-                cache.put(key, cookie);
+                agent = findAgentByIdentifier(agentIdentifier);
+                cache.put(key, agent);
             }
         }
-        if (cookie != null) {
-            return cookie.getCookie();
-        }
-        return null;
+
+        return agent;
     }
 
     public void associateCookie(final AgentIdentifier agentIdentifier, final String cookie) {
@@ -72,13 +77,13 @@ public class AgentDao extends HibernateDaoSupport {
         synchronized (key) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    AgentCookie agentCookie = findAgentCookieByUuid(agentIdentifier);
-                    if (agentCookie == null) {
-                        agentCookie = new AgentCookie(agentIdentifier.getUuid(), cookie);
+                    Agent agent = findAgentByIdentifier(agentIdentifier);
+                    if (agent == null) {
+                        agent = new Agent(agentIdentifier.getUuid(), cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                     } else {
-                        agentCookie.updateCookie(cookie);
+                        agent.update(cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                     }
-                    getHibernateTemplate().saveOrUpdate(agentCookie);
+                    getHibernateTemplate().saveOrUpdate(agent);
                     synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override public void afterCommit() {
                             cache.remove(key);                            
@@ -93,13 +98,22 @@ public class AgentDao extends HibernateDaoSupport {
         return (AgentDao.class.getName() + "_agent_" + identifier.getUuid()).intern();
     }
 
-    private AgentCookie findAgentCookieByUuid(final AgentIdentifier agentIdentifier) {
-        return (AgentCookie) getHibernateTemplate().execute(new HibernateCallback() {
+    private Agent findAgentByIdentifier(final AgentIdentifier agentIdentifier) {
+        return (Agent) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query query = session.createQuery("from AgentCookie where uuid = :uuid");
+                Query query = session.createQuery("from Agent where uuid = :uuid");
                 query.setString("uuid", agentIdentifier.getUuid());
                 return query.uniqueResult();
             }
         });
+    }
+
+    public void syncAgent(AgentIdentifier agentIdentifier) {
+        Agent agent = findAgentByIdentifier(agentIdentifier);
+        if (agent != null &&
+                (!agentIdentifier.getHostName().equals(agent.getHostname()) ||
+                        !agentIdentifier.getIpAddress().equals(agent.getIpaddress()))) {
+            associateCookie(agentIdentifier, agent.getCookie());
+        }
     }
 }

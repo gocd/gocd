@@ -133,7 +133,7 @@ describe 'stages/_jobs.html.erb' do
     end
   end
 
-  it "should get job name, state, result" do
+  it "should get job name, state, result with link to agent information" do
     render :partial => "stages/jobs", :locals => {:scope => {:jobs => @jobs, :stage => @stage}}
 
     Capybara.string(response.body).all(".jobs_summary .job").tap do |f|
@@ -141,13 +141,13 @@ describe 'stages/_jobs.html.erb' do
       expect(f[0]).to have_selector(".job_result", :text => /Failed/)
       expect(f[0]).to have_selector(".job_state", :text => "Completed")
       expect(f[0]).to have_selector(".elapsed_time", :text => /^[\s\S]*2 minutes[\s\S]*/)
-      expect(f[0]).to have_selector(".agent[title='location-1'] a[href='#{agent_detail_path(:uuid => 'agent1')}']", :text => "host1(1.1.1.1)")
+      expect(f[0]).to have_selector(".agent a[href='#{agent_detail_path(:uuid => 'agent1')}']", :text => "host1 (1.1.1.1)")
 
       expect(f[1]).to have_selector(".job_name a[href='/tab/build/detail/blah-pipeline/1/blah-stage/2/second']", :text => "second")
       expect(f[1]).to have_selector(".job_result", :text => "Passed")
       expect(f[1]).to have_selector(".job_state", :text => "Completed")
       expect(f[1]).to have_selector(".elapsed_time", :text => /^[\s\S]*2 minutes[\s\S]*/)
-      expect(f[1]).to have_selector(".agent[title='location-2'] a[href='#{agent_detail_path(:uuid => 'agent2')}']", :text => "host2(2.2.2.2)")
+      expect(f[1]).to have_selector(".agent a[href='#{agent_detail_path(:uuid => 'agent2')}']", :text => "host2 (2.2.2.2)")
 
       expect(f[2]).to have_selector(".job_name a[href='/tab/build/detail/blah-pipeline/1/blah-stage/2/third']", :text => "third")
       expect(f[2]).to have_selector(".job_result", :text => "Active")
@@ -159,13 +159,13 @@ describe 'stages/_jobs.html.erb' do
       expect(f[3]).to have_selector(".job_result", :text => /Active/)
       expect(f[3]).to have_selector(".job_state", :text => "Building")
       expect(f[3]).to have_selector(".elapsed_time", :text => /^[\s\S]*2 minutes[\s\S]*/)
-      expect(f[3]).to have_selector(".agent a[href='#{agent_detail_path(:uuid => 'agent4')}']", :text => "host4(4.4.4.4)")
+      expect(f[3]).to have_selector(".agent a[href='#{agent_detail_path(:uuid => 'agent4')}']", :text => "host4 (4.4.4.4)")
 
       expect(f[4]).to have_selector(".job_name a[href='/tab/build/detail/blah-pipeline/1/blah-stage/2/fifth']", :text => "fifth")
       expect(f[4]).to have_selector(".job_result", :text => /Cancelled/)
       expect(f[4]).to have_selector(".job_state", :text => "Completed")
       expect(f[4]).to have_selector(".elapsed_time", :text => /^[\s\S]*2 minutes[\s\S]*/)
-      expect(f[4]).to have_selector(".agent a[href='#{agent_detail_path(:uuid => 'agent5')}']", :text => "host5(5.5.5.5)")
+      expect(f[4]).to have_selector(".agent a[href='#{agent_detail_path(:uuid => 'agent5')}']", :text => "host5 (5.5.5.5)")
     end
   end
 

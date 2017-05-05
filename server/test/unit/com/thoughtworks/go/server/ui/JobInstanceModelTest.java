@@ -102,4 +102,16 @@ public class JobInstanceModelTest {
     public void shouldShowElapsedTime() {
         assertThat(job( 301, 0).getElapsedTime(), is(new Duration(301 * 1000)));
     }
+
+    @Test
+    public void shouldHaveLiveAgent() throws Exception {
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building());
+        assertThat(instance.hasLiveAgent(), is(true));
+    }
+
+    @Test
+    public void shouldNotHaveLiveAgent() throws Exception {
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO);
+        assertThat(instance.hasLiveAgent(), is(false));
+    }
 }

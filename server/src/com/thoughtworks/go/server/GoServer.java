@@ -79,7 +79,9 @@ public class GoServer {
 
     AppServer configureServer() throws Exception {
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class, SSLSocketFactory.class);
-        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
+        String value = System.getenv("KEYSTORE_PASSWORD");
+        String pass = (value != null)?value:password;
+        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, pass, sslSocketFactory));
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setCookieExpirePeriod(twoWeeks());

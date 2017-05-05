@@ -131,7 +131,7 @@ public class JobInstanceModel {
     }
 
     public boolean hasLiveAgent(){
-        return !agentInstance.isNullAgent();
+        return null != agentInstance && !agentInstance.isNullAgent();
     }
 
     @Override

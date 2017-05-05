@@ -11,6 +11,17 @@
       </admins>
     </security>
   </server>
+  <scms>
+    <scm id="31e09f31-d976-4a25-91f0-67d9ba7ddef9" name="mahesh_gocd">
+      <pluginConfiguration id="github.pr" version="1" />
+      <configuration>
+        <property>
+          <key>url</key>
+          <value>https://github.com/maheshp/gocd.git</value>
+        </property>
+      </configuration>
+    </scm>
+  </scms>
   <pipelines group="first">
     <authorization>
       <view>
@@ -22,11 +33,28 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+        <git url="/Users/maheshp/work/go/gocd" dest="some" materialName="dummy" />
       </materials>
       <stage name="up42_stage">
         <jobs>
           <job name="up42_job">
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>trap "" SIGINT SIGTERM SIGHUP; while sleep 2; do date; done</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="ls">
+                <arg>-al</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="test2">
+        <jobs>
+          <job name="some">
             <tasks>
               <exec command="ls" />
             </tasks>
@@ -34,6 +62,30 @@
         </jobs>
       </stage>
     </pipeline>
+    <pipeline name="testPR" isLocked="true">
+      <materials>
+        <scm ref="31e09f31-d976-4a25-91f0-67d9ba7ddef9" />
+      </materials>
+      <stage name="defaultStage">
+        <jobs>
+          <job name="defaultJob">
+            <tasks>
+              <exec command="sleep">
+                <arg>60</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="ls">
+                <arg>-al</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
   </pipelines>
+  <agents>
+    <agent hostname="maheshp.local" ipaddress="10.4.22.121" uuid="4cc9db57-3b67-4d29-b659-f87dff3ec857" />
+  </agents>
 </cruise>
 

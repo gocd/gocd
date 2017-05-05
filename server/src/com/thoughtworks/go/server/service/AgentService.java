@@ -375,10 +375,14 @@ public class AgentService {
     }
 
     public Agent findAgentObjectByUuid(String uuid) {
-        AgentConfig agentConfig = agentConfigService.agents().getAgentByUuid(uuid);
+        Agent agent = agentDao.agentByUuid(uuid);
 
-        Agent agent = agentDao.agentByIdentifier(agentConfig.getAgentIdentifier());
-        return null == agent ? Agent.fromConfig(agentConfig) : agent;
+        if (null == agent) {
+            AgentConfig agentConfig = agentConfigService.agents().getAgentByUuid(uuid);
+            return Agent.fromConfig(agentConfig);
+        }
+
+        return agent;
     }
 
     public AgentsViewModel filter(List<String> uuids) {

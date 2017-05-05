@@ -16,7 +16,7 @@
 
 class Api::AgentsController < Api::ApiController
   include AgentBulkEditor
-  include ApiV1::AuthenticationHelper
+  include AuthenticationHelper
 
   before_action :check_user_and_404
   before_action :check_admin_user_and_401, except: [:index, :show, :job_run_history]

@@ -133,6 +133,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def render_message(message, status = :ok, data = {})
+    render :json_hal_v1 => {message: message.strip}.merge(data), status: status
+  end
+
   def render_error_template(message, status)
     @status, @message = status, message
     render error_template_for_request, status: @status, layout: 'application'

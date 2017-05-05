@@ -16,7 +16,7 @@
 
 module Admin
   class PipelineConfigsController < ::ApplicationController
-    include ApiV1::AuthenticationHelper
+    include AuthenticationHelper
 
     layout 'single_page_app'
     before_action :check_feature_toggle

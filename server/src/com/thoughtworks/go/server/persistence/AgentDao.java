@@ -53,18 +53,18 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public String cookieFor(final AgentIdentifier agentIdentifier) {
-        Agent agent = agentByIdentifier(agentIdentifier);
+        Agent agent = agentByUuid(agentIdentifier.getUuid());
 
         return null == agent ? null : agent.getCookie();
     }
 
-    public Agent agentByIdentifier(AgentIdentifier agentIdentifier) {
-        String key = agentCacheKey(agentIdentifier);
+    public Agent agentByUuid(String uuid) {
+        String key = agentCacheKey(uuid);
         Agent agent = (Agent) cache.get(key);
 
         if (agent == null) {
             synchronized (key) {
-                agent = findAgentByIdentifier(agentIdentifier);
+                agent = fetchAgentByUuid(uuid);
                 cache.put(key, agent);
             }
         }
@@ -73,13 +73,14 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public void associateCookie(final AgentIdentifier agentIdentifier, final String cookie) {
-        final String key = agentCacheKey(agentIdentifier);
+        final String uuid = agentIdentifier.getUuid();
+        final String key = agentCacheKey(uuid);
         synchronized (key) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    Agent agent = findAgentByIdentifier(agentIdentifier);
+                    Agent agent = fetchAgentByUuid(uuid);
                     if (agent == null) {
-                        agent = new Agent(agentIdentifier.getUuid(), cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+                        agent = new Agent(uuid, cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                     } else {
                         agent.update(cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                     }
@@ -94,22 +95,22 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    String agentCacheKey(AgentIdentifier identifier) {
-        return (AgentDao.class.getName() + "_agent_" + identifier.getUuid()).intern();
+    String agentCacheKey(String uuid) {
+        return (AgentDao.class.getName() + "_agent_" + uuid).intern();
     }
 
-    private Agent findAgentByIdentifier(final AgentIdentifier agentIdentifier) {
-        return (Agent) getHibernateTemplate().execute(new HibernateCallback() {
+    private Agent fetchAgentByUuid(final String uuid) {
+        return (Agent) getHibernateTemplate().execute(new HibernateCallback<Object>() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query query = session.createQuery("from Agent where uuid = :uuid");
-                query.setString("uuid", agentIdentifier.getUuid());
+                query.setString("uuid", uuid);
                 return query.uniqueResult();
             }
         });
     }
 
     public void syncAgent(AgentIdentifier agentIdentifier) {
-        Agent agent = findAgentByIdentifier(agentIdentifier);
+        Agent agent = fetchAgentByUuid(agentIdentifier.getUuid());
         if (agent != null &&
                 (!agentIdentifier.getHostName().equals(agent.getHostname()) ||
                         !agentIdentifier.getIpAddress().equals(agent.getIpaddress()))) {

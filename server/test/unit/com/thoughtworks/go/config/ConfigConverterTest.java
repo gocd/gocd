@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.label.PipelineLabel;
@@ -51,7 +52,9 @@ import java.util.*;
 
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.Is.isA;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -226,7 +229,7 @@ public class ConfigConverterTest {
     }
 
     @Test
-    public void shouldConvertExecTask() {
+    public void shouldConvertExecTaskWhenCancelIsNotSpecified() {
         CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, null, "bash", "work", 120L, Arrays.asList("1", "2"));
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
@@ -236,6 +239,23 @@ public class ConfigConverterTest {
         assertThat(result.getArgList(), hasItem(new Argument("2")));
         assertThat(result.workingDirectory(), is("work"));
         assertThat(result.getTimeout(), is(120L));
+        assertThat(result.getOnCancelConfig().getTask(), instanceOf(KillAllChildProcessTask.class));
+    }
+
+    @Test
+    public void shouldConvertExecTaskWhenCancelIsSpecified() {
+        CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, new CRExecTask("kill"), "bash", "work", 120L, Arrays.asList("1", "2"));
+        ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
+
+        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
+        assertThat(result.command(), is("bash"));
+        assertThat(result.getArgList(), hasItem(new Argument("1")));
+        assertThat(result.getArgList(), hasItem(new Argument("2")));
+        assertThat(result.workingDirectory(), is("work"));
+        assertThat(result.getTimeout(), is(120L));
+        assertThat(result.getOnCancelConfig().getTask(), instanceOf(ExecTask.class));
+        ExecTask cancel = (ExecTask)result.getOnCancelConfig().getTask();
+        assertThat(cancel.command(),is("kill"));
     }
 
     @Test

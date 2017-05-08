@@ -156,7 +156,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             {
                 fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to parse configuration material %s by %s",
-                        material.getDisplayName(),plugin.displayName()));
+                        material.getDisplayName(),plugin.displayName()), ex);
                 String message = String.format("Parsing configuration repository using %s failed for material: %s",
                         plugin.displayName(), material.getLongDescription());
                 String errorDescription = ex.getMessage() == null ? ex.toString()

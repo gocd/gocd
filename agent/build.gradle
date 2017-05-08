@@ -29,7 +29,6 @@ sourceSets {
 dependencies {
   compile project(':agent-common')
   compile project(':common')
-  compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty
@@ -139,7 +138,6 @@ task verifyJar(type: VerifyJarTask) {
           "jolt-core-0.0.20.jar",
           "json-utils-0.0.20.jar",
           "log4j-1.2.17.jar",
-          "objenesis-1.2.jar",
           "org.apache.felix.framework-4.2.1.jar",
           "quartz-1.6.5.jar",
           "slf4j-api-1.7.21.jar",

@@ -25,6 +25,19 @@ describe Admin::JobsController do
     @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResource(resource)
   end
 
+  before :each do
+    controller.stub(:populate_config_validity)
+    @go_config_service = double('Go Config Service')
+    controller.stub(:go_config_service).and_return(@go_config_service)
+
+    @pipeline_pause_service = double('Pipeline Pause Service')
+    controller.stub(:pipeline_pause_service).and_return(@pipeline_pause_service)
+    @task_view_service = double('task_view_service')
+    controller.stub(:task_view_service).and_return(@task_view_service)
+    @pluggable_task_service = double('Pluggable_task_service')
+    controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
+  end
+
   describe "routes" do
     it "should resolve new" do
       {:get => "/admin/pipelines/dev/stages/test.1/jobs/new"}.should route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
@@ -61,8 +74,6 @@ describe Admin::JobsController do
 
   describe "action" do
     before(:each) do
-      controller.stub(:populate_config_validity)
-
       @cruise_config = BasicCruiseConfig.new()
       @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-1", "job-2", "job-3"].to_java(java.lang.String))
       @cruise_config.addPipeline("defaultGroup", @pipeline)
@@ -75,12 +86,6 @@ describe Admin::JobsController do
       @result = HttpLocalizedOperationResult.new
       @load_result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result, @load_result)
-
-      @go_config_service = double('Go Config Service')
-      controller.stub(:go_config_service).and_return(@go_config_service)
-
-      @pipeline_pause_service = double('Pipeline Pause Service')
-      controller.stub(:pipeline_pause_service).and_return(@pipeline_pause_service)
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
@@ -109,8 +114,7 @@ describe Admin::JobsController do
 
     describe "new" do
       it "should render a new job" do
-        controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:getTaskViewModels).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
+        @task_view_service.should_receive(:getTaskViewModels).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         add_resource("job-1", "windows")
@@ -318,17 +322,10 @@ describe Admin::JobsController do
         PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
       end
 
-      before :each do
-        @pluggable_task_service = double('Pluggable_task_service')
-        controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
-      end
-
       it "should be able to create a job with a pluggable task" do
         @pluggable_task_service.stub(:validate)
-        task_view_service = double('Task View Service')
-        controller.stub(:task_view_service).and_return(task_view_service)
         @new_task = PluggableTask.new(PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
-        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        @task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         stub_save_for_success
 
         pipeline_name = "pipeline-name"
@@ -344,18 +341,16 @@ describe Admin::JobsController do
       end
 
       it "should validate pluggable tasks before create" do
-        task_view_service = double('Task View Service')
-        controller.stub(:task_view_service).and_return(task_view_service)
         @pluggable_task_service.stub(:validate) do |task|
           task.getConfiguration().getProperty("key").addError("key", "some error")
         end
         @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
-        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        @task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
           result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end
-        task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
 
         job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
         post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"
@@ -381,9 +376,8 @@ describe Admin::JobsController do
 
       it "should show error message when config save fails for reasons other than validations" do
         execTask = ExecTask.new('ls', '', 'work')
-        controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
-        task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
+        @task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         stub_save_for_validation_error do |result, *_|
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
@@ -398,9 +392,8 @@ describe Admin::JobsController do
 
       it "should load jobs page with resource when creation fails" do
         execTask = ExecTask.new('ls', '', 'work')
-        controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
-        task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
+        @task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         add_resource("job-2", "anything")

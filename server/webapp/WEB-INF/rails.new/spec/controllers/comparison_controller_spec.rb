@@ -19,6 +19,11 @@ require 'spec_helper'
 describe ComparisonController do
   include StageModelMother
 
+  before :each do
+    controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
+    controller.stub(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
+  end
+
   describe "routes" do
     it "should generate & resolve list" do
       expect(:get => '/compare/foo.bar/list/compare_with/10').to route_to(:controller => "comparison", :action => "list", :pipeline_name => 'foo.bar', :other_pipeline_counter => "10", :format=> "json")
@@ -52,12 +57,10 @@ describe ComparisonController do
   describe "comparison_controller" do
     before :each do
       controller.stub(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
     end
 
     describe "show" do
       before :each do
-        controller.should_receive(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
         @mingle_service.stub(:mingleConfigForPipelineNamed)
         @result = HttpOperationResult.new
         HttpOperationResult.stub(:new).and_return(@result)

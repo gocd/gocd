@@ -19,6 +19,12 @@ require 'spec_helper'
 describe Admin::PackageRepositoriesController do
   include MockRegistryModule, ConfigSaveStubbing
 
+  before :each do
+    @go_config_service = double('go config service')
+    controller.stub(:go_config_service).and_return(@go_config_service)
+    controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+  end
+
   describe :routes do
     it "should resolve route to the new package-repositories page" do
       expect({:get => "/admin/package_repositories/new"}).to route_to(:controller => "admin/package_repositories", :action => "new")
@@ -82,18 +88,14 @@ describe Admin::PackageRepositoriesController do
     before :each do
       config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(true)
-      @go_config_service = double('go config service')
-      controller.stub(:go_config_service).and_return(@go_config_service)
       @go_config_service.should_receive(:checkConfigFileValid).and_return(config_validity)
       @go_config_service.stub(:registry)
-
       @cloner = double('cloner')
       controller.stub(:get_cloner_instance).and_return(@cloner)
     end
 
     describe "new" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
@@ -116,7 +118,6 @@ describe Admin::PackageRepositoriesController do
 
     describe "list" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
@@ -179,7 +180,6 @@ describe Admin::PackageRepositoriesController do
 
     describe "create" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
@@ -217,7 +217,6 @@ describe Admin::PackageRepositoriesController do
 
     describe "edit" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
@@ -270,7 +269,6 @@ describe Admin::PackageRepositoriesController do
 
     describe "update" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
@@ -315,7 +313,6 @@ describe Admin::PackageRepositoriesController do
     describe "check connection" do
 
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @result = HttpLocalizedOperationResult.new
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
       end

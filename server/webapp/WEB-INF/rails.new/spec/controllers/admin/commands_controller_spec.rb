@@ -18,6 +18,10 @@ require 'spec_helper'
 
 describe Admin::CommandsController do
 
+  before :each do
+    @command_repository_service = stub_service(:command_repository_service)
+  end
+
   describe "routes" do
     it "should resolve commands" do
       {:get => "/admin/commands"}.should route_to(:controller => "admin/commands", :action => "index")
@@ -46,12 +50,7 @@ describe Admin::CommandsController do
 
   describe "actions" do
 
-    before :each do
-      @command_repository_service = stub_service(:command_repository_service)
-    end
-
     describe "index" do
-
       it "should respond to html with list of tasks in alphabetical order" do
         invalid_command_snippet_1 = CommandSnippetMother.invalidSnippetWithEmptyCommand("bad1")
         invalid_command_snippet_2 = CommandSnippetMother.invalidSnippetWithInvalidContentInArg("bad0")

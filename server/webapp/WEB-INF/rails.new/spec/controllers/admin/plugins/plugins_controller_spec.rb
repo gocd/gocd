@@ -18,6 +18,12 @@ require 'spec_helper'
 
 describe Admin::Plugins::PluginsController do
 
+  before :each do
+    controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
+    controller.stub(:system_environment).and_return(@system_environment = double("system_environment", :isPluginUploadEnabled => true))
+    controller.stub(:plugin_service).and_return(@plugin_service = double('plugin service'))
+  end
+
   describe :routes do
     it "should resolve the route_for_index" do
       {:get => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "index")
@@ -41,11 +47,6 @@ describe Admin::Plugins::PluginsController do
   end
 
   describe :upload do
-    before :each do
-      controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
-      controller.stub(:system_environment).and_return(@system_environment = double("system_environment", :isPluginUploadEnabled => true))
-    end
-
     it "should show success message when upload is successful" do
       @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
         .and_return(@plugin_response = double('upload_response'))
@@ -103,13 +104,14 @@ describe Admin::Plugins::PluginsController do
 
   describe :index do
     before :each do
-      controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
       @plugin_1 = plugin("id", "name")
       @plugin_2 = plugin("yum", "yum plugin")
       @plugin_3 = plugin("A-id", "Name")
       @plugin_4 = plugin("Yum-id", "Yum Exec Plugin")
       @plugin_5 = plugin("Another-id", nil)
       @plugin_6 = plugin("plugin.jar", nil)
+      @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
+      @system_environment.should_receive(:isPluginUploadEnabled).and_return(true)
     end
 
     it "should populate the tab name" do
@@ -123,10 +125,6 @@ describe Admin::Plugins::PluginsController do
 
     it "should populate the current list of plugins and the external plugins path" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
-      controller.stub(:system_environment).and_return(@system_environment = double("system_environment"))
-
-      @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
-      @system_environment.should_receive(:isPluginUploadEnabled).and_return(true)
 
       get :index
 
@@ -151,10 +149,6 @@ describe Admin::Plugins::PluginsController do
     end
 
     it "should populate the feature toggle flag for upload plugin" do
-      controller.stub(:system_environment).and_return(@system_environment = double("system_environment"))
-
-      @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
-      @system_environment.should_receive(:isPluginUploadEnabled).and_return(true)
 
       @plugin_manager.should_receive(:plugins).and_return([])
 
@@ -175,7 +169,6 @@ describe Admin::Plugins::PluginsController do
 
   describe :edit_settings do
     before :each do
-      controller.stub(:plugin_service).and_return(@plugin_service = double('plugin service'))
       expect(@plugin_service).to receive(:getPluginSettingsFor).with('plugin.id').and_return(@plugin_settings = double('plugin settings'))
     end
 
@@ -191,7 +184,6 @@ describe Admin::Plugins::PluginsController do
 
   describe :update_settings do
     before :each do
-      controller.stub(:plugin_service).and_return(@plugin_service = double('plugin service'))
       expect(@plugin_service).to receive(:getPluginSettingsFor).with('plugin.id', anything()).and_return(@plugin_settings = double('plugin settings'))
       expect(@plugin_service).to receive(:validatePluginSettingsFor).with(@plugin_settings)
     end

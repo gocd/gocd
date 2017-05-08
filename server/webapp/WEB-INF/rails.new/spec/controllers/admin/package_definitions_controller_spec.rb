@@ -19,6 +19,13 @@ require 'spec_helper'
 describe Admin::PackageDefinitionsController do
   include ConfigSaveStubbing
   include MockRegistryModule
+
+  before :each do
+    controller.stub(:populate_config_validity)
+    @go_config_service = stub_service(:go_config_service)
+    controller.stub(:package_definition_service).with().and_return(@package_definition_service= double('Package Definition Service'))
+  end
+
   describe "routes" do
     it "should resolve route to the new package_definitions page" do
       {:get => "/admin/package_definitions/repoid/new"}.should route_to(:controller => "admin/package_definitions", :action => "new", :repo_id => "repoid")
@@ -65,9 +72,7 @@ describe Admin::PackageDefinitionsController do
 
   describe "action" do
     before(:each) do
-      controller.stub(:populate_config_validity)
       @cruise_config = BasicCruiseConfig.new()
-      @go_config_service = stub_service(:go_config_service)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
       repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
@@ -290,7 +295,6 @@ describe Admin::PackageDefinitionsController do
 
     describe :check_connection do
       before(:each) do
-        controller.stub(:package_definition_service).with().and_return(@package_definition_service= double('Package Definition Service'))
         @result = HttpLocalizedOperationResult.new
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
       end

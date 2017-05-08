@@ -19,6 +19,13 @@ require 'spec_helper'
 describe ApiV1::VersionInfosController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
+  before :each do
+    @version_info_service = double('version_info_service')
+    @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
+    controller.stub(:version_info_service).and_return(@version_info_service)
+    controller.stub(:system_environment).and_return(@system_environment)
+  end
+
   describe :as_user do
     describe :update_server do
       before(:each) do
@@ -27,15 +34,10 @@ describe ApiV1::VersionInfosController do
         installed_version = GoVersion.new('1.2.3-1')
         latest_version = GoVersion.new('5.6.7-1')
         @model = VersionInfo.new('go_server', installed_version, latest_version, nil)
-
-        @version_info_service = double('version_info_service')
-        @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
         @result = double('HttpLocalizedOperationResult')
         @go_latest_version = double('go_latest_version')
 
         ApiV1::GoLatestVersion.stub(:new).and_return(@go_latest_version)
-        controller.stub(:version_info_service).and_return(@version_info_service)
-        controller.stub(:system_environment).and_return(@system_environment)
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
         @result.stub(:isSuccessful).and_return(true);
         @go_latest_version.stub(:valid?).and_return(true)

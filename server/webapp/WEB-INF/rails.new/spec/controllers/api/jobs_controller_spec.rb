@@ -23,6 +23,8 @@ describe Api::JobsController do
   before do
     @job_instance_service = double('job_instance_service')
     controller.stub(:job_instance_service).and_return(@job_instance_service)
+    controller.stub(:xml_api_service).and_return(@xml_api_service = double(":xml_api_service"))
+
     controller.stub(:set_locale)
     controller.stub(:populate_config_validity)
   end
@@ -47,11 +49,9 @@ describe Api::JobsController do
   it "should load job and properties based on passed on id param" do
     job = job_instance('job')
 
-    controller.stub(:xml_api_service).and_return(xml_api_service = double(":xml_api_service"))
-    xml_api_service.stub(:write).with(JobXmlViewModel.new(job), "http://test.host/go").and_return(:dom)
+    @xml_api_service.stub(:write).with(JobXmlViewModel.new(job), "http://test.host/go").and_return(:dom)
 
-    controller.stub(:job_instance_service).and_return(job_instance_service = double(":job_api_service"))
-    job_instance_service.should_receive(:buildById).with(1).and_return(job)
+    @job_instance_service.should_receive(:buildById).with(1).and_return(job)
     fake_template_presence 'api/jobs/index', 'some data'
 
     get 'index', :id => "1", :format => "xml", :no_layout => true
@@ -64,6 +64,7 @@ describe Api::JobsController do
   end
 
   it "should return ordered builds with environment names when scheduled is called" do
+    job = [job_instance('job')]
 
     jobPlan1 = JobInstanceMother.jobPlan("job-1", 1)
     jobPlan2 = JobInstanceMother.jobPlan("job-2", 2)
@@ -73,15 +74,15 @@ describe Api::JobsController do
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan1, "env1"))
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan2, nil))
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan3, "env1"))
+    @xml_api_service.stub(:write).with(anything, anything).and_return(:dom)
 
-    controller.stub(:job_instance_service).and_return(job_instance_service = double(":job_instance_service"))
-    job_instance_service.stub(:waitingJobPlans).and_return(waitingJobPlans)
+    @job_instance_service.stub(:waitingJobPlans).and_return(waitingJobPlans)
     fake_template_presence 'api/jobs/scheduled', 'some data'
 
     get :scheduled, :format => "xml", :no_layout => true
 
     context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, nil)
-    expect(assigns[:doc].asXML()).to eq(JobPlanXmlViewModel.new(waitingJobPlans).toXml(context).asXML())
+    expect(assigns[:doc]).to eq(:dom)
   end
 
   describe :history do

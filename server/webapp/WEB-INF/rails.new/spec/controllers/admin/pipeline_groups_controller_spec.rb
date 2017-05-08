@@ -20,6 +20,10 @@ describe Admin::PipelineGroupsController do
   include MockRegistryModule
   before do
     controller.stub(:set_current_user)
+    @go_config_service = stub_service(:go_config_service)
+    @pipeline_config_service = stub_service(:pipeline_config_service)
+    @security_service = stub_service(:security_service)
+    @user_service = stub_service(:user_service)
   end
   include ConfigSaveStubbing
 
@@ -93,10 +97,7 @@ describe Admin::PipelineGroupsController do
 
   describe :actions do
     before(:each) do
-      @go_config_service = stub_service(:go_config_service)
-      @pipeline_config_service = stub_service(:pipeline_config_service)
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      @security_service = stub_service(:security_service)
       @security_service.stub(:isUserAdminOfGroup).and_return(true)
       @user = current_user
       @groups = PipelineConfigMother.createGroups(["group1", "group2", "group3"].to_java(java.lang.String))
@@ -250,7 +251,7 @@ describe Admin::PipelineGroupsController do
       before do
         @go_config_service.should_receive(:getMergedConfigForEditing).and_return(@config)
         @group = @groups.get(0)
-        @user_service = stub_service(:user_service)
+
         @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
         @user_service.stub(:allRoleNames).and_return(["foo_role", "bar_role", "baz_role"])
       end
@@ -275,7 +276,6 @@ describe Admin::PipelineGroupsController do
       before do
         @go_config_service.should_receive(:getMergedConfigForEditing).and_return(@config)
         @group = @groups.get(0)
-        @user_service = stub_service(:user_service)
         @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
         @user_service.stub(:allRoleNames).and_return(["foo_role", "bar_role", "baz_role"])
       end
@@ -298,6 +298,7 @@ describe Admin::PipelineGroupsController do
 
     describe :update do
       before(:each) do
+        controller.stub(:autocomplete_for_permissions_and_tab).and_return(nil)
         @go_config_service.should_receive(:getMergedConfigForEditing).and_return(@config)
         @group = @groups.get(0)
       end
@@ -334,7 +335,6 @@ describe Admin::PipelineGroupsController do
         @result = stub_localized_result
         @pipeline = @groups.get(0).get(0)
         @go_config_service.should_receive(:getMergedConfigForEditing).and_return(@config)
-        @pipeline_config_service = stub_service(:pipeline_config_service)
         @pipeline_config_service.should_receive(:canDeletePipelines).and_return({
                 "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                 "pipeline_2" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),

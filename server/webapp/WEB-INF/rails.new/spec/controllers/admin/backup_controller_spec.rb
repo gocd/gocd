@@ -18,6 +18,10 @@ require 'spec_helper'
 
 describe Admin::BackupController do
 
+  before :each do
+    controller.stub(:backup_service).and_return(@backup_service = double('backup_server'))
+  end
+
   describe :routes do
 
     it "should resolve the route to the backup admin ui page" do
@@ -34,7 +38,6 @@ describe Admin::BackupController do
   describe :index do
 
     before :each do
-      controller.stub(:backup_service).and_return(@backup_service = double('backup_server'))
       @backup_service.should_receive(:lastBackupTime).and_return(@time = java.util.Date.new)
       @backup_service.should_receive(:backupLocation).and_return(@location = "/var/lib/go-server/logs/server-backups")
       @backup_service.should_receive(:availableDiskSpace).and_return(@space = "424242")

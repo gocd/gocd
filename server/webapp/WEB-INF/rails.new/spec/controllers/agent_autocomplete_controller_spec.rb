@@ -18,6 +18,12 @@ require 'spec_helper'
 
 describe AgentAutocompleteController do
 
+  before :each do
+    controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
+    controller.stub(:environment_config_service).and_return(@environment_config_service = Object.new)
+    controller.stub(:agent_service).and_return(@agent_service = Object.new)
+  end
+
   describe :routes do
 
     it "should resolve the path" do
@@ -32,9 +38,6 @@ describe AgentAutocompleteController do
 
   describe :actions do
     before do
-      controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
-      controller.stub(:environment_config_service).and_return(@environment_config_service = Object.new)
-      controller.stub(:agent_service).and_return(@agent_service = Object.new)
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
     end
 

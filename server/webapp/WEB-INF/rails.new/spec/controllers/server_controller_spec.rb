@@ -19,6 +19,8 @@ require 'spec_helper'
 describe ServerController do
   before :each do
     controller.stub(:populate_config_validity)
+    @server_health_service = double('server health service')
+    controller.stub(:server_health_service).and_return(@server_health_service)
   end
 
   it "should resolve json url for messages" do
@@ -31,8 +33,6 @@ describe ServerController do
     third = ServerHealthState.warning("first warning", "third description", HealthStateType.artifactsDirChanged())
     states = ServerHealthStates.new([first, second, third])
 
-    @server_health_service = double('server health service')
-    controller.stub(:server_health_service).and_return(@server_health_service)
     @server_health_service.should_receive(:logs).and_return(states)
 
     get 'messages', :format => 'json'

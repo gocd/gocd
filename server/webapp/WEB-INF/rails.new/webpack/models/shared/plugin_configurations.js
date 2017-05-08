@@ -37,24 +37,24 @@ const PluginConfigurations = function (data) {
     collection: data
   });
 
-  function configForKey(key) {
+  this.configForKey = function (key) {
     return this.findConfiguration((config) => config.key() === key);
-  }
+  };
 
   this.valueFor = function (key) {
-    const config = configForKey.call(this, key);
+    const config = this.configForKey(key);
     if (config) {
       return config.value();
     }
   };
 
   this.setConfiguration = function (key, value) {
-    const existingConfig = configForKey.call(this, key);
+    const existingConfig = this.configForKey(key);
     if (!existingConfig) {
       this.createConfiguration({key, value});
     } else {
       if (existingConfig.isSecureValue()) {
-        existingConfig.editValue();
+        existingConfig.becomeUnSecureValue();
         existingConfig.value(value);
       } else {
         existingConfig.value(value);

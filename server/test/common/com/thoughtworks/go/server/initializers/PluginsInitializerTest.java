@@ -57,7 +57,6 @@ public class PluginsInitializerTest {
         serverVersion = mock(ServerVersion.class);
         goPluginsDir = FileSystemUtils.createDirectory("go-plugins");
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)).thenReturn(goPluginsDir.getAbsolutePath());
-        when(systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
         pluginManager = mock(PluginManager.class);
         pluginsInitializer = spy(new PluginsInitializer(pluginManager, systemEnvironment, serverVersion, new ZipUtil()));
         doReturn(new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")))).when(pluginsInitializer).getPluginsZipStream();
@@ -86,13 +85,6 @@ public class PluginsInitializerTest {
     public void shouldUnzipPluginsZipToPluginsPath() throws IOException {
         pluginsInitializer.initialize();
         assertThat(FileUtils.listFiles(goPluginsDir, null, true).size(), is(2));
-    }
-
-    @Test
-    public void shouldNotExtractBundledPluginZipWhenPluginsIsDisabled() {
-        when(systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(false);
-        pluginsInitializer.initialize();
-        assertThat(FileUtils.listFiles(goPluginsDir, null, true).size(), is(0));
     }
 
     @Test

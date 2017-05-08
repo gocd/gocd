@@ -64,11 +64,9 @@
                     <li id="tab-content-of-pipelines-snippet" class="<%= "current_tab" if @tab_name == "pipelines-snippet" %>">
                       <%= link_to l.string("PIPELINES_SNIPPET"), main_app.pipelines_snippet_path, :id => "tab-link-of-pipelines-snippet" -%>
                     </li>
-                    <% if is_plugins_enabled? %>
-                        <li id="plugins-listing-tab-button" class="<%= @tab_name == "plugins-listing" ? "current_tab" : "" -%>">
-                          <%= link_to l.string("PLUGINS_TAB"), main_app.plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
-                        </li>
-                    <% end %>
+                    <li id="plugins-listing-tab-button" class="<%= @tab_name == "plugins-listing" ? "current_tab" : "" -%>">
+                      <%= link_to l.string("PLUGINS_TAB"), main_app.plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
+                    </li>
                     <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
                       <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), main_app.package_repositories_list_path, :id => "tab-link-of-package-repositories" %>
                     </li>
@@ -90,11 +88,9 @@
                     <li id="backup-tab-button" class="<%= @tab_name == "backup" ? "current_tab" : "" -%>">
                       <%= link_to "Backup", main_app.backup_server_path, :id => "tab-link-of-backup" %>
                     </li>
-                    <% if is_plugins_enabled? %>
-                        <li id="plugins-listing-tab-button" class="<%= @tab_name == "plugins-listing" ? "current_tab" : "" -%>">
-                          <%= link_to l.string("PLUGINS_TAB"), main_app.plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
-                        </li>
-                    <% end %>
+                    <li id="plugins-listing-tab-button" class="<%= @tab_name == "plugins-listing" ? "current_tab" : "" -%>">
+                      <%= link_to l.string("PLUGINS_TAB"), main_app.plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
+                    </li>
                     <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
                       <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), main_app.package_repositories_new_path, :id => "tab-link-of-package-repositories" %>
                     </li>

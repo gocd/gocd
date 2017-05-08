@@ -16,14 +16,11 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import java.io.File;
-import java.io.IOException;
-
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -33,9 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.io.IOException;
+
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -56,7 +55,6 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     static {
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
         System.setProperty(PLUGIN_BUNDLE_PATH.propertyName(), BUNDLE_DIR_NAME);
-        System.setProperty(PLUGIN_FRAMEWORK_ENABLED.propertyName(), "Y");
     }
 
     private static File pathOfFileInDefaultFiles(String filePath) {

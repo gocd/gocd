@@ -50,9 +50,6 @@ public class PluginsInitializer implements Initializer {
     @Override
     public void initialize() {
         cleanupOldPluginDirectories();
-        if (!systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)) {
-            return;
-        }
         try {
             File bundledPluginsDirectory = new File(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH));
             String currentVersion = serverVersion.version();

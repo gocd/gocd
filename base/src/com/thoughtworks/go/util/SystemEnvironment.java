@@ -120,7 +120,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> PLUGIN_EXTERNAL_PROVIDED_PATH = new GoStringSystemProperty("plugins.external.provided.path", PLUGINS_PATH + System.getProperty("file.separator") + "external");
     public static GoSystemProperty<String> PLUGIN_BUNDLE_PATH = new CachedProperty<>(new GoStringSystemProperty("plugins.work.path", "plugins_work"));
     public static GoSystemProperty<String> PLUGIN_ACTIVATOR_JAR_PATH = new CachedProperty<>(new GoStringSystemProperty("plugins.activator.jar.path", "lib/go-plugin-activator.jar"));
-    public static GoSystemProperty<Boolean> PLUGIN_FRAMEWORK_ENABLED = new GoBooleanSystemProperty("plugins.framework.enabled", Boolean.TRUE);
     public static GoSystemProperty<String> ALL_PLUGINS_ZIP_PATH = new GoStringSystemProperty("plugins.all.zip.path", new File(PLUGINS_PATH, "go-plugins-all.zip").getAbsolutePath());
     public static GoSystemProperty<String> ADDONS_PATH = new GoStringSystemProperty("addons.path", "addons");
     public static GoSystemProperty<String> AVAILABLE_FEATURE_TOGGLES_FILE_PATH = new GoStringSystemProperty("available.toggles.path", "/available.toggles");
@@ -640,15 +639,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getUserDirectory() {
         return getPropertyImpl("user.dir");
-    }
-
-    public boolean isPluginsEnabled() {
-        return GoConstants.ENABLE_PLUGINS_RESPONSE_TRUE.equals(pluginStatus());
-    }
-
-    public String pluginStatus() {
-        String property = getPropertyImpl(GoConstants.ENABLE_PLUGINS_PROPERTY, GoConstants.N_NO);
-        return GoConstants.Y_YES.equals(property) ? GoConstants.ENABLE_PLUGINS_RESPONSE_TRUE : GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE;
     }
 
     public static final ThreadLocal<Boolean> enforceServerIdImmutability = new ThreadLocal<Boolean>() {

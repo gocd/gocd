@@ -77,7 +77,6 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled" do
-      allow(view).to receive(:is_plugins_enabled?).and_return(true)
       allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
@@ -88,7 +87,6 @@ describe "/layouts/admin" do
     end
 
     it "should not show plugins listing page if plugins are disabled" do
-      allow(view).to receive(:is_plugins_enabled?).and_return(false)
       allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
@@ -97,8 +95,6 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled and user is admin" do
-      allow(view).to receive(:is_plugins_enabled?).and_return(true)
-
       allow(view).to receive(:is_user_an_admin?).and_return(true)
 
       allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
@@ -111,8 +107,6 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled and user is group admin" do
-      allow(view).to receive(:is_plugins_enabled?).and_return(true)
-
       allow(view).to receive(:is_user_an_admin?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
@@ -126,8 +120,6 @@ describe "/layouts/admin" do
     end
 
     it "should not show plugins listing page if plugins are enabled and user is neither an admin nor a group admin" do
-      allow(view).to receive(:is_plugins_enabled?).and_return(true)
-
       allow(view).to receive(:is_user_an_admin?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 

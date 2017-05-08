@@ -94,7 +94,6 @@ public class DefaultPluginManagerTest {
         PLUGIN_EXTERNAL_DIR.mkdirs();
 
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(TEST_PLUGIN_BUNDLE_PATH);
-        when(systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)).thenReturn(Boolean.TRUE);
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDirName);
     }
 
@@ -165,16 +164,6 @@ public class DefaultPluginManagerTest {
 
         inOrder.verify(goPluginOSGiFramework).start();
         inOrder.verify(monitor).start();
-    }
-
-    @Test
-    public void shouldNotStartPluginFrameworkIfPluginsAreDisabled() throws Exception {
-        when(systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)).thenReturn(Boolean.FALSE);
-
-        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener);
-
-        verifyZeroInteractions(goPluginOSGiFramework);
-        verifyZeroInteractions(monitor);
     }
 
     @Test

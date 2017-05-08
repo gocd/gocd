@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
 import static java.lang.Double.parseDouble;
 
 @Service
@@ -125,10 +124,6 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public void startInfrastructure(boolean shouldPoll) {
-        if (!systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)) {
-            return;
-        }
-
         removeBundleDirectory();
         goPluginOSGiFramework.start();
 
@@ -162,10 +157,6 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public void stopInfrastructure() {
-        if (!systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)) {
-            return;
-        }
-
         goPluginOSGiFramework.stop();
 
         monitor.stop();

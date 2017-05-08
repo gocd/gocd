@@ -27,6 +27,15 @@ describe Admin::PipelinesController do
   before(:each) do
     @user = Username.new(CaseInsensitiveString.new("loser"))
     controller.stub(:current_user).and_return(@user)
+    controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
+    @template_config_service = double('Template Config Service')
+    controller.stub(:template_config_service).and_return(@template_config_service)
+    controller.stub(:security_service).and_return(@security_service = double('Security Service'))
+    @pluggable_task_service = double('Pluggable_task_service')
+
+    controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
+    controller.stub(:task_view_service).and_return(@task_view_service = double('Task View Service'))
+    controller.stub(:package_definition_service).with().and_return(@package_definition_service = StubPackageDefinitionService.new)
   end
 
   describe "routes" do
@@ -72,7 +81,6 @@ describe Admin::PipelinesController do
 
       pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, BasicCruiseConfig.new, BasicCruiseConfig.new)
 
-      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
 
@@ -97,8 +105,6 @@ describe Admin::PipelinesController do
       pipeline_config = PipelineConfigMother.pipelineConfigWithMingleConfiguration("HelloWorld", "http://mingleurl.com:7823", "go", "'status' > 'In Dev'")
       pipeline_config.setLabelTemplate("some_label_template")
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, BasicCruiseConfig.new, BasicCruiseConfig.new)
-
-      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
 
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
@@ -284,17 +290,20 @@ describe Admin::PipelinesController do
   describe "new" do
 
     before(:each) do
-      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry)
       @go_config_service.stub(:rolesForUser).and_return(nil)
       @cruise_config = BasicCruiseConfig.new
       @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       @cruise_config_mother = GoConfigMother.new
+      @task_view_service.should_receive(:getTaskViewModels).and_return(Object.new())
+      @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
     end
 
     it "should have a new pipeline group with a pipeline in it" do
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
 
       get :new
 
@@ -312,6 +321,8 @@ describe Admin::PipelinesController do
       cruise_config_mother = GoConfigMother.new
       cruise_config_mother.addPipeline(@cruise_config, "new_pipeline", "stageName", ["jobname"].to_java(java.lang.String))
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+      @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
 
       get :new, :group => "foo.bar"
 
@@ -325,8 +336,6 @@ describe Admin::PipelinesController do
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
       template_name = "someTemplateName"
       GoConfigMother.new.addPipelineWithTemplate(@cruise_config, "someTemplatePipeline", template_name, "stageName", ["jobName"].to_java(java.lang.String))
-      @template_config_service = double('Template Config Service')
-      controller.stub(:template_config_service).and_return(@template_config_service)
 
       list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name)), true, true)]
       @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
@@ -345,6 +354,11 @@ describe Admin::PipelinesController do
       @cruise_config_mother.addPipeline(cruise_config_interpolated, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
       @cruise_config_mother.addPipeline(cruise_config_interpolated, "someTemplatePipeline", "templateStage", ["templateJob"].to_java(java.lang.String))
 
+      list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name)), true, true)]
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
+
+      @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
+
       @go_config_service.should_receive(:getCurrentConfig).and_return(cruise_config_interpolated)
 
       get :new
@@ -358,8 +372,7 @@ describe Admin::PipelinesController do
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline1", "stage-1", ["job-1"].to_java(java.lang.String))
       @cruise_config_mother.addPipeline(@cruise_config, "Ab", "stage-1", ["job-1"].to_java(java.lang.String))
 
-      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
-      @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
@@ -390,7 +403,6 @@ describe Admin::PipelinesController do
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
 
-      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:rolesForUser).and_return(nil)
       @cruise_config = BasicCruiseConfig.new
@@ -405,12 +417,10 @@ describe Admin::PipelinesController do
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_pause_service.stub(:pipelinePauseInfo).with("new-pip").and_return(@pause_info)
-      @pluggable_task_service = double('Pluggable_task_service')
-
-      controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
 
       allow(@go_config_service).to receive(:updateUserPipelineSelections)
       allow(controller).to receive(:cookies).and_return({})
+      @security_service.stub(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
     end
 
     after(:each) do
@@ -418,6 +428,7 @@ describe Admin::PipelinesController do
     end
 
     it "should populate group name from the submitted value if it is present" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
@@ -429,6 +440,7 @@ describe Admin::PipelinesController do
     end
 
     it "should create a new pipeline in a new pipeline group and pause the pipeline" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
@@ -444,6 +456,7 @@ describe Admin::PipelinesController do
     end
 
     it "should update a users pipeline selections when that user successfully creates a new pipeline" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       pipeline_name = "new-pip"
 
       current_user_entity_id = 9999
@@ -461,6 +474,12 @@ describe Admin::PipelinesController do
     end
 
     it "should NOT update a users pipeline selections when that user does not successfully creates a new pipeline" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
+      @task_view_service.should_receive(:getTaskViewModels).and_return(Object.new)
+      @task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
+
       pipeline_name = "new-pip"
 
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
@@ -473,12 +492,17 @@ describe Admin::PipelinesController do
     end
 
     it "should create a new pipeline based on a template" do
+      template_name = "some_template"
+      @cruise_config.addTemplate(PipelineTemplateConfigMother.createTemplate(template_name))
+      list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name)), true, true)]
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
+
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
       @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)
 
-      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => "some _template"}}
+      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => template_name}}
 
       @cruise_config.getAllErrors().size.should == 0
       assigns[:pause_info].should == @pause_info
@@ -488,14 +512,13 @@ describe Admin::PipelinesController do
     end
 
     it "should throw up if pipeline name is empty and populate all states required for new action" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
-      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
-      controller.stub(:task_view_service).and_return(task_view_service = double('Task View Service'))
+
       task_view_models = Object.new()
-      task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
-      task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
-      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
-      @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
+      @task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
+      @task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
@@ -531,11 +554,14 @@ describe Admin::PipelinesController do
     end
 
     it "should handle validation errors for a pipeline based on a template" do
+      template_name = "some_template"
+      @cruise_config.addTemplate(PipelineTemplateConfigMother.createTemplate(template_name))
+      list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name)), true, true)]
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
+
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
-      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
-      controller.stub(:task_view_service).and_return(task_view_service = double('Task View Service'))
       task_view_models = Object.new()
-      task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
+      @task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
       @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
       @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
@@ -549,7 +575,7 @@ describe Admin::PipelinesController do
         result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
       end
 
-      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => "some _template"}}
+      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => "some_template"}}
 
       assigns[:errors].size.should == 1
       assigns[:errors][0].should == "empty pipeline name"
@@ -562,13 +588,13 @@ describe Admin::PipelinesController do
     end
 
     it "should load group name if user does not have permission for that group" do
-      task_view_service = double('Task View Service')
-      controller.stub(:task_view_service).and_return(task_view_service)
-      task_view_service.should_receive(:taskInstanceFor).with("ant").and_return(AntTask.new)
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
+      @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
+      @task_view_service.should_receive(:taskInstanceFor).with("ant").and_return(AntTask.new)
       task_view_models = Object.new()
-      task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
-      task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
-      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
+      @task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
@@ -584,6 +610,7 @@ describe Admin::PipelinesController do
     end
 
     it "should populate new package material with submitted value if it is present" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
@@ -599,8 +626,7 @@ describe Admin::PipelinesController do
     end
 
     it "should create new package material with submitted value if it is present" do
-      controller.stub(:package_definition_service).with().and_return(StubPackageDefinitionService.new)
-
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
@@ -616,6 +642,11 @@ describe Admin::PipelinesController do
     end
 
     it "should load package material data if pipeline save fails" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
+      @task_view_service.should_receive(:getTaskViewModels).and_return(Object.new())
+      @task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
       package_material_config = PackageMaterialConfig.new()
       package_material_config.setPackageDefinition(PackageDefinitionMother.create("pkg-id", "package3-name", nil, @repository1))
       @pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", MaterialConfigs.new([package_material_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig)), ["job-2"].to_java(java.lang.String))
@@ -638,11 +669,10 @@ describe Admin::PipelinesController do
     end
 
     it "should be able to create a pipeline with a pluggable task" do
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @pluggable_task_service.stub(:validate)
-      task_view_service = double('Task View Service')
-      controller.stub(:task_view_service).and_return(task_view_service)
       @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
-      task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+      @task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       stub_save_for_success
       pipeline_name = "new-pip"
@@ -662,20 +692,19 @@ describe Admin::PipelinesController do
     end
 
     it "should validate pluggable tasks before create" do
-      task_view_service = double('Task View Service')
-      controller.stub(:task_view_service).and_return(task_view_service)
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return([])
       @pluggable_task_service.stub(:validate) do |task|
         task.getConfiguration().getProperty("key").addError("key", "some error")
       end
       @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
-      task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-      task_view_service.should_receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil))
-      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+      @task_view_service.should_receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil))
+      @task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       stub_save_for_validation_error do |result, cruise_config, pipeline|
         result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
       end
-      task_view_service.should_receive(:getTaskViewModels).and_return(Object.new())
+      @task_view_service.should_receive(:getTaskViewModels).and_return(Object.new())
       pipeline_name = "new-pip"
 
       job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
@@ -801,6 +830,12 @@ describe Admin::PipelinesController do
   end
 
   describe "clone with error" do
+    before :each do
+      @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+      @cruise_config = BasicCruiseConfig.new
+      @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
+      @go_config_service.stub(:registry)
+    end
     it "should render error if pipeline to be cloned does not exist" do
       get :clone, :pipeline_name => "doesNotExist", :config_md5 => "1234abcd", :group => "group1"
 

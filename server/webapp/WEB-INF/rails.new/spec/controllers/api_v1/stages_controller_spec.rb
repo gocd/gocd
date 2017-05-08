@@ -19,6 +19,10 @@ require 'spec_helper'
 describe ApiV1::StagesController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
+  before :each do
+    controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+  end
+
   describe :show do
     describe :security do
 
@@ -49,7 +53,6 @@ describe ApiV1::StagesController do
         before(:each) do
           login_as_user
           allow_current_user_to_access_pipeline('pipeline')
-          controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
         end
 
         it 'should get stage instance json' do

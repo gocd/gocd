@@ -19,6 +19,13 @@ require 'spec_helper'
 describe ApiV1::Admin::EnvironmentsController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
+  before :each do
+    @environment_config_service = double('environment-config-service')
+    controller.stub(:environment_config_service).and_return(@environment_config_service)
+    @entity_hashing_service = double('entity-hashing-service')
+    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
+  end
+
   describe :index do
     describe :for_admins do
       it 'should render a list of environments, for admins' do
@@ -28,8 +35,6 @@ describe ApiV1::Admin::EnvironmentsController do
         environments = java.util.HashSet.new
         environments.add(env)
 
-        @environment_config_service = double('environment-config-service')
-        controller.stub(:environment_config_service).and_return(@environment_config_service)
         @environment_config_service.should_receive(:getEnvironments).and_return(environments)
 
         get_with_api_header :index
@@ -78,9 +83,8 @@ describe ApiV1::Admin::EnvironmentsController do
     before(:each) do
       @environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
-      @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
       @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+      @entity_hashing_service.stub(:md5ForEntity).and_return('foo')
     end
 
     describe :for_admins do
@@ -160,10 +164,6 @@ describe ApiV1::Admin::EnvironmentsController do
       @environment_name = 'foo-environment'
       @md5 = 'some-digest'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
-      @environment_config_service = double('environment-config-service')
-      @entity_hashing_service = double('entity-hashing-see=rvice')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
-      controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
       @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
       @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
     end
@@ -271,9 +271,8 @@ describe ApiV1::Admin::EnvironmentsController do
     before(:each) do
       @environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
-      @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
       @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+      @entity_hashing_service.stub(:md5ForEntity).and_return('foo')
     end
 
     describe :for_admins do
@@ -372,8 +371,6 @@ describe ApiV1::Admin::EnvironmentsController do
     before(:each) do
       @environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
-      @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
       @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
     end
 
@@ -456,9 +453,8 @@ describe ApiV1::Admin::EnvironmentsController do
     before(:each) do
       @environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
-      @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
       @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+      @entity_hashing_service.stub(:md5ForEntity).and_return('foo')
     end
 
 

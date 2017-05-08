@@ -21,6 +21,11 @@ describe Admin::TemplatesController do
   include ConfigSaveStubbing
   include GoUtil
 
+  before :each do
+    @template_config_service = stub_service(:template_config_service)
+    @go_config_service = stub_service(:go_config_service)
+  end
+
   describe "routes" do
     it "should resolve route to the templates listing page" do
       {:get => "/admin/templates"}.should route_to(:controller => "admin/templates", :action => "index")
@@ -74,9 +79,6 @@ describe Admin::TemplatesController do
       @cruise_config.addTemplate(@pipeline)
       @user = current_user
       @result = stub_localized_result
-
-      @template_config_service = stub_service(:template_config_service)
-      @go_config_service = stub_service(:go_config_service)
 
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)

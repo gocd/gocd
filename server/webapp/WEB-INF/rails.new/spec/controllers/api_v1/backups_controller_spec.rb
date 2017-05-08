@@ -19,16 +19,20 @@ require 'spec_helper'
 describe ApiV1::BackupsController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
+  before :each do
+    @backup_service = double('backup service')
+    controller.stub(:backup_service).and_return(@backup_service)
+    @user_service = double('user service')
+    controller.stub(:user_service).and_return(@user_service)
+  end
+
   describe :create do
     describe :for_admins do
       it 'should create a backup' do
         login_as_admin
-        @backup_service = double('backup service')
         john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
         backup = com.thoughtworks.go.server.domain.ServerBackup.new("file_path", java.util.Date.new, "jdoe")
 
-        @user_service = double('user service')
-        controller.stub(:user_service).and_return(@user_service)
         @user_service.stub(:findUserByName).and_return(john)
 
         @backup_service.should_receive(:startBackup).with(@user, instance_of(HttpLocalizedOperationResult)) do |user, result|
@@ -36,7 +40,6 @@ describe ApiV1::BackupsController do
           backup
         end
 
-        controller.stub(:backup_service).and_return(@backup_service)
         post_with_api_header :create
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(backup, ApiV1::BackupRepresenter))
@@ -45,20 +48,15 @@ describe ApiV1::BackupsController do
 
     describe :security do
       before(:each) do
-        @backup_service = double('backup service')
         john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
         backup = com.thoughtworks.go.server.domain.ServerBackup.new("file_path", java.util.Date.new, "jdoe")
 
-        @user_service = double('user service')
-        controller.stub(:user_service).and_return(@user_service)
         @user_service.stub(:findUserByName).and_return(john)
 
         @backup_service.stub(:startBackup).with(@user, instance_of(HttpLocalizedOperationResult)) do |user, result|
           result.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"));
           backup
         end
-
-        controller.stub(:backup_service).and_return(@backup_service)
       end
 
       it 'should allow anyone, with security disabled' do

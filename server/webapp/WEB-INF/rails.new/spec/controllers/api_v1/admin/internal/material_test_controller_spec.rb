@@ -145,6 +145,10 @@ describe ApiV1::Admin::Internal::MaterialTestController do
     end
 
     describe :route do
+      before :each do
+        @go_config_service = double('go_config_service')
+        controller.stub(:go_config_service).and_return(@go_config_service)
+      end
       describe :with_header do
 
         it 'should route to test action of the material_test controller' do

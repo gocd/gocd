@@ -17,6 +17,11 @@
 require 'spec_helper'
 
 describe Admin::GarageController do
+  before :each do
+    @garage_service = double('garage service')
+    @controller.stub(:garage_service).and_return(@garage_service)
+  end
+
   describe :route do
     it "should resolve index" do
       {:get => "/admin/garage"}.should route_to(:controller => "admin/garage", :action => "index")
@@ -30,11 +35,6 @@ describe Admin::GarageController do
   end
 
   describe :index do
-    before :each do
-      @garage_service = double('garage service')
-      @controller.stub(:garage_service).and_return(@garage_service)
-    end
-
     it 'should query garage service for data' do
       @garage_service.should_receive(:getData).and_return('data')
 
@@ -47,8 +47,6 @@ describe Admin::GarageController do
 
   describe :gc do
     before :each do
-      @garage_service = double('garage service')
-      @controller.stub(:garage_service).and_return(@garage_service)
       @result = stub_localized_result
     end
 

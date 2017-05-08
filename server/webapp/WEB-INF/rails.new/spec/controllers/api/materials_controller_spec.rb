@@ -19,17 +19,6 @@ require 'spec_helper'
 describe Api::MaterialsController do
   include APIModelMother
 
-  describe :routes do
-    it "should generate the route" do
-      expect(material_notify_path(:post_commit_hook_material_type => 'svn')).to eq("/api/material/notify/svn")
-    end
-
-    it "should resolve" do
-      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      expect(:post => "/api/material/notify/svn").to route_to(:controller => "api/materials", :action => "notify", :no_layout=>true, :post_commit_hook_material_type => "svn")
-    end
-  end
-
   describe :notify do
     before :each do
       @material_update_service = double('Material Update Service')
@@ -61,6 +50,15 @@ describe Api::MaterialsController do
       post :notify, @params
       expect(response.status).to eq(400)
       expect(response.body).to eq("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.\n")
+    end
+
+    it "should generate the route" do
+      expect(material_notify_path(:post_commit_hook_material_type => 'svn')).to eq("/api/material/notify/svn")
+    end
+
+    it "should resolve" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+      expect(:post => "/api/material/notify/svn").to route_to(:controller => "api/materials", :action => "notify", :no_layout=>true, :post_commit_hook_material_type => "svn")
     end
   end
 

@@ -164,16 +164,6 @@ describe ApplicationHelper do
     has_operate_permission_for_agents?.should == :is_admin?
   end
 
-  it "should find out using system environment whether the plugin framework is enabled" do
-    should_receive(:system_environment).twice.and_return(SystemEnvironment.new)
-
-    SystemEnvironment.new.setProperty(com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED.propertyName(), "Y")
-    is_plugins_enabled?.should be true
-
-    SystemEnvironment.new.setProperty(com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED.propertyName(), "N")
-    is_plugins_enabled?.should be false
-  end
-
   it "should honor system property to choose between compressed js or individual files" do
     original_value = SystemEnvironment.new.getPropertyImpl(GoConstants::USE_COMPRESSED_JAVASCRIPT)
     begin

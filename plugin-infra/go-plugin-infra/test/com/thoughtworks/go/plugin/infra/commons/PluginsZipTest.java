@@ -56,7 +56,6 @@ public class PluginsZipTest {
         expectedZipPath = temporaryFolder.newFile("go-plugins-all.zip").getAbsolutePath();
         externalPluginsDir = temporaryFolder.newFolder("plugins-external");
 
-        when(systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
         when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironment.get(ALL_PLUGINS_ZIP_PATH)).thenReturn(expectedZipPath);
@@ -121,7 +120,6 @@ public class PluginsZipTest {
     public void shouldFailGracefullyWhenExternalFileCannotBeRead() throws Exception {
         File bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled-ext");
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
-        when(systemEnvironmentFail.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
@@ -134,7 +132,6 @@ public class PluginsZipTest {
     @Test(expected = FileAccessRightsCheckException.class)
     public void shouldFailGracefullyWhenBundledFileCannotBeRead() throws Exception {
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
-        when(systemEnvironmentFail.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
@@ -147,7 +144,6 @@ public class PluginsZipTest {
     @Test
     public void fileAccessErrorShouldContainPathToTheFolderInWhichTheErrorOccurred() throws Exception {
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
-        when(systemEnvironmentFail.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("/dummy");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");

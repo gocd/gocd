@@ -195,35 +195,6 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldGetPluginEnabledStatusAsFalseIfNoEnvironmentVariableSet() {
-        assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE));
-    }
-
-    @Test
-    public void shouldGetPluginEnabledStatusAsFalseIfPropertyIsSetToN() {
-        System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "N");
-        assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE));
-    }
-
-    @Test
-    public void shouldGetPluginEnabledStatusAsTrueIfPropertyIsSetToY() {
-        System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "Y");
-        assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_TRUE));
-    }
-
-    @Test
-    public void shouldReturnTrueWhenPluginsAreEnabled() {
-        System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "Y");
-        assertThat(systemEnvironment.isPluginsEnabled(), is(true));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenPluginsAreNotEnabled() {
-        System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "N");
-        assertThat(systemEnvironment.isPluginsEnabled(), is(false));
-    }
-
-    @Test
     public void shouldResolveRevisionsForDependencyGraph_byDefault() {
         assertThat(System.getProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS), nullValue());
         assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream(), is(true));

@@ -138,6 +138,7 @@ describe ValueStreamMapModel do
     nodeP1.instances[0].locator.should == "some/path/to/p1/2"
     nodeP1.instances[0].stages.size.should == 1
     nodeP1.instances[0].stages[0].name.should == "stage-1-for-p1-2"
+    nodeP1.instances[0].stages[0].duration.should == 0
     nodeP1.instances[0].stages[0].status.should == "Passed"
 
     nodeP1.instances[1].label.should == "label-p1-1"
@@ -241,6 +242,7 @@ describe ValueStreamMapModel do
     nodeP1.instances[0].locator.should == "some/path/to/p1/1"
     nodeP1.instances[0].stages.size.should == 2
     nodeP1.instances[0].stages[0].name.should == "stage-1-for-p1-1"
+    nodeP1.instances[0].stages[0].duration.should == 0
     nodeP1.instances[0].stages[0].status.should == "Passed"
 
     nodeP2 = graph_model.levels[2].nodes[0]
@@ -254,6 +256,7 @@ describe ValueStreamMapModel do
     nodeP2.instances[0].stages[0].status.should == "Passed"
     nodeP2.instances[0].stages[0].locator.should == "path/to/stage/p2/1/stage-1-for-p2-1/1"
     nodeP2.instances[0].stages[1].name.should == "unrun_stage"
+    nodeP2.instances[0].stages[1].duration.should be_nil
     nodeP2.instances[0].stages[1].status.should == "Unknown"
     nodeP2.instances[0].stages[1].locator.should == ""
 

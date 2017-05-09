@@ -19,7 +19,7 @@ description = 'API to configure/access cruise-config.xml'
 dependencies {
   compile project(':config-api')
   compile project(':common')
-  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.5.0.201609210915-r') {
+  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.7.0.201704051617-r') {
     exclude(group: 'org.apache.httpcomponents')
   }
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'

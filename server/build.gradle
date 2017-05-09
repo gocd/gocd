@@ -186,7 +186,7 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.21'
-  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.5.0.201609210915-r'
+  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty

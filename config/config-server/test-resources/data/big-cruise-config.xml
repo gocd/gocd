@@ -2,7 +2,7 @@
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
   <server artifactsdir="logs" commandRepositoryLocation="default" serverId="834ff833-4126-4837-9db0-54bad058e279">
     <security>
-      <ldap uri="ldap://something.corporate.somewhere.com" managerDn="cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com" encryptedManagerPassword="LXoJzL/FgYx8oC9UBy1Uvg==" searchFilter="(sAMAccountName={0})">
+      <ldap uri="ldap://something.corporate.somewhere.com" managerDn="cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com" managerPassword="LXoJzL/FgYx8oC9UBy1Uvg==" searchFilter="(sAMAccountName={0})">
         <bases>
           <base value="ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com" />
         </bases>

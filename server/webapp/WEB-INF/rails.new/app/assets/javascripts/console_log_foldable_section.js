@@ -72,20 +72,7 @@
 
     function humanizeMilliseconds(duration) {
       var d = moment.duration(duration, "ms");
-
-      if (d >= 86400000 /* 24 hrs */) {
-        return d.format("d[d] h:m:s.S");
-      }
-
-      if (d >= 3600000 /* 1 hr */) {
-        return d.format("h[h] m[m] s.S[s]")
-      }
-
-      if (d >= 60000 /* 1 min */) {
-        return d.format("m[m] s.S[s]")
-      }
-
-      return d.format("s.S[s]", {trim: false});
+      return d.humanizeForGoCD();
     }
 
     function insertPlain(cursor, timestamp, line) {

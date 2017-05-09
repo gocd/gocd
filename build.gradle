@@ -106,6 +106,8 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(" git: ${getVersion("git", "--version")}")
   println("  hg: ${getVersion("hg", "--quiet", "--version")}")
   println(" svn: ${getVersion("svn", "--quiet", "--version")}")
+  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join()}")
+  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join()}")
   println(" gcc: ${getVersion("gcc", "-dumpversion")}")
   println(" g++: ${getVersion("g++", "-dumpversion")}")
   println("============================")

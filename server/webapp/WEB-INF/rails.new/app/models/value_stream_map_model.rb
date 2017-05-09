@@ -112,7 +112,11 @@ class VSMPipelineInstanceModel
     @counter = counter
     @locator = ""
     @locator = pdg_path_partial.call name, counter unless counter == 0
-    @stages = stages.map { |stage| VSMPipelineInstanceStageModel.new(stage.getName(), stage.getState().to_s, stage.getDuration().getTotalSeconds(), stage.getCounter(), name, counter, stage_detail_path_partial) }
+    @stages = stages.map do |stage|
+      state = stage.getState()
+      duration = stage.getDuration().getTotalSeconds() if state != StageState::Unknown
+      VSMPipelineInstanceStageModel.new(stage.getName(), state.to_s, duration, stage.getCounter(), name, counter, stage_detail_path_partial)
+    end
   end
 end
 

@@ -124,23 +124,23 @@
 
           if (!currentSection.type()) {
             currentSection.assignType(prefix);
-            currentLine = writer.insertHeader(currentSection, prefix, line);
+            currentLine = writer.insertHeader(currentSection, prefix, timestamp, line);
 
             if (currentSection.isExplicitEndBoundary(prefix)) {
-              currentSection = currentSection.closeAndStartNew(queue);
+              currentSection = currentSection.closeAndStartNew(queue, writer);
             }
           } else if (currentSection.isPartOfSection(prefix)) {
             currentSection.markMultiline();
-            currentLine = writer.insertLine(currentSection, prefix, line);
+            currentLine = writer.insertContent(currentSection, prefix, timestamp, line);
 
             if (currentSection.isExplicitEndBoundary(prefix)) {
-              currentSection = currentSection.closeAndStartNew(queue);
+              currentSection = currentSection.closeAndStartNew(queue, writer);
             }
           } else {
-            currentSection = currentSection.closeAndStartNew(queue);
+            currentSection = currentSection.closeAndStartNew(queue, writer);
 
             currentSection.assignType(prefix);
-            currentLine = writer.insertHeader(currentSection, prefix, line);
+            currentLine = writer.insertHeader(currentSection, prefix, timestamp, line);
           }
         } else {
 
@@ -151,10 +151,8 @@
             timestamp = "", line = rawLine;
           }
 
-          currentLine = writer.insertBasic(currentSection, line);
+          currentLine = writer.insertPlain(currentSection, timestamp, line);
         }
-
-        currentLine.setAttribute("data-timestamp", timestamp);
       }
 
       flushToDOM();

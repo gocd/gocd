@@ -92,7 +92,6 @@ $PROGRESS_BAR_BG_SIZE: 70px;
 
   font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
-  line-height: 19px;
 
   .fa {
     font-family: FontAwesome;
@@ -102,6 +101,10 @@ $PROGRESS_BAR_BG_SIZE: 70px;
     background-color: white;
     color: black;
   }
+}
+
+.log-fs-line {
+  line-height: 19px;
 }
 
 .fs-multiline {
@@ -148,6 +151,16 @@ $PROGRESS_BAR_BG_SIZE: 70px;
 .with-timestamps .log-fs-line:before {
   display: inline;
   content: attr(data-timestamp) " ";
+}
+
+.log-fs-duration {
+  display: inline-block;
+  border-radius: 0.5rem;
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+  color: #333;
+  font-size: 11px;
+  background: #cacaca;
 }
 
 dt.log-fs-line, dt.log-fs-line:before {

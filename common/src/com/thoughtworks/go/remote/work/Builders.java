@@ -26,6 +26,8 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +66,8 @@ public class Builders {
 
             if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
                 JobResult taskStatus = JobResult.Passed;
+                Instant start = Instant.now();
+
                 try {
                     String executeMessage = format("Task: %s", builder.getDescription());
                     goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
@@ -86,7 +90,8 @@ public class Builders {
                     tag = taskStatus.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
                 }
 
-                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", taskStatus.toLowerCase()));
+                Duration duration = Duration.between(start, Instant.now());
+                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s (%d ms)", taskStatus.toLowerCase(), duration.toMillis()));
             }
 
             buildLog.addContent(buildLogElement.getElement());

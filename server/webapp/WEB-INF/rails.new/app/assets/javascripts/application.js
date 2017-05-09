@@ -56,6 +56,8 @@
 //= require "lib/ui.dialog-1.7.3.js"
 //= require "lib/lodash.js"
 //= require "lib/moment-2.18.1.js"
+//= require "lib/moment-duration-format-1.3.0.js"
+//= require "lib/humanize-for-gocd.js"
 //= require "ansi_up.js"
 //= require "crel.js"
 //= require "json_to_css.js"

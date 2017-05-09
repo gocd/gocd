@@ -335,7 +335,11 @@ Graph_Renderer = function (container) {
                     gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><span>' + instance.stages[i].name + '</span></li>'
                 }
                 else {
-                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><span><span></span></span><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
+                  var stageTitle = instance.stages[i].name;
+                  if(_.toInteger(instance.stages[i].duration) > 0){
+                    stageTitle += ' (took ' + moment.duration(instance.stages[i].duration, 's').humanizeForGoCD() + ')';
+                  }
+                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><span><span></span></span><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
                 }
             }
             gui += '</ul>';

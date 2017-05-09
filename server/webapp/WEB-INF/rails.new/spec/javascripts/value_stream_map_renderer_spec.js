@@ -424,7 +424,7 @@ describe("value_stream_map_renderer", function () {
          hg_fingerprint -> current -> downstream
          */
 
-        var current_pipeline_instance_details = '{"stages": [{"locator": "/go/pipelines/current/1/defaultStage/1","status": "Passed","name": "defaultStage"},' +
+        var current_pipeline_instance_details = '{"stages": [{"locator": "/go/pipelines/current/1/defaultStage/1","duration": 117,"status": "Passed","name": "defaultStage"},' +
             '{"locator": "","status": "Unknown","name": "oneMore"}],"locator": "/go/pipelines/value_stream_map/current/1","counter": 1,"label": "1" }';
 
         var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
@@ -440,6 +440,7 @@ describe("value_stream_map_renderer", function () {
         assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #current ul ul").find(".stage_bar").length);
         assertEquals("stage details for pipeline instances are not populated correctly.", "/go/pipelines/current/1/defaultStage/1",
             jQuery("#vsm-container #current ul ul li.stage_bar.Passed a").attr("href"));
+        assertEquals("stage hover message is not correctly populated", "defaultStage (took 1m 57.0s)", jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title'));
         assertEquals("stage details for pipeline instances are not populated correctly.", 1, jQuery("#vsm-container #current ul ul li.stage_bar.Unknown > span").length);
     });
 

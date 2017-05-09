@@ -21,6 +21,7 @@ import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -63,10 +64,7 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.XsdValidationException;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
@@ -2958,7 +2956,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadAfterMigration62() {
         final String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                + "<cruise schemaVersion='62'>\n"
                 + "    <server artifactsdir=\"artifacts\">\n"
                 + "      <security>"
                 + "        <ldap uri='some_url' managerDn='some_manager_dn' managerPassword='foo' searchFilter='(sAMAccountName={0})'>"
@@ -2970,8 +2968,8 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </server>"
                 + " </cruise>";
         GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
-        BaseConfig firstBase = goConfigHolder.config.server().security().ldapConfig().getBasesConfig().first();
-        assertThat(firstBase.getValue(), is("ou=Enterprise,ou=Principal,dc=corporate,dc=thoughtworks,dc=com"));
+        assertThat(goConfigHolder.config.server().security().ldapConfig().isEnabled(), is(false));
+        assertThat(goConfigHolder.config.server().security().securityAuthConfigs().get(0).getProperty("SearchBases").getValue(), is("ou=Enterprise,ou=Principal,dc=corporate,dc=thoughtworks,dc=com"));
     }
 
     @Test
@@ -3938,29 +3936,6 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(config.server().mailHost().getPassword(), is(plainText));
         assertThat(config.server().mailHost().getEncryptedPassword(), is(encryptedValue));
         assertThat(config.server().mailHost().getHostName(), is("host"));
-    }
-
-    @Test
-    public void shouldMigrateLdapManagerPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        String plainText = "something";
-        String encryptedValue = new GoCipher().encrypt(plainText);
-        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
-                "                        ").toString();
-
-        String content = ConfigFileFixture.config(
-                "<server artifactsdir='artifacts'>\n" +
-                        "<security>\n" +
-                        "      <ldap uri='url' managerDn='manager-dn' encryptedManagerPassword='"+encryptedValueWithWhitespaceAndNewline+"'>\n" +
-                        "        <bases>\n" +
-                        "          <base value='base' />\n" +
-                        "        </bases>\n" +
-                        "      </ldap>\n" +
-                        "    </security>" +
-                        "  </server>", 88);
-
-        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(config.server().security().ldapConfig().currentManagerPassword(), is(plainText));
-        assertThat(config.server().security().ldapConfig().getEncryptedManagerPassword(), is(encryptedValue));
     }
 
     @Test

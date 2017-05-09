@@ -97,9 +97,9 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     if (state == null) {
                         state = new PipelineState(pipelineName);
                     }
+                    clearLockedPipelineStateCache(pipelineName);
                     state.lock(pipeline.getId());
                     sessionFactory.getCurrentSession().saveOrUpdate(state);
-                    clearLockedPipelineStateCache(pipelineName);
                 }
             });
         }
@@ -119,9 +119,9 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     if (state == null) {
                         state = new PipelineState(pipelineName);
                     }
+                    clearLockedPipelineStateCache(pipelineName);
                     state.unlock();
                     sessionFactory.getCurrentSession().saveOrUpdate(state);
-                    clearLockedPipelineStateCache(pipelineName);
                 }
             });
         }

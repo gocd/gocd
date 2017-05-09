@@ -1523,7 +1523,6 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifacts' >"
                 + "<security>\n"
-                + "      <passwordFile path=\"/etc/cruise/password.properties\" />\n"
                 + "      <roles>\n"
                 + "        <role name=\"bar\">\n"
                 + "          <users>"

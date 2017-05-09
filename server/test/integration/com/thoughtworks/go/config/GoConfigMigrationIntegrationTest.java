@@ -1655,6 +1655,114 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(ldapConfigMigratedToAuthConfig.getProperty("SearchBases").getValue(), is("base\n"));
     }
 
+    @Test
+    public void shouldMigrateInbuiltPasswordFileToAuthConfigAsPartOfMigration92() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server><security>" +
+                "<passwordFile path=\"../path/to/password_file.properties\" />"+
+                "</security></server></cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 91);
+        assertThat(migratedConfig.server().security().passwordFileConfig().isEnabled(), is(false));
+        assertThat(migratedConfig.server().security().securityAuthConfigs(), hasSize(1));
+
+        SecurityAuthConfig passwordFileAuthConfig = migratedConfig.server().security().securityAuthConfigs().get(0);
+        assertThat(passwordFileAuthConfig.getId(), is(not(nullValue())));
+        assertThat(passwordFileAuthConfig.getPluginId(), is("cd.go.authentication.passwordfile"));
+        assertThat(passwordFileAuthConfig.getProperty("PasswordFilePath").getValue(), is("../path/to/password_file.properties"));
+    }
+
+    @Test
+    public void shouldKeepExistingAuthConfigsWhileMigratingPasswordFileAsPartOfMigration92() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server><security>" +
+                "<passwordFile path=\"../path/to/password_file.properties\" />"+
+                "<authConfigs><authConfig id=\"foo\" pluginId=\"cd.go.authentication.passwordfile\"><property><key>PasswordFilePath</key><value>../manual-testing/ant_hg/admins.properties</value></property></authConfig></authConfigs>" +
+                "</security></server></cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        assertThat(migratedConfig.server().security().passwordFileConfig().isEnabled(), is(false));
+        assertThat(migratedConfig.server().security().securityAuthConfigs(), hasSize(2));
+
+        SecurityAuthConfig existingPasswordFile = migratedConfig.server().security().securityAuthConfigs().first();
+        assertThat(existingPasswordFile.getProperty("PasswordFilePath").getValue(), is("../manual-testing/ant_hg/admins.properties"));
+        assertThat(existingPasswordFile.getId(), is("foo"));
+        assertThat(existingPasswordFile.getPluginId(), is("cd.go.authentication.passwordfile"));
+
+        SecurityAuthConfig migratedPasswordFileAuthConfig = migratedConfig.server().security().securityAuthConfigs().last();
+        assertThat(migratedPasswordFileAuthConfig.getId(), is(not(nullValue())));
+        assertThat(migratedPasswordFileAuthConfig.getPluginId(), is("cd.go.authentication.passwordfile"));
+        assertThat(migratedPasswordFileAuthConfig.getProperty("PasswordFilePath").getValue(), is("../path/to/password_file.properties"));
+    }
+
+    @Test
+    public void shouldNotChangeOtherSecurityConfigAsPartOfMigration92() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server serverId='dev-id'><security>" +
+                "<passwordFile path=\"../path/to/password_file.properties\" />"+
+                "<roles><role name=\"admin\"/></roles>" +
+                "<admins><user>bob</user></admins>" +
+                "</security></server></cruise>";
+
+        final CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        assertThat(migratedConfig.server().security().passwordFileConfig().isEnabled(), is(false));
+        final SecurityConfig securityConfig = migratedConfig.server().security();
+
+        assertThat(securityConfig.securityAuthConfigs(), hasSize(1));
+
+        SecurityAuthConfig migratedPasswordFileAuthConfig = migratedConfig.server().security().securityAuthConfigs().first();
+        assertThat(migratedPasswordFileAuthConfig.getId(), is(not(nullValue())));
+        assertThat(migratedPasswordFileAuthConfig.getPluginId(), is("cd.go.authentication.passwordfile"));
+        assertThat(migratedPasswordFileAuthConfig.getProperty("PasswordFilePath").getValue(), is("../path/to/password_file.properties"));
+
+        assertThat(securityConfig.getRoles(), hasItem(new RoleConfig(new CaseInsensitiveString("admin"))));
+        assertThat(securityConfig.adminsConfig(), hasItem(new AdminUser(new CaseInsensitiveString("bob"))));
+    }
+
+    @Test
+    public void shouldNotConflictWithAnExistingPasswordFilePluginConfigAfterMigration92() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server serverId='dev-id'><security>" +
+                "<passwordFile path=\"../path/to/password_file.properties\" />"+
+                "<authConfigs>" +
+                "<authConfig id=\"passwordFile\" pluginId=\"cd.go.authentication.passwordfile\">" +
+                "<property><key>PasswordFilePath</key><value>../manual-testing/ant_hg/admins.properties</value></property>" +
+                "</authConfig>" +
+                "</authConfigs>" +
+                "</security></server></cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        assertThat(migratedConfig.server().security().ldapConfig().isEnabled(), is(false));
+        assertThat(migratedConfig.server().security().securityAuthConfigs(), hasSize(2));
+
+        SecurityAuthConfig existingPasswordFile = migratedConfig.server().security().securityAuthConfigs().first();
+        assertThat(existingPasswordFile.getProperty("PasswordFilePath").getValue(), is("../manual-testing/ant_hg/admins.properties"));
+        assertThat(existingPasswordFile.getId(), is("passwordFile"));
+        assertThat(existingPasswordFile.getPluginId(), is("cd.go.authentication.passwordfile"));
+
+        SecurityAuthConfig migratedPasswordFileAuthConfig = migratedConfig.server().security().securityAuthConfigs().last();
+        assertThat(migratedPasswordFileAuthConfig.getId(), is(not(nullValue())));
+        assertThat(migratedPasswordFileAuthConfig.getPluginId(), is("cd.go.authentication.passwordfile"));
+        assertThat(migratedPasswordFileAuthConfig.getProperty("PasswordFilePath").getValue(), is("../path/to/password_file.properties"));
+    }
+
+    @Test
+    public void shouldGenerateUniqueNamesForBothLdapAndPasswordFileAuthConfigDuringMigration() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server><security>" +
+                "<passwordFile path=\"../path/to/password_file.properties\" />"+
+                "<ldap uri=\"ldap://ldap.server.1\" managerDn=\"cn=admin,ou=system,dc=example,dc=com\" encryptedManagerPassword=\"" + encryptedPassword + "\" searchFilter=\"(|(sAMAccountName={0})(mail={0}))\">\n" +
+                "   <bases>\n" +
+                "       <base value=\"ou=system\" />\n" +
+                "       <base value=\"ou=employee\" />\n" +
+                "   </bases>\n" +
+                "</ldap>" +
+                "</security></server></cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        assertThat(migratedConfig.server().security().passwordFileConfig().isEnabled(), is(false));
+        assertThat(migratedConfig.server().security().ldapConfig().isEnabled(), is(false));
+        assertThat(migratedConfig.server().security().securityAuthConfigs(), hasSize(2));
+
+        SecurityAuthConfig passwordFileAuthConfig = migratedConfig.server().security().securityAuthConfigs().get(0);
+        SecurityAuthConfig ldapAuthConfig = migratedConfig.server().security().securityAuthConfigs().get(1);
+        assertThat(passwordFileAuthConfig.getId(), is(not(ldapAuthConfig.getId())));
+    }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));

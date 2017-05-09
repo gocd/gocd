@@ -335,7 +335,7 @@ Graph_Renderer = function (container) {
                     gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><span>' + instance.stages[i].name + '</span></li>'
                 }
                 else {
-                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + ': took ' + cruiseTimeConverter.fromSecondsToHHMMSS(instance.stages[i].duration) + '"><span><span></span></span><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
+                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + ': took ' + instance.stages[i].duration + ' seconds"><span><span></span></span><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
                 }
             }
             gui += '</ul>';

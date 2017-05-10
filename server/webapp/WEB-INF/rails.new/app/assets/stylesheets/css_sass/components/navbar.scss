@@ -157,6 +157,10 @@
                     }
                 }
 
+                &:hover .enhanced_dropdown {
+                    display: block;
+                }
+
                 li {
                     border: 0 none;
                     float: none;

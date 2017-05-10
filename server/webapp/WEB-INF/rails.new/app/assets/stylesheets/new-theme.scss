@@ -218,7 +218,11 @@ h4 {
           }
         }
       }
-      &.open {
+      &.open, &:hover {
+        .dropdown-menu {
+          display: block;
+        }
+
         a.dropdown-arrow-icon {
           background: #fff !important;
           color:      #333;
@@ -394,7 +398,7 @@ h4 {
           }
         }
 
-        &.selected {
+        &.selected, &:hover {
           background: $user-link-bg;
           color:      $txt-color;
           box-shadow: none;

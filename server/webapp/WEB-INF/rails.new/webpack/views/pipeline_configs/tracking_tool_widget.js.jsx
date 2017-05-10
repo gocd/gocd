@@ -1,0 +1,180 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+let m  = require('mithril');
+let f  = require('helpers/form_helper');
+let tt = require('helpers/pipeline_configs/tooltips');
+
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const TrackingTool    = require('models/pipeline_configs/tracking_tool');
+
+const TrackingToolViews = {
+  none () {
+  },
+
+  mingle (trackingTool) {
+    return (
+      <div>
+        <f.row collapse>
+          <f.inputWithLabel model={trackingTool()}
+                            attrName='baseUrl'
+                            label='Base URL'
+                            type='url'
+                            validate={true}
+                            isRequired={true}
+                            tooltip={{
+                              content:   <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
+                              direction: 'bottom',
+                              size:      'medium'
+                            }}
+                            size={8}
+                            largeSize={6}/>
+        </f.row>
+
+        <f.row collapse>
+          <f.inputWithLabel model={trackingTool()}
+                            attrName='projectIdentifier'
+                            validate={true}
+                            isRequired={true}
+                            tooltip={{
+                              content:   <tt.trackingTool.mingle.projectIdentifier
+                                           callback={trackingTool().projectIdentifier}/>,
+                              direction: 'bottom',
+                              size:      'medium'
+                            }}
+                            size={8}
+                            largeSize={6}/>
+        </f.row>
+
+        <f.row collapse>
+          <f.inputWithLabel model={trackingTool()}
+                            attrName='mqlGroupingConditions'
+                            validate={true}
+                            tooltip={{
+                              content:   <tt.trackingTool.mingle.mqlGroupingConditions
+                                           callback={trackingTool().mqlGroupingConditions}/>,
+                              direction: 'bottom',
+                              size:      'medium'
+                            }}
+                            size={8}
+                            largeSize={6}/>
+        </f.row>
+      </div>
+    );
+  },
+
+  generic (trackingTool) {
+    return (
+      <div>
+        <f.row collapse>
+          <f.inputWithLabel model={trackingTool()}
+                            attrName='regex'
+                            label='Regular expression'
+                            validate={true}
+                            isRequired={true}
+                            tooltip={{
+                              content:   <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
+                              direction: 'bottom',
+                              size:      'large'
+                            }}
+                            size={8}
+                            largeSize={6}/>
+        </f.row>
+        <f.row collapse>
+          <f.inputWithLabel model={trackingTool()}
+                            attrName='urlPattern'
+                            label='URL Pattern'
+                            type='url'
+                            validate={true}
+                            isRequired={true}
+                            tooltip={{
+                              content:   <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
+                              direction: 'bottom',
+                              size:      'large'
+                            }}
+                            size={8}
+                            largeSize={6}/>
+        </f.row>
+      </div>
+    );
+  }
+};
+
+const TrackingToolWidget = {
+  oninit (vnode) {
+    this.args = vnode.attrs;
+    ComponentMixins.HasViewModel.call(this);
+    this.vmState('possibleTrackingTools', {
+      none:    null,
+      mingle:  (vnode.attrs.trackingTool() && vnode.attrs.trackingTool().type() === 'mingle') ? vnode.attrs.trackingTool() : TrackingTool.create('mingle'),
+      generic: (vnode.attrs.trackingTool() && vnode.attrs.trackingTool().type() === 'generic') ? vnode.attrs.trackingTool() : TrackingTool.create('generic')
+    });
+  },
+
+  view (vnode) {
+    const isChecked = function (type) {
+      if (type === 'none' && !vnode.attrs.trackingTool()) {
+        return true;
+      }
+
+      return vnode.attrs.trackingTool() && vnode.attrs.trackingTool().type() === type;
+    };
+
+    const trackingTools = _.merge({none: {type: undefined, description: "None"}}, TrackingTool.Types);
+
+    return (
+      <f.accordion accordionTitles={[(
+        <span>
+          Tracking Tool
+          <f.tooltip tooltip={{content: tt.trackingTool.main}}/>
+        </span>)
+      ]}
+                   accordionKeys={['tracking-tool']}
+                   selectedIndex={vnode.state.vmState('trackingToolSelected', Stream(-1))}
+                   class="tracking-tool accordion-inner">
+        <div>
+          <f.row>
+            <f.column size={4} end={true}>
+              {_.map(trackingTools, (value, key) => {
+                return (
+                  <span>
+                  <input type="radio"
+                         name='tracking-tool-button-group'
+                         id={`tracking-tool-${  key}`}
+                         checked={isChecked(key)}
+                         onclick={vnode.attrs.trackingTool.bind(vnode.attrs, vnode.state.vmState('possibleTrackingTools')[key])}/>
+                  <label for={`tracking-tool-${  key}`}> {value.description}</label>
+                </span>
+                );
+              })}
+            </f.column>
+          </f.row>
+
+          <f.row
+            class={`tracking-tool tracking-tool-${  vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'}`}>
+            <f.column size={6} end={true}>
+              {TrackingToolViews[vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'](vnode.attrs.trackingTool)}
+            </f.column>
+          </f.row>
+        </div>
+      </f.accordion>
+    );
+  }
+};
+
+module.exports = TrackingToolWidget;

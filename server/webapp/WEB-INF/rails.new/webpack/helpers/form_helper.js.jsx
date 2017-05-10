@@ -1,0 +1,740 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+let m       = require('mithril');
+const $     = require('jquery');
+const _     = require('lodash');
+const s     = require('string-plus');
+const Mixin = require('models/mixins/model_mixins');
+require('foundation-sites');
+
+const deleteKeyAndReturnValue = function (object, key, defaultValue) {
+  if (_.isNil(object)) {
+    return defaultValue;
+  }
+  const value = object[key];
+  delete object[key];
+  return _.isNil(value) ? defaultValue : value;
+};
+
+const compactClasses = function (args) {
+  const initialClasses = [].slice.call(arguments, 1);
+  return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
+};
+
+function setValue(items, cb) {
+  return function (e) {
+    e                   = e || window.event;
+    const currentTarget = e.currentTarget || this;
+
+    const mappings = _.reduce(items, (memo, item) => {
+      const id = s.coerceToMprop(item.id)();
+      memo[id] = item;
+      return memo;
+    }, {});
+
+    cb(mappings[currentTarget.value]);
+  };
+}
+
+let f = {
+  row: {
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      const collapse = deleteKeyAndReturnValue(args, 'collapse') ? 'collapse' : 'expanded';
+      return (
+        <div
+          class={compactClasses(args, 'row', collapse)}
+          {...args}>
+          {children}
+        </div>
+      );
+    }
+  },
+
+  column: {
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
+        size      = deleteKeyAndReturnValue(args, 'size', 6),
+        largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
+
+      return (
+        <div class={compactClasses(args, 'columns', `medium-${  size}`, `large-${  largeSize}`, end)}
+             {...args}>
+          {children}
+        </div>
+      );
+    }
+  },
+
+  input: {
+    oninit () {
+      this.onInput = function (model, attrName, callback, e) {
+        const currentTarget = (e || event).currentTarget;
+        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
+        model[attrName](newValue);
+        if (callback) {
+          callback();
+        }
+      };
+    },
+
+    view (vnode) {
+      const args = vnode.attrs;
+      const ctrl = vnode.state;
+
+      const model       = deleteKeyAndReturnValue(args, 'model'),
+        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+        validate    = deleteKeyAndReturnValue(args, 'validate', false),
+        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+        onChange    = deleteKeyAndReturnValue(args, 'onChange');
+
+      args.size      = args.size || 6;
+      args.largeSize = args.largeSize || 4;
+
+      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
+
+      return (
+        <f.column {...args}>
+          <input
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="off"
+            data-prop-name={attrName}
+            data-model-type={modelType}
+            value={model[attrName]()}
+            type={type}
+            placeholder={placeholder}
+            class={propertyError ? 'is-invalid-input' : ''}
+            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
+            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
+          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+          {propertyError}
+        </f.column>
+      );
+    }
+  },
+
+  inputWithLabel: {
+    oninit () {
+      this.onInput = function (model, attrName, callback, e) {
+        const currentTarget = (e || event).currentTarget;
+        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
+        model[attrName](newValue);
+        if (callback) {
+          callback();
+        }
+      };
+    },
+
+    view (vnode) {
+      const ctrl = vnode.state;
+      const args = vnode.attrs;
+
+      const model       = deleteKeyAndReturnValue(args, 'model'),
+        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+        type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+        labelText   = deleteKeyAndReturnValue(args, 'label'),
+        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+        validate    = deleteKeyAndReturnValue(args, 'validate', false),
+        isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
+        disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
+        message     = deleteKeyAndReturnValue(args, 'message', '');
+
+      args.size      = args.size || 6;
+      args.largeSize = args.largeSize || 4;
+
+      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+          <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
+
+      let propertyMessage;
+      if (message) {
+        propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
+      }
+
+      const resetButton = function () {
+        if (args.withReset && model[attrName]()) {
+          const capitalizedAttrName = _.upperFirst(attrName);
+          return (
+            <f.resetButton onclick={model[`resetToOriginal${  capitalizedAttrName}`].bind(model)}/>
+          );
+        }
+      };
+
+      return (
+        <f.column {...args} class={_.compact([propertyError ? 'is-invalid-label' : null, args.class]).join(' ')}>
+          <label
+            class={_.compact([propertyError ? 'is-invalid-label' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
+            {labelText || s.humanize(attrName)}
+            {isRequired ? (<span class='asterisk'>*</span>) : undefined}
+          </label>
+
+          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+          {propertyMessage}
+
+          <input
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="off"
+            data-prop-name={attrName}
+            data-model-type={modelType}
+            value={model[attrName]()}
+            type={type}
+            placeholder={placeholder}
+            class={propertyError ? 'is-invalid-input' : ''}
+            disabled={disabled}
+            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
+            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
+          {resetButton()}
+          {propertyError}
+        </f.column>
+      );
+    }
+  },
+
+  textareaWithLabel: {
+    oninit () {
+      this.onInput = function (model, attrName, callback, e) {
+        const currentTarget = (e || event).currentTarget;
+        const newValue      = currentTarget.value || "";
+        model[attrName](newValue);
+        if (callback) {
+          callback();
+        }
+      };
+    },
+
+    view (vnode) {
+      const ctrl        = vnode.state;
+      const args        = vnode.attrs;
+      const model       = deleteKeyAndReturnValue(args, 'model'),
+        attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+        placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+        labelText   = deleteKeyAndReturnValue(args, 'label'),
+        onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+        tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+        modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+        validate    = deleteKeyAndReturnValue(args, 'validate', false);
+
+      args.size = args.size || 3;
+
+      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+          <small class='error'>{model.errors().errorsForDisplay(attrName)}</small>) : undefined;
+
+      return (
+        <f.column {...args} class={propertyError ? 'error' : null}>
+          <label class={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
+            {_.isNil(labelText) ? s.humanize(attrName) : labelText}
+          </label>
+
+          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+
+          <textarea
+            data-prop-name={attrName}
+            data-model-type={modelType}
+            spellcheck="off"
+            placeholder={placeholder}
+            class={propertyError ? 'error' : ''}
+            oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
+            value={model[attrName]()}
+            onblur={validate ? model.validate.bind(model, validationAttr) : undefined}>
+            </textarea>
+          {propertyError}
+        </f.column>
+      );
+    }
+  },
+
+  checkBox: {
+    view (vnode) {
+      const args = vnode.attrs;
+
+      const model      = deleteKeyAndReturnValue(args, 'model'),
+        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+        labelText  = deleteKeyAndReturnValue(args, 'label'),
+        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+        id         = s.uuid(),
+        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+
+      if (!args.size) {
+        args.size = 3;
+      }
+
+      let padding;
+
+      if (addPadding) {
+        padding = (<label class='check-box-spacing' style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
+      }
+
+      return (
+        <f.column {...args}>
+          {padding}
+          <input type="checkbox"
+                 data-prop-name={attrName}
+                 data-model-type={modelType}
+                 id={id}
+                 disabled={disabled}
+                 checked={model[attrName]()}
+                 onchange={m.withAttr('checked', model[attrName])}/>
+          <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
+            {labelText || s.humanize(attrName)}
+          </label>
+
+          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+        </f.column>
+      );
+    }
+  },
+
+  multiSelectionBox: {
+    oninit (vnode) {
+      const args = vnode.attrs;
+      this.attr  = args.model[args.attrName];
+
+      this.onChange = function (e) {
+        const currentTarget = (e || event).currentTarget;
+
+        currentTarget.checked ? this.attr().push(currentTarget.value)
+          : this.attr().pop(currentTarget.value);
+      };
+
+      this.isChecked = function (value) {
+        return _.includes(this.attr().data(), value);
+      };
+    },
+
+    view (vnode) {
+      const args = vnode.attrs;
+      const ctrl = vnode.state;
+
+      const model      = deleteKeyAndReturnValue(args, 'model'),
+        attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+        value      = deleteKeyAndReturnValue(args, 'value'),
+        labelText  = deleteKeyAndReturnValue(args, 'label'),
+        disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+        tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+        addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+        id         = s.uuid(),
+        modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+
+      if (!args.size) {
+        args.size = 3;
+      }
+
+      let padding;
+
+      if (addPadding) {
+        padding = (<label style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
+      }
+
+      return (
+        <f.column {...args}>
+          {padding}
+          <input type="checkbox"
+                 data-prop-name={attrName}
+                 data-model-type={modelType}
+                 id={id}
+                 disabled={disabled}
+                 value={value}
+                 checked={ctrl.isChecked(value)}
+                 onchange={ctrl.onChange.bind(ctrl)}/>
+          <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
+            {labelText || s.humanize(attrName)}
+          </label>
+
+          <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+        </f.column>
+      );
+    }
+  },
+
+  tabs: {
+    oninit (vnode) {
+      this.selectedIndex = s.coerceToMprop(vnode.attrs.selectedIndex || 0);
+
+      this.classNameForTab = function (tabIndex) {
+        return this.selectedIndex() === tabIndex ? 'is-active' : '';
+      };
+
+      this.componentClass = compactClasses(vnode.attrs);
+
+      this.prefixedClass = function (suffix) {
+        if (!s.isBlank(this.componentClass)) {
+          return `${this.componentClass  }-${  suffix}`;
+        }
+      };
+    },
+
+    view (vnode) {
+      const children = vnode.children;
+
+      const tabs = (
+        <ul class={_.compact(['tabs', vnode.attrs.isVertical ? 'vertical' : undefined]).join(' ')}>
+          {_.map(vnode.attrs.tabTitles, (tabTitle, tabIndex) => {
+
+            let tabTitleElem;
+
+            if (s.isBlank(tabTitle)) {
+              tabTitleElem = (<a href='javascript:void(0)'>{m.trust('&nbsp;')}</a>);
+            }
+            else if (_.isString(tabTitle)) {
+              tabTitleElem = (<a href='javascript:void(0)'>{tabTitle}</a>);
+            } else {
+              tabTitleElem = tabTitle;
+            }
+
+            return (
+              <li
+                class={_.compact(['tabs-title', vnode.state.classNameForTab(tabIndex), vnode.state.prefixedClass('tabs-title')]).join(' ')}
+                onclick={vnode.state.selectedIndex.bind(vnode.state, tabIndex)}
+                key={vnode.attrs.tabKeys[tabIndex]}>
+                {tabTitleElem}
+              </li>
+            );
+          })}
+        </ul>
+      );
+
+      const tabsContent = (
+        <div
+          class={_.compact([vnode.attrs.isVertical ? 'vertical' : undefined, 'tabs-content', 'tabs-content-container', vnode.state.prefixedClass('tabs-content-container')]).join(' ')}>
+          {_.map(_.flatten(children), (child, tabIndex) => {
+
+            let renderedChild;
+
+            if (tabIndex === vnode.state.selectedIndex()) {
+              renderedChild = child;
+            }
+
+            return (
+              <div
+                class={_.compact(['tabs-panel', vnode.state.classNameForTab(tabIndex), vnode.state.prefixedClass('tabs-panel')]).join(' ')}>
+                {renderedChild}
+              </div>
+            );
+          })}
+        </div>
+      );
+
+      if (vnode.attrs.isVertical) {
+        return (
+          <f.row
+            class={_.compact(['collapse', vnode.state.componentClass, 'tab-container', vnode.state.prefixedClass('tab-container')]).join(' ')}>
+            <f.column size={2}>
+              {tabs}
+            </f.column>
+            <f.column size={10}>
+              {tabsContent}
+            </f.column>
+          </f.row>
+        );
+      } else {
+        return (
+          <div
+            class={_.compact([vnode.state.componentClass, 'tab-container', vnode.state.prefixedClass('tab-container')]).join(' ')}>
+            {tabs}
+            {tabsContent}
+          </div>
+        );
+      }
+    }
+  },
+
+  select: {
+    oninit (vnode) {
+      this.value = s.coerceToMprop(vnode.attrs.value, '');
+    },
+
+    view (vnode) {
+      const args = vnode.attrs;
+
+      const items         = deleteKeyAndReturnValue(args, 'items', [{}]),
+        label         = deleteKeyAndReturnValue(args, 'label'),
+        model         = deleteKeyAndReturnValue(args, 'model'),
+        modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+        attrName      = deleteKeyAndReturnValue(args, 'attrName'),
+        tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
+        disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
+        receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
+        message       = deleteKeyAndReturnValue(args, 'message', '');
+
+      if (!args.size) {
+        args.size = 3;
+      }
+
+      let propertyMessage;
+      if (message) {
+        propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
+      }
+
+      const onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
+
+      const selectedValue = model[attrName]();
+      const selectElem    = (
+        <select value={selectedValue}
+                disabled={disabled}
+                data-prop-name={attrName}
+                data-model-type={modelType}
+                onchange={onchange}>
+          {_.map(items, (item) => {
+            const id   = s.coerceToMprop(item.id)();
+            const text = s.coerceToMprop(item.text)();
+
+            return (
+              <option value={id} selected={id === selectedValue}>{text}</option>
+            );
+          })}
+        </select>
+      );
+
+      if (s.isBlank(label)) {
+        return (
+          <f.column {...args}>
+            <f.tooltip tooltip={tooltip}/>
+            {propertyMessage}
+            {selectElem}
+          </f.column>);
+      } else {
+        return (
+          <f.column {...args}>
+            <label>
+              {label}
+            </label>
+            <f.tooltip tooltip={tooltip}/>
+            {propertyMessage}
+            {selectElem}
+          </f.column>
+        );
+      }
+    }
+  },
+
+  accordion: {
+    oninit (vnode) {
+      this.selectedIndex = Mixin.TogglingGetterSetter(s.coerceToMprop(vnode.attrs.selectedIndex || 0));
+
+      this.classNameForAccordionIndex = function (tabIndex) {
+        return this.selectedIndex() === tabIndex ? 'is-active' : null;
+      };
+
+      this.classNameForAccordionContent = function (tabIndex) {
+        return this.selectedIndex() === tabIndex ? 'show' : 'hide';
+      };
+    },
+
+    view (vnode) {
+      const ctrl     = vnode.state;
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      return (
+        <ul class={compactClasses(args, 'accordion')} data-accordion data-multi-expand="true">
+          {_.map(_.flatten(children), (child, index) => {
+            let renderedChild;
+
+            if (index === ctrl.selectedIndex()) {
+              renderedChild = child;
+            }
+            return (
+              <li class={_.compact(['accordion-item', ctrl.classNameForAccordionIndex(index)]).join(' ')}
+                  key={args.accordionKeys[index]} data-accordion-item>
+                <a href="javascript:void(0)"
+                   class="accordion-title"
+                   onclick={ctrl.selectedIndex.bind(ctrl, index)}>
+                  {args.accordionTitles[index]}
+                </a>
+
+                <div class={_.compact(['accordion-content', ctrl.classNameForAccordionContent(index)]).join(' ')}>
+                  {renderedChild}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+  },
+
+  removeButton: {
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      return (
+        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'remove')}
+                title='Remove' {...args}>{children}</button>
+
+      );
+    }
+  },
+
+  editButton: {
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      return (
+        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'edit')}
+                title='Edit' {...args}>{children}</button>
+      );
+    }
+  },
+
+  resetButton: {
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      return (
+        <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'reset')}
+                title='Reset' {...args}>{children}</button>
+      );
+    }
+  },
+
+  button: {
+    view (vnode) {
+      return (
+        <button type="button"
+                class={compactClasses(vnode.attrs, 'button')}
+                {...vnode.attrs}>
+          {vnode.children}
+        </button>
+      );
+    }
+  },
+
+  link: {
+    view (vnode) {
+      return (<a href="javascript:void(0)" class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}</a>);
+    }
+  },
+
+  tooltip: {
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      if (!args.tooltip && _.isEmpty(children)) {
+        return <noscript/>;
+      }
+
+      const direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
+        size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+        content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+        clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
+        type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
+
+      let tooltipId = 'tooltip-';
+
+      if (args.model && args.model.uuid) {
+        tooltipId += (`${args.model.uuid()  }-${  args.attrName}`);
+      } else {
+        tooltipId += s.uuid();
+      }
+
+      return (
+        <span class={_.compact(['tooltip-wrapper', clazz]).join(' ')}>
+          <a href='javascript:void(0)'
+             data-toggle={tooltipId}
+             class={`tooltip-${type}`}/>
+          <f.dropdown id={tooltipId}
+                      class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size, direction]).join(' ')}
+                      data-dropdown
+                      data-hover='true'
+                      data-hover-pane='true'>
+            {content}
+          </f.dropdown>
+        </span>
+      );
+    }
+  },
+
+  dropdown: {
+    oncreate: (vnode) => {
+      new window.Foundation.Dropdown($(vnode.dom));
+    },
+
+    onupdate: (vnode) => {
+      new window.Foundation.Dropdown($(vnode.dom));
+    },
+
+    onbeforeremove: (vnode) => {
+      $(vnode.dom).foundation('destroy');
+    },
+
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
+
+      return (
+        <div {...args}>
+          {children}
+        </div>
+      );
+    }
+  },
+
+  callout: {
+    view (vnode) {
+      const children = vnode.children;
+      const type     = deleteKeyAndReturnValue(vnode.attrs, 'type');
+      return (<div class={`callout ${  type}`} {...vnode.attrs}>{children}</div>);
+    }
+  },
+
+  alert: {
+    view (vnode) {
+      return (<f.callout type="alert" {...vnode.attrs}>{vnode.children}</f.callout>);
+    }
+  },
+
+  warning: {
+    view (vnode) {
+      return (<f.callout type="warning" {...vnode.attrs}>{vnode.children}</f.callout>);
+    }
+  },
+
+  info: {
+    view (vnode) {
+      return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
+    }
+  }
+};
+
+module.exports = f;

@@ -1,0 +1,118 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+let m                      = require('mithril');
+let f                      = require('helpers/form_helper');
+let TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
+
+const Stream           = require('mithril/stream');
+const _                = require('lodash');
+const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+
+const NewResourceVM = {
+  newResource: Stream(''),
+  error:       Stream('')
+};
+
+const ResourcesListWidget = {
+  oninit (vnode) {
+    this.addNewResource = function () {
+      const currentResources = vnode.attrs.resources();
+
+      const newResource = _.trim(NewResourceVM.newResource());
+
+      const duplicateResource = _.chain(currentResources).invokeMap('name').invokeMap('toLowerCase').includes(newResource.toLowerCase()).value();
+
+      if (duplicateResource) {
+        NewResourceVM.error("duplicate resource");
+      }
+
+      if ((!duplicateResource) && !(_.isEqual('', newResource))) {
+        currentResources.push(new TriStateCheckbox(newResource, []));
+        vnode.attrs.resources(currentResources);
+        NewResourceVM.newResource('');
+        NewResourceVM.error('');
+      }
+    };
+
+    this.updateResource = function (callback) {
+      vnode.attrs.hideDropDown('resource');
+
+      const resourcesToBeAdded = _.filter(vnode.attrs.resources(), (resource) => resource.isChecked()).map((resource) => {
+        return resource.name();
+      });
+
+      const resourcesToBeRemoved = _.filter(vnode.attrs.resources(), (resource) => !resource.isIndeterminate() && !resource.isChecked()).map((resource) => {
+        return resource.name();
+      });
+
+
+      callback(resourcesToBeAdded, resourcesToBeRemoved);
+
+      NewResourceVM.newResource('');
+    };
+
+    this.closeDropdown = function () {
+      vnode.attrs.dropDownReset(false);
+    };
+
+    this.newResourceInputValue = function (value) {
+      NewResourceVM.newResource(value);
+      NewResourceVM.error('');
+    };
+  },
+
+  view (vnode) {
+    return (
+      <div class="agent-button-group-dropdown resource-dropdown" onclick={vnode.state.closeDropdown}>
+        <ul class="resources-items">
+
+          {
+            _.map(vnode.attrs.resources(), (resource, index) => {
+              return <TriStateCheckboxWidget triStateCheckbox={resource} index={index} key={resource.name()}/>;
+            })
+          }
+        </ul>
+        <div class="add-resource">
+          <div class="row collapse">
+            {_.isEqual('', NewResourceVM.error()) ? "" : <span class="resource-error">{NewResourceVM.error()}</span> }
+            <div class="small-9 columns">
+              <input type="text"
+                     oninput={m.withAttr("value", vnode.state.newResourceInputValue)}
+                     value={NewResourceVM.newResource()}
+                     placeholder="Add resource" class="add-resource-input"/>
+            </div>
+            <div class="small-3 columns">
+              <f.button onclick={vnode.state.addNewResource.bind(vnode.state)}
+                        class="add-resource-btn">
+                Add
+              </f.button>
+            </div>
+
+          </div>
+          <f.button
+            onclick={ vnode.state.updateResource.bind(vnode.state, vnode.attrs.onResourcesUpdate) }
+            class="btn-apply tiny"
+            data-toggle="resources-list">
+            Apply
+          </f.button>
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = ResourcesListWidget;

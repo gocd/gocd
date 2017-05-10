@@ -1,0 +1,483 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+let m                    = require('mithril');
+let f                    = require('helpers/form_helper');
+let TestConnectionWidget = require('views/pipeline_configs/test_connection_widget');
+let PipelineStageField   = require('views/pipeline_configs/pipeline_stage_field_widget');
+let PluggableSCMWidget   = require('views/pipeline_configs/pluggable_scm_widget');
+let MaterialFilterWidget = require('views/pipeline_configs/material_filter_widget');
+
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const s               = require('string-plus');
+const tt              = require('helpers/pipeline_configs/tooltips');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Materials       = require('models/pipeline_configs/materials');
+const Pipelines       = require('models/pipeline_configs/pipelines');
+const PluggableSCMs   = require('models/pipeline_configs/pluggable_scms');
+const PluginInfos     = require('models/pipeline_configs/plugin_infos');
+
+let PasswordField = {
+  view (vnode) {
+    const model               = vnode.attrs.model;
+    const attrName            = vnode.attrs.attrName;
+    const capitalizedAttrName = _.upperFirst(attrName);
+
+    if (model[`isEditing${  capitalizedAttrName}`]()) {
+      return (
+        <div>
+          <f.inputWithLabel model={model}
+                            attrName={attrName}
+                            label={['Password ']}
+                            placeholder="Password"
+                            type='password'
+                            withReset={true}/>
+        </div>
+      );
+    } else {
+      return (
+        <f.column>
+          <label>
+            Password{' '}
+            <f.link onclick={model[`edit${  capitalizedAttrName}`].bind(model)}>Edit</f.link>
+          </label>
+          <input type='password'
+                 readonly={true}
+                 value={s.uuid()}/>
+        </f.column>
+      );
+    }
+  }
+};
+
+let UrlField = {
+  view (vnode) {
+    return (
+      <f.inputWithLabel attrName='url'
+                        type='url'
+                        validate={true}
+                        isRequired={true}
+                        model={vnode.attrs.material}/>
+    );
+  }
+};
+
+let UsernameField = {
+  view (vnode) {
+    return (
+      <f.inputWithLabel attrName='username'
+                        model={vnode.attrs.material}/>
+    );
+  }
+};
+
+let DestinationField = {
+  view (vnode) {
+    return (
+      <f.inputWithLabel attrName='destination'
+                        label="Destination"
+                        model={vnode.attrs.material}
+                        validate={true}
+                        tooltip={{
+                          content:   tt.material.destination,
+                          direction: 'bottom',
+                          size:      'small'
+                        }}/>
+    );
+  }
+};
+
+
+let NameField = {
+  view (vnode) {
+    return (
+      <f.inputWithLabel attrName='name'
+                        validate={true}
+                        model={vnode.attrs.material}
+                        tooltip={{
+                          content:   tt.material.name,
+                          direction: 'bottom',
+                          size:      'small'
+                        }}/>
+    );
+  }
+};
+
+let BranchField = {
+  view (vnode) {
+    return (
+      <f.inputWithLabel attrName='branch'
+                        model={vnode.attrs.material}/>
+    );
+  }
+};
+
+let AutoUpdateField = {
+  view (vnode) {
+    return (
+      <f.checkBox model={vnode.attrs.material}
+                  attrName='autoUpdate'
+                  addPadding={true}
+                  end={true}/>
+    );
+  }
+};
+
+let TestConnection = {
+  oninit () {
+    ComponentMixins.HasViewModel.call(this);
+  },
+
+  view (vnode) {
+    return (
+      <f.row>
+        <f.column size={12} largeSize={12}>
+          <TestConnectionWidget material={vnode.attrs.material}
+                                pipelineName={vnode.attrs.pipelineName}
+                                vm={vnode.state.vmState('testConnection')}/>
+        </f.column>
+      </f.row>
+    );
+  }
+};
+
+let MaterialViews = {
+  base: {
+    oninit (vnode) {
+      this.args = vnode.attrs;
+      ComponentMixins.HasViewModel.call(this);
+    },
+
+    view (vnode) {
+      const children = vnode.children;
+
+      const title = function () {
+        if (Materials.isBuiltInType(vnode.attrs.material.type())) {
+          return [vnode.attrs.material.type(), '-', vnode.attrs.material.name()].join(' ');
+        }
+        if (vnode.attrs.material.type() === 'plugin') {
+          return [vnode.attrs.material.type(), '-', vnode.attrs.material.scm() ? vnode.attrs.material.scm().name() : ''].join(' ');
+        } else {
+          return vnode.attrs.material.type();
+        }
+      };
+
+      return (
+        <f.accordion class="material-definitions accordion-inner"
+                     accordionTitles={[title()]}
+                     accordionKeys={[vnode.attrs.material.uuid()]}
+                     selectedIndex={vnode.state.vmState('selectedMaterialIndex', Stream(-1))}>
+
+          <div class="material-definition">
+            <f.removeButton onclick={vnode.attrs.onRemove.bind(this, vnode.attrs.material)} class="remove-material"/>
+            {children}
+          </div>
+        </f.accordion>
+      );
+    }
+  },
+
+  svn: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.row>
+            <NameField material={material}/>
+            <UrlField material={material}/>
+            <AutoUpdateField material={material}/>
+          </f.row>
+          <f.row>
+            <UsernameField material={material}/>
+            <PasswordField model={material}
+                           attrName='passwordValue'/>
+            <f.checkBox type="checkbox"
+                        model={material}
+                        attrName='checkExternals'
+                        addPadding={true}
+                        end={true}/>
+          </f.row>
+          <f.row>
+            <DestinationField material={material}/>
+          </f.row>
+          <TestConnection material={material} pipelineName={vnode.attrs.pipelineName}/>
+          <MaterialFilterWidget material={material}/>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  git: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.row>
+            <NameField material={material}/>
+            <UrlField material={material}/>
+            <AutoUpdateField material={material}/>
+          </f.row>
+          <f.row>
+            <BranchField material={material}/>
+            <f.checkBox model={vnode.attrs.material}
+                        attrName='shallowClone'
+                        label="Shallow clone (recommended for large repositories)"
+                        addPadding={true}
+                        end={true}/>
+          </f.row>
+          <f.row>
+            <DestinationField material={material}/>
+          </f.row>
+          <TestConnection material={material} pipelineName={vnode.attrs.pipelineName}/>
+          <MaterialFilterWidget material={material}/>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  hg: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.row>
+            <NameField material={material}/>
+            <UrlField material={material}/>
+            <AutoUpdateField material={material}/>
+          </f.row>
+          <f.row>
+            <DestinationField material={material}/>
+          </f.row>
+          <TestConnection material={material} pipelineName={vnode.attrs.pipelineName}/>
+          <MaterialFilterWidget material={material}/>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  p4: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.row>
+            <NameField material={material}/>
+            <f.inputWithLabel attrName='port'
+                              model={material}
+                              validate={true}
+                              isRequired={true}
+                              label="Server and Port"
+                              onChange={m.withAttr('value', material.port)}/>
+            <AutoUpdateField material={material}/>
+          </f.row>
+          <f.row>
+            <UsernameField material={material}/>
+            <PasswordField model={material}
+                           attrName='passwordValue'/>
+          </f.row>
+          <f.row>
+            <f.textareaWithLabel attrName='view'
+                                 validate={true}
+                                 isRequired={true}
+                                 model={material}
+                                 size={4}/>
+            <f.checkBox name="material[use_tickets]"
+                        type="checkbox"
+                        model={material}
+                        attrName='useTickets'
+                        addPadding={true}
+                        end={true}/>
+          </f.row>
+          <f.row>
+            <DestinationField material={material}/>
+          </f.row>
+          <TestConnection material={material} pipelineName={vnode.attrs.pipelineName}/>
+          <MaterialFilterWidget material={material}/>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  tfs: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.row>
+            <NameField material={material}/>
+            <UrlField material={material}/>
+            <AutoUpdateField material={material}/>
+          </f.row>
+          <f.row>
+            <f.inputWithLabel attrName='domain'
+                              model={material}/>
+            <f.inputWithLabel attrName='projectPath'
+                              model={material}
+                              validate={true}
+                              isRequired={true}
+                              end={true}/>
+          </f.row>
+          <f.row>
+            <f.inputWithLabel attrName='username'
+                              model={material}
+                              isRequired={true}
+                              validate={true}/>
+            <PasswordField model={material}
+                           attrName='passwordValue'
+                           end={true}/>
+          </f.row>
+          <f.row>
+            <DestinationField material={material}/>
+          </f.row>
+          <TestConnection material={material} pipelineName={vnode.attrs.pipelineName}/>
+          <MaterialFilterWidget material={material}/>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  dependency: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.row>
+            <NameField material={material}/>
+            <f.column size={4} end='true'>
+              <PipelineStageField material={material} pipelines={vnode.attrs.pipelines}/>
+            </f.column>
+          </f.row>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  plugin: {
+    view (vnode) {
+      const material = vnode.attrs.material;
+
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <PluggableSCMWidget material={material}/>
+        </MaterialViews.base>
+      );
+    }
+  },
+
+  package: {
+    view (vnode) {
+      return (
+        <MaterialViews.base {...vnode.attrs}>
+          <f.info>Package materials edit is not yet supported, click
+            <f.link
+              href={["/go/admin/pipelines/", vnode.attrs.pipelineName(), "/materials?current_tab=materials"].join('')}>
+              here
+            </f.link>
+            to edit.
+          </f.info>
+        </MaterialViews.base>
+      );
+    }
+  }
+
+};
+
+let MaterialTypeSelector = {
+  oninit () {
+    this.selected = Stream('git');
+  },
+
+  view (vnode) {
+    const items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), (accumulator, value, key) => {
+      accumulator.push({id: key, text: value.description});
+      return accumulator;
+    }, []);
+
+    return (
+      <f.row class='material-selector'>
+        <f.select
+          model={vnode.state}
+          attrName='selected'
+          class='inline'
+          label='Add a new material of type'
+          items={items}
+          size={3}
+          largeSize={3}/>
+        <f.column size={2} end={true}>
+          <f.link class='add-button button'
+                  onclick={vnode.attrs.createMaterial.bind(vnode.state, vnode.state.selected)}>Add
+          </f.link>
+        </f.column>
+      </f.row>
+    );
+  }
+};
+
+const MaterialsConfigWidget = {
+  oninit (vnode) {
+    const self     = this;
+    self.args      = vnode.attrs;
+    self.pipelines = Pipelines.init(vnode.attrs.pipelineName());
+    ComponentMixins.HasViewModel.call(self);
+
+    self.removeMaterial = function (materials) {
+      return function (material) {
+        materials().removeMaterial(material);
+      };
+    };
+
+    self.createMaterial = function (materials) {
+      return function (type) {
+        const newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
+          : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
+
+        const indexOfMaterial = materials().indexOfMaterial(newMaterial);
+        self.vmState(`material-${  indexOfMaterial}`, {selectedMaterialIndex: Stream(0)});
+      };
+    };
+  },
+
+  view (vnode) {
+    return (
+      <f.accordion accordionTitles={[(<span>Materials</span>)]}
+                   accordionKeys={['materials']}
+                   class='materials'
+                   selectedIndex={vnode.state.vmState('materialsSelected', Stream(-1))}>
+        <div>
+          {vnode.attrs.materials().mapMaterials((material, index) => {
+            const materialView = MaterialViews[material.type()];
+            return (m(materialView, {
+              material,
+              onRemove:     vnode.state.removeMaterial(vnode.attrs.materials),
+              key:          material.uuid(),
+              pipelineName: vnode.attrs.pipelineName,
+              pipelines:    vnode.state.pipelines,
+              vm:           vnode.state.vmState(`material-${  index}`)
+            }));
+          })}
+          <MaterialTypeSelector createMaterial={vnode.state.createMaterial(vnode.attrs.materials)}
+                                key='material-type-selector'/>
+        </div>
+      </f.accordion>
+    );
+  }
+};
+
+module.exports = MaterialsConfigWidget;

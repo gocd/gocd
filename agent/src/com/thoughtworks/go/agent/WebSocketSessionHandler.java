@@ -119,7 +119,11 @@ public class WebSocketSessionHandler {
     void acknowledge(Message message) {
         String acknowledgementId = MessageEncoding.decodeData(message.getData(), String.class);
         LOG.debug("Acknowledging {}", acknowledgementId);
-        callbacks.remove(acknowledgementId).call();
+        try {
+            callbacks.remove(acknowledgementId).call();
+        } catch (NullPointerException e) {
+           LOG.debug("Acknowledgement {} was already acknowledged or removed", acknowledgementId);
+        }
     }
 
     void clearCallBacks() {

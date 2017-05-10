@@ -111,6 +111,10 @@ public class BuildCommand {
                 "srcs", GSON.toJson(srcs)));
     }
 
+    public static BuildCommand plugin(Map<String, String> properties) {
+        return new BuildCommand("plugin", properties);
+    }
+
     public static BuildCommand downloadFile(Map<String, String> args) {
         return new BuildCommand("downloadFile", args);
     }

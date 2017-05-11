@@ -168,6 +168,10 @@ describe "admin/server/index.html.erb" do
   end
 
   describe "user management" do
+    before(:each) do
+      assign(:inbuilt_ldap_password_auth_enabled, true)
+    end
+
     it "should have a text area for search bases" do
       server_config_form = ServerConfigurationForm.new({:ldap_search_base => "foo\\nbar\\nbaz,goo"})
       assign(:server_configuration_form, server_config_form)
@@ -179,6 +183,22 @@ describe "admin/server/index.html.erb" do
         expect(div).not_to have_selector("input[name='server_configuration_form[ldap_search_base]']")
         expect(div).to have_selector("textarea[name='server_configuration_form[ldap_search_base]'][class='large']", :text => "foo\\nbar\\nbaz,goo")
         expect(div).to have_selector(".contextual_help")
+      end
+    end
+  end
+
+  describe "inbuiltLdapPasswordAuth disabled" do
+    before(:each) do
+      assign(:inbuilt_ldap_password_auth_enabled, false)
+    end
+
+    it "should not display ldap and passwordfile settings when inbuilt_ldap_password_auth_enabled is turned off" do
+      render
+
+      Capybara.string(response.body).find('#user_management').tap do |div|
+        expect(div).not_to have_selector(".ldap_settings")
+        expect(div).not_to have_selector(".password_file_settings")
+        expect(div).to have_selector("div[class='information']", :text => "Support for inbuilt LDAP and Password file have been deprecated in favour of the bundled plugins for the same.")
       end
     end
   end

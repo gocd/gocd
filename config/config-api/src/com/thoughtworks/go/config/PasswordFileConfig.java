@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang.StringUtils;
 
 import static com.thoughtworks.go.util.StringUtil.nullToBlank;
@@ -38,6 +39,9 @@ public class PasswordFileConfig implements Validatable {
     }
 
     public void validate(ValidationContext validationContext) {
+        if (isEnabled() && !validationContext.systemEnvironment().get(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED)) {
+            configErrors.add("base", "'passwordFile' tag has been deprecated in favour of bundled PasswordFile plugin. Use that instead.");
+        }
     }
 
     public ConfigErrors errors() {

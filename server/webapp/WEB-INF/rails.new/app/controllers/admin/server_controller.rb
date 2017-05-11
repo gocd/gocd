@@ -27,6 +27,7 @@ class Admin::ServerController < AdminController
     cruise_config = go_config_service.getConfigForEditing()
     @cruise_config_md5 = cruise_config.getMd5()
     @server_configuration_form = ServerConfigurationForm.from_server_config(cruise_config.server())
+    @inbuilt_ldap_password_auth_enabled = system_environment.inbuiltLdapPasswordAuthEnabled()
   end
 
   def test_email

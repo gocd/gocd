@@ -37,6 +37,7 @@
                     <label class="inline" for="server_configuration_form_allow_auto_login"><%= l.string("ALLOW_AUTO_LOGIN_MESSAGE") -%></label>
                 </div>
 
+                <% if @inbuilt_ldap_password_auth_enabled -%>
                 <div class="ldap_settings">
                     <h3><%= l.string("LDAP Settings") -%></h3>
 
@@ -93,8 +94,14 @@
                         <span id="password_file_path_error_message"></span>
                     </div>
                 </div>
+                  <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+
+              <% else -%>
+                  <div class="information">
+                    <span>Support for inbuilt LDAP and Password file have been deprecated in favour of the bundled plugins for the same.</span>
+                  </div>
+              <% end -%>
             </div>
-            <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
         </div>
     </div>
     <div id="mail_host">

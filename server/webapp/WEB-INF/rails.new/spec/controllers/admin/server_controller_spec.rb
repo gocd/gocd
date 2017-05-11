@@ -149,6 +149,23 @@ describe Admin::ServerController do
       assigns[:server_configuration_form].ldap_search_base.should == "base1\r\nbase2"
     end
 
+    it "should set inbuilt_ldap_password_auth_enabled flag to true if set on system environment" do
+      controller.stub(:system_environment).and_return(system_environment = Object.new)
+      system_environment.should_receive(:inbuiltLdapPasswordAuthEnabled).at_least(1).and_return(true)
+      get :index
+
+      assigns[:inbuilt_ldap_password_auth_enabled].should == true
+    end
+
+    it "should unset inbuilt_ldap_password_auth_enabled flag to true if set on system environment" do
+      controller.stub(:system_environment).and_return(system_environment = Object.new)
+      system_environment.should_receive(:inbuiltLdapPasswordAuthEnabled).at_least(1).and_return(false)
+      get :index
+
+      assigns[:inbuilt_ldap_password_auth_enabled].should == false
+    end
+
+
     describe "with view" do
       render_views
 

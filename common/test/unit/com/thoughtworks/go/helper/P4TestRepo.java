@@ -110,7 +110,11 @@ public class P4TestRepo extends TestRepo {
     }
 
     private ProcessWrapper startP4dInRepo(File tempRepo) throws IOException, CheckedCommandLineException {
-        CommandLine command = createCommandLine("p4d").withArgs("-C0", "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port));
+        String caseInSensitive = "-C0";
+        if (SystemUtil.isWindows()) {
+            caseInSensitive = "-C1";
+        }
+        CommandLine command = createCommandLine("p4d").withArgs(caseInSensitive, "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port));
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
         return command.execute(outputStreamConsumer, new EnvironmentVariableContext(),null);
     }

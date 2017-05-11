@@ -114,6 +114,7 @@ public class P4TestRepo extends TestRepo {
         if (SystemUtil.isWindows()) {
             caseInSensitive = "";
         }
+
         CommandLine command = createCommandLine("p4d").withArgs(caseInSensitive, "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port));
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
         return command.execute(outputStreamConsumer, new EnvironmentVariableContext(),null);

@@ -27,10 +27,14 @@ import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -81,8 +85,14 @@ public class P4MultipleMaterialsTest {
         P4Material p4Material = p4Fixture.material(VIEW_SRC, "dest1");
 
         MaterialRevision revision = new MaterialRevision(p4Material, p4Material.latestModification(clientFolder, new TestSubprocessExecutionContext()));
+        InMemoryStreamConsumer consumer = inMemoryConsumer();
 
-        revision.updateTo(clientFolder, inMemoryConsumer(), new TestSubprocessExecutionContext());
+        try {
+            revision.updateTo(clientFolder, consumer, new TestSubprocessExecutionContext());
+        } catch (Exception e) {
+            System.out.println(consumer.getAllOutput());
+            e.printStackTrace();
+        }
 
         assertThat(new File(clientFolder, "dest1/net").exists(), is(true));
     }

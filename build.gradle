@@ -61,7 +61,7 @@ def getVersion = { ... args ->
 
 ext.partitionFiles = { Collection originalFiles ->
   def files = new LinkedHashSet(originalFiles).sort()
-  def seed = System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
+  def seed = System.getenv('GO_PIPELINE_COUNTER')?.toInteger() ?: System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
   def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
   def currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX')?.toInteger() ?: 1
 

@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 
@@ -39,7 +39,6 @@ import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAnd
 public class ConsoleService {
 
     public static final Logger LOGGER = Logger.getLogger(ConsoleService.class);
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
     private ArtifactDirectoryChooser chooser;
     public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
     private ArtifactsDirHolder artifactsDirHolder;
@@ -65,7 +64,7 @@ public class ConsoleService {
 
         StringBuilder builder = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, UTF_8));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             String consoleLine;
             while (null != (consoleLine = reader.readLine())) {
                 if (lineNumber >= startingLine) {

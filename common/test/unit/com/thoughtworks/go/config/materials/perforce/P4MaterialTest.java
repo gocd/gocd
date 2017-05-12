@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 
 public class P4MaterialTest extends P4MaterialTestBase {
 
+    @Override
     protected P4TestRepo createTestRepo() throws Exception {
         P4TestRepo repo = P4TestRepo.createP4TestRepo();
         repo.onSetup();

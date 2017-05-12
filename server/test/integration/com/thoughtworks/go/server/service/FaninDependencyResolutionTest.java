@@ -966,6 +966,49 @@ public class FaninDependencyResolutionTest {
         assertThat(revisionsBasedOnDependencies, is(given));
     }
 
+    @Test
+    public void shouldIgnoreThatUpstreamHavingBlacklistInCaseOf2UpstreamsNotHavingDirectSCMMaterial() throws Exception {
+        /*
+               +---> P1* --> P3 ----+
+               |                    v
+              git                  P5
+               |                    ^
+               +---> P2 ---> P4 ----+
+        */
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        int i = 0;
+        u.checkinInOrder(gitP1, u.d(i++), "g1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2));
+        ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p3), u.m(p4));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, "g1");
+        String p3_1 = u.runAndPass(p3, p1_1);
+        String p4_1 = u.runAndPass(p4, p2_1);
+        String p5_1 = u.runAndPass(p5, p3_1, p4_1);
+
+        checkInFiles(gitMaterialP1, new String[]{"g2"}, new String[]{"Folder2File1.md"}, i++);
+
+        String p1_2 = u.runAndPass(p1, "g2");
+        String p3_2 = u.runAndPass(p3, p1_2);
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p3, true, p3_2),
+                u.mr(p4, true, p4_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, staging.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
         pipelineTimeline.update();

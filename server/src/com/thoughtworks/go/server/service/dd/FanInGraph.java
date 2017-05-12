@@ -22,10 +22,14 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.PipelineTimelineEntry;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -362,8 +366,8 @@ public class FanInGraph {
 
     private Collection<StageIdFaninScmMaterialPair> findScmRevisionsThatDiffer(List<StageIdFaninScmMaterialPair> pIdScmMaterialList) {
         for (final StageIdFaninScmMaterialPair pIdScmPair : pIdScmMaterialList) {
-            MaterialRevisions comparingRevisions = getRevisionsForStageId(pIdScmPair.stageIdentifier);
             DependencyFanInNode comparingNode = root.childByPipelineName(root, new CaseInsensitiveString(pIdScmPair.stageIdentifier.getPipelineName()));
+            Modifications comparingModifications = comparingNode.modificationsForFingerprint(pIdScmPair.faninScmMaterial.fingerprint, pIdScmPair.stageIdentifier, pipelineDao);
             final Collection<StageIdFaninScmMaterialPair> matWithSameFingerprint = CollectionUtils.select(pIdScmMaterialList, new Predicate() {
                 @Override
                 public boolean evaluate(Object o) {
@@ -380,10 +384,10 @@ public class FanInGraph {
                     continue;
                 }
                 String fingerprint = pair.faninScmMaterial.fingerprint;
-                MaterialRevisions currentRevisions = getRevisionsForStageId(pair.stageIdentifier);
                 DependencyFanInNode currentNode = root.childByPipelineName(root, new CaseInsensitiveString(pair.stageIdentifier.getPipelineName()));
-                if (!currentNode.changeExistsInNodeOrChildren(comparingRevisions, fingerprint) ||
-                        !comparingNode.changeExistsInNodeOrChildren(currentRevisions, fingerprint)) {
+                Modifications currentModifications = currentNode.modificationsForFingerprint(pair.faninScmMaterial.fingerprint, pair.stageIdentifier, pipelineDao);
+                if (!currentNode.changeExistsInNodeOrChildren(comparingModifications, fingerprint) ||
+                        !comparingNode.changeExistsInNodeOrChildren(currentModifications, fingerprint)) {
                     continue;
                 }
                 diffRevFound = true;
@@ -442,8 +446,4 @@ public class FanInGraph {
         return updatedRevisions;
     }
 
-    private MaterialRevisions getRevisionsForStageId(StageIdentifier stageId) {
-        PipelineInstanceModel pipeline = pipelineDao.findPipelineHistoryByNameAndCounter(stageId.getPipelineName(), stageId.getPipelineCounter());
-        return pipeline.getBuildCause().getMaterialRevisions();
-    }
 }

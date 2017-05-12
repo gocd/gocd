@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.util;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -23,10 +27,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
-import org.junit.After;
 import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 
 public class TempFilesTest {
     TempFiles files;
@@ -34,7 +35,8 @@ public class TempFilesTest {
 
     @Before
     public void setUp() {
-        original = new Properties(System.getProperties());
+        original = new Properties();
+        original.putAll(System.getProperties());
         files = new TempFiles();
     }
 
@@ -83,7 +85,7 @@ public class TempFilesTest {
         files.cleanUp();
     }
 
-    @Test 
+    @Test
     public void shouldCreateFilesInTempDirectory() throws IOException {
         File file = files.createFile("foo");
         File parentFile = file.getParentFile();
@@ -114,8 +116,8 @@ public class TempFilesTest {
 
     @Test
     public void shouldCreateUniqueFilesParentDirectoryIfDoesNotExist() throws IOException {
-        String tmpDir = original + "/" + UUID.randomUUID();
-        System.setProperty("java.io.tmpdir", tmpDir);
+        String newTmpDir = original.getProperty("java.io.tmpdir") + "/" + UUID.randomUUID();
+        System.setProperty("java.io.tmpdir", newTmpDir);
         File file = files.createUniqueFile("foo");
         assertThat(file.getParentFile().exists(), is(true));
     }

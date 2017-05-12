@@ -84,7 +84,9 @@ public class PipelineStateDaoTest {
             fail("save should have thrown an exception!");
         } catch (Exception e) {
             PipelineState stateFromCache = (PipelineState) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
-            assertThat(stateFromCache, is(nullValue()));
+            assertThat(stateFromCache.isLocked(), is(false));
+            assertThat(stateFromCache.getLockedByPipelineId(), is(0L));
+            assertThat(stateFromCache.getLockedBy(), is(nullValue()));
         }
     }
 
@@ -92,7 +94,8 @@ public class PipelineStateDaoTest {
     public void shouldNotCorruptCacheIfSaveFailsWhileUnLocking() {
         String pipelineName = UUID.randomUUID().toString();
         PipelineState pipelineState = new PipelineState(pipelineName);
-        pipelineState.lock(1);
+        long lockedByPipelineId = 1;
+        pipelineState.lock(lockedByPipelineId);
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
         when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
@@ -110,7 +113,8 @@ public class PipelineStateDaoTest {
             fail("save should have thrown an exception!");
         } catch (Exception e) {
             PipelineState stateFromCache = (PipelineState) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
-            assertThat(stateFromCache, is(nullValue()));
+            assertThat(stateFromCache.isLocked(), is(true));
+            assertThat(stateFromCache.getLockedByPipelineId(), is(lockedByPipelineId));
         }
     }
 }

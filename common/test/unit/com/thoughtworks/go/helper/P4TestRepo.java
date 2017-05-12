@@ -120,11 +120,19 @@ public class P4TestRepo extends TestRepo {
     }
 
     public static P4TestRepo createP4TestRepo() throws IOException {
-        return new P4TestRepo(RandomPort.find("P4TestRepo"), "../common/test-resources/unit/data/p4repo", "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false);
+        String repo = "../common/test-resources/unit/data/p4repo";
+        if (SystemUtil.isWindows()) {
+           repo = "../common/test-resources/unit/data/p4repoWindows";
+        }
+        return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false);
     }
 
     public static P4TestRepo createP4TestRepoWithTickets() throws IOException {
-        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), "../common/test-resources/unit/data/p4TicketedRepo", "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true);
+        String repo = "../common/test-resources/unit/data/p4TicketedRepo";
+        if (SystemUtil.isWindows()) {
+            repo = "../common/test-resources/unit/data/p4TicketedRepoWindows";
+        }
+        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), repo, "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true);
     }
 
     public static P4TestRepo createP4RepoOPS(String repoPrototype) {

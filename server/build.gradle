@@ -28,11 +28,8 @@ buildscript {
 
   dependencies {
     classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
-    classpath 'org.owasp:dependency-check-gradle:+'
   }
 }
-
-apply plugin: 'org.owasp.dependencycheck'
 
 configurations {
   warConfig

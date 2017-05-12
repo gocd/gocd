@@ -44,7 +44,7 @@ const RoleWidget = {
       <div class="role">
         <div class="role-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
           <span class="plugin-icon">
-            <img src="/go/assets/cruise.ico"/>
+            <span class="gocd-role-icon"></span>
           </span>
           <div class="role-description">
             <div class="role-name">

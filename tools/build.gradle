@@ -27,7 +27,7 @@ configurations {
 }
 
 dependencies {
-  jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.26', classifier: 'bin', ext: 'tar.gz'
+  jrubyDist group: 'org.jruby', name: 'jruby-dist', version: versions.jruby, classifier: 'bin', ext: 'tar.gz'
   jrubyGems group: 'rubygems', name: 'bundler', version: '1.9.9'
 
   jrubyGems group: 'rubygems', name: 'scss_lint', version: '0.50.1'
@@ -39,7 +39,7 @@ task prepareJRuby {
 
   doFirst {
     project.delete('jruby')
-    project.delete('jruby-1.7.26')
+    project.delete("jruby-${versions.jruby}")
 
     def copyDetails = []
 
@@ -57,7 +57,7 @@ task prepareJRuby {
       }
     }
 
-    project.file('jruby-1.7.26').renameTo(project.file('jruby'))
+    project.file("jruby-${versions.jruby}").renameTo(project.file('jruby'))
     exec {
       standardOutput = System.out
       errorOutput = System.err

@@ -318,5 +318,6 @@ task allDependencies {
 }
 
 ext.versions = [
-  jetty: '9.2.18.v20160721'
+  jetty: '9.2.18.v20160721',
+  jruby: '1.7.27'
 ]

@@ -75,12 +75,6 @@ const PluginRoleModalBody = {
       );
     }
 
-    if (!role) {
-      return (
-        <div class="modal-spinner"/>
-      );
-    }
-
     if (pluginInfo.roleSettings) {
       angularPlugin = (<AngularPlugin pluginInfoSettings={pluginInfo.roleSettings}
                                       configuration={role.properties}
@@ -94,7 +88,7 @@ const PluginRoleModalBody = {
 
     return (
       <div>
-        <f.row collapse="true">
+        <f.row collapse={true}>
           <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
             <f.column largeSize={4}>
               <f.input model={role}

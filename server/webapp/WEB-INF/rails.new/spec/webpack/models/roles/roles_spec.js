@@ -105,6 +105,18 @@ describe('Roles Configuration', () => {
     });
   });
 
+  describe('deleteUser', () => {
+    it('should delete a user', () =>  {
+      const gocdRole = Roles.Role.fromJSON(gocdRoleJSON);
+
+      expect(gocdRole.users()).toEqual(['alice', 'bob']);
+
+      gocdRole.deleteUser("alice");
+
+      expect(gocdRole.users()).toEqual(['bob']);
+    });
+  });
+
   describe("list all roles", () => {
     it('should get all roles and call the success callback', () => {
       jasmine.Ajax.withMock(() => {

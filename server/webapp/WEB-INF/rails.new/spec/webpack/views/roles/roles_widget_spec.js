@@ -122,6 +122,12 @@ describe("RolesWidget", () => {
     "properties": []
   };
 
+  const textElements = (selector) => {
+    return $.map($(selector).contents().filter(function () {
+      return this.nodeType === 3;
+    }), $.text);
+  };
+
   const allAuthConfigJSON = [firstValidAuthConfigJSON, authConfigJSONWithoutPlugin];
 
   const allPluginInfos               = Stream(PluginInfos.fromJSON([]));
@@ -369,9 +375,7 @@ describe("RolesWidget", () => {
       m.redraw();
 
       expect($('.reveal .tag.current-user-tag')).toBeInDOM();
-      expect($('.reveal .tag.current-user-tag').contents().filter(function () {
-        return this.nodeType === 3;
-      }).text()).toEqual("bob");
+      expect(textElements('.reveal .tag.current-user-tag')).toEqual(["bob"]);
     });
 
     it("should remove role user on click of delete icon of user tag", () => {
@@ -379,16 +383,19 @@ describe("RolesWidget", () => {
       simulateEvent.simulate($root.find('.add-role').get(0), 'click');
       simulateEvent.simulate($('.reveal input[name=role-type-selector].core-role').get(0), 'click');
 
+      $('.reveal .role-user').val("alice");
+      simulateEvent.simulate($('.reveal .role-user').get(0), 'keyup');
+      simulateEvent.simulate($('.reveal .add-role-user-button').get(0), 'click');
+
       $('.reveal .role-user').val("bob");
       simulateEvent.simulate($('.reveal .role-user').get(0), 'keyup');
       simulateEvent.simulate($('.reveal .add-role-user-button').get(0), 'click');
-      m.redraw();
 
-      expect($('.reveal .tag.current-user-tag')).toBeInDOM();
+      expect(textElements('.reveal .tag')).toEqual(["alice", "bob"]);
 
-      simulateEvent.simulate($('.reveal .tag.current-user-tag span').get(0), 'click');
+      simulateEvent.simulate($('.reveal .tag span').get(0), 'click');
 
-      expect($('.reveal .tag.current-user-tag')).not.toBeInDOM();
+      expect(textElements('.reveal .tag')).toEqual(["bob"]);
     });
 
   });
@@ -413,13 +420,7 @@ describe("RolesWidget", () => {
       expect($('.reveal:visible')).toBeInDOM();
       expect($('.reveal:visible input[data-prop-name=name]')).toBeDisabled();
 
-      expect($('.reveal .tag').eq(0).contents().filter(function () {
-        return this.nodeType === 3;
-      }).text()).toEqual("alice");
-
-      expect($('.reveal .tag').eq(1).contents().filter(function () {
-        return this.nodeType === 3;
-      }).text()).toEqual("bob");
+      expect(textElements('.reveal .tag')).toEqual(["alice", "bob"]);
     });
 
     it("should render a modal to edit existing plugin role", () => {
@@ -517,6 +518,7 @@ describe("RolesWidget", () => {
       expect($('.alert')).toContainText('Boom!');
     });
   });
+
   describe("Clone an existing profile", () => {
     afterEach(Modal.destroyAll);
 
@@ -536,5 +538,4 @@ describe("RolesWidget", () => {
     });
 
   });
-
 });

@@ -20,7 +20,10 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelineState;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -39,8 +42,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.*;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -89,17 +93,25 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                        @Override
+                        public void afterCommit() {
+                            clearLockedPipelineStateCache(pipeline.getName());
+                        }
+                    });
                     final String pipelineName = pipeline.getName();
-                    PipelineState state = pipelineStateFor(pipelineName);
-                    if (state != null && state.isLocked() && !pipeline.getIdentifier().equals(state.getLockedBy().pipelineIdentifier())) {
-                        throw new RuntimeException(String.format("Pipeline '%s' is already locked (counter = %s)", pipelineName, state.getLockedBy().getPipelineCounter()));
+                    PipelineState fromCache = pipelineStateFor(pipelineName);
+                    if (fromCache != null && fromCache.isLocked() && !pipeline.getIdentifier().equals(fromCache.getLockedBy().pipelineIdentifier())) {
+                        throw new RuntimeException(String.format("Pipeline '%s' is already locked (counter = %s)", pipelineName, fromCache.getLockedBy().getPipelineCounter()));
                     }
-                    if (state == null) {
-                        state = new PipelineState(pipelineName);
+                    PipelineState toBeSaved = null;
+                    if (fromCache == null) {
+                        toBeSaved = new PipelineState(pipelineName);
+                    } else {
+                        toBeSaved = (PipelineState) sessionFactory.getCurrentSession().load(PipelineState.class, fromCache.getId());
                     }
-                    clearLockedPipelineStateCache(pipelineName);
-                    state.lock(pipeline.getId());
-                    sessionFactory.getCurrentSession().saveOrUpdate(state);
+                    toBeSaved.lock(pipeline.getId());
+                    sessionFactory.getCurrentSession().saveOrUpdate(toBeSaved);
                 }
             });
         }
@@ -114,14 +126,23 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                        @Override
+                        public void afterCommit() {
+                            clearLockedPipelineStateCache(pipelineName);
+                        }
+                    });
+
                     final String cacheKey = pipelineLockStateCacheKey(pipelineName);
-                    PipelineState state = pipelineStateFor(pipelineName);
-                    if (state == null) {
-                        state = new PipelineState(pipelineName);
+                    PipelineState fromCache = pipelineStateFor(pipelineName);
+                    PipelineState toBeSaved = null;
+                    if (fromCache == null) {
+                        toBeSaved = new PipelineState(pipelineName);
+                    } else {
+                        toBeSaved = (PipelineState) sessionFactory.getCurrentSession().load(PipelineState.class, fromCache.getId());
                     }
-                    clearLockedPipelineStateCache(pipelineName);
-                    state.unlock();
-                    sessionFactory.getCurrentSession().saveOrUpdate(state);
+                    toBeSaved.unlock();
+                    sessionFactory.getCurrentSession().saveOrUpdate(toBeSaved);
                 }
             });
         }
@@ -145,7 +166,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     return sessionFactory.getCurrentSession()
                             .createCriteria(PipelineState.class)
                             .add(Restrictions.eq("pipelineName", pipelineName))
-                            .setCacheable(true).uniqueResult();
+                            .setCacheable(false).uniqueResult();
                 }
             });
 
@@ -170,7 +191,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                 PropertyProjection pipelineName = Projections.property("pipelineName");
                 Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PipelineState.class).setProjection(pipelineName).add(
                         Restrictions.eq("locked", true));
-                criteria.setCacheable(true);
+                criteria.setCacheable(false);
                 List<String> list = criteria.list();
                 return list;
             }

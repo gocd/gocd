@@ -18,6 +18,11 @@ import groovy.io.FileType
 
 import java.security.SecureRandom
 
+plugins {
+  id "com.github.ben-manes.versions" version "0.14.0"
+  id "org.owasp.dependencycheck" version "1.4.5.1"
+}
+
 def script = this
 
 def gitRevision = { ->
@@ -290,6 +295,8 @@ subprojects {
   targetCompatibility = 1.8
 
   apply plugin: 'maven'
+  apply plugin: "org.owasp.dependencycheck"
+  apply plugin: "com.github.ben-manes.versions"
 
   buildDir = "${projectDir}/target"
 

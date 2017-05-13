@@ -30,7 +30,7 @@
   function LineWriter() {
 
     var cmd_re = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/,
-        status_re = /^(\s*\[go] (?:Current job|Task) status: )(?:(\w+)(?: \((\d+) ms\))?.*)$/,
+        status_re = /^(\s*\[go] (?:Current job|Task) status: )(?:(\w+)(?: \((\d+) ms\))?(?: \(exit code: (\d+)\))?.*)$/,
         ansi = new AnsiUp(),
         formatter = new AnsiFormatter();
 
@@ -43,7 +43,7 @@
     }
 
     function formatContent(cursor, node, prefix, line) {
-      var parts, duration;
+      var parts, duration, result, exitCode;
 
       if (isTaskLine(prefix)) {
         parts = line.match(cmd_re);
@@ -51,13 +51,23 @@
       } else if (isStatusLine(prefix)) {
         parts = line.match(status_re);
         if (parts) {
+          result = parts[2];
+
           if (parts[3] && !isNaN(parseInt(parts[3], 10))) {
             duration = parseInt(parts[3], 10);
-            cursor.recordDuration(duration);
-            c(node, parts[1], c("code", parts[2] + " (" + humanizeMilliseconds(duration) + ")"));
-          } else {
-            c(node, parts[1], c("code", parts[2]));
+            cursor.annotate("duration", duration);
+
+            result += ", took: " + humanizeMilliseconds(duration);
           }
+
+          if (parts[4] && !isNaN(parseInt(parts[4], 10))) {
+            exitCode = parseInt(parts[4], 10);
+            cursor.annotate("exitCode", exitCode);
+
+            result += ", exited: " + exitCode;
+          }
+
+          c(node, parts[1], c("code", result));
         } else {
           c(node, line); // Usually the end of an onCancel task
         }
@@ -98,17 +108,23 @@
       return node;
     }
 
-    function markWithDuration(cursor, duration) {
+    function markWithAnnotations(cursor, annotations) {
       var node = cursor.header();
 
       if (!node) {
         return;
       }
 
-      node.appendChild(c("span", {class: "log-fs-duration"}, humanizeMilliseconds(duration)));
+      if ("number" === typeof annotations.duration) {
+        node.appendChild(c("span", {class: "log-fs-duration"}, "took: " + humanizeMilliseconds(annotations.duration)));
+      }
+
+      if ("number" === typeof annotations.exitCode) {
+        node.appendChild(c("span", {class: "log-fs-exitcode"}, "exited: " + annotations.exitCode));
+      }
     }
 
-    this.markWithDuration = markWithDuration;
+    this.markWithAnnotations = markWithAnnotations;
     this.insertHeader = insertHeader;
     this.insertContent = insertContent;
     this.insertPlain = insertPlain;
@@ -160,8 +176,11 @@
       cursor.body.appendChild(childNode);
     }
 
-    function recordDuration(duration) {
-      section.priv.duration = duration;
+    function annotate(key, value) {
+      if (!section.priv.meta) {
+        section.priv.meta = {};
+      }
+      section.priv.meta[key] = value;
     }
 
     function type() {
@@ -190,8 +209,8 @@
         section.classList.remove("open");
       }
 
-      if ("undefined" !== typeof section.priv.duration && writer) {
-        writer.markWithDuration(self, section.priv.duration);
+      if ("undefined" !== typeof section.priv.meta && writer) {
+        writer.markWithAnnotations(self, section.priv.meta);
       }
     }
 
@@ -289,7 +308,7 @@
 
     this.type = type;
     this.assignType = assignType;
-    this.recordDuration = recordDuration;
+    this.annotate = annotate;
     this.isPartOfSection = isPartOfSection;
     this.isExplicitEndBoundary = isExplicitEndBoundary;
     this.closeAndStartNew = closeAndStartNew;

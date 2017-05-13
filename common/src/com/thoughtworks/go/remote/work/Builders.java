@@ -78,20 +78,26 @@ public class Builders {
                     result = taskStatus = JobResult.Failed;
                 }
 
+                Duration duration = Duration.between(start, Instant.now());
+                String statusLine = format("Task status: %s (%d ms)", taskStatus.toLowerCase(), duration.toMillis());
+
                 if (cancelStarted) {
                     result = taskStatus = JobResult.Cancelled;
                 }
 
                 String tag;
 
-                if (taskStatus.isCancelled()) {
-                    tag = DefaultGoPublisher.TASK_CANCELLED;
+                if (taskStatus.isPassed()) {
+                    tag = DefaultGoPublisher.TASK_PASS;
                 } else {
-                    tag = taskStatus.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
+                    if (Builder.UNSET_EXIT_CODE != builder.getExitCode()) {
+                        statusLine = format("%s (exit code: %d)", statusLine, builder.getExitCode());
+                    }
+
+                    tag = taskStatus.isCancelled() ? DefaultGoPublisher.TASK_CANCELLED : DefaultGoPublisher.TASK_FAIL;
                 }
 
-                Duration duration = Duration.between(start, Instant.now());
-                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s (%d ms)", taskStatus.toLowerCase(), duration.toMillis()));
+                goPublisher.taggedConsumeLineWithPrefix(tag, statusLine);
             }
 
             buildLog.addContent(buildLogElement.getElement());

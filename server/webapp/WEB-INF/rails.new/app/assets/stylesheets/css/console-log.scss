@@ -153,7 +153,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   content: attr(data-timestamp) " ";
 }
 
-.log-fs-duration {
+.log-fs-duration, .log-fs-exitcode {
   display: inline-block;
   border-radius: 0.5rem;
   margin-left: 0.5rem;

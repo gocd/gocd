@@ -32,10 +32,14 @@ import static java.lang.String.format;
 
 public abstract class Builder implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(Builder.class);
+    public static final int UNSET_EXIT_CODE = -1;
+    static final int SUCCESS_EXIT_CODE = 0;
+
+    private int exitCode = UNSET_EXIT_CODE;
+
     protected final RunIfConfigs conditions;
     private String description;
     private Builder cancelBuilder;
-
     public Builder(RunIfConfigs conditions, Builder cancelBuilder, String description) {
         this.conditions = conditions;
         this.cancelBuilder = cancelBuilder;
@@ -124,5 +128,13 @@ public abstract class Builder implements Serializable {
 
     public RunIfConfig resolvedRunIfConfig() {
         return this.conditions.resolveToSingle();
+    }
+
+    public int getExitCode() {
+        return exitCode;
+    }
+
+    protected void setExitCode(int exitCode) {
+        this.exitCode = exitCode;
     }
 }

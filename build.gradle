@@ -18,9 +18,15 @@ import groovy.io.FileType
 
 import java.security.SecureRandom
 
-plugins {
-  id "com.github.ben-manes.versions" version "0.14.0"
-  id "org.owasp.dependencycheck" version "1.4.5.1"
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
+  }
 }
 
 def script = this
@@ -295,8 +301,8 @@ subprojects {
   targetCompatibility = 1.8
 
   apply plugin: 'maven'
-  apply plugin: "org.owasp.dependencycheck"
-  apply plugin: "com.github.ben-manes.versions"
+  apply plugin: org.owasp.dependencycheck.gradle.DependencyCheck
+  apply plugin: com.github.benmanes.gradle.versions.VersionsPlugin
 
   buildDir = "${projectDir}/target"
 

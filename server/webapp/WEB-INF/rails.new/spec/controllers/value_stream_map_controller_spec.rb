@@ -244,11 +244,13 @@ describe ValueStreamMapController do
                     "stages": [
                       {
                         "name": "stage-1-for-p1-1",
+                        "duration": 0,
                         "locator": "/pipelines/p1/1/stage-1-for-p1-1/1",
                         "status": "Passed"
                       },
                       {
                         "name": "stage-2-for-p1-1",
+                        "duration": 0,
                         "locator": "/pipelines/p1/1/stage-2-for-p1-1/1",
                         "status": "Passed"
                       }

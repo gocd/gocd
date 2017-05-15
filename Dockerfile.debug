@@ -1,0 +1,13 @@
+FROM nimmis/java-centos:oracle-8-jdk 
+
+RUN yum install -y git
+RUN yum install -y epel-release 
+RUN yum install -y nodejs npm
+
+ENV JAVA_HOME /usr
+
+WORKDIR /root/work
+
+VOLUME /root/.m2
+VOLUME /root/.gradle
+

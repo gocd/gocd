@@ -35,11 +35,9 @@ public class PluginsZip {
     private final File destZipFile;
     private final File bundledPlugins;
     private final File externalPlugins;
-    private Boolean pluginsEnabled;
 
     @Autowired
     public PluginsZip(SystemEnvironment systemEnvironment, ZipUtil zipUtil) {
-        pluginsEnabled = systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED);
         destZipFile = new File(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
         bundledPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH));
         externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
@@ -47,9 +45,6 @@ public class PluginsZip {
     }
 
     public void create() {
-        if (!pluginsEnabled) {
-            return;
-        }
         checkFilesAccessibility(bundledPlugins, externalPlugins);
         try {
             ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(destZipFile, true);

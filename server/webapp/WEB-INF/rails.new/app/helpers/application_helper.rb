@@ -237,10 +237,6 @@ module ApplicationHelper
     security_service.isAuthorizedToViewTemplates(current_user)
   end
 
-  def is_plugins_enabled?
-    system_environment.get(com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)
-  end
-
   def render_json(options={})
     options = options.merge({locals: {scope: {}}}) unless options.has_key? :locals
     render(options).to_json

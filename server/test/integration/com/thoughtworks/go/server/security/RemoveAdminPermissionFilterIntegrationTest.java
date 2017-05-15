@@ -16,18 +16,19 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
+import com.thoughtworks.go.server.service.RoleConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -45,9 +46,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+import static com.thoughtworks.go.server.security.RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -64,6 +67,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private PluginRoleService pluginRoleService;
+    @Autowired private RoleConfigService roleService;
 
     private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private TimeProvider timeProvider;
@@ -159,12 +163,34 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     }
 
     @Test
+    public void testShouldForceReAuthenticationOnRoleConfigChange() throws Exception {
+        final ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        final Username username = new Username("bob");
+        final RoleConfig admin = new RoleConfig(new CaseInsensitiveString("admin"));
+        final Authentication authentication = setupAuthentication();
+        final RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
+        filter.initialize();
+
+        filter.doFilterHttp(request, response, chain);
+        assertThat(authentication.isAuthenticated(), is(true));
+
+        roleService.create(username, admin, new HttpLocalizedOperationResult());
+
+        verify(session).setAttribute(eq(SECURITY_CONFIG_LAST_CHANGE), argumentCaptor.capture());
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(argumentCaptor.getValue());
+
+        filter.doFilterHttp(request, response, chain);
+
+        assertThat(authentication.isAuthenticated(), is(false));
+    }
+
+    @Test
     public void testShouldReAuthenticateOnlyOnceAfterConfigChange() throws IOException, ServletException {
-        goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("github","cd.go.authorization.github"));
+        goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         goConfigService.security().addRole(new PluginRoleConfig("spacetiger", "github"));
         Authentication authentication = setupAuthentication();
 
-        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
 
         RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
@@ -192,7 +218,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     public void testShouldReAuthenticateOnlyOnceAfterAuthorizationPluginUnloaded() throws IOException, ServletException {
         Authentication authentication = setupAuthentication();
 
-        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
 
         RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
@@ -220,7 +246,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     public void testShouldNotSetLastSecurityChangeAsASessionAttributeIfNotAuthenticatedYet() throws IOException, ServletException {
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
 
-        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(null);
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(null);
         RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
         turnOnSecurity("pavan");
@@ -233,23 +259,23 @@ public class RemoveAdminPermissionFilterIntegrationTest {
         setupAuthentication();
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
 
-        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(null);
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(null);
         RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
         turnOnSecurity("pavan");
         filter.doFilterHttp(request, response, chain);
-        verify(session).setAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE, 100L);
+        verify(session).setAttribute(SECURITY_CONFIG_LAST_CHANGE, 100L);
     }
 
     @Test
     public void testShouldNotSetLastSecurityChangeAsASessionAttributeIfItHasNotChanged() throws IOException, ServletException {
         setupAuthentication();
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
-        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(100L);
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(100L);
         RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.doFilterHttp(request, response, chain);
 
-        verify(session).getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE);//Make sure the stub was indeed called.
+        verify(session).getAttribute(SECURITY_CONFIG_LAST_CHANGE);//Make sure the stub was indeed called.
         verifyNoMoreInteractions(session);//Make sure we did not set the config md5 again
     }
 
@@ -260,12 +286,12 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     }
 
     private void stubSessionToReturn0() {
-        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L);
+        when(session.getAttribute(SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L);
     }
 
     private Authentication setupAuthentication() {
         GrantedAuthority[] authorities = {};
-        Authentication authentication = new TestingAuthenticationToken(new User("loser", "secret", true, true,true, true, authorities), null, authorities);
+        Authentication authentication = new TestingAuthenticationToken(new User("loser", "secret", true, true, true, true, authorities), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         authentication.setAuthenticated(true);
         return authentication;

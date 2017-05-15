@@ -43,11 +43,12 @@ public class CcTrayViewAuthority {
         SecurityConfig security = goConfigService.security();
         final Map<String, Collection<String>> rolesToUsers = rolesToUsers(security);
         final Set<String> superAdmins = namesOf(security.adminsConfig(), rolesToUsers);
+        final boolean noSuperAdminsAreDefined = superAdmins.size() == 0;
 
         goConfigService.groups().accept(new PipelineGroupVisitor() {
             @Override
             public void visit(PipelineConfigs pipelineConfigs) {
-                if (!pipelineConfigs.hasAuthorizationDefined()) {
+                if (noSuperAdminsAreDefined || !pipelineConfigs.hasAuthorizationDefined()) {
                     pipelinesAndViewers.put(pipelineConfigs.getGroup(), Everyone.INSTANCE);
                     return;
                 }
@@ -76,7 +77,7 @@ public class CcTrayViewAuthority {
         }
 
         for (AdminRole superAdminRole : adminsConfig.getRoles()) {
-            superAdminNames.addAll(rolesToUsers.get(superAdminRole.getName().toLower()));
+            superAdminNames.addAll(emptyIfNull(rolesToUsers.get(superAdminRole.getName().toLower())));
         }
 
         return superAdminNames;
@@ -88,5 +89,9 @@ public class CcTrayViewAuthority {
             rolesToUsers.put(role.getName().toLower(), role.usersOfRole());
         }
         return rolesToUsers;
+    }
+
+    private Collection<String> emptyIfNull(Collection<String> collection) {
+        return collection == null ? Collections.emptyList() : collection;
     }
 }

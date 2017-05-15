@@ -70,21 +70,18 @@ describe("AuthConfigsWidget", () => {
     "auth_config_settings": {
       "configurations": [
         {
-          "key":      "Url",
-          "metadata": {
-            "secure":   false,
-            "required": true
-          }
-        },
-        {
-          "key":      "ManagerDN",
+          "key":      "LdapUrl",
           "metadata": {
             "secure":   false,
             "required": true
           }
         }],
       "view":           {
-        "template": '<div><label class="ldap-url">Ldap url</label></div>'
+        "template": '<div class="form_item_block">' +
+                    '<label ng-class="{ \'is-invalid-label\': GOINPUTNAME[LdapUrl].$error.server}">LDAP URI</label>' +
+                    '<input ng-class="{\'is-invalid-input\': GOINPUTNAME[LdapUrl].$error.server}" type="text" ng-model="LdapUrl"/> ' +
+                    '<span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[LdapUrl].$error.server}" ng-show="GOINPUTNAME[LdapUrl].$error.server">{{GOINPUTNAME[LdapUrl].$error.server}}</span> ' +
+                    '</div>'
       }
     }
   };
@@ -102,10 +99,39 @@ describe("AuthConfigsWidget", () => {
     "auth_config_settings": {
       "configurations": [],
       "view":           {
-        "template": '<div><label class="github-username">Github username</label></div>'
+        "template": '<div class="form_item_block">' +
+                    '<label ng-class="{ \'is-invalid-label\': GOINPUTNAME[GithubUrl].$error.server}">GITHUB URL</label>' +
+                    '<input ng-class="{\'is-invalid-input\': GOINPUTNAME[GithubUrl].$error.server}" type="text" ng-model="GithubUrl"/> ' +
+                    '<span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[GithubUrl].$error.server}" ng-show="GOINPUTNAME[GithubUrl].$error.server">{{GOINPUTNAME[GithubUrl].$error.server}}</span> ' +
+                    '</div>'
       }
     }
   };
+
+  const validationFailedJSON = () => ({
+    "status":      "validation-failed",
+    "message":     "Validation failed for the given Auth Config",
+    "auth_config": {
+      "id":         "test",
+      "plugin_id":  "cd.go.authorization.ldap",
+      "properties": [
+        {
+          "errors": {
+            "LdapUrl": [
+              "LdapUrl must not be blank."
+            ]
+          },
+          "key":    "LdapUrl"
+        }
+      ]
+    }
+  });
+
+  const responseJSON = () => ({
+    "status":      "success",
+    "message":     "Connection ok",
+    "auth_config": authConfigJSON
+  });
 
   const allPluginInfosJSON = [ldapPluginInfoJSON, githubPluginInfoJSON];
 
@@ -273,16 +299,15 @@ describe("AuthConfigsWidget", () => {
 
       expect($('.reveal .modal-body input[data-prop-name]')).not.toBeDisabled();
       expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(ldapPluginInfoJSON.about.name);
-      expect($('.reveal .modal-body label.ldap-url').text()).toEqual("Ldap url");
+      expect($('.reveal .modal-body .form_item_block label').text()).toEqual("LDAP URI");
 
       $('.reveal [data-prop-name=pluginId]').val("cd.go.authorization.github");
       simulateEvent.simulate($('.reveal [data-prop-name=pluginId]').get(0), 'change');
       m.redraw();
 
-
       expect($('.reveal input[data-prop-name]')).not.toBeDisabled();
       expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(githubPluginInfoJSON.about.name);
-      expect($('.reveal .modal-body label.github-username').text()).toEqual("Github username");
+      expect($('.reveal .modal-body .form_item_block label').text()).toEqual("GITHUB URL");
     });
 
   });
@@ -379,9 +404,8 @@ describe("AuthConfigsWidget", () => {
     afterEach(Modal.destroyAll);
 
     it("should show Connection Ok message on successful verification.", () => {
-
       jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
-        responseText: JSON.stringify(authConfigJSON),
+        responseText: JSON.stringify(responseJSON()),
         status:       200
       });
 
@@ -412,6 +436,48 @@ describe("AuthConfigsWidget", () => {
       simulateEvent.simulate($('.reveal:visible .modal-buttons .verify-connection').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-body .callout.alert').text()).toEqual('Unable to connect ldap server.');
+    });
+
+    it("should show field specific error message on validation failed.", () => {
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
+        responseText: JSON.stringify(validationFailedJSON()),
+        status:       422
+      });
+
+      simulateEvent.simulate($root.find('.add-auth-config').get(0), 'click');
+
+      const authConfigId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
+      $(authConfigId).val("ldap");
+      simulateEvent.simulate(authConfigId, 'input');
+
+      simulateEvent.simulate($('.reveal:visible .modal-buttons .verify-connection').get(0), 'click');
+      m.redraw();
+
+      expect($('.reveal:visible .modal-body .callout.alert').text()).toEqual('Validation failed for the given Auth Config');
+      expect($('.reveal:visible .modal-body .form_item_block span').text()).toEqual('LdapUrl must not be blank.');
+    });
+
+    it("should show and remove error message from field on verify connection based on response.", () => {
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
+        responseText: JSON.stringify(validationFailedJSON()),
+        status:       422
+      });
+
+      simulateEvent.simulate($root.find('.add-auth-config').get(0), 'click');
+      simulateEvent.simulate($('.reveal:visible .modal-buttons .verify-connection').get(0), 'click');
+      m.redraw();
+
+      expect($('.reveal:visible .modal-body .callout.alert').text()).toEqual('Validation failed for the given Auth Config');
+      expect($('.reveal:visible .modal-body .form_item_block span').text()).toEqual('LdapUrl must not be blank.');
+
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
+        responseText: JSON.stringify(responseJSON()),
+        status:       200
+      });
+
+      simulateEvent.simulate($('.reveal:visible .modal-buttons .verify-connection').get(0), 'click');
+      expect($('.reveal:visible .modal-body .form_item_block span').text()).toEqual('');
+
     });
   });
 

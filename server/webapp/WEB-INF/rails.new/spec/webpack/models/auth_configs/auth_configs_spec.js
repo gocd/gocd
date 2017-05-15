@@ -390,9 +390,16 @@ describe('Authorization Configuration', () => {
   describe('verify connection', () => {
     it("should call the success callback with message", () => {
       const authConfig = AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
+
+      const responseJSON = {
+        "status":      "success",
+        "message":     "Connection ok",
+        "auth_config": authConfigJSON()
+      };
+
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/internal/security/auth_configs/verify_connection', undefined, 'POST').andReturn({
-          responseText:    JSON.stringify(authConfigJSON()),
+          responseText:    JSON.stringify(responseJSON),
           status:          200,
           responseHeaders: {
             'Content-Type': 'application/vnd.go.cd.v1+json'

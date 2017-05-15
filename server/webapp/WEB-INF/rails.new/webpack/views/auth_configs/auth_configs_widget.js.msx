@@ -91,22 +91,22 @@ const AuthConfigsWidget = {
     this.reloadPage();
 
     this.verifyConnectionButton = (authConfig, classes) => {
+      const onSuccess = (newAuthConfig) => {
+        authConfig(newAuthConfig);
+        classes().splice(classes().indexOf("in-progress"), 1, "green-check");
+        ctrl.modalErrorMessage({type: 'success', message: 'Connection OK.'});
+      };
+
+      const onFail = () => {
+        classes().splice(classes().indexOf("in-progress"));
+      };
+
       return {
         text:    'Check connection',
         class:   classes(),
         onclick: () => {
           classes().splice(classes().indexOf("green-check"), 1, "in-progress");
           m.redraw(true);
-
-          const onSuccess = () => {
-            classes().splice(classes().indexOf("in-progress"), 1, "green-check");
-            ctrl.modalErrorMessage({type: 'success', message: 'Connection OK.'});
-          };
-
-          const onFail = () => {
-            classes().splice(classes().indexOf("in-progress"));
-          };
-
           authConfig().verifyConnection().then(onSuccess, showErrorInModal(authConfig, ctrl.modalErrorMessage, onFail)).always(m.redraw);
         }
       };

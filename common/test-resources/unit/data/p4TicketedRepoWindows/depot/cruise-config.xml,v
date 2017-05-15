@@ -1,0 +1,61 @@
+head     1.2;
+access   ;
+symbols  ;
+locks    ;comment  @@;
+
+
+1.2
+date     2008.08.19.15.04.43;  author p4;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+1.2
+log
+@@
+text
+@<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd">
+  <server artifactsdir="logs" />
+  <pipelines>
+    <pipeline name="connectfour">
+      <materials>
+        <svn>
+          <localWorkingCopy path="projects/connectfour" />
+        </svn>
+      </materials>
+      <buildplans>
+        <buildplan name="test">
+          <artifacts>
+            <artifact src="target/connectfour.jar" dest="dist/jars" />
+            <artifact src="target/test-results" dest="testoutput" type="junit" />
+            <artifact src="build.xml" dest="" />
+          </artifacts>
+        </buildplan>
+      </buildplans>
+    </pipeline>
+    <pipeline name="connect4.net">
+      <materials>
+        <svn>
+          <localWorkingCopy path="projects/connect4.net" />
+        </svn>
+      </materials>
+      <buildplans>
+        <buildplan name="helloworld">
+          <tasks>
+            <nant />
+          </tasks>
+        </buildplan>
+      </buildplans>
+    </pipeline>
+  </pipelines>
+  <agents>
+    <agent hostname="CceDev01" ipaddress="127.0.1.1" uuid="754d05a7-9d3c-4f5e-bd0b-5cdc9f112b69" />
+  </agents>
+</cruise>
+
+@

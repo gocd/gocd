@@ -283,6 +283,19 @@ public class CcTrayViewAuthorityTest {
         assertThat(viewersOfGroup1.contains("some-other-user"), is(false));
     }
 
+    @Test
+    public void shouldHandleRoleNamesCaseInsensitively() throws Exception {
+        configMother.addRole(config, configMother.createRole("roleWithDifferentCase", "user1", "user2"));
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addAdminRoleForPipelineGroup(config, "ROLEWithDIFFERENTCase", "group1");
+
+        Viewers viewersOfGroup = getGroupsAndTheirViewers().get("group1");
+
+        assertThat(viewersOfGroup.contains("user1"), is(true));
+        assertThat(viewersOfGroup.contains("user2"), is(true));
+    }
+
     private Map<String, Viewers> getGroupsAndTheirViewers() {
         when(configService.security()).thenReturn(config.server().security());
         when(configService.groups()).thenReturn(config.getGroups());

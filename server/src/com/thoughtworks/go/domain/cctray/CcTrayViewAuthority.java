@@ -72,11 +72,11 @@ public class CcTrayViewAuthority {
         Set<String> superAdminNames = new HashSet<>();
 
         for (AdminUser superAdminUser : superAdmins) {
-            superAdminNames.add(superAdminUser.getName().toString());
+            superAdminNames.add(superAdminUser.getName().toLower());
         }
 
         for (AdminRole superAdminRole : adminsConfig.getRoles()) {
-            superAdminNames.addAll(rolesToUsers.get(superAdminRole.getName().toString()));
+            superAdminNames.addAll(rolesToUsers.get(superAdminRole.getName().toLower()));
         }
 
         return superAdminNames;
@@ -85,7 +85,7 @@ public class CcTrayViewAuthority {
     private Map<String, Collection<String>> rolesToUsers(SecurityConfig securityConfig) {
         Map<String, Collection<String>> rolesToUsers = new HashMap<>();
         for (Role role : securityConfig.getRoles()) {
-            rolesToUsers.put(role.getName().toString(), role.usersOfRole());
+            rolesToUsers.put(role.getName().toLower(), role.usersOfRole());
         }
         return rolesToUsers;
     }

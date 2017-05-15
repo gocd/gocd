@@ -23,7 +23,7 @@ const ComponentMixins  = require('helpers/mithril_component_mixins');
 const Roles            = require('models/roles/roles');
 const GoCDRoleWidget   = require('views/roles/gocd_role_widget');
 const PluginRoleWidget = require('views/roles/plugin_role_widget');
-const RoleWidget = require('views/roles/role_widget');
+const RoleWidget       = require('views/roles/role_widget');
 require('jquery-textcomplete');
 
 function showErrors(modal, ctrl, newRole) {
@@ -86,8 +86,8 @@ const RolesWidget = function (options) {
           size:    'large',
           title:   modalTitle,
           body:    () => (<RoleWidget role={newRole}
-                                            pluginInfos={vnode.state.pluginInfos}
-                                            authConfigs={vnode.state.authConfigsOfInstalledPlugin}/>),
+                                      pluginInfos={vnode.state.pluginInfos}
+                                      authConfigs={vnode.state.authConfigsOfInstalledPlugin}/>),
           onclose: () => modal.destroy(),
           buttons: () => {
             if (!newRole()) {
@@ -129,7 +129,7 @@ const RolesWidget = function (options) {
         };
 
         modal.render();
-        Roles.Role.get(role.name()).then(onFulfilled, errorMessage).always(m.redraw);
+        Roles.Role.get(role.name()).then(onFulfilled, showErrors(modal, ctrl, newRole)).always(m.redraw);
       };
 
       this.addRole = function () {
@@ -167,7 +167,7 @@ const RolesWidget = function (options) {
         };
 
         modal.render();
-        Roles.Role.get(role.name()).then(onFulfilled, errorMessage).always(m.redraw);
+        Roles.Role.get(role.name()).then(onFulfilled, showErrors(modal, ctrl, newRole)).always(m.redraw);
       };
 
       const deleteInProgress = Stream(false);

@@ -1024,6 +1024,14 @@ $arrow-border-active-color: lighten(#000, 50%);
   #content_wrapper_outer_pipeline_history {
     margin: 0;
   }
+
+  #page-title {
+    text-transform: none;
+
+    &:before {
+      content: "Pipeline: ";
+    }
+  }
 }
 
 table.pipeline-history-group {

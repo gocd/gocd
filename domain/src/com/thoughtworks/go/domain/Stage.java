@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.server.domain.StageStatusHandler;
 import com.thoughtworks.go.util.Clock;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
 
 import java.sql.Timestamp;
@@ -464,6 +465,7 @@ public class Stage extends PersistentObject {
         setApprovedBy(context.getApprovedBy());
         setLatestRun(true);
         resetResult();
+        setCreatedTime(new Timestamp(DateTimeUtils.currentTimeMillis()));
         jobInstances.resetJobsIds();
     }
 

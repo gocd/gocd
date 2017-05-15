@@ -26,12 +26,6 @@ const RoleModalBody = {
       );
     }
 
-    if (!vnode.attrs.role()) {
-      return (
-        <div class="modal-spinner"/>
-      );
-    }
-
     let roleNameDisabledMessage;
     if (vnode.attrs.role().etag()) {
       roleNameDisabledMessage = (<div>Editing of role NAME is not allowed</div>);
@@ -39,7 +33,7 @@ const RoleModalBody = {
 
     return (
       <div>
-        <f.row collapse="true">
+        <f.row collapse={true}>
           <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
             <f.column largeSize={4}>
               <f.input model={vnode.attrs.role()}

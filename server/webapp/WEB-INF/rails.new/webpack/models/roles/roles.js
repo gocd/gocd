@@ -119,7 +119,7 @@ Roles.Role.GoCD = function (data) {
   };
 
   this.deleteUser = function (username) {
-    this.users(_.remove(this.users(), (user) => user === username));
+    _.remove(this.users(), (user) => user === username);
   };
 
   this.sortUsers = function () {

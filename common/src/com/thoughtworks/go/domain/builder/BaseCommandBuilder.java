@@ -63,6 +63,10 @@ public abstract class BaseCommandBuilder extends Builder {
             commandLine.runScript(execScript, consumer, environmentVariableContext, null);
             setBuildDuration(startTime, buildLogElement);
 
+            if (SUCCESS_EXIT_CODE != execScript.getExitCode()) {
+                setExitCode(execScript.getExitCode());
+            }
+
             if (execScript.foundError()) {
                 // detected the error string in the command output
                 String message = "Build failed. Command " + this.command + " reported ["
@@ -70,8 +74,7 @@ public abstract class BaseCommandBuilder extends Builder {
                 setBuildError(buildLogElement, message);
                 buildLogElement.setTaskError();
                 throw new CruiseControlException(message);
-
-            } else if (execScript.getExitCode() != 0) {
+            } else if (SUCCESS_EXIT_CODE != execScript.getExitCode()) {
                 String message = "return code is " + execScript.getExitCode();
                 setBuildError(buildLogElement, message);
                 throw new CruiseControlException(message);

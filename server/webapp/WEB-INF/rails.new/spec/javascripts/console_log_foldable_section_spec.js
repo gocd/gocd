@@ -239,10 +239,26 @@
       assertEquals("color", l.find(".ansi-bright-yellow-fg.ansi-black-bg").text());
     });
 
+    it("LineWriter formats exit code", function () {
+      var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
+      lw.markWithAnnotations(fs, {exitCode: 127});
+      assertEquals("exited: 127", h.find(".log-fs-exitcode").text());
+    });
+
+    it("LineWriter parses exit code from status line if available", function () {
+      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      fs.markMultiline();
+      var l = $($(lw.insertContent(fs, t.FAIL, "00:00:00.000", "[go] Task status: failed (exit code: 1)")));
+      fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
+
+      assertEquals("exited: 1", h.find(".log-fs-exitcode").text());
+      assertEquals("[go] Task status: failed, exited: 1", l.text());
+    });
+
     it("LineWriter formats durations from milliseconds into a human-friendly stamp", function () {
       var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
-      lw.markWithDuration(fs, 4998315);
-      assertEquals("1h 23m 18.315s", h.find(".log-fs-duration").text());
+      lw.markWithAnnotations(fs, {duration: 4998315});
+      assertEquals("took: 1h 23m 18.315s", h.find(".log-fs-duration").text());
     });
 
     it("LineWriter parses durations from status line if available", function () {
@@ -251,11 +267,22 @@
       var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms)")));
       fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
 
-      assertEquals("2h 24m 35.309s", h.find(".log-fs-duration").text());
-      assertEquals("[go] Task status: passed (2h 24m 35.309s)", l.text());
+      assertEquals("took: 2h 24m 35.309s", h.find(".log-fs-duration").text());
+      assertEquals("[go] Task status: passed, took: 2h 24m 35.309s", l.text());
     });
 
-    it("LineWriter just prints if there is no duration information", function () {
+    it("LineWriter parses both durations and exit code from status line if available", function () {
+      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      fs.markMultiline();
+      var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms) (exit code: 127)")));
+      fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
+
+      assertEquals("took: 2h 24m 35.309s", h.find(".log-fs-duration").text());
+      assertEquals("exited: 127", h.find(".log-fs-exitcode").text());
+      assertEquals("[go] Task status: passed, took: 2h 24m 35.309s, exited: 127", l.text());
+    });
+
+    it("LineWriter just prints if there are no annotations", function () {
       var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
       fs.markMultiline();
       var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed")));

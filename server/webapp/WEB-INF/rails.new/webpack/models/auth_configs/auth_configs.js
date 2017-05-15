@@ -83,7 +83,11 @@ AuthConfigs.AuthConfig = function (data) {
       });
 
       const didFulfill = (data, _textStatus, jqXHR) => {
-        deferred.resolve(mrequest.unwrapMessageOrEntity(AuthConfigs.AuthConfig)(data, jqXHR));
+        if (jqXHR.status === 200) {
+          const responseEntity = AuthConfigs.AuthConfig.fromJSON(data.auth_config);
+          responseEntity.etag(entity.etag());
+          deferred.resolve(responseEntity);
+        }
       };
 
       const didReject = (jqXHR, _textStatus, _errorThrown) => {
@@ -120,7 +124,7 @@ Mixins.fromJSONCollection({
 
 const VerifyConnectionResponse = function (xhr, etag) {
   if (xhr.status === 422) {
-    const authConfig = new AuthConfigs.AuthConfig.fromJSON(xhr.responseJSON.auth_config);
+    const authConfig = AuthConfigs.AuthConfig.fromJSON(xhr.responseJSON.auth_config);
     authConfig.etag(etag);
 
     return {

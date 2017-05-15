@@ -80,12 +80,14 @@ describe('Plugin Configuration', () => {
     expect(passwordConfig.value()).toEqual("secret");
     expect(passwordConfig.isDirtyValue()).toEqual(false);
     expect(passwordConfig.isSecureValue()).toEqual(true);
+    expect(passwordConfig.toJSON()).toEqual({key: 'Password', "encrypted_value": 'secret'});
 
     pluginConfigurations.setConfiguration("Password", "changed");
 
     expect(passwordConfig.value()).toEqual("changed");
     expect(passwordConfig.isDirtyValue()).toEqual(true);
-    expect(passwordConfig.isSecureValue()).toEqual(false);
+    expect(passwordConfig.isSecureValue()).toEqual(true);
+    expect(passwordConfig.toJSON()).toEqual({key: 'Password', value: 'changed'});
   });
 
 });

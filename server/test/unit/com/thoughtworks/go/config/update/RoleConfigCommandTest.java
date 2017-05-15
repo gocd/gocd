@@ -113,6 +113,20 @@ public class RoleConfigCommandTest {
     }
 
     @Test
+    public void isValid_shouldValidationRolesWithNonUniqueNamesAcrossPluginType() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("test", "ldap");
+        cruiseConfig.server().security().addRole(pluginRoleConfig);
+        cruiseConfig.server().security().addRole(new RoleConfig(new CaseInsensitiveString("test")));
+
+        RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
+
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(pluginRoleConfig.errors().size(), is(2));
+        assertThat(pluginRoleConfig.errors().get("name").get(0), is("Role names should be unique. Role with the same name exists."));
+    }
+
+    @Test
     public void shouldPassValidationForValidRole() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("foo", "ldap");

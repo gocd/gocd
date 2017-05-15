@@ -286,6 +286,7 @@ describe ApiV1::Admin::Security::RolesController do
         result.stub(:isSuccessful).and_return(false)
         result.stub(:message).with(anything()).and_return('Save failed')
         result.stub(:httpCode).and_return(422)
+
         @service.should_receive(:findRole).with(anything).and_return(nil)
         @service.should_receive(:create).with(anything, an_instance_of(RoleConfig), result)
 
@@ -299,10 +300,15 @@ describe ApiV1::Admin::Security::RolesController do
 
         post_with_api_header :create, role: role_hash
 
+        expected_role = RoleConfig.new(CaseInsensitiveString.new('blackbird'), RoleUser.new('bob'), RoleUser.new('alice'))
+        expected_role.addError('name', 'Role names should be unique. Role with the same name exists.')
+
         expect(@service).not_to receive(:create)
+        expect(actual_response[:data]).to eq(expected_response(expected_role, ApiV1::Security::RoleConfigRepresenter))
         expect(response).to have_api_message_response(422, "Failed to add role. The role 'blackbird' already exists.")
       end
     end
+
     describe :route do
       describe :with_header do
         it 'should route to create action of controller' do

@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;

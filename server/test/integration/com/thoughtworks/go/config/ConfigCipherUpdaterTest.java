@@ -140,8 +140,11 @@ public class ConfigCipherUpdaterTest {
         String editedConfig = FileUtil.readContentFromFile(editedConfigFile);
         assertThat(editedConfig.contains("encryptedManagerPassword=\"" + passwordEncryptedWithFlawedCipher + "\""), is(false));
         CruiseConfig config = magicalGoConfigXmlLoader.loadConfigHolder(editedConfig).config;
-        assertThat(config.server().security().ldapConfig().managerPassword(), is(password));
-        assertThat(config.server().security().ldapConfig().getEncryptedManagerPassword(), is(new GoCipher().encrypt(password)));
+        assertThat(config.server().security().ldapConfig().isEnabled(), is(false));
+        SecurityAuthConfig migratedLdapConfig = config.server().security().securityAuthConfigs().get(0);
+
+        assertThat(migratedLdapConfig.getProperty("Password").getValue(), is(password));
+        assertThat(migratedLdapConfig.getProperty("Password").getEncryptedValue(), is(new GoCipher().encrypt(password)));
     }
 
     @Test

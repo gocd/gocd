@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,14 +57,6 @@
     <bean id="databaseUpgraderDataSourceFactory" class="com.thoughtworks.go.server.util.DatabaseUpgraderDataSourceFactory"/>
 
     <bean id="goDataSource" factory-bean="databaseUpgraderDataSourceFactory" factory-method="dataSource" scope="singleton"/>
-    <!--
-        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-            <property name="driverClassName" value="${jdbc.driverClassName}"/>
-            <property name="url" value="${jdbc.url}"/>
-            <property name="username" value="${jdbc.username}"/>
-            <property name="password" value="${jdbc.password}"/>
-        </bean>
-    -->
 
     <!-- ========================= RESOURCE DEFINITIONS ========================= -->
 
@@ -80,7 +72,7 @@
     <bean id="transactionTemplate" class="com.thoughtworks.go.server.transaction.TransactionTemplate">
         <constructor-arg index="0">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
-                <property name="transactionManager" ref="txManager"/>
+                <constructor-arg ref="txManager"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -99,9 +91,8 @@
     <!-- ========================= HIBERNATE ========================= -->
 
     <bean id="hibernateProperties" class="com.thoughtworks.go.server.database.HibernateProperties" />
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="goDataSource"/>
-        <property name="useTransactionAwareDataSource" value="true"/>
         <property name="mappingDirectoryLocations">
             <list>
                 <value>classpath:/hibernate-mappings</value>
@@ -115,9 +106,11 @@
         </property>
     </bean>
 
-    <bean id="goTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="goTransactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
+
+    <tx:annotation-driven transaction-manager="goTransactionManager" proxy-target-class="true"/>
 
     <!-- ========================= DAO DEFINITIONS ========================= -->
 

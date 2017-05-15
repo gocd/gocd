@@ -78,53 +78,38 @@
   <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory" />
   <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory" factory-method="createInstance" />
 
-  <bean id="agentControllerLooper" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+  <bean id="agentControllerLooper" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
         p:targetObject-ref="agentController"
         p:targetMethod="loop"/>
 
-  <bean id="agentControllerPinger" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+  <bean id="agentControllerPinger" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
         p:targetObject-ref="agentController"
         p:targetMethod="ping"/>
 
   <bean id="agentControllerInstructionExecutor"
-        class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
         p:targetObject-ref="agentController"
         p:targetMethod="execute"/>
 
 
   <!-- worker thread -->
-  <bean name="loopThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-              p:delay="${agent.get.work.delay}"
-              p:period="${agent.get.work.interval}"
-              p:timerTask-ref="agentControllerLooper"/>
-      </list>
-    </property>
+  <bean name="loopThread" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+    <property name="jobDetail" ref="agentControllerLooper"/>
+    <property name="startDelay" value="${agent.instruction.delay}"/>
+    <property name="repeatInterval" value="${agent.instruction.interval}"/>
   </bean>
 
   <!-- ping thread -->
-  <bean name="pingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-              p:delay="${agent.ping.delay}"
-              p:period="${agent.ping.interval}"
-              p:timerTask-ref="agentControllerPinger"/>
-      </list>
-    </property>
+  <bean name="pingThread" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+    <property name="jobDetail" ref="agentControllerPinger"/>
+    <property name="startDelay" value="${agent.instruction.delay}"/>
+    <property name="repeatInterval" value="${agent.instruction.interval}"/>
   </bean>
 
   <!-- instruction checker -->
-  <bean name="instructionExecuteThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-              p:delay="${agent.instruction.delay}"
-              p:period="${agent.instruction.interval}"
-              p:timerTask-ref="agentControllerInstructionExecutor"/>
-      </list>
-    </property>
+  <bean name="instructionExecuteThread" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+    <property name="jobDetail" ref="agentControllerInstructionExecutor"/>
+    <property name="startDelay" value="${agent.instruction.delay}"/>
+    <property name="repeatInterval" value="${agent.instruction.interval}"/>
   </bean>
 </beans>

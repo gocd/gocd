@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   compile group: 'xerces', name: 'xercesImpl', version: '2.9.1'
-  compile group: 'cglib', name: 'cglib', version: '2.1_3'
+  compile group: 'cglib', name: 'cglib', version: '3.2.4'
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
   testCompile(group: 'jaxen', name: 'jaxen', version: '1.1') {

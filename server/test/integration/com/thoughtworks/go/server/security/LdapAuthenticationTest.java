@@ -20,16 +20,15 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.server.security.providers.LdapAuthenticationProvider;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.unboundid.ldif.LDIFRecord;
-import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.Authentication;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -38,8 +37,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_SUPERVISOR;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -121,9 +120,9 @@ public class LdapAuthenticationTest {
         Authentication result = ldapAuthenticationProvider.authenticate(authentication);
         assertThat(result.isAuthenticated(), is(true));
 
-        GrantedAuthority[] authorities = result.getAuthorities();
-        assertThat("foleys should have only user authority. Found: " + ArrayUtils.toString(authorities), authorities.length, is(1));
-        assertThat(authorities[0].getAuthority(), is("ROLE_USER"));
+        List<GrantedAuthority> authorities = new ArrayList<>(result.getAuthorities());
+        assertThat("foleys should have only user authority. Found: " + authorities, authorities.size(), is(1));
+        assertThat(authorities.get(0), is("ROLE_USER"));
     }
 
     @Test
@@ -167,8 +166,9 @@ public class LdapAuthenticationTest {
         Authentication result = ldapAuthenticationProvider.authenticate(authentication);
         assertThat(result.isAuthenticated(), is(true));
 
-        assertThat(userName + " should have " + ROLE_SUPERVISOR + " authority", result.getAuthorities(),
-                hasItemInArray(ROLE_SUPERVISOR.asAuthority())); // by default, every user is administrator
+        List<GrantedAuthority> authorities = new ArrayList<>(result.getAuthorities());
+        assertThat(userName + " should have " + ROLE_SUPERVISOR + " authority", authorities,
+                hasItem(ROLE_SUPERVISOR.asAuthority())); // by default, every user is administrator
     }
 
     private void assertFailedAuthentication(String userName, String password) {

@@ -1,26 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
@@ -31,25 +25,26 @@ import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.StringUtil;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Component
-public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
+public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
@@ -82,38 +77,29 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
     }
 
     public User findUser(final String userName) {
-        return (User) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                User user = (User) sessionFactory.getCurrentSession()
-                        .createCriteria(User.class)
-                        .add(Restrictions.eq("name", userName))
-                        .setCacheable(true).uniqueResult();
-                return user == null ? new NullUser() : user;
-            }
+        return transactionTemplate.execute(transactionStatus -> {
+            User user = (User) sessionFactory.getCurrentSession()
+                    .createCriteria(User.class)
+                    .add(Restrictions.eq("name", userName))
+                    .setCacheable(true).uniqueResult();
+            return user == null ? new NullUser() : user;
         });
     }
 
     public Users findNotificationSubscribingUsers() {
-        return (Users) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
-                criteria.setCacheable(true);
-                criteria.add(Restrictions.isNotEmpty("notificationFilters"));
-                return new Users(criteria.list());
-            }
+        return transactionTemplate.execute(transactionStatus -> {
+            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
+            criteria.setCacheable(true);
+            criteria.add(Restrictions.isNotEmpty("notificationFilters"));
+            return new Users(criteria.list());
         });
     }
 
     public Users allUsers() {
-        return new Users((List<User>) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
-                query.setCacheable(true);
-                return query.list();
-            }
+        return new Users(transactionTemplate.execute(transactionStatus -> {
+            Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
+            query.setCacheable(true);
+            return query.list();
         }));
     }
 
@@ -126,12 +112,12 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
         synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
             value = (Integer) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
             if (value == null) {
-                value = (Integer) hibernateTemplate().execute(new HibernateCallback<Object>() {
+                value = hibernateTemplate().execute(new HibernateCallback<Long>() {
                     @Override
-                    public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                        return session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
+                    public Long doInHibernate(Session session) throws HibernateException {
+                        return (Long) session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
                     }
-                });
+                }).intValue();
 
                 goCache.put(ENABLED_USER_COUNT_CACHE_KEY, value);
             }
@@ -186,9 +172,9 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
     }
 
     public User load(final long id) {
-        return (User) transactionTemplate.execute(new TransactionCallback() {
+        return transactionTemplate.execute(new TransactionCallback<User>() {
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public User doInTransaction(TransactionStatus transactionStatus) {
                 return sessionFactory.getCurrentSession().load(User.class, id);
             }
         });
@@ -196,19 +182,16 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
 
     @Override
     public boolean deleteUser(final String username) {
-        return (Boolean) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                User user = findUser(username);
-                if (user instanceof NullUser) {
-                    throw new UserNotFoundException();
-                }
-                if (user.isEnabled()) {
-                    throw new UserEnabledException();
-                }
-                sessionFactory.getCurrentSession().delete(user);
-                return Boolean.TRUE;
+        return transactionTemplate.execute(status -> {
+            User user = findUser(username);
+            if (user instanceof NullUser) {
+                throw new UserNotFoundException();
             }
+            if (user.isEnabled()) {
+                throw new UserEnabledException();
+            }
+            sessionFactory.getCurrentSession().delete(user);
+            return Boolean.TRUE;
         });
     }
 

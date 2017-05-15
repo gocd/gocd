@@ -21,12 +21,17 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.X509AuthoritiesPopulator;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.LdapUserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.LdapUserDetails;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
@@ -81,7 +86,7 @@ public class UserHelper {
     }
 
     static boolean matchesRole(Authentication authentication, String roleAgent) {
-        GrantedAuthority[] authorities = authentication.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (authorities == null) {
             return false;
         }

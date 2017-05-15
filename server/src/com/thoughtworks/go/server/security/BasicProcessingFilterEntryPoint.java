@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,19 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.server.security;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -36,22 +34,21 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
     public void afterPropertiesSet() throws Exception {
     }
 
-    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
+        response.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
         ArrayList<String> acceptHeader = getAcceptHeader(request);
         String contentType = getMatchingHeader(acceptHeader, "application/vnd\\.go\\.cd\\.v.\\+json");
 
         if (contentType != null) {
-            httpResponse.setContentType(contentType);
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getOutputStream().print("{\n");
-            httpResponse.getOutputStream().print("  \"message\": \"You are not authorized to access this resource!\"\n");
-            httpResponse.getOutputStream().print("}\n");
+            response.setContentType(contentType);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getOutputStream().print("{\n");
+            response.getOutputStream().print("  \"message\": \"You are not authorized to access this resource!\"\n");
+            response.getOutputStream().print("}\n");
             return;
         }
-        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 
     private String getMatchingHeader(ArrayList<String> acceptHeader, String expectedType) {

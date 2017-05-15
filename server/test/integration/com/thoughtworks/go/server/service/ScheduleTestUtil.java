@@ -38,16 +38,15 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
@@ -127,7 +126,7 @@ public class ScheduleTestUtil {
         return fail(pipeline, mduAt, instance);
     }
 
-    public String rerunStageAndCancel(Pipeline pipeline, StageConfig stageConfig){
+    public String rerunStageAndCancel(Pipeline pipeline, StageConfig stageConfig) {
         Stage stage = dbHelper.scheduleStage(pipeline, stageConfig);
         dbHelper.cancelStage(stage);
         return stage.getIdentifier().getStageLocator();
@@ -136,7 +135,8 @@ public class ScheduleTestUtil {
     private String pass(final AddedPipeline pipeline, final Date mduAt, final Pipeline instance) {
         dbHelper.pass(instance);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 for (Stage stage : instance.getStages()) {
                     final String dmrRevStr = new StageIdentifier(new PipelineIdentifier(instance.getName(), instance.getCounter(), instance.getName() + instance.getCounter()), stage.getName(), "1").getStageLocator();
                     Modification modification = new Modification(mduAt, dmrRevStr, instance.getLabel(), instance.getId());
@@ -196,7 +196,9 @@ public class ScheduleTestUtil {
         private RevisionsForMaterial(List<String> revs) {
             this.revs = revs;
         }
-        @Override public String toString() {
+
+        @Override
+        public String toString() {
             return "RevisionsForMaterial{" +
                     "revs=" + revs +
                     '}';
@@ -260,11 +262,11 @@ public class ScheduleTestUtil {
 
 
     private List<Modification> modForRev(final RevisionsForMaterial revision) {
-        return (List<Modification>) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return materialRepository.getHibernateTemplate().execute(new HibernateCallback<List<Modification>>() {
+            public List<Modification> doInHibernate(Session session) throws HibernateException {
                 Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
                 q.setParameterList("in", revision.revs);
-                List list = q.list();
+                List<Modification> list = q.list();
                 if (list.isEmpty()) {
                     throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
                 }
@@ -286,11 +288,11 @@ public class ScheduleTestUtil {
     }
 
     private Modification modForRev(final String revision) {
-        return (Modification) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return materialRepository.getHibernateTemplate().execute(new HibernateCallback<Modification>() {
+            public Modification doInHibernate(Session session) throws HibernateException {
                 Query q = session.createQuery("from Modification where revision = ?");
                 q.setParameter(0, revision);
-                List list = q.list();
+                List<Modification> list = q.list();
                 if (list.isEmpty()) {
                     throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
                 }
@@ -453,7 +455,7 @@ public class ScheduleTestUtil {
         });
     }
 
-    public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction,final Date date) {
+    public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction, final Date date) {
         transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 Modification modification = new Modification("user", "comment", "a@b.com", date, revision);

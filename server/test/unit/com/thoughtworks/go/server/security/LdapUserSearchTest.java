@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@ import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.ldap.SpringSecurityContextSource;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
-import org.springframework.security.userdetails.UsernameNotFoundException;
 
 import javax.naming.directory.SearchControls;
 import java.util.Arrays;
@@ -58,7 +58,7 @@ public class LdapUserSearchTest {
     @Before
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
-        contextFactory = mock(SpringSecurityContextSource.class);
+        contextFactory = mock(DefaultSpringSecurityContextSource.class);
         securityConfig = mock(SecurityConfig.class);
         ldapTemplate = mock(LdapTemplate.class);
         logger = mock(Logger.class);

@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.Authentication;
-import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
 
 public class LdapAuthenticator extends BindAuthenticator {
     public static final String AUTHENTICATION_KEY = "AUTHENTICATION_KEY";

@@ -43,15 +43,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -195,8 +196,8 @@ public class PluginAuthenticationProviderTest {
         GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
         assertThat(goUserPrincipal.getUsername(), is("username"));
         assertThat(goUserPrincipal.getDisplayName(), is("display-name"));
-        assertThat(goUserPrincipal.getAuthorities().length, is(1));
-        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+        assertThat(goUserPrincipal.getAuthorities().size(), is(1));
+        assertThat(goUserPrincipal.getAuthorities(), contains(userAuthority));
     }
 
     @Test
@@ -214,8 +215,8 @@ public class PluginAuthenticationProviderTest {
         GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
         assertThat(goUserPrincipal.getUsername(), is("username"));
         assertThat(goUserPrincipal.getDisplayName(), is("username"));
-        assertThat(goUserPrincipal.getAuthorities().length, is(1));
-        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+        assertThat(goUserPrincipal.getAuthorities().size(), is(1));
+        assertThat(goUserPrincipal.getAuthorities(), contains(userAuthority));
     }
 
     @Test

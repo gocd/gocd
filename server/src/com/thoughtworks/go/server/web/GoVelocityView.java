@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +25,17 @@ import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.servlet.view.velocity.VelocityToolboxView;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
+import java.util.Collection;
 
-import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 public class GoVelocityView extends VelocityToolboxView {
     public static final String PRINCIPAL = "principal";
@@ -101,8 +102,7 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
         velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
-        SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
-                SPRING_SECURITY_CONTEXT_KEY);
+        SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY);
         if (securityContext == null || securityContext.getAuthentication() == null) {
             return;
         }
@@ -116,7 +116,7 @@ public class GoVelocityView extends VelocityToolboxView {
     }
 
     private void setAdmininstratorRole(Context velocityContext, Authentication authentication) {
-        final GrantedAuthority[] authorities = authentication.getAuthorities();
+        final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (authorities == null) {
             return;
         }
@@ -133,7 +133,7 @@ public class GoVelocityView extends VelocityToolboxView {
             context.remove(VIEW_ADMINISTRATOR_RIGHTS);
     }
 
-    private void removeGroupAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeGroupAdminFromContextIfNecessary(Context velocityContext, Collection<? extends GrantedAuthority> authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
             if (isGroupAdministrator(authority)) {
@@ -145,7 +145,7 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
-    private void removeTemplateAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeTemplateAdminFromContextIfNecessary(Context velocityContext, Collection<? extends GrantedAuthority> authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
             if (isTemplateAdministrator(authority)) {
@@ -157,7 +157,7 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
-    private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, Collection< ? extends GrantedAuthority> authorities) {
         boolean isTemplateViewUser = false;
         for (GrantedAuthority authority : authorities) {
             if(isTemplateViewUser(authority)) {
@@ -170,7 +170,7 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
-    private void removeAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+    private void removeAdminFromContextIfNecessary(Context velocityContext, Collection< ? extends GrantedAuthority> authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
             if (isAdministrator(authority)) {

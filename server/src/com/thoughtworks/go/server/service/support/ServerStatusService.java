@@ -54,7 +54,8 @@ public class ServerStatusService {
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                LOGGER.info(new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(serverInfoAsJson()));
+                final Map<String, Object> serverInfo = serverInfoAsJson();
+                LOGGER.info(new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(serverInfo));
             }
         });
     }

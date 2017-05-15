@@ -27,7 +27,12 @@ sourceSets {
 dependencies {
   compile project(':db')
   compile project(':commandline')
-  compile group: 'org.springframework', name: 'spring-orm', version: '3.1.3.RELEASE'
+  compile group: 'org.springframework', name: 'spring-orm', version: '4.3.6.RELEASE'
+  compile(group: 'org.springframework', name: 'spring-ibatis', version: '2.0.8') {
+    exclude(module: 'spring-beans')
+    exclude(module: 'spring-core')
+    exclude(module: 'spring-dao')
+  }
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')

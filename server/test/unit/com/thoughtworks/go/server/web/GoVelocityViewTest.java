@@ -29,33 +29,34 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextImpl;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 public class GoVelocityViewTest {
     private GoVelocityView view;
     private HttpServletRequest request;
     private Context velocityContext;
     private SecurityContextImpl securityContext;
-    @Mock private RailsAssetsService railsAssetsService;
-    @Mock private FeatureToggleService featureToggleService;
-    @Mock private VersionInfoService versionInfoService;
+    @Mock
+    private RailsAssetsService railsAssetsService;
+    @Mock
+    private FeatureToggleService featureToggleService;
+    @Mock
+    private VersionInfoService versionInfoService;
 
     @Before
     public void setUp() throws Exception {
@@ -72,7 +73,7 @@ public class GoVelocityViewTest {
 
     @Test
     public void shouldRetriveLdapCompleteNameFromSessionWhenAuthenticated() throws Exception {
-        securityContext.setAuthentication(new TestingAuthenticationToken(new LdapUserDetailsImpl() {
+        LdapUserDetailsImpl ldapUserDetails = new LdapUserDetailsImpl() {
             public String getUsername() {
                 return "test1";
             }
@@ -80,7 +81,9 @@ public class GoVelocityViewTest {
             public String getDn() {
                 return "cn=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
             }
-        }, null, null));
+        };
+        TestingAuthenticationToken authentication = new TestingAuthenticationToken(ldapUserDetails, null, Collections.emptyList());
+        securityContext.setAuthentication(authentication);
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
@@ -90,7 +93,7 @@ public class GoVelocityViewTest {
     public void shouldSetAdministratorIfUserIsAdministrator() throws Exception {
         securityContext.setAuthentication(
                 new TestingAuthenticationToken("jez", "badger",
-                        new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_SUPERVISOR.toString())}));
+                        Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_SUPERVISOR.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(true));
@@ -100,7 +103,7 @@ public class GoVelocityViewTest {
     public void shouldSetTemplateAdministratorIfUserIsTemplateAdministrator() throws Exception {
         securityContext.setAuthentication(
                 new TestingAuthenticationToken("jez", "badger",
-                        new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString())}));
+                        Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.TEMPLATE_ADMINISTRATOR), is(true));
@@ -110,7 +113,7 @@ public class GoVelocityViewTest {
     public void shouldSetTemplateViewUserRightsForTemplateViewUser() throws Exception {
         securityContext.setAuthentication(
                 new TestingAuthenticationToken("templateView", "badger",
-                        new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString())}));
+                        Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.TEMPLATE_VIEW_USER), is(true));
@@ -118,27 +121,27 @@ public class GoVelocityViewTest {
 
     @Test
     public void shouldSetViewAdministratorRightsIfUserHasAnyLevelOfAdministratorRights() throws Exception {
-        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString())}));
+        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
-        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_GROUP_SUPERVISOR.toString())}));
+        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_GROUP_SUPERVISOR.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
-        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_SUPERVISOR.toString())}));
+        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_SUPERVISOR.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
-        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString())}));
+        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
-        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_USER.toString())}));
+        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_USER.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(nullValue()));
@@ -148,7 +151,7 @@ public class GoVelocityViewTest {
     public void shouldSetGroupAdministratorIfUserIsAPipelineGroupAdministrator() throws Exception {
         securityContext.setAuthentication(
                 new TestingAuthenticationToken("jez", "badger",
-                        new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_GROUP_SUPERVISOR.toString())}));
+                        Collections.singletonList(new SimpleGrantedAuthority(GoAuthority.ROLE_GROUP_SUPERVISOR.toString()))));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(nullValue()));
@@ -173,8 +176,8 @@ public class GoVelocityViewTest {
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         securityContext.setAuthentication(
                 new TestingAuthenticationToken(
-                        new User("Test User", "pwd", true, new GrantedAuthority[]{new GrantedAuthorityImpl("nowt")}),
-                        null, null));
+                        new User("Test User", "pwd", Collections.singletonList(new SimpleGrantedAuthority("nowt"))),
+                        null, Collections.emptyList()));
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
     }

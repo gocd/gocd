@@ -32,7 +32,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptorBuilder;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifest;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifestGenerator;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -69,7 +69,7 @@ public class DefaultPluginJarChangeListenerTest {
     private File PLUGIN_DIR;
     private File BUNDLE_DIR;
     private DefaultPluginRegistry registry;
-    private GoPluginOSGiManifestGenerator osgiManifestGenerator;
+    private GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator osgiManifestGenerator;
     private DefaultPluginJarChangeListener listener;
     private GoPluginOSGiFramework osgiFramework;
     private SystemEnvironment systemEnvironment;

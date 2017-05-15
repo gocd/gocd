@@ -58,7 +58,10 @@ import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.ListUtil;
+import com.thoughtworks.go.util.TestUtils;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.hibernate.SessionFactory;
@@ -71,8 +74,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
@@ -102,18 +105,28 @@ import static org.mockito.Mockito.*;
 })
 public class MaterialRepositoryIntegrationTest {
 
-    @Autowired MaterialRepository repo;
+    @Autowired
+    MaterialRepository repo;
     @Autowired
     GoCache goCache;
-    @Autowired PipelineSqlMapDao pipelineSqlMapDao;
-    @Autowired DatabaseAccessHelper dbHelper;
-    @Autowired SessionFactory sessionFactory;
-    @Autowired TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired TransactionTemplate transactionTemplate;
-    @Autowired private InstanceFactory instanceFactory;
-    @Autowired private MaterialConfigConverter materialConfigConverter;
-    @Autowired private MaterialExpansionService materialExpansionService;
-    @Autowired private DatabaseStrategy databaseStrategy;
+    @Autowired
+    PipelineSqlMapDao pipelineSqlMapDao;
+    @Autowired
+    DatabaseAccessHelper dbHelper;
+    @Autowired
+    SessionFactory sessionFactory;
+    @Autowired
+    TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    TransactionTemplate transactionTemplate;
+    @Autowired
+    private InstanceFactory instanceFactory;
+    @Autowired
+    private MaterialConfigConverter materialConfigConverter;
+    @Autowired
+    private MaterialExpansionService materialExpansionService;
+    @Autowired
+    private DatabaseStrategy databaseStrategy;
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
@@ -180,7 +193,8 @@ public class MaterialRepositoryIntegrationTest {
         when(mockTemplate.find("FROM Modification WHERE materialId = ? AND id BETWEEN ? AND ? ORDER BY id DESC", new Object[]{10L, -1L, -1L})).thenReturn(modifications);
         MaterialInstance materialInstance = material().createMaterialInstance();
         materialInstance.setId(10);
-        when(mockTemplate.findByCriteria(any(DetachedCriteria.class))).thenReturn(asList(materialInstance));
+        List list = asList(materialInstance);
+        when(mockTemplate.findByCriteria(any(DetachedCriteria.class))).thenReturn(list);
 
         PipelineMaterialRevision pmr = pipelineMaterialRevision();
         List<Modification> actual;
@@ -1133,7 +1147,7 @@ public class MaterialRepositoryIntegrationTest {
     @Test
     public void shouldSavePackageMaterialInstance() {
         PackageMaterial material = new PackageMaterial();
-        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
+        PackageRepository repository = PackageRepositoryMother.create("materialRepository-id", "materialRepository", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
         PackageMaterialInstance savedMaterialInstance = (PackageMaterialInstance) repo.findOrCreateFrom(material);
         assertThat(savedMaterialInstance.getId() > 0, is(true));
@@ -1295,7 +1309,7 @@ public class MaterialRepositoryIntegrationTest {
             }
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count+1)));
+        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count + 1)));
     }
 
     private ArrayList<Modification> getModifications(int count) {
@@ -1311,22 +1325,16 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private MaterialRevision saveOneDependencyModification(final DependencyMaterial dependencyMaterial, final String revision, final String label) {
-        return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification(new Date(), revision, label, null);
-                MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
-                repo.save(new MaterialRevisions(originalRevision));
-                return originalRevision;
-            }
+        return transactionTemplate.execute(status -> {
+            Modification modification = new Modification(new Date(), revision, label, null);
+            MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
+            repo.save(new MaterialRevisions(originalRevision));
+            return originalRevision;
         });
     }
 
     private MaterialInstance saveMaterialRev(final MaterialRevision rev) {
-        return (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return repo.saveMaterialRevision(rev);
-            }
-        });
+        return transactionTemplate.execute(status -> repo.saveMaterialRevision(rev));
     }
 
     private Pipeline createPipeline() {
@@ -1359,13 +1367,11 @@ public class MaterialRepositoryIntegrationTest {
     private Material saveMaterialRevisions(final MaterialRevisions revs) {
         Material hg = revs.getMaterialRevision(0).getMaterial();
 
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                for (MaterialRevision revision : revs) {
-                    repo.saveMaterialRevision(revision);
-                }
-                return null;
+        transactionTemplate.execute((TransactionCallback<Material>) status -> {
+            for (MaterialRevision revision : revs) {
+                repo.saveMaterialRevision(revision);
             }
+            return null;
         });
         return hg;
     }
@@ -1439,16 +1445,14 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private MaterialRevision saveOneScmModification(final String revision, final Material original, final String user, final String filename, final String comment) {
-        return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification(user, comment, "email", new Date(), revision);
-                modification.createModifiedFile(filename, "folder1", ModifiedAction.added);
+        return transactionTemplate.execute(status -> {
+            Modification modification = new Modification(user, comment, "email", new Date(), revision);
+            modification.createModifiedFile(filename, "folder1", ModifiedAction.added);
 
-                MaterialRevision originalRevision = new MaterialRevision(original, modification);
+            MaterialRevision originalRevision = new MaterialRevision(original, modification);
 
-                repo.save(new MaterialRevisions(originalRevision));
-                return originalRevision;
-            }
+            repo.save(new MaterialRevisions(originalRevision));
+            return originalRevision;
         });
     }
 

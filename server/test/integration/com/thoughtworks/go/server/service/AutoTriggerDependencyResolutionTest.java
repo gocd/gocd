@@ -50,7 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -64,6 +63,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -73,19 +73,32 @@ import static org.mockito.Mockito.when;
 public class AutoTriggerDependencyResolutionTest {
     public static final String STAGE_NAME = "s";
     public static final Cloner CLONER = new Cloner();
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoCache goCache;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private MaterialChecker materialChecker;
-    @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private MaterialChecker materialChecker;
+    @Autowired
+    private PipelineTimeline pipelineTimeline;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
@@ -2005,8 +2018,7 @@ public class AutoTriggerDependencyResolutionTest {
 
     }
 
-    @Test
-    @ExpectedException(MaxBackTrackLimitReachedException.class)
+    @Test(expected = MaxBackTrackLimitReachedException.class)
     public void shouldResolveSimpleDiamondAndThrowLimitException() {
         int i = 1;
         GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder");
@@ -2040,8 +2052,7 @@ public class AutoTriggerDependencyResolutionTest {
         getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
     }
 
-    @Test(timeout = 10 * 1000)
-    @ExpectedException(NoCompatibleUpstreamRevisionsException.class)
+    @Test(timeout = 10 * 1000, expected = NoCompatibleUpstreamRevisionsException.class)
     public void shouldContinueBackTrackingFromItsLastKnownPositionAndNotFromTheBeginning() {
         int i = 1;
         GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder1");

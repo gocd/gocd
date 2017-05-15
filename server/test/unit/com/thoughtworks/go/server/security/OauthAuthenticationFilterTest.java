@@ -16,27 +16,21 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
+import org.junit.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.User;
+import static org.mockito.Mockito.*;
 
 public class OauthAuthenticationFilterTest {
     private static SecurityContext originalContext;
@@ -92,7 +86,7 @@ public class OauthAuthenticationFilterTest {
     public void shouldAuthenticateToken() throws IOException, ServletException {
         when(req.getHeader(OauthAuthenticationFilter.AUTHORIZATION)).thenReturn("Token token=\"valid-token\"");
         OauthAuthenticationToken authenticatedToken = new OauthAuthenticationToken(
-                new User("user-name", "valid-token", true, true, true, true, new GrantedAuthority[]{GoAuthority.ROLE_SUPERVISOR.asAuthority()}));
+                new User("user-name", "valid-token", true, true, true, true, Arrays.asList(GoAuthority.ROLE_SUPERVISOR.asAuthority())));
         when(authenticationManager.authenticate(new OauthAuthenticationToken("valid-token"))).thenReturn(authenticatedToken);
 
         filter.doFilterHttp(req, res, chain);

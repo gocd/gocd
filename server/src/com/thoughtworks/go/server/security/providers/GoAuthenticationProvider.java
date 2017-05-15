@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * @understands Creates user records in db on successful authentication

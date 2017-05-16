@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.web.GoVelocityView;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +40,15 @@ public class AuthorizationControllerTest {
 
     private AuthorizationController authorizationController;
     private MockHttpServletResponse response;
+    private SecurityAuthConfigService securityAuthConfigService;
 
     @Before
     public void setUp() throws Exception {
         authenticationPluginRegistry = mock(AuthenticationPluginRegistry.class);
         localizer = mock(Localizer.class);
 
-        authorizationController = new AuthorizationController(localizer, authenticationPluginRegistry);
+        securityAuthConfigService = mock(SecurityAuthConfigService.class);
+        authorizationController = new AuthorizationController(localizer, authenticationPluginRegistry, securityAuthConfigService);
         response = new MockHttpServletResponse();
     }
 
@@ -71,12 +74,14 @@ public class AuthorizationControllerTest {
             put("login_error", false);
             put("l", localizer);
             put("authentication_plugin_registry", authenticationPluginRegistry);
+            put("security_auth_config_service", securityAuthConfigService);
             put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         }};
 
         Map<String, Object> responseModelMap = responseModel.getModel();
         assertThat(responseModelMap, is(modelMap));
     }
+
 
     @Test
     public void shouldRedirectToGo() throws Exception {

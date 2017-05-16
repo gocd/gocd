@@ -47,7 +47,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", new Metadata(true, true))),
                 new com.thoughtworks.go.plugin.domain.common.PluginView("profile_view"));
         com.thoughtworks.go.plugin.domain.common.Image image =
-                new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
+                new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)), "hash");
 
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
         metadataStore.setPluginInfo(new ElasticAgentPluginInfo(plugin, profileSettings, image));
@@ -78,7 +78,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings profileSettings = new com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("password", new Metadata(true, true))),
                 new com.thoughtworks.go.plugin.domain.common.PluginView("profile_view"));
         com.thoughtworks.go.plugin.domain.common.Image image =
-                new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
+                new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)), "hash");
 
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
         metadataStore.setPluginInfo(new ElasticAgentPluginInfo(plugin, profileSettings, image));

@@ -26,7 +26,7 @@ import java.util.Set;
 public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPluginInfo> {
     private static final AuthorizationMetadataStore store = new AuthorizationMetadataStore();
 
-    private AuthorizationMetadataStore() {
+    protected AuthorizationMetadataStore() {
     }
 
     public static AuthorizationMetadataStore instance() {
@@ -55,5 +55,9 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
             }
         }
         return plugins;
+    }
+
+    public Set<String> getPluginsThatSupportsWebBasedAuthentication() {
+        return getPluginsThatSupports(SupportedAuthType.Web);
     }
 }

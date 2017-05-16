@@ -49,3 +49,16 @@ html, body {
 .app-footer, .page-wrap:after {
   height : 76px;
 }
+
+.authorization-plugins {
+  .authorization-plugin-icon {
+    height: 64px;
+    width: 64px;
+  }
+  .vertical-line {
+    border-left: 1px solid #ccc;
+    display: inline-block;
+    height: 40px;
+    margin: 10px;
+  }
+}

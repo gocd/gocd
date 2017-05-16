@@ -24,23 +24,35 @@ import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.string;
 
 @Component
 public class SecurityAuthConfigService extends PluginProfilesService<SecurityAuthConfig> {
     private final AuthorizationExtension authorizationExtension;
+    private final AuthorizationMetadataStore authorizationMetadataStore;
 
     @Autowired
     public SecurityAuthConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension) {
+        this(goConfigService, hashingService, authorizationExtension, AuthorizationMetadataStore.instance());
+    }
+
+    protected SecurityAuthConfigService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension, AuthorizationMetadataStore authorizationMetadataStore) {
         super(goConfigService, hashingService);
         this.authorizationExtension = authorizationExtension;
+        this.authorizationMetadataStore = authorizationMetadataStore;
     }
 
     protected SecurityAuthConfigs getPluginProfiles() {
@@ -83,7 +95,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
     private void mapErrors(VerifyConnectionResponse response, SecurityAuthConfig authConfig) {
         com.thoughtworks.go.plugin.domain.common.ValidationResult validationResult = response.getValidationResult();
 
-        if(validationResult == null) {
+        if (validationResult == null) {
             return;
         }
 
@@ -96,5 +108,17 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
             }
             property.addError(error.getKey(), error.getMessage());
         }
+    }
+
+    public List<AuthPluginInfoViewModel> getAllConfiguredWebBasedAuthorizationPlugins() {
+        ArrayList<AuthPluginInfoViewModel> result = new ArrayList();
+        Set<String> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
+        SecurityAuthConfigs configuredAuthPluginProfiles = getPluginProfiles();
+        for (SecurityAuthConfig authConfig : configuredAuthPluginProfiles) {
+            if (loadedWebBasedAuthPlugins.contains(authConfig.getPluginId())) {
+                result.add(new AuthPluginInfoViewModel(authorizationMetadataStore.getPluginInfo(authConfig.getPluginId())));
+            }
+        }
+        return result;
     }
 }

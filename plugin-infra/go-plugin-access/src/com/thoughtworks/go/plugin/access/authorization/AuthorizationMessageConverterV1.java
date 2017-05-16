@@ -192,8 +192,8 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String getIdentityProviderUrl(String responseBody) {
-        return (String) new Gson().fromJson(responseBody, Map.class).get("identity_provider_url");
+    public String getAuthorizationServerUrl(String responseBody) {
+        return (String) new Gson().fromJson(responseBody, Map.class).get("authorization_server_url");
     }
 
     @Override

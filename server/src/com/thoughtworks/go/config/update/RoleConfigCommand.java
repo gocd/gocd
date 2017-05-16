@@ -59,7 +59,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        preprocessedRole = preprocessedConfig.server().security().getRoles().findByName(role.getName());
+        preprocessedRole = preprocessedConfig.server().security().getRoles().findByNameAndType(role.getName(), role.getClass());
 
         if (!preprocessedRole.validateTree(validationContextWithSecurityConfig(preprocessedConfig))) {
             BasicCruiseConfig.copyErrors(preprocessedRole, role);

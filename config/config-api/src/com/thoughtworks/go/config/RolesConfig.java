@@ -102,6 +102,14 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return null;
     }
 
+    public Role findByNameAndType(final CaseInsensitiveString roleName, Class cls) {
+        for (Role role : this) {
+            if (role.getName().equals(roleName) && (role.getClass().getCanonicalName().equals(cls.getCanonicalName()))) {
+                return role;
+            }
+        }
+        return null;
+    }
 
     public boolean isUniqueRoleName(final CaseInsensitiveString roleName) {
         return Collections.frequency(roleNames(), roleName) <= 1;

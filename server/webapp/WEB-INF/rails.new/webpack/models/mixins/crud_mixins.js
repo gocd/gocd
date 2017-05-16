@@ -27,13 +27,13 @@ CrudMixins.Index = (options) => {
   const version  = options.version;
   const dataPath = options.dataPath;
 
-  type.all = (cb, queryParams={}) => $.Deferred(function () {
+  type.all = (cb, queryParams = {}) => $.Deferred(function () {
     const deferred = this;
 
     const jqXHR = $.ajax({
       method:      'GET',
       url,
-      data: queryParams,
+      data:        queryParams,
       timeout:     mrequest.timeout,
       beforeSend(xhr) {
         mrequest.xhrConfig.forVersion(version)(xhr);
@@ -70,7 +70,10 @@ CrudMixins.Create = function (options) {
         method:      'POST',
         url,
         timeout:     mrequest.timeout,
-        beforeSend:  mrequest.xhrConfig.forVersion(version),
+        beforeSend (xhr) {
+          mrequest.xhrConfig.forVersion(version)(xhr);
+          return validateEntity(entity, deferred);
+        },
         data:        JSON.stringify(entity, s.snakeCaser),
         contentType: 'application/json',
       });
@@ -135,9 +138,10 @@ CrudMixins.Update = function (options) {
         method:      method || "PUT",
         url:         "function" === typeof url ? url(entity) : url,
         timeout:     mrequest.timeout,
-        beforeSend(xhr) {
+        beforeSend (xhr) {
           mrequest.xhrConfig.forVersion(version)(xhr);
           xhr.setRequestHeader('If-Match', entity.etag());
+          return validateEntity(entity, deferred);
         },
         data:        JSON.stringify(entity, s.snakeCaser),
         contentType: 'application/json',
@@ -190,13 +194,21 @@ CrudMixins.Refresh = function (options) {
   };
 };
 
-CrudMixins.AllOperations = function (operations, options, overrides={}) {
+CrudMixins.AllOperations = function (operations, options, overrides = {}) {
   _.each(operations, (op) => {
     const mixin = CrudMixins[_.capitalize(op)];
     if ("function" === typeof mixin) {
       mixin.call(this, _.assign({}, options, overrides[op] || {}));
     }
   });
+};
+
+const validateEntity = function (entity, deferred) {
+  const isValid = entity.validate()._isEmpty();
+  if (!isValid) {
+    deferred.reject(entity);
+  }
+  return entity.validate()._isEmpty();
 };
 
 module.exports = CrudMixins;

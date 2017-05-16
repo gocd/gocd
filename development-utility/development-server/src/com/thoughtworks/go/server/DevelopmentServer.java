@@ -20,6 +20,7 @@ import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.command.ProcessRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
@@ -51,11 +52,6 @@ public class DevelopmentServer {
         copyActivatorJarToClassPath();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
 
-        String chosenAppServer = System.getProperty(SystemEnvironment.APP_SERVER.propertyName());
-        if (chosenAppServer == null || chosenAppServer.trim().isEmpty()) {
-            systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY9);
-        }
-
         systemEnvironment.setProperty(GENERATE_STATISTICS, "true");
 
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
@@ -66,18 +62,14 @@ public class DevelopmentServer {
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         systemEnvironment.set(SystemEnvironment.GO_SERVER_MODE, "development");
         setupPeriodicGC(systemEnvironment);
-        File pluginsDist = new File("../tw-go-plugins/dist/");
-        if (!pluginsDist.exists()) {
-            pluginsDist.mkdirs();
-        }
-        new ZipUtil().zipFolderContents(pluginsDist, new File(classpath(), "plugins.zip"));
+        setupPlugins();
         GoServer server = new GoServer();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
         try {
             server.startServer();
 
             String hostName = systemEnvironment.getListenHost();
-            if(hostName == null){
+            if (hostName == null) {
                 hostName = "localhost";
             }
 
@@ -87,6 +79,20 @@ public class DevelopmentServer {
             System.err.println("Failed to start Go server. Exception:");
             e.printStackTrace();
         }
+    }
+
+    private static void setupPlugins() throws IOException, InterruptedException {
+        File pluginsDist = new File("../tw-go-plugins/dist/");
+        if (!pluginsDist.exists()) {
+            pluginsDist.mkdirs();
+        }
+        File passwordFilePluginJar = new File(pluginsDist, "filebased-authentication-plugin.jar");
+        if (passwordFilePluginJar.exists()) {
+            System.out.println("Found a local copy of passwordFile plugin, using it.");
+        } else {
+            new ProcessRunner().command("curl", "-L", "https://github.com/gocd/filebased-authentication-plugin/releases/download/v0.1/filebased-authentication-plugin-0.0.1-SNAPSHOT.jar", "--output", passwordFilePluginJar.getAbsolutePath()).failOnError(true).run();
+        }
+        new ZipUtil().zipFolderContents(pluginsDist, new File(classpath(), "plugins.zip"));
     }
 
     private static void setupPeriodicGC(SystemEnvironment systemEnvironment) {

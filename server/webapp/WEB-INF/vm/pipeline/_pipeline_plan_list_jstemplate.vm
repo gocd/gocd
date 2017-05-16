@@ -166,12 +166,12 @@
                                 {/if}
                                 {if build.last_build_duration && build.last_build_duration != ''}
                                     {if parseInt(build.current_build_duration) > parseInt(build.last_build_duration)}
-                                        Longer by: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration) - parseInt(build.last_build_duration))%}
+                                        Longer by: ${% moment.duration(parseInt(build.current_build_duration) - parseInt(build.last_build_duration), 's').humanizeForGoCD() %}
                                     {else}
-                                        Elapsed: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration))%}, ETA: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.last_build_duration) - parseInt(build.current_build_duration))%}
+                                        Elapsed: ${% moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() %}, ETA: ${% moment.duration(parseInt(build.last_build_duration) - parseInt(build.current_build_duration), 's').humanizeForGoCD() %}
                                     {/if}
                                 {else}
-                                    Elapsed: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration))%}
+                                    Elapsed: ${% moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() %}
                                 {/if}
                               </div>
                             {/if}
@@ -184,7 +184,7 @@
             </div>
         </div><!--stage container end -->
         {/for}
-        {/if}        
+        {/if}
     </div>
 </div><!--pipeline container end -->
 <div class="pipeline-divider"></div>

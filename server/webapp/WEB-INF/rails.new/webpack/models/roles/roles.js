@@ -51,10 +51,9 @@ Roles.Role = function (type, data) {
   role.type   = Stream(type);
   role.parent = Mixins.GetterSetter();
   role.etag   = Mixins.GetterSetter();
-  role.errors = ErrorsFromJSON(data);
 
   Mixins.HasUUID.call(this);
-  Validatable.call(this, data);
+  Validatable.call(this, ErrorsFromJSON(data));
 
   role.validatePresenceOf('name');
   role.validatePresenceOf('type');
@@ -91,9 +90,11 @@ const ErrorsFromJSON = function (data) {
   }
 
   return {
-    name:         data.errors.name,
-    authConfigId: data.errors.auth_config_id,
-    users:        data.errors.users
+    errors : {
+      name:         data.errors.name,
+      authConfigId: data.errors.auth_config_id,
+      users:        data.errors.users
+    }
   };
 };
 
@@ -140,9 +141,10 @@ Roles.Role.GoCD = function (data) {
 };
 
 Roles.Role.GoCD.fromJSON = (data = {}) => new Roles.Role.GoCD({
-  name:  data.name,
-  type:  data.type,
-  users: data.attributes.users
+  name:   data.name,
+  type:   data.type,
+  users:  data.attributes.users,
+  errors: data.errors
 });
 
 Roles.Role.Plugin = function (data) {
@@ -164,6 +166,7 @@ Roles.Role.Plugin.fromJSON = (data = {}) => new Roles.Role.Plugin({
   name:         data.name,
   type:         data.type,
   authConfigId: data.attributes.auth_config_id,
+  errors:       data.errors,
   properties:   PluginConfigurations.fromJSON(data.attributes.properties)
 });
 

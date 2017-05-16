@@ -108,9 +108,11 @@ module ApiV1
 
         def check_if_role_by_same_name_already_exists
           if (!role_config_service.findRole(params[:role][:name]).nil?)
+            role = ApiV1::Security::RoleConfigRepresenter.new(role_for(params[:role][:type])).from_hash(params[:role])
+            role.addError('name', 'Role names should be unique. Role with the same name exists.')
             result = HttpLocalizedOperationResult.new
             result.unprocessableEntity(LocalizedMessage::string("RESOURCE_ALREADY_EXISTS", 'role', params[:role][:name]))
-            render_http_operation_result(result)
+            render_http_operation_result(result, {data: ApiV1::Security::RoleConfigRepresenter.new(role).to_hash(url_builder: self)})
           end
         end
       end

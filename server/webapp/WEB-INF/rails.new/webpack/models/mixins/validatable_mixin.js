@@ -72,7 +72,7 @@ const Validatable = function({errors}) {
   const self                   = this;
   const attrToValidators       = {};
   const associationsToValidate = [];
-  self.errors                = Mixins.GetterSetter(new Errors(errors));
+  self.errors                  = Mixins.GetterSetter(new Errors(errors));
 
   const validateWith = (validator, attr) => {
     _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];

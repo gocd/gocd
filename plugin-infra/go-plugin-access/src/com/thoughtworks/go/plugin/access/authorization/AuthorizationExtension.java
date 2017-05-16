@@ -236,7 +236,7 @@ public class AuthorizationExtension extends AbstractExtension {
 
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getIdentityProviderUrl(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getAuthorizationServerUrl(responseBody);
             }
         });
     }

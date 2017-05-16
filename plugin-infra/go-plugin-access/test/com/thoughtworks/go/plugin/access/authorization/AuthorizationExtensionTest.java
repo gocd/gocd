@@ -311,7 +311,7 @@ public class AuthorizationExtensionTest {
                 "  ],\n" +
                 "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n"+
                 "}";
-        String responseBody = "{\"identity_provider_url\":\"url_to_identity_provder\"}";
+        String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
         SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", ConfigurationPropertyMother.create("url", false, "some-url"));
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
@@ -319,7 +319,7 @@ public class AuthorizationExtensionTest {
         String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerRedirectUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL, requestBody);
-        assertThat(authorizationServerRedirectUrl, is("url_to_identity_provder"));
+        assertThat(authorizationServerRedirectUrl, is("url_to_authorization_server"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

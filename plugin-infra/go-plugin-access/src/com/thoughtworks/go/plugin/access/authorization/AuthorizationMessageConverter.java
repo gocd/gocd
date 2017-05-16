@@ -64,7 +64,7 @@ public interface AuthorizationMessageConverter {
 
     String authenticateUserRequestBody(Map<String, String> credentials, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
 
-    String getIdentityProviderUrl(String responseBody);
+    String getAuthorizationServerUrl(String responseBody);
 
     String authorizationServerRedirectUrlRequestBody(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl);
 }

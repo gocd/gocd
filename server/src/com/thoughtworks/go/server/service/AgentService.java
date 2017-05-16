@@ -97,14 +97,7 @@ public class AgentService {
     }
 
     public void sync(Agents agents) {
-        syncWithDB(agents);
         agentInstances.sync(agents);
-    }
-
-    private void syncWithDB(Agents agentConfigs) {
-        for (AgentConfig agentConfig : agentConfigs) {
-            agentDao.syncAgent(agentConfig.getAgentIdentifier());
-        }
     }
 
     public List<String> getUniqueAgentNames() {

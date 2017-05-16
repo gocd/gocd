@@ -115,10 +115,10 @@ public class JobController {
             agent = Agent.fromConfig(goConfigService.agentByUuid(instance.getAgentUuid()));
         }
 
-        return getModelAndView(instance, agent);
+        return getModelAndView(instance);
     }
 
-    private ModelAndView getModelAndView(JobInstance jobDetail, Agent agent) throws Exception {
+    private ModelAndView getModelAndView(JobInstance jobDetail) throws Exception {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);

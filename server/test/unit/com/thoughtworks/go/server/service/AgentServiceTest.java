@@ -172,14 +172,6 @@ public class AgentServiceTest {
         verify(operationResult).internalServerError(any(String.class), any(HealthStateType.class));
     }
 
-    @Test
-    public void shouldSyncXMLChangesWithLiveAgentsAndDB() throws Exception {
-        Agents agents = new Agents(agentConfig);
-        agentService.sync(agents);
-        verify(agentDao).syncAgent(agentConfig.getAgentIdentifier());
-        verify(agentInstances).sync(agents);
-    }
-
     private void writeToFile(final String fileName) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
             fos.write(fileName.getBytes());

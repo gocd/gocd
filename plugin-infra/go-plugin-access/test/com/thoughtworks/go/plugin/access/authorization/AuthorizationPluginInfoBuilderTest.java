@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -94,7 +93,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithImage() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        Image icon = new Image("content_type", "data");
+        Image icon = new Image("content_type", "data", "hash");
 
         when(extension.getIcon(descriptor.id())).thenReturn(icon);
 

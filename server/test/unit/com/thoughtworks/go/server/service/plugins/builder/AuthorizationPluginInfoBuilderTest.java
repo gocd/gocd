@@ -53,7 +53,7 @@ public class AuthorizationPluginInfoBuilderTest {
                         new com.thoughtworks.go.plugin.domain.common.PluginView("role_config_view"));
         final Capabilities domainCapabilities = new Capabilities(SupportedAuthType.Password, true, true);
 
-        com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
+        com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)), "hash");
         AuthorizationMetadataStore authorizationMetadataStore = AuthorizationMetadataStore.instance();
         authorizationMetadataStore.setPluginInfo(new com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo(plugin, authSettings, roleSettings, image, domainCapabilities));
 
@@ -99,7 +99,7 @@ public class AuthorizationPluginInfoBuilderTest {
                         new com.thoughtworks.go.plugin.domain.common.PluginView("role_config_view"));
         final Capabilities domainCapabilities = new Capabilities(SupportedAuthType.Password, true, true);
 
-        com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));
+        com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)), "hash");
         AuthorizationMetadataStore authorizationMetadataStore = AuthorizationMetadataStore.instance();
         authorizationMetadataStore.setPluginInfo(new com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo(plugin, authSettings, roleSettings, image, domainCapabilities));
 

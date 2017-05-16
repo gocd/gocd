@@ -155,11 +155,19 @@
               </form>
             </div>
 
-            #foreach ($authentication_plugin_id in $authentication_plugin_registry.getPluginsThatSupportsWebBasedAuthentication())
-              <a href="/go/plugin/interact/$authentication_plugin_id/index"><img
-                  src="$authentication_plugin_registry.getDisplayImageURLFor($authentication_plugin_id)"
-                  alt="$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)"/></a>
-            #end
+            <div class="authorization-plugins">
+              #foreach ($model in $security_auth_config_service.getAllConfiguredWebBasedAuthorizationPlugins())
+                  <a href="/go/plugin/$model.pluginId()/login"><img class="authorization-plugin-icon" src="$model.imageUrl()" alt="$model.name()"/></a>
+              #end
+              #if($security_auth_config_service.getAllConfiguredWebBasedAuthorizationPlugins().size() > 0 && $authentication_plugin_registry.getPluginsThatSupportsWebBasedAuthentication().size() > 0)
+                <div class="vertical-line"></div>
+              #end
+              #foreach ($authentication_plugin_id in $authentication_plugin_registry.getPluginsThatSupportsWebBasedAuthentication())
+                <a href="/go/plugin/interact/$authentication_plugin_id/index"><img
+                    src="$authentication_plugin_registry.getDisplayImageURLFor($authentication_plugin_id)"
+                    alt="$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)"/></a>
+              #end
+            </div>
 
           </div>
         </div>

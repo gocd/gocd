@@ -80,7 +80,7 @@ public class Image {
     }
 
     public com.thoughtworks.go.plugin.domain.common.Image toDomainImage() {
-        return new com.thoughtworks.go.plugin.domain.common.Image(this.contentType, this.data);
+        return new com.thoughtworks.go.plugin.domain.common.Image(this.contentType, this.data, getHash());
     }
 
     @Override

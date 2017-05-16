@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.PluginRoleChangeListener;
+import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.TimeProvider;
@@ -55,8 +56,14 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
     }
 
     public void initialize() {
-        goConfigService.register(this);
         pluginRoleService.register(this);
+        goConfigService.register(this);
+        goConfigService.register(new SecurityConfigChangeListener() {
+            @Override
+            public void onEntityConfigChange(Object entity) {
+                lastChangedTime = timeProvider.currentTimeMillis();
+            }
+        });
     }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {

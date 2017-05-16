@@ -86,7 +86,8 @@
         p:authenticationManager-ref="preAuthenticationManager"
         p:authenticationFailureUrl="/auth/login?login_error=1"
         p:defaultTargetUrl="/"
-        p:filterProcessesUrl="/go/plugin/([^\s]+)/authenticate$"/>
+        p:alwaysUseDefaultTargetUrl="true"
+        p:filterProcessesUrl="/go/plugin/([^\s]+)/authenticate$" />
 
 
     <bean id="webBasedAuthFilter" class="com.thoughtworks.go.server.security.WebBasedAuthenticationFilter"/>

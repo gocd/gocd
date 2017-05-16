@@ -112,7 +112,11 @@ class VSMPipelineInstanceModel
     @counter = counter
     @locator = ""
     @locator = pdg_path_partial.call name, counter unless counter == 0
-    @stages = stages.map { |stage| VSMPipelineInstanceStageModel.new(stage.getName(), stage.getState().to_s, stage.getCounter(), name, counter, stage_detail_path_partial) }
+    @stages = stages.map do |stage|
+      state = stage.getState()
+      duration = stage.getDuration().getTotalSeconds() if state != StageState::Unknown
+      VSMPipelineInstanceStageModel.new(stage.getName(), state.to_s, duration, stage.getCounter(), name, counter, stage_detail_path_partial)
+    end
   end
 end
 
@@ -141,12 +145,13 @@ class VSMSCMModificationsModel
 end
 
 class VSMPipelineInstanceStageModel
-  attr_accessor :name, :status, :locator
+  attr_accessor :name, :status, :locator, :duration
 
-  def initialize(name, status, counter, pipeline_name, pipeline_counter, stage_detail_path_partial)
+  def initialize(name, status, duration, counter, pipeline_name, pipeline_counter, stage_detail_path_partial)
     @name = name
     @status = status
     @locator = ""
+    @duration = duration
     @locator = stage_detail_path_partial.call pipeline_name, pipeline_counter, name, counter unless com.thoughtworks.go.domain.StageState::Unknown.to_s == status
   end
 end

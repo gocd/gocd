@@ -54,7 +54,7 @@ const mrequest   = {
       entity.etag(xhr.getResponseHeader('ETag'));
       return entity;
     }
-    if (xhr.status === 422) {
+    if (xhr.status === 422 && !!data.data) {
       const fromJSON = new type.fromJSON(data.data);
       fromJSON.etag(originalEtag);
       return fromJSON;

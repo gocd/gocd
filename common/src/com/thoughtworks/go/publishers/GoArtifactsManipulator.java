@@ -45,8 +45,7 @@ import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.removeStart;
 
@@ -179,13 +178,13 @@ public class GoArtifactsManipulator {
         try {
             String fetchMsg = String.format("Fetching artifact [%s] from [%s]", fetchArtifactBuilder.getSrc(),
                     fetchArtifactBuilder.jobLocatorForDisplay());
-            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.OUT, fetchMsg);
+            goPublisher.taggedConsumeLineWithPrefix(OUT, fetchMsg);
             fetchArtifactBuilder.fetch(new DownloadAction(httpService, goPublisher, new SystemTimeClock()), urlService);
         } catch (Exception e) {
             String fetchMsg = String.format("Failed to save artifact [%s] to [%s]",
                     fetchArtifactBuilder.getSrc(), fetchArtifactBuilder.getDest());
             LOGGER.error(fetchMsg, e);
-            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.ERR, fetchMsg);
+            goPublisher.taggedConsumeLineWithPrefix(ERR, fetchMsg);
             throw new RuntimeException(e);
         }
     }

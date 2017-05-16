@@ -21,23 +21,5 @@ package com.thoughtworks.go.util.command;
  * log lines can be meaningfully parsed.
  */
 public interface TaggedStreamConsumer extends StreamConsumer {
-    String NOTICE = "##";
-    String PREP = "pr";
-    String PREP_ERR = "pe";
-    String CANCEL_TASK_START = "!x";
-    String CANCEL_TASK_PASS = "x0";
-    String CANCEL_TASK_FAIL = "x1";
-    String TASK_START = "!!";
-    String OUT = "&1";
-    String ERR = "&2";
-    String TASK_PASS = "?0";
-    String TASK_FAIL = "?1";
-    String TASK_CANCELLED = "^C";
-    String JOB_PASS = "j0";
-    String JOB_FAIL = "j1";
-    String PUBLISH = "ar";
-    String PUBLISH_ERR = "ae";
-    String COMPLETED = "ex";
-
     void taggedConsumeLine(String tag, String line);
 }

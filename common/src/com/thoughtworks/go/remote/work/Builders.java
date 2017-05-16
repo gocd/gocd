@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 
 public class Builders {
@@ -70,7 +71,7 @@ public class Builders {
 
                 try {
                     String executeMessage = format("Task: %s", builder.getDescription());
-                    goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
+                    goPublisher.taggedConsumeLineWithPrefix(TASK_START, executeMessage);
 
                     builder.build(buildLogElement, goPublisher,
                             environmentVariableContext, taskExtension);
@@ -88,13 +89,13 @@ public class Builders {
                 String tag;
 
                 if (taskStatus.isPassed()) {
-                    tag = DefaultGoPublisher.TASK_PASS;
+                    tag = TASK_PASS;
                 } else {
                     if (Builder.UNSET_EXIT_CODE != builder.getExitCode()) {
                         statusLine = format("%s (exit code: %d)", statusLine, builder.getExitCode());
                     }
 
-                    tag = taskStatus.isCancelled() ? DefaultGoPublisher.TASK_CANCELLED : DefaultGoPublisher.TASK_FAIL;
+                    tag = taskStatus.isCancelled() ? TASK_CANCELLED : TASK_FAIL;
                 }
 
                 goPublisher.taggedConsumeLineWithPrefix(tag, statusLine);

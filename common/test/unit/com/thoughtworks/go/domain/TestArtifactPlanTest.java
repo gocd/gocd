@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.util.ClassMockery;
@@ -33,11 +30,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.verification.Times;
 
+import java.io.File;
+import java.io.IOException;
+
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(JMock.class)
 public class TestArtifactPlanTest {
@@ -63,7 +62,7 @@ public class TestArtifactPlanTest {
                 new TestArtifactPlan("some_random_path_that_does_not_exist",
                         "testoutput"));
         compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
-        verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
+        verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(PUBLISH_ERR, "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
     }
 
     @Test

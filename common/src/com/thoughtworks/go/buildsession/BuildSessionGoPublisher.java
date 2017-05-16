@@ -43,7 +43,7 @@ class BuildSessionGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLineWithPrefix(String message) {
-        taggedConsumeLineWithPrefix(NOTICE, message);
+        taggedConsumeLineWithPrefix(null, message);
     }
 
     @Override

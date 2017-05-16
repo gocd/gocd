@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 
 public abstract class Builder implements Serializable {
@@ -98,26 +99,26 @@ public abstract class Builder implements Serializable {
     }
 
     public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
-        publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
+        publisher.taggedConsumeLineWithPrefix(CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
             cancelBuilder.build(new BuildLogElement(), publisher, environmentVariableContext, taskExtension);
             // As this message will output before the running task outputs its task status, do not use the same
             // wording (i.e. "Task status: %s") as the order of outputted lines may be confusing
-            publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_PASS, "On Cancel Task completed");
+            publisher.taggedConsumeLineWithPrefix(CANCEL_TASK_PASS, "On Cancel Task completed");
         } catch (Exception e) {
-            publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_FAIL, "On Cancel Task failed");
+            publisher.taggedConsumeLineWithPrefix(CANCEL_TASK_FAIL, "On Cancel Task failed");
             LOGGER.error("", e);
         }
     }
 
     protected void logException(DefaultGoPublisher publisher, Exception e) throws CruiseControlException {
-        publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
+        publisher.taggedConsumeLine(ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
         throw new CruiseControlException(e);
     }
 
     protected void logError(DefaultGoPublisher publisher, String message) throws CruiseControlException {
-        publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
+        publisher.taggedConsumeLine(ERR, message);
         LOGGER.error(message);
         throw new CruiseControlException(message);
     }

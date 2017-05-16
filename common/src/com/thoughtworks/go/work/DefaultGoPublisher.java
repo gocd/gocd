@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 
 public class DefaultGoPublisher implements GoPublisher {

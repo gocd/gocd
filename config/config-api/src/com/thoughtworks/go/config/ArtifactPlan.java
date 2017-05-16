@@ -31,6 +31,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
 import static org.apache.commons.lang.StringUtils.removeStart;
 
 @ConfigTag("artifact")
@@ -122,7 +123,7 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
         File[] files = scanner.getFiles();
         if (files.length == 0) {
             String message = "The rule [" + getSrc() + "] cannot match any resource under [" + rootPath + "]";
-            publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
+            publisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
             throw new RuntimeException(message);
         }
         for (File file : files) {

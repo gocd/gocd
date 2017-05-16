@@ -16,6 +16,13 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.domain.UnitTestReportGenerator;
+import com.thoughtworks.go.domain.WildcardScanner;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.work.GoPublisher;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -23,12 +30,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.UnitTestReportGenerator;
-import com.thoughtworks.go.domain.WildcardScanner;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.work.GoPublisher;
-import org.apache.log4j.Logger;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
 
 @ConfigTag("test")
 public class TestArtifactPlan extends ArtifactPlan {
@@ -83,7 +85,7 @@ public class TestArtifactPlan extends ArtifactPlan {
             } else {
                 final String message = MessageFormat.format("The Directory {0} specified as a test artifact was not found."
                         + " Please check your configuration", FileUtil.normalizePath(source));
-                publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
+                publisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
                 LOG.error(message);
             }
         }
@@ -108,7 +110,7 @@ public class TestArtifactPlan extends ArtifactPlan {
 
         } else {
             String message = "No files were found in the Test Results folders";
-            publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
+            publisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
             LOG.warn(message);
         }
     }

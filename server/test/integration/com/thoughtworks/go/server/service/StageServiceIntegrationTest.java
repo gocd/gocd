@@ -636,7 +636,7 @@ public class StageServiceIntegrationTest {
 
         PipelineConfig downstream = setup2DependentInstances(upstreamMingle, downstreamMingle);
 
-        configFileHelper.addSecurityWithPasswordFile();
+        configFileHelper.enableSecurity();
         configFileHelper.addAdmins("super-hero");
 
         configFileHelper.addAuthorizedUserForPipelineGroup("loser", "upstream-without-mingle");

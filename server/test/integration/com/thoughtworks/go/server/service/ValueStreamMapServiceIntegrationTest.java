@@ -82,7 +82,7 @@ public class ValueStreamMapServiceIntegrationTest {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("admin");
 
         dbHelper.onSetUp();

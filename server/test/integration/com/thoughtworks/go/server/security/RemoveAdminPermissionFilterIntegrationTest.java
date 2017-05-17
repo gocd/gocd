@@ -280,7 +280,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     }
 
     private void turnOnSecurity(String username) throws IOException {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins(username);
         cachedGoConfig.forceReload();
     }

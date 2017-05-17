@@ -120,7 +120,7 @@ public class BackupServiceIntegrationTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         admin = new Username(new CaseInsensitiveString("admin"));
-        configHelper.addSecurityWithPasswordFile();
+        configHelper.enableSecurity();
         configHelper.addAdmins(CaseInsensitiveString.str(admin.getUsername()));
         goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);

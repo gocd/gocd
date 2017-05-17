@@ -47,6 +47,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.Is;
 import org.jdom2.input.JDOMParseException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,6 +81,12 @@ public class MagicalGoConfigXmlWriterTest {
         ConfigCache configCache = new ConfigCache();
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
     }
 
     @Test

@@ -64,8 +64,8 @@ public class AuthorizationPluginInfo extends PluginInfo {
             return false;
         if (roleSettings != null ? !roleSettings.equals(that.roleSettings) : that.roleSettings != null) return false;
         if (image != null ? !image.equals(that.image) : that.image != null) return false;
-        return capabilities != null ? capabilities.equals(that.capabilities) : that.capabilities == null;
-
+        if (capabilities != null ? !capabilities.equals(that.capabilities) : that.capabilities != null) return false;
+        return super.equals(that);
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -113,19 +114,19 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     }
 
     private User getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
-        Set<String> plugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
-        for (String pluginId : plugins) {
+        Set<AuthorizationPluginInfo> plugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
+        for (AuthorizationPluginInfo pluginInfo : plugins) {
             String password = (String) authentication.getCredentials();
-            List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginId);
-            final List<PluginRoleConfig> roleConfigs = configService.security().getPluginRoles(pluginId);
+            List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginInfo.getDescriptor().id());
+            final List<PluginRoleConfig> roleConfigs = configService.security().getPluginRoles(pluginInfo.getDescriptor().id());
 
             if (authConfigs == null || authConfigs.isEmpty())
                 continue;
 
-            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password, authConfigs, roleConfigs);
+            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginInfo.getDescriptor().id(), username, password, authConfigs, roleConfigs);
             User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
-                pluginRoleService.updatePluginRoles(pluginId, username, CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
+                pluginRoleService.updatePluginRoles(pluginInfo.getDescriptor().id(), username, CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
                 return user;
             }
         }

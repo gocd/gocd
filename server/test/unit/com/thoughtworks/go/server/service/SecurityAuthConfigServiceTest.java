@@ -120,14 +120,13 @@ public class SecurityAuthConfigServiceTest {
 
     @Test
     public void shouldGetAListOfAllConfiguredWebBasedAuthorizationPlugins() {
-        Set<String> installedWebBasedPlugins = new HashSet<>();
+        Set<AuthorizationPluginInfo> installedWebBasedPlugins = new HashSet<>();
         String githubPluginId = "cd.go.github";
-        installedWebBasedPlugins.add(githubPluginId);
-        installedWebBasedPlugins.add("cd.go.google");
+        AuthorizationPluginInfo githubPluginInfo = pluginInfo(githubPluginId, "Github Auth Plugin", SupportedAuthType.Web);
+        installedWebBasedPlugins.add(githubPluginInfo);
+        installedWebBasedPlugins.add(pluginInfo(githubPluginId, "Google Auth Plugin", SupportedAuthType.Web));
         when(authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication()).thenReturn(installedWebBasedPlugins);
-        GoPluginDescriptor.About about = new GoPluginDescriptor.About("Github Auth Plugin", "1.0", null, null, null, null);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor(githubPluginId, "1.0", about, null, null, false);
-        when(authorizationMetadataStore.getPluginInfo(githubPluginId)).thenReturn(new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(SupportedAuthType.Web, true, true)));
+        when(authorizationMetadataStore.getPluginInfo(githubPluginId)).thenReturn(githubPluginInfo);
 
         SecurityConfig securityConfig = new SecurityConfig();
         SecurityAuthConfig github = new SecurityAuthConfig("github", githubPluginId);
@@ -143,5 +142,11 @@ public class SecurityAuthConfigServiceTest {
         assertThat(pluginInfoViewModel.pluginId(), is(githubPluginId));
         assertThat(pluginInfoViewModel.name(), is("Github Auth Plugin"));
         assertThat(pluginInfoViewModel.imageUrl(), is("/go/api/plugin_images/cd.go.github/hash"));
+    }
+
+    private AuthorizationPluginInfo pluginInfo(String githubPluginId, String name, SupportedAuthType supportedAuthType) {
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About(name, "1.0", null, null, null, null);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor(githubPluginId, "1.0", about, null, null, false);
+        return new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(supportedAuthType, true, true));
     }
 }

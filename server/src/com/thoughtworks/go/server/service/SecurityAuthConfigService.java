@@ -25,17 +25,20 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
+import com.thoughtworks.go.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.string;
 
@@ -112,11 +115,17 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
 
     public List<AuthPluginInfoViewModel> getAllConfiguredWebBasedAuthorizationPlugins() {
         ArrayList<AuthPluginInfoViewModel> result = new ArrayList();
-        Set<String> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
+        Set<AuthorizationPluginInfo> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
         SecurityAuthConfigs configuredAuthPluginProfiles = getPluginProfiles();
         for (SecurityAuthConfig authConfig : configuredAuthPluginProfiles) {
-            if (loadedWebBasedAuthPlugins.contains(authConfig.getPluginId())) {
-                result.add(new AuthPluginInfoViewModel(authorizationMetadataStore.getPluginInfo(authConfig.getPluginId())));
+            AuthorizationPluginInfo authorizationPluginInfo = ListUtil.find(loadedWebBasedAuthPlugins, new Predicate<AuthorizationPluginInfo>() {
+                @Override
+                public boolean test(AuthorizationPluginInfo authorizationPluginInfo) {
+                    return authorizationPluginInfo.getDescriptor().id().equals(authConfig.getPluginId());
+                }
+            });
+            if (authorizationPluginInfo != null) {
+                result.add(new AuthPluginInfoViewModel(authorizationPluginInfo));
             }
         }
         return result;

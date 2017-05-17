@@ -17,13 +17,16 @@ import static org.mockito.Mockito.when;
 public class AuthorizationMetadataStoreTest {
 
     private AuthorizationMetadataStore store;
+    private AuthorizationPluginInfo plugin1;
+    private AuthorizationPluginInfo plugin2;
+    private AuthorizationPluginInfo plugin3;
 
     @Before
     public void setUp() throws Exception {
         store = new AuthorizationMetadataStore();
-        AuthorizationPluginInfo plugin1 = pluginInfo("plugin-1", SupportedAuthType.Web);
-        AuthorizationPluginInfo plugin2 = pluginInfo("plugin-2", SupportedAuthType.Password);
-        AuthorizationPluginInfo plugin3 = pluginInfo("plugin-3", SupportedAuthType.Web);
+        plugin1 = pluginInfo("plugin-1", SupportedAuthType.Web);
+        plugin2 = pluginInfo("plugin-2", SupportedAuthType.Password);
+        plugin3 = pluginInfo("plugin-3", SupportedAuthType.Web);
         store.setPluginInfo(plugin1);
         store.setPluginInfo(plugin2);
         store.setPluginInfo(plugin3);
@@ -32,17 +35,17 @@ public class AuthorizationMetadataStoreTest {
 
     @Test
     public void shouldGetPluginsThatSupportWebBasedAuthorization() {
-        Set<String> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsWebBasedAuthentication();
+        Set<AuthorizationPluginInfo> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsWebBasedAuthentication();
         assertThat(pluginsThatSupportsWebBasedAuthentication.size(), is(2));
-        assertThat(pluginsThatSupportsWebBasedAuthentication.contains("plugin-1"), is(true));
-        assertThat(pluginsThatSupportsWebBasedAuthentication.contains("plugin-3"), is(true));
+        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin1), is(true));
+        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin3), is(true));
     }
 
     @Test
     public void shouldGetPluginsThatSupportPasswordBasedAuthorization() {
-        Set<String> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsPasswordBasedAuthentication();
+        Set<AuthorizationPluginInfo> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsPasswordBasedAuthentication();
         assertThat(pluginsThatSupportsWebBasedAuthentication.size(), is(1));
-        assertThat(pluginsThatSupportsWebBasedAuthentication.contains("plugin-2"), is(true));
+        assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin2), is(true));
     }
 
     private AuthorizationPluginInfo pluginInfo(String pluginId, SupportedAuthType supportedAuthType) {

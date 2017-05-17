@@ -189,6 +189,7 @@ public class PluginAuthenticationProviderTest {
         AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "test@test.com"), Collections.emptyList());
         when(authorizationExtension.authenticateUser(pluginId2, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId2), securityConfig.getPluginRoles(pluginId2))).thenReturn(response);
 
+
         UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
 
         assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));

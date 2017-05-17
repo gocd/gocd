@@ -40,16 +40,12 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.*;
-import org.hibernate.transform.BasicTransformerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
@@ -521,8 +517,15 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return idsForHistory;
     }
 
-    public PipelineInstanceModel loadHistoryByIdWithBuildCause(Long id) {
-        PipelineInstanceModel model = loadHistory(id);
+    public PipelineInstanceModel loadHistoryByIdWithBuildCause(Long pipelineId) {
+        PipelineInstanceModel model = loadHistory(pipelineId);
+        loadPipelineHistoryBuildCause(model);
+        return model;
+    }
+
+    @Override
+    public PipelineInstanceModel loadHistoryByIdWithBuildCauseForStage(long stageCounter, long pipelineId) {
+        PipelineInstanceModel model = loadHistory(stageCounter, pipelineId);
         loadPipelineHistoryBuildCause(model);
         return model;
     }
@@ -545,14 +548,32 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return (PipelineSqlMapDao.class.getName() + "_activePipelines").intern();
     }
 
-    public PipelineInstanceModel loadHistory(long id) {
-        String cacheKey = pipelineHistoryCacheKey(id);
+    public PipelineInstanceModel loadHistory(long pipelineId) {
+        String cacheKey = pipelineHistoryCacheKey(pipelineId);
         PipelineInstanceModel result = (PipelineInstanceModel) goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
                 result = (PipelineInstanceModel) goCache.get(cacheKey);
                 if (result == null) {
-                    result = (PipelineInstanceModel) getSqlMapClientTemplate().queryForObject("getPipelineHistoryById", arguments("id", id).asMap());
+                    result = (PipelineInstanceModel) getSqlMapClientTemplate().queryForObject("getPipelineHistoryById", arguments("id", pipelineId).asMap());
+                    if (result == null) {
+                        return null;
+                    }
+                    goCache.put(cacheKey, result);
+                }
+            }
+        }
+        return cloner.deepClone(result);
+    }
+
+    public PipelineInstanceModel loadHistory(long stageCounter, long pipelineId) {
+        String cacheKey = pipelineHistoryCacheKey(stageCounter, pipelineId);
+        PipelineInstanceModel result = (PipelineInstanceModel) goCache.get(cacheKey);
+        if (result == null) {
+            synchronized (cacheKey) {
+                result = (PipelineInstanceModel) goCache.get(cacheKey);
+                if (result == null) {
+                    result = (PipelineInstanceModel) getSqlMapClientTemplate().queryForObject("getPipelineHistoryByIdForStage", arguments("id", pipelineId).and("stageCounter", stageCounter).asMap());
                     if (result == null) {
                         return null;
                     }
@@ -639,8 +660,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         goCache.remove(cacheKeyForlatestPassedStage(stage.getPipelineId(), stage.getName()));
     }
 
-    String pipelineHistoryCacheKey(Long id) {
-        return (PipelineSqlMapDao.class.getName() + "_pipelineHistory_" + id).intern();
+    String pipelineHistoryCacheKey(Long pipelineId) {
+        return (PipelineSqlMapDao.class.getName() + "_pipelineHistory_" + pipelineId).intern();
+    }
+
+    String pipelineHistoryCacheKey(Long stageCounter, Long pipelineId) {
+        return (PipelineSqlMapDao.class.getName() + "_pipelineHistory_" + stageCounter + ":" + pipelineId).intern();
     }
 
     public PipelineInstanceModels loadHistory(String pipelineName, int limit, int offset) {

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -85,7 +85,9 @@ public interface PipelineDao {
 
     Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder);
 
-    PipelineInstanceModel loadHistoryByIdWithBuildCause(Long id);
+    PipelineInstanceModel loadHistoryByIdWithBuildCause(Long pipelineId);
+
+    PipelineInstanceModel loadHistoryByIdWithBuildCauseForStage(long stageCounter, long pipelineId);
 
     int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit);
 
@@ -98,4 +100,5 @@ public interface PipelineDao {
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, PipelineIdentifier revision);
 
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision);
+
 }

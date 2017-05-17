@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+<!--
+  ~ Copyright 2017 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
 <!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
@@ -263,6 +263,19 @@
         INNER JOIN builds ON builds.stageId = stages.id AND builds.ignored != true
     </sql>
 
+    <sql id="getPipelineHistoryForStage">
+        SELECT
+        pipelines.id as pipelineId, pipelines.name as pipelineName, buildCauseType, label, buildCauseMessage,
+        pipelines.counter as pipelineCounter, pipelines.label as pipelineLabel, pipelines.naturalOrder as naturalOrder,
+        pipelines.comment as pipelineComment, stages.name as stageName,stages.counter as stageCounter, stages.id as stageId, stages.approvedBy as approvedBy,
+        stages.approvalType as approvalType, stages.result as stageResult, stages.latestRun, stages.rerunOfCounter,
+        builds.id as buildId, builds.name as buildName, builds.state as buildState, builds.result as buildResult,
+        builds.scheduledDate as scheduledDate, stages.orderId as orderId
+        FROM pipelines
+        INNER JOIN stages ON stages.pipelineId = pipelines.id
+        INNER JOIN builds ON builds.stageId = stages.id AND builds.ignored != true
+    </sql>
+
     <select id="getPipelineHistoryByName" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         WHERE pipelines.id &gt;= #from#
@@ -305,7 +318,7 @@
      <select id="findExactMatchingPipelineInstances" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         INNER JOIN
-            (SELECT * FROM 
+            (SELECT * FROM
                 (SELECT id
                     FROM pipelines
                     WHERE pipelines.name = #pipelineName# AND LOWER(pipelines.label) = #rawPattern#
@@ -320,6 +333,14 @@
         <include refid="getPipelineHistory" />
 
         WHERE pipelines.id = #id#
+        ORDER BY stages.orderId ASC
+    </select>
+
+    <select id="getPipelineHistoryByIdForStage" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistoryForStage" />
+
+        WHERE pipelines.id = #id#
+          AND stages.counter = #stageCounter#
         ORDER BY stages.orderId ASC
     </select>
 
@@ -355,7 +376,7 @@
         WHERE pipelines.name = #pipelineName#
           AND pipelines.counter = #pipelineCounter#
     </sql>
-    
+
     <select id="getPipelineHistoryByNameAndCounter" resultMap="select-pipeline-history">
         <include refid="getPipelineHistoryByNameAndCounterSQL"/>
         ORDER BY stages.orderId ASC

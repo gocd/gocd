@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ class StagesController < ApplicationController
       return
     end
 
-    @pipeline = pipeline_history_service.findPipelineInstance(pipeline_name, params[:pipeline_counter].to_i, @stage.getPipelineId(), current_user, result = HttpOperationResult.new)
+    @pipeline = pipeline_history_service.findPipelineInstanceForStage(pipeline_name, @stage.getStageCounter().to_i, params[:pipeline_counter].to_i, @stage.getPipelineId(), current_user, result = HttpOperationResult.new)
     @lockedPipeline = pipeline_lock_service.lockedPipeline(pipeline_name)
   end
 

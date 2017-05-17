@@ -167,6 +167,13 @@ $role-icon-hover-color: #000;
   }
 }
 
+.gocd-role-icon {
+  background:          image-url("gocd.svg") no-repeat center;
+  display:             block;
+  width:               $role-plugin-icon-size;
+  height:              $role-plugin-icon-size;
+}
+
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {
   padding-left: 0;
 }

@@ -310,6 +310,7 @@
                 /api/support=ROLE_SUPERVISOR
                 /api/pipelines.xml=ROLE_USER
                 /api/version=IS_AUTHENTICATED_ANONYMOUSLY
+                /api/plugin_images/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /api/*/*.xml=ROLE_USER
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
                 /api/agents/**=ROLE_USER

@@ -17,16 +17,29 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.SecurityConfig;
+import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
 import com.thoughtworks.go.plugin.domain.common.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,13 +52,15 @@ public class SecurityAuthConfigServiceTest {
     private EntityHashingService hashingService;
     private GoConfigService goConfigService;
     private SecurityAuthConfigService securityAuthConfigService;
+    private AuthorizationMetadataStore authorizationMetadataStore;
 
     @Before
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);
-        securityAuthConfigService = new SecurityAuthConfigService(goConfigService, hashingService, extension);
+        authorizationMetadataStore = mock(AuthorizationMetadataStore.class);
+        securityAuthConfigService = new SecurityAuthConfigService(goConfigService, hashingService, extension, authorizationMetadataStore);
     }
 
     @Test
@@ -101,5 +116,37 @@ public class SecurityAuthConfigServiceTest {
 
         assertThat(response, is(new VerifyConnectionResponse("failure", "Unable to verify connection, missing plugin: cd.go.ldap",
                 new com.thoughtworks.go.plugin.domain.common.ValidationResult())));
+    }
+
+    @Test
+    public void shouldGetAListOfAllConfiguredWebBasedAuthorizationPlugins() {
+        Set<AuthorizationPluginInfo> installedWebBasedPlugins = new HashSet<>();
+        String githubPluginId = "cd.go.github";
+        AuthorizationPluginInfo githubPluginInfo = pluginInfo(githubPluginId, "Github Auth Plugin", SupportedAuthType.Web);
+        installedWebBasedPlugins.add(githubPluginInfo);
+        installedWebBasedPlugins.add(pluginInfo(githubPluginId, "Google Auth Plugin", SupportedAuthType.Web));
+        when(authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication()).thenReturn(installedWebBasedPlugins);
+        when(authorizationMetadataStore.getPluginInfo(githubPluginId)).thenReturn(githubPluginInfo);
+
+        SecurityConfig securityConfig = new SecurityConfig();
+        SecurityAuthConfig github = new SecurityAuthConfig("github", githubPluginId);
+        SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
+        securityConfig.securityAuthConfigs().add(github);
+
+        securityConfig.securityAuthConfigs().add(ldap);
+        when(goConfigService.serverConfig()).thenReturn(new ServerConfig(securityConfig, null));
+
+        List<AuthPluginInfoViewModel> allWebBasedAuthorizationConfigs = securityAuthConfigService.getAllConfiguredWebBasedAuthorizationPlugins();
+        assertThat(allWebBasedAuthorizationConfigs.size(), is(1));
+        AuthPluginInfoViewModel pluginInfoViewModel = allWebBasedAuthorizationConfigs.get(0);
+        assertThat(pluginInfoViewModel.pluginId(), is(githubPluginId));
+        assertThat(pluginInfoViewModel.name(), is("Github Auth Plugin"));
+        assertThat(pluginInfoViewModel.imageUrl(), is("/go/api/plugin_images/cd.go.github/hash"));
+    }
+
+    private AuthorizationPluginInfo pluginInfo(String githubPluginId, String name, SupportedAuthType supportedAuthType) {
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About(name, "1.0", null, null, null, null);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor(githubPluginId, "1.0", about, null, null, false);
+        return new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(supportedAuthType, true, true));
     }
 }

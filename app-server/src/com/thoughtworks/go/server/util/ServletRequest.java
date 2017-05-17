@@ -21,4 +21,5 @@ public interface ServletRequest {
     String getUriPath();
     String getUriAsString();
     void setRequestURI(String uri);
+    String getRootURL();
 }

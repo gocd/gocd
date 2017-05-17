@@ -50,7 +50,7 @@
                 /cctray.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
                 /api/**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
                 /files/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,filterInvocationInterceptor,flashLoader,urlRewriter
-                /**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,filterInvocationInterceptor,flashLoader,urlRewriter
+                /**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,webBasedAuthFilter,preAuthenticationFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,filterInvocationInterceptor,flashLoader,urlRewriter
             </value>
         </property>
     </bean>
@@ -80,6 +80,30 @@
                 <ref bean="defaultLogoutHandler" />
             </list>
         </constructor-arg>
+    </bean>
+
+    <bean id="preAuthenticationFilter" class="com.thoughtworks.go.server.security.PreAuthenticatedRequestsProcessingFilter"
+        p:authenticationManager-ref="preAuthenticationManager"
+        p:authenticationFailureUrl="/auth/login?login_error=1"
+        p:defaultTargetUrl="/"
+        p:alwaysUseDefaultTargetUrl="true"
+        p:filterProcessesUrl="/go/plugin/([^\s]+)/authenticate$" />
+
+
+    <bean id="webBasedAuthFilter" class="com.thoughtworks.go.server.security.WebBasedAuthenticationFilter"/>
+
+    <bean id="preAuthenticatedAuthenticationProvider" class="com.thoughtworks.go.server.security.providers.PreAuthenticatedAuthenticationProvider" autowire="autodetect"/>
+
+    <bean id="preAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+      <property name="providers">
+        <list>
+          <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
+            <constructor-arg index="0">
+                <ref bean="preAuthenticatedAuthenticationProvider"/>
+            </constructor-arg>
+          </bean>
+        </list>
+      </property>
     </bean>
 
     <bean id="authenticationProcessingFilter" class="com.thoughtworks.go.server.security.AuthenticationProcessingFilter"
@@ -121,6 +145,7 @@
                         <bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider" autowire="autodetect"/>
                     </constructor-arg>
                 </bean>
+                <ref bean="preAuthenticatedAuthenticationProvider"/>
                 <bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider" p:key="anonymousKey"/>
             </list>
         </property>
@@ -285,6 +310,7 @@
                 /api/support=ROLE_SUPERVISOR
                 /api/pipelines.xml=ROLE_USER
                 /api/version=IS_AUTHENTICATED_ANONYMOUSLY
+                /api/plugin_images/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /api/*/*.xml=ROLE_USER
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
                 /api/agents/**=ROLE_USER

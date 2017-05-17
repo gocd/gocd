@@ -19,10 +19,12 @@ package com.thoughtworks.go.plugin.domain.common;
 public class Image {
     private final String contentType;
     private final String data;
+    private String hash;
 
-    public Image(String contentType, String data) {
+    public Image(String contentType, String data, String hash) {
         this.contentType = contentType;
         this.data = data;
+        this.hash = hash;
     }
 
     public String getContentType() {
@@ -33,6 +35,10 @@ public class Image {
         return data;
     }
 
+    public String getHash() {
+        return hash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -41,14 +47,15 @@ public class Image {
         Image image = (Image) o;
 
         if (contentType != null ? !contentType.equals(image.contentType) : image.contentType != null) return false;
-        return data != null ? data.equals(image.data) : image.data == null;
-
+        if (data != null ? !data.equals(image.data) : image.data != null) return false;
+        return hash != null ? hash.equals(image.hash) : image.hash == null;
     }
 
     @Override
     public int hashCode() {
         int result = contentType != null ? contentType.hashCode() : 0;
         result = 31 * result + (data != null ? data.hashCode() : 0);
+        result = 31 * result + (hash != null ? hash.hashCode() : 0);
         return result;
     }
 }

@@ -26,22 +26,22 @@ import java.util.Set;
 public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPluginInfo> {
     private static final AuthorizationMetadataStore store = new AuthorizationMetadataStore();
 
-    private AuthorizationMetadataStore() {
+    protected AuthorizationMetadataStore() {
     }
 
     public static AuthorizationMetadataStore instance() {
         return store;
     }
 
-    public Set<String> getPluginsThatSupportsPasswordBasedAuthentication() {
+    public Set<AuthorizationPluginInfo> getPluginsThatSupportsPasswordBasedAuthentication() {
         return getPluginsThatSupports(SupportedAuthType.Password);
     }
 
-    private Set<String> getPluginsThatSupports(SupportedAuthType supportedAuthType) {
-        Set<String> plugins = new HashSet<>();
+    private Set<AuthorizationPluginInfo> getPluginsThatSupports(SupportedAuthType supportedAuthType) {
+        Set<AuthorizationPluginInfo> plugins = new HashSet<>();
         for (AuthorizationPluginInfo pluginInfo : this.pluginInfos.values()) {
             if (pluginInfo.getCapabilities().getSupportedAuthType() == supportedAuthType) {
-                plugins.add(pluginInfo.getDescriptor().id());
+                plugins.add(pluginInfo);
             }
         }
         return plugins;
@@ -55,5 +55,9 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
             }
         }
         return plugins;
+    }
+
+    public Set<AuthorizationPluginInfo> getPluginsThatSupportsWebBasedAuthentication() {
+        return getPluginsThatSupports(SupportedAuthType.Web);
     }
 }

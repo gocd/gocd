@@ -52,6 +52,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -232,7 +233,6 @@ public class AuthorizationExtensionTest {
         assertThat(authenticationResponse.getRoles().get(0), is("blackbird"));
     }
 
-
     @Test
     public void shouldTalkToPlugin_To_AuthenticateUserWithEmptyListIfRoleConfigsAreNotProvided() throws Exception {
         String requestBody = "{\n" +
@@ -296,6 +296,30 @@ public class AuthorizationExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users, hasSize(1));
         assertThat(users, hasItem(new User("bob", "Bob", "bob@example.com")));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetAuthorizationServerRedirectUrl() throws JSONException {
+        String requestBody = "{\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"github\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"url\": \"some-url\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n"+
+                "}";
+        String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", ConfigurationPropertyMother.create("url", false, "some-url"));
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerRedirectUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL, requestBody);
+        assertThat(authorizationServerRedirectUrl, is("url_to_authorization_server"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

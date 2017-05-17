@@ -30,6 +30,11 @@ public class DefaultPluginInteractionCallback<T> implements PluginInteractionCal
     }
 
     @Override
+    public Map<String, String> requestHeaders(String resolvedExtensionVersion) {
+        return null;
+    }
+
+    @Override
     public T onSuccess(String responseBody, String resolvedExtensionVersion) {
         return null;
     }

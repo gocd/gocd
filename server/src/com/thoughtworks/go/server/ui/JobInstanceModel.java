@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.ui;
 
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.domain.*;
 import org.joda.time.Duration;
@@ -26,6 +27,7 @@ public class JobInstanceModel {
     private final JobInstance instance;
     private final JobDurationStrategy jobDurationStrategy;
     private final AgentInstance agentInstance;
+    private Agent agent;
 
     public static final Comparator<JobInstanceModel> JOB_MODEL_COMPARATOR = new Comparator<JobInstanceModel>() {
         public int compare(JobInstanceModel o1, JobInstanceModel o2) {
@@ -38,14 +40,15 @@ public class JobInstanceModel {
         }
     };
 
-    public JobInstanceModel(JobInstance instance, JobDurationStrategy jobDurationStrategy, AgentInstance agentInstance) {
+    public JobInstanceModel(JobInstance instance, JobDurationStrategy jobDurationStrategy, AgentInstance agentInstance, Agent agent) {
         this.instance = instance;
         this.jobDurationStrategy = jobDurationStrategy;
         this.agentInstance = agentInstance;
+        this.agent = agent;
     }
 
     public JobInstanceModel(JobInstance instance, JobDurationStrategy jobDurationStrategy) {
-        this(instance, jobDurationStrategy, null);
+        this(instance, jobDurationStrategy, null, null);
     }
 
     public JobIdentifier getIdentifier() {
@@ -106,32 +109,23 @@ public class JobInstanceModel {
         return instance.isCompleted();
     }
 
+    public boolean hasLiveAgent(){
+        return null != agentInstance && !agentInstance.isNullAgent();
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         JobInstanceModel that = (JobInstanceModel) o;
 
-        if (agentInstance != null ? !agentInstance.equals(that.agentInstance) : that.agentInstance != null) {
+        if (instance != null ? !instance.equals(that.instance) : that.instance != null) return false;
+        if (jobDurationStrategy != null ? !jobDurationStrategy.equals(that.jobDurationStrategy) : that.jobDurationStrategy != null)
             return false;
-        }
-        if (instance != null ? !instance.equals(that.instance) : that.instance != null) {
+        if (agentInstance != null ? !agentInstance.equals(that.agentInstance) : that.agentInstance != null)
             return false;
-        }
-        if (jobDurationStrategy != null ? !jobDurationStrategy.equals(that.jobDurationStrategy) : that.jobDurationStrategy != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean hasLiveAgent(){
-        return null != agentInstance && !agentInstance.isNullAgent();
+        return agent != null ? agent.equals(that.agent) : that.agent == null;
     }
 
     @Override
@@ -139,6 +133,7 @@ public class JobInstanceModel {
         int result = instance != null ? instance.hashCode() : 0;
         result = 31 * result + (jobDurationStrategy != null ? jobDurationStrategy.hashCode() : 0);
         result = 31 * result + (agentInstance != null ? agentInstance.hashCode() : 0);
+        result = 31 * result + (agent != null ? agent.hashCode() : 0);
         return result;
     }
 
@@ -151,23 +146,15 @@ public class JobInstanceModel {
     }
 
     public String getHostname() {
-        return agentInstance.getHostname();
+        return agent.getHostname();
     }
 
     public String getIpAddress() {
-        return agentInstance.getIpAddress();
+        return agent.getIpaddress();
     }
 
     public boolean hasAgentInfo() {
         return agentInstance != null;
-    }
-
-    public String getAgentLocation() {
-        return agentInstance.getLocation();
-    }
-
-    public boolean hasPassed(){
-       return instance.isPassed();
     }
 
     public boolean isRerun() {
@@ -175,7 +162,7 @@ public class JobInstanceModel {
     }
 
     public String getUuid() {
-        return agentInstance.getUuid();
+        return agent.getUuid();
     }
 
     public JobStateTransitions getTransitions() {

@@ -20,15 +20,26 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.util.TestingClock;
 import org.joda.time.Duration;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class JobInstanceModelTest {
+
+    private Agent agent;
+
+    @Before
+    public void setUp() throws Exception {
+        agent = mock(Agent.class);
+    }
+
     @Test
     public void job_status_should_be_passed_for_passed_job() {
         assertThat(new JobInstanceModel(JobInstanceMother.passed("cruise"), JobDurationStrategy.ALWAYS_ZERO).getStatus(), is("Passed"));
@@ -48,7 +59,7 @@ public class JobInstanceModelTest {
     @Test
     public void should_return_false_for_unassign() {
         assertThat(new JobInstanceModel(JobInstanceMother.cancelled("cruise"), JobDurationStrategy.ALWAYS_ZERO).hasAgentInfo(), is(false));
-        assertThat(new JobInstanceModel(JobInstanceMother.cancelled("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building()).hasAgentInfo(), is(true));
+        assertThat(new JobInstanceModel(JobInstanceMother.cancelled("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building(), agent).hasAgentInfo(), is(true));
     }
 
     @Test
@@ -106,13 +117,13 @@ public class JobInstanceModelTest {
 
     @Test
     public void shouldHaveLiveAgent() throws Exception {
-        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building());
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building(), agent);
         assertThat(instance.hasLiveAgent(), is(true));
     }
 
     @Test
     public void shouldNotHaveLiveAgent() throws Exception {
-        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new NullAgentInstance("whatever"));
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new NullAgentInstance("whatever"), agent);
         assertThat(instance.hasLiveAgent(), is(false));
     }
 }

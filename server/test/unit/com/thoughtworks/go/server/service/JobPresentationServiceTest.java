@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.List;
 
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.ui.JobInstanceModel;
 import org.junit.Test;
@@ -42,11 +43,13 @@ public class JobPresentationServiceTest {
 
 private JobDurationStrategy jobDurationStrategy;
 private AgentService agentService;
+private Agent agent;
 
     @Before
         public void setUp() throws Exception {
             jobDurationStrategy = mock(JobDurationStrategy.class);
             agentService = mock(AgentService.class);
+            agent = mock(Agent.class);
         }
 
     @Test
@@ -57,19 +60,19 @@ private AgentService agentService;
         JobInstance tev = scheduled("tev");
         JobInstance lev = assignAgent(passed("lev"),"agent3");
         JobInstance kev = assignAgent(failed("kev"),"agent3");
-        AgentInstance agent = building();
-        when(agentService.findAgentAndRefreshStatus(any(String.class))).thenReturn(agent);
+        AgentInstance agentInstance = building();
+        when(agentService.findAgentAndRefreshStatus(any(String.class))).thenReturn(agentInstance);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(dev, bev, tev,lev,kev, DEv));
         assertThat(models.size(), is(6));
         //failed
-        assertThat(models.get(0), is(new JobInstanceModel(kev, jobDurationStrategy, agent)));
+        assertThat(models.get(0), is(new JobInstanceModel(kev, jobDurationStrategy, agentInstance, agent)));
         //in progress. sort by name (case insensitive)
-        assertThat(models.get(1), is(new JobInstanceModel(bev, jobDurationStrategy, agent)));
-        assertThat(models.get(2), is(new JobInstanceModel(dev, jobDurationStrategy, agent)));
-        assertThat(models.get(3), is(new JobInstanceModel(DEv, jobDurationStrategy, agent)));
+        assertThat(models.get(1), is(new JobInstanceModel(bev, jobDurationStrategy, agentInstance, agent)));
+        assertThat(models.get(2), is(new JobInstanceModel(dev, jobDurationStrategy, agentInstance, agent)));
+        assertThat(models.get(3), is(new JobInstanceModel(DEv, jobDurationStrategy, agentInstance, agent)));
         assertThat(models.get(4), is(new JobInstanceModel(tev, jobDurationStrategy)));
         //passed
-        assertThat(models.get(5), is(new JobInstanceModel(lev, jobDurationStrategy, agent)));
+        assertThat(models.get(5), is(new JobInstanceModel(lev, jobDurationStrategy, agentInstance, agent)));
         //assert agent info
         verify(agentService,times(2)).findAgentAndRefreshStatus("agent1");
         verify(agentService).findAgentAndRefreshStatus("agent2");

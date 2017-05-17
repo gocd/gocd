@@ -23,6 +23,7 @@ import java.util.List;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.ui.JobInstanceModel;
 import org.apache.log4j.Logger;
@@ -46,7 +47,8 @@ public class JobPresentationService {
         ArrayList<JobInstanceModel> models = new ArrayList<>();
         for (JobInstance jobInstance : jobInstances) {
             AgentInstance agentInstance = jobInstance.isAssignedToAgent() ? agentService.findAgentAndRefreshStatus(jobInstance.getAgentUuid()) : null;
-            models.add(new JobInstanceModel(jobInstance, jobDurationStrategy, agentInstance));
+            Agent agent = agentService.findAgentObjectByUuid(jobInstance.getAgentUuid());
+            models.add(new JobInstanceModel(jobInstance, jobDurationStrategy, agentInstance, agent));
         }
         sort(models, JobInstanceModel.JOB_MODEL_COMPARATOR);
         return models;

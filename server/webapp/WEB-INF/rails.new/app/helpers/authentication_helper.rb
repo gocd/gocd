@@ -119,10 +119,13 @@ module AuthenticationHelper
 
   private
   def is_user_an_admin_for_group?(current_user, group_name)
+    if security_service.isUserAdmin(current_user)
+      return true
+    end
     if go_config_service.groups().hasGroup(group_name)
       return security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
     else
-      return security_service.isUserAdmin(current_user)
+      false
     end
   end
 end

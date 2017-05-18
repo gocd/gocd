@@ -152,7 +152,7 @@ public class BuildWork implements Work {
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
         Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
         List<String> report = environmentVariableContext.report(processLevelEnvVariables);
-        ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(PREP, PREP_ERR, safeOutputStreamConsumer(environmentVariableContext));
+        ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(PREP_TAGS, safeOutputStreamConsumer(environmentVariableContext));
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
             safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);
@@ -177,7 +177,7 @@ public class BuildWork implements Work {
             return;
         }
 
-        ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(PREP, PREP_ERR, processOutputStreamConsumer());
+        ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(PREP_TAGS, processOutputStreamConsumer());
         MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);

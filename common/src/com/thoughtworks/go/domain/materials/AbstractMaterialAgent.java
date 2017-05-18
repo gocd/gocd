@@ -23,8 +23,7 @@ import com.thoughtworks.go.util.command.LabeledOutputStreamConsumer;
 
 import java.io.File;
 
-import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP;
-import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP_ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP_TAGS;
 
 public class AbstractMaterialAgent implements MaterialAgent {
     private MaterialRevision revision;
@@ -36,7 +35,7 @@ public class AbstractMaterialAgent implements MaterialAgent {
                                  ConsoleOutputStreamConsumer consumer,
                                  File workingDirectory, final SubprocessExecutionContext execCtx) {
         this.revision = revision;
-        this.consumer = new LabeledOutputStreamConsumer(PREP, PREP_ERR, consumer);
+        this.consumer = new LabeledOutputStreamConsumer(PREP_TAGS, consumer);
         this.workingDirectory = workingDirectory;
         this.execCtx = execCtx;
     }

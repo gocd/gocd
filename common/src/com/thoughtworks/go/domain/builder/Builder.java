@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.builder;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
+import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
+import java.time.Duration;
 
 import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
@@ -41,6 +43,9 @@ public abstract class Builder implements Serializable {
     protected final RunIfConfigs conditions;
     private String description;
     private Builder cancelBuilder;
+    private JobResult taskResult;
+    private Duration duration;
+
     public Builder(RunIfConfigs conditions, Builder cancelBuilder, String description) {
         this.conditions = conditions;
         this.cancelBuilder = cancelBuilder;
@@ -131,11 +136,28 @@ public abstract class Builder implements Serializable {
         return this.conditions.resolveToSingle();
     }
 
-    public int getExitCode() {
+    public int exitCode() {
         return exitCode;
     }
 
     protected void setExitCode(int exitCode) {
         this.exitCode = exitCode;
+    }
+
+    public JobResult result() {
+        return taskResult;
+    }
+
+    public JobResult recordResult(JobResult result) {
+        taskResult = result;
+        return result;
+    }
+
+    public Duration duration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
     }
 }

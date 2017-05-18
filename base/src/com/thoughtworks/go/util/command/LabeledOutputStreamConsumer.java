@@ -16,28 +16,30 @@
 
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.util.Pair;
+
 /**
- * Created by marqueslee on 2/17/17.
+ * Wraps a {@link ConsoleOutputStreamConsumer} to override the STDOUT and STDERR tags
  */
 public class LabeledOutputStreamConsumer implements ConsoleOutputStreamConsumer {
-    private String tag;
-    private String errorTag;
+    private String stdoutTag;
+    private String stderrTag;
     private ConsoleOutputStreamConsumer consumer;
 
-    public LabeledOutputStreamConsumer(String tag, String errorTag, ConsoleOutputStreamConsumer consumer) {
-        this.tag = tag;
-        this.errorTag = errorTag;
+    public LabeledOutputStreamConsumer(Pair<String, String> tags, ConsoleOutputStreamConsumer consumer) {
+        this.stdoutTag = tags.first();
+        this.stderrTag = tags.last();
         this.consumer = consumer;
     }
 
     @Override
     public void stdOutput(String line) {
-        consumer.taggedStdOutput(tag, line);
+        consumer.taggedStdOutput(stdoutTag, line);
     }
 
     @Override
     public void errOutput(String line) {
-        consumer.taggedErrOutput(errorTag, line);
+        consumer.taggedErrOutput(stderrTag, line);
     }
 
     @Override

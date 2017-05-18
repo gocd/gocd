@@ -65,9 +65,7 @@ public abstract class BaseCommandBuilder extends Builder {
             commandLine.runScript(execScript, consumer, environmentVariableContext, null);
             setBuildDuration(startTime, buildLogElement);
 
-            if (SUCCESS_EXIT_CODE != execScript.getExitCode()) {
-                setExitCode(execScript.getExitCode());
-            }
+            setExitCode(execScript.getExitCode());
 
             if (execScript.foundError()) {
                 // detected the error string in the command output

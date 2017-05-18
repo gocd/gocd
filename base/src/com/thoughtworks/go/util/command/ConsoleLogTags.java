@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.util.Pair;
+
 /**
  * The authoritative list of console log metadata tags/annotations. One should be
  * careful to not change the values of existing tags, as these are now public/released.
@@ -42,6 +44,18 @@ public class ConsoleLogTags {
     public static final String PUBLISH_ERR = "ae";
     public static final String COMPLETED = "ex";
 
+    // These tag pairs can be used to remap stdout/stderr to new values
+    public static final Pair<String, String> STD_TAGS = tagpair(OUT, ERR);
+    public static final Pair<String, String> PREP_TAGS = tagpair(PREP, PREP_ERR);
+
     private ConsoleLogTags() {
+    }
+
+    public static Pair<String, String> tagpair(String stdout, String stderr) {
+        if (null == stdout && null == stderr) {
+            return null;
+        }
+
+        return new Pair<>(stdout, stderr);
     }
 }

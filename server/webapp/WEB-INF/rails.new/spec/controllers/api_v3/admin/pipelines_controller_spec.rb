@@ -268,7 +268,7 @@ describe ApiV3::Admin::PipelinesController do
         controller.send(:go_cache).put("GO_PIPELINE_CONFIGS_ETAGS_CACHE", @pipeline_name, "latest-etag")
       end
 
-      it "should not update pipeline config if the user is not admin" do
+      it "should not update pipeline config if the user is not admin or pipeline group admin" do
         @pipeline_groups.stub(:hasGroup).and_return(true)
         @security_service.stub(:isUserAdminOfGroup).and_return(false)
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline

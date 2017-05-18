@@ -55,7 +55,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         CommandLine commandLine = createCommandLine(cmd);
 
         for (String arg : args) {
-            if(secrets.containsKey(arg)) {
+            if (secrets.containsKey(arg)) {
                 leftSecrets.remove(arg);
                 commandLine.withArg(new SubstitutableCommandArgument(arg, secrets.get(arg)));
             } else {
@@ -70,7 +70,9 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         commandLine.withWorkingDir(workingDir);
         commandLine.withEnv(buildSession.getEnvs());
 
-        return executeCommandLine(buildSession, commandLine) == 0;
+        int exitStatus = executeCommandLine(buildSession, commandLine, tagpair(stdout, stderr));
+        command.setExitCode(exitStatus);
+        return exitStatus == BuildCommand.SUCCESS_EXIT_CODE;
     }
 
     private CommandLine createCommandLine(String cmd) {
@@ -86,7 +88,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
     }
 
     private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
-        final AtomicInteger exitCode = new AtomicInteger(-1);
+        final AtomicInteger exitCode = new AtomicInteger(BuildCommand.UNSET_EXIT_CODE);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
         buildSession.submitRunnable(new Runnable() {
             @Override

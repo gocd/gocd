@@ -151,7 +151,7 @@ public class BuildSession {
 
     boolean processCommand(BuildCommand command) {
         if (isCanceled()) {
-            buildResult = JobResult.Cancelled;
+            buildResult = command.recordResult(JobResult.Cancelled);
             return false;
         }
 
@@ -161,14 +161,14 @@ public class BuildSession {
         if (executor == null) {
             LOG.error("Unknown command: " + command.getName());
             println("error: build command " + command.getName() + " is not supported. Please upgrade GoCD agent");
-            buildResult = JobResult.Failed;
+            buildResult = command.recordResult(JobResult.Failed);
             return false;
         }
 
         boolean success = doProcess(command, executor);
 
         if (isCanceled()) {
-            buildResult = JobResult.Cancelled;
+            buildResult = command.recordResult(JobResult.Cancelled);
             return false;
         }
 
@@ -191,18 +191,23 @@ public class BuildSession {
             BuildCommand test = command.getTest();
             if (test != null) {
                 if (newTestingSession(console).build(test) != JobResult.Passed) {
+                    command.recordResult(JobResult.Passed);
                     return true;
                 }
             }
 
             if (isCanceled()) {
+                command.recordResult(JobResult.Cancelled);
                 return false;
             }
 
-            return executor.execute(command, this);
+            boolean success = executor.execute(command, this);
+            command.recordResult(success ? JobResult.Passed : JobResult.Failed);
+            return success;
 
         } catch (Exception e) {
             reportException(e);
+            command.recordResult(JobResult.Failed);
             return false;
         } finally {
             if (isCanceled() && onCancelCommand != null) {
@@ -337,5 +342,9 @@ public class BuildSession {
         } catch (Exception reportException) {
             LOG.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
+    }
+
+    public JobResult getBuildResult() {
+        return buildResult;
     }
 }

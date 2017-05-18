@@ -21,13 +21,24 @@ import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.GoConstants;
 
-import java.util.*;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.MapBuilder.map;
 
 public class BuildCommand {
 
+    public static final int UNSET_EXIT_CODE = -1;
+    public static final int SUCCESS_EXIT_CODE = 0;
+
     private static final Gson GSON = new Gson();
+
+    private JobResult result;
+    private Duration duration;
+    private int exitCode = UNSET_EXIT_CODE;
 
     public static BuildCommand echoWithPrefix(String format, Object...args) {
         return echo("[%s] " + format, ArrayUtil.pushToArray(GoConstants.PRODUCT_NAME, args));
@@ -312,6 +323,31 @@ public class BuildCommand {
             return new String[]{};
         }
         return GSON.fromJson(args.get(arg), String[].class);
+    }
+
+    public JobResult result() {
+        return result;
+    }
+
+    public JobResult recordResult(JobResult result) {
+        this.result = result;
+        return result;
+    }
+
+    public Duration duration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public int exitCode() {
+        return exitCode;
+    }
+
+    public void setExitCode(int exitCode) {
+        this.exitCode = exitCode;
     }
 
 }

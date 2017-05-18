@@ -21,6 +21,7 @@ import com.thoughtworks.go.websocket.MessageEncoding;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.MapBuilder.map;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.NOTICE;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -57,7 +58,7 @@ public class BuildCommandTest {
         BuildCommand bc = BuildCommand.compose(new BuildCommand("bar1", map("arg1", "1", "arg2", "2")), BuildCommand.compose(new BuildCommand("barz")));
         bc.setRunIfConfig("any");
         bc.setTest(new BuildCommand("t", map("k1", "v1")));
-        bc.setOnCancel(BuildCommand.compose(BuildCommand.echo("foo"), BuildCommand.echo("bar")));
+        bc.setOnCancel(BuildCommand.compose(BuildCommand.echo(NOTICE, "foo"), BuildCommand.echo(NOTICE, "bar")));
         assertThat(MessageEncoding.decodeData(MessageEncoding.encodeData(bc), BuildCommand.class), is(bc));
     }
 }

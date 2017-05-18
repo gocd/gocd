@@ -16,6 +16,7 @@
 package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
@@ -31,6 +32,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.tagpair;
 import static java.lang.String.format;
 
 public class ExecCommandExecutor implements BuildCommandExecutor {
@@ -38,11 +41,15 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
+        String stdout = command.deleteStringArg("stdout");
+        String stderr = command.deleteStringArg("stderr");
+
         File workingDir = buildSession.resolveRelativeDir(command.getWorkingDirectory());
         if (!workingDir.isDirectory()) {
             String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
             LOG.error(message);
-            buildSession.println(message);
+            String errorTag = null == stderr ? ERR : stderr;
+            buildSession.println(errorTag, message);
             return false;
         }
 
@@ -87,20 +94,21 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         return commandLine;
     }
 
-    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
+    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine, final Pair<String, String> stdtags) {
         final AtomicInteger exitCode = new AtomicInteger(BuildCommand.UNSET_EXIT_CODE);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
         buildSession.submitRunnable(new Runnable() {
             @Override
             public void run() {
                 try {
-                    exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null));
+                    exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(stdtags), null));
                 } catch (CommandLineException e) {
                     LOG.error("Command failed", e);
                     String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", commandLine.toStringForDisplay(), commandLine.getExecutable());
                     String path = System.getenv("PATH");
-                    buildSession.println(message);
-                    buildSession.println(format("[Debug Information] Environment variable PATH: %s", path));
+                    String errorTag = null == stdtags ? ERR : stdtags.last();
+                    buildSession.println(errorTag, message);
+                    buildSession.println(errorTag, format("[Debug Information] Environment variable PATH: %s", path));
                     LOG.error(format("[Command Line] %s. Path: %s", message, path));
                 } finally {
                     canceledOrDone.countDown();

@@ -185,7 +185,7 @@ public class ArtifactPropertiesGeneratorTest {
         }
 
         @Override
-        public void reportErrorMessage(String message, Exception e) {
+        public void reportErrorMessage(String tag, String message, Exception e) {
             sentErrors.add(message);
         }
     }

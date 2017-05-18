@@ -24,6 +24,8 @@ import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.OUT;
+
 public class FetchArtifactBuilder extends Builder {
     private final JobIdentifier jobIdentifier;
     private String srcdir;
@@ -93,7 +95,7 @@ public class FetchArtifactBuilder extends Builder {
     public BuildCommand buildCommand() {
         String checksumUrl = String.format("/remoting/files/%s/%s/%s", jobIdentifier.buildLocator(), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
         return BuildCommand.compose(
-                BuildCommand.echoWithPrefix(String.format("Fetching artifact [%s] from [%s]", getSrc(), jobLocatorForDisplay())),
+                BuildCommand.echoWithPrefix(OUT, String.format("Fetching artifact [%s] from [%s]", getSrc(), jobLocatorForDisplay())),
                 handler.toDownloadCommand(artifactLocator(), checksumUrl, checksumFileHandler.getChecksumFile()));
     }
 }

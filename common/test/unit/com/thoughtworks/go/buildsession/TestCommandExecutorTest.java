@@ -72,15 +72,15 @@ public class TestCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
     public void testEqWithCommandOutput() throws IOException {
-        runBuild(test("-eq", "foo", echo("foo")), Passed);
-        runBuild(test("-eq", "bar", echo("foo")), Failed);
+        runBuild(test("-eq", "foo", echo(null, "foo")), Passed);
+        runBuild(test("-eq", "bar", echo(null, "foo")), Failed);
         assertThat(console.lineCount(), is(0));
     }
 
     @Test
     public void testNotEqWithCommandOutput() throws IOException {
-        runBuild(test("-neq", "foo", echo("foo")), Failed);
-        runBuild(test("-neq", "bar", echo("foo")), Passed);
+        runBuild(test("-neq", "foo", echo(null, "foo")), Failed);
+        runBuild(test("-neq", "bar", echo(null, "foo")), Passed);
         assertThat(console.lineCount(), is(0));
     }
 
@@ -93,19 +93,19 @@ public class TestCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
     public void shouldNotFailBuildWhenTestCommandFail() {
-        runBuild(echo("foo").setTest(fail("")), Passed);
+        runBuild(echo(null, "foo").setTest(fail("")), Passed);
         assertThat(statusReporter.singleResult(), is(Passed));
     }
 
     @Test
     public void shouldNotFailBuildWhenComposedTestCommandFail() {
-        runBuild(echo("foo").setTest(compose(echo(""), fail(""))), Passed);
+        runBuild(echo(null, "foo").setTest(compose(echo(null, ""), fail(""))), Passed);
         assertThat(statusReporter.singleResult(), is(JobResult.Passed));
     }
 
     @Test
     public void shouldNotFailBuildWhenTestEqWithComposedCommandOutputFail() {
-        runBuild(echo("foo").setTest(test("-eq", "42", compose(fail("42")))), Passed);
+        runBuild(echo(null, "foo").setTest(test("-eq", "42", compose(fail("42")))), Passed);
         assertThat(statusReporter.singleResult(), is(Passed));
         assertThat(console.output(), containsString("foo"));
     }

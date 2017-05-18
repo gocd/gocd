@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
+
 public class GenerateTestReportCommandExecutor implements BuildCommandExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(GenerateTestReportCommandExecutor.class);
 
@@ -54,7 +56,7 @@ public class GenerateTestReportCommandExecutor implements BuildCommandExecutor {
 
         } else {
             String message = "No files were found in the Test Results folders";
-            buildSession.printlnWithPrefix(message);
+            buildSession.printlnWithPrefix(PUBLISH_ERR, message);
             LOG.warn(message);
         }
         return true;
@@ -69,12 +71,12 @@ public class GenerateTestReportCommandExecutor implements BuildCommandExecutor {
             File[] files = wildcardScanner.getFiles();
 
             if (files.length > 0) {
-                final List<File> fileList = files == null ? new ArrayList<>() : Arrays.asList(files);
+                final List<File> fileList = Arrays.asList(files);
                 allFiles.addAll(fileList);
             } else {
                 final String message = MessageFormat.format("The Directory {0} specified as a test artifact was not found."
                         + " Please check your configuration", FileUtil.normalizePath(source));
-                buildSession.printlnWithPrefix(message);
+                buildSession.printlnWithPrefix(PUBLISH_ERR, message);
                 LOG.error(message);
             }
         }

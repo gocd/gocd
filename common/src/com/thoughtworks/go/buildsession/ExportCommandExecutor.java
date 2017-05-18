@@ -19,19 +19,22 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 
 import java.util.Set;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP_TAGS;
 import static java.lang.String.format;
 
 public class ExportCommandExecutor implements BuildCommandExecutor {
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
         String name = command.getStringArg("name");
+        SafeOutputStreamConsumer safeConsole = buildSession.newSafeConsole(PREP_TAGS);
 
         if (!command.hasArg("value")) {
             String displayValue = buildSession.getEnvs().get(name);
-            buildSession.printlnSafely(format("[%s] setting environment variable '%s' to value '%s'",
+            safeConsole.stdOutput(format("[%s] setting environment variable '%s' to value '%s'",
                     GoConstants.PRODUCT_NAME, name, displayValue));
             return true;
         }
@@ -42,10 +45,10 @@ public class ExportCommandExecutor implements BuildCommandExecutor {
         Set<String> processLevelEnvs = ProcessManager.getInstance().environmentVariableNames();
 
         if (buildSession.getEnvs().containsKey(name) || processLevelEnvs.contains(name)) {
-            buildSession.printlnSafely(format("[%s] overriding environment variable '%s' with value '%s'",
+            safeConsole.stdOutput(format("[%s] overriding environment variable '%s' with value '%s'",
                     GoConstants.PRODUCT_NAME, name, displayValue));
         } else {
-            buildSession.printlnSafely(format("[%s] setting environment variable '%s' to value '%s'",
+            safeConsole.stdOutput(format("[%s] setting environment variable '%s' to value '%s'",
                     GoConstants.PRODUCT_NAME, name, displayValue));
         }
         buildSession.setEnv(name, value);

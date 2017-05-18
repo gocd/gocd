@@ -20,9 +20,8 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
-import com.thoughtworks.go.util.command.TaggedStreamConsumer;
+import com.thoughtworks.go.util.Pair;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
@@ -37,6 +36,8 @@ import java.util.concurrent.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
 import static com.thoughtworks.go.util.FileUtil.applyBaseDirIfRelative;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.STD_TAGS;
 import static java.lang.String.format;
 
 public class BuildSession {
@@ -67,11 +68,13 @@ public class BuildSession {
         executors.put("secret", new SecretCommandExecutor());
         executors.put("export", new ExportCommandExecutor());
         executors.put("compose", new ComposeCommandExecutor());
+        executors.put("task", new TaskCommandExecutor());
         executors.put("fail", new FailCommandExecutor());
         executors.put("mkdirs", new MkdirsCommandExecutor());
         executors.put("cleandir", new CleandirCommandExecutor());
         executors.put("exec", new ExecCommandExecutor());
         executors.put("test", new TestCommandExecutor());
+        executors.put("jobResult", new JobResultCommandExecutor());
         executors.put("reportCurrentStatus", new ReportCurrentStatusCommandExecutor());
         executors.put("reportCompleting", new ReportCompletingCommandExecutor());
         executors.put("generateTestReport", new GenerateTestReportCommandExecutor());
@@ -160,7 +163,7 @@ public class BuildSession {
         BuildCommandExecutor executor = executors.get(command.getName());
         if (executor == null) {
             LOG.error("Unknown command: " + command.getName());
-            println("error: build command " + command.getName() + " is not supported. Please upgrade GoCD agent");
+            println(ERR, "error: build command " + command.getName() + " is not supported. Please upgrade GoCD agent");
             buildResult = command.recordResult(JobResult.Failed);
             return false;
         }
@@ -245,16 +248,12 @@ public class BuildSession {
         return Collections.unmodifiableMap(envs);
     }
 
-    void printlnSafely(String line) {
-        newSafeConsole().stdOutput(line);
+    void println(String tag, String line) {
+        getPublisher().taggedConsumeLine(tag, line);
     }
 
-    void println(String line) {
-        getPublisher().consumeLine(line);
-    }
-
-    public void printlnWithPrefix(String line) {
-        this.println(String.format("[%s] %s", GoConstants.PRODUCT_NAME, line));
+    public void printlnWithPrefix(String tag, String line) {
+        this.println(tag, String.format("[%s] %s", GoConstants.PRODUCT_NAME, line));
     }
 
     String buildVariableSubstitute(String str) {
@@ -265,8 +264,18 @@ public class BuildSession {
         getPublisher().upload(file, dest);
     }
 
-    ProcessOutputStreamConsumer processOutputStreamConsumer() {
-        return new ProcessOutputStreamConsumer<>(console, console);
+    /**
+     * Provides a STDOUT/STDERR-mapped {@link ConsoleOutputStreamConsumer}, with sensible default tags
+     *
+     * @param stdtags optional tag pair to remap STDOUT and STDERR tags
+     * @return a {@link ConsoleOutputStreamConsumer} that has separate console tags for STDOUT and STDERR
+     */
+    ConsoleOutputStreamConsumer processOutputStreamConsumer(Pair<String, String> stdtags) {
+        if (null == stdtags || STD_TAGS.equals(stdtags)) {
+            return new ProcessOutputStreamConsumer<>(console, console); // defaults to ConsoleLogTags.OUT/ERR
+        }
+
+        return new LabeledOutputStreamConsumer(stdtags, new ProcessOutputStreamConsumer<>(console, console));
     }
 
     Map<String, String> getSecretSubstitutions() {
@@ -325,9 +334,8 @@ public class BuildSession {
         return cancelLatch.getCount() < 1;
     }
 
-    private SafeOutputStreamConsumer newSafeConsole() {
-        ProcessOutputStreamConsumer processConsumer = new ProcessOutputStreamConsumer<>(console, console);
-        SafeOutputStreamConsumer streamConsumer = new SafeOutputStreamConsumer(processConsumer);
+    SafeOutputStreamConsumer newSafeConsole(Pair<String, String> stdtags) {
+        SafeOutputStreamConsumer streamConsumer = new SafeOutputStreamConsumer(processOutputStreamConsumer(stdtags));
         for (String secret : secretSubstitutions.keySet()) {
             streamConsumer.addSecret(new SecretSubstitution(secret, secretSubstitutions.get(secret)));
         }
@@ -338,7 +346,7 @@ public class BuildSession {
         String msg = messageOf(e);
         try {
             LOG.error(msg, e);
-            printlnSafely(msg);
+            newSafeConsole(null).errOutput(msg);
         } catch (Exception reportException) {
             LOG.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }

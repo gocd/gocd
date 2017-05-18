@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.XpathUtils;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.NOTICE;
 import static java.lang.String.format;
 
 public class GeneratePropertyCommandExecutor implements BuildCommandExecutor {
@@ -33,18 +35,18 @@ public class GeneratePropertyCommandExecutor implements BuildCommandExecutor {
         String xpath = command.getStringArg("xpath");
         String indent = "             ";
         if (!file.exists()) {
-            buildSession.println(format("%sFailed to create property %s. File %s does not exist.", indent, propertyName, file.getAbsolutePath()));
+            buildSession.println(ERR, format("%sFailed to create property %s. File %s does not exist.", indent, propertyName, file.getAbsolutePath()));
             return true;
         }
 
         try {
             if (!XpathUtils.nodeExists(file, xpath)) {
-                buildSession.println(format("%sFailed to create property %s. Nothing matched xpath \"%s\" in the file: %s.", indent, propertyName, xpath, file.getAbsolutePath()));
+                buildSession.println(ERR, format("%sFailed to create property %s. Nothing matched xpath \"%s\" in the file: %s.", indent, propertyName, xpath, file.getAbsolutePath()));
             } else {
                 String value = XpathUtils.evaluate(file, xpath);
                 buildSession.getPublisher().setProperty(new Property(propertyName, value));
 
-                buildSession.println(format("%sProperty %s = %s created." + "\n", indent, propertyName, value));
+                buildSession.println(NOTICE, format("%sProperty %s = %s created." + "\n", indent, propertyName, value));
             }
         } catch (Exception e) {
             String error = (e instanceof XPathExpressionException) ? (format("Illegal xpath: \"%s\"", xpath)) : ExceptionUtils.messageOf(e);

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP_TAGS;
 import static java.lang.String.format;
 
 public class GitMaterialUpdater {
@@ -35,31 +37,35 @@ public class GitMaterialUpdater {
         this.material = material;
     }
 
+    private static BuildCommand git(String... args) {
+        return exec("git", PREP_TAGS, args);
+    }
+
     public BuildCommand updateTo(String baseDir, RevisionContext revisionContext) {
         Revision revision = revisionContext.getLatestRevision();
         String workingDir = material.workingdir(new File(baseDir)).getPath();
         UrlArgument url = material.getUrlArgument();
         return compose(
-                echoWithPrefix("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
+                echoWithPrefix(PREP, "Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
                 secret(url.forCommandline(), url.forDisplay()),
                 cloneIfNeeded(workingDir, revisionContext.numberOfModifications() + 1),
                 fetchRemote(workingDir),
                 unshallowIfNeeded(workingDir, revision, new Integer[]{GitMaterial.UNSHALLOW_TRYOUT_STEP, Integer.MAX_VALUE}),
                 resetWorkingCopy(workingDir, revision),
-                echoWithPrefix("Done.\n"));
+                echoWithPrefix(PREP, "Done.\n"));
     }
 
     private BuildCommand fetchRemote(String workingDir) {
         return compose(
-                echo("[GIT] Fetching changes"),
-                exec("git", "fetch", "origin", "--prune").setWorkingDirectory(workingDir),
-                exec("git", "gc", "--auto").setWorkingDirectory(workingDir));
+                echo(PREP, "[GIT] Fetching changes"),
+                git("fetch", "origin", "--prune").setWorkingDirectory(workingDir),
+                git("gc", "--auto").setWorkingDirectory(workingDir));
     }
 
     private BuildCommand resetWorkingCopy(String workingDir, Revision revision) {
         return compose(
-                echo("[GIT] Reset working directory %s", workingDir),
-                echo("[GIT] Updating working copy to revision %s", revision.getRevision()),
+                echo(PREP, "[GIT] Reset working directory %s", workingDir),
+                echo(PREP, "[GIT] Updating working copy to revision %s", revision.getRevision()),
                 cleanupUnversionedFiles(workingDir),
                 resetHard(workingDir, revision),
                 updateSubmodules(workingDir),
@@ -68,30 +74,30 @@ public class GitMaterialUpdater {
 
     private BuildCommand updateSubmodules(String workingDir) {
         return compose(
-                echo("[GIT] Removing modified files in submodules"),
-                exec("git", "submodule", "foreach", "--recursive", "git", "checkout", "."),
-                echo("[GIT] Updating git sub-modules"),
-                exec("git", "submodule", "init"),
-                exec("git", "submodule", "sync"),
-                exec("git", "submodule", "foreach", "--recursive", "git", "submodule", "sync"),
-                exec("git", "submodule", "update"),
-                echo("[GIT] Git sub-module status"),
-                exec("git", "submodule", "status"))
+                echo(PREP, "[GIT] Removing modified files in submodules"),
+                git("submodule", "foreach", "--recursive", "git", "checkout", "."),
+                echo(PREP, "[GIT] Updating git sub-modules"),
+                git("submodule", "init"),
+                git("submodule", "sync"),
+                git("submodule", "foreach", "--recursive", "git", "submodule", "sync"),
+                git("submodule", "update"),
+                echo(PREP, "[GIT] Git sub-module status"),
+                git("submodule", "status"))
                 .setTest(hasSubmodules(workingDir))
                 .setWorkingDirectoryRecursively(workingDir);
     }
 
     private BuildCommand resetHard(String workingDir, Revision revision) {
-        return exec("git", "reset", "--hard", revision.getRevision())
+        return git("reset", "--hard", revision.getRevision())
                 .setWorkingDirectory(workingDir);
     }
 
     private BuildCommand cleanupUnversionedFiles(String workingDir) {
         return compose(
-                echo("[GIT] Cleaning all unversioned files in working copy"),
-                exec("git", "submodule", "foreach", "--recursive", "git", "clean", "-fdd")
+                echo(PREP, "[GIT] Cleaning all unversioned files in working copy"),
+                git("submodule", "foreach", "--recursive", "git", "clean", "-fdd")
                         .setTest(hasSubmodules(workingDir)),
-                exec("git", "clean", "-dff"))
+                git("clean", "-dff"))
                 .setWorkingDirectoryRecursively(workingDir);
     }
 
@@ -106,8 +112,8 @@ public class GitMaterialUpdater {
         int depth = steps[0];
         return compose(
                 compose(
-                        echo("[GIT] Unshallowing repository with depth %d", depth),
-                        exec("git", "fetch", "origin", format("--depth=%d", depth)).setWorkingDirectory(workingDir),
+                        echo(PREP, "[GIT] Unshallowing repository with depth %d", depth),
+                        git("fetch", "origin", format("--depth=%d", depth)).setWorkingDirectory(workingDir),
                         unshallowIfNeeded(workingDir, revision, Arrays.copyOfRange(steps, 1, steps.length))
                 ).setTest(revisionNotExists(workingDir, revision))
         ).setTest(isShallow(workingDir));
@@ -115,7 +121,7 @@ public class GitMaterialUpdater {
 
     private BuildCommand revisionNotExists(String workingDir, Revision revision) {
         return test("-neq", "commit",
-                exec("git", "cat-file", "-t", revision.getRevision()).setWorkingDirectory(workingDir));
+                git("cat-file", "-t", revision.getRevision()).setWorkingDirectory(workingDir));
     }
 
     private BuildCommand isShallow(String workingDir) {
@@ -141,13 +147,13 @@ public class GitMaterialUpdater {
     private BuildCommand isRepoUrlChanged(String workDir) {
         return test("-neq",
                 material.getUrlArgument().forCommandline(),
-                exec("git", "config", "remote.origin.url").setWorkingDirectory(workDir));
+                git("config", "remote.origin.url").setWorkingDirectory(workDir));
     }
 
     private BuildCommand isBranchChanged(String workDir) {
         return test("-neq",
                 material.branchWithDefault(),
-                exec("git", "rev-parse", "--abbrev-ref", "HEAD").setWorkingDirectory(workDir));
+                git("rev-parse", "--abbrev-ref", "HEAD").setWorkingDirectory(workDir));
     }
 
 
@@ -161,7 +167,7 @@ public class GitMaterialUpdater {
         }
         cloneArgs.add(material.getUrlArgument().forCommandline());
         cloneArgs.add(workDir);
-        return exec("git", cloneArgs.toArray(new String[cloneArgs.size()]))
+        return git(cloneArgs.toArray(new String[cloneArgs.size()]))
                 .setTest(isNotRepository(workDir));
     }
 

@@ -24,6 +24,7 @@ import java.io.File;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
 import static org.apache.commons.lang.StringUtils.removeStart;
 
 public class UploadArtifactCommandExecutor implements BuildCommandExecutor {
@@ -39,7 +40,7 @@ public class UploadArtifactCommandExecutor implements BuildCommandExecutor {
 
         if (files.length == 0) {
             String message = "The rule [" + src + "] cannot match any resource under [" + rootPath + "]";
-            buildSession.printlnWithPrefix(message);
+            buildSession.printlnWithPrefix(PUBLISH_ERR, message);
             return ignoreUnmatchError;
         }
 

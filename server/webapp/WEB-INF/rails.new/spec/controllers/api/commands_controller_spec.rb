@@ -17,6 +17,9 @@
 require 'spec_helper'
 
 describe Api::CommandsController do
+  before :each do
+    @command_repository_service = stub_service(:command_repository_service)
+  end
 
   describe "routes" do
     it "should generate path for command snippet cache reload " do
@@ -27,10 +30,6 @@ describe Api::CommandsController do
   end
 
   describe "actions" do
-    before :each do
-      @command_repository_service = stub_service(:command_repository_service)
-    end
-
     describe "reload_cache" do
       it "should reload the cache" do
         @command_repository_service.should_receive(:reloadCache)

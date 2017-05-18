@@ -19,14 +19,17 @@ require 'spec_helper'
 describe ApiV1::UsersController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
+  before :each do
+    @user_service = double('user service')
+    controller.stub(:user_service).and_return(@user_service)
+  end
+
   describe :index do
     describe :for_admins do
       it 'should render a list of users, for admins' do
         login_as_admin
         john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
 
-        @user_service = double('user service')
-        controller.stub(:user_service).and_return(@user_service)
         @user_service.should_receive(:allUsers).and_return([john])
 
         get_with_api_header :index

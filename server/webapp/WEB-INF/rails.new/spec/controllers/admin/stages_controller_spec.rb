@@ -23,6 +23,7 @@ describe Admin::StagesController do
 
   before do
     controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
+    controller.stub(:task_view_service).with().and_return(@task_view_service = double('task_view_service'))
     controller.stub(:set_current_user)
   end
   include ConfigSaveStubbing
@@ -178,8 +179,7 @@ describe Admin::StagesController do
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
+        @task_view_service.should_receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
       end
 
       it "should load a blank exec task in a blank job" do
@@ -217,10 +217,8 @@ describe Admin::StagesController do
 
       it "should be able to create a stage with a pluggable task" do
         @pluggable_task_service.stub(:validate)
-        task_view_service = double('Task View Service')
-        controller.stub(:task_view_service).and_return(task_view_service)
         @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
-        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        @task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         stub_save_for_success
 
         stage = {:name => "stage", :jobs => [{:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}]}
@@ -236,17 +234,15 @@ describe Admin::StagesController do
       end
 
       it "should validate pluggable tasks before create" do
-        task_view_service = double('Task View Service')
-        controller.stub(:task_view_service).and_return(task_view_service)
         @pluggable_task_service.stub(:validate) do |task|
           task.getConfiguration().getProperty("key").addError("key", "some error")
         end
         @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
-        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        @task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
           result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end
-        task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
 
         job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
         stage = {:name => "stage", :jobs => [job]}
@@ -266,6 +262,10 @@ describe Admin::StagesController do
           result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
 
+        @task_view_service.should_receive(:taskInstanceFor).with("ant").and_return(AntTask.new())
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(AntTask.new()).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
+
+
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
 
@@ -275,6 +275,8 @@ describe Admin::StagesController do
 
       it "should save a new stage" do
         stub_save_for_success
+        @task_view_service.should_receive(:taskInstanceFor).with("ant").and_return(AntTask.new())
+
 
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
 
@@ -290,9 +292,8 @@ describe Admin::StagesController do
       end
 
       it "should show error message when config save fails for reasons other than validations" do
-        controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:taskInstanceFor).with("exec").and_return(ExecTask.new())
-        task_view_service.should_receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
+        @task_view_service.should_receive(:taskInstanceFor).with("exec").and_return(ExecTask.new())
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         stub_save_for_validation_error do |result, config, node|
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
@@ -312,6 +313,10 @@ describe Admin::StagesController do
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
 
+        @task_view_service.should_receive(:taskInstanceFor).with("exec").and_return(ExecTask.new('ls', '', 'work'))
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
+
+
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
 
         assigns[:errors].size.should == 1
@@ -329,6 +334,8 @@ describe Admin::StagesController do
           pipeline.get(1).getJobs().get(0).addError("name", "bad-job-name")
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
+
+        @task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(tvms = [].to_java(TaskViewModel))
 
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123"}]}
 

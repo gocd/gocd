@@ -22,6 +22,8 @@ describe AgentDetailsController do
   before do
     controller.stub(:set_locale)
     controller.stub(:populate_config_validity)
+    controller.stub(:agent_service).and_return(@agent_service = Object.new)
+    controller.stub(:job_instance_service).and_return(@job_instance_service = Object.new)
   end
 
   describe :routes do
@@ -43,7 +45,6 @@ describe AgentDetailsController do
     before :each do
       @uuid="fff2222233333"
       @agent = building_agent()
-      controller.should_receive(:agent_service).and_return(@agent_service = Object.new)
     end
 
     it "should show agent details" do
@@ -70,7 +71,6 @@ describe AgentDetailsController do
 
     it "should show job run history" do
       @agent_service.should_receive(:findAgentViewModel).with(@uuid).and_return(@agent)
-      controller.should_receive(:job_instance_service).and_return(@job_instance_service = Object.new)
       @job_instance_service.should_receive(:completedJobsOnAgent).with(@uuid, AgentDetailsController::JobHistoryColumns.completed, SortOrder::DESC, 1, AgentDetailsController::PAGE_SIZE).and_return(expected = JobInstancesModel.new(nil, nil))
 
       get "job_run_history", :uuid => @uuid
@@ -83,7 +83,6 @@ describe AgentDetailsController do
 
     it "should show a later page of job run history" do
       @agent_service.should_receive(:findAgentViewModel).with(@uuid).and_return(@agent)
-      controller.should_receive(:job_instance_service).and_return(@job_instance_service = Object.new)
       @job_instance_service.should_receive(:completedJobsOnAgent).with(@uuid, AgentDetailsController::JobHistoryColumns.stage, SortOrder::ASC, 3, AgentDetailsController::PAGE_SIZE).and_return(expected = JobInstancesModel.new(nil, nil))
 
       get "job_run_history", :uuid => @uuid, :page => 3, :column => 'stage', :order => 'ASC'

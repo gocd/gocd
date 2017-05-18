@@ -19,6 +19,14 @@ require 'spec_helper'
 describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
+  before :each do
+    @package_repository_service = double('package_repository_service')
+    controller.stub(:package_repository_service).and_return(@package_repository_service)
+
+    @package_definition_service = double('package_definition_service')
+    controller.stub(:package_definition_service).and_return(@package_definition_service)
+  end
+
   describe 'repository_check_connection' do
     describe 'security' do
       it 'should allow anyone, with security disabled' do
@@ -69,8 +77,6 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
     describe 'admin' do
       before :each do
         login_as_admin
-        @package_repository_service = double('package_repository_service')
-        controller.stub(:package_repository_service).and_return(@package_repository_service)
       end
 
       it 'should return the successful response for a valid package repo' do
@@ -155,11 +161,6 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
         }
 
         login_as_admin
-        @package_definition_service = double('package_definition_service')
-        controller.stub(:package_definition_service).and_return(@package_definition_service)
-
-        @package_repository_service = double('package_repository_service')
-        controller.stub(:package_repository_service).and_return(@package_repository_service)
       end
 
       it 'should return the successful response for a valid package repo' do

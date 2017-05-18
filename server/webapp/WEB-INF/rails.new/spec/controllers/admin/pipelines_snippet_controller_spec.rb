@@ -18,6 +18,15 @@ require 'spec_helper'
 
 describe Admin::PipelinesSnippetController do
 
+  before :each do
+    @security_service = double("Security Service")
+    controller.stub(:security_service).and_return(@security_service)
+    @pipeline_configs_service = double('Pipelines Configs Service')
+    @go_config_service = double('Go Config Service')
+    controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service)
+    controller.stub(:go_config_service).and_return(@go_config_service)
+  end
+
   describe :routes do
     it "should resolve the route to partial config page" do
       {:get => "/admin/pipelines/snippet"}.should route_to(:controller => "admin/pipelines_snippet", :action => "index")
@@ -42,12 +51,6 @@ describe Admin::PipelinesSnippetController do
 
   describe :actions do
     before :each do
-      @security_service = double("Security Service")
-      controller.stub(:security_service).and_return(@security_service)
-      @pipeline_configs_service = double('Pipelines Config Service')
-      @go_config_service = double('Go Config Service')
-      controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service)
-      controller.stub(:go_config_service).and_return(@go_config_service)
       controller.should_receive(:populate_config_validity).and_return(true)
       controller.should_receive(:load_context)
       @result = HttpLocalizedOperationResult.new

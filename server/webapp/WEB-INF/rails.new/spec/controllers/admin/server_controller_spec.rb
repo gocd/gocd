@@ -59,6 +59,7 @@ describe Admin::ServerController do
 
     controller.stub(:populate_config_validity)
     @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+    controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
 
     controller.stub(:l).and_return(localizer = Class.new do
       def method_missing method, *args
@@ -73,7 +74,6 @@ describe Admin::ServerController do
     end
 
     it "should return error if validate ldap fails" do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
       result = nil
       @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config, an_instance_of(HttpLocalizedOperationResult)) do |ldap_settings, op_result|
         op_result.badRequest(LocalizedMessage.string('CANNOT_CONNECT_TO_LDAP'))
@@ -87,7 +87,6 @@ describe Admin::ServerController do
     end
 
     it "should report success on being able to connect to ldap" do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
       result = nil
       @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config_without_password, an_instance_of(HttpLocalizedOperationResult))
 
@@ -98,7 +97,6 @@ describe Admin::ServerController do
     end
 
     it "should report success on being able to connect to ldap when the password is not changed" do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
       result = nil
       @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config, an_instance_of(HttpLocalizedOperationResult))
 
@@ -177,18 +175,13 @@ describe Admin::ServerController do
   end
 
   describe "update" do
-    before(:each) do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
-    end
-
     it "should resolve route to server config" do
       {:post => "/admin/config/server/update"}.should route_to(:controller => "admin/server", :action => "update")
     end
 
     it "should render success message returned by service while updating server config" do
-      controller.stub(:server_config_service).and_return(server_config_service = Object.new)
-      server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      server_config_service.should_receive(:updateServerConfig) do |mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      @server_config_service.should_receive(:updateServerConfig) do |mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       end
 
@@ -267,9 +260,8 @@ describe Admin::ServerController do
     end
 
     it "should render error message if there is an error reported by the service" do
-      controller.stub(:server_config_service).and_return(server_config_service = Object.new)
       result = nil
-      server_config_service.should_receive(:updateServerConfig) do |mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      @server_config_service.should_receive(:updateServerConfig) do |mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.notAcceptable(LocalizedMessage.string("INVALID_FROM_ADDRESS"))
         result = operation_result
       end
@@ -329,7 +321,6 @@ describe Admin::ServerController do
   describe "validate" do
 
     before :each do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
       @default_localized_result = DefaultLocalizedResult.new
     end
 
@@ -410,8 +401,6 @@ describe Admin::ServerController do
     end
 
     it "should validate port" do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
-
       post :test_email, :server_configuration_form => @valid_mail_host_params.except(:port)
 
       json = JSON.parse(response.body)
@@ -420,7 +409,6 @@ describe Admin::ServerController do
     end
 
     it "should send the test email by using the service" do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
       mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       @server_config_service.should_receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult))

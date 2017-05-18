@@ -20,6 +20,12 @@ describe Admin::MaterialsController do
   include MockRegistryModule
   include ConfigSaveStubbing
 
+  before :each do
+    @go_config_service = stub_service(:go_config_service)
+    @pipeline_pause_service = stub_service(:pipeline_pause_service)
+    controller.stub(:populate_config_validity)
+  end
+
   describe "routes" do
     it "should resolve index" do
       {:get => "/admin/pipelines/pipeline.name/materials"}.should route_to(:controller => "admin/materials", :action => "index", :stage_parent => "pipelines", :pipeline_name => "pipeline.name")
@@ -32,13 +38,10 @@ describe Admin::MaterialsController do
 
   describe :index do
     before :each do
-      @go_config_service = stub_service(:go_config_service)
-      @pipeline_pause_service = stub_service(:pipeline_pause_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_name = "pipeline-name"
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-      @go_config_service.should_receive(:checkConfigFileValid).and_return(GoConfigValidity.valid)
       @cruise_config = double("Cruise Config")
       @cruise_config.should_receive(:name).and_return(@pipeline_name)
       a = double('config wrapper')
@@ -59,7 +62,6 @@ describe Admin::MaterialsController do
   describe "delete" do
 
     before :each do
-      controller.stub(:populate_config_validity)
       @cruise_config = BasicCruiseConfig.new()
       @cruise_config_mother = GoConfigMother.new
       @material_config = GitMaterialConfig.new("http://git.thoughtworks.com")
@@ -72,9 +74,6 @@ describe Admin::MaterialsController do
       @user = Username.new(CaseInsensitiveString.new("loser"))
       controller.stub(:current_user).and_return(@user)
       @result = stub_localized_result
-
-      @go_config_service = stub_service(:go_config_service)
-      @pipeline_pause_service = stub_service(:pipeline_pause_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)

@@ -34,6 +34,9 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.text.MessageFormat;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
+
 public class UnitTestReportGenerator implements TestReportGenerator {
     private final File folderToUpload;
     private GoPublisher publisher;
@@ -69,7 +72,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
                 StreamResult result = new StreamResult(transformedHtml);
                 templates.newTransformer().transform(xmlSource, result);
             } catch (Exception e) {
-                publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
+                publisher.reportErrorMessage(PUBLISH_ERR, "Unable to publish test properties. Error was " + e.getMessage(), e);
             }
 
             extractProperties(mergedResults);
@@ -77,7 +80,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
 
             return null;
         } catch (Exception e) {
-            publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
+            publisher.reportErrorMessage(PUBLISH_ERR, "Unable to publish test properties. Error was " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(mergedFileStream);
             IOUtils.closeQuietly(transformedHtml);
@@ -117,7 +120,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
             Property property = new Property(cruiseProperty, output);
             publisher.setProperty(property);
         } catch (Exception e) {
-            publisher.consumeLine("Could not publish property " + e.getMessage());
+            publisher.taggedConsumeLine(PUBLISH_ERR, "Could not publish property " + e.getMessage());
         }
     }
 
@@ -166,12 +169,12 @@ public class UnitTestReportGenerator implements TestReportGenerator {
             boolean isTestFile = nodeExists(file, "//test-results") || nodeExists(file, "//testsuite");
 
             if (!isTestFile) {
-                publisher.consumeLine(MessageFormat.format("Ignoring file {0} - it is not a recognised test file.", file.getName()));
+                publisher.taggedConsumeLine(PUBLISH, MessageFormat.format("Ignoring file {0} - it is not a recognised test file.", file.getName()));
             }
 
             return isTestFile;
         } catch (Exception e) {
-            publisher.consumeLine(MessageFormat.format("The file {0} could not be parsed. It seems to be invalid.", file.getName()));
+            publisher.taggedConsumeLine(PUBLISH_ERR, MessageFormat.format("The file {0} could not be parsed. It seems to be invalid.", file.getName()));
             return false;
         }
     }

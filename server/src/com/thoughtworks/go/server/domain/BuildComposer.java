@@ -83,7 +83,7 @@ public class BuildComposer {
             commands.add(command);
         }
         return BuildCommand.compose(
-                reportAction(NOTICE, "Start to create properties"),
+                reportAction(PUBLISH, "Start to create properties"),
                 BuildCommand.compose(commands));
     }
 

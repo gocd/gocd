@@ -104,7 +104,7 @@ public class BuildWork implements Work {
 
     private void reportFailure(Exception e) {
         try {
-            goPublisher.reportErrorMessage(messageOf(e), e);
+            goPublisher.reportErrorMessage(ERR, messageOf(e), e);
         } catch (Exception reportException) {
             LOGGER.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
@@ -216,7 +216,7 @@ public class BuildWork implements Work {
         goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(Completing);
-        goPublisher.reportAction("Start to create properties");
+        goPublisher.reportAction(PUBLISH, "Start to create properties");
         harvestProperties(goPublisher);
 
         goPublisher.reportAction(PUBLISH, "Start to upload");

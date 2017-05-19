@@ -142,7 +142,7 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     @Override
-    public void reportErrorMessage(String message, Exception e) {
+    public void reportErrorMessage(String tag, String message, Exception e) {
         LOG.error(message, e);
         taggedConsumeLine(ERR, message);
     }

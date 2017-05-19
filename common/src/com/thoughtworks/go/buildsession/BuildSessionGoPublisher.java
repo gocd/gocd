@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+
 class BuildSessionGoPublisher implements GoPublisher {
     private static final Log LOG = LogFactory.getLog(BuildSessionGoPublisher.class);
     private final TaggedStreamConsumer buildConsole;
@@ -57,9 +59,9 @@ class BuildSessionGoPublisher implements GoPublisher {
     }
 
     @Override
-    public void reportErrorMessage(String message, Exception e) {
+    public void reportErrorMessage(String tag, String message, Exception e) {
         LOG.error(message, e);
-        consumeLine(message);
+        taggedConsumeLine(tag, message);
     }
 
     @Override

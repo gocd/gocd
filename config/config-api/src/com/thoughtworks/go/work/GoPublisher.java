@@ -30,5 +30,5 @@ public interface GoPublisher extends TaggedStreamConsumer {
 
     void setProperty(Property property);
 
-    void reportErrorMessage(String message, Exception e);
+    void reportErrorMessage(String tag, String message, Exception e);
 }

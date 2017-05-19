@@ -35,10 +35,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
 
 public class ArtifactPropertiesGeneratorTest {
     private List<String> sentContents;
@@ -180,7 +180,7 @@ public class ArtifactPropertiesGeneratorTest {
             this.sentErrors = sentErrors;
         }
 
-        public void consumeLine(String line) {
+        public void taggedConsumeLine(String tag, String line) {
             sentContents.add(line);
         }
 

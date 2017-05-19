@@ -67,7 +67,7 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
         securityConfig = new SecurityConfig();
 
         filter.setAuthenticationManager(authenticationManager);
-        filter.setFilterProcessesUrl("^/go/plugin/([^\\s]+)/authenticate$");
+        filter.setFilterProcessesUrl("^/go/plugin/([\\w\\-.]+)/authenticate$");
         stub(configService.security()).toReturn(securityConfig);
         stub(request.getHeaderNames()).toReturn(Collections.emptyEnumeration());
     }
@@ -84,6 +84,16 @@ public class PreAuthenticatedRequestsProcessingFilterTest {
         filter.attemptAuthentication(request);
 
         verify(authenticationManager).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+    }
+
+    @Test
+    public void shouldNotAttemptAuthenticationForAuthenticationPluginRequests() throws IOException, ServletException {
+        when(request.getRequestURI()).thenReturn("/go/plugin/interact/github.oauth/authenticate");
+
+        filter.doFilter(request, response, filterChain);
+
+        verifyZeroInteractions(authenticationManager);
+        verifyZeroInteractions(authorizationExtension);
     }
 
     @Test

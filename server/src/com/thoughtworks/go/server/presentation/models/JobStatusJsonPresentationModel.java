@@ -26,9 +26,7 @@ import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.TimeConverter;
 import org.joda.time.DateTime;
 
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.JobState.*;
@@ -57,7 +55,7 @@ public class JobStatusJsonPresentationModel {
 
     public Map toJsonHash() {
         Map<String, Object> jsonParams = new LinkedHashMap<>();
-        jsonParams.put("agent", agentConfig.getHostNameForDispaly());
+        jsonParams.put("agent", agentConfig.getHostNameForDisplay());
         jsonParams.put("agent_ip", agentConfig.getIpAddress());
         jsonParams.put("agent_uuid", agentConfig.getUuid());
         jsonParams.put("build_scheduled_date", getPreciseScheduledDate());

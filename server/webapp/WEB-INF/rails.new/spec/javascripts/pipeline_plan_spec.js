@@ -242,8 +242,8 @@ describe("pipeline_plan", function () {
     var statisticsObserver;
 //    var pipelinePage;
 //    var pipelineActions;
-    var build1 = { "agent": "Not yet assigned", "current_status": "failed", "result": "Failed", "name": "functional", "build_completed_date": "Mon Apr 21 16:36:16 CST 2008", "id": "8", "is_completed": "true" };
-    var build2 = { "agent": "Not yet assigned", "current_status": "failed", "result": "Failed", "name": "functional", "build_completed_date": "Mon Apr 21 16:36:16 CST 2008", "id": "9", "is_completed": "true" };
+    var build1 = { "agent": "Agent not found", "current_status": "failed", "result": "Failed", "name": "functional", "build_completed_date": "Mon Apr 21 16:36:16 CST 2008", "id": "8", "is_completed": "true" };
+    var build2 = { "agent": "Agent not found", "current_status": "failed", "result": "Failed", "name": "functional", "build_completed_date": "Mon Apr 21 16:36:16 CST 2008", "id": "9", "is_completed": "true" };
 
     var pipeline1stageJson = {
         "buildCause": "",

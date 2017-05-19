@@ -304,7 +304,7 @@ public class AgentService {
             LOGGER.warn(
                     String.format("Agent with UUID [%s] changed IP Address from [%s] to [%s]",
                             info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress()));
-            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
+            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDisplay());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }
         agentInstances.updateAgentRuntimeInfo(info);

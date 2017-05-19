@@ -153,7 +153,7 @@ describe 'stages/_jobs.html.erb' do
       expect(f[2]).to have_selector(".job_result", :text => "Active")
       expect(f[2]).to have_selector(".job_state", :text => "Scheduled")
       expect(f[2]).to have_selector(".elapsed_time", :text => "")
-      expect(f[2]).to have_selector(".agent", :text => /Not yet assigned/)
+      expect(f[2]).to have_selector(".agent", :text => /Agent not found/)
 
       expect(f[3]).to have_selector(".job_name a[href='/tab/build/detail/blah-pipeline/1/blah-stage/2/fourth']", :text => "fourth")
       expect(f[3]).to have_selector(".job_result", :text => /Active/)

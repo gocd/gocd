@@ -84,8 +84,8 @@ public class WebBasedAuthenticationFilterTest {
     }
 
     @Test
-    public void shouldIgnoreNonWebBasedAuthenticationRequests() throws Exception {
-        when(request.getRequestURI()).thenReturn("/go/api/agents");
+    public void shouldIgnoreRequestsToAuthenticationPlugins() throws Exception {
+        when(request.getRequestURI()).thenReturn("/go/plugin/interact/github.oauth/login");
 
         filter.doFilter(request, response, filterChain);
 

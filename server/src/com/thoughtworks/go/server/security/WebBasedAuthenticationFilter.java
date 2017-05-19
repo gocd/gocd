@@ -35,7 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
-    private static final Pattern LOGIN_REQUEST_PATTERN = Pattern.compile("^/go/plugin/([^\\s]+)/login$");
+    private static final Pattern LOGIN_REQUEST_PATTERN = Pattern.compile("^/go/plugin/([\\w\\-.]+)/login$");
     private AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
     private SiteUrlProvider siteUrlProvider;

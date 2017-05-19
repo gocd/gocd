@@ -106,6 +106,87 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
+    public void shouldBeAbleToAuthenticateUserUsingAnyOfTheAuthorizationPlugins() {
+        String pluginId1 = "plugin-id-1";
+        String pluginId2 = "plugin-id-2";
+
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        addPluginSupportingPasswordBasedAuthentication(pluginId2);
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId2));
+        securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
+        when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), null)).thenReturn(NULL_AUTH_RESPONSE);
+
+        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "test@test.com"), Collections.emptyList());
+        when(authorizationExtension.authenticateUser(pluginId2, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId2), securityConfig.getPluginRoles(pluginId2))).thenReturn(response);
+
+
+        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
+
+        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
+        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
+        assertThat(goUserPrincipal.getUsername(), is("username"));
+        assertThat(goUserPrincipal.getDisplayName(), is("display-name"));
+        assertThat(goUserPrincipal.getAuthorities().length, is(1));
+        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+    }
+
+    @Test
+    public void shouldBeAbleToAuthenticateUserUsingAnyOfTheAuthenticationPluginsInAbsenceOfAuthorizationPlugins() {
+        String pluginId1 = "plugin-id-1";
+        String pluginId2 = "plugin-id-2";
+        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
+        when(authenticationExtension.authenticateUser(pluginId1, "username", "password")).thenReturn(null);
+
+        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(new User("username", null, null));
+
+        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
+
+        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
+        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
+        assertThat(goUserPrincipal.getUsername(), is("username"));
+        assertThat(goUserPrincipal.getDisplayName(), is("username"));
+        assertThat(goUserPrincipal.getAuthorities().length, is(1));
+        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+    }
+
+    @Test
+    public void shouldTryAuthenticatingAgainstEachAuthorizationPluginInCaseOfErrors() throws Exception {
+        SecurityAuthConfig fileAuthConfig = new SecurityAuthConfig("file_based", "file");
+        SecurityAuthConfig ldapAuthConfig = new SecurityAuthConfig("ldap_based", "ldap");
+
+        addPluginSupportingPasswordBasedAuthentication("file");
+        addPluginSupportingPasswordBasedAuthentication("ldap");
+        securityConfig.securityAuthConfigs().add(fileAuthConfig);
+        securityConfig.securityAuthConfigs().add(ldapAuthConfig);
+
+        when(authorizationExtension.authenticateUser("file", "username", "password", Collections.singletonList(fileAuthConfig), Collections.emptyList())).
+                thenThrow(new RuntimeException());
+        when(authorizationExtension.authenticateUser("ldap", "username", "password", Collections.singletonList(ldapAuthConfig), Collections.emptyList())).
+                thenReturn(new AuthenticationResponse(new User("username", null, null), Collections.emptyList()));
+
+        UserDetails bob = provider.retrieveUser("username", authenticationToken);
+
+        assertThat(bob.getUsername(), is("username"));
+    }
+
+    @Test
+    public void shouldTryAuthenticatingAgainstEachAuthenticationPluginInCaseOfErrors() {
+        String pluginId1 = "plugin-id-1";
+        String pluginId2 = "plugin-id-2";
+
+        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
+        when(authenticationExtension.authenticateUser(pluginId1, "username", "password")).thenThrow(new RuntimeException());
+
+        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(new User("username", null, null));
+
+        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
+
+        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
+        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
+        assertThat(goUserPrincipal.getUsername(), is("username"));
+    }
+
+    @Test
     public void shouldThrowUpWhenNoPluginCouldAuthenticateUser() throws Exception {
         exception.expect(UsernameNotFoundException.class);
         exception.expectMessage("Unable to authenticate user: bob");
@@ -117,6 +198,7 @@ public class PluginAuthenticationProviderTest {
 
         provider.retrieveUser("bob", authenticationToken);
     }
+
 
     @Test
     public void shouldAskAuthenticationPluginsWhenAuthorizationPluginIsUnableToAuthenticateUser() {
@@ -176,50 +258,6 @@ public class PluginAuthenticationProviderTest {
     }
 
     @Test
-    public void shouldCreateGoUserPrincipalWhenAnAuthorizationPluginIsAbleToAuthenticateUser() {
-        String pluginId1 = "plugin-id-1";
-        String pluginId2 = "plugin-id-2";
-
-        addPluginSupportingPasswordBasedAuthentication(pluginId1);
-        addPluginSupportingPasswordBasedAuthentication(pluginId2);
-        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId2));
-        securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
-        when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), null)).thenReturn(NULL_AUTH_RESPONSE);
-
-        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "test@test.com"), Collections.emptyList());
-        when(authorizationExtension.authenticateUser(pluginId2, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId2), securityConfig.getPluginRoles(pluginId2))).thenReturn(response);
-
-
-        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
-
-        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
-        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
-        assertThat(goUserPrincipal.getUsername(), is("username"));
-        assertThat(goUserPrincipal.getDisplayName(), is("display-name"));
-        assertThat(goUserPrincipal.getAuthorities().length, is(1));
-        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
-    }
-
-    @Test
-    public void shouldCreateGoUserPrincipalWhenAnAuthenticationPluginIsAbleToAuthenticateUser() {
-        String pluginId1 = "plugin-id-1";
-        String pluginId2 = "plugin-id-2";
-        when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
-        when(authenticationExtension.authenticateUser(pluginId1, "username", "password")).thenReturn(null);
-
-        when(authenticationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(new User("username", null, null));
-
-        UserDetails userDetails = provider.retrieveUser("username", authenticationToken);
-
-        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
-        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
-        assertThat(goUserPrincipal.getUsername(), is("username"));
-        assertThat(goUserPrincipal.getDisplayName(), is("username"));
-        assertThat(goUserPrincipal.getAuthorities().length, is(1));
-        assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
-    }
-
-    @Test
     public void shouldAnswerSupportsBasedOnPluginAvailability() {
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
@@ -253,6 +291,91 @@ public class PluginAuthenticationProviderTest {
         when(authorizationExtension.authenticateUser(pluginId2, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId2), securityConfig.getPluginRoles(pluginId2))).thenReturn(NULL_AUTH_RESPONSE);
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(null, "password"));
+
+        assertNotNull(userDetails);
+
+        verify(pluginRoleService).updatePluginRoles("cd.go.ldap", "username", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+    }
+
+    @Test
+    public void authenticatedUsersUsernameShouldBeUsedToAssignRoles() throws Exception {
+        String pluginId1 = "cd.go.ldap";
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        when(authorizationExtension.authenticateUser(pluginId1, "foo@bar.com", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), securityConfig.getPluginRoles(pluginId1))).thenReturn(
+                new AuthenticationResponse(
+                        new User("username", "bob", "bob@example.com"),
+                        Arrays.asList("blackbird", "admins")
+                )
+        );
+
+        UserDetails userDetails = provider.retrieveUser("foo@bar.com", new UsernamePasswordAuthenticationToken(null, "password"));
+
+        assertNotNull(userDetails);
+
+        verify(pluginRoleService).updatePluginRoles("cd.go.ldap", "username", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+    }
+
+    @Test
+    public void reuthenticationUsingAuthorizationPlugins_shouldUseTheLoginNameAvailableInGoUserPrinciple() throws Exception {
+        String pluginId1 = "cd.go.ldap";
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        when(authorizationExtension.authenticateUser(pluginId1, "foo@bar.com", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), securityConfig.getPluginRoles(pluginId1))).thenReturn(
+                new AuthenticationResponse(
+                        new User("username", "bob", "bob@example.com"),
+                        Arrays.asList("blackbird", "admins")
+                )
+        );
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, "foo@bar.com");
+
+        UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
+
+        assertThat(userDetails, is(instanceOf(GoUserPrinciple.class)));
+        GoUserPrinciple goUserPrincipal = (GoUserPrinciple) userDetails;
+        assertThat(goUserPrincipal.getUsername(), is("username"));
+        assertThat(goUserPrincipal.getLoginName(), is("foo@bar.com"));
+
+        verify(pluginRoleService).updatePluginRoles("cd.go.ldap", "username", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+    }
+
+    @Test
+    public void reuthenticationUsingAuthorizationPlugins_shouldFallbackOnUserNameInAbsenceOfGoUserPrinciple() throws Exception {
+        String pluginId1 = "cd.go.ldap";
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), securityConfig.getPluginRoles(pluginId1))).thenReturn(
+                new AuthenticationResponse(
+                        new User("username", "bob", "bob@example.com"),
+                        Arrays.asList("blackbird", "admins")
+                )
+        );
+
+        UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(null, "password"));
+
+        assertNotNull(userDetails);
+
+        verify(pluginRoleService).updatePluginRoles("cd.go.ldap", "username", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+    }
+
+    @Test
+    public void reuthenticationUsingAuthorizationPlugins_shouldFallbackOnUserNameInAbsenceOfLoginNameInGoUserPrinciple() throws Exception {
+        String pluginId1 = "cd.go.ldap";
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), securityConfig.getPluginRoles(pluginId1))).thenReturn(
+                new AuthenticationResponse(
+                        new User("username", "bob", "bob@example.com"),
+                        Arrays.asList("blackbird", "admins")
+                )
+        );
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, null);
+
+        UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 
         assertNotNull(userDetails);
 

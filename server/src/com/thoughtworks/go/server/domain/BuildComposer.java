@@ -46,7 +46,9 @@ public class BuildComposer {
                 jobResult().runIf("any"),
                 reportAction(COMPLETED, "Job completed").runIf("any")
         ).setOnCancel(BuildCommand.compose(
-                reportAction("Job is canceled"),
+                // can't use jobResult() command here because it starts a new cancel session, and will
+                // report the incorrect result
+                echoWithPrefix(JOB_CANCELLED, String.format("Current job status: %s", JobResult.Cancelled.toLowerCase())),
                 reportAction(COMPLETED, "Job completed"))
         );
     }

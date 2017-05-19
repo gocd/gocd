@@ -255,7 +255,7 @@ dt.log-fs-line, dt.log-fs-line:before {
   }
 }
 
-.log-fs-task-status-cancelled {
+.log-fs-task-status-cancelled, .log-fs-job-status-cancelled {
   &:before {
     content: $fa-var-ban;
     color: $CONSOLE_CALLOUT;
@@ -288,7 +288,7 @@ dt.log-fs-line, dt.log-fs-line:before {
     color: $CONSOLE_CALLOUT_WHITE;
   }
 
-  .log-fs-task-status-cancelled {
+  .log-fs-task-status-cancelled, .log-fs-job-status-cancelled {
     &:before, code {
       color: $CONSOLE_CALLOUT_WHITE;
     }

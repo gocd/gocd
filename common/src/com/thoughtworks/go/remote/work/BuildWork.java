@@ -208,12 +208,11 @@ public class BuildWork implements Work {
     }
 
     private JobResult completeJob(JobResult result) throws SocketTimeoutException {
+        goPublisher.taggedConsumeLineWithPrefix(statusTag(result), format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
+
         if (goPublisher.isIgnored()) {
             return result;
         }
-
-        String tag = result.isPassed() ? JOB_PASS : JOB_FAIL;
-        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(Completing);
         goPublisher.reportAction(PUBLISH, "Start to create properties");
@@ -230,6 +229,20 @@ public class BuildWork implements Work {
         }
 
         return result;
+    }
+
+    /**
+     * Determine a console log tag for a job status line based on the job result
+     *
+     * @param jobResult the job result
+     * @return a task status tag ({@link String})
+     */
+    private String statusTag(JobResult jobResult) {
+        if (jobResult.isCancelled()) {
+            return JOB_CANCELLED;
+        }
+
+        return jobResult.isPassed() ? JOB_PASS : JOB_FAIL;
     }
 
     private JobResult execute(EnvironmentVariableContext environmentVariableContext) {

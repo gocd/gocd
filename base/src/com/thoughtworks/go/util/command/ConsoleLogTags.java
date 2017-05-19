@@ -40,6 +40,7 @@ public class ConsoleLogTags {
     public static final String TASK_CANCELLED = "^C";
     public static final String JOB_PASS = "j0";
     public static final String JOB_FAIL = "j1";
+    public static final String JOB_CANCELLED = "jx";
     public static final String PUBLISH = "ar";
     public static final String PUBLISH_ERR = "ae";
     public static final String COMPLETED = "ex";

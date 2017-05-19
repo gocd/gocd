@@ -83,6 +83,9 @@
 
       fs.assignType(t.FAIL);
       assertEquals("task", fs.type());
+
+      fs.assignType(t.JOB_CANCELLED);
+      assertEquals("result", fs.type());
     });
 
     it("isPartOfSection info", function () {
@@ -173,6 +176,12 @@
 
       reset();
 
+      fs.detectStatus(t.JOB_CANCELLED);
+      assert(el.priv.errored);
+      assert($(el).is(".log-fs-job-status-cancelled"));
+
+      reset();
+
       fs.detectStatus(t.CANCEL_TASK_FAIL);
       assert(el.priv.errored);
       assert($(el).is(".log-fs-task-status-failed"));
@@ -204,7 +213,7 @@
     });
 
     it("isExplicitEndBoundary only identifies prefixes are are terminal", function () {
-      assert(_.reduce([t.PASS, t.FAIL, t.CANCELLED, t.JOB_PASS, t.JOB_FAIL, t.CANCEL_TASK_PASS, t.CANCEL_TASK_FAIL], function(result, prefix) {
+      assert(_.reduce([t.PASS, t.FAIL, t.CANCELLED, t.JOB_PASS, t.JOB_FAIL, t.JOB_CANCELLED, t.CANCEL_TASK_PASS, t.CANCEL_TASK_FAIL], function(result, prefix) {
         result = result && fs.isExplicitEndBoundary(prefix);
         return result;
       }, true));

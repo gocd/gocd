@@ -25,12 +25,24 @@ import org.springframework.security.userdetails.User;
 public class GoUserPrinciple extends User {
 
     private final String displayName;
+    private String loginName;
 
     public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
                            GrantedAuthority[] authorities)
             throws IllegalArgumentException {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         this.displayName = displayName;
+    }
+
+    public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
+                           GrantedAuthority[] authorities, String loginName) {
+        this(username, displayName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+
+        this.loginName = loginName;
+    }
+
+    public String getLoginName() {
+        return loginName;
     }
 
     public String getDisplayName() {

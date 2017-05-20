@@ -61,9 +61,7 @@ module ApiV1
         params["pipeline"],
         params["stage"],
         StageEvent.valueOf(params["event"]),
-        # default checkbox behavior is to send value (defaults to "on") if checked, or to send
-        # nothing if unchecked; thus, only check for presence of the key
-        params.has_key?("myCheckin")
+        !!params["match_commits"]
       )
     end
 

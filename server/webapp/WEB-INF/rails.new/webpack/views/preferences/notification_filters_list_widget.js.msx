@@ -40,8 +40,8 @@
         <tbody>
           {_.map(model.filters(), (filter) => {
             return <tr>
-              <td>{filter.pipeline_name}</td>
-              <td>{filter.stage_name}</td>
+              <td>{filter.pipeline}</td>
+              <td>{filter.stage}</td>
               <td>{filter.event}</td>
               <td>{filter.match_commits ? "Mine" : "All"}</td>
               <td>

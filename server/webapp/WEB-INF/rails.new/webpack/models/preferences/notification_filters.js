@@ -36,6 +36,9 @@
       result[entry[0]] = entry[1];
     }
 
+    result.match_commits = !!result.myCheckin; // eslint-disable-line camelcase
+    delete result.myCheckin;
+
     return JSON.stringify(result);
   }
 

@@ -36,8 +36,8 @@ describe ApiV1::NotificationFiltersController do
 
       get_with_api_header(:index)
       expected = [
-        {"pipeline_name" => "pipeline1", "stage_name" => "defaultStage", "event" => "Fails", "id" => 1, "match_commits" => true},
-        {"pipeline_name" => "[Any Pipeline]", "stage_name" => "[Any Stage]", "event" => "Breaks", "id" => 2, "match_commits" => false}
+        {"pipeline" => "pipeline1", "stage" => "defaultStage", "event" => "Fails", "id" => 1, "match_commits" => true},
+        {"pipeline" => "[Any Pipeline]", "stage" => "[Any Stage]", "event" => "Breaks", "id" => 2, "match_commits" => false}
       ].sort_by {|h| h["id"]}
 
       assert_equal 200, response.status
@@ -59,7 +59,7 @@ describe ApiV1::NotificationFiltersController do
       @user.stub(:notificationFilters).and_return([]) # not verifying this
       @user_service.should_receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
 
-      post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks", myCheckin: "on")
+      post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks", match_commits: true)
 
       assert_equal 200, response.status
     end
@@ -67,7 +67,7 @@ describe ApiV1::NotificationFiltersController do
     it("validates input") do
       @user.stub(:notificationFilters).and_return([]) # not verifying this
 
-      post_with_api_header(:create, pipeline: "foo", event: "Breaks", myCheckin: "on")
+      post_with_api_header(:create, pipeline: "foo", event: "Breaks", match_commits: true)
 
       assert_equal 400, response.status
       assert_equal "You must specify pipeline, stage, and event.", JSON.parse(response.body)["message"]

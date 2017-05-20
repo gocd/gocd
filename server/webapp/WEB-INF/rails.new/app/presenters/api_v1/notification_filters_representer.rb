@@ -9,8 +9,8 @@ module ApiV1
 
     collection :filters do
       property :id
-      property :pipelineName, as: :pipeline_name
-      property :stageName, as: :stage_name
+      property :pipelineName, as: :pipeline
+      property :stageName, as: :stage
       property :event
       property :myCheckin, as: :match_commits
     end

@@ -58,6 +58,7 @@ import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -151,7 +152,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateConfigContentAsAString() throws Exception {
-        String newContent = new GoConfigMigration(configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins())
+        String newContent = new GoConfigMigration(configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment)
                 .upgradeIfNecessary(ConfigFileFixture.VERSION_0);
         assertThat(newContent, containsString("schemaVersion=\"" + GoConfigSchema.currentSchemaVersion() + "\""));
     }
@@ -159,7 +160,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldNotMigrateConfigContentAsAStringWhenAlreadyUpToDate() throws Exception {
         GoConfigMigration configMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache,
-                ConfigElementImplementationRegistryMother.withNoPlugins());
+                ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         String newContent = configMigration.upgradeIfNecessary(ConfigFileFixture.VERSION_0);
         assertThat(newContent, is(configMigration.upgradeIfNecessary(newContent)));
     }
@@ -293,7 +294,7 @@ public class GoConfigMigrationIntegrationTest {
                     public void handle(Exception e) {
                         exs.add(e);
                     }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERNT_CASE);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
@@ -308,7 +309,7 @@ public class GoConfigMigrationIntegrationTest {
                     public void handle(Exception e) {
                         throw new AssertionError("upgrade failed!!!!!");
                     }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         FileUtils.writeStringToFile(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
         configRepository.checkin(new GoConfigRevision("dummy-content", "some-md5", "loser", "100.3.1", new TimeProvider()));
 
@@ -472,7 +473,7 @@ public class GoConfigMigrationIntegrationTest {
                     public void handle(Exception e) {
                         exs.add(e);
                     }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         String configContent = ConfigFileFixture.configWithPipeline(String.format(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
@@ -547,7 +548,7 @@ public class GoConfigMigrationIntegrationTest {
                     public void handle(Exception e) {
                         exs.add(e);
                     }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins()
+                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
         );
         String configContent = ConfigFileFixture.configWithPipeline(String.format(
                 "<pipeline name='pipeline1'>"
@@ -585,7 +586,7 @@ public class GoConfigMigrationIntegrationTest {
                     public void handle(Exception e) {
                         exs.add(e);
                     }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
 
         String content = "<cruise schemaVersion='" + 47 + "'>\n"
                 + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"
@@ -1816,7 +1817,7 @@ public class GoConfigMigrationIntegrationTest {
                         e.printStackTrace();
                         exs.add(e);
                     }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins()
+                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
         );
         Method upgrade = upgrader.getClass().getDeclaredMethod("upgrade", String.class, Integer.TYPE, Integer.TYPE);
         upgrade.setAccessible(true);
@@ -1838,7 +1839,7 @@ public class GoConfigMigrationIntegrationTest {
                 }
                 throw bomb(e.getMessage() + ": content=\n" + content, e);
             }
-        }, configRepository, new TimeProvider(), configCache, registry
+        }, configRepository, new TimeProvider(), configCache, registry, new SystemEnvironment()
         );
         SystemEnvironment sysEnv = new SystemEnvironment();
         FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, registry, sysEnv, serverVersion, new TimeProvider(), configRepository, cachedGoPartials);

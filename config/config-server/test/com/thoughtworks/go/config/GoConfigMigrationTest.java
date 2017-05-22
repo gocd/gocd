@@ -70,8 +70,7 @@ public class GoConfigMigrationTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        goConfigMigration = new GoConfigMigration(configRepo, timeProvider, new ConfigCache(), registry
-        );
+        goConfigMigration = new GoConfigMigration(configRepo, timeProvider, new ConfigCache(), registry, mock(SystemEnvironment.class));
     }
 
     @After

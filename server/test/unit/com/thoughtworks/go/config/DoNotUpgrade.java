@@ -17,13 +17,14 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 
 import java.io.File;
 
 public class DoNotUpgrade extends GoConfigMigration {
     public DoNotUpgrade() {
-        super(null, new TimeProvider(), null, ConfigElementImplementationRegistryMother.withNoPlugins());
+        super(null, new TimeProvider(), null, ConfigElementImplementationRegistryMother.withNoPlugins(),new SystemEnvironment());
     }
 
     public GoConfigMigrationResult upgradeIfNecessary(File configFile, final String currentGoServerVersion) {

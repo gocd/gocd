@@ -108,7 +108,7 @@ public class GoFileConfigDataSourceTest {
             public void handle(Exception e) {
                 throw new RuntimeException(e);
             }
-        }, configRepository, new TimeProvider(), configCache, registry),
+        }, configRepository, new TimeProvider(), configCache, registry, systemEnvironment),
                 configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class),
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 

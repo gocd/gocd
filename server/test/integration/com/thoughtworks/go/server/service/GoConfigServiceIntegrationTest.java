@@ -110,7 +110,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyAllowAdminsToGetPipelineConfig() {
+    public void shouldOnlyAllowAdminsToGetPipelineConfig() throws IOException {
         setupSecurity();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -131,7 +131,7 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn404WhenUserIsNotAnAdminAndTriesToLoadANonExistentPipeline() {
+    public void shouldReturn404WhenUserIsNotAnAdminAndTriesToLoadANonExistentPipeline() throws IOException {
         setupSecurity();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigForEdit configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
@@ -140,10 +140,9 @@ public class GoConfigServiceIntegrationTest {
         assertThat(result.message(localizer), is("pipeline 'non-existent-pipeline' not found."));
     }
 
-    private void setupSecurity() {
-        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
-        configHelper.addSecurity(securityConfig);
+    private void setupSecurity() throws IOException {
+        configHelper.enableSecurity();
+        configHelper.addAdmins("root");
         configHelper.addPipeline("my-pipeline", "my-stage");
         configHelper.setAdminPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "pipeline_admin");
     }
@@ -178,7 +177,7 @@ public class GoConfigServiceIntegrationTest {
 
     @Test
     public void shouldReturn401WhenAUserIsNotAnAdmin() throws IOException {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
         configHelper.addTemplate("pipeline", "stage");
@@ -196,7 +195,7 @@ public class GoConfigServiceIntegrationTest {
 
     @Test
     public void shouldReturnANewCopyOfConfigForEditWhenAUserIsATemplateAdmin() throws IOException {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
         configHelper.addTemplate("pipeline", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("template-admin")))), "stage");
@@ -213,7 +212,7 @@ public class GoConfigServiceIntegrationTest {
 
     @Test
     public void shouldReturnANewCopyOfConfigForEditWhenLoadingForEdit() throws IOException {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("hero");
 
         configHelper.addTemplate("pipeline", "stage");
@@ -278,7 +277,7 @@ public class GoConfigServiceIntegrationTest {
 
     @Test
     public void shouldErrorOutWhenUserIsNotAuthorizedToLoadGroupForEdit() throws IOException {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("hero");
         configHelper.addPipelineWithGroup("group_one", "pipeline", "stage", "my_job");
 

@@ -76,9 +76,8 @@ public class MingleConfigServiceIntegrationTest {
         group.setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("authorized_user")))));
         configHelper.writeConfigFile(cruiseConfig);
 
-        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("/tmp/foo.passwd"), true);
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("admin")));
-        configHelper.addSecurity(securityConfig);
+        configHelper.enableSecurity();
+        configHelper.addAdmins("admin");
     }
 
     @After

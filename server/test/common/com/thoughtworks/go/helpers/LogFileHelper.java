@@ -218,8 +218,7 @@ public final class LogFileHelper {
                 public CruiseConfig load() {
                     return null;
                 }
-            }, null, new SystemTimeClock(), new GoConfigMigration(mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
-                    ), null, null, ConfigElementImplementationRegistryMother.withNoPlugins(),
+            }, null, new SystemTimeClock(), new GoConfigMigration(mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()), null, null, ConfigElementImplementationRegistryMother.withNoPlugins(),
                     new InstanceFactory(), mock(CachedGoPartials.class), null);
             this.artifactsDir = artifactsDir;
         }

@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.AuthenticationException;
@@ -45,13 +46,15 @@ public class FileAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     private final AuthorityGranter authorityGranter;
     private final UserService userService;
     private final SecurityService securityService;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public FileAuthenticationProvider(GoConfigService goConfigService, AuthorityGranter authorityGranter, UserService userService, SecurityService securityService) {
+    public FileAuthenticationProvider(GoConfigService goConfigService, AuthorityGranter authorityGranter, UserService userService, SecurityService securityService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.authorityGranter = authorityGranter;
         this.userService = userService;
         this.securityService = securityService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     protected void additionalAuthenticationChecks(UserDetails userDetails,
@@ -123,7 +126,7 @@ public class FileAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     }
 
     @Override public boolean supports(Class authentication) {
-        return isPasswordFileConfigured() && super.supports(authentication);
+        return systemEnvironment.inbuiltLdapPasswordAuthEnabled() && isPasswordFileConfigured() && super.supports(authentication);
     }
 
     private boolean isPasswordFileConfigured() {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.server.security.providers.LdapAuthenticationProvider;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.unboundid.ldif.LDIFRecord;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
@@ -72,6 +73,7 @@ public class LdapAuthenticationTest {
         configFileHelper = new GoConfigFileHelper();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
         configFileHelper.initializeConfigFile();
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
         configFileHelper.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);
 
         ldapServer = new InMemoryLdapServerForTests(BASE_DN, MANAGER_DN, MANAGER_PASSWORD).start(PORT);
@@ -83,6 +85,7 @@ public class LdapAuthenticationTest {
     @After
     public void tearDown() throws Exception {
         ldapServer.stop();
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
     }
 
     @Test

@@ -37,6 +37,7 @@
                     <label class="inline" for="server_configuration_form_allow_auto_login"><%= l.string("ALLOW_AUTO_LOGIN_MESSAGE") -%></label>
                 </div>
 
+                <% if @inbuilt_ldap_password_auth_enabled -%>
                 <div class="ldap_settings">
                     <h3><%= l.string("LDAP Settings") -%></h3>
 
@@ -93,8 +94,14 @@
                         <span id="password_file_path_error_message"></span>
                     </div>
                 </div>
+                  <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+
+              <% else -%>
+                  <div class="information">
+                    <span>Support for LDAP and Password file authentication in GoCD core has been removed in favour of the bundled <a href="https://github.com/gocd/gocd-ldap-authentication-plugin" target="_blank">LDAP</a> and <a href="https://github.com/gocd/filebased-authentication-plugin" target="_blank">Password File</a> plugins respectively. Your existing LDAP and Password file configurations have been moved to <a href="/go/admin/security/auth_configs">Authorization Configuration</a></span>
+                  </div>
+              <% end -%>
             </div>
-            <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
         </div>
     </div>
     <div id="mail_host">

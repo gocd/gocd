@@ -330,7 +330,6 @@ public class PipelineHistoryServiceIntegrationTest {
 
     @Test
     public void shouldNotLoadPipelinesThatTheUserDoesNotHavePermissionToSee() throws Exception {
-        configHelper.addSecurityWithAdminConfig();
         configHelper.setViewPermissionForGroup("group1", "foo");
 
         PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 1), "non-admin-user");

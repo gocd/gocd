@@ -18,10 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 
 import java.io.*;
 
@@ -41,7 +38,7 @@ public class ConfigMigrator {
                 }
                 throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
             }
-        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry
+        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry, new SystemEnvironment()
         );
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
         upgrader.upgradeIfNecessary(configFile, "N/A");

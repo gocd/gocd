@@ -116,7 +116,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         response = new MockHttpServletResponse();
-        configHelper.addSecurityWithPasswordFile();
+        configHelper.enableSecurity();
         configHelper.addAdmins("admin");
         originalSecurityContext = SecurityContextHolder.getContext();
         setCurrentUser("admin");

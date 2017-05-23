@@ -51,7 +51,6 @@ public class DevelopmentServer {
 
         copyActivatorJarToClassPath();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-
         systemEnvironment.setProperty(GENERATE_STATISTICS, "true");
 
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");

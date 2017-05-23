@@ -397,7 +397,7 @@ public class UserServiceIntegrationTest {
     public void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        configFileHelper.turnOnSecurity();
+        configFileHelper.enableSecurity();
         configFileHelper.addAdmins("Jake", "Pavan", "Yogi");
 
         userService.create(users("Jake", "Pavan", "Shilpa", "Yogi"), new HttpLocalizedOperationResult());
@@ -775,7 +775,7 @@ public class UserServiceIntegrationTest {
     }
 
     private void givingJezViewPermissionToMingle() throws Exception {
-        configFileHelper.turnOnSecurity();
+        configFileHelper.enableSecurity();
         configFileHelper.addPipeline("mingle", "dev");
         configFileHelper.setViewPermissionForGroup("defaultGroup", "jez");
         configFileHelper.addSecurityWithAdminConfig();

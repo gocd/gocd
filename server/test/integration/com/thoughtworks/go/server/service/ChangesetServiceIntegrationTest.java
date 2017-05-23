@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.thoughtworks.go.config.*;
@@ -268,10 +269,9 @@ public class ChangesetServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailWhenUserDoesNotHaveAccess() {
-        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("/tmp/foo.passwd"), true);
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("admin")));
-        configHelper.addSecurity(securityConfig);
+    public void shouldFailWhenUserDoesNotHaveAccess() throws IOException {
+        configHelper.enableSecurity();
+        configHelper.addAdmins("admin");
         CruiseConfig config = this.configHelper.getCachedGoConfig().loadForEditing();
         config.pipelines(BasicPipelineConfigs.DEFAULT_GROUP).setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("admin")))));
         configHelper.writeConfigFile(config);
@@ -591,7 +591,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldFilterOutMaterialRevisionsThatTheUserIsNotAuthorizedToView() throws Exception {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("Yogi");
 
         Username otherUser = new Username(new CaseInsensitiveString("otherUser"));

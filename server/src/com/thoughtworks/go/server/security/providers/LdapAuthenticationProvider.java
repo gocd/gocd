@@ -18,21 +18,24 @@ package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 
 public class LdapAuthenticationProvider extends org.springframework.security.providers.ldap.LdapAuthenticationProvider {
     private final GoConfigService goConfigService;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public LdapAuthenticationProvider(GoConfigService goConfigService, org.springframework.security.providers.ldap.LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
+    public LdapAuthenticationProvider(GoConfigService goConfigService, org.springframework.security.providers.ldap.LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator, SystemEnvironment systemEnvironment) {
         super(authenticator, authoritiesPopulator);
         this.goConfigService = goConfigService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public boolean supports(Class authentication) {
         SecurityConfig securityConfig = goConfigService.security();
-        if (!securityConfig.isSecurityEnabled() || !securityConfig.ldapConfig().isEnabled()) {
+        if (!securityConfig.isSecurityEnabled() || !securityConfig.ldapConfig().isEnabled() || !systemEnvironment.inbuiltLdapPasswordAuthEnabled()) {
             return false;
         }
         return super.supports(authentication);

@@ -198,7 +198,7 @@ describe "admin/server/index.html.erb" do
       Capybara.string(response.body).find('#user_management').tap do |div|
         expect(div).not_to have_selector(".ldap_settings")
         expect(div).not_to have_selector(".password_file_settings")
-        expect(div).to have_selector("div[class='information']", :text => "Support for inbuilt LDAP and Password file have been deprecated in favour of the bundled plugins for the same.")
+        expect(div).to have_selector("div[class='information']", :text => "Support for LDAP and Password file authentication in GoCD core has been disabled in favour of the bundled LDAP and Password File plugins respectively. Your existing LDAP and Password file configurations have been moved to Authorization Configuration")
       end
     end
   end

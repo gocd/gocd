@@ -90,7 +90,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
     @Test
     public void shouldReturnTheCorrectLocalizedMessageForNoPermission() throws IOException {
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
@@ -169,7 +169,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToUpdate_ForNewUpdateEnvironmentMethod() throws Exception {
         configHelper.addEnvironments("foo");
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -223,7 +223,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToDelete() throws IOException, NoSuchEnvironmentException {
         configHelper.addEnvironments("foo");
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.deleteEnvironment(service.getEnvironmentConfig("foo"), new Username(new CaseInsensitiveString("evil_hacker")), result);
@@ -260,7 +260,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToPatch() throws IOException, NoSuchEnvironmentException {
         configHelper.addEnvironments("foo");
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Username(new CaseInsensitiveString("evil_hacker")), result);

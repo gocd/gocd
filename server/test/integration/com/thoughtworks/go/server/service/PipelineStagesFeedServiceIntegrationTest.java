@@ -55,7 +55,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         configHelper.addPipeline("cruise", "stage", "unit", "functional");
-        configHelper.turnOnSecurity();
+        configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         configHelper.setViewPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "sindbad");
 

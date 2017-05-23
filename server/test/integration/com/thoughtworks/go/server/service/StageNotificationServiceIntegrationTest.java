@@ -106,7 +106,7 @@ public class StageNotificationServiceIntegrationTest {
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
-        configFileHelper.addSecurityWithAdminConfig();
+        configFileHelper.enableSecurity();
 
         inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
         stageNotificationService.setEmailNotificationTopic(inMemoryEmailNotificationTopic);

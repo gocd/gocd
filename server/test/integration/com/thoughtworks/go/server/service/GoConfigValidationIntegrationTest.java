@@ -69,7 +69,7 @@ public class GoConfigValidationIntegrationTest {
 
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
 
         dbHelper.onSetUp();
         saveAdminAndNonAdminGroups(transactionTemplate, userService);

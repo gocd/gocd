@@ -18,12 +18,17 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LdapConfigTest {
 
@@ -46,7 +51,7 @@ public class LdapConfigTest {
     }
 
     @Test
-    public void shouldConvertNullAttributesToEmptyStringUponConstruct(){
+    public void shouldConvertNullAttributesToEmptyStringUponConstruct() {
         LdapConfig ldapConfig = new LdapConfig(null, null, null, null, false, new BasesConfig(), null);
         assertThat(ldapConfig.uri(), is(""));
         assertThat(ldapConfig.searchFilter(), is(""));
@@ -55,7 +60,7 @@ public class LdapConfigTest {
     }
 
     @Test
-    public void shouldUpdateSearchBaseWithNewLdapConfig(){
+    public void shouldUpdateSearchBaseWithNewLdapConfig() {
         LdapConfig ldapConfig = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base")), "blah");
         LdapConfig newLdapConfig = new LdapConfig("uri", "managerDn", "password-2", null, false, new BasesConfig(new BaseConfig("new_base")), "blah");
 
@@ -69,5 +74,52 @@ public class LdapConfigTest {
         LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base1")), "blah");
         LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base2")), "blah");
         assertThat(ldapConfig1, is(not(ldapConfig2)));
+    }
+
+    @Test
+    public void shouldFailValidationIfInbuiltLDAPIsDisabledButConfigured() {
+        LdapConfig ldapConfig = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base1")), "blah");
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
+        ldapConfig.validate(validationContext);
+        assertThat(ldapConfig.errors().isEmpty(), is(false));
+        assertThat(ldapConfig.errors().asString(), is("'ldap' tag has been deprecated in favour of bundled LDAP plugin. Use that instead."));
+    }
+
+    @Test
+    public void shouldNotFailValidationIfInbuiltLDAPIsDisabledAndNotConfigured() {
+        LdapConfig ldapConfig = new LdapConfig(new GoCipher());
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
+        ldapConfig.validate(validationContext);
+        assertThat(ldapConfig.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldNotValidateOtherFieldsIfInbuiltLDAPIsDisabledAndButIncorrectlyConfigured() {
+        LdapConfig ldapConfig = new LdapConfig("uri", null, null, null, false, new BasesConfig(), "");
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
+        ldapConfig.validate(validationContext);
+        assertThat(ldapConfig.errors().isEmpty(), is(false));
+        assertThat(ldapConfig.errors().on("base"), is("'ldap' tag has been deprecated in favour of bundled LDAP plugin. Use that instead."));
+        assertThat(ldapConfig.errors().on("basesConfig"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNotFailValidationIfInbuiltLDAPIsEnabledAndConfigured() {
+        LdapConfig ldapConfig = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(), "blah");
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(true);
+        ldapConfig.validate(validationContext);
+        assertThat(ldapConfig.errors().on("base"), is(nullValue()));
     }
 }

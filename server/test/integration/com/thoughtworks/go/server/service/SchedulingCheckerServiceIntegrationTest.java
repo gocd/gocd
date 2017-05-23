@@ -93,7 +93,6 @@ public class SchedulingCheckerServiceIntegrationTest {
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         pipelineFixture.configStageAsManualApprovalWithApprovedUsers(pipelineFixture.ftStage, APPROVED_USER);
 
-        configFileHelper.addSecurityWithNonExistantPasswordFile();
         configFileHelper.addSecurityWithAdminConfig();
         dbHelper.onSetUp();
 

@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +41,10 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,25 +57,27 @@ import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
  */
 @Component
 public class GoConfigMigration {
-    private static final Logger LOG = Logger.getLogger(GoConfigMigration.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ConfigRepository.class.getName());
     private final String schemaVersion = "schemaVersion";
     private final UpgradeFailedHandler upgradeFailed;
     private final ConfigRepository configRepository;
     private final TimeProvider timeProvider;
+    private final SystemEnvironment systemEnvironment;
     private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
     public static final String UPGRADE = "Upgrade";
+    private static List<Integer> riskyMigrations = Arrays.asList(91, 92);
 
     @Autowired
-    public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
+    public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
         this(new UpgradeFailedHandler() {
             public void handle(Exception e) {
                 e.printStackTrace();
                 System.err.println(
                         "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
                                 + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
-                LOG.fatal(
+                LOG.error(
                         "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
                                 + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
                 // Send exit signal in a separate thread otherwise it will deadlock jetty
@@ -81,19 +88,20 @@ public class GoConfigMigration {
                 }).start();
 
             }
-        }, configRepository, timeProvider, configCache, registry);
+        }, configRepository, timeProvider, configCache, registry, systemEnvironment);
     }
 
     GoConfigMigration(UpgradeFailedHandler upgradeFailed, ConfigRepository configRepository, TimeProvider timeProvider,
-                      ConfigCache configCache, ConfigElementImplementationRegistry registry) {
+                      ConfigCache configCache, ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
         this.upgradeFailed = upgradeFailed;
         this.configRepository = configRepository;
         this.timeProvider = timeProvider;
         this.configCache = configCache;
         this.registry = registry;
+        this.systemEnvironment = systemEnvironment;
     }
 
-//  This method should be removed once upgrade is done using new com.thoughtworks.go.config.GoConfigMigrator#migrate()
+    //  This method should be removed once upgrade is done using new com.thoughtworks.go.config.GoConfigMigrator#migrate()
     @Deprecated
     public GoConfigMigrationResult upgradeIfNecessary(File configFile, final String currentGoServerVersion) {
         try {
@@ -164,7 +172,7 @@ public class GoConfigMigration {
         }
 
         String invalidConfigMessage = String.format("Go encountered an invalid configuration file while starting up. "
-                + "The invalid configuration file has been renamed to ‘%s’ and a new configuration file has been automatically created using the last good configuration. Cause: '%s'",
+                        + "The invalid configuration file has been renamed to ‘%s’ and a new configuration file has been automatically created using the last good configuration. Cause: '%s'",
                 backupFile.getAbsolutePath(), e.getMessage());
         return GoConfigMigrationResult.failedToUpgrade(invalidConfigMessage);
     }
@@ -219,11 +227,25 @@ public class GoConfigMigration {
 
         for (URL upgradeScript : upgradeScripts) {
             validate(content);
+            backupConfigForRiskyMigrations(content, upgradeScript);
             content = upgrade(content, upgradeScript);
         }
         validate(content);
         LOG.info("Finished upgrading config file");
         return content;
+    }
+
+    private void backupConfigForRiskyMigrations(String content, URL upgradeScript) {
+        for (int riskyMigration : riskyMigrations) {
+            File backup = new File(systemEnvironment.configDir(), String.format("go-config-before-migration-%s.xml", riskyMigration));
+            if (upgradeScript.getFile().endsWith(String.format("/%s.xsl", riskyMigration))) {
+                try {
+                    FileUtils.writeStringToFile(backup, content, Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    LOG.error("Could not backup file: {}, content", backup.getAbsolutePath());
+                }
+            }
+        }
     }
 
     private void validate(String content) {

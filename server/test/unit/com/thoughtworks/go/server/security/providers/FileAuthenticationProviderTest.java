@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
@@ -55,12 +56,14 @@ public class FileAuthenticationProviderTest {
 
     private static final String SHA1_BADGER = StringUtil.sha1Digest("badger".getBytes());
     private UserService userService;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setup() {
         securityService = mock(SecurityService.class);
         goConfigService = mock(GoConfigService.class);
         userService = mock(UserService.class);
+        systemEnvironment = mock(SystemEnvironment.class);
     }
 
     @Test
@@ -70,7 +73,7 @@ public class FileAuthenticationProviderTest {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("jez")))).thenReturn(true);
         when(userService.findUserByName("jez")).thenReturn(new com.thoughtworks.go.domain.User("jez", "Jezz Humbles", "jez@humble.com"));
 
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         final UserDetails details = provider.retrieveUser("jez", null);
         assertThat(details.getAuthorities()[0].getAuthority(), is("ROLE_SUPERVISOR"));
         assertThat(details.isAccountNonExpired(), is(true));
@@ -85,7 +88,7 @@ public class FileAuthenticationProviderTest {
     public void shouldThrowExceptionIfUsernameIsNotSpecifiedInFile() throws Exception {
         setupFile("jez=" + SHA1_BADGER);
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         provider.retrieveUser("blah", null);
     }
 
@@ -94,14 +97,14 @@ public class FileAuthenticationProviderTest {
         when(goConfigService.security()).thenReturn(new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("ueyrweiyri"), true, null));
 
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         provider.retrieveUser("blah", null);
     }
 
     @Test(expected = BadCredentialsException.class)
     public void shouldNotUserWithoutValidPassword() throws Exception {
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         UserDetails user = new User("jez", "something", true, true, true, true, new GrantedAuthority[0]);
         provider.additionalAuthenticationChecks(user, new UsernamePasswordAuthenticationToken("jez", "nothing"));
     }
@@ -109,7 +112,7 @@ public class FileAuthenticationProviderTest {
     @Test
     public void shouldAuthenticateUserWithValidPassword() throws Exception {
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         UserDetails user = new User("jez", SHA1_BADGER, true, true, true, true, new GrantedAuthority[0]);
         provider.additionalAuthenticationChecks(user, new UsernamePasswordAuthenticationToken("jez", "badger"));
     }
@@ -121,7 +124,7 @@ public class FileAuthenticationProviderTest {
         when(userService.findUserByName("jez")).thenReturn(new com.thoughtworks.go.domain.User("jez", "Jezz Humbles", "jez@humble.com"));
 
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         final GoUserPrinciple details = (GoUserPrinciple) provider.retrieveUser("jez", null);
         assertThat(details.getUsername(), is("jez"));
         assertThat(details.getDisplayName(), is("Jezz Humbles"));
@@ -136,7 +139,7 @@ public class FileAuthenticationProviderTest {
         when(userService.findUserByName("jez")).thenReturn(new com.thoughtworks.go.domain.User("jez", "Jezz Humbles", "jez@humble.com"));
         when(userService.findUserByName("charan")).thenReturn(new com.thoughtworks.go.domain.User("charan", "", "ch@ar.an"));
 
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, new AuthorityGranter(securityService), userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, new AuthorityGranter(securityService), userService, securityService, systemEnvironment);
         GoUserPrinciple details = (GoUserPrinciple) provider.retrieveUser("jez", null);
 
         assertThat(details.getUsername(), is("jez"));
@@ -160,7 +163,7 @@ public class FileAuthenticationProviderTest {
         when(userService.findUserByName("cread")).thenReturn(new com.thoughtworks.go.domain.User("cread", "Chriss Readds", "cread@humble.com"));
 
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
         final UserDetails details = provider.retrieveUser("cread", null);
         assertThat(details.getAuthorities()[0].getAuthority(), is("ROLE_SUPERVISOR"));
         assertThat(details.isAccountNonExpired(), is(true));
@@ -169,6 +172,13 @@ public class FileAuthenticationProviderTest {
         assertThat(details.isEnabled(), is(true));
         assertThat(details.getUsername(), is("cread"));
         assertThat(details.getPassword(), is("OPhRtj5TCERacn3mvwItERz8uCk="));
+    }
+
+    @Test
+    public void shouldNotEngageWhenPasswordFileAutheticationIsTurnedOff() throws Exception {
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, null, userService, securityService, systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
+        assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
     }
 
     private void setupFile(String userAndPasswordAndRoles) throws IOException {
@@ -182,7 +192,7 @@ public class FileAuthenticationProviderTest {
 
     @Test
     public void shouldNotEngageWhenPasswordFileIsNotConfigured() throws Exception {
-        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, null, userService, securityService);
+        FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, null, userService, securityService, systemEnvironment);
         when(goConfigService.security()).thenReturn(new SecurityConfig(null, new PasswordFileConfig(), true));
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
     }

@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -129,6 +130,10 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
 
     public void validate(ValidationContext validationContext) {
         if (isEnabled()) {
+            if (!validationContext.systemEnvironment().inbuiltLdapPasswordAuthEnabled()) {
+                errors.add("base", "'ldap' tag has been deprecated in favour of bundled LDAP plugin. Use that instead.");
+                return;
+            }
             basesConfig.validateBases();
             for (BaseConfig baseConfig : basesConfig) {
                 baseConfig.validateBase();
@@ -154,9 +159,9 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
             this.encryptedManagerPassword = newLdapConfig.encryptedManagerPassword;
         }
         this.uri = newLdapConfig.uri;
-        this.managerDn =  newLdapConfig.managerDn;
+        this.managerDn = newLdapConfig.managerDn;
         this.basesConfig = newLdapConfig.getBasesConfig();
-        this.searchFilter =  newLdapConfig.searchFilter;
+        this.searchFilter = newLdapConfig.searchFilter;
     }
 
     private void resetPassword(String password) {

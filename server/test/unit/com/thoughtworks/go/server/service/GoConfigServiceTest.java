@@ -122,7 +122,7 @@ public class GoConfigServiceTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
-                registry), goCache, configRepo, registry,
+                registry, systemEnvironment), goCache, configRepo, registry,
                 instanceFactory, mock(CachedGoPartials.class), systemEnvironment);
     }
 

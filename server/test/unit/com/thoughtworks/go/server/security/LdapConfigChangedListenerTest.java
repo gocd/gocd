@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.PasswordFileConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,12 +42,13 @@ public class LdapConfigChangedListenerTest {
     public void setUp() throws IOException {
         helper = new GoConfigFileHelper();
         helper.onSetUp();
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
     }
 
     @After
     public void tearDown() {
-
         helper.onTearDown();
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
     }
 
     @Test

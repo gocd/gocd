@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.unboundid.ldif.LDIFRecord;
 import org.junit.After;
 import org.junit.Before;
@@ -60,6 +61,7 @@ public class LdapUserSearchIntegrationTest  {
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
         CONFIG_HELPER.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);
 
         ldapServer = new InMemoryLdapServerForTests(BASE_DN, MANAGER_DN, MANAGER_PASSWORD).start(PORT);
@@ -70,6 +72,7 @@ public class LdapUserSearchIntegrationTest  {
 
     @After
     public void tearDown() throws Exception {
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
         ldapServer.stop();
     }
 

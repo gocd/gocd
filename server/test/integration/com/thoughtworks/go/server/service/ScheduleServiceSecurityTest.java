@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +78,8 @@ public class ScheduleServiceSecurityTest {
 
     @Test
     public void shouldReturnAppropriateHttpResultIfUserDoesNotHaveOperatePermission() throws Exception {
-        configHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
+        configHelper.addAdmins("admin");
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Username anonymous = new Username(new CaseInsensitiveString("anonymous"));
@@ -91,7 +93,7 @@ public class ScheduleServiceSecurityTest {
 
     @Test
     public void shouldReturnAppropriateHttpResultIfTheStageIsInvalid() throws Exception {
-        configHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
         Username jez = new Username(new CaseInsensitiveString("jez"));
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
@@ -104,7 +106,7 @@ public class ScheduleServiceSecurityTest {
 
     @Test
     public void shouldReturnAppropriateHttpResultIfThePipelineAndStageNameAreInvalid() throws Exception {
-        configHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
         Username jez = new Username(new CaseInsensitiveString("jez"));
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
@@ -117,7 +119,7 @@ public class ScheduleServiceSecurityTest {
 
     @Test
     public void shouldNotThrowExceptionIfUserHasOperatePermission() throws Exception {
-        configHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
         Username user = UserHelper.getUserName();
         configHelper.setOperatePermissionForGroup("defaultGroup", user.getUsername().toString());
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
@@ -138,7 +140,7 @@ public class ScheduleServiceSecurityTest {
 
     @Test
     public void shouldCancelStageGivenValidPipelineAndStageName() throws Exception {
-        configHelper.addSecurityWithAdminConfig();
+        configHelper.enableSecurity();
         Username user = UserHelper.getUserName();
         configHelper.setOperatePermissionForGroup("defaultGroup", user.getUsername().toString());
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();

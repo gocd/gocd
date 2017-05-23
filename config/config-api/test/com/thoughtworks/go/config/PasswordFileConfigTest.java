@@ -16,10 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PasswordFileConfigTest {
     @Test
@@ -39,5 +43,39 @@ public class PasswordFileConfigTest {
     public void shouldReturnTrueIfPasswordFileIsConfigured() {
         PasswordFileConfig config = new PasswordFileConfig("boo");
         assertThat(config.isEnabled(), is(true));
+    }
+
+    @Test
+    public void shouldFailValidationIfInbuiltPasswordFileAuthIsDisabledButConfigured() {
+        PasswordFileConfig config = new PasswordFileConfig("boo");
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
+        config.validate(validationContext);
+        assertThat(config.errors().isEmpty(), is(false));
+        assertThat(config.errors().asString(), is("'passwordFile' tag has been deprecated in favour of bundled PasswordFile plugin. Use that instead."));
+    }
+
+    @Test
+    public void shouldNotFailValidationIfInbuiltPasswordFileAuthIsDisabledAndNotConfigured() {
+        PasswordFileConfig config = new PasswordFileConfig();
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
+        config.validate(validationContext);
+        assertThat(config.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldNotFailValidationIfInbuiltPasswordFileAuthIsEnabledAndConfigured() {
+        PasswordFileConfig config = new PasswordFileConfig("boo");
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(true);
+        config.validate(validationContext);
+        assertThat(config.errors().on("base"), is(nullValue()));
     }
 }

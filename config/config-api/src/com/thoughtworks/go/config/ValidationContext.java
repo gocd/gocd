@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.util.SystemEnvironment;
 
 public interface ValidationContext {
     ConfigReposConfig getConfigRepos();
@@ -61,5 +62,9 @@ public interface ValidationContext {
     boolean isValidProfileId(String profileId);
 
     boolean shouldNotCheckRole();
+
+    default SystemEnvironment systemEnvironment() {
+        return new SystemEnvironment();
+    }
 }
 

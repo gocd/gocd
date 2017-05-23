@@ -38,6 +38,7 @@ public class ConsoleOutView implements View {
     }
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setContentType(getContentType());
         response.addHeader("X-JSON", "[" + getOffset() + "]");
         response.setContentType(getContentType());
         try (PrintWriter writer = response.getWriter()) {

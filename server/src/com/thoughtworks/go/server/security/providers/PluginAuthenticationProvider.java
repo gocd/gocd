@@ -43,6 +43,7 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import java.util.List;
 import java.util.Set;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
@@ -89,7 +90,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         }
 
         userService.addUserIfDoesNotExist(toDomainUser(user));
-        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user);
+        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication));
         return goUserPrinciple;
     }
 
@@ -104,37 +105,53 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     private User getUserDetailsFromAuthenticationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
         Set<String> plugins = authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication();
         for (String pluginId : plugins) {
-            String password = (String) authentication.getCredentials();
-            User user = ensureDisplayNamePresent(authenticationExtension.authenticateUser(pluginId, username, password));
-            if (user != null) {
-                return user;
+            try {
+                LOGGER.debug("[Authenticate] Authenticating user: `{}` using the authentication plugin: `{}`", username, pluginId);
+                String password = (String) authentication.getCredentials();
+                User user = ensureDisplayNamePresent(authenticationExtension.authenticateUser(pluginId, username, password));
+                if (user != null) {
+                    LOGGER.debug("[Authenticate] Successfully authenticated user: `{}` using the authentication plugin: `{}`", username, pluginId);
+                    return user;
+                }
+            } catch (Exception e) {
+                LOGGER.error("[Authenticate] Error while authenticating user: `{}` using the authorization plugin: {} ", username, pluginId);
             }
         }
         return null;
     }
 
     private User getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
-        Set<AuthorizationPluginInfo> plugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
-        for (AuthorizationPluginInfo pluginInfo : plugins) {
+        Set<AuthorizationPluginInfo> authorizationPlugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
+        String loginName = loginName(username, authentication);
+        for (AuthorizationPluginInfo pluginInfo : authorizationPlugins) {
+            String pluginId = pluginInfo.getDescriptor().id();
             String password = (String) authentication.getCredentials();
-            List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginInfo.getDescriptor().id());
-            final List<PluginRoleConfig> roleConfigs = configService.security().getPluginRoles(pluginInfo.getDescriptor().id());
+            List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginId);
+            final List<PluginRoleConfig> roleConfigs = configService.security().getPluginRoles(pluginId);
 
-            if (authConfigs == null || authConfigs.isEmpty())
+            if (authConfigs == null || authConfigs.isEmpty()) {
                 continue;
-
-            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginInfo.getDescriptor().id(), username, password, authConfigs, roleConfigs);
-            User user = ensureDisplayNamePresent(response.getUser());
-            if (user != null) {
-                pluginRoleService.updatePluginRoles(pluginInfo.getDescriptor().id(), username, CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
-                return user;
             }
+
+            try {
+                LOGGER.debug("[Authenticate] Authenticating user: `{}` using the authorization plugin: `{}`", loginName, pluginId);
+                AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, loginName, password, authConfigs, roleConfigs);
+                User user = ensureDisplayNamePresent(response.getUser());
+                if (user != null) {
+                    pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
+                    LOGGER.debug("[Authenticate] Successfully authenticated user: `{}` using the authorization plugin: `{}`", loginName, pluginId);
+                    return user;
+                }
+            } catch (Exception e) {
+                LOGGER.error("[Authenticate] Error while authenticating user: `{}` using the authorization plugin: {} ", loginName, pluginId);
+            }
+            LOGGER.debug("[Authenticate] Authentication failed for user: `{}` using the authorization plugin: `{}`", loginName, pluginId);
         }
         return null;
     }
 
-    private GoUserPrinciple getGoUserPrinciple(User user) {
-        return new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "", true, true, true, true, authorityGranter.authorities(user.getUsername()));
+    private GoUserPrinciple getGoUserPrinciple(User user, String loginName) {
+        return new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "", true, true, true, true, authorityGranter.authorities(user.getUsername()), loginName);
     }
 
     @Override
@@ -160,5 +177,16 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         }
 
         return new User(user.getUsername(), user.getUsername(), user.getEmailId());
+    }
+
+    private String loginName(String username, UsernamePasswordAuthenticationToken authenticationToken) {
+        Object principal = authenticationToken.getPrincipal();
+
+        if (!(principal instanceof GoUserPrinciple)) {
+            return username;
+        }
+
+        String loginName = ((GoUserPrinciple) principal).getLoginName();
+        return isNotBlank(loginName) ? loginName : username;
     }
 }

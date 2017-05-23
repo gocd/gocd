@@ -30,14 +30,13 @@ public class GoUserPrinciple extends User {
     public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
                            GrantedAuthority[] authorities)
             throws IllegalArgumentException {
-        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-        this.displayName = displayName;
+        this(username, displayName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities, username);
     }
 
     public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
                            GrantedAuthority[] authorities, String loginName) {
-        this(username, displayName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-
+        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+        this.displayName = displayName;
         this.loginName = loginName;
     }
 

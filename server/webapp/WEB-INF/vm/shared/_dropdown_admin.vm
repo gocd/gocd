@@ -42,7 +42,6 @@
 <li role="presentation">
     <a href="$req.getContextPath()/admin/package_repositories/new">$l.localize("PACKAGE_REPOSITORY_TAB")</a>
 </li>
-#if($auth_and_role_config_spa_toggle_key)
 <li role="presentation" class="sub-menu">
   <a href="#">Security</a>
   <ul class="dropdown menu" data-dropdown-menu>
@@ -54,4 +53,3 @@
     </li>
   </ul>
 </li>
-#end

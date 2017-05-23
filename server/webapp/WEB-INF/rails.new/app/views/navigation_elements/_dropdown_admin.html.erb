@@ -28,16 +28,14 @@
 <li role="presentation">
   <%= link_to "Package Repositories", package_repositories_new_path -%>
 </li>
-<% if is_auth_and_role_config_spa_enabled? %>
-    <li class="opens-right" role="presentation">
-      <a href="#">Security</a>
-      <ul class="menu">
-        <li role="presentation">
-          <%= link_to "Authorization Configuration", admin_security_auth_configs_path -%>
-        </li>
-        <li role="presentation">
-          <%= link_to "Role Configuration", admin_security_roles_path -%>
-        </li>
-      </ul>
+<li class="opens-right" role="presentation">
+  <a href="#">Security</a>
+  <ul class="menu">
+    <li role="presentation">
+      <%= link_to "Authorization Configuration", admin_security_auth_configs_path -%>
     </li>
-<% end %>
+    <li role="presentation">
+      <%= link_to "Role Configuration", admin_security_roles_path -%>
+    </li>
+  </ul>
+</li>

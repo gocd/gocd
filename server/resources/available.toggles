@@ -13,8 +13,8 @@
       },
       {
          "key": "pipeline_config_spa_on_new_mithril_toggle_key",
-         "description": "Enables the new pipeline config single page application on mithril 1.0. Default: disabled.",
-         "value": false
-      }
-   ]
+        "description": "Enables the new pipeline config single page application on mithril 1.0. Default: enabled.",
+         "value": true
+      } 
+  ]
 }

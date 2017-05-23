@@ -51,7 +51,7 @@ public class PasswordFileConfigTest {
         ValidationContext validationContext = mock(ValidationContext.class);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
-        when(systemEnvironment.get(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED)).thenReturn(false);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
         config.validate(validationContext);
         assertThat(config.errors().isEmpty(), is(false));
         assertThat(config.errors().asString(), is("'passwordFile' tag has been deprecated in favour of bundled PasswordFile plugin. Use that instead."));
@@ -63,7 +63,7 @@ public class PasswordFileConfigTest {
         ValidationContext validationContext = mock(ValidationContext.class);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
-        when(systemEnvironment.get(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED)).thenReturn(false);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(false);
         config.validate(validationContext);
         assertThat(config.errors().isEmpty(), is(true));
     }
@@ -74,7 +74,7 @@ public class PasswordFileConfigTest {
         ValidationContext validationContext = mock(ValidationContext.class);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(validationContext.systemEnvironment()).thenReturn(systemEnvironment);
-        when(systemEnvironment.get(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED)).thenReturn(true);
+        when(systemEnvironment.inbuiltLdapPasswordAuthEnabled()).thenReturn(true);
         config.validate(validationContext);
         assertThat(config.errors().on("base"), is(nullValue()));
     }

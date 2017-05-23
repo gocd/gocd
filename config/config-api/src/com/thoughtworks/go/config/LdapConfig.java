@@ -130,8 +130,9 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
 
     public void validate(ValidationContext validationContext) {
         if (isEnabled()) {
-            if (!validationContext.systemEnvironment().get(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED)) {
+            if (!validationContext.systemEnvironment().inbuiltLdapPasswordAuthEnabled()) {
                 errors.add("base", "'ldap' tag has been deprecated in favour of bundled LDAP plugin. Use that instead.");
+                return;
             }
             basesConfig.validateBases();
             for (BaseConfig baseConfig : basesConfig) {

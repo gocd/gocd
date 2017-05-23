@@ -39,7 +39,7 @@ public class PasswordFileConfig implements Validatable {
     }
 
     public void validate(ValidationContext validationContext) {
-        if (isEnabled() && !validationContext.systemEnvironment().get(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED)) {
+        if (isEnabled() && !validationContext.systemEnvironment().inbuiltLdapPasswordAuthEnabled()) {
             configErrors.add("base", "'passwordFile' tag has been deprecated in favour of bundled PasswordFile plugin. Use that instead.");
         }
     }

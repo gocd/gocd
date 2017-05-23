@@ -40,6 +40,7 @@ import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.TestUtils.isEquivalentPathName;
 import static com.thoughtworks.go.util.TestUtils.isSameAsPath;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -80,6 +81,24 @@ public class FileUtilTest {
         assertThat(actual, is(content));
         input.close();
         targetFile.delete();
+    }
+
+    @Test
+    public void shouldWriteContentToFileWithCharset() throws IOException {
+        String content = "content";
+        File targetFile = temporaryFolder.newFile("test1.txt");
+        FileInputStream input = new FileInputStream(targetFile);
+
+        try {
+            FileUtil.writeContentToFile(content, targetFile, UTF_8);
+
+            assertThat(IOUtils.toString(input), is(content));
+        } finally {
+            input.close();
+            targetFile.delete();
+        }
+
+
     }
 
     @Test

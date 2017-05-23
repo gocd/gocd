@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,6 +97,16 @@ public class FileUtil {
         try {
             outputStream = new FileOutputStream(file);
             IOUtils.write(content, outputStream);
+        } finally {
+            IOUtils.closeQuietly(outputStream);
+        }
+    }
+
+    public static void writeContentToFile(String content, File file, Charset charset) throws IOException {
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+            IOUtils.write(content, outputStream, charset);
         } finally {
             IOUtils.closeQuietly(outputStream);
         }

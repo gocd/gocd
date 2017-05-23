@@ -22,6 +22,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class GoConfigFileReader {
     private final SystemEnvironment systemEnvironment;
 
@@ -30,7 +32,7 @@ public class GoConfigFileReader {
     }
 
     public String configXml() throws IOException {
-        return FileUtils.readFileToString(fileLocation());
+        return FileUtils.readFileToString(fileLocation(), UTF_8);
     }
 
     public File fileLocation() {

@@ -128,6 +128,7 @@ public class PluginAuthenticationProviderTest {
         assertThat(goUserPrincipal.getDisplayName(), is("display-name"));
         assertThat(goUserPrincipal.getAuthorities().length, is(1));
         assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+        assertTrue(goUserPrincipal.authenticatedUsingAuthorizationPlugin());
     }
 
     @Test
@@ -147,6 +148,7 @@ public class PluginAuthenticationProviderTest {
         assertThat(goUserPrincipal.getDisplayName(), is("username"));
         assertThat(goUserPrincipal.getAuthorities().length, is(1));
         assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
+        assertFalse(goUserPrincipal.authenticatedUsingAuthorizationPlugin());
     }
 
     @Test
@@ -329,7 +331,7 @@ public class PluginAuthenticationProviderTest {
                         Arrays.asList("blackbird", "admins")
                 )
         );
-        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, "foo@bar.com");
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, "foo@bar.com", true);
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 
@@ -373,7 +375,7 @@ public class PluginAuthenticationProviderTest {
                         Arrays.asList("blackbird", "admins")
                 )
         );
-        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, null);
+        GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[]{}, null, true);
 
         UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(principal, "password"));
 

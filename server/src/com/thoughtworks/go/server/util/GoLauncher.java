@@ -24,6 +24,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
+import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
+
 public final class GoLauncher {
 
     public static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "log4j.properties";
@@ -32,6 +34,7 @@ public final class GoLauncher {
     }
 
     public static void main(String[] args) throws Exception {
+        assertVMVersion();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
 

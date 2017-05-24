@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.security;
 
 
+import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTimeUtils;
@@ -92,9 +93,35 @@ public class ReAuthenticationFilterTest {
     }
 
     @Test
+    public void shouldContinueWithChainAndReturnForAuthenticationUsingAPluginOtherThanAuthorization() throws IOException, ServletException {
+        when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+        setupAuthentication(false);
+
+        when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+        filter.doFilterHttp(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verifyNoMoreInteractions(filterChain);
+    }
+
+    @Test
+    public void shouldContinueWithChainAndReturnIfAuthenticationDoesNotHavePrincipalDefined() throws IOException, ServletException {
+        Authentication authentication = new TestingAuthenticationToken(null, null, new GrantedAuthority[]{});
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        authentication.setAuthenticated(true);
+
+        when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+        when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+        filter.doFilterHttp(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verifyNoMoreInteractions(filterChain);
+    }
+
+    @Test
     public void shouldContinueWithChainAndReturnForAuthenticatedSessionWithoutLastAuthenticationTimeStamp() throws IOException, ServletException {
         long currentTimeMillis = DateTimeUtils.currentTimeMillis();
-        Authentication authentication = setupAuthentication();
+        Authentication authentication = setupAuthentication(true);
 
         when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
         when(timeProvider.currentTimeMillis()).thenReturn(currentTimeMillis);
@@ -111,7 +138,7 @@ public class ReAuthenticationFilterTest {
     public void shouldReAuthenticateIfReAuthTimeIntervalHasElapsed() throws IOException, ServletException {
         long currentTimeMillis = DateTimeUtils.currentTimeMillis();
         long minuteBack = DateTimeUtils.currentTimeMillis() - 60000;
-        Authentication authentication = setupAuthentication();
+        Authentication authentication = setupAuthentication(true);
 
         when(timeProvider.currentTimeMillis()).thenReturn(currentTimeMillis);
         when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
@@ -126,9 +153,10 @@ public class ReAuthenticationFilterTest {
         assertFalse(authentication.isAuthenticated());
     }
 
-    private Authentication setupAuthentication() {
+    private Authentication setupAuthentication(boolean authenticatedUsingAuthorizationPlugin) {
         GrantedAuthority[] authorities = {};
-        Authentication authentication = new TestingAuthenticationToken(new User("user", "password", true, true,true, true, authorities), null, authorities);
+        Authentication authentication = new TestingAuthenticationToken(new GoUserPrinciple("user", "displayName", "password",
+                true, true,true, true, authorities, "loginName", authenticatedUsingAuthorizationPlugin), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         authentication.setAuthenticated(true);
 

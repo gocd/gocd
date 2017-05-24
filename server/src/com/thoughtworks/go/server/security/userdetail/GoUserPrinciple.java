@@ -26,18 +26,21 @@ public class GoUserPrinciple extends User {
 
     private final String displayName;
     private String loginName;
+    private boolean authenticatedUsingAuthorizationPlugin;
 
     public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
                            GrantedAuthority[] authorities)
             throws IllegalArgumentException {
-        this(username, displayName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities, username);
+        this(username, displayName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities, username, false);
     }
 
-    public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
-                           GrantedAuthority[] authorities, String loginName) {
+    public GoUserPrinciple(String username, String displayName, String password, boolean enabled, boolean accountNonExpired,
+                           boolean credentialsNonExpired, boolean accountNonLocked, GrantedAuthority[] authorities,
+                           String loginName, boolean authenticatedUsingAuthorizationPlugin) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         this.displayName = displayName;
         this.loginName = loginName;
+        this.authenticatedUsingAuthorizationPlugin = authenticatedUsingAuthorizationPlugin;
     }
 
     public String getLoginName() {
@@ -46,5 +49,9 @@ public class GoUserPrinciple extends User {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public boolean authenticatedUsingAuthorizationPlugin() {
+        return authenticatedUsingAuthorizationPlugin;
     }
 }

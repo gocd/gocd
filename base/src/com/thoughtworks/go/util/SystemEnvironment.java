@@ -206,7 +206,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Boolean> OPTIMIZE_FULL_CONFIG_SAVE = new GoBooleanSystemProperty("optimize.full.config.save", true);
     public static GoSystemProperty<String> GO_SERVER_MODE = new GoStringSystemProperty("go.server.mode", "production");
-    public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", false);
+    public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> INBUILT_LDAP_PASSWORD_AUTH_ENABLED = new GoBooleanSystemProperty("go.security.inbuilt.auth.enabled", false);
 

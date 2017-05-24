@@ -402,11 +402,13 @@ describe("ElasticProfilesWidget", () => {
         responseText:    JSON.stringify(profileJSON),
         status:          200,
         responseHeaders: {
-          'ETag': '"foo"'
+          'ETag': '"foo"',
+          'Content-Type': 'application/json'
         }
       });
 
       simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+      m.redraw();
 
       const profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
       $(profileId).val("foo-clone");

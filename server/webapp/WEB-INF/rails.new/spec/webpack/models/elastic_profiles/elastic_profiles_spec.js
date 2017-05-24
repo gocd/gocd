@@ -369,4 +369,49 @@ describe('Elastic Agent Profile', () => {
       });
     });
   });
+
+  describe('Validate elastic profile id', () => {
+    let elasticProfile;
+    beforeEach(() => {
+      elasticProfile =  ElasticProfiles.Profile.fromJSON(profileJSON);
+    });
+
+    it('should return empty object on valid elastic profile id', () => {
+      elasticProfile.id("foo.bar-baz_bar");
+
+      const result = elasticProfile.validate();
+
+      expect(result._isEmpty()).toEqual(true);
+    });
+
+    it('should return error if elastic profile id contains `!`', () => {
+      elasticProfile.id("foo!bar");
+
+      const result = elasticProfile.validate();
+
+      expect(result._isEmpty()).toEqual(false);
+      expect(result.errors().id[0]).toContain('Invalid id.');
+
+    });
+
+    it('should return error if elastic profile id contains `*`', () => {
+      elasticProfile.id("foo*bar");
+
+      const result = elasticProfile.validate();
+
+      expect(result._isEmpty()).toEqual(false);
+      expect(result.errors().id[0]).toContain('Invalid id.');
+
+    });
+
+    it('should return error if elastic profile id starts with `.`', () => {
+      elasticProfile.id(".foo");
+
+      const result = elasticProfile.validate();
+
+      expect(result._isEmpty()).toEqual(false);
+      expect(result.errors().id[0]).toContain('Invalid id.');
+
+    });
+  });
 });

@@ -49,6 +49,10 @@ public class ConsoleLogSender {
     @Autowired
     private JobDetailService jobDetailService;
 
+    private static boolean isIdledTooLong(Instant startTime, long threshold) {
+        return Duration.between(startTime, Instant.now()).toMillis() >= threshold;
+    }
+
     @Autowired
     ConsoleLogSender(ConsoleService consoleService, JobDetailService jobDetailService) {
         this.consoleService = consoleService;
@@ -62,8 +66,10 @@ public class ConsoleLogSender {
         boolean isRunningBuild = !detectCompleted(jobIdentifier);
 
         // Sometimes the log file may not have been created yet; leave it up to the client to handle reconnect logic.
-        if (!consoleService.consoleLogFile(jobIdentifier).exists()) {
-            webSocket.close(new CloseReason(ConsoleLogEndpoint.LOG_DOES_NOT_EXIST, String.format("Console log file does not yet exist for {}", jobIdentifier)));
+        try {
+            waitForLogToExist(webSocket, jobIdentifier);
+        } catch (TooManyRetriesException e) {
+            webSocket.close(new CloseReason(ConsoleLogEndpoint.LOG_DOES_NOT_EXIST, e.getMessage()));
             return;
         }
 
@@ -88,7 +94,7 @@ public class ConsoleLogSender {
                         t1 = Instant.now(); // reset timer after ping()
                     }
                 }
-            } while (!detectCompleted(jobIdentifier));
+            } while (webSocket.isOpen() && !detectCompleted(jobIdentifier));
 
             // empty the tail end of the file because the build could have been marked completed, and exited the
             // loop before we've seen the last content update
@@ -98,6 +104,22 @@ public class ConsoleLogSender {
         }
 
         webSocket.close();
+    }
+
+    private void waitForLogToExist(ConsoleLogEndpoint websocket, JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, TooManyRetriesException {
+        for (int retries = 20; retries > 0; --retries) {
+            if (!websocket.isOpen() || consoleService.consoleLogFile(jobIdentifier).exists()) {
+                return;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+                LOGGER.warn("Couldn't sleep while testing console log existence", ignored);
+            }
+        }
+
+        throw new TooManyRetriesException(String.format("Console log file does not yet exist for %s", jobIdentifier));
     }
 
     private boolean detectCompleted(JobIdentifier jobIdentifier) throws Exception {
@@ -134,4 +156,9 @@ public class ConsoleLogSender {
         buffer.clear();
     }
 
+    class TooManyRetriesException extends Exception {
+        TooManyRetriesException(String message) {
+            super(message);
+        }
+    }
 }

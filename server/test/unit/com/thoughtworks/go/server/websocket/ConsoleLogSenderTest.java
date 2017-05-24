@@ -45,6 +45,7 @@ public class ConsoleLogSenderTest {
         consoleService = mock(ConsoleService.class);
         JobDetailService jobDetailService = mock(JobDetailService.class);
         socket = mock(ConsoleLogEndpoint.class);
+        when(socket.isOpen()).thenReturn(true);
         consoleLogSender = new ConsoleLogSender(consoleService, jobDetailService);
         jobIdentifier = mock(JobIdentifier.class);
         jobInstance = mock(JobInstance.class);

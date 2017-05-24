@@ -52,17 +52,30 @@ public class ConsoleLogEndpoint {
         ConsoleLogSender sender = (ConsoleLogSender) config.getUserProperties().get("sender");
         JobIdentifier jobIdentifier = getJobIdentifier(config, pipelineName, pipelineLabel, stageName, stageCounter, jobName);
 
-        LOGGER.debug("{} sending logs for {} starting at line {}", this, jobIdentifier, start);
-        sender.process(this, jobIdentifier, start);
+        LOGGER.debug("{} sending logs for {} starting at line {}.", this, jobIdentifier, start);
+        try {
+            sender.process(this, jobIdentifier, start);
+        } catch (IOException e) {
+            if ("Connection output is closed".equals(e.getMessage())) {
+                LOGGER.debug("{} client (likely, browser) closed connection prematurely.", jobIdentifier);
+                close(); // for good measure
+            } else {
+                throw e;
+            }
+        }
     }
 
     public void send(String msg) throws IOException {
-        LOGGER.debug("{} send message: {}", this, msg);
+        LOGGER.debug("{} send message: {}.", this, msg);
         session.getBasicRemote().sendText(msg);
     }
 
     public void ping() throws IOException {
         session.getBasicRemote().sendPing(ByteBuffer.wrap(PING));
+    }
+
+    public boolean isOpen() {
+        return session.isOpen();
     }
 
     public void close() {

@@ -45,7 +45,7 @@ public class ConsoleStreamerTest {
             }
         });
         assertArrayEquals(expected, actual.toArray());
-        assertEquals(3L, console.processedLineCount());
+        assertEquals(3L, console.totalLinesConsumed());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ConsoleStreamerTest {
             }
         });
         assertArrayEquals(new String[]{"third", "fourth"}, actual.toArray());
-        assertEquals(2L, console.processedLineCount());
+        assertEquals(2L, console.totalLinesConsumed());
 
     }
 
@@ -81,7 +81,7 @@ public class ConsoleStreamerTest {
             }
         });
         assertArrayEquals(expected, actual.toArray());
-        assertEquals(3L, console.processedLineCount());
+        assertEquals(3L, console.totalLinesConsumed());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ConsoleStreamerTest {
             }
         });
         assertTrue(actual.isEmpty());
-        assertEquals(0L, console.processedLineCount());
+        assertEquals(0L, console.totalLinesConsumed());
     }
 
     private File makeConsoleFile(String... message) throws IOException {

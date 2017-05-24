@@ -129,13 +129,13 @@ public class ConsoleLogSenderTest {
         }
 
         @Override
-        public void stream(Consumer<String> action) throws IOException {
+        public long stream(Consumer<String> action) throws IOException {
             action.accept(mockedLines[count]);
-            count++;
+            return ++count;
         }
 
         @Override
-        public long processedLineCount() {
+        public long totalLinesConsumed() {
             return (long) count;
         }
 

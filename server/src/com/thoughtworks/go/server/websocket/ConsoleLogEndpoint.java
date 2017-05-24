@@ -24,6 +24,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 @ServerEndpoint(
         value = "/client-websocket/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}",
@@ -33,6 +34,7 @@ public class ConsoleLogEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogEndpoint.class);
 
     static final CloseReason.CloseCode LOG_DOES_NOT_EXIST = CloseReason.CloseCodes.getCloseCode(4004);
+    private static final byte[] PING = "meh".getBytes();
 
     private Session session;
 
@@ -57,6 +59,10 @@ public class ConsoleLogEndpoint {
     public void send(String msg) throws IOException {
         LOGGER.debug("{} send message: {}", this, msg);
         session.getBasicRemote().sendText(msg);
+    }
+
+    public void ping() throws IOException {
+        session.getBasicRemote().sendPing(ByteBuffer.wrap(PING));
     }
 
     public void close() {

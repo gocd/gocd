@@ -42,21 +42,27 @@ public class ConsoleStreamer implements ConsoleConsumer {
     }
 
     /**
-     * Applies a lambda (or equivalent {@link Consumer}) to each line and increments the processedLineCount() until
+     * Applies a lambda (or equivalent {@link Consumer}) to each line and increments the totalLinesConsumed() until
      * EOF. Multiple invocations to this method will continue from where it left off if new content was appended after
      * the last read.
      *
      * @param action the lambda to apply to each line
+     * @return the number of lines streamed by this invocation
      * @throws IOException if the file does not exist or is otherwise not readable
      */
-    public void stream(Consumer<String> action) throws IOException {
+    public long stream(Consumer<String> action) throws IOException {
+        long linesStreamed = 0L;
+
         if (null == stream) stream = Files.lines(path, StandardCharsets.UTF_8).skip(start);
         if (null == iterator) iterator = stream.iterator();
 
         while (iterator.hasNext()) {
             action.accept((String) iterator.next());
-            count++;
+            ++linesStreamed;
+            ++count;
         }
+
+        return linesStreamed;
     }
 
     @Override
@@ -69,7 +75,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
         iterator = null;
     }
 
-    public long processedLineCount() {
+    public long totalLinesConsumed() {
         return count;
     }
 }

@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  * Generic interface for a line consumer for console logs
  */
 public interface ConsoleConsumer extends AutoCloseable {
-    void stream(Consumer<String> action) throws IOException;
+    long stream(Consumer<String> action) throws IOException;
 
-    long processedLineCount();
+    long totalLinesConsumed();
 }

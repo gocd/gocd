@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobDetailService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Component;
 
 import javax.websocket.CloseReason;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -36,9 +39,14 @@ import java.util.function.Consumer;
 public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
     private static final int BUFFER_SIZE = 1000;
+    private static final int FILL_INTERVAL = 500;
+
+    private final SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @Autowired
     private ConsoleService consoleService;
+
+    @Autowired
     private JobDetailService jobDetailService;
 
     @Autowired
@@ -59,20 +67,36 @@ public class ConsoleLogSender {
             return;
         }
 
+        Instant t1 = Instant.now();
+        long numLinesProcessed;
+        long keepAlive = systemEnvironment.getWsKeepAlive();
+
         try (ConsoleConsumer streamer = consoleService.getStreamer(start, jobIdentifier)) {
             do {
-                start += sendLogs(webSocket, streamer, jobIdentifier);
+                start += (numLinesProcessed = sendLogs(webSocket, streamer, jobIdentifier));
 
                 // allow buffers to fill to avoid sending 1 line at a time for running builds
-                if (isRunningBuild) Thread.sleep(500);
+                if (isRunningBuild) {
+                    Thread.sleep(FILL_INTERVAL);
+
+                    // reset keepAlive timer if we sent data -- we're not idling
+                    if (numLinesProcessed > 0) t1 = Instant.now();
+
+                    // send ping if we've been idle for too long (i.e. no frames transmitted over connection)
+                    if (isIdledTooLong(t1, keepAlive)) {
+                        webSocket.ping();
+                        t1 = Instant.now(); // reset timer after ping()
+                    }
+                }
             } while (!detectCompleted(jobIdentifier));
 
             // empty the tail end of the file because the build could have been marked completed, and exited the
             // loop before we've seen the last content update
-            if (isRunningBuild) start += sendLogs(webSocket, streamer, jobIdentifier);
+            if (isRunningBuild) sendLogs(webSocket, streamer, jobIdentifier);
+
+            LOGGER.debug("Sent {} log lines for {}", streamer.totalLinesConsumed(), jobIdentifier);
         }
 
-        LOGGER.debug("Sent {} log lines for {}", start, jobIdentifier);
         webSocket.close();
     }
 
@@ -80,10 +104,10 @@ public class ConsoleLogSender {
         return jobDetailService.findMostRecentBuild(jobIdentifier).isCompleted();
     }
 
-    private long sendLogs(ConsoleLogEndpoint webSocket, ConsoleConsumer console, JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
+    private long sendLogs(final ConsoleLogEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
         final ArrayList<String> buffer = new ArrayList<>();
 
-        console.stream(new Consumer<String>() {
+        long linesProcessed = console.stream(new Consumer<String>() {
             @Override
             public void accept(String line) {
                 try {
@@ -94,13 +118,13 @@ public class ConsoleLogSender {
                     }
 
                 } catch (IOException e) {
-                    LOGGER.error("Failed to send log line {} for {}", console.processedLineCount(), jobIdentifier, e);
+                    LOGGER.error("Failed to send log line {} for {}", console.totalLinesConsumed(), jobIdentifier, e);
                 }
             }
         });
 
         flushBuffer(buffer, webSocket);
-        return console.processedLineCount();
+        return linesProcessed;
     }
 
     private void flushBuffer(ArrayList<String> buffer, ConsoleLogEndpoint webSocket) throws IOException {

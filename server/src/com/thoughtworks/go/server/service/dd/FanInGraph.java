@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -383,13 +382,9 @@ public class FanInGraph {
                 if (pair.faninScmMaterial.revision.equals(pIdScmPair.faninScmMaterial.revision)) {
                     continue;
                 }
-                String fingerprint = pair.faninScmMaterial.fingerprint;
-                DependencyFanInNode currentNode = root.childByPipelineName(root, new CaseInsensitiveString(pair.stageIdentifier.getPipelineName()));
-                Modifications currentModifications = currentNode.modificationsForFingerprint(pair.faninScmMaterial.fingerprint, pair.stageIdentifier, pipelineDao);
-                if (!currentNode.changeExistsInNodeOrChildren(comparingModifications, fingerprint) ||
-                        !comparingNode.changeExistsInNodeOrChildren(currentModifications, fingerprint)) {
+                if (childNodesDoesNotHaveDifferentRevision(pIdScmPair, pair, comparingNode, comparingModifications))
                     continue;
-                }
+
                 diffRevFound = true;
                 break;
             }
@@ -400,6 +395,22 @@ public class FanInGraph {
         }
 
         return Collections.EMPTY_LIST;
+    }
+
+    private boolean childNodesDoesNotHaveDifferentRevision(StageIdFaninScmMaterialPair pair1, StageIdFaninScmMaterialPair pair2,  DependencyFanInNode comparingNode, Modifications comparingModifications) {
+        String fingerprint = pair2.faninScmMaterial.fingerprint;
+        DependencyFanInNode currentNode = root.childByPipelineName(root, new CaseInsensitiveString(pair2.stageIdentifier.getPipelineName()));
+        Modifications currentModifications = currentNode.modificationsForFingerprint(pair2.faninScmMaterial.fingerprint, pair2.stageIdentifier, pipelineDao);
+        if(pair2.faninScmMaterial.revision.lessThan(pair1.faninScmMaterial.revision)) {
+            if (!currentNode.changeExistsInNodeOrChildren(comparingModifications, fingerprint)) {
+                return true;
+            }
+        } else {
+            if (!comparingNode.changeExistsInNodeOrChildren(currentModifications, fingerprint)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {

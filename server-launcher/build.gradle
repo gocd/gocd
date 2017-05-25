@@ -93,6 +93,7 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
   with(copySpec {
     from { zipTree(project(':base').jar.archivePath) }
 
+    include "**/AssertJava8.class"
     include "**/LogConfigurator.class"
     include "**/OperatingSystem.class"
     include "**/SystemEnvironment*.class"

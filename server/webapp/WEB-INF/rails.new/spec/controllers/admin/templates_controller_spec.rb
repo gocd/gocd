@@ -86,7 +86,7 @@ describe Admin::TemplatesController do
 
     describe "index" do
       before(:each) do
-        @template_config_service.should_receive(:templatesWithPipelinesForUser).with(@user.getUsername.toString).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
+        @template_config_service.should_receive(:templatesWithPipelinesForUser).with(@user.getUsername).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       end
 

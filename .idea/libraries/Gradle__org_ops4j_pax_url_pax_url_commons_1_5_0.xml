@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.ops4j.pax.url:pax-url-commons:1.5.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ops4j.pax.url/pax-url-commons/1.5.0/672663f2d3cf0ef19e3b6a472e08220a2e4254a1/pax-url-commons-1.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ops4j.pax.url/pax-url-commons/1.5.0/47f861bac548b94af690bf9e921bfbcecaab23db/pax-url-commons-1.5.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

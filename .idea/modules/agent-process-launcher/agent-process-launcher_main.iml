@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":agent-process-launcher:main" external.linked.project.path="$MODULE_DIR$/../../../agent-process-launcher" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.thoughtworks.go" external.system.module.type="sourceSet" external.system.module.version="17.2.0-4564" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../../../agent-process-launcher/target/classes/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../agent-process-launcher/resources">
+      <sourceFolder url="file://$MODULE_DIR$/../../../agent-process-launcher/resources" type="java-resource" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../agent-process-launcher/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../agent-process-launcher/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="agent-common_main" />
+    <orderEntry type="module" module-name="base_main" />
+    <orderEntry type="library" name="Gradle: com.beust:jcommander:1.60" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: joda-time:joda-time:2.3" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.4" level="project" />
+  </component>
+</module>

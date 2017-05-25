@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework.security:spring-security-core-tiger:2.0.3">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-core-tiger/2.0.3/f70aefc62adc992c841344f9ff334cf89cffe91c/spring-security-core-tiger-2.0.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-core-tiger/2.0.3/70b8103b6122451629c204f9faf4433bdf81676b/spring-security-core-tiger-2.0.3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

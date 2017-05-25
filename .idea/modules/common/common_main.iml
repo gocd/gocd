@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":common:main" external.linked.project.path="$MODULE_DIR$/../../../common" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.thoughtworks.go" external.system.module.type="sourceSet" external.system.module.version="17.2.0-4564" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../../../common/target/classes/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../common/resources">
+      <sourceFolder url="file://$MODULE_DIR$/../../../common/resources" type="java-resource" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../common/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../common/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="config-api_main" />
+    <orderEntry type="module" module-name="commandline_main" />
+    <orderEntry type="module" module-name="domain_main" />
+    <orderEntry type="module" module-name="go-plugin-access_main" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-orm:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: cglib:cglib-nodep:2.2" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.kxml:kxml2:2.3.0" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.kxml:kxml2-min:2.3.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.jezhumble:javasysmon:0.3.6" level="project" />
+    <orderEntry type="library" name="Gradle: dom4j:dom4j:1.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpmime:4.5.2" level="project" />
+    <orderEntry type="module" module-name="util_main" />
+    <orderEntry type="module" module-name="plugin-metadata-store_main" />
+    <orderEntry type="module" module-name="db_main" />
+    <orderEntry type="library" name="Gradle: org.quartz-scheduler:quartz:1.6.5" level="project" />
+    <orderEntry type="library" name="Gradle: uk.com.robust-it:cloning:1.7.3" level="project" />
+    <orderEntry type="library" name="Gradle: jdom:jdom:1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.21" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.felix:org.apache.felix.framework:4.2.1" level="project" />
+    <orderEntry type="module" module-name="base_main" />
+    <orderEntry type="module" module-name="go-plugin-infra_main" />
+    <orderEntry type="library" name="Gradle: com.bazaarvoice.jolt:jolt-core:0.0.20" level="project" />
+    <orderEntry type="library" name="Gradle: com.bazaarvoice.jolt:json-utils:0.0.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-beans:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-core:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-jdbc:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-tx:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: commons-collections:commons-collections:3.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-webmvc:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
+    <orderEntry type="module" module-name="go-plugin-api_main" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />
+    <orderEntry type="library" name="Gradle: joda-time:joda-time:2.3" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="module" module-name="go-plugin-activator_main" />
+    <orderEntry type="library" name="Gradle: commons-digester:commons-digester:1.8" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-log4j12:1.7.21" level="project" />
+    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.5.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.5.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-asm:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: aopalliance:aopalliance:1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-aop:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-expression:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context-support:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-web:3.1.3.RELEASE" level="project" />
+    <orderEntry type="module" module-name="go-plugin-api-internal_main" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.47" level="project" />
+    <orderEntry type="library" name="Gradle: commons-beanutils:commons-beanutils:1.7.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.5.0" level="project" />
+  </component>
+</module>

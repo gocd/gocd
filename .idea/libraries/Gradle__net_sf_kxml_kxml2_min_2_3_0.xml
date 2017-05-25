@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: net.sf.kxml:kxml2-min:2.3.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.sf.kxml/kxml2-min/2.3.0/16379c20c45424d5bc804b9dc6f8a786720496d5/kxml2-min-2.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.sf.kxml/kxml2-min/2.3.0/c814d55eb3de356eac4ca9ee70834b6a5ee07ef2/kxml2-min-2.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

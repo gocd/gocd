@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework:spring-asm:3.1.3.RELEASE">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-asm/3.1.3.RELEASE/312ed3e9e962f66557b2276a0a1f8482d19cbfeb/spring-asm-3.1.3.RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-asm/3.1.3.RELEASE/da47b282a1cf46375cdc8b5a5fb566278c553bcb/spring-asm-3.1.3.RELEASE-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

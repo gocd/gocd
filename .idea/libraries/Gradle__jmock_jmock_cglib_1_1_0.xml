@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: jmock:jmock-cglib:1.1.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jmock/jmock-cglib/1.1.0/6cfbeffa7e8b3fdcdab50d1ef67a667a7315cda3/jmock-cglib-1.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jmock/jmock-cglib/1.1.0/2b7ae5ff339073db8b764c3a5fb4e9239e5136bf/jmock-cglib-1.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

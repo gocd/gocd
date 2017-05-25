@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <resourceExtensions />
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+      <entry name="!?*.aj" />
+    </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="agent-bootstrapper_main" target="1.8" />
+      <module name="agent-bootstrapper_test" target="1.8" />
+      <module name="agent-common_main" target="1.8" />
+      <module name="agent-common_test" target="1.8" />
+      <module name="agent-launcher_main" target="1.8" />
+      <module name="agent-launcher_test" target="1.8" />
+      <module name="agent-process-launcher_main" target="1.8" />
+      <module name="agent-process-launcher_test" target="1.8" />
+      <module name="agent_main" target="1.8" />
+      <module name="agent_test" target="1.8" />
+      <module name="app-server_main" target="1.8" />
+      <module name="app-server_test" target="1.8" />
+      <module name="base_main" target="1.8" />
+      <module name="base_test" target="1.8" />
+      <module name="buildSrc_main" target="1.8" />
+      <module name="buildSrc_test" target="1.8" />
+      <module name="commandline_main" target="1.8" />
+      <module name="commandline_test" target="1.8" />
+      <module name="common_main" target="1.8" />
+      <module name="common_test" target="1.8" />
+      <module name="config-api_main" target="1.8" />
+      <module name="config-api_test" target="1.8" />
+      <module name="config-server_main" target="1.8" />
+      <module name="config-server_test" target="1.8" />
+      <module name="database_main" target="1.8" />
+      <module name="database_test" target="1.8" />
+      <module name="db_main" target="1.8" />
+      <module name="db_test" target="1.8" />
+      <module name="development-agent_main" target="1.8" />
+      <module name="development-agent_test" target="1.8" />
+      <module name="development-server_main" target="1.8" />
+      <module name="development-server_test" target="1.8" />
+      <module name="domain_main" target="1.8" />
+      <module name="domain_test" target="1.8" />
+      <module name="go-plugin-access_main" target="1.8" />
+      <module name="go-plugin-access_test" target="1.8" />
+      <module name="go-plugin-activator_main" target="1.8" />
+      <module name="go-plugin-activator_test" target="1.8" />
+      <module name="go-plugin-api-internal_main" target="1.8" />
+      <module name="go-plugin-api-internal_test" target="1.8" />
+      <module name="go-plugin-api_main" target="1.8" />
+      <module name="go-plugin-api_test" target="1.8" />
+      <module name="go-plugin-infra_main" target="1.8" />
+      <module name="go-plugin-infra_test" target="1.8" />
+      <module name="gocd_main" target="1.8" />
+      <module name="gocd_test" target="1.8" />
+      <module name="installers_main" target="1.8" />
+      <module name="installers_test" target="1.8" />
+      <module name="jetty9_main" target="1.8" />
+      <module name="jetty9_test" target="1.8" />
+      <module name="plugin-metadata-store_main" target="1.8" />
+      <module name="plugin-metadata-store_test" target="1.8" />
+      <module name="rack_hack_main" target="1.8" />
+      <module name="rack_hack_test" target="1.8" />
+      <module name="release_main" target="1.8" />
+      <module name="release_test" target="1.8" />
+      <module name="server-launcher_main" target="1.8" />
+      <module name="server-launcher_test" target="1.8" />
+      <module name="server_main" target="1.8" />
+      <module name="server_test" target="1.8" />
+      <module name="test-addon_main" target="1.8" />
+      <module name="test-addon_test" target="1.8" />
+      <module name="test-agent_main" target="1.8" />
+      <module name="test-agent_test" target="1.8" />
+      <module name="test-utils_main" target="1.8" />
+      <module name="test-utils_test" target="1.8" />
+      <module name="tfs-impl-10_main" target="1.8" />
+      <module name="tfs-impl-10_test" target="1.8" />
+      <module name="tfs-impl-14_main" target="1.8" />
+      <module name="tfs-impl-14_test" target="1.8" />
+      <module name="tools_main" target="1.8" />
+      <module name="tools_test" target="1.8" />
+      <module name="util_main" target="1.8" />
+      <module name="util_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

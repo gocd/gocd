@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="1.8" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/addon-api/database" />
+            <option value="$PROJECT_DIR$/agent" />
+            <option value="$PROJECT_DIR$/agent-bootstrapper" />
+            <option value="$PROJECT_DIR$/agent-common" />
+            <option value="$PROJECT_DIR$/agent-launcher" />
+            <option value="$PROJECT_DIR$/agent-process-launcher" />
+            <option value="$PROJECT_DIR$/app-server" />
+            <option value="$PROJECT_DIR$/base" />
+            <option value="$PROJECT_DIR$/buildSrc" />
+            <option value="$PROJECT_DIR$/commandline" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/config/config-api" />
+            <option value="$PROJECT_DIR$/config/config-server" />
+            <option value="$PROJECT_DIR$/db" />
+            <option value="$PROJECT_DIR$/development-utility/development-agent" />
+            <option value="$PROJECT_DIR$/development-utility/development-server" />
+            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/installers" />
+            <option value="$PROJECT_DIR$/jetty9" />
+            <option value="$PROJECT_DIR$/plugin-infra/go-plugin-access" />
+            <option value="$PROJECT_DIR$/plugin-infra/go-plugin-activator" />
+            <option value="$PROJECT_DIR$/plugin-infra/go-plugin-api" />
+            <option value="$PROJECT_DIR$/plugin-infra/go-plugin-api-internal" />
+            <option value="$PROJECT_DIR$/plugin-infra/go-plugin-infra" />
+            <option value="$PROJECT_DIR$/plugin-infra/plugin-metadata-store" />
+            <option value="$PROJECT_DIR$/rack_hack" />
+            <option value="$PROJECT_DIR$/release" />
+            <option value="$PROJECT_DIR$/server" />
+            <option value="$PROJECT_DIR$/server-launcher" />
+            <option value="$PROJECT_DIR$/test-addon" />
+            <option value="$PROJECT_DIR$/test-agent" />
+            <option value="$PROJECT_DIR$/test-utils" />
+            <option value="$PROJECT_DIR$/tfs-impl/tfs-impl-10" />
+            <option value="$PROJECT_DIR$/tfs-impl/tfs-impl-14" />
+            <option value="$PROJECT_DIR$/tools" />
+            <option value="$PROJECT_DIR$/util" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

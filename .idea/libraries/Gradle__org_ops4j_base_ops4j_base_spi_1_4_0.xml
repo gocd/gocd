@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.ops4j.base:ops4j-base-spi:1.4.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ops4j.base/ops4j-base-spi/1.4.0/e715208311252d5b1ba76c479cfb07ec302d5a2c/ops4j-base-spi-1.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ops4j.base/ops4j-base-spi/1.4.0/e5c06465341c37212b332b1f1525e59617f92253/ops4j-base-spi-1.4.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.hibernate:hibernate-commons-annotations:3.1.0.GA">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hibernate/hibernate-commons-annotations/3.1.0.GA/d4cada41969292a73f98eaa676e0695cef2f8ca9/hibernate-commons-annotations-3.1.0.GA.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hibernate/hibernate-commons-annotations/3.1.0.GA/faaebce0943425b8c57f08988b682c47fafefab7/hibernate-commons-annotations-3.1.0.GA-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

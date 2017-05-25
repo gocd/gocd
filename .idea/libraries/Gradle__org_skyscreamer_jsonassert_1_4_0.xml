@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.skyscreamer:jsonassert:1.4.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.skyscreamer/jsonassert/1.4.0/9cdbb373a06f6513e51e8c545ee6a5e981463edb/jsonassert-1.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.skyscreamer/jsonassert/1.4.0/49efe8c34f11f1c0e2a1d8e297f59ec84adcdf6d/jsonassert-1.4.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

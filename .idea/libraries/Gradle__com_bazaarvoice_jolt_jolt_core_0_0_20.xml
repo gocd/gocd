@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.bazaarvoice.jolt:jolt-core:0.0.20">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.bazaarvoice.jolt/jolt-core/0.0.20/2e8aabeceb4d9d3e87122a4a9d954a665f8d3cb4/jolt-core-0.0.20.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.bazaarvoice.jolt/jolt-core/0.0.20/d1b0a9aace0989b4d32608bad0214b3b19ecef75/jolt-core-0.0.20-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

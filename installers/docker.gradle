@@ -1,0 +1,43 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+task agentDocker(dependsOn: [':installers:agentPackageRpm'], type: Docker) {
+  applicationName = "gocd-agent"
+  tag = "gocd/agent"
+
+  dockerfile file('go-agent/docker/dockerfile.template').path
+
+  addFile "${project.convention.plugins.get("base").distsDir}/rpm/go-agent-${rootProject.fullVersion}.noarch.rpm", '/tmp/go-agent.rpm'
+
+  workingDir '/tmp'
+  runCommand 'yum install -y /tmp/go-agent.rpm; yum clean all; rm -f /etc/default/go-agent'
+}
+
+task serverDocker(dependsOn: [':installers:serverPackageRpm'], type: Docker) {
+  applicationName = "gocd-server"
+  tag = "gocd/server"
+
+  dockerfile file('go-server/docker/dockerfile.template').path
+
+  addFile "${project.convention.plugins.get("base").distsDir}/rpm/go-server-${rootProject.fullVersion}.noarch.rpm", '/tmp/go-server.rpm'
+
+  workingDir '/tmp'
+  runCommand 'yum install -y /tmp/go-server.rpm; yum clean all; rm -f /etc/default/go-server'
+  runCommand 'yum clean all'
+  runCommand 'rm -rf /tmp/* /var/tmp/*'
+
+  volume '/var/lib/go-server', '/var/log/go-server', '/etc/go', '/go-addons', '/var/go'
+}

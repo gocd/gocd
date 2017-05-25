@@ -18,6 +18,15 @@ import groovy.json.JsonOutput
 
 description = 'GoCD Installers'
 
+apply plugin: 'docker'
+
+buildscript {
+  repositories { jcenter() }
+  dependencies {
+    classpath 'se.transmode.gradle:gradle-docker:1.2'
+  }
+}
+
 configurations {
   agentBootstrapperJar
   serverJar
@@ -62,4 +71,5 @@ apply from: 'osx.gradle'
 apply from: 'generic.gradle'
 apply from: 'linux.gradle'
 apply from: 'windows.gradle'
+apply from: 'docker.gradle'
 apply from: 'release-notes.gradle'

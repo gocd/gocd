@@ -19,7 +19,7 @@ require 'spec_helper'
 describe ApiV4::Admin::Templates::TemplatesConfigRepresenter do
 
   it 'should render links' do
-    templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    templates = TemplateToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
     templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
     templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
 

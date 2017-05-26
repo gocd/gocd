@@ -335,4 +335,8 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             stage.cleanupAllUsagesOfRole(roleToDelete);
         }
     }
+
+    public boolean canBeEditedBy(CaseInsensitiveString username, List<Role> roles) {
+        return getAuthorization().isUserAnAdmin(username, roles);
+    }
 }

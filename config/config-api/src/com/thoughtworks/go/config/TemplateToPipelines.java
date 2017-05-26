@@ -22,13 +22,13 @@ import java.util.*;
  * @understands a custom data structure for templates to editable pipelines.
  */
 
-public class TemplatesToPipelines {
+public class TemplateToPipelines {
     private  List<PipelineWithAuthorization> pipelines = new ArrayList<>();
     private CaseInsensitiveString templateName;
     private boolean canEdit;
     private boolean isAdmin;
 
-    public TemplatesToPipelines(CaseInsensitiveString templateName, boolean canEdit, boolean isAdmin) {
+    public TemplateToPipelines(CaseInsensitiveString templateName, boolean canEdit, boolean isAdmin) {
         this.templateName = templateName;
         this.canEdit = canEdit;
         this.isAdmin = isAdmin;
@@ -60,7 +60,7 @@ public class TemplatesToPipelines {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TemplatesToPipelines that = (TemplatesToPipelines) o;
+        TemplateToPipelines that = (TemplateToPipelines) o;
 
         if (canEdit != that.canEdit) return false;
         if (isAdmin != that.isAdmin) return false;

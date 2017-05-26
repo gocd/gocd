@@ -93,15 +93,15 @@ public class TemplateConfigServiceTest {
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
         when(securityService.isUserAdmin(admin)).thenReturn(true);
 
-        List<TemplatesToPipelines> templatesToPipelines = new ArrayList<>();
-        TemplatesToPipelines template1 = new TemplatesToPipelines(new CaseInsensitiveString("t1"), true, true);
+        List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
+        TemplateToPipelines template1 = new TemplateToPipelines(new CaseInsensitiveString("t1"), true, true);
         template1.add(new PipelineWithAuthorization(new CaseInsensitiveString("p1"), true));
-        templatesToPipelines.add(template1);
-        TemplatesToPipelines template2 = new TemplatesToPipelines(new CaseInsensitiveString("t2"), true, true);
+        templateToPipelines.add(template1);
+        TemplateToPipelines template2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), true, true);
         template2.add(new PipelineWithAuthorization(new CaseInsensitiveString("p2"), true));
-        templatesToPipelines.add(template2);
+        templateToPipelines.add(template2);
 
-        assertThat(service.getTemplatesList(admin), is(templatesToPipelines));
+        assertThat(service.getTemplatesList(admin), is(templateToPipelines));
     }
 
     @Test
@@ -136,11 +136,11 @@ public class TemplateConfigServiceTest {
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
         when(securityService.isUserAdmin(admin)).thenReturn(false);
 
-        List<TemplatesToPipelines> templatesToPipelines = new ArrayList<>();
-        TemplatesToPipelines t2 = new TemplatesToPipelines(new CaseInsensitiveString("t2"), true, false);
-        templatesToPipelines.add(t2);
+        List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
+        TemplateToPipelines t2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), true, false);
+        templateToPipelines.add(t2);
 
-        assertThat(service.getTemplatesList(admin), is(templatesToPipelines));
+        assertThat(service.getTemplatesList(admin), is(templateToPipelines));
     }
 
     @Test
@@ -174,11 +174,11 @@ public class TemplateConfigServiceTest {
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), templateView)).thenReturn(false);
         when(securityService.isUserAdmin(templateView)).thenReturn(false);
 
-        List<TemplatesToPipelines> templatesToPipelines = new ArrayList<>();
-        TemplatesToPipelines t2 = new TemplatesToPipelines(new CaseInsensitiveString("t2"), false, false);
-        templatesToPipelines.add(t2);
+        List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
+        TemplateToPipelines t2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), false, false);
+        templateToPipelines.add(t2);
 
-        assertThat(service.getTemplatesList(templateView), is(templatesToPipelines));
+        assertThat(service.getTemplatesList(templateView), is(templateToPipelines));
     }
 
     @Test
@@ -217,12 +217,12 @@ public class TemplateConfigServiceTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), groupAdminUser)).thenReturn(true);
 
-        List<TemplatesToPipelines> templatesToPipelines = new ArrayList<>();
-        TemplatesToPipelines t1 = new TemplatesToPipelines(new CaseInsensitiveString("t1"), false, false);
+        List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
+        TemplateToPipelines t1 = new TemplateToPipelines(new CaseInsensitiveString("t1"), false, false);
         t1.add(new PipelineWithAuthorization(new CaseInsensitiveString("p1"), true));
-        templatesToPipelines.add(t1);
+        templateToPipelines.add(t1);
 
-        assertThat(service.getTemplatesList(groupAdminUser), is(templatesToPipelines));
+        assertThat(service.getTemplatesList(groupAdminUser), is(templateToPipelines));
     }
 
     @Test

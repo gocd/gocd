@@ -485,7 +485,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (isAdministrator(username.toString())) {
             return true;
         }
-        return templateConfig.getAuthorization().isUserAnAdmin(username, rolesForUser(username));
+        return templateConfig.canBeEditedBy(username, rolesForUser(username));
     }
 
     @Override
@@ -1501,14 +1501,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.strategy.setOrigins(origins);
-    }
-
-    private boolean isAuthorizedToAdministerPipelines(CaseInsensitiveString username, String group) {
-        PipelineConfigs pipelineGroup = groups.findGroup(group);
-        if (pipelineGroup == null) {
-            return false;
-        }
-        return isAdministrator(username.toString()) || pipelineGroup.isUserAnAdmin(username, rolesForUser(username));
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

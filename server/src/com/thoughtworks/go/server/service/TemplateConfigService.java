@@ -76,21 +76,21 @@ public class TemplateConfigService {
         return templatesToPipelinesMap;
     }
 
-    public List<TemplatesToPipelines> getTemplatesList(Username username) {
-        List<TemplatesToPipelines> templatesToPipelinesForUser = new ArrayList<>();
+    public List<TemplateToPipelines> getTemplatesList(Username username) {
+        List<TemplateToPipelines> templateToPipelinesForUser = new ArrayList<>();
         List<Role> roles = goConfigService.rolesForUser(username.getUsername());
         Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesAssociatedWithPipelines = goConfigService.getCurrentConfig().templatesWithAssociatedPipelines();
         for (CaseInsensitiveString templateName : allTemplatesAssociatedWithPipelines.keySet()) {
             if (securityService.isAuthorizedToViewTemplate(templateName, username)) {
                 Map<CaseInsensitiveString, Authorization> pipelinesWithAuthorization = allTemplatesAssociatedWithPipelines.get(templateName);
-                TemplatesToPipelines templatesToPipelines = new TemplatesToPipelines(templateName, securityService.isAuthorizedToEditTemplate(templateName, username), securityService.isUserAdmin(username));
-                templatesToPipelinesForUser.add(templatesToPipelines);
+                TemplateToPipelines templateToPipelines = new TemplateToPipelines(templateName, securityService.isAuthorizedToEditTemplate(templateName, username), securityService.isUserAdmin(username));
+                templateToPipelinesForUser.add(templateToPipelines);
                 for (CaseInsensitiveString pipelineName : pipelinesWithAuthorization.keySet()) {
-                    templatesToPipelines.add(new PipelineWithAuthorization(pipelineName, canAuthorizedTemplateUserEditPipeline(username, roles, pipelinesWithAuthorization.get(pipelineName))));
+                    templateToPipelines.add(new PipelineWithAuthorization(pipelineName, canAuthorizedTemplateUserEditPipeline(username, roles, pipelinesWithAuthorization.get(pipelineName))));
                 }
             }
         }
-        return templatesToPipelinesForUser;
+        return templateToPipelinesForUser;
     }
 
     private boolean canAuthorizedTemplateUserEditPipeline(Username username, List<Role> roles, Authorization pipelineAuthorization) {
@@ -203,8 +203,8 @@ public class TemplateConfigService {
         List<TemplatesViewModel> templatesViewModels = new ArrayList<>();
         CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
         for (PipelineTemplateConfig templateConfig : cruiseConfig.getTemplates()) {
-            boolean authorizedToViewTemplate = cruiseConfig.isAuthorizedToViewTemplate(templateConfig.name(), username);
-            boolean authorizedToEditTemplate = cruiseConfig.isAuthorizedToEditTemplate(templateConfig.name(), username);
+            boolean authorizedToViewTemplate = cruiseConfig.isAuthorizedToViewTemplate(templateConfig, username);
+            boolean authorizedToEditTemplate = cruiseConfig.isAuthorizedToEditTemplate(templateConfig, username);
             templatesViewModels.add(new TemplatesViewModel(templateConfig, authorizedToViewTemplate, authorizedToEditTemplate));
         }
         return templatesViewModels;

@@ -19,7 +19,7 @@ require 'spec_helper'
 describe ApiV4::Admin::Templates::TemplateSummaryRepresenter do
 
   it 'should render a template name and its associated pipelines in hal representation' do
-    templates = TemplatesToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    templates = TemplateToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
     templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
     templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
 

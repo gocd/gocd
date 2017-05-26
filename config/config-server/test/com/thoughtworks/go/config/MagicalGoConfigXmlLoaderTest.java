@@ -21,7 +21,6 @@ import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
-import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -35,7 +34,6 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
@@ -64,7 +62,10 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
@@ -898,7 +899,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
             fail("Should not allow empty command");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Command is invalid. \"\" should conform to the pattern - \\S+(.*\\S+)*"));
+            assertThat(e.getMessage(), containsString("Command is invalid. \"\" should conform to the pattern - \\S(.*\\S)?"));
         }
     }
 
@@ -928,7 +929,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
             fail("Should not allow command with trailing spaces");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Command is invalid. \"bundle  \" should conform to the pattern - \\S+(.*\\S+)*"));
+            assertThat(e.getMessage(), containsString("Command is invalid. \"bundle  \" should conform to the pattern - \\S(.*\\S)?"));
         }
     }
 
@@ -958,7 +959,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
             fail("Should not allow command with trailing spaces");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Command is invalid. \"    bundle\" should conform to the pattern - \\S+(.*\\S+)*"));
+            assertThat(e.getMessage(), containsString("Command is invalid. \"    bundle\" should conform to the pattern - \\S(.*\\S)?"));
         }
     }
 

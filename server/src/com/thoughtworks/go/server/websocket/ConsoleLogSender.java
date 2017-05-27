@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.websocket.CloseReason;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +37,8 @@ import java.util.function.Consumer;
 @Component
 public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
+
+    private static final int LOG_DOES_NOT_EXIST = 4004;
     private static final int BUFFER_SIZE = 1000;
     private static final int FILL_INTERVAL = 500;
 
@@ -59,7 +60,7 @@ public class ConsoleLogSender {
         this.jobDetailService = jobDetailService;
     }
 
-    public void process(final ConsoleLogEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
+    public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
         if (start < 0L) start = 0L;
 
         // check if we're tailing a running build, or viewing a prior build's logs
@@ -69,7 +70,7 @@ public class ConsoleLogSender {
         try {
             waitForLogToExist(webSocket, jobIdentifier);
         } catch (TooManyRetriesException e) {
-            webSocket.close(new CloseReason(ConsoleLogEndpoint.LOG_DOES_NOT_EXIST, e.getMessage()));
+            webSocket.close(LOG_DOES_NOT_EXIST, e.getMessage());
             return;
         }
 
@@ -106,7 +107,7 @@ public class ConsoleLogSender {
         webSocket.close();
     }
 
-    private void waitForLogToExist(ConsoleLogEndpoint websocket, JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, TooManyRetriesException {
+    private void waitForLogToExist(SocketEndpoint websocket, JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, TooManyRetriesException {
         for (int retries = 20; retries > 0; --retries) {
             if (!websocket.isOpen() || consoleService.consoleLogFile(jobIdentifier).exists()) {
                 return;
@@ -126,7 +127,7 @@ public class ConsoleLogSender {
         return jobDetailService.findMostRecentBuild(jobIdentifier).isCompleted();
     }
 
-    private long sendLogs(final ConsoleLogEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
+    private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
         final ArrayList<String> buffer = new ArrayList<>();
 
         long linesProcessed = console.stream(new Consumer<String>() {
@@ -149,7 +150,7 @@ public class ConsoleLogSender {
         return linesProcessed;
     }
 
-    private void flushBuffer(ArrayList<String> buffer, ConsoleLogEndpoint webSocket) throws IOException {
+    private void flushBuffer(ArrayList<String> buffer, SocketEndpoint webSocket) throws IOException {
         if (buffer.isEmpty()) return;
 
         webSocket.send(StringUtils.join(buffer, "\n"));

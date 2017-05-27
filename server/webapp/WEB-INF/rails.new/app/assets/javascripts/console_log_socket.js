@@ -28,7 +28,7 @@
     function endpointUrl(startLine) {
       var l = document.location;
       var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
-        "client-websocket",
+        "console-websocket",
         details.data("pipeline"),
         details.data("pipeline-label"),
         details.data("stage"),

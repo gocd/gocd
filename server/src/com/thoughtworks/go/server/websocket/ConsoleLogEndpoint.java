@@ -30,10 +30,9 @@ import java.nio.ByteBuffer;
         value = "/client-websocket/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}",
         configurator = ConsoleLogEndpointConfigurator.class
 )
-public class ConsoleLogEndpoint {
+public class ConsoleLogEndpoint implements SocketEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogEndpoint.class);
 
-    static final CloseReason.CloseCode LOG_DOES_NOT_EXIST = CloseReason.CloseCodes.getCloseCode(4004);
     private static final byte[] PING = "meh".getBytes();
 
     private Session session;
@@ -79,18 +78,15 @@ public class ConsoleLogEndpoint {
     }
 
     public void close() {
-        close(null);
+        close(1000, null);
     }
 
-    public void close(CloseReason closeReason) {
+    public void close(int code, String reason) {
         LOGGER.debug("{} closing session.", this);
+        CloseReason closeReason = new CloseReason(CloseReason.CloseCodes.getCloseCode(code), reason);
 
         try {
-            if (null == closeReason) {
-                session.close();
-            } else {
-                session.close(closeReason);
-            }
+            session.close(closeReason);
         } catch (IOException e) {
             LOGGER.warn("{} failed to close session.", this);
         }

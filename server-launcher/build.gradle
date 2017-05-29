@@ -165,7 +165,6 @@ task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCom
 task createVersionFile {
   def file = file("${project.buildDir}/version.txt")
   inputs.property('version', rootProject.version)
-  inputs.property('distVersion', rootProject.distVersion)
   inputs.property('gitRevision', rootProject.gitRevision)
 
   outputs.file file
@@ -173,7 +172,7 @@ task createVersionFile {
   doLast {
     file.getParentFile().mkdirs()
     file.withWriter { out ->
-      out.write("${rootProject.version}(${rootProject.distVersion}-${rootProject.gitRevision})")
+      out.write("${rootProject.version} (${rootProject.gitRevision})")
     }
   }
 }

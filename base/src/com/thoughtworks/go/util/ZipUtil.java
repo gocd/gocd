@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.*;
 
 import static java.lang.String.format;
 
@@ -183,10 +181,13 @@ public class ZipUtil {
 
     public String getFileContentInsideZip(ZipInputStream zipInputStream, String file) throws IOException {
         ZipEntry zipEntry = zipInputStream.getNextEntry();
-        while (!new File(zipEntry.getName()).getName().equals(file)) {
+        while (zipEntry != null) {
+            if (new File(zipEntry.getName()).getName().equals(file)) {
+                return IOUtils.toString(zipInputStream);
+            }
             zipEntry = zipInputStream.getNextEntry();
         }
-        return IOUtils.toString(zipInputStream);
+        return null;
     }
 
     public static interface ZipEntryHandler {

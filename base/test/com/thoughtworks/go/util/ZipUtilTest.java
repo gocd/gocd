@@ -38,8 +38,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -233,6 +232,18 @@ public class ZipUtilTest {
         } catch (IllegalPathException e) {
             assertThat(e.getMessage(), is("File ../2.txt is outside extraction target directory"));
         }
+    }
+
+    @Test
+    public void shouldReadContentFromFileInsideZip() throws IOException, URISyntaxException {
+        String contents = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI()))), "version.txt");
+        assertThat(contents, is("13.3.0(17222-4c7fabcb9c9e9c)"));
+    }
+
+    @Test
+    public void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException, URISyntaxException {
+        String contents = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI()))), "does_not_exist.txt");
+        assertThat(contents, is(nullValue()));
     }
 
     private void assertContent(File targetZipFile, String file, String expectedContent) throws IOException {

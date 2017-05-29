@@ -20,7 +20,7 @@ module ConfigUpdate
     include ::ConfigUpdate::LoadConfig
 
     def checkPermission(cruise_config, result)
-      return if @security_service.isAuthorizedToEditTemplate(template_name, com.thoughtworks.go.server.util.UserHelper.getUserName())
+      return if @security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), com.thoughtworks.go.server.util.UserHelper.getUserName())
 
       message = com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER")
       result.unauthorized(message, nil)

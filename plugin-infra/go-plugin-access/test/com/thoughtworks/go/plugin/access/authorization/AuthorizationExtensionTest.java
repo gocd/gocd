@@ -43,7 +43,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
@@ -299,7 +298,7 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPlugin_To_GetAuthorizationServerRedirectUrl() throws JSONException {
+    public void shouldTalkToPlugin_To_GetAuthorizationServerUrl() throws JSONException {
         String requestBody = "{\n" +
                 "  \"auth_configs\": [\n" +
                 "    {\n" +
@@ -316,9 +315,9 @@ public class AuthorizationExtensionTest {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerRedirectUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
+        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
         assertThat(authorizationServerRedirectUrl, is("url_to_authorization_server"));
     }
 

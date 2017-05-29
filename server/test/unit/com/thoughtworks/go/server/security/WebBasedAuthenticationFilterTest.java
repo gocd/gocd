@@ -68,7 +68,7 @@ public class WebBasedAuthenticationFilterTest {
 
         filter.doFilter(request, response, filterChain);
 
-        verify(authorizationExtension).getAuthorizationServerRedirectUrl("github.oauth", Collections.singletonList(securityAuthConfig), "http://go.site.url");
+        verify(authorizationExtension).getAuthorizationServerUrl("github.oauth", Collections.singletonList(securityAuthConfig), "http://go.site.url");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class WebBasedAuthenticationFilterTest {
         String redirectUrl = "http://github/oauth/login";
 
         when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/login");
-        when(authorizationExtension.getAuthorizationServerRedirectUrl(eq("github.oauth"), any(List.class), any(String.class))).thenReturn(redirectUrl);
+        when(authorizationExtension.getAuthorizationServerUrl(eq("github.oauth"), any(List.class), any(String.class))).thenReturn(redirectUrl);
 
         filter.doFilter(request, response, filterChain);
 

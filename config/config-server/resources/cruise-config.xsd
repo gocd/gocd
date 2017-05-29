@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -841,7 +841,7 @@
     </xsd:attributeGroup>
     <xsd:simpleType name="commandType">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="\S+(.*\S+)*"/>
+            <xsd:pattern value="\S(.*\S)?"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:complexType name="dependsType">

@@ -16,17 +16,10 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.zip.ZipInputStream;
-
 import com.thoughtworks.go.helpers.FileSystemUtils;
-import com.thoughtworks.go.server.util.ServerVersion;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -34,19 +27,20 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Matchers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.zip.ZipInputStream;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PluginsInitializerTest {
 
     private SystemEnvironment systemEnvironment;
-    private ServerVersion serverVersion;
     private File goPluginsDir;
     private PluginsInitializer pluginsInitializer;
     private PluginManager pluginManager;
@@ -54,12 +48,19 @@ public class PluginsInitializerTest {
     @Before
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
-        serverVersion = mock(ServerVersion.class);
         goPluginsDir = FileSystemUtils.createDirectory("go-plugins");
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)).thenReturn(goPluginsDir.getAbsolutePath());
         pluginManager = mock(PluginManager.class);
-        pluginsInitializer = spy(new PluginsInitializer(pluginManager, systemEnvironment, serverVersion, new ZipUtil()));
-        doReturn(new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")))).when(pluginsInitializer).getPluginsZipStream();
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil()) {
+            @Override
+            ZipInputStream getPluginsZipStream() {
+                try {
+                    return new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")));
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
     @After
@@ -70,8 +71,16 @@ public class PluginsInitializerTest {
     @Test
     public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
-        pluginsInitializer = spy(new PluginsInitializer(pluginManager, systemEnvironment, serverVersion, zipUtil));
-        doReturn(new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")))).when(pluginsInitializer).getPluginsZipStream();
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil) {
+            @Override
+            ZipInputStream getPluginsZipStream() {
+                try {
+                    return new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")));
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
         pluginsInitializer.initialize();
 
         InOrder inOrder = inOrder(zipUtil, pluginManager);
@@ -92,7 +101,6 @@ public class PluginsInitializerTest {
         String version = "13.3.0(17222-4c7fabcb9c9e9c)";
         File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
         FileUtils.writeStringToFile(versionFile, version);
-        when(serverVersion.version()).thenReturn(version);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(1));
@@ -103,7 +111,6 @@ public class PluginsInitializerTest {
     public void shouldReplacePluginsIfTheDifferentVersionOfPluginsAvailable() throws IOException {
         File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
         FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)");
-        when(serverVersion.version()).thenReturn("13.3.0(17222-4c7fabcb9c9e9c)");
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(2));
@@ -114,7 +121,6 @@ public class PluginsInitializerTest {
         File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
         File oldPlugin = FileSystemUtils.createFile("old-plugin.jar", goPluginsDir);
         FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)");
-        when(serverVersion.version()).thenReturn("13.3.0(17222-4c7fabcb9c9e9c)");
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(2));

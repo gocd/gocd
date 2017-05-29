@@ -88,13 +88,21 @@ public class GoConfigDao {
     }
 
     public void updateConfig(EntityConfigUpdateCommand command, Username currentUser) {
-        LOGGER.info("Config update for pipeline request by {} is in queue - {}", currentUser, command);
+        LOGGER.info("Config update for entity request by {} is in queue - {}", currentUser, command);
         synchronized (GoConfigWriteLock.class) {
-            LOGGER.info("Config update for pipeline request by {} is being processed", currentUser);
-            if (!command.canContinue(cachedConfigService.currentConfig())) {
-                throw new ConfigUpdateCheckFailedException();
+            try {
+                LOGGER.info("Config update for entity request by {} is being processed", currentUser);
+                if (!command.canContinue(cachedConfigService.currentConfig())) {
+                    throw new ConfigUpdateCheckFailedException();
+                }
+                cachedConfigService.writeEntityWithLock(command, currentUser);
+            } catch (Exception e) {
+                LOGGER.error("Config update for entity failed", e);
+                throw e;
             }
-            cachedConfigService.writeEntityWithLock(command, currentUser);
+            finally {
+                LOGGER.info("Entity update for request by {} is completed", currentUser);
+            }
         }
     }
 
@@ -111,6 +119,9 @@ public class GoConfigDao {
                     }
                 }
                 configSaveState = cachedConfigService.writeWithLock(command);
+            } catch (Exception e) {
+                LOGGER.error("Config update failed.", e);
+                throw e;
             } finally {
                 if (command instanceof ConfigAwareUpdate) {
                     ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
@@ -125,11 +136,16 @@ public class GoConfigDao {
         ConfigSaveState configSaveState;
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
-            LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
+            try {
+                LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
 
-            configSaveState = cachedConfigService.writeFullConfigWithLock(command);
-
-            LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
+                configSaveState = cachedConfigService.writeFullConfigWithLock(command);
+            } catch (Exception e) {
+                LOGGER.error("Full config update failed", e);
+                throw e;
+            } finally {
+                LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
+            }
         }
         return configSaveState;
     }

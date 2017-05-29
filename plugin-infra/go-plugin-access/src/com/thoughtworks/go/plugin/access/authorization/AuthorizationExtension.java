@@ -227,11 +227,11 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public String getAuthorizationServerRedirectUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_REDIRECT_URL, new DefaultPluginInteractionCallback<String>() {
+    public String getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_URL, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).authorizationServerRedirectUrlRequestBody(pluginId, authConfigs, siteUrl);
+                return getMessageConverter(resolvedExtensionVersion).authorizationServerUrlRequestBody(pluginId, authConfigs, siteUrl);
             }
 
             @Override

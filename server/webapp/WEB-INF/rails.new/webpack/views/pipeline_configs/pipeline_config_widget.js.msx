@@ -116,7 +116,7 @@ const PipelineConfigWidget = function (options) {
 
         const onReject  = function (data) {
           self.vm.saveFailed(data);
-          if (data.data) {
+          if (data && data.data) {
             ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data.data));
           }
         };

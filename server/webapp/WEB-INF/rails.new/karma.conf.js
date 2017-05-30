@@ -16,10 +16,10 @@
 
 /* global __dirname */
 
-var path    = require('path');
-var process = require('process');
+const path    = require('path');
+const process = require('process');
 
-var browsers;
+let browsers;
 
 if (process.platform === 'darwin') {
   browsers = ['Firefox', 'Chrome'];
@@ -73,7 +73,7 @@ module.exports = function (config) {
     },
     port:          9876,
     colors:        true,
-    logLevel:      config.LOG_INFO,
+    logLevel:      process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
     autoWatch:     true,
     browsers:      browsers,
     singleRun:     false,

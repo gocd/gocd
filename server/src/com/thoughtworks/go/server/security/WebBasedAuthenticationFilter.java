@@ -51,7 +51,7 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
     @Override
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
         if(isWebBasedPluginLoginRequest(httpRequest)) {
-            httpResponse.sendRedirect(authorizationServerRedirectUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest)));
+            httpResponse.sendRedirect(authorizationServerUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest)));
         }
 
         chain.doFilter(httpRequest, httpResponse);
@@ -64,9 +64,9 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
         return matcher.group(1);
     }
 
-    private String authorizationServerRedirectUrl(String pluginId, String siteUrl) {
+    private String authorizationServerUrl(String pluginId, String siteUrl) {
         List<SecurityAuthConfig> authConfigs = goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
-        return this.authorizationExtension.getAuthorizationServerRedirectUrl(pluginId, authConfigs, siteUrl);
+        return this.authorizationExtension.getAuthorizationServerUrl(pluginId, authConfigs, siteUrl);
     }
 
     private boolean isWebBasedPluginLoginRequest(HttpServletRequest request) {

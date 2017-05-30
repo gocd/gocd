@@ -152,12 +152,14 @@ Pipeline.Timer.fromJSON = (data) => {
   }
 };
 
+Pipeline.API_VERSION = 'v3';
+
 Pipeline.find = (url, extract) => $.Deferred(() => {
 
   const jqXHR = $.ajax({
     method:      'GET',
     url,
-    beforeSend:  mrequest.xhrConfig.forVersion('v3'),
+    beforeSend:  mrequest.xhrConfig.forVersion(Pipeline.API_VERSION),
     contentType: false
   });
 
@@ -182,12 +184,12 @@ Pipeline.vm = function () {
   };
 
   this.saveFailed = function (data) {
-    errors.push(data.message);
+    if (_.has(data, 'message')) {
+      errors.push(data.message);
+    }
 
-    if (data.data) {
-      if (data.data.errors) {
-        errors = _.concat(errors, _.flattenDeep(_.values(data.data.errors)));
-      }
+    if(_.has(data, 'data.errors')) {
+      errors = _.concat(errors, _.flattenDeep(_.values(data.data.errors)));
     }
 
     this.saveState('alert');

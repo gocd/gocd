@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV3
+module ApiV4
   module Admin
-    class TemplatesController < ApiV3::BaseController
+    class TemplatesController < ApiV4::BaseController
       before_action :load_template, only: [:show, :update, :destroy]
       before_action :check_admin_user_or_group_admin_user_and_401, only: [:create]
       before_action :check_admin_or_template_admin_and_401, only: [:destroy, :update]
@@ -25,25 +25,25 @@ module ApiV3
 
       def index
         templates = template_config_service.getTemplatesList(current_user)
-        json = ApiV3::Admin::Templates::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
+        json = ApiV4::Admin::Templates::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json
       end
 
       def show
-        json = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
+        json = ApiV4::Admin::Templates::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json if stale?(etag: etag_for(@template))
       end
 
       def create
         result = HttpLocalizedOperationResult.new
-        @template = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
+        @template = ApiV4::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
         template_config_service.createTemplateConfig(current_user, @template, result)
         handle_create_or_update_response(result, @template)
       end
 
       def update
         result = HttpLocalizedOperationResult.new
-        updated_template = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
+        updated_template = ApiV4::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
         template_config_service.updateTemplateConfig(current_user, updated_template, result, etag_for(@template))
         handle_create_or_update_response(result, updated_template)
       end
@@ -77,7 +77,7 @@ module ApiV3
       end
 
       def handle_create_or_update_response(result, updated_template)
-        json = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
+        json = ApiV4::Admin::Templates::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
         if result.isSuccessful
           response.etag = [etag_for(updated_template)]
           render DEFAULT_FORMAT => json

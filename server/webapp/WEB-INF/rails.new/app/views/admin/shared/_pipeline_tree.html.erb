@@ -8,12 +8,12 @@
             <ul class="template">
                 <li title="<%= scope[:pipeline].getTemplateName() -%>">
 	                <div class="template_name">
-                    <% if is_user_an_admin? || is_user_a_template_admin_for_template?(scope[:pipeline].getTemplateName().to_string)%>
+                    <% if is_user_an_admin? || is_user_a_template_admin_for_template?(scope[:pipeline].getTemplateName)%>
                         <%= link_to(scope[:pipeline].getTemplateName(), template_edit_path(:pipeline_name => scope[:pipeline].getTemplateName(), :stage_parent => "templates", :current_tab => 'general'), :class => "edit_template") -%>
                     <% else %>
                         <%= scope[:pipeline].getTemplateName() -%>
                     <% end %>
-                    <% if is_user_authorized_view_template?(scope[:pipeline].getTemplateName().to_string) %>
+                    <% if is_user_authorized_view_template?(scope[:pipeline].getTemplateName) %>
                         <%= link_to('', "#{scope[:pipeline].getTemplateName()}", :class => "preview_icon_wobg action_icon view_template_tree_link skip_dirty_stop", :title => "Preview") -%>
                     <% end %>
 					</div>

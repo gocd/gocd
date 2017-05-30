@@ -16,13 +16,15 @@
 
 require 'spec_helper'
 
-describe ApiV3::Admin::Templates::TemplateSummaryRepresenter do
+describe ApiV4::Admin::Templates::TemplateSummaryRepresenter do
 
   it 'should render a template name and its associated pipelines in hal representation' do
-    template_with_pipelines = TemplateToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
-    template_with_pipelines.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
-    template_with_pipelines.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
-    actual_json = ApiV3::Admin::Templates::TemplateSummaryRepresenter.new(template_with_pipelines).to_hash(url_builder: UrlBuilder.new)
+    templates = TemplateToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+
+
+    actual_json = ApiV4::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/templates/template-name')
@@ -36,35 +38,40 @@ describe ApiV3::Admin::Templates::TemplateSummaryRepresenter do
   def index_hash
     {
       name: 'template-name',
+      can_edit: true,
+      is_admin: true,
       _embedded: {
         pipelines: [
           {
             _links: {
               self: {
-                :href => "http://test.host/api/admin/pipelines/pipeline1"
+                href: 'http://test.host/api/admin/pipelines/pipeline2'
               },
               doc: {
-                :href => "https://api.gocd.io/#pipeline-config"
+                href: 'https://api.gocd.io/#pipeline-config'
               },
               find: {
-                :href => "http://test.host/api/admin/pipelines/:pipeline_name"
+                href: 'http://test.host/api/admin/pipelines/:pipeline_name'
               }
             },
-            name: "pipeline1"
+            name: 'pipeline2',
+            can_edit: false
+
           },
           {
             _links: {
               self: {
-                href: "http://test.host/api/admin/pipelines/pipeline2"
+                href: 'http://test.host/api/admin/pipelines/pipeline1'
               },
               doc: {
-                href: "https://api.gocd.io/#pipeline-config"
+                href: 'https://api.gocd.io/#pipeline-config'
               },
               find: {
-                href: "http://test.host/api/admin/pipelines/:pipeline_name"
+                href: 'http://test.host/api/admin/pipelines/:pipeline_name'
               }
             },
-            :name => 'pipeline2'
+            name: 'pipeline1',
+            can_edit: true
           }
         ]
       }

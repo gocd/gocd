@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +60,41 @@ public class TemplateConfigService {
         this.pluggableTaskService = pluggableTaskService;
     }
 
-    public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
-        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username, goConfigService.rolesForUser(new CaseInsensitiveString(username)));
+    public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(CaseInsensitiveString username) {
+        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templatesToPipelinesMap = new HashMap<>();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> authMap = goConfigService.getCurrentConfig().templatesWithAssociatedPipelines();
+        for (CaseInsensitiveString templateName : authMap.keySet()) {
+            if (securityService.isAuthorizedToViewTemplate(templateName, new Username(username))) {
+                templatesToPipelinesMap.put(templateName, new ArrayList<>());
+                Map<CaseInsensitiveString, Authorization> authorizationMap = authMap.get(templateName);
+                for (CaseInsensitiveString pipelineName : authorizationMap.keySet()) {
+                    templatesToPipelinesMap.get(templateName).add(pipelineName);
+                }
+            }
+
+        }
+        return templatesToPipelinesMap;
+    }
+
+    public List<TemplateToPipelines> getTemplatesList(Username username) {
+        List<TemplateToPipelines> templateToPipelinesForUser = new ArrayList<>();
+        List<Role> roles = goConfigService.rolesForUser(username.getUsername());
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesAssociatedWithPipelines = goConfigService.getCurrentConfig().templatesWithAssociatedPipelines();
+        for (CaseInsensitiveString templateName : allTemplatesAssociatedWithPipelines.keySet()) {
+            if (securityService.isAuthorizedToViewTemplate(templateName, username)) {
+                Map<CaseInsensitiveString, Authorization> pipelinesWithAuthorization = allTemplatesAssociatedWithPipelines.get(templateName);
+                TemplateToPipelines templateToPipelines = new TemplateToPipelines(templateName, securityService.isAuthorizedToEditTemplate(templateName, username), securityService.isUserAdmin(username));
+                templateToPipelinesForUser.add(templateToPipelines);
+                for (CaseInsensitiveString pipelineName : pipelinesWithAuthorization.keySet()) {
+                    templateToPipelines.add(new PipelineWithAuthorization(pipelineName, canAuthorizedTemplateUserEditPipeline(username, roles, pipelinesWithAuthorization.get(pipelineName))));
+                }
+            }
+        }
+        return templateToPipelinesForUser;
+    }
+
+    private boolean canAuthorizedTemplateUserEditPipeline(Username username, List<Role> roles, Authorization pipelineAuthorization) {
+        return securityService.isUserAdmin(username) || pipelineAuthorization.isUserAnAdmin(username.getUsername(), roles);
     }
 
     public void removeTemplate(String templateName, CruiseConfig cruiseConfig, String md5, HttpLocalizedOperationResult result) {
@@ -72,7 +106,7 @@ public class TemplateConfigService {
 
     public void createTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
         validatePluggableTasks(templateConfig);
-        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result);
+        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result);
         update(currentUser, result, command, templateConfig);
     }
 
@@ -126,7 +160,7 @@ public class TemplateConfigService {
     }
 
     public ConfigForEdit<PipelineTemplateConfig> loadForEdit(String templateName, Username username, HttpLocalizedOperationResult result) {
-        if (!securityService.isAuthorizedToEditTemplate(templateName, username)) {
+        if (!securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_TEMPLATE", templateName), HealthStateType.unauthorised());
             return null;
         }
@@ -151,7 +185,7 @@ public class TemplateConfigService {
     }
 
     public List<PipelineConfig> allPipelinesNotUsingTemplates(Username username, LocalizedOperationResult result) {
-        if (!securityService.isUserAdmin(username)) {
+        if (!(securityService.isUserAdmin(username) || securityService.isUserGroupAdmin(username))) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
             return null;
         }
@@ -169,8 +203,8 @@ public class TemplateConfigService {
         List<TemplatesViewModel> templatesViewModels = new ArrayList<>();
         CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
         for (PipelineTemplateConfig templateConfig : cruiseConfig.getTemplates()) {
-            boolean authorizedToViewTemplate = cruiseConfig.isAuthorizedToViewTemplate(templateConfig.name().toString(), username);
-            boolean authorizedToEditTemplate = cruiseConfig.isAuthorizedToEditTemplate(templateConfig.name().toString(), username);
+            boolean authorizedToViewTemplate = cruiseConfig.isAuthorizedToViewTemplate(templateConfig, username);
+            boolean authorizedToEditTemplate = cruiseConfig.isAuthorizedToEditTemplate(templateConfig, username);
             templatesViewModels.add(new TemplatesViewModel(templateConfig, authorizedToViewTemplate, authorizedToEditTemplate));
         }
         return templatesViewModels;

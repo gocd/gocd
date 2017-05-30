@@ -57,7 +57,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:pipeline_name] = "my-pipeline"
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with("my-pipeline", Username.new(CaseInsensitiveString.new("anonymous"))).and_return(true)
+    @security_service.should_receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("my-pipeline"), Username.new(CaseInsensitiveString.new("anonymous"))).and_return(true)
 
     checkPermission(cruise_config, result)
 
@@ -69,7 +69,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:pipeline_name] = "my-pipeline"
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with("my-pipeline", Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
+    @security_service.should_receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("my-pipeline"), Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
 
     checkPermission(cruise_config, result)
 
@@ -82,7 +82,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     cruise_config = GoConfigMother.configWithPipelines(["his-pipeline", "my-pipeline", "her-pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with(nil, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
+    @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
 
     checkPermission(cruise_config, result)
 
@@ -96,7 +96,7 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:group_name] = "my-pipeline-group"
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with(nil, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
+    @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
 
     checkPermission(cruise_config, result)
 

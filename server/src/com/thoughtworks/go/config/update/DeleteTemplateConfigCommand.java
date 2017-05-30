@@ -62,7 +62,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
     }
 
     private boolean isUserAuthorized() {
-        if (!securityService.isAuthorizedToEditTemplate(templateConfig.name().toString(), currentUser)) {
+        if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
             return false;
         }

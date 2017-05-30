@@ -82,7 +82,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
+        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(false);
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 
@@ -93,7 +93,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 
@@ -102,7 +102,7 @@ public class DeleteTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWhenTemplateNoLongerExists() {
-        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 

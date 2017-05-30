@@ -1,9 +1,7 @@
 <li role="presentation">
     <%= link_to l.string("PIPELINES_POPUP_TITLE"), main_app.pipeline_groups_path -%>
 </li>
-<%- if is_user_authorized_to_view_templates? -%>
-    <%= render :partial => 'shared/dropdown_template_admin.html' -%>
-<%- end -%>
+<%= render :partial => 'shared/dropdown_template_admin.html' -%>
 <li role="presentation">
   <%= link_to 'Elastic Agent Profiles', admin_elastic_profiles_path -%>
 </li>

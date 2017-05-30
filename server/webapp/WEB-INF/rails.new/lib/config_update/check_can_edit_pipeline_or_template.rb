@@ -21,7 +21,7 @@ module ConfigUpdate
 
     def has_permission(cruise_config)
       if looking_at_template?
-        @security_service.isAuthorizedToEditTemplate(template_name, com.thoughtworks.go.server.util.UserHelper.getUserName())
+        @security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), com.thoughtworks.go.server.util.UserHelper.getUserName())
       else
         @security_service.isUserAdminOfGroup(@user, load_pipeline_group(cruise_config))
       end

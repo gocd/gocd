@@ -195,7 +195,7 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldReturnAMapOfTemplateNamesToListOfAssociatedPipelinesCaseInsensitively() {
+    public void shouldReturnAMapOfAllTemplateNamesWithAssociatedPipelines() {
         PipelineTemplateConfig template = template("first_template");
         PipelineConfig pipelineConfig1 = PipelineConfigMother.pipelineConfig("first");
         pipelineConfig1.clear();
@@ -210,6 +210,7 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
 
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate);
+        pipelineConfigs.setOrigin(new FileConfigOrigin());
         CruiseConfig cruiseConfig = createCruiseConfig(pipelineConfigs);
 
         cruiseConfig.addTemplate(template);
@@ -217,81 +218,14 @@ public abstract class CruiseConfigTestBase {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         cruiseConfig.server().useSecurity(securityConfig);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesWithAssociatedPipelines = cruiseConfig.templatesWithAssociatedPipelines();
 
-        assertThat(templateWithPipelines.size(), is(1));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"), new CaseInsensitiveString("second"))));
-    }
-
-    @Test
-    public void shouldReturnAMapOfTemplateNamesToListOfAssociatedPipelinesBasedOnUserPermissions() {
-
-        PipelineTemplateConfig firstTemplate = PipelineTemplateConfigMother.createTemplate("first_template", new Authorization(new AdminsConfig(
-                new AdminUser(new CaseInsensitiveString("firstTemplate-admin")))), StageConfigMother.manualStage("stage-one"));
-        PipelineConfig pipelineConfig1 = PipelineConfigMother.pipelineConfig("first");
-        pipelineConfig1.clear();
-        pipelineConfig1.setTemplateName(new CaseInsensitiveString("first_template"));
-        pipelineConfig1.usingTemplate(firstTemplate);
-
-        PipelineTemplateConfig secondTemplate = PipelineTemplateConfigMother.createTemplate("second_template", new Authorization(new AdminsConfig(
-                new AdminUser(new CaseInsensitiveString("secondTemplate-admin")))), StageConfigMother.stageConfig("one-more"));
-        PipelineConfig pipelineConfig2 = PipelineConfigMother.pipelineConfig("second");
-        pipelineConfig2.clear();
-        pipelineConfig2.setTemplateName(new CaseInsensitiveString("second_template"));
-        pipelineConfig2.usingTemplate(secondTemplate);
-
-        PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
-
-        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate);
-        pipelineConfigs.setOrigin(new FileConfigOrigin());
-        CruiseConfig cruiseConfig = createCruiseConfig(pipelineConfigs);
-
-        cruiseConfig.addTemplate(firstTemplate);
-        cruiseConfig.addTemplate(secondTemplate);
-
-        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
-        cruiseConfig.server().useSecurity(securityConfig);
-
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("firstTemplate-admin", null);
-
-        assertThat(templateWithPipelines.size(), is(1));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"))));
-    }
-
-    @Test
-    public void shouldReturnAMapOfAllTemplateNamesToListOfAssociatedPipelinesIfUserIsSuperAdmin() {
-
-        PipelineTemplateConfig firstTemplate = PipelineTemplateConfigMother.createTemplate("first_template", new Authorization(new AdminsConfig(
-                new AdminUser(new CaseInsensitiveString("firstTemplate-admin")))), StageConfigMother.manualStage("stage-one"));
-        PipelineConfig pipelineConfig1 = PipelineConfigMother.pipelineConfig("first");
-        pipelineConfig1.clear();
-        pipelineConfig1.setTemplateName(new CaseInsensitiveString("first_template"));
-        pipelineConfig1.usingTemplate(firstTemplate);
-
-        PipelineTemplateConfig secondTemplate = PipelineTemplateConfigMother.createTemplate("second_template", new Authorization(new AdminsConfig(
-                new AdminUser(new CaseInsensitiveString("secondTemplate-admin")))), StageConfigMother.stageConfig("one-more"));
-        PipelineConfig pipelineConfig2 = PipelineConfigMother.pipelineConfig("second");
-        pipelineConfig2.clear();
-        pipelineConfig2.setTemplateName(new CaseInsensitiveString("second_template"));
-        pipelineConfig2.usingTemplate(secondTemplate);
-
-        PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
-
-        CruiseConfig cruiseConfig = createCruiseConfig(new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
-
-        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
-        cruiseConfig.server().useSecurity(securityConfig);
-
-        cruiseConfig.addTemplate(firstTemplate);
-        cruiseConfig.addTemplate(secondTemplate);
-
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
-
-        assertThat(templateWithPipelines.size(), is(2));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"))));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("second_template")), is(Arrays.asList(new CaseInsensitiveString("second"))));
+        assertThat(allTemplatesWithAssociatedPipelines.size(), is(1));
+        HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> expectedTemplatesMap = new HashMap<>();
+        expectedTemplatesMap.put(new CaseInsensitiveString("first_template"), new HashMap<>());
+        expectedTemplatesMap.get(new CaseInsensitiveString("first_template")).put(new CaseInsensitiveString("first"), new Authorization());
+        expectedTemplatesMap.get(new CaseInsensitiveString("first_template")).put(new CaseInsensitiveString("second"), new Authorization());
+        assertThat(allTemplatesWithAssociatedPipelines, is(expectedTemplatesMap));
     }
 
     private PipelineTemplateConfig template(final String name) {

@@ -16,8 +16,8 @@
 
 require 'spec_helper'
 
-describe ApiV3::Admin::TemplatesController do
-  include ApiHeaderSetupTeardown, ApiV3::ApiVersionHelper
+describe ApiV4::Admin::TemplatesController do
+  include ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
 
   before :each do
     @template = PipelineTemplateConfig.new(CaseInsensitiveString.new('some-template'), StageConfig.new(CaseInsensitiveString.new('stage'), JobConfigs.new(JobConfig.new(CaseInsensitiveString.new('job')))))
@@ -85,13 +85,13 @@ describe ApiV3::Admin::TemplatesController do
         get_with_api_header :index
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response([templates], ApiV3::Admin::Templates::TemplatesConfigRepresenter))
+        expect(actual_response).to eq(expected_response([templates], ApiV4::Admin::Templates::TemplatesConfigRepresenter))
       end
     end
     describe :route do
       describe :with_header do
         it 'should route to index action of templates controller' do
-          expect(:get => 'api/admin/templates').to route_to(action: 'index', controller: 'api_v3/admin/templates')
+          expect(:get => 'api/admin/templates').to route_to(action: 'index', controller: 'api_v4/admin/templates')
         end
       end
       describe :without_header do
@@ -99,7 +99,7 @@ describe ApiV3::Admin::TemplatesController do
           teardown_header
         end
         it 'should not route to index action of templates controller without header' do
-          expect(:get => 'api/admin/templates').to_not route_to(action: 'index', controller: 'api_v3/admin/templates')
+          expect(:get => 'api/admin/templates').to_not route_to(action: 'index', controller: 'api_v4/admin/templates')
           expect(:get => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
         end
       end
@@ -168,7 +168,7 @@ describe ApiV3::Admin::TemplatesController do
         get_with_api_header :show, template_name: 'template'
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@template, ApiV4::Admin::Templates::TemplateConfigRepresenter))
       end
 
       it 'should return 404 if the template does not exist' do
@@ -183,23 +183,23 @@ describe ApiV3::Admin::TemplatesController do
     describe :route do
       describe :with_header do
         it 'should route to show action of templates controller for alphanumeric template name' do
-          expect(:get => 'api/admin/templates/foo123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo123')
+          expect(:get => 'api/admin/templates/foo123').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'foo123')
         end
 
         it 'should route to show action of templates controller for template name with dots' do
-          expect(:get => 'api/admin/templates/foo.123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo.123')
+          expect(:get => 'api/admin/templates/foo.123').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'foo.123')
         end
 
         it 'should route to show action of templates controller for template name with hyphen' do
-          expect(:get => 'api/admin/templates/foo-123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo-123')
+          expect(:get => 'api/admin/templates/foo-123').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'foo-123')
         end
 
         it 'should route to show action of templates controller for template name with underscore' do
-          expect(:get => 'api/admin/templates/foo_123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo_123')
+          expect(:get => 'api/admin/templates/foo_123').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'foo_123')
         end
 
         it 'should route to show action of templates controller for capitalized template name' do
-          expect(:get => 'api/admin/templates/FOO').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'FOO')
+          expect(:get => 'api/admin/templates/FOO').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'FOO')
         end
       end
       describe :without_header do
@@ -207,7 +207,7 @@ describe ApiV3::Admin::TemplatesController do
           teardown_header
         end
         it 'should not route to show action of templates controller without header' do
-          expect(:get => 'api/admin/templates/foo').to_not route_to(action: 'show', controller: 'api_v3/admin/templates')
+          expect(:get => 'api/admin/templates/foo').to_not route_to(action: 'show', controller: 'api_v4/admin/templates')
           expect(:get => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
         end
       end
@@ -269,7 +269,7 @@ describe ApiV3::Admin::TemplatesController do
         post_with_api_header :create, template: template_hash
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@template, ApiV4::Admin::Templates::TemplateConfigRepresenter))
       end
 
       it 'should fail to save if there are validation errors' do
@@ -288,7 +288,7 @@ describe ApiV3::Admin::TemplatesController do
     describe :route do
       describe :with_header do
         it 'should route to create action of templates controller' do
-          expect(:post => 'api/admin/templates').to route_to(action: 'create', controller: 'api_v3/admin/templates')
+          expect(:post => 'api/admin/templates').to route_to(action: 'create', controller: 'api_v4/admin/templates')
         end
       end
       describe :without_header do
@@ -296,7 +296,7 @@ describe ApiV3::Admin::TemplatesController do
           teardown_header
         end
         it 'should not route to create action of templates controller without header' do
-          expect(:post => 'api/admin/templates').to_not route_to(action: 'create', controller: 'api_v3/admin/templates')
+          expect(:post => 'api/admin/templates').to_not route_to(action: 'create', controller: 'api_v4/admin/templates')
           expect(:post => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
         end
       end
@@ -360,7 +360,7 @@ describe ApiV3::Admin::TemplatesController do
         put_with_api_header :update, template_name: 'some-template', template: template_hash
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@template, ApiV4::Admin::Templates::TemplateConfigRepresenter))
       end
 
       it 'should not allow rename of template name' do
@@ -393,7 +393,7 @@ describe ApiV3::Admin::TemplatesController do
         put_with_api_header :update, template_name: 'some-template', template: template_hash
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@template, ApiV4::Admin::Templates::TemplateConfigRepresenter))
       end
 
       it 'should not update existing material if validations fail' do
@@ -416,23 +416,23 @@ describe ApiV3::Admin::TemplatesController do
     describe :route do
       describe :with_header do
         it 'should route to update action of templates controller for alphanumeric template name' do
-          expect(:put => 'api/admin/templates/foo123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo123')
+          expect(:put => 'api/admin/templates/foo123').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'foo123')
         end
 
         it 'should route to update action of templates controller for template name with dots' do
-          expect(:put => 'api/admin/templates/foo.123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo.123')
+          expect(:put => 'api/admin/templates/foo.123').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'foo.123')
         end
 
         it 'should route to update action of templates controller for template name with hyphen' do
-          expect(:put => 'api/admin/templates/foo-123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo-123')
+          expect(:put => 'api/admin/templates/foo-123').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'foo-123')
         end
 
         it 'should route to update action of templates controller for template name with underscore' do
-          expect(:put => 'api/admin/templates/foo_123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo_123')
+          expect(:put => 'api/admin/templates/foo_123').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'foo_123')
         end
 
         it 'should route to update action of templates controller for capitalized template name' do
-          expect(:put => 'api/admin/templates/FOO').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'FOO')
+          expect(:put => 'api/admin/templates/FOO').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'FOO')
         end
       end
       describe :without_header do
@@ -440,7 +440,7 @@ describe ApiV3::Admin::TemplatesController do
           teardown_header
         end
         it 'should not route to update action of templates controller without header' do
-          expect(:put => 'api/admin/templates/foo').to_not route_to(action: 'update', controller: 'api_v3/admin/templates')
+          expect(:put => 'api/admin/templates/foo').to_not route_to(action: 'update', controller: 'api_v4/admin/templates')
           expect(:put => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
         end
       end
@@ -524,23 +524,23 @@ describe ApiV3::Admin::TemplatesController do
     describe :route do
       describe :with_header do
         it 'should route to destroy action of templates controller for alphanumeric template name' do
-          expect(:delete => 'api/admin/templates/foo123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo123')
+          expect(:delete => 'api/admin/templates/foo123').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'foo123')
         end
 
         it 'should route to destroy action of templates controller for template name with dots' do
-          expect(:delete => 'api/admin/templates/foo.123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo.123')
+          expect(:delete => 'api/admin/templates/foo.123').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'foo.123')
         end
 
         it 'should route to destroy action of templates controller for template name with hyphen' do
-          expect(:delete => 'api/admin/templates/foo-123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo-123')
+          expect(:delete => 'api/admin/templates/foo-123').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'foo-123')
         end
 
         it 'should route to destroy action of templates controller for template name with underscore' do
-          expect(:delete => 'api/admin/templates/foo_123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo_123')
+          expect(:delete => 'api/admin/templates/foo_123').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'foo_123')
         end
 
         it 'should route to destroy action of templates controller for capitalized template name' do
-          expect(:delete => 'api/admin/templates/FOO').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'FOO')
+          expect(:delete => 'api/admin/templates/FOO').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'FOO')
         end
       end
       describe :without_header do
@@ -548,7 +548,7 @@ describe ApiV3::Admin::TemplatesController do
           teardown_header
         end
         it 'should not route to destroy action of templates controller without header' do
-          expect(:delete => 'api/admin/templates/foo').to_not route_to(action: 'destroy', controller: 'api_v3/admin/templates')
+          expect(:delete => 'api/admin/templates/foo').to_not route_to(action: 'destroy', controller: 'api_v4/admin/templates')
           expect(:delete => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
         end
       end

@@ -190,11 +190,11 @@ public class SecurityService {
         return goConfigService.cruiseConfig().canViewAndEditTemplates(username.getUsername());
     }
 
-    public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
+    public boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, Username username) {
         return goConfigService.cruiseConfig().isAuthorizedToEditTemplate(templateName, username.getUsername());
     }
 
-    public boolean isAuthorizedToViewTemplate(String templateName, Username username) {
+    public boolean isAuthorizedToViewTemplate(CaseInsensitiveString templateName, Username username) {
         return goConfigService.cruiseConfig().isAuthorizedToViewTemplate(templateName, username.getUsername());
     }
 

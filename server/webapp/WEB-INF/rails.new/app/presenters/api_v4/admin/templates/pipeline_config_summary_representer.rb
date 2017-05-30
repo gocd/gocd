@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV3
+module ApiV4
   module Admin
     module Templates
       class PipelineConfigSummaryRepresenter < BaseRepresenter
@@ -33,11 +33,16 @@ module ApiV3
         end
 
         property :name, case_insensitive_string: true, exec_context: :decorator
+        property :can_edit, exec_context: :decorator
 
         private
 
         def name
           represented.getPipelineName
+        end
+
+        def can_edit
+          represented.canUserEditPipeline()
         end
       end
     end

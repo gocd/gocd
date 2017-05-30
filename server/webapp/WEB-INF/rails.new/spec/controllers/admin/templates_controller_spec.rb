@@ -86,8 +86,8 @@ describe Admin::TemplatesController do
 
     describe "index" do
       before(:each) do
-        @template_config_service.should_receive(:templatesWithPipelinesForUser).with(@user.getUsername.toString).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        @template_config_service.should_receive(:templatesWithPipelinesForUser).with(@user.getUsername).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
+        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       end
 
       it "should populate all the templates and the associated pipelines" do
@@ -100,7 +100,7 @@ describe Admin::TemplatesController do
 
     describe "edit" do
       before(:each) do
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       end
 
       it "should assign template with name" do
@@ -114,7 +114,7 @@ describe Admin::TemplatesController do
 
     describe :edit_permissions do
       before(:each) do
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @user_service = stub_service(:user_service)
         @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
         @user_service.stub(:allRoleNames).and_return(["role1", "other"])
@@ -197,7 +197,7 @@ describe Admin::TemplatesController do
     describe "destroy" do
       before(:each) do
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       end
 
       it "should delete a template" do
@@ -240,7 +240,7 @@ describe Admin::TemplatesController do
 
     describe "new" do
       it "should create an empty template" do
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         template_config_service = stub_service(:template_config_service)
 
         expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
@@ -255,7 +255,7 @@ describe Admin::TemplatesController do
 
       it "should create an empty template when pipelineToExtractFrom is set" do
         in_params(:pipelineToExtractFrom => 'pipeline1')
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
 
         template_config_service = stub_service(:template_config_service)
 
@@ -272,6 +272,11 @@ describe Admin::TemplatesController do
     end
 
     describe "create" do
+      before :each do
+        controller.stub(:check_admin_user_or_group_admin_user_and_401).and_return(nil)
+        @security_service = stub_service(:security_service)
+        @security_service.should_receive(:isUserGroupAdmin).and_return(false)
+      end
       it "should create a new template given a name" do
         stub_save_for_success
         template_config_service = stub_service(:template_config_service)

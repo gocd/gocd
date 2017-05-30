@@ -17,10 +17,10 @@
 
 require 'spec_helper'
 
-describe ApiV3::Admin::Templates::PipelineConfigSummaryRepresenter do
+describe ApiV4::Admin::Templates::PipelineConfigSummaryRepresenter do
 
   it 'renders pipeline summary' do
-    presenter = ApiV3::Admin::Templates::PipelineConfigSummaryRepresenter.new(PipelineWithAuthorization.new(CaseInsensitiveString.new('pipeline1'), true))
+    presenter = ApiV4::Admin::Templates::PipelineConfigSummaryRepresenter.new(PipelineWithAuthorization.new(CaseInsensitiveString.new('pipeline1'), true))
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :find, :doc)
@@ -30,7 +30,7 @@ describe ApiV3::Admin::Templates::PipelineConfigSummaryRepresenter do
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#pipeline-config')
 
     actual_json.delete(:_links)
-    expect(actual_json).to eq({name: 'pipeline1'})
+    expect(actual_json).to eq({name: 'pipeline1', can_edit: true})
   end
 
 end

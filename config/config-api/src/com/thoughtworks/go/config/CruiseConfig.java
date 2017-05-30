@@ -28,10 +28,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
 
 import javax.annotation.PostConstruct;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @understands the configuration for cruise
@@ -217,8 +214,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PipelineConfig> pipelinesForFetchArtifacts(String pipelineName);
 
-    Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username, List<Role> roles);
-
     List<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName);
 
     boolean isArtifactCleanupProhibited(String pipelineName, String stageName);
@@ -267,9 +262,15 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     boolean canViewAndEditTemplates(CaseInsensitiveString username);
 
-    boolean isAuthorizedToEditTemplate(String templateName, CaseInsensitiveString username);
+    boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username);
 
-    boolean isAuthorizedToViewTemplate(String templateName, CaseInsensitiveString username);
+    boolean isAuthorizedToEditTemplate(PipelineTemplateConfig templateConfig, CaseInsensitiveString username);
+
+    boolean isAuthorizedToViewTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username);
+
+    boolean isAuthorizedToViewTemplate(PipelineTemplateConfig templateConfig, CaseInsensitiveString username);
 
     boolean isAuthorizedToViewTemplates(CaseInsensitiveString username);
+
+    Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines();
 }

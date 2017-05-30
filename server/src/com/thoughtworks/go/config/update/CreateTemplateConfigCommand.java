@@ -16,26 +16,29 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 
 public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
-    private GoConfigService goConfigService;
+    private SecurityService securityService;
 
-    public CreateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, GoConfigService goConfigService, LocalizedOperationResult result) {
+    public CreateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, SecurityService securityService, LocalizedOperationResult result) {
         super(templateConfig, result, currentUser);
-        this.goConfigService = goConfigService;
+        this.securityService = securityService;
     }
 
     @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
+        if (securityService.isUserGroupAdmin(currentUser)) {
+            templateConfig.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername()))));
+        }
         modifiedConfig.addTemplate(templateConfig);
     }
 
@@ -46,7 +49,7 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isUserAdmin(currentUser)) {
+        if (!(securityService.isUserAdmin(currentUser) || securityService.isUserGroupAdmin(currentUser))) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
             return false;
         }

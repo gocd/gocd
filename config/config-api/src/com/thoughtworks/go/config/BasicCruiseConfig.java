@@ -51,14 +51,29 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
  */
 @ConfigTag("cruise")
 public class BasicCruiseConfig implements CruiseConfig {
-    @ConfigSubtag @SkipParameterResolution private ServerConfig serverConfig = new ServerConfig();
-    @ConfigSubtag @SkipParameterResolution private com.thoughtworks.go.domain.packagerepository.PackageRepositories packageRepositories = new PackageRepositories();
-    @ConfigSubtag @SkipParameterResolution private SCMs scms = new SCMs();
-    @ConfigSubtag @SkipParameterResolution private ConfigReposConfig configRepos = new ConfigReposConfig();
-    @ConfigSubtag(label = "groups") private PipelineGroups groups = new PipelineGroups();
-    @ConfigSubtag(label = "templates") @SkipParameterResolution private TemplatesConfig templatesConfig = new TemplatesConfig();
-    @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
-    @ConfigSubtag @SkipParameterResolution private Agents agents = new Agents();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private ServerConfig serverConfig = new ServerConfig();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private com.thoughtworks.go.domain.packagerepository.PackageRepositories packageRepositories = new PackageRepositories();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private SCMs scms = new SCMs();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private ConfigReposConfig configRepos = new ConfigReposConfig();
+    @ConfigSubtag(label = "groups")
+    private PipelineGroups groups = new PipelineGroups();
+    @ConfigSubtag(label = "templates")
+    @SkipParameterResolution
+    private TemplatesConfig templatesConfig = new TemplatesConfig();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private EnvironmentsConfig environments = new EnvironmentsConfig();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private Agents agents = new Agents();
 
     @IgnoreTraversal
     private CruiseStrategy strategy;
@@ -73,17 +88,21 @@ public class BasicCruiseConfig implements CruiseConfig {
     @IgnoreTraversal
     private List<PartialConfig> partials = new ArrayList<>();
 
+    @IgnoreTraversal
+    private transient Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesWithAssociatedPipelines;
+
     public BasicCruiseConfig() {
         strategy = new BasicStrategy();
     }
 
-    public BasicCruiseConfig(BasicCruiseConfig main,boolean forEdit, PartialConfig... parts){
+    public BasicCruiseConfig(BasicCruiseConfig main, boolean forEdit, PartialConfig... parts) {
         List<PartialConfig> partList = Arrays.asList(parts);
-        createMergedConfig(main, partList,forEdit);
+        createMergedConfig(main, partList, forEdit);
     }
-    public BasicCruiseConfig(BasicCruiseConfig main, PartialConfig... parts){
+
+    public BasicCruiseConfig(BasicCruiseConfig main, PartialConfig... parts) {
         List<PartialConfig> partList = Arrays.asList(parts);
-        createMergedConfig(main, partList,false);
+        createMergedConfig(main, partList, false);
     }
 
     public BasicCruiseConfig(BasicCruiseConfig main, List<PartialConfig> parts) {
@@ -125,7 +144,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         pipelineNameToConfigMap = new ConcurrentHashMap<>();
     }
 
-    private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList,boolean forEdit) {
+    private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList, boolean forEdit) {
         this.serverConfig = main.serverConfig;
         this.packageRepositories = main.packageRepositories;
         this.scms = main.scms;
@@ -135,7 +154,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.groups = main.groups;
         this.environments = main.environments;
 
-        MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
+        MergeStrategy mergeStrategy = new MergeStrategy(partList, forEdit);
         this.strategy = mergeStrategy;
 
         groups = mergeStrategy.mergePipelineConfigs();
@@ -179,6 +198,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         public BasicStrategy() {
             origin = new FileConfigOrigin();
         }
+
         @Override
         public ConfigOrigin getOrigin() {
             return origin;
@@ -234,7 +254,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         private boolean forEdit;
         private List<PartialConfig> parts = new ArrayList<>();
 
-        public MergeStrategy(List<PartialConfig> parts,boolean forEdit) {
+        public MergeStrategy(List<PartialConfig> parts, boolean forEdit) {
             this.forEdit = forEdit;
             this.parts.addAll(parts);
         }
@@ -263,9 +283,8 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
                 map.get(key).add(env);
             }
-            for(List<EnvironmentConfig> oneEnv : map.values())
-            {
-                if(forEdit) {
+            for (List<EnvironmentConfig> oneEnv : map.values()) {
+                if (forEdit) {
                     // this cruise configuration may be changed (and cloned) later
                     // if all parts are immutable then we must add a piece for edits
                     if (oneEnv.size() == 1) {
@@ -273,16 +292,14 @@ public class BasicCruiseConfig implements CruiseConfig {
                         if (sole.isLocal()) {
                             // the sole part is editable anyway
                             environments.add(sole);
-                        }
-                        else {
+                        } else {
                             BasicEnvironmentConfig environmentConfigForEdit = new BasicEnvironmentConfig(sole.name());
                             environmentConfigForEdit.setOrigins(new UIConfigOrigin());
                             environments.add(new MergeEnvironmentConfig(environmentConfigForEdit, sole));
                         }
                     } else {
                         MergeEnvironmentConfig merge = new MergeEnvironmentConfig(oneEnv);
-                        if(merge.getFirstEditablePartOrNull() == null)
-                        {
+                        if (merge.getFirstEditablePartOrNull() == null) {
                             //no parts to edit, we must add one
                             BasicEnvironmentConfig environmentConfigForEdit = new BasicEnvironmentConfig(merge.name());
                             environmentConfigForEdit.setOrigins(new UIConfigOrigin());
@@ -290,12 +307,10 @@ public class BasicCruiseConfig implements CruiseConfig {
                         }
                         environments.add(merge);
                     }
-                }
-                else
-                {
+                } else {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
-                    if(oneEnv.size() == 1)
+                    if (oneEnv.size() == 1)
                         environments.add(oneEnv.get(0));
                     else
                         environments.add(new MergeEnvironmentConfig(oneEnv));
@@ -331,9 +346,8 @@ public class BasicCruiseConfig implements CruiseConfig {
                 map.get(key).add(pipes);
             }
 
-            for(List<PipelineConfigs> oneGroup : map.values())
-            {
-                if(forEdit) {
+            for (List<PipelineConfigs> oneGroup : map.values()) {
+                if (forEdit) {
                     // this cruise configuration may be changed (and cloned) later
                     // if all parts are immutable then we must add a piece for edits
                     if (oneGroup.size() == 1) {
@@ -341,8 +355,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                         if (sole.isLocal()) {
                             // the sole part is editable anyway
                             groups.add(sole);
-                        }
-                        else {
+                        } else {
                             BasicPipelineConfigs pipelineConfigsForEdit = new BasicPipelineConfigs();
                             pipelineConfigsForEdit.setGroup(sole.getGroup());
                             pipelineConfigsForEdit.setOrigins(new UIConfigOrigin());
@@ -350,8 +363,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                         }
                     } else {
                         MergePipelineConfigs merge = new MergePipelineConfigs(oneGroup);
-                        if(merge.getFirstEditablePartOrNull() == null)
-                        {
+                        if (merge.getFirstEditablePartOrNull() == null) {
                             //no parts to edit, we must add one
                             BasicPipelineConfigs pipelineConfigsForEdit = new BasicPipelineConfigs();
                             pipelineConfigsForEdit.setGroup(merge.getGroup());
@@ -360,12 +372,10 @@ public class BasicCruiseConfig implements CruiseConfig {
                         }
                         groups.add(merge);
                     }
-                }
-                else
-                {
+                } else {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
-                    if(oneGroup.size() == 1)
+                    if (oneGroup.size() == 1)
                         groups.add(oneGroup.get(0));
                     else
                         groups.add(new MergePipelineConfigs(oneGroup));
@@ -408,28 +418,23 @@ public class BasicCruiseConfig implements CruiseConfig {
             List<PipelineConfig> locals = new ArrayList<>();
 
             PipelineGroups localGroups = BasicCruiseConfig.this.groups.getLocal();
-            for(PipelineConfigs pipelineConfigs : localGroups)
-            {
-                if(pipelineConfigs.getOrigin() instanceof UIConfigOrigin)
-                {
+            for (PipelineConfigs pipelineConfigs : localGroups) {
+                if (pipelineConfigs.getOrigin() instanceof UIConfigOrigin) {
                     //then we have injected this so that UI has a piece to edit
                     // we want to keep it only if there is something added
-                    if(!pipelineConfigs.isEmpty())
-                    {
+                    if (!pipelineConfigs.isEmpty()) {
                         for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
-                            if(excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                            if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
                                 continue;
                             locals.add(pipelineConfig);
                         }
 
                     }
-                }
-                else
-                {
+                } else {
                     //origin is local file
 
                     for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
-                        if(excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                        if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
                             continue;
                         locals.add(pipelineConfig);
                     }
@@ -466,23 +471,45 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isAuthorizedToEditTemplate(String templateName, CaseInsensitiveString username) {
-        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
-        return isAdministrator(username.toString()) || getTemplates().canUserEditTemplate(template, username, rolesForUser(username));
+    public boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username) {
+        if (isAdministrator(username.toString())) {
+            return true;
+        }
+
+        PipelineTemplateConfig template = getTemplateByName(templateName);
+        return isAuthorizedToEditTemplate(template, username);
     }
 
     @Override
-    public boolean isAuthorizedToViewTemplate(String templateName, CaseInsensitiveString username) {
-        if (isAuthorizedToEditTemplate(templateName, username)) {
+    public boolean isAuthorizedToEditTemplate(PipelineTemplateConfig templateConfig, CaseInsensitiveString username) {
+        if (isAdministrator(username.toString())) {
             return true;
         }
-        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
-        return getTemplates().hasViewAccessToTemplate(template, username, rolesForUser(username), isGroupAdministrator(username));
+        return templateConfig.canBeEditedBy(username, rolesForUser(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username) {
+        if (isAdministrator(username.toString())) {
+            return true;
+        }
+
+        PipelineTemplateConfig template = getTemplateByName(templateName);
+        return isAuthorizedToViewTemplate(template, username);
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplate(PipelineTemplateConfig templateConfig, CaseInsensitiveString username) {
+        if (isAuthorizedToEditTemplate(templateConfig, username)) {
+            return true;
+        }
+        return templateConfig.getAuthorization().isViewUser(username, rolesForUser(username)) || (templateConfig.isAllowGroupAdmins() && isGroupAdministrator(username));
+
     }
 
     @Override
     public boolean isAuthorizedToViewTemplates(CaseInsensitiveString username) {
-        return  canViewAndEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
+        return canViewAndEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
     }
 
     private List<Role> rolesForUser(CaseInsensitiveString username) {
@@ -724,8 +751,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
             }
         }
-        for(ConfigRepoConfig configRepo : this.configRepos)
-        {
+        for (ConfigRepoConfig configRepo : this.configRepos) {
             MaterialConfig materialConfig = configRepo.getMaterialConfig();
             if (!uniqueMaterials.contains(materialConfig.getFingerprint())) {
                 materialConfigs.add(materialConfig);
@@ -1028,7 +1054,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         return getUniqueMaterials(false, true);
     }
 
-    private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines,boolean ignoreConfigRepos) {
+    private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines, boolean ignoreConfigRepos) {
         Set<MaterialConfig> materialConfigs = new HashSet<>();
         Set<Map> uniqueMaterials = new HashSet<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
@@ -1308,26 +1334,32 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username, List<Role> roles) {
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<>();
-        for (PipelineTemplateConfig template : getTemplates()) {
-            if (isAuthorizedToAccessTemplate(new CaseInsensitiveString(username), roles, template)) {
-                templateToPipelines.put(template.name(), new ArrayList<>());
+    public Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines() {
+        if(allTemplatesWithAssociatedPipelines == null){
+            allTemplatesWithAssociatedPipelines = new HashMap<>();
+            for (PipelineTemplateConfig templateConfig: getTemplates()) {
+                if (!allTemplatesWithAssociatedPipelines.containsKey(templateConfig.name())) {
+                    allTemplatesWithAssociatedPipelines.put(templateConfig.name(), new HashMap<>());
+                }
+            }
+
+            for (PipelineConfigs pipelineConfigs : getGroups()) {
+                List<PipelineConfig> pipelines = pipelineConfigs.getPipelines();
+                for (PipelineConfig pipeline : pipelines) {
+                    if (pipeline.hasTemplate()) {
+                        Map<CaseInsensitiveString, Authorization> authorizationMap = allTemplatesWithAssociatedPipelines.get(pipeline.getTemplateName());
+                        authorizationMap.put(pipeline.getName(), pipelineConfigs.getAuthorization());
+                    }
+                }
             }
         }
-        for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
-            CaseInsensitiveString name = pipelineConfig.getTemplateName();
-            if (pipelineConfig.hasTemplate() && templateToPipelines.containsKey(name)) {
-                templateToPipelines.get(name).add(pipelineConfig.name());
-            }
-        }
-        return templateToPipelines;
+        return allTemplatesWithAssociatedPipelines;
     }
 
     @Override
     public ArrayList<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName) {
         ArrayList<CaseInsensitiveString> pipelines = new ArrayList<>();
-        if(templateName != null) {
+        if (templateName != null) {
             for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
                 if (pipelineConfig.hasTemplate() && pipelineConfig.getTemplateName().equals(templateName)) {
                     pipelines.add(pipelineConfig.getName());
@@ -1453,7 +1485,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
-        return  strategy.getAllLocalPipelineConfigs(excludeMembersOfRemoteEnvironments);
+        return strategy.getAllLocalPipelineConfigs(excludeMembersOfRemoteEnvironments);
     }
 
     @Override
@@ -1469,10 +1501,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.strategy.setOrigins(origins);
-    }
-
-    private boolean isAuthorizedToAccessTemplate(CaseInsensitiveString username, List<Role> roles, PipelineTemplateConfig template) {
-        return isAdministrator(username.toString()) || template.getAuthorization().hasAdminOrViewPermissions(username, roles) || (template.isAllowGroupAdmins() && isGroupAdministrator(username));
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {
@@ -1491,4 +1519,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             }
         }
     }
+
+
 }

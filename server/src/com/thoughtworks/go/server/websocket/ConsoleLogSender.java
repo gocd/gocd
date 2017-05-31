@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobDetailService;
+import com.thoughtworks.go.server.util.Retryable;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @Component
 public class ConsoleLogSender {
@@ -69,7 +71,7 @@ public class ConsoleLogSender {
         // Sometimes the log file may not have been created yet; leave it up to the client to handle reconnect logic.
         try {
             waitForLogToExist(webSocket, jobIdentifier);
-        } catch (TooManyRetriesException e) {
+        } catch (Retryable.TooManyRetriesException e) {
             webSocket.close(LOG_DOES_NOT_EXIST, e.getMessage());
             return;
         }
@@ -107,20 +109,19 @@ public class ConsoleLogSender {
         webSocket.close();
     }
 
-    private void waitForLogToExist(SocketEndpoint websocket, JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, TooManyRetriesException {
-        for (int retries = 20; retries > 0; --retries) {
-            if (!websocket.isOpen() || consoleService.consoleLogFile(jobIdentifier).exists()) {
-                return;
-            }
+    private void waitForLogToExist(final SocketEndpoint websocket, final JobIdentifier jobIdentifier) throws Retryable.TooManyRetriesException {
+        Retryable.retry(new Predicate<Integer>() {
+            @Override
+            public boolean test(Integer integer) {
+                try {
+                    return !websocket.isOpen() || consoleService.consoleLogFile(jobIdentifier).exists();
+                } catch (IllegalArtifactLocationException e) {
+                    LOGGER.error("Job identifier {} is not valid; Cannot resolve console log file", jobIdentifier, e);
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ignored) {
-                LOGGER.warn("Couldn't sleep while testing console log existence", ignored);
+                    return true; // Stop trying
+                }
             }
-        }
-
-        throw new TooManyRetriesException(String.format("Console log file does not yet exist for %s", jobIdentifier));
+        }, String.format("waiting for console log to exist for %s", jobIdentifier), 20);
     }
 
     private boolean detectCompleted(JobIdentifier jobIdentifier) throws Exception {
@@ -157,9 +158,4 @@ public class ConsoleLogSender {
         buffer.clear();
     }
 
-    class TooManyRetriesException extends Exception {
-        TooManyRetriesException(String message) {
-            super(message);
-        }
-    }
 }

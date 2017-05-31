@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import javax.websocket.CloseReason;
 import java.io.IOException;
 
 public interface SocketEndpoint {

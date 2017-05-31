@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
@@ -44,7 +43,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
     private Session session;
     private String sessionId;
 
-    public ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier) {
+    ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier) {
         this.handler = handler;
         this.jobIdentifier = jobIdentifier;
     }

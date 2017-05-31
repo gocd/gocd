@@ -58,12 +58,12 @@ public class ConsoleLogSocketServlet extends WebSocketServlet {
         Username userName = UserHelper.getUserName();
         String pipeline = pipeline(request);
 
-        if (!authorizedToViewPipeline(userName, pipeline)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, String.format("%s is not authorized to view the pipeline %s", userName.getDisplayName(), pipeline));
+        if (authorizedToViewPipeline(userName, pipeline)) {
+            super.service(request, response);
             return;
         }
 
-        super.service(request, response);
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, String.format("%s is not authorized to view the pipeline %s", userName.getDisplayName(), pipeline));
     }
 
     private boolean authorizedToViewPipeline(Username username, String pipelineName) {

@@ -85,6 +85,11 @@ $menu-hover: #3e3d3d;
       margin-top:          -1px;
     }
   }
+  .first-sub .is-dropdown-submenu-parent > a {
+    &::after {
+      transform: rotate(0.75turn);
+    }
+  }
 }
 
 .menu {

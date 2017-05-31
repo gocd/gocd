@@ -398,10 +398,6 @@ function iframeResizer(Iframe){
 
 //Back to top button
 jQuery(function () {
-    //user drop-down  starts
-    new UserOptionsOnHeader().init();
-    //user drop-down  ends
-
     loadIframes();//initial loading of all iframes
     jQuery(window).on('resize',function(){
             jQuery('iframe').each(function(){

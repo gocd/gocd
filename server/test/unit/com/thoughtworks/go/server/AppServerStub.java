@@ -65,9 +65,4 @@ public class AppServerStub extends AppServer {
         calls.put("stop", true);
 
     }
-
-    @Override
-    void addWebSocketEndpoint(Class<?> endpointClass) throws Exception {
-        calls.put("addEndpoint", true);
-    }
 }

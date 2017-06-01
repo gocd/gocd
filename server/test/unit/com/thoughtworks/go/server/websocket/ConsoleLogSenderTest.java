@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
 public class ConsoleLogSenderTest {
     private ConsoleLogSender consoleLogSender;
     private ConsoleService consoleService;
-    private ConsoleLogEndpoint socket;
+    private SocketEndpoint socket;
     private JobIdentifier jobIdentifier;
     private JobInstance jobInstance;
 
@@ -44,7 +44,7 @@ public class ConsoleLogSenderTest {
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
         JobDetailService jobDetailService = mock(JobDetailService.class);
-        socket = mock(ConsoleLogEndpoint.class);
+        socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
         consoleLogSender = new ConsoleLogSender(consoleService, jobDetailService);
         jobIdentifier = mock(JobIdentifier.class);

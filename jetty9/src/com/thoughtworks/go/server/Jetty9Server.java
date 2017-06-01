@@ -35,8 +35,6 @@ import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.xml.sax.SAXException;
 
@@ -60,7 +58,6 @@ public class Jetty9Server extends AppServer {
     private WebAppContext webAppContext;
     private static final Logger LOG = Logger.getLogger(Jetty9Server.class);
     private GoSSLConfig goSSLConfig;
-    private ServerContainer webSocketContainer;
 
     public Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
         this(systemEnvironment, password, sslSocketFactory, new Server());
@@ -88,13 +85,7 @@ public class Jetty9Server extends AppServer {
         server.addBean(errorHandler);
         server.setHandler(handlers);
         performCustomConfiguration();
-        webSocketContainer = WebSocketServerContainerInitializer.configureContext(webAppContext);
         server.setStopAtShutdown(true);
-    }
-
-    @Override
-    void addWebSocketEndpoint(Class<?> endpointClass) throws Exception {
-        webSocketContainer.addEndpoint(endpointClass);
     }
 
     @Override

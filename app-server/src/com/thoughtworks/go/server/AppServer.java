@@ -44,6 +44,4 @@ public abstract class AppServer {
     abstract void start() throws Exception;
 
     abstract void stop() throws Exception;
-
-    abstract void addWebSocketEndpoint(Class<?> endpointClass) throws Exception;
 }

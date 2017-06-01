@@ -54,7 +54,7 @@ jar {
   classifier 'classes'
 }
 
-task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app-server:jar', ':common:jar', ':base:jar', ':domain:jar']) {
+task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app-server:jar', ':common:jar', ':base:jar']) {
   classifier = 'main'
 
   with(copySpec {
@@ -89,14 +89,6 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
   })
 
   with(copySpec {
-    from { zipTree(project(':domain').jar.archivePath) }
-    include "**/JobIdentifier.class"
-    include "**/LocatableEntity.class"
-
-    into('/')
-  })
-
-  with(copySpec {
     from { zipTree(project(':base').jar.archivePath) }
 
     include "**/AssertJava8.class"
@@ -123,8 +115,6 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
     from { zipTree(project(':server').jar.archivePath) }
 
     include "**/GoServer*.class"
-    include "**/ConsoleLogEndpoint*.class"
-    include "**/ConsoleLogSender*.class"
     include "**/DeploymentContextWriter*.class"
     include "**/BaseUrlProvider*.class"
     include "**/GoLauncher*.class"

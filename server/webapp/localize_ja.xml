@@ -56,7 +56,6 @@
     <entry key="PAUSED">Paused</entry>
     <entry key="WAITING">Waiting</entry>
     <entry key="ACTIVE">Active</entry>
-    <entry key="RERUN">RERUN</entry>
     <entry key="PIPELINE_CANNOT_VIEW">You do not have view permissions for pipeline ''{0}''.</entry>
     <entry key="PIPELINE_CANNOT_OPERATE">You do not have operate permissions for pipeline ''{0}''.</entry>
     <entry key="MATERIAL_WITH_FINGERPRINT_NOT_FOUND">Pipeline ''{0}'' does not contain material with fingerprint ''{1}''.</entry>

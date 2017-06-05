@@ -45,7 +45,7 @@ describe 'stages/_jobs.html.erb' do
       render :partial => "stages/jobs", :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => true}}
 
       Capybara.string(response.body).find("form[action='/pipelines/cruise/1/dev/2/rerun-jobs?tab=jobs']").tap do |form|
-        expect(form).to have_selector("button[type='submit']", "RERUN")
+        expect(form).to have_selector("button[type='submit']", "Rerun")
         expect(form).to have_selector("input[type='checkbox'][name='jobs[]'][value='first']")
         expect(form).to have_selector("input[type='checkbox'][name='jobs[]'][value='second']")
         expect(form).to have_selector("input[type='checkbox'][name='jobs[]'][value='third']")
@@ -59,7 +59,7 @@ describe 'stages/_jobs.html.erb' do
       render :partial => "stages/jobs", :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => true}}
 
       expect(response.body).to_not have_selector("form")
-      expect(response.body).to_not have_selector("button[type='submit']", "RERUN")
+      expect(response.body).to_not have_selector("button[type='submit']", "Rerun")
       expect(response.body).to_not have_selector("input[type='checkbox'][name='jobs[]'][value='first']")
       expect(response.body).to_not have_selector("input[type='checkbox'][name='jobs[]'][value='second']")
       expect(response.body).to_not have_selector("input[type='checkbox'][name='jobs[]'][value='third']")
@@ -70,7 +70,7 @@ describe 'stages/_jobs.html.erb' do
     it "should not display rerun button if user is not authorized" do
       render :partial => 'stages/jobs', :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => false}}
       Capybara.string(response.body).find("div#job_actions").tap do |div|
-        expect(div).to_not have_selector("button[type='submit']", 'RERUN')
+        expect(div).to_not have_selector("button[type='submit']", 'Rerun')
       end
       Capybara.string(response.body).find("table.jobs_summary").tap do |table|
         expect(table).to_not have_selector("input[type='checkbox'][name='jobs[]'][value='first']")
@@ -85,7 +85,7 @@ describe 'stages/_jobs.html.erb' do
       render :partial => 'stages/jobs', :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => true}}
 
       Capybara.string(response.body).find("div#job_actions").tap do |f|
-        expect(f).to have_selector("button[type='submit']", :text => 'RERUN')
+        expect(f).to have_selector("button[type='submit']", :text => 'RERUN SELECTED')
       end
 
       Capybara.string(response.body).find("table.jobs_summary").tap do |f|

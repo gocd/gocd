@@ -49,22 +49,6 @@ task karma(type: Exec) {
 
 }
 
-task jasmineNew(type: ExecuteUnderRailsTask) {
-  dependsOn ':server:testJar'
-  outputs.upToDateWhen { false }
-
-  description = 'Run new jasmine tests'
-
-  railsCommand = './bin/rake --trace jasmine:ci'
-  environment += [
-      'RAILS_ENV'          : 'test',
-      'REPORTERS'          : 'console,junit',
-      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-new.yml',
-      'REQUIRE_JS'         : 'true',
-      'BROWSER'            : browser(),
-  ]
-}
-
 task jasmineOld(type: ExecuteUnderRailsTask) {
   dependsOn ':server:testJar'
   outputs.upToDateWhen { false }
@@ -80,7 +64,7 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
   ]
 }
 
-task jasmine(dependsOn: [karma, jasmineNew, jasmineOld])
+task jasmine(dependsOn: [karma, jasmineOld])
 
 task jasmineKarmaServer(type: Exec) {
   dependsOn ':server:npmInstall'
@@ -98,17 +82,6 @@ task jasmineKarmaServer(type: Exec) {
   doFirst {
     println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
   }
-}
-
-task jasmineNewServer(type: ExecuteUnderRailsTask) {
-  description 'Run a web server to run jasmine tests locally'
-  railsCommand = './bin/rake --trace jasmine:server'
-  environment += [
-      'RAILS_ENV'          : 'test',
-      'REPORTERS'          : 'console,junit',
-      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-new.yml',
-      'REQUIRE_JS'         : 'true'
-  ]
 }
 
 task jasmineOldServer(type: ExecuteUnderRailsTask) {

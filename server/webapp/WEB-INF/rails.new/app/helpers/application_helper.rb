@@ -125,7 +125,7 @@ module ApplicationHelper
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(type: 'submit')
     options.merge!(disabled: 'disabled') unless system_environment.isServerActive()
-    options[:value] = name
+    options[:value] ||= name
     lambda_text, options_without_onclick = onclick_lambda(options)
     if (options[:type] == "image")
       button_body = image_button(name, options_without_onclick)

@@ -56,6 +56,8 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
@@ -327,6 +329,26 @@ public class ScheduleService {
             }
             return null;
         }
+    }
+
+    /**
+     * IMPORTANT: this method is only meant for TOP level usage(never use this within a transaction). It gobbles exception.
+     */
+    public Stage rerunFailedJobs(final Stage stage, final OperationResult result) {
+        final StageIdentifier identifier = stage.getIdentifier();
+        JobInstances jobInstances = stage.jobsWithResult(JobResult.Cancelled, JobResult.Failed);
+        List<String> jobNames = jobInstances.stream().map(new Function<JobInstance, String>() {
+            @Override
+            public String apply(JobInstance jobInstance) {
+                return jobInstance.getName();
+            }
+        }).collect(Collectors.toList());
+
+        if (jobNames.isEmpty()) {
+            String message = "There are no failed jobs in the stage that could be re-run";
+            result.badRequest(message, message, HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
+        }
+        return rerunJobs(stage, jobNames, result);
     }
 
     private String mutexForPipeline(String pipelineName) {

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.RunDuration;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.XmlRepresentable;
@@ -63,6 +64,8 @@ public class StageXmlViewModel implements XmlRepresentable {
 
         root.addElement("approvedBy").addCDATA(stage.getApprovedBy());
 
+        root.addElement("duration").addText(getStageDurationForXml(stage));
+
         Element jobs = root.addElement("jobs");
         for (JobInstance jobInstance : stage.getJobInstances()) {
             jobs.addElement("job").addAttribute("href", writerContext.getBaseUrl() + "/api/jobs/" + jobInstance.getId() + ".xml");
@@ -73,5 +76,13 @@ public class StageXmlViewModel implements XmlRepresentable {
 
     public String httpUrl(String baseUrl) {
         return httpUrlFor(baseUrl, stage.getId());
+    }
+
+    public String getStageDurationForXml(Stage stage) {
+        try {
+            return stage.getDuration().duration(RunDuration.PERIOD_FORMATTER);
+        } catch (NullPointerException e) {
+            return "N/A";
+        }
     }
 }

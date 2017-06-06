@@ -25,6 +25,7 @@ describe "/api/stages" do
     @stage.setApprovedBy("blahUser")
     @stage.setPipelineId(100)
     @stage_id = @stage.getIdentifier()
+    @stage_duration = @stage.getDuration().toString()
     @context = XmlWriterContext.new("http://localhost:8153/go", nil, nil, nil, nil)
     assign(:doc, StageXmlViewModel.new(@stage).toXml(@context))
     allow(view).to receive(:api_pipeline_instance_url) do |options|
@@ -45,6 +46,7 @@ describe "/api/stages" do
     expect(stage.xpath("state").text).to eq("Completed")
     expect(stage.xpath("state").text).to eq("Completed")
     expect(stage.xpath("approvedBy").text).to eq("blahUser")
+    expect(stage.xpath("duration").text).to eq(@stage_duration)
 
     jobs = stage.xpath("jobs/job")
     expect(jobs.count).to eq(1)

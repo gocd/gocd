@@ -50,13 +50,23 @@
       container.addClass(result.toLowerCase())
     },
     updateBuildSummary:      function updateBuildSummary(json) {
+
+      function toHumanReadable(timestamp) {
+        timestamp = parseInt(timestamp);
+        if (isNaN(timestamp) || timestamp === -1) {
+          return "N/A";
+        }
+        var time = new Date(timestamp);
+        return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
+      };
+
       $(".job_details_content").attr("data-result", status).removeData("data-result");
-      $('#build_scheduled_date').text(json.building_info.build_scheduled_date);
-      $('#build_assigned_date').text(json.building_info.build_assigned_date);
-      $('#build_preparing_date').text(json.building_info.build_preparing_date);
-      $('#build_building_date').text(json.building_info.build_building_date);
-      $('#build_completing_date').text(json.building_info.build_completing_date);
-      $('#build_completed_date').text(json.building_info.build_completed_date);
+      $('#build_scheduled_date').text(toHumanReadable(json.building_info.build_scheduled_date));
+      $('#build_assigned_date').text(toHumanReadable(json.building_info.build_assigned_date));
+      $('#build_preparing_date').text(toHumanReadable(json.building_info.build_preparing_date));
+      $('#build_building_date').text(toHumanReadable(json.building_info.build_building_date));
+      $('#build_completing_date').text(toHumanReadable(json.building_info.build_completing_date));
+      $('#build_completed_date').text(toHumanReadable(json.building_info.build_completed_date));
       $('#agent_name').attr("href", context_path("agents/" + json.building_info.agent_uuid));
       $('#agent_name').text(json.building_info.agent + ' (ip:' + json.building_info.agent_ip + ')');
 

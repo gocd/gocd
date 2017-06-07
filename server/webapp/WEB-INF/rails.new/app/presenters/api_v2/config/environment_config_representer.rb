@@ -17,14 +17,22 @@
 module ApiV2
   module Config
     class EnvironmentConfigRepresenter < ApiV2::BaseRepresenter
-      alias_method :environment, :represented
+      def initialize(env, is_remote=false)
+        @environment = env
+        @is_remote = is_remote
+        super(env)
+      end
 
       error_representer({
-                          'variables' => 'environment_variables',
+                            'variables' => 'environment_variables',
                         })
 
       link :self do |opts|
-        opts[:url_builder].apiv2_admin_environment_url(name: environment.name)
+        if @is_remote
+          opts[:url_builder].apiv2_admin_remote_environments_url(name: @environment.name)
+        else
+          opts[:url_builder].apiv2_admin_environment_url(name: @environment.name)
+        end
       end
 
       link :doc do |opts|
@@ -32,7 +40,11 @@ module ApiV2
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv2_admin_environment_url(name: '__environment_name__').gsub(/__environment_name__/, ':environment_name')
+        if @is_remote
+          opts[:url_builder].apiv2_admin_remote_environments_url(name: '__environment_name__').gsub(/__environment_name__/, ':environment_name')
+        else
+          opts[:url_builder].apiv2_admin_environment_url(name: '__environment_name__').gsub(/__environment_name__/, ':environment_name')
+        end
       end
 
       property :name, case_insensitive_string: true
@@ -54,27 +66,27 @@ module ApiV2
                  class: EnvironmentVariableConfig
 
       def environment_variables
-        environment.getVariables()
+        @environment.getVariables()
       end
 
       def agents
-        environment.getAgents.to_a
+        @environment.getAgents.to_a
       end
 
       def agents=(agents)
-        environment.setAgents(agents)
+        @environment.setAgents(agents)
       end
 
       def environment_variables=(array_of_variables)
-        environment.setVariables(EnvironmentVariablesConfig.new(array_of_variables))
+        @environment.setVariables(EnvironmentVariablesConfig.new(array_of_variables))
       end
 
       def pipelines
-        environment.getPipelines.to_a
+        @environment.getPipelines.to_a
       end
 
       def pipelines=(pipelines)
-        environment.setPipelines(pipelines)
+        @environment.setPipelines(pipelines)
       end
     end
   end

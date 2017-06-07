@@ -285,7 +285,7 @@ Go::Application.routes.draw do
           patch on: :member, action: :patch
           put on: :member, action: :put
         end
-        get 'environments/:name/withremote' => 'environments_with_remote#show', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
+        get 'environments/:name/withremote' => 'environments_with_remote#show', constraints: {:name => ENVIRONMENT_NAME_FORMAT}, as: :remote_environments
       end
 
       match '*url', via: :all, to: 'errors#not_found'

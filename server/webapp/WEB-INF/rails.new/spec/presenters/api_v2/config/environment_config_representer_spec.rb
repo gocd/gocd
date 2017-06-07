@@ -40,6 +40,16 @@ describe ApiV2::Config::EnvironmentConfigRepresenter do
                                 })
     end
 
+    it 'renders appropriate href url for remote environments' do
+      presenter = ApiV2::Config::EnvironmentConfigRepresenter.new(get_environment_config, true)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+
+      expect(actual_json).to have_links(:self, :find, :doc)
+      expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/environments/:environment_name/withremote')
+      expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/environments/dev/withremote')
+      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#environment-config')
+    end
+
 
     def get_environment_config
       EnvironmentConfigMother.environment('dev').tap { |c| c.addEnvironmentVariable('username', 'admin') }

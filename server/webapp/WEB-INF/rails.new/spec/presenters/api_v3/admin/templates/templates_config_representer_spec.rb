@@ -19,14 +19,17 @@ require 'spec_helper'
 describe ApiV3::Admin::Templates::TemplatesConfigRepresenter do
 
   it 'should render links' do
-    template_with_pipelines = ['template-name', ['pipeline1', 'pipeline2']]
-    actual_json = ApiV3::Admin::Templates::TemplatesConfigRepresenter.new([template_with_pipelines]).to_hash(url_builder: UrlBuilder.new)
+    templates = TemplateToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
+
+    actual_json = ApiV3::Admin::Templates::TemplatesConfigRepresenter.new([templates]).to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc, :find)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/templates')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#template-config')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#template-config')
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/templates/:template_name')
     actual_json.delete(:_links)
 
-    actual_json.fetch(:_embedded).should == {templates: [ApiV3::Admin::Templates::TemplateSummaryRepresenter.new(template_with_pipelines).to_hash(url_builder: UrlBuilder.new)]}
+    actual_json.fetch(:_embedded).should == {templates: [ApiV3::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)]}
   end
 end

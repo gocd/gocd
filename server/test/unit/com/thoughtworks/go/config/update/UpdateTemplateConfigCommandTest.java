@@ -135,10 +135,11 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        PipelineTemplateConfig oldTemplate = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.manualStage("foo"));
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
+        PipelineTemplateConfig oldTemplate = new PipelineTemplateConfig(templateName, StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(oldTemplate);
         when(entityHashingService.md5ForEntity(oldTemplate)).thenReturn("md5");
-        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
+        when(securityService.isAuthorizedToEditTemplate(templateName, currentUser)).thenReturn(false);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
@@ -149,7 +150,7 @@ public class UpdateTemplateConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveifUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("md5");
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);

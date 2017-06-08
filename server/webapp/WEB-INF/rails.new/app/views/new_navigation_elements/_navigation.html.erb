@@ -33,7 +33,7 @@
   <div class="medium-6 columns">
     <div class="top-bar-right">
       <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
-        <li><%= link_to(l.string('HELP_SMALL'), 'https://gocd.io/help', :target => '_blank') %></li>
+        <li><%= link_to(l.string('HELP_SMALL'), 'https://gocd.org/help', :target => '_blank') %></li>
         <% unless @user.anonymous? %>
             <li class="current-user">
               <a href="#" onclick="return false;"><i class="user"></i><%= @user.display_name %></a>
@@ -49,7 +49,7 @@
             <span class="bell"></span>
             <div class="hover-container">
               <div class="hover">
-                <span>A new release of GoCD - <a href="https://www.gocd.io/download/" target="_blank"><%= go_update %></a> is available.</span>
+                <span>A new release of GoCD - <a href="https://www.gocd.org/download/" target="_blank"><%= go_update %></a> is available.</span>
               </div>
             </div>
           </div>

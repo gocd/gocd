@@ -16,7 +16,6 @@
 
 Go::Application.routes.draw do
   mount JasmineRails::Engine => '/jasmine-specs', as: :jasmine_old if defined?(JasmineRails)
-  mount JasmineRails::Engine => '/jasmine-specs-new', as: :jasmine_new if defined?(JasmineRails)
 
   unless defined?(CONSTANTS)
     ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
@@ -310,6 +309,7 @@ Go::Application.routes.draw do
 
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
       end
 
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do

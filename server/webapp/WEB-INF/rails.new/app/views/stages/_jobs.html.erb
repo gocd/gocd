@@ -5,7 +5,8 @@
 
 <div id="job_actions">
 <%- if scope[:has_operate_permissions] && scope[:stage].getState().completed() -%>
-        <%= submit_button(l.string("RERUN")) %>
+        <%= submit_button("RERUN SELECTED", value: 'RERUN') %>
+        <%= submit_button("RERUN FAILED", name: 'rerun-failed', value: true) if scope[:stage].getState().completed() && scope[:stage].getState().stageResult().in?([com.thoughtworks.go.domain.StageResult::Failed, com.thoughtworks.go.domain.StageResult::Cancelled]) %>
     <% end %>
 </div>
 

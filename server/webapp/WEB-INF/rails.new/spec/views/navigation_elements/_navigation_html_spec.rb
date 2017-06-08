@@ -56,7 +56,7 @@ describe "/navigation_elements/navigation" do
       render :partial => partial_page
 
       expect(response.body).to have_selector(".current-user a[href='#']", text: "go_user")
-      expect(response.body).to have_selector(".current-user a[href='https://gocd.io/help']", text: "Help")
+      expect(response.body).to have_selector(".current-user a[href='https://gocd.org/help']", text: "Help")
       expect(response.body).to have_selector(".current-user a[href='/preferences/notifications']", text: "Preferences")
       expect(response.body).to have_selector(".current-user a[href='/auth/logout']", text: "Sign out")
     end
@@ -72,7 +72,7 @@ describe "/navigation_elements/navigation" do
       expect(response.body).to_not have_selector(".current-user a[href='#']", text: "go_user")
       expect(response.body).to_not have_selector(".current-user a[href='/preferences/notifications']", text: "Preferences")
       expect(response.body).to_not have_selector(".current-user a[href='/auth/logout']", text: "Sign out")
-      expect(response.body).to have_selector(".current-user a[href='https://gocd.io/help']", text: "Help")
+      expect(response.body).to have_selector(".current-user a[href='https://gocd.org/help']", text: "Help")
     end
   end
 
@@ -112,13 +112,12 @@ describe "/navigation_elements/navigation" do
     end
 
     it "should show only tabs relevant to group admin in admin dropdown if user is just group admin" do
-      allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
       allow(view).to receive(:is_user_an_admin?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
       render :partial => partial_page
 
-      assert_values_there = {"Pipelines" => pipeline_groups_path, "Elastic Agent Profiles" => admin_elastic_profiles_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
+      assert_values_there = {"Pipelines" => pipeline_groups_path, "Templates" => templates_path, "Elastic Agent Profiles" => admin_elastic_profiles_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
 
       Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)

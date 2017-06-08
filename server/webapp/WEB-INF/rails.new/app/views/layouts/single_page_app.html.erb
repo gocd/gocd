@@ -9,11 +9,7 @@
   <link rel="shortcut icon" href="<%= asset_path('cruise.ico') %>"/>
   <%= stylesheet_link_tag 'frameworks' %>
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
-  <% if (controller_name == 'pipeline_configs' && !@enable_new_quick_edit_page) %>
-    <%= requirejs_include_tag 'single_page_apps/pipeline_configs' %>
-  <% else %>
-    <%= javascript_include_tag *webpack_asset_paths("single_page_apps/#{controller_name}") %>
-  <% end %>
+  <%= javascript_include_tag *webpack_asset_paths("single_page_apps/#{controller_name}") %>
   <%= csrf_meta_tags %>
 </head>
 

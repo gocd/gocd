@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Descriptor represent the plugin descriptor XML file.
  *
- * @see <a href="https://developer.gocd.io/current/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
+ * @see <a href="https://developer.gocd.org/current/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  *
  * @author Go Team
  */

@@ -18,9 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.*;
-import com.thoughtworks.go.domain.CaseInsensitiveStringTest;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.helper.*;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -33,7 +31,6 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConf
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -196,80 +193,5 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         assertThat(cruiseConfig.pipelinesAssociatedWithTemplate(new CaseInsensitiveString("non-existent-template")).isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldReturnAMapOfAllTemplateNamesToPipelinesForAnAdminUser() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p2", "t2", "s2", "j2");
-
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        List<CaseInsensitiveString> template1Pipelines = Arrays.asList(new CaseInsensitiveString("p1"));
-        List<CaseInsensitiveString> template2Pipelines = Arrays.asList(new CaseInsensitiveString("p2"));
-        map.put(new CaseInsensitiveString("t1"), template1Pipelines);
-        map.put(new CaseInsensitiveString("t2"), template2Pipelines);
-
-        assertThat(cruiseConfig.templatesWithPipelinesForUser("admin", null), is(map));
-    }
-
-    @Test
-    public void shouldReturnASubsetOfTemplatesToPipelinesMapForTemplateAdmin() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("t2"), new ArrayList<>());
-
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(templateAdmin.toString(), null), is(map));
-    }
-
-    @Test
-    public void shouldReturnASubsetOfTemplatesToPipelinesMapForTemplateViewUser() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("t2"), new ArrayList<>());
-
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(templateViewUser.toString(), null), is(map));
-    }
-
-    @Test
-    public void shouldReturnASubsetOfTemplatesToPipelinesMapForGroupAdmin() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString groupAdmin = new CaseInsensitiveString("template-view");
-        new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "p1", "s1", "j1");
-        PipelineConfigs pipelineConfigs = cruiseConfig.getGroups().get(0);
-        pipelineConfigs.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(groupAdmin))));
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("t2"), new ArrayList<>());
-
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(groupAdmin.toString(), null), is(map));
-    }
-
-    @Test
-    public void shouldReturnAnEmptyMapForARegularUser() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString regularUser = new CaseInsensitiveString("view");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(regularUser.toString(), null), is(new HashMap<>()));
-    }
-
-    private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
-        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
-        cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
-        return cruiseConfig;
     }
 }

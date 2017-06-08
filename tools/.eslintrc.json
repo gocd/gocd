@@ -9,8 +9,7 @@
     "es6": true
   },
   "plugins": [
-    "react",
-    "requirejs"
+    "react"
   ],
   "settings": {
     "react": {

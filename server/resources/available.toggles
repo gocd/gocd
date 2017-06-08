@@ -3,23 +3,13 @@
    "toggles": [
       {
          "key": "pipeline_comment_feature_toggle_key",
-         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.io/current/beta/comment_on_pipeline_run.html. Default: off.",
+         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.org/current/beta/comment_on_pipeline_run.html. Default: off.",
          "value": false
       },
       {
          "key": "pipeline_config_single_page_app_key",
          "description": "Enables the pipeline config single page application. Default: enabled.",
          "value": true
-      },
-      {
-         "key": "pipeline_config_spa_on_new_mithril_toggle_key",
-         "description": "Enables the new pipeline config single page application on mithril 1.0. Default: disabled.",
-         "value": false
-      },
-      {
-         "key": "auth_and_role_config_spa_toggle_key",
-         "description": "Enables the auth and role config SPA's. Default: disabled.",
-         "value": false
       }
-   ]
+  ]
 }

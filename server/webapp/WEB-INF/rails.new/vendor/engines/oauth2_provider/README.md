@@ -1,6 +1,6 @@
 # Oauth2Provider for #gocd
 
-This repo has the migration of #gocd oauth2provider into a Rails 4 Engine. This engine will be consumed by [#gocd](https://gocd.io)
+This repo has the migration of #gocd oauth2provider into a Rails 4 Engine. This engine will be consumed by [#gocd](https://gocd.org)
 
 ## Build
 

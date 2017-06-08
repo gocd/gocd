@@ -137,12 +137,12 @@ public class SecurityServiceTest {
     @Test
     public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsAnAdminOfThisTemplate() throws Exception {
         CruiseConfig config = new BasicCruiseConfig();
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
 
         GoConfigMother.enableSecurityWithPasswordFile(config);
         GoConfigMother.addUserAsSuperAdmin(config, "theSuperAdmin");
-        config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
+        config.addTemplate(createTemplate("template", new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
 
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(templateAdminName))).thenReturn(false);
@@ -155,10 +155,10 @@ public class SecurityServiceTest {
     public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsASuperAdmin() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         String adminName = "theSuperAdmin";
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
-        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, adminName).addTemplate(createTemplate(templateName));
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, adminName).addTemplate(createTemplate("template"));
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.isUserAdmin(new Username(new CaseInsensitiveString(adminName)))).thenReturn(true);
@@ -195,10 +195,10 @@ public class SecurityServiceTest {
     @Test
     public void shouldReturnTrueForSuperAdminToViewTemplateConfiguration() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
         Username admin = new Username(new CaseInsensitiveString("admin"));
 
-        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, "admin").addTemplate(createTemplate(templateName));
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, "admin").addTemplate(createTemplate("template"));
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.isUserAdmin(admin)).thenReturn(true);
@@ -210,9 +210,9 @@ public class SecurityServiceTest {
     public void shouldReturnTrueForTemplateAdminsToViewTemplateConfiguration() {
         CruiseConfig config = getCruiseConfigWithSecurityEnabled();
         CaseInsensitiveString templateAdmin = new CaseInsensitiveString("templateAdmin");
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdmin)))));
+        config.addTemplate(createTemplate("template", new Authorization(new AdminsConfig(new AdminUser(templateAdmin)))));
 
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(templateAdmin))).thenReturn(false);
@@ -224,9 +224,9 @@ public class SecurityServiceTest {
     public void shouldReturnTrueForTemplateViewUsersToViewTemplateConfiguration() {
         CruiseConfig config = getCruiseConfigWithSecurityEnabled();
         CaseInsensitiveString templateViewUser = new CaseInsensitiveString("templateView");
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        config.addTemplate(createTemplate(templateName, new Authorization(new ViewConfig(new AdminUser(templateViewUser)))));
+        config.addTemplate(createTemplate("template", new Authorization(new ViewConfig(new AdminUser(templateViewUser)))));
 
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(templateViewUser))).thenReturn(false);
@@ -239,9 +239,9 @@ public class SecurityServiceTest {
         CruiseConfig config = getCruiseConfigWithSecurityEnabled();
         CaseInsensitiveString groupAdmin = new CaseInsensitiveString("groupAdmin");
         setUpGroupWithAuthorization(config, new Authorization(new AdminsConfig(new AdminUser(groupAdmin))));
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        config.addTemplate(createTemplate(templateName));
+        config.addTemplate(createTemplate("template"));
 
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(groupAdmin))).thenReturn(false);
@@ -257,9 +257,9 @@ public class SecurityServiceTest {
 
         setUpGroupWithAuthorization(config, new Authorization(new AdminsConfig(new AdminUser(groupAdmin))));
 
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        PipelineTemplateConfig template = createTemplate(templateName);
+        PipelineTemplateConfig template = createTemplate("template");
         template.getAuthorization().setAllowGroupAdmins(false);
         config.addTemplate(template);
 
@@ -282,9 +282,9 @@ public class SecurityServiceTest {
 
         setUpGroupWithAuthorization(config, new Authorization(new AdminsConfig(new AdminRole(role))));
 
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        config.addTemplate(createTemplate(templateName));
+        config.addTemplate(createTemplate("template"));
 
         when(goConfigService.cruiseConfig()).thenReturn(config);
         when(goConfigService.isUserAdmin(new Username(groupAdmin))).thenReturn(false);
@@ -305,9 +305,9 @@ public class SecurityServiceTest {
 
         setUpGroupWithAuthorization(config, new Authorization(new AdminsConfig(new AdminRole(role))));
 
-        String templateName = "template";
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        PipelineTemplateConfig template = createTemplate(templateName);
+        PipelineTemplateConfig template = createTemplate("template");
         template.getAuthorization().setAllowGroupAdmins(false);
         config.addTemplate(template);
 

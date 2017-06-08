@@ -23,7 +23,7 @@ module ApiV3
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#plugin-info'
+        'https://api.gocd.org/#plugin-info'
       end
 
       link :find do |opts|

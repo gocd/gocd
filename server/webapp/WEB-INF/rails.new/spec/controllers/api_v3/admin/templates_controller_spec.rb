@@ -76,14 +76,16 @@ describe ApiV3::Admin::TemplatesController do
         enable_security
         login_as_admin
 
-        template_pipelines_map = {'template' => ['pipeline1', 'pipeline2']}
+        templates = TemplateToPipelines.new(CaseInsensitiveString.new("template"), true, true)
+        templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+        templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
 
-        @template_config_service.should_receive(:templatesWithPipelinesForUser).and_return(template_pipelines_map)
+        @template_config_service.should_receive(:getTemplatesList).and_return([templates])
 
         get_with_api_header :index
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(template_pipelines_map, ApiV3::Admin::Templates::TemplatesConfigRepresenter))
+        expect(actual_response).to eq(expected_response([templates], ApiV3::Admin::Templates::TemplatesConfigRepresenter))
       end
     end
     describe :route do
@@ -238,6 +240,13 @@ describe ApiV3::Admin::TemplatesController do
       it 'should allow admin, with security enabled' do
         enable_security
         login_as_admin
+
+        expect(controller).to allow_action(:post, :create)
+      end
+
+      it 'should allow pipeline group admins, with security enabled' do
+        enable_security
+        login_as_group_admin
 
         expect(controller).to allow_action(:post, :create)
       end

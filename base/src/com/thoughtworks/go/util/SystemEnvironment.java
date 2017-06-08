@@ -175,7 +175,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> GO_CONFIG_REPO_PERIODIC_GC = new GoBooleanSystemProperty("go.config.repo.gc.periodic", false);
 
     public static GoSystemProperty<String> GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME = new GoStringSystemProperty("go.update.server.public.key.file.name", "go_update_server.pub");
-    public static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.io/channels/supported/latest.json");
+    public static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.org/channels/supported/latest.json");
     public static GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
 
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS = new GoIntSystemProperty("go.elasticplugin.createagent.threads", 5);
@@ -206,7 +206,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Boolean> OPTIMIZE_FULL_CONFIG_SAVE = new GoBooleanSystemProperty("optimize.full.config.save", true);
     public static GoSystemProperty<String> GO_SERVER_MODE = new GoStringSystemProperty("go.server.mode", "production");
-    public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", false);
+    public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> INBUILT_LDAP_PASSWORD_AUTH_ENABLED = new GoBooleanSystemProperty("go.security.inbuilt.auth.enabled", false);
 

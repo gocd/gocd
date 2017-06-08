@@ -125,7 +125,7 @@ module ApplicationHelper
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(type: 'submit')
     options.merge!(disabled: 'disabled') unless system_environment.isServerActive()
-    options[:value] = name
+    options[:value] ||= name
     lambda_text, options_without_onclick = onclick_lambda(options)
     if (options[:type] == "image")
       button_body = image_button(name, options_without_onclick)
@@ -459,10 +459,6 @@ module ApplicationHelper
 
   def is_pipeline_config_spa_enabled?
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
-  end
-
-  def is_auth_and_role_config_spa_enabled?
-    Toggles.isToggleOn(Toggles.AUTH_AND_ROLE_CONFIG_SPA_TOGGLE_KEY)
   end
 
   private

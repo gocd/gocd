@@ -55,7 +55,7 @@ module AuthenticationHelper
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
       render_unauthorized_error
     end
-    if !template_name.blank? && !security_service.isAuthorizedToEditTemplate(template_name, current_user)
+    if !template_name.blank? && !security_service.isAuthorizedToEditTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), current_user)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
       render_unauthorized_error
     end
@@ -64,7 +64,7 @@ module AuthenticationHelper
   def check_view_access_to_template_and_401
     return unless security_service.isSecurityEnabled
     template_name = params[:template_name]
-    if !template_name.blank? && !security_service.isAuthorizedToViewTemplate(template_name, current_user)
+    if !template_name.blank? && !security_service.isAuthorizedToViewTemplate(com.thoughtworks.go.config.CaseInsensitiveString.new(template_name), current_user)
       Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
       render_unauthorized_error
     end

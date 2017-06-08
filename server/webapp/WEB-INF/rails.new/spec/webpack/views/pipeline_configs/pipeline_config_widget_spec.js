@@ -108,7 +108,8 @@ describe("PipelineConfigWidget", () => {
 
   it('should disable button and page edits while pipeline config save is in progress', () => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest('/go/api/admin/pipelines/yourproject', undefined, 'PATCH');
+      jasmine.Ajax.stubRequest('/go/api/admin/pipelines/yourproject', undefined, 'PUT');
+
       const saveButton   = $root.find('button.save-pipeline');
       const pipelineBody = $root.find('.pipeline-body');
 

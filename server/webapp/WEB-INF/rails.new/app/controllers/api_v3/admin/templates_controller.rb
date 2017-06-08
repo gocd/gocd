@@ -18,13 +18,13 @@ module ApiV3
   module Admin
     class TemplatesController < ApiV3::BaseController
       before_action :load_template, only: [:show, :update, :destroy]
-      before_action :check_admin_user_and_401, only: [:create]
+      before_action :check_admin_user_or_group_admin_user_and_401, only: [:create]
       before_action :check_admin_or_template_admin_and_401, only: [:destroy, :update]
       before_action :check_view_access_to_template_and_401, only: [:show, :index]
       before_action :check_for_stale_request, :check_for_attempted_template_rename, only: [:update]
 
       def index
-        templates = template_config_service.templatesWithPipelinesForUser(current_user.getUsername.toString)
+        templates = template_config_service.getTemplatesList(current_user)
         json = ApiV3::Admin::Templates::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json
       end

@@ -75,7 +75,7 @@ describe "admin/commands/index.html.erb" do
 
     expect(response.body).to have_selector("div.gist_based_auto_complete div.error-message-for-old-args", :text =>
         "The lookup feature is only available for the new style of custom commands.", :visible => false)
-    expect(response.body).to have_selector("div.gist_based_auto_complete div.error-message-for-old-args a[href='https://docs.gocd.io/current/advanced_usage/command_repository.html#args-style-commands']", :text =>
+    expect(response.body).to have_selector("div.gist_based_auto_complete div.error-message-for-old-args a[href='https://docs.gocd.org/current/advanced_usage/command_repository.html#args-style-commands']", :text =>
         "new style", :visible => false)
   end
 

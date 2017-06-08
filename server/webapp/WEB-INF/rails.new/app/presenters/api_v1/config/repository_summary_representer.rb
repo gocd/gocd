@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#package-repositories'
+        'https://api.gocd.org/#package-repositories'
       end
 
       link :find do |opts|

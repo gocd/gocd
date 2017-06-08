@@ -93,6 +93,7 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
   with(copySpec {
     from { zipTree(project(':base').jar.archivePath) }
 
+    include "**/AssertJava8.class"
     include "**/LogConfigurator.class"
     include "**/OperatingSystem.class"
     include "**/SystemEnvironment*.class"
@@ -164,7 +165,6 @@ task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCom
 task createVersionFile {
   def file = file("${project.buildDir}/version.txt")
   inputs.property('version', rootProject.version)
-  inputs.property('distVersion', rootProject.distVersion)
   inputs.property('gitRevision', rootProject.gitRevision)
 
   outputs.file file
@@ -172,7 +172,7 @@ task createVersionFile {
   doLast {
     file.getParentFile().mkdirs()
     file.withWriter { out ->
-      out.write("${rootProject.version}(${rootProject.distVersion}-${rootProject.gitRevision})")
+      out.write("${rootProject.version} (${rootProject.gitRevision})")
     }
   }
 }

@@ -27,7 +27,7 @@ module ApiV3
         end
 
         link :doc do |opts|
-          'https://api.gocd.io/#template-config'
+          'https://api.gocd.org/#template-config'
         end
 
         link :find do |opts|

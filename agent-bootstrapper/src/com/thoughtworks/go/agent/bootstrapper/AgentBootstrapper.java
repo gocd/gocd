@@ -33,6 +33,8 @@ import org.apache.log4j.NDC;
 
 import java.io.File;
 
+import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
+
 public class AgentBootstrapper {
 
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
@@ -56,6 +58,7 @@ public class AgentBootstrapper {
     }
 
     public static void main(String[] argv) {
+        assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
         logConfigurator.initialize();

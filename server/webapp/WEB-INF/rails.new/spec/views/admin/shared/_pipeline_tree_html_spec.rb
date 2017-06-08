@@ -73,8 +73,8 @@ describe "pipeline_tree" do
     assign(:user, template_admin)
     view.stub(:is_user_an_admin?).and_return(false)
     view.stub(:current_user).and_return(template_admin)
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with("new-template", template_admin).and_return(true)
-    @security_service.should_receive(:isAuthorizedToViewTemplate).with("new-template", template_admin).and_return(true)
+    @security_service.should_receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("new-template"), template_admin).and_return(true)
+    @security_service.should_receive(:isAuthorizedToViewTemplate).with(CaseInsensitiveString.new("new-template"), template_admin).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
@@ -147,8 +147,8 @@ describe "pipeline_tree" do
     assign(:user, template_admin)
     view.stub(:is_user_an_admin?).and_return(false)
     view.stub(:current_user).and_return(template_admin)
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with("new-template", template_admin).and_return(true)
-    @security_service.should_receive(:isAuthorizedToViewTemplate).with("new-template", template_admin).and_return(true)
+    @security_service.should_receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("new-template"), template_admin).and_return(true)
+    @security_service.should_receive(:isAuthorizedToViewTemplate).with(CaseInsensitiveString.new("new-template"), template_admin).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 

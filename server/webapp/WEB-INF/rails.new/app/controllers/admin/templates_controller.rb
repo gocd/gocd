@@ -16,7 +16,8 @@
 
 class Admin::TemplatesController < AdminController
 
-  before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions, :new, :create]
+  before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions]
+  before_filter :check_admin_user_or_group_admin_user_and_401, only: [:new, :create]
   before_filter :check_admin_or_template_admin_and_401, only: [:edit, :destroy, :update]
   before_filter :load_templates_from_service, :only => :index
   before_filter :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
@@ -81,13 +82,16 @@ class Admin::TemplatesController < AdminController
     assert_load :pipeline, create_empty_template_view_model
     @pipeline.setConfigAttributes(params[:pipeline])
     template_name = params[:pipeline][:template][:name]
-    save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsSuperAdmin) do
+    save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsGroupAdmin) do
       include ::ConfigUpdate::CruiseConfigNode
 
       def initialize params, user, security_service, template_view_model
         super(params, user, security_service)
         @view_model = template_view_model
         @template = template_view_model.templateConfig()
+        if security_service.isUserGroupAdmin(user)
+          @template.setAuthorization(Authorization.new(AdminsConfig.new(AdminUser.new(user.getUsername()))))
+        end
       end
 
       def subject(cruise_config)
@@ -128,17 +132,11 @@ class Admin::TemplatesController < AdminController
   end
 
   def load_templates from
-    assert_load :template_to_pipelines, from.templatesWithPipelinesForUser(current_user.getUsername.toString)
+    assert_load :template_to_pipelines, from.templatesWithPipelinesForUser(current_user.getUsername)
   end
 
   def load_cruise_config
-    if security_service.isAuthorizedToViewAndEditTemplates(current_user)
-      result = HttpLocalizedOperationResult.new
-      assert_load :cruise_config, go_config_service.loadCruiseConfigForEdit(current_user, result)
-      unless result.isSuccessful()
-        render_localized_operation_result result
-      end
-    end
+      assert_load :cruise_config, go_config_service.getConfigForEditing()
   end
 
   def create_empty_template_view_model

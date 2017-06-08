@@ -24,7 +24,7 @@ module ApiV3
         end
 
         link :doc do |opts|
-          'https://api.gocd.io/#template-config'
+          'https://api.gocd.org/#template-config'
         end
 
         link :find do |opts|
@@ -32,16 +32,19 @@ module ApiV3
         end
 
         property :name, case_insensitive_string: true, exec_context: :decorator
-        collection :pipelines, embedded: true, exec_context: :decorator, decorator: Admin::Templates::PipelineConfigSummaryRepresenter
+        collection :pipelines,
+                   embedded: true,
+                   exec_context: :decorator,
+                   decorator: Admin::Templates::PipelineConfigSummaryRepresenter
 
         private
 
         def pipelines
-          represented.last.collect { |pipeline_name| com.thoughtworks.go.config.PipelineConfig.new.tap { |p| p.setName(pipeline_name) } }
+          represented.getPipelines()
         end
 
         def name
-          represented.first
+          represented.getTemplateName()
         end
       end
     end

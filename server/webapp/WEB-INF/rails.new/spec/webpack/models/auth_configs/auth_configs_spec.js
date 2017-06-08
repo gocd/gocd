@@ -444,6 +444,51 @@ describe('Authorization Configuration', () => {
         expect(request.url).toBe('/go/api/admin/internal/security/auth_configs/verify_connection');
       });
     });
-
   });
+
+  describe('Validate auth config id', () => {
+    let authConfig;
+    beforeEach(() => {
+      authConfig =  AuthConfigs.AuthConfig.fromJSON(authConfigJSON());
+    });
+
+    it('should return empty object on valid auth config id', () => {
+      authConfig.id("foo.bar-baz_bar");
+
+      const result = authConfig.validate();
+
+      expect(result._isEmpty()).toEqual(true);
+    });
+
+    it('should return error if auth config id contains `!`', () => {
+      authConfig.id("foo!bar");
+
+      const result = authConfig.validate();
+
+      expect(result._isEmpty()).toEqual(false);
+      expect(result.errors().id[0]).toContain('Invalid id.');
+
+    });
+
+    it('should return error if auth config id contains `*`', () => {
+      authConfig.id("foo*bar");
+
+      const result = authConfig.validate();
+
+      expect(result._isEmpty()).toEqual(false);
+      expect(result.errors().id[0]).toContain('Invalid id.');
+
+    });
+
+    it('should return error if auth config id start with `.`', () => {
+      authConfig.id(".foo");
+
+      const result = authConfig.validate();
+
+      expect(result._isEmpty()).toEqual(false);
+      expect(result.errors().id[0]).toContain('Invalid id.');
+
+    });
+  });
+
 });

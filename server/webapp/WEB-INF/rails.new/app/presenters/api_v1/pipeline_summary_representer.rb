@@ -19,7 +19,7 @@ module ApiV1
     alias_method :pipeline, :represented
 
     link :doc do |opts|
-      'https://api.gocd.io/#pipelines'
+      'https://api.gocd.org/#pipelines'
     end
 
     property :pipeline_name, as: :name

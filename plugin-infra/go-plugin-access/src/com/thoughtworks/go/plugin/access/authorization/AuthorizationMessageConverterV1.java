@@ -197,7 +197,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String authorizationServerRedirectUrlRequestBody(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
+    public String authorizationServerUrlRequestBody(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("auth_configs", getAuthConfigs(authConfigs));
         requestMap.put("authorization_server_callback_url", authorizationServerCallbackUrl(pluginId, siteUrl));

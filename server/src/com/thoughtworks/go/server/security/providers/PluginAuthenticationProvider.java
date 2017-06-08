@@ -43,7 +43,6 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import java.util.List;
 import java.util.Set;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
@@ -78,10 +77,12 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        boolean authenticatedUsingAuthorizationPlugin = true;
         User user = getUserDetailsFromAuthorizationPlugins(username, authentication);
 
         if (user == null) {
             user = getUserDetailsFromAuthenticationPlugins(username, authentication);
+            authenticatedUsingAuthorizationPlugin = false;
         }
 
         if (user == null) {
@@ -90,7 +91,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         }
 
         userService.addUserIfDoesNotExist(toDomainUser(user));
-        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication));
+        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication), authenticatedUsingAuthorizationPlugin);
         return goUserPrinciple;
     }
 
@@ -150,8 +151,9 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         return null;
     }
 
-    private GoUserPrinciple getGoUserPrinciple(User user, String loginName) {
-        return new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "", true, true, true, true, authorityGranter.authorities(user.getUsername()), loginName);
+    private GoUserPrinciple getGoUserPrinciple(User user, String loginName, boolean requiresPeriodicReAuthentication) {
+        return new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "", true, true, true, true,
+                authorityGranter.authorities(user.getUsername()), loginName, requiresPeriodicReAuthentication);
     }
 
     @Override

@@ -42,7 +42,7 @@
            A stage in a pipeline can only have one activity occurring at one time; as a result,
             each stage in this view may be part of a different build label. Click the activity links to see all build activity in the stage or pipeline;
             click the detail links to see all information available for the stage or job within a specific label.
-            <a class="more" target="_blank" title="Learn more from help documentation" href="https://docs.gocd.io/current/navigation/pipeline_activity_page.html">more...</a>
+            <a class="more" target="_blank" title="Learn more from help documentation" href="https://docs.gocd.org/current/navigation/pipeline_activity_page.html">more...</a>
         </p>
         #parse("shared/_page_intro_bottom.vm")
 

@@ -4,16 +4,16 @@
 
 This is the main repository for GoCD - a continuous delivery server. GoCD helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
 
-All information to help you get started with GoCD can be found on the [GoCD website](https://gocd.io).
+All information to help you get started with GoCD can be found on the [GoCD website](https://gocd.org).
 
 ## Development Setup
 
-This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://developer.gocd.io/current/2/2.1.html).
+This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://developer.gocd.org/current/2/2.1.html).
 
 ## Contributing
 
-We'd love it if you contributed to GoCD. For information on contributing to this project, please see our [contributor's guide](https://gocd.io/contribute).
-A lot of useful information like links to user documentation, design documentation, mailing lists etc. can be found in the [resources](https://gocd.io/community/resources.html) section.
+We'd love it if you contributed to GoCD. For information on contributing to this project, please see our [contributor's guide](https://gocd.org/contribute).
+A lot of useful information like links to user documentation, design documentation, mailing lists etc. can be found in the [resources](https://gocd.org/community/resources.html) section.
 
 ## License
 

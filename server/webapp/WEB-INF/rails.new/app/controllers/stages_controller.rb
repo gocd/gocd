@@ -106,7 +106,11 @@ class StagesController < ApplicationController
   end
 
   def rerun_jobs
-    stage = schedule_service.rerunJobs(@stage.getStage(), params[:jobs], result = HttpOperationResult.new)
+    stage = if params['rerun-failed'] == 'true'
+      schedule_service.rerunFailedJobs(@stage.getStage(), result = HttpOperationResult.new)
+    else
+      schedule_service.rerunJobs(@stage.getStage(), params[:jobs], result = HttpOperationResult.new)
+    end
     if result.canContinue()
       identifier = stage.getIdentifier()
       redirect_to(stage_detail_tab_url(:pipeline_name => identifier.getPipelineName(),

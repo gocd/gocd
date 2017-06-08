@@ -89,7 +89,7 @@ public class DevelopmentServer {
         if (passwordFilePluginJar.exists()) {
             System.out.println("Found a local copy of passwordFile plugin, using it.");
         } else {
-            new ProcessRunner().command("curl", "-L", "https://build.gocd.org/go/files/plugins/latest/build/latest/file-authentication-plugin/filebased-authentication-plugin.jar", "-u 'view:password'", "--output", passwordFilePluginJar.getAbsolutePath()).failOnError(true).run();
+            new ProcessRunner().command("curl", "--fail", "--silent", "--location", "https://build.gocd.org/go/files/plugins/latest/build/latest/file-authentication-plugin/filebased-authentication-plugin.jar", "--user", "view:password", "--output", passwordFilePluginJar.getAbsolutePath()).failOnError(true).run();
         }
         new ZipUtil().zipFolderContents(pluginsDist, new File(classpath(), "plugins.zip"));
     }

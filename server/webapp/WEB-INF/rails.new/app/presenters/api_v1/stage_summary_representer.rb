@@ -26,7 +26,7 @@ module ApiV1
     end
 
     link :doc do |opts|
-      'https://api.gocd.io/#get-stage-instance'
+      'https://api.gocd.org/#get-stage-instance'
     end
 
     property :stage_name, as: :name

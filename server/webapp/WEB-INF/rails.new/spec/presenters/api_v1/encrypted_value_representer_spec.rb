@@ -20,7 +20,7 @@ describe ApiV1::EncryptedValueRepresenter do
   it 'should render encrypted value with hal representation' do
     actual_json = ApiV1::EncryptedValueRepresenter.new("encrypted_string").to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_encrypt_url)
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#encryption')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#encryption')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq({encrypted_value: "encrypted_string"})

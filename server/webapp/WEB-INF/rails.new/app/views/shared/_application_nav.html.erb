@@ -2,7 +2,7 @@
   <%= hidden_field_tag("server_time", Time.now.to_i, :id => "server_timestamp") -%>
         <ul class="user">
           <li class="help">
-            <%= link_to(l.string("HELP_SMALL"), "https://gocd.io/help", :target => "_blank") %>
+            <%= link_to(l.string("HELP_SMALL"), "https://gocd.org/help", :target => "_blank") %>
           </li>
           <% unless @user.anonymous? %>
             <li class="current_user icon">
@@ -24,7 +24,7 @@
             <span class="bell"></span>
             <div class="hover-container">
                 <div class="hover">
-                    <span>A new release of GoCD - <a href="https://www.gocd.io/download/" target="_blank"><%= go_update %></a> is available.</span>
+                    <span>A new release of GoCD - <a href="https://www.gocd.org/download/" target="_blank"><%= go_update %></a> is available.</span>
                 </div>
             </div>
         </div>

@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#roles'
+        'https://api.gocd.org/#roles'
       end
 
       link :find do |opts|

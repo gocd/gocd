@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.gocd.io/#pipeline-groups'
+        'https://api.gocd.org/#pipeline-groups'
       end
 
       property :getName, as: :name

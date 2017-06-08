@@ -19,7 +19,7 @@ module ApiV1
     alias_method :job, :represented
 
     link :doc do |opts|
-      'https://api.gocd.io/#jobs'
+      'https://api.gocd.org/#jobs'
     end
 
     property :getName, as: :name

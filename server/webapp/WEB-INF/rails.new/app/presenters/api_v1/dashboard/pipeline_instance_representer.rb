@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.gocd.io/#get-pipeline-instance'
+        'https://api.gocd.org/#get-pipeline-instance'
       end
 
       link :history_url do |opts|

@@ -23,7 +23,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#authorization-configuration'
+        'https://api.gocd.org/#authorization-configuration'
       end
 
       link :find do |opts|

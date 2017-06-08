@@ -44,6 +44,7 @@ Function SilentCustomUseInput
     ${GetParameters} $ARGS
     ${GetOptions} $ARGS /SERVERURL= $SERVER_URL
     ${GetOptions} $ARGS /GO_AGENT_JAVA_HOME= $GO_AGENT_JAVA_HOME
+    ${GetOptions} $ARGS /START_AGENT= $START_AGENT
     Call CustomInstallBits
 FunctionEnd
 
@@ -67,11 +68,12 @@ Function CustomInstallBits
     ; Install and start
     ExecWait '"$INSTDIR\cruisewrapper.exe" --install "$INSTDIR\config\wrapper-agent.conf"'
     ClearErrors
-    ExecWait 'net start "Go Agent"'
-    IfErrors 0 +3
-        ${LogText} "Error starting Go Agent Windows Service. Check if service is disabled."
-        Goto DONE
-    ${LogText} "Successfully started Go Agent"
+    StrCmp $START_AGENT "NO" DONE 0
+        ExecWait 'net start "Go Agent"'
+        IfErrors 0 +3
+            ${LogText} "Error starting Go Agent Windows Service. Check if service is disabled."
+            Goto DONE
+        ${LogText} "Successfully started Go Agent"
     DONE:
 FunctionEnd
 

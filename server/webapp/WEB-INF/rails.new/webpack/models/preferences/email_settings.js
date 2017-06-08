@@ -19,7 +19,8 @@
   const m      = require("mithril"),
     Stream     = require("mithril/stream"),
     _          = require("lodash"),
-    CrudMixins = require("models/mixins/crud_mixins");
+    CrudMixins = require("models/mixins/crud_mixins"),
+    Errors     = require("models/mixins/errors");
 
   function splitter(string) {
     return _.compact(_.map(string.split(","), _.trim));
@@ -70,6 +71,10 @@
         }).always(() => m.redraw());
       }});
     };
+
+    // just stub this out; the only thing that needs validation is email, and we rely on the default
+    // input[type="email"] pattern for client-side validation
+    this.validate = () => new Errors();
 
     CrudMixins.AllOperations.call(this, ["refresh", "update"], {type: this, resourceUrl, version: "v1"}, {update: {method: "PATCH"}});
   }

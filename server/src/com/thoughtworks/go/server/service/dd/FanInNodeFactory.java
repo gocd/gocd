@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.service.dd;
 
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -23,11 +25,13 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 public class FanInNodeFactory {
-    public static FanInNode create(MaterialConfig material) {
+    public static FanInNode create(MaterialConfig material, CruiseConfig cruiseConfig) {
         if (material instanceof ScmMaterialConfig || material instanceof PackageMaterialConfig || material instanceof PluggableSCMMaterialConfig)
             return new RootFanInNode(material);
-        if (material instanceof DependencyMaterialConfig)
-            return new DependencyFanInNode(material);
+        if (material instanceof DependencyMaterialConfig) {
+            PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(((DependencyMaterialConfig) material).getPipelineName());
+            return new DependencyFanInNode(material, pipelineConfig.materialConfigs());
+        }
         throw new RuntimeException("Not a valid material type");
     }
 }

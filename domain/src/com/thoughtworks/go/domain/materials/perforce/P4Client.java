@@ -99,11 +99,7 @@ public class P4Client extends SCMCommand {
     }
 
     public void sync(long revision, boolean shouldForce, ConsoleOutputStreamConsumer outputStreamConsumer) {
-        if (shouldForce) {
-            execute(p4("sync", "-f", clientView() + "@" + revision), "", outputStreamConsumer, true);
-        } else {
-            execute(p4("sync", clientView() + "@" + revision), "", outputStreamConsumer, true);
-        }
+        execute(p4("sync", clientView() + "@" + revision), "", outputStreamConsumer, true);
     }
 
     public String describe(long revision) {

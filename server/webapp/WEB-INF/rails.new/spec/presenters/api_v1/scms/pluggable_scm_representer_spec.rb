@@ -30,7 +30,7 @@ describe ApiV1::Scms::PluggableScmRepresenter do
     actual_json = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_scm_url(material_name: @scm.get_name))
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#scms')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#scms')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq(expected_json)

@@ -23,7 +23,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
+        'https://api.gocd.org/#elastic-agent-profiles'
       end
 
       link :find do |opts|

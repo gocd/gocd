@@ -59,7 +59,7 @@ describe "/shared/_application_nav.html.erb" do
       render :partial => partial_page
 
       expect(response.body).to have_selector(".current_user a[href='#']", text: "maulik suchak")
-      expect(response.body).to have_selector(".user .help a[href='https://gocd.io/help']", text: "Help")
+      expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", text: "Help")
       expect(response.body).to have_selector(".current_user a[href='/preferences/notifications']", text: "Preferences")
       expect(response.body).to have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
     end
@@ -75,7 +75,7 @@ describe "/shared/_application_nav.html.erb" do
       expect(response.body).to_not have_selector(".current_user a[href='#']", text: "maulik suchak")
       expect(response.body).to_not have_selector(".current_user a[href='/preferences/notifications']", text: "Preferences")
       expect(response.body).to_not have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
-      expect(response.body).to have_selector(".user .help a[href='https://gocd.io/help']", text: "Help")
+      expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", text: "Help")
     end
   end
 

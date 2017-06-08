@@ -43,7 +43,7 @@ xdescribe("micro_content_on_agents_rails_new", function () {
             "                    <p class='heading'>Values</p>\n" +
             "\n" +
             "                    <div><p>Put filter values in quotes for exact match</p></div>\n" +
-            "                    <p><a class='' href='https://docs.gocd.io/current/navigation/agents_page.html#filtering-agents' target='_blank'>More...</a></p>\n" +
+            "                    <p><a class='' href='https://docs.gocd.org/current/navigation/agents_page.html#filtering-agents' target='_blank'>More...</a></p>\n" +
             "                </div>\n" +
             "            </div>\n" +
             "            <input id='filter_text' name='filter' placeholder='tag: value' type='text'/>\n" +

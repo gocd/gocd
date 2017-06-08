@@ -49,7 +49,7 @@ public class ConfigRepositoryGCWarningService {
                         "the configured threshold. As the size of config repo increases, the config save operations tend to slow down " +
                         "drastically. It is recommended that you run 'git gc' from " +
                         "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
-                        "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='https://docs.gocd.io/current/advanced_usage/config_repo.html'>read more...</a>";
+                        "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='https://docs.gocd.org/current/advanced_usage/config_repo.html'>read more...</a>";
 
                 serverHealthService.update(ServerHealthState.warningWithHtml(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE))));
                 LOGGER.warn("{}:{}", message, description);

@@ -246,7 +246,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -290,7 +290,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -314,7 +314,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -338,7 +338,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -362,7 +362,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -386,7 +386,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -410,7 +410,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -434,7 +434,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -459,7 +459,7 @@ describe('Agent Model', () => {
           "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"

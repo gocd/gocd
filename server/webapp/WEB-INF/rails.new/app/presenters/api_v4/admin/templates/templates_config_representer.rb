@@ -24,7 +24,7 @@ module ApiV4
         end
 
         link :doc do |opts|
-          'https://api.gocd.io/#template-config'
+          'https://api.gocd.org/#template-config'
         end
 
         collection :templates, embedded: true, decorator: Admin::Templates::TemplateSummaryRepresenter, exec_context: :decorator

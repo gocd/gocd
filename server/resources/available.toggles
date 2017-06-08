@@ -3,7 +3,7 @@
    "toggles": [
       {
          "key": "pipeline_comment_feature_toggle_key",
-         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.io/current/beta/comment_on_pipeline_run.html. Default: off.",
+         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.org/current/beta/comment_on_pipeline_run.html. Default: off.",
          "value": false
       },
       {

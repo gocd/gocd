@@ -32,7 +32,7 @@ public class DirectoryEntries extends ArrayList<DirectoryEntry> implements HtmlR
 
     public void render(HtmlRenderer renderer) {
         if (isArtifactsDeleted || isEmpty()) {
-            HtmlElement element = p().content("Artifacts for this job instance are unavailable as they may have been <a href='https://docs.gocd.io/current/configuration/delete_artifacts.html' target='blank'>purged by Go</a> or deleted externally. "
+            HtmlElement element = p().content("Artifacts for this job instance are unavailable as they may have been <a href='https://docs.gocd.org/current/configuration/delete_artifacts.html' target='blank'>purged by Go</a> or deleted externally. "
                     + "Re-run the stage or job to generate them again.");
             element.render(renderer);
         }

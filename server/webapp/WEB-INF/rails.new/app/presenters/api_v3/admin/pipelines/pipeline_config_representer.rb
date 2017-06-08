@@ -32,7 +32,7 @@ module ApiV3
         end
 
         link :doc do |opts|
-          'https://api.gocd.io/#pipeline-config'
+          'https://api.gocd.org/#pipeline-config'
         end
 
         link :find do |opts|

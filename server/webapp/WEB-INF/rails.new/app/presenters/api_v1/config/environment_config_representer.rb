@@ -28,7 +28,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#environment-config'
+        'https://api.gocd.org/#environment-config'
       end
 
       link :find do |opts|

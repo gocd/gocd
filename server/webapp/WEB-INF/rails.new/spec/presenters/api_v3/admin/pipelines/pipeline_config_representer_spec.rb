@@ -26,7 +26,7 @@ describe ApiV3::Admin::Pipelines::PipelineConfigRepresenter do
       expect(actual_json).to have_links(:self, :find, :doc)
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/pipelines/wunderbar')
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/pipelines/:pipeline_name')
-      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#pipeline-config')
+      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#pipeline-config')
       actual_json.delete(:_links)
       expect(actual_json).to eq(pipeline_hash)
     end

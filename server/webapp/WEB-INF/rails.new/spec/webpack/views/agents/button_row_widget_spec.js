@@ -131,7 +131,7 @@ describe("Button Row Widget", () => {
           "href": "https://ci.example.com/go/api/agents/uuid-1"
         },
         "doc":  {
-          "href": "https://api.gocd.io/#agents"
+          "href": "https://api.gocd.org/#agents"
         },
         "find": {
           "href": "https://ci.example.com/go/api/agents/:uuid"

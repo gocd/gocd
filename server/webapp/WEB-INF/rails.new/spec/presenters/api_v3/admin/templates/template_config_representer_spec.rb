@@ -24,7 +24,7 @@ describe ApiV3::Admin::Templates::TemplateConfigRepresenter do
   it 'should render a template with hal representation' do
     actual_json = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(@template).to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv3_admin_template_url(template_name: @template.name.to_s))
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#template-config')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#template-config')
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/templates/:template_name')
     actual_json.delete(:_links)
 

@@ -34,6 +34,7 @@ FunctionEnd
 
 Var ARGS
 Var SERVER_URL
+Var START_AGENT
 
 Function CustomUseInput
     ReadINIStr $SERVER_URL "$PLUGINSDIR\ServerURL.ini" "Field 2" "State"
@@ -68,7 +69,7 @@ Function CustomInstallBits
     ; Install and start
     ExecWait '"$INSTDIR\cruisewrapper.exe" --install "$INSTDIR\config\wrapper-agent.conf"'
     ClearErrors
-    StrCmp $START_AGENT "NO" DONE 0
+    StrCmp $START_AGENT "NO" +5 0
         ExecWait 'net start "Go Agent"'
         IfErrors 0 +3
             ${LogText} "Error starting Go Agent Windows Service. Check if service is disabled."

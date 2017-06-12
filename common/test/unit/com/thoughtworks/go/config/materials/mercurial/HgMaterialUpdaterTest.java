@@ -19,20 +19,23 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
+import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialUpdater;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.HgTestRepo.*;
 import static java.lang.String.format;
@@ -110,7 +113,23 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     @Test
+    public void shouldNotDeleteAndRecheckoutDirectoryUnlessUrlChanges() throws Exception {
+        String repositoryUrl = new HgTestRepo().projectRepositoryUrl();
+        HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
+        updateTo(material, new RevisionContext(REVISION_0), JobResult.Passed);
+        File shouldNotBeRemoved = new File(workingFolder, "shouldBeRemoved");
+        shouldNotBeRemoved.createNewFile();
+        assertThat(shouldNotBeRemoved.exists(), is(true));
+
+
+        updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
+        assert(MaterialUrl.sameUrl(material.getUrl(), repositoryUrl));
+        assertThat(shouldNotBeRemoved.exists(), is(true));
+    }
+
+    @Test
     public void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
+        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
         File shouldBeRemoved = new File(workingFolder, "shouldBeRemoved");
         shouldBeRemoved.createNewFile();
         assertThat(shouldBeRemoved.exists(), is(true));
@@ -118,18 +137,34 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
         String repositoryUrl = new HgTestRepo().projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat(material.getUrl(), is(repositoryUrl));
+        assertThat(material.getUrl(), not(hgMaterial.getUrl()));
+        assert(MaterialUrl.sameUrl(material.getUrl(), repositoryUrl));
         assertThat(shouldBeRemoved.exists(), is(false));
     }
 
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
-        updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
-        File shouldNotBeRemoved = new File(new File(workingFolder, ".hg"), "shouldNotBeRemoved");
-        FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi");
-        assertThat(shouldNotBeRemoved.exists(), is(true));
-        updateTo(hgMaterial, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+    public void shouldPullNewChangesFromRemoteBeforeUpdating() throws Exception {
+        File newWorkingFolder = TestFileUtil.createTempFolder("newWorkingFolder");
+        updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
+        String repositoryUrl = hgTestRepo.projectRepositoryUrl();
+        HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
+        assertThat(material.getUrl(), is(hgMaterial.getUrl()));
+        updateTo(material, new RevisionContext(REVISION_0), JobResult.Passed, newWorkingFolder);
+
+        hgTestRepo.commitAndPushFile("SomeDocumentation.txt", "whatever");
+
+        List<Modification> modification = hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
+        StringRevision revision = new StringRevision(modification.get(0).getRevision());
+
+        updateTo(material, new RevisionContext(revision), JobResult.Passed, newWorkingFolder);
+        assertThat(console.output(),
+                containsString("Start updating files at revision " + revision.getRevision()));
+    }
+
+    private void updateTo(HgMaterial material, RevisionContext revisionContext, JobResult expectedResult, File workingFolder) {
+        BuildSession buildSession = newBuildSession();
+        JobResult result = buildSession.build(new HgMaterialUpdater(material).updateTo(workingFolder.toString(), revisionContext));
+        assertThat(buildInfo(), result, is(expectedResult));
     }
 
     private void updateTo(HgMaterial material, RevisionContext revisionContext, JobResult expectedResult) {

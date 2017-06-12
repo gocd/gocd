@@ -20,8 +20,11 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
+import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.util.command.UrlArgument;
+
 import java.io.File;
+
 import static com.thoughtworks.go.domain.BuildCommand.*;
 
 public class HgMaterialUpdater {
@@ -36,10 +39,17 @@ public class HgMaterialUpdater {
         String workingDir = material.workingdir(new File(baseDir)).getPath();
         UrlArgument url = material.getUrlArgument();
         return compose(
+                secret(url.forCommandline(), url.forDisplay()),
                 echoWithPrefix("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
                 cloneIfNeeded(workingDir),
+                pull(workingDir),
                 update(workingDir, revision),
                 echoWithPrefix("Done.\n"));
+    }
+
+    private BuildCommand pull(String workingDir) {
+        return exec("hg", "pull", "-b", material.getBranch(), "--config", String.format("paths.default=%s", material.getUrl())).
+                setWorkingDirectory(workingDir);
     }
 
     private BuildCommand update(String workingDir, Revision revision) {
@@ -56,7 +66,7 @@ public class HgMaterialUpdater {
 
     private BuildCommand isRepoUrlChanged(String workDir) {
         return test("-neq",
-                material.getUrlArgument().forCommandline(),
+                new MaterialUrl(material.getUrlArgument().forCommandline()).toString(),
                 exec("hg", "showconfig", "paths.default").setWorkingDirectory(workDir));
     }
 

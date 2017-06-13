@@ -36,7 +36,6 @@
     <bean id="defaultGoPluginOSGiManifestCreator" class="com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifest$DefaultGoPluginOSGiManifestCreator" />
     <bean id="pluginRequestProcessorRegistry" class="com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry" />
 
-    <bean id="PluginsZipUpdater" class="com.thoughtworks.go.plugin.infra.listeners.PluginsZipUpdater"/>
     <bean id="pluginsZip"  class="com.thoughtworks.go.plugin.infra.commons.PluginsZip"/>
     <bean id="zipUtil" class="com.thoughtworks.go.util.ZipUtil"/>
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>

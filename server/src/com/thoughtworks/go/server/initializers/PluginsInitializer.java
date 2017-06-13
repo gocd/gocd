@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_PLUGINS_ZIP;
@@ -57,7 +55,6 @@ public class PluginsInitializer implements Initializer {
                 zipUtil.unzip(getPluginsZipStream(), bundledPluginsDirectory);
             }
             pluginManager.startInfrastructure(true);
-            pluginManager.registerPluginsFolderChangeListener();
         } catch (Exception e) {
             LOG.error("Could not extract bundled plugins to default bundled directory", e);
         }

@@ -281,10 +281,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return userName;
     }
 
-    public String getPassword() {
-        return currentPassword();
-    }
-
     public void setUrl(String url) {
         this.url = new UrlArgument(url);
     }
@@ -360,7 +356,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         setPasswordIfNotBlank(password);
     }
 
-    public String currentPassword() {
+    public String getPassword() {
         try {
             return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {

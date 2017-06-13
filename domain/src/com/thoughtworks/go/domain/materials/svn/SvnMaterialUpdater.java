@@ -45,7 +45,6 @@ public class SvnMaterialUpdater {
               echoWithPrefix(format("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay())),
               secret(url.forCommandline(), url.forDisplay()),
               secret(material.getPassword(), "*********************"),
-              secret(material.currentPassword(), "*********************"),
               cleanupAndUpdate(workingDir, revision).setTest(shouldDoCleanupAndUpdate(workingDir)),
               freshCheckout(workingDir, revision).setTest(isNotRepository(workingDir)),
               freshCheckout(workingDir, revision).setTest(test("-nd", workingDir)),
@@ -56,6 +55,7 @@ public class SvnMaterialUpdater {
 
    private BuildCommand freshCheckout(String workingDir, Revision revision) {
       return compose(
+              echoWithPrefix("Checking out a fresh copy"),
               cleandir(workingDir).setTest(test("-d", workingDir)),
               mkdirs(workingDir).setTest(test("-nd", workingDir)),
               checkout(workingDir, revision)
@@ -95,7 +95,6 @@ public class SvnMaterialUpdater {
                argList.add(material.getPassword());
            }
        }
-
    }
 
    private BuildCommand cleanupAndUpdate(String workingDir, Revision revision) {
@@ -105,7 +104,6 @@ public class SvnMaterialUpdater {
               exec("svn", "revert", "--recursive", workingDir),
               echo("[SVN] Updating working copy to revision %s", revision.getRevision()),
               update(workingDir, revision)
-
       );
    }
 
@@ -118,7 +116,7 @@ public class SvnMaterialUpdater {
    }
 
    private BuildCommand info(String workingDir) {
-      return exec("svn", "info").setWorkingDirectory(workingDir);
+      return exec("svn", "info", "--non-interactive").setWorkingDirectory(workingDir);
    }
 
    private BuildCommand repoUrlChanged(String workingDir) {

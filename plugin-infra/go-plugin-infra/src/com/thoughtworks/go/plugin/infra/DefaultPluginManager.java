@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
-import com.thoughtworks.go.plugin.infra.listeners.PluginsListListener;
 import com.thoughtworks.go.plugin.infra.listeners.PluginsZipUpdater;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
@@ -55,21 +54,19 @@ public class DefaultPluginManager implements PluginManager {
     private PluginWriter pluginWriter;
     private PluginValidator pluginValidator;
     private PluginsZipUpdater pluginsZipUpdater;
-    private PluginsListListener pluginsListListener;
     private final Set<PluginDescriptor> initializedPlugins = new HashSet<>();
     private PluginRequestProcessorRegistry requestProcesRegistry;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
                                 DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcesRegistry, PluginWriter pluginWriter,
-                                PluginValidator pluginValidator, SystemEnvironment systemEnvironment, PluginsZipUpdater pluginsZipUpdater, PluginsListListener pluginsListListener) {
+                                PluginValidator pluginValidator, SystemEnvironment systemEnvironment, PluginsZipUpdater pluginsZipUpdater) {
         this.monitor = monitor;
         this.registry = registry;
         this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
         this.requestProcesRegistry = requestProcesRegistry;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZipUpdater = pluginsZipUpdater;
-        this.pluginsListListener = pluginsListListener;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
         this.pluginWriter = pluginWriter;
@@ -152,7 +149,6 @@ public class DefaultPluginManager implements PluginManager {
     @Override
     public void registerPluginsFolderChangeListener() {
         monitor.addPluginsFolderChangeListener(pluginsZipUpdater);
-        monitor.addPluginsFolderChangeListener(pluginsListListener);
     }
 
     @Override

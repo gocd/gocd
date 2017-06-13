@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
+import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.io.File;
@@ -66,7 +67,7 @@ public class HgMaterialUpdater {
 
     private BuildCommand isRepoUrlChanged(String workDir) {
         return test("-neq",
-                new MaterialUrl(material.getUrlArgument().forCommandline()).toString(),
+                new MaterialUrl(material.getHgUrlArgument().defaultRemoteUrl()).getUrl(),
                 exec("hg", "showconfig", "paths.default").setWorkingDirectory(workDir));
     }
 

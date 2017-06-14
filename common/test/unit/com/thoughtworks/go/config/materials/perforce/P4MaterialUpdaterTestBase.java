@@ -68,24 +68,6 @@ public abstract class P4MaterialUpdaterTestBase extends BuildSessionBasedTestCas
     }
 
     @Test
-    public void shouldNotDisplayPassword() throws Exception {
-        P4Material material = p4Fixture.material(VIEW);
-        material.setPassword("wubba lubba dub dub");
-        updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat(console.output(), not(containsString("wubba lubba dub dub")));
-        assertThat(console.output(), containsString("setting environment variable 'P4PASSWD' to value '********'"));
-    }
-
-    @Test
-    public void shouldSetEnvVars() throws Exception {
-        P4Material material = p4Fixture.material(VIEW);
-        updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat(console.output(), containsString(format("setting environment variable 'P4PORT' to value '%s'", material.getServerAndPort())));
-        assertThat(console.output(), containsString(format("setting environment variable 'P4USER' to value '%s'", material.getUserName())));
-        assertThat(console.output(), containsString(format("setting environment variable 'P4CLIENT' to value '%s'", material.clientName(workingDir))));
-    }
-
-    @Test
     public void shouldNotFailIfDestDoesNotExist() throws Exception {
         FileUtils.deleteDirectory(workingDir);
         assert(!workingDir.exists());
@@ -103,12 +85,7 @@ public abstract class P4MaterialUpdaterTestBase extends BuildSessionBasedTestCas
         assertThat(new File(workingDir, "dest").listFiles().length, is(7));
     }
 
-    @Test
-    public void shouldSupportTicket() throws Exception {
-
-    }
-
-    private void updateTo(P4Material material, RevisionContext revisionContext, JobResult expectedResult) {
+    protected void updateTo(P4Material material, RevisionContext revisionContext, JobResult expectedResult) {
         BuildSession buildSession = newBuildSession();
         JobResult result = buildSession.build(new P4MaterialUpdater(material).updateTo(workingDir.toString(), revisionContext));
         assertThat(buildInfo(), result, is(expectedResult));

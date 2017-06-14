@@ -16,13 +16,19 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertThat;
 
 public class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
     @Before
@@ -42,5 +48,13 @@ public class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
     public void teardown() throws Exception {
         p4Fixture.stop(p4);
         deleteFolder(workingDir);
+    }
+
+    @Test
+    public void shouldNotDisplayPassword() throws Exception {
+        P4Material material = p4Fixture.material(VIEW);
+        material.setPassword("wubba lubba dub dub");
+        updateTo(material, new RevisionContext(REVISION_2), JobResult.Failed);
+        assertThat(console.output(), not(containsString("wubba lubba dub dub")));
     }
 }

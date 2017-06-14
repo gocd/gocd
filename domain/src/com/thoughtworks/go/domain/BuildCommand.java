@@ -148,7 +148,9 @@ public class BuildCommand {
     @Expose
     private BuildCommand onCancel;
     @Expose
-    private String[] execInput;
+    private String[] execInput = new String[0];
+    @Expose
+    private Map<String, String> commandEnvVars = new HashMap<String, String>();
 
     public BuildCommand(String name) {
         this.name = name;
@@ -259,6 +261,15 @@ public class BuildCommand {
 
     public String[] getExecInput() {
         return execInput;
+    }
+
+    public BuildCommand setCommandEnvVars(Map<String, String> envVars) {
+        this.commandEnvVars = envVars;
+        return this;
+    }
+
+    public Map<String, String> getCommandEnvVars() {
+        return this.commandEnvVars;
     }
 
     public String getWorkingDirectory() {

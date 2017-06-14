@@ -69,12 +69,9 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
         commandLine.withWorkingDir(workingDir);
         commandLine.withEnv(buildSession.getEnvs());
+        commandLine.withEnv(command.getCommandEnvVars());
 
-        if (command.getExecInput() == null) {
-            return executeCommandLine(buildSession, commandLine) == 0;
-        } else {
-            return executeCommandLine(buildSession, commandLine, command.getExecInput()) == 0;
-        }
+        return executeCommandLine(buildSession, commandLine, command.getExecInput()) == 0;
     }
 
     private CommandLine createCommandLine(String cmd) {

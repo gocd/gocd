@@ -20,8 +20,11 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.StringUtil;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
 import static java.lang.Long.parseLong;
@@ -29,6 +32,7 @@ import static java.lang.String.format;
 
 public class P4MaterialUpdater {
     private P4Material material;
+    private String clientName;
 
     public P4MaterialUpdater(P4Material material) {
         this.material = material;
@@ -37,14 +41,11 @@ public class P4MaterialUpdater {
     public BuildCommand updateTo(String baseDir, RevisionContext revisionContext) {
         String workingDir = material.workingdir(new File(baseDir)).getPath();
         String revision = revisionContext.getLatestRevision().getRevision();
-        String clientName = material.clientName(new File(workingDir));
+        this.clientName = material.clientName(new File(workingDir));
 
         return compose(
                 secret(material.getPassword()),
-                export("P4PORT", material.getServerAndPort(), false),
-                export("P4USER", material.getUserName(), false),
-                export("P4PASSWD", material.getPassword(), true),
-                export("P4CLIENT", clientName, false),
+                loginIfUsingTickets(),
                 constructClient(workingDir, clientName),
                 cleanWorkingDir(workingDir),
                 echo(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, material.updatingTarget(), revision, material.getServerAndPort())),
@@ -54,6 +55,35 @@ public class P4MaterialUpdater {
         );
     }
 
+    private BuildCommand loginIfUsingTickets() {
+       if (material.getUseTickets() && !StringUtil.isBlank(material.getPassword())) {
+           return exec("p4", "login").setExecInput(material.getPassword()).setCommandEnvVars(envVars());
+       } else {
+           return noop();
+       }
+    }
+
+    private Map<String, String> envVars() {
+        Map<String, String> env = new HashMap<>();
+        env.put("P4PORT", material.getServerAndPort());
+        env.put("P4CLIENT", clientName);
+        if (!StringUtil.isBlank(material.getUserName())) {
+            env.put("P4USER", material.getUserName());
+        }
+        if (material.getUseTickets() && !StringUtil.isBlank(material.getPassword())) {
+            env.put("P4PASSWD", material.getPassword());
+        }
+        return env;
+    }
+
+    private BuildCommand exportUserIfPresent() {
+        if (StringUtil.isBlank(material.getUserName())) {
+            return noop();
+        } else {
+            return export("P4USER", material.getUserName(), false);
+        }
+    }
+
     private BuildCommand constructClient(String workingDir, String clientName) {
         String clientArgs = "Client: " + clientName + "\n\n"
                 + "Root: " + new File(workingDir).getAbsolutePath() + "\n\n"
@@ -61,17 +91,17 @@ public class P4MaterialUpdater {
                 + "LineEnd: local\n\n"
                 + "View:\n"
                 + material.p4view(clientName);
-        return exec("p4", "client", "-i").setExecInput(clientArgs);
+        return exec("p4", "client", "-i").setExecInput(clientArgs).setCommandEnvVars(envVars());
     }
 
     private BuildCommand sync(String workingDir, String revision) {
-        return exec("p4", "-d", workingDir, "sync", "@" + parseLong(revision));
+        return exec("p4", "-d", workingDir, "sync", "@" + parseLong(revision)).setCommandEnvVars(envVars());
     }
 
     private BuildCommand cleanWorkingDir(String workingDir) {
         return compose(
                 echo(format("[%s] Cleaning up working directory", GoConstants.PRODUCT_NAME)),
-                exec("p4", "-d", workingDir, "clean")
+                exec("p4", "-d", workingDir, "clean").setCommandEnvVars(envVars())
         );
     }
 }

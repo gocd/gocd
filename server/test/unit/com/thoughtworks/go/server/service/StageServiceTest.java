@@ -358,8 +358,7 @@ public class StageServiceTest {
         when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
                 updateDate)));
 
-        MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfigWithMingle("cruise", mingleConfig));
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
         Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
@@ -374,12 +373,10 @@ public class StageServiceTest {
         FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should prime the cache
         assertThat(feedEntries, is(new FeedEntries(asList(expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(0).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
 
         feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should use the cache
         assertThat(feedEntries, is(new FeedEntries(asList(expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(0).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
 
         verify(stageDao).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
         verify(changesetService).modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS);
@@ -393,8 +390,7 @@ public class StageServiceTest {
         when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
                 updateDate)));
 
-        MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfigWithMingle("cruise", mingleConfig));
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
         Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
@@ -409,7 +405,6 @@ public class StageServiceTest {
         FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should cache
         assertThat(feedEntries, is(new FeedEntries(asList(expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(0).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
 
         Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate);
         stage.setIdentifier(new StageIdentifier("cruise", 1, "stage", String.valueOf(1)));
@@ -418,17 +413,15 @@ public class StageServiceTest {
         feedEntries = service.feed("cruise", Username.ANONYMOUS);// Should retrieve from db again.
         assertThat(feedEntries, is(new FeedEntries(asList(expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(0).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
 
         verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
         verify(changesetService, times(2)).modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS);
         verifyNoMoreInteractions(changesetService);
     }
 
-    private CruiseConfig cruiseConfigWithMingle(final String pipelineName, MingleConfig mingleConfig) {
+    private CruiseConfig cruiseConfig(final String pipelineName) {
         CruiseConfig config = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
-        pipelineConfig.setMingleConfig(mingleConfig);
         config.addPipeline("group", pipelineConfig);
         return config;
     }
@@ -439,9 +432,7 @@ public class StageServiceTest {
         when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
                 updateDate)));
 
-        //Setup Mingle Config
-        MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfigWithMingle("cruise", mingleConfig));
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
         //Setup card numbers
         Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
@@ -457,12 +448,10 @@ public class StageServiceTest {
         FeedEntries feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
         assertThat(feedEntries, is(new FeedEntries(asList(expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(0).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
 
         feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
         assertThat(feedEntries, is(new FeedEntries(asList(expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(0).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
 
         verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25);
         verifyNoMoreInteractions(stageDao);
@@ -473,9 +462,7 @@ public class StageServiceTest {
         Date updateDate = new Date();
         CruiseConfig config = mock(BasicCruiseConfig.class);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("down");
-        MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
-        pipelineConfig.setMingleConfig(mingleConfig);
-        Map<Long, List<ModificationForPipeline>> expectedModMapDown = new HashMap<>();
+        Map<Long, List<ModificationForPipeline>> expectedModMapDown = new HashMap<Long, List<ModificationForPipeline>>();
         Modification mod1 = ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate);
         expectedModMapDown.put(1L, asList(new ModificationForPipeline(new PipelineId("down", 1L), mod1, "Svn", "fooBarBaaz")));
 
@@ -493,9 +480,7 @@ public class StageServiceTest {
         FeedEntries feedEntries = service.feed("down", Username.ANONYMOUS);
         assertThat(feedEntries, is(new FeedEntries(asList(expected, expected))));
         assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertEquals(feedEntries.get(0).getMingleCards().size(), 0);
         assertThat(feedEntries.get(1).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(1).getMingleCards(), is(asList(new MingleCard(mingleConfig, "123"))));
     }
 
     private StageFeedEntry stageFeedEntry(String pipelineName, final Date updateDate) {

@@ -10,8 +10,6 @@
             <label><%= l.string("TRACKING_TOOL") %></label>
             <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE, com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_NONE, :id => "pipeline_none", :title => l.string("NONE") %>
             <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_NONE, l.string("NONE") %>
-            <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE, com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_MINGLE, :id => "pipeline_mingle", :title => l.string("MINGLE") %>
-            <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_MINGLE, l.string("MINGLE") %>
             <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE, com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL, :id => "pipeline_trackingTool", :title => l.string("CUSTOM") %>
             <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL, l.string("CUSTOM") %>
         </div>
@@ -34,36 +32,7 @@
                 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
             <% end %>
         </div>
-        <div id="mingle_config_container">
 
-            <%= f.fields_for com.thoughtworks.go.config.PipelineConfig::MINGLE_CONFIG, @pipeline.mingleConfig do |m| %>
-                <div class="form_item_block">
-                    <div class="form_item_block required">
-                        <%= required_label(m, com.thoughtworks.go.config.MingleConfig::BASE_URL, l.string("MINGLE_URL"))-%>
-                        <%= m.text_field com.thoughtworks.go.config.MingleConfig::BASE_URL %>
-                        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MINGLE_URL") -%>"></div>
-                        <%= error_message_on(@pipeline.mingleConfig, com.thoughtworks.go.config.MingleConfig::BASE_URL, :css_class => "form_error") %>
-                    </div>
-                    <div class="form_item_block required">
-                        <%= required_label(m, com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, l.string("MINGLE_PROJECT_IDENTIFIER"))-%>
-                        <%= m.text_field com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER %>
-                        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MINGLE_PROJECT_IDENTIFIER") -%>"></div>
-                        <%= error_message_on(@pipeline.mingleConfig, com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, :css_class => "form_error") %>
-                    </div>
-                    <%= m.fields_for com.thoughtworks.go.config.MingleConfig::MQL_GROUPING_CONDITIONS, @pipeline.mingleConfig.mqlCriteria do |mQ| %>
-                        <div class="form_item_block">
-                            <%= mQ.label com.thoughtworks.go.config.MqlCriteria::MQL, l.string("MQL_GROUPING_CONDITIONS") %>
-                            <div>
-                                <%= mQ.text_field com.thoughtworks.go.config.MqlCriteria::MQL %>
-                                <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MQL_GROUPING_CONDITIONS") -%>"></div>
-                                <%= error_message_on(@pipeline.mingleConfig.mqlCriteria, com.thoughtworks.go.config.MqlCriteria::MQL, :css_class => "form_error") %>
-                            </div>
-                        </div>
-                    <% end %>
-                </div>
-                <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
-            <% end %>
-        </div>
     </div>
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'project_management')}} %>
     </div>
@@ -76,13 +45,8 @@
             var selected = jQuery(element).val();
             if (selected == "<%=com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_NONE%>") {
                 showElement(jQuery("#tracking_tool_container"), false);
-                showElement(jQuery("#mingle_config_container"), false);
             } else if (selected == "<%=com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL%>") {
                 showElement(jQuery("#tracking_tool_container"), true);
-                showElement(jQuery("#mingle_config_container"), false);
-            } else if (selected == "<%=com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_MINGLE%>") {
-                showElement(jQuery("#tracking_tool_container"), false);
-                showElement(jQuery("#mingle_config_container"), true);
             }
         };
         setConfigurationType(jQuery("input:[name='pipeline[integrationType]']:checked"));

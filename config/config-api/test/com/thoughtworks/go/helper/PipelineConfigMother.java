@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.*;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+
+import java.util.*;
 
 public class PipelineConfigMother {
     public static PipelineConfigs studiosAndEvolve() {
@@ -110,13 +110,6 @@ public class PipelineConfigMother {
         PipelineConfig pipelineConfig = pipelineConfig(name);
         TrackingTool trackingTool = new TrackingTool(trackingToolUrl, trackingToolRegex);
         pipelineConfig.setTrackingTool(trackingTool);
-        return pipelineConfig;
-    }
-
-    public static PipelineConfig pipelineConfigWithMingleConfiguration(String name, String mingleUrl, String mingleProjectId, String mql) {
-        PipelineConfig pipelineConfig = pipelineConfig(name);
-        MingleConfig mingleConfig = new MingleConfig(mingleUrl, mingleProjectId, mql);
-        pipelineConfig.setMingleConfig(mingleConfig);
         return pipelineConfig;
     }
 

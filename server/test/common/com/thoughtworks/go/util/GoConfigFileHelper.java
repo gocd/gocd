@@ -277,10 +277,6 @@ public class GoConfigFileHelper {
         return addPipelineWithGroupAndTimer(groupName, pipelineName, new MaterialConfigs(MaterialConfigsMother.mockMaterialConfigs(svnCommand.getUrlForDisplay())), stageName, null, buildNames);
     }
 
-    public PipelineConfig addPipelineWithGroup(String groupName, String pipelineName, MaterialConfigs materialConfigs, String stageName, String... buildNames) {
-        return addPipelineWithGroupAndTimer(groupName, pipelineName, materialConfigs, stageName, null, buildNames);
-    }
-
     public PipelineConfig addPipelineWithGroupAndTimer(String groupName, String pipelineName, MaterialConfigs materialConfigs, String stageName, TimerConfig timer, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipelineWithGroupAndTimer(cruiseConfig, groupName, pipelineName, materialConfigs, stageName, timer, buildNames);
@@ -317,13 +313,12 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
-    public PipelineConfig addPipelineWithGroup(String groupName, String pipelineName, MaterialConfigs materialConfigs, MingleConfig mingleConfig, String stageName, String... buildNames) {
+    public PipelineConfig addPipelineWithGroup(String groupName, String pipelineName, MaterialConfigs materialConfigs, String stageName, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipelineWithGroup(cruiseConfig, groupName, pipelineName,
                 materialConfigs,
                 stageName,
                 buildNames);
-        pipelineConfig.setMingleConfig(mingleConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }
@@ -362,14 +357,6 @@ public class GoConfigFileHelper {
     public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfig materialConfig, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, pipelineName, stageName, new MaterialConfigs(materialConfig), buildNames);
-        writeConfigFile(cruiseConfig);
-        return pipelineConfig;
-    }
-
-    public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfig materialConfig, MingleConfig mingleConfig, String... jobs) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, pipelineName, stageName, new MaterialConfigs(materialConfig), jobs);
-        pipelineConfig.setMingleConfig(mingleConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }
@@ -968,16 +955,8 @@ public class GoConfigFileHelper {
         return EnvironmentVariablesConfigMother.env(name, value);
     }
 
-
     public static EnvironmentVariablesConfig env(String [] names, String [] values) {
         return EnvironmentVariablesConfigMother.env(names, values);
-    }
-
-    public void addMingleConfigToPipeline(String pipelineName, MingleConfig mingleConfig) {
-        CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        pipelineConfig.setMingleConfig(mingleConfig);
-        writeConfigFile(config);
     }
 
     public void setBaseUrls(ServerSiteUrlConfig siteUrl, ServerSiteUrlConfig secureSiteUrl) {

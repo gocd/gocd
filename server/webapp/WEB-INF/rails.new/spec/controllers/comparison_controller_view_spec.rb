@@ -78,16 +78,12 @@ describe ComparisonController, "view" do
     end
 
     it "should render error page when user doesn't have view access to pipeline" do
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(result)
       result.unauthorized(LocalizedMessage.cannotViewPipeline("some_pipeline"), HealthStateType.unauthorisedForPipeline("some_pipeline"))
 
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
-
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => 17
 
-      expect(assigns[:mingle_config]).to be_nil
       Capybara.string(response.body).find("div.content_wrapper_outer").tap do |outer_div|
         outer_div.find("div.content_wrapper_inner").tap do |inner_div|
           inner_div.find("div.notification").tap do |notification|
@@ -95,8 +91,8 @@ describe ComparisonController, "view" do
           end
         end
       end
-      expect(response.body).to include("<h3>You do not have view permissions for pipeline &#39;some_pipeline&#39;.</h3>")
-      expect(response.status).to eq(401)
+      expect(response.body).to include("pipeline &#39;some_pipeline&#39; not found.")
+      expect(response.status).to eq(404)
     end
 
     it "should show error if pipelines don't exist" do
@@ -124,15 +120,12 @@ describe ComparisonController, "view" do
 
     it "should render Checkins between the given pipeline instances" do
       controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
 
       HttpLocalizedOperationResult.stub(:new).and_return(result)
-      mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
       controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, true).and_return(@revisions.getRevisions())
+      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true).and_return(@revisions.getRevisions())
 
       stub_go_config_service
 
@@ -173,15 +166,12 @@ describe ComparisonController, "view" do
       config_service = stub_service(:go_config_service)
       config_service.should_receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
       controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
 
       result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(result)
-      mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), true, false) do |name, from, to, loser, result|
+      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), false) do |name, from, to, loser, result|
         result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipleine', ['some_pipeline']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
 

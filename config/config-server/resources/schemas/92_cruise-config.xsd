@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="93"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="92"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -342,7 +342,10 @@
                 <xsd:complexType>
                     <xsd:sequence>
                         <xsd:element minOccurs="0" maxOccurs="1" ref="params"/>
-                        <xsd:element minOccurs="0" maxOccurs="1" name="trackingtool" type="trackingToolType" />
+                        <xsd:choice minOccurs="0" maxOccurs="1">
+                            <xsd:element name="trackingtool" type="trackingToolType"/>
+                            <xsd:element name="mingle" type="mingleType"/>
+                        </xsd:choice>
                         <xsd:element minOccurs="0" maxOccurs="1" name="timer" type="timerType"/>
                         <xsd:element minOccurs="0" maxOccurs="1" ref="environmentvariables"/>
                         <xsd:element minOccurs="0" maxOccurs="unbounded" name="dependencies" type="dependenciesType"/>
@@ -895,6 +898,27 @@
     <xsd:complexType name="trackingToolType">
         <xsd:attribute name="link" type="xsd:string" use="required"/>
         <xsd:attribute name="regex" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <xsd:complexType name="mingleType">
+        <xsd:sequence>
+            <xsd:element name="mqlGroupingConditions" minOccurs="0" maxOccurs="1">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" xml:space="default"/>
+                </xsd:simpleType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="baseUrl" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="projectIdentifier" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="[^\s]+"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
     </xsd:complexType>
     <xsd:element name="filter" type="filterType"/>
     <xsd:complexType name="filterType">

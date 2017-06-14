@@ -27,51 +27,6 @@ const TrackingToolViews = {
   none () {
   },
 
-  mingle (trackingTool) {
-    const model = trackingTool();
-
-    return (
-      <div>
-        <f.row collapse>
-          <f.column size={8} largeSize={6}>
-            <f.input model={model}
-                     attrName="baseUrl"
-                     label={[
-                       <span class="required">Base URL</span>,
-                       <f.tooltip tooltip={{content: <tt.trackingTool.mingle.baseUrl callback={model.baseUrl} />}} model={model} attrName="baseUrl" />
-                     ]}
-                     type="url"
-                     validate />
-          </f.column>
-        </f.row>
-
-        <f.row collapse>
-          <f.column size={8} largeSize={6}>
-            <f.input model={model}
-                     attrName="projectIdentifier"
-                     label={[
-                       <span class="required">Project identifier</span>,
-                       <f.tooltip tooltip={{content: <tt.trackingTool.mingle.projectIdentifier callback={model.projectIdentifier} />}} model={model} attrName="projectIdentifier" />
-                     ]}
-                     validate />
-          </f.column>
-        </f.row>
-
-        <f.row collapse>
-          <f.column size={8} largeSize={6}>
-            <f.input model={model}
-                     attrName="mqlGroupingConditions"
-                     label={[
-                       "MQL grouping conditions",
-                       <f.tooltip tooltip={{content: <tt.trackingTool.mingle.mqlGroupingConditions callback={model.mqlGroupingConditions} />}} model={model} attrName="mqlGroupingConditions" />
-                     ]}
-                     validate />
-          </f.column>
-        </f.row>
-      </div>
-    );
-  },
-
   generic (trackingTool) {
     const model = trackingTool();
 
@@ -111,7 +66,6 @@ const TrackingToolWidget = {
     ComponentMixins.HasViewModel.call(this);
     this.vmState('possibleTrackingTools', {
       none:    null,
-      mingle:  (vnode.attrs.trackingTool() && vnode.attrs.trackingTool().type() === 'mingle') ? vnode.attrs.trackingTool() : TrackingTool.create('mingle'),
       generic: (vnode.attrs.trackingTool() && vnode.attrs.trackingTool().type() === 'generic') ? vnode.attrs.trackingTool() : TrackingTool.create('generic')
     });
   },

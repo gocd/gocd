@@ -167,56 +167,6 @@ const trackingToolGenericUrlPattern = {
   }
 };
 
-const trackingToolMingleBaseUrl = {
-  view (vnode) {
-    return (
-      <div>
-        <p>
-          Base URI to the Mingle installation (do not include the project name/identifier)
-        </p>
-
-        <ExampleTable callback={vnode.attrs.callback}
-                      examples={{
-                        'https://widgets.example.com/mingle':      'Mingle on your premises',
-                        'https://example.mingle.thoughtworks.com': 'Hosted mingle'
-                      }}/>
-      </div>
-    );
-  }
-};
-
-const trackingToolMingleProjectIdentifier = {
-  view () {
-    return (
-      <div>
-        <p>
-          The identifier of your mingle project. This can be found under the project's 'Project admin' tab in the
-          section titled 'Basic Information'.
-        </p>
-      </div>
-    );
-  }
-};
-
-const trackingToolMingleGroupingConditions = {
-  view (vnode) {
-    return (
-      <div>
-        <p>
-          A MQL string that determines the 'passing criteria' for cards displayed.
-        </p>
-
-        <ExampleTable callback={vnode.attrs.callback}
-                      examples={{
-                        "status > 'In Dev'": "Only list cards that are past 'In Dev'"
-                      }}/>
-      </div>
-    );
-
-  }
-};
-
-
 const environmentVariables = (
   <div>
     <p>
@@ -741,11 +691,6 @@ const tooltips = {
 
   trackingTool: {
     main:   trackingToolMain,
-    mingle: {
-      baseUrl:               trackingToolMingleBaseUrl,
-      projectIdentifier:     trackingToolMingleProjectIdentifier,
-      mqlGroupingConditions: trackingToolMingleGroupingConditions
-    },
 
     generic: {
       regex:      trackingToolGenericRegex,

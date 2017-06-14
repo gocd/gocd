@@ -980,22 +980,6 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
 
-    @Test
-    public void shouldLoadMingleConfigForPipeline() throws Exception {
-        String configWithCommand = ConfigFileFixture.withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"/>");
-        MingleConfig mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
-        assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance")));
-
-        configWithCommand = ConfigFileFixture.withMingleConfig(
-                "<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions>foo = bar!=baz</mqlGroupingConditions></mingle>");
-        mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
-        assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance", "foo = bar!=baz")));
-
-        configWithCommand = ConfigFileFixture.withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions/></mingle>");
-        mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
-        assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance", "")));
-    }
-
     private void shouldBeSvnMaterial(MaterialConfig material) {
         assertThat(material, is(instanceOf(SvnMaterialConfig.class)));
         SvnMaterialConfig svnMaterial = (SvnMaterialConfig) material;
@@ -2578,32 +2562,6 @@ public class MagicalGoConfigXmlLoaderTest {
         StageConfig stage = stageWithJobResource("foo");
         stage.getApproval().getAuthConfig().add(new AdminRole(new CaseInsensitiveString(role)));
         return stage;
-    }
-
-    @Test
-    public void shouldAllowOnlyOneOfTrackingToolOrMingleConfigInSourceXml() {
-        String content = ConfigFileFixture.configWithPipeline(
-                "<pipeline name='pipeline1'>"
-                        + "<trackingtool link=\"https://some-tracking-tool/projects/go/cards/${ID}\" regex=\"##(\\d+)\" />"
-                        + "      <mingle baseUrl=\"https://some-tracking-tool/\" projectIdentifier=\"go\">"
-                        + "        <mqlGroupingConditions>status &gt; 'In Dev'</mqlGroupingConditions>"
-                        + "      </mingle>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", CONFIG_SCHEMA_VERSION);
-        try {
-            ConfigMigrator.loadWithMigration(content);
-            fail("Should not allow mingle config and tracking tool together");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Invalid content was found starting with element 'mingle'."));
-        }
     }
 
     @Test

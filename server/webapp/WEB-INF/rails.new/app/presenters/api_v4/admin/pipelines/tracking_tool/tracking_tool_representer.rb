@@ -20,13 +20,11 @@ module ApiV4
       module TrackingTool
         class TrackingToolRepresenter < BaseRepresenter
           TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP = {
-            com.thoughtworks.go.config.MingleConfig => MingleTrackingToolRepresenter,
             com.thoughtworks.go.config.TrackingTool => ExternalTrackingToolRepresenter
           }
 
           TRACKING_TOOL_TYPE_TO_CLASS_MAP = {
             'generic' => com.thoughtworks.go.config.TrackingTool,
-            'mingle' => com.thoughtworks.go.config.MingleConfig
           }.freeze
 
           TRACKING_TOOL_CLASS_TO_TYPE_MAP = TRACKING_TOOL_TYPE_TO_CLASS_MAP.invert.freeze

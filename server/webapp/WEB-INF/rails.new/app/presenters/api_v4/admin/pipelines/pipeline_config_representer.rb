@@ -132,18 +132,11 @@ module ApiV4
         end
 
         def tracking_tool
-          if pipeline.getTrackingTool()
-            pipeline.getTrackingTool()
-          elsif pipeline.getMingleConfig().isDefined()
-            pipeline.getMingleConfig()
-          end
-
+          pipeline.getTrackingTool()
         end
 
         def tracking_tool=(value)
-          if value.instance_of? com.thoughtworks.go.config.MingleConfig
-            pipeline.setMingleConfig(value)
-          elsif value.instance_of? com.thoughtworks.go.config.TrackingTool
+          if value.instance_of? com.thoughtworks.go.config.TrackingTool
             pipeline.setTrackingTool(value)
           end
         end

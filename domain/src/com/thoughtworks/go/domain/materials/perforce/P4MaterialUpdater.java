@@ -76,14 +76,6 @@ public class P4MaterialUpdater {
         return env;
     }
 
-    private BuildCommand exportUserIfPresent() {
-        if (StringUtil.isBlank(material.getUserName())) {
-            return noop();
-        } else {
-            return export("P4USER", material.getUserName(), false);
-        }
-    }
-
     private BuildCommand constructClient(String workingDir, String clientName) {
         String clientArgs = "Client: " + clientName + "\n\n"
                 + "Root: " + new File(workingDir).getAbsolutePath() + "\n\n"

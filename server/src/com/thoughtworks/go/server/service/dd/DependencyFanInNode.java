@@ -125,7 +125,7 @@ public class DependencyFanInNode extends FanInNode {
         int batchOffset = currentCount;
         for (int i = 1; i <= context.revBatchCount; ++i) {
             final Pair<StageIdentifier, List<FaninScmMaterial>> sIdScmPair = getRevisionNthFor(i + batchOffset, context);
-            if (!validateAllScmRevisionsAreSameWithinAFingerprint(sIdScmPair, context)) {
+            if (!validateAllScmRevisionsAreSameWithinAFingerprint(sIdScmPair)) {
                 ++currentCount;
                 if (!hasMoreInstances()) {
                     break;
@@ -149,8 +149,12 @@ public class DependencyFanInNode extends FanInNode {
         Set<CaseInsensitiveString> visitedNodes = new HashSet<>();
 
         StageIdentifier dependentStageIdentifier = dependentStageIdentifier(context, entry, CaseInsensitiveString.str(dependencyMaterial.getStageName()));
+        Map<String, Modifications> modificationsMap = new HashMap<>();
         if (!StageIdentifier.NULL.equals(dependentStageIdentifier)) {
-            addToRevisionQueue(entry, revisionQueue, scmMaterials, context, visitedNodes);
+            for (String scmFingerprint: context.fingerprintScmMaterialMap.keySet()) {
+                modificationsMap.put(scmFingerprint, modificationsForFingerprint(scmFingerprint, dependentStageIdentifier, context.pipelineDao));
+            }
+            addToRevisionQueue(entry, revisionQueue, scmMaterials, context, visitedNodes, modificationsMap);
         } else {
             return null;
         }
@@ -158,27 +162,19 @@ public class DependencyFanInNode extends FanInNode {
             PipelineTimelineEntry.Revision revision = revisionQueue.poll();
             DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision, null);
             PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(new CaseInsensitiveString(dmr.getPipelineName()), dmr.getPipelineCounter());
-            addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes);
+            addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes, modificationsMap);
         }
 
         return new Pair<>(dependentStageIdentifier, scmMaterials);
     }
 
-    private boolean validateAllScmRevisionsAreSameWithinAFingerprint(Pair<StageIdentifier, List<FaninScmMaterial>> pIdScmPair, FanInGraphContext context) {
+    private boolean validateAllScmRevisionsAreSameWithinAFingerprint(Pair<StageIdentifier, List<FaninScmMaterial>> pIdScmPair) {
         if (pIdScmPair == null) {
             return false;
         }
-        StageIdentifier stageId = pIdScmPair.first();
-        PipelineInstanceModel pipeline = context.pipelineDao.findPipelineHistoryByNameAndCounter(stageId.getPipelineName(), stageId.getPipelineCounter());
-        MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         Map<FaninScmMaterial, PipelineTimelineEntry.Revision> versionsByMaterial = new HashMap<>();
         List<FaninScmMaterial> scmMaterialList = pIdScmPair.last();
         for (final FaninScmMaterial scmMaterial : scmMaterialList) {
-            MaterialRevision actualRevision = materialRevisions.findRevisionForFingerPrint(scmMaterial.fingerprint);
-            if (actualRevision != null &&
-                    !this.changeExistsInAnyOfChildren(actualRevision.getModifications(), scmMaterial.fingerprint)) {
-                continue;
-            }
             PipelineTimelineEntry.Revision revision = versionsByMaterial.get(scmMaterial);
             if (revision == null) {
                 versionsByMaterial.put(scmMaterial, scmMaterial.revision);
@@ -220,12 +216,17 @@ public class DependencyFanInNode extends FanInNode {
     }
 
     private void addToRevisionQueue(PipelineTimelineEntry entry, Queue<PipelineTimelineEntry.Revision> revisionQueue, List<FaninScmMaterial> scmMaterials,
-                                    FanInGraphContext context, Set<CaseInsensitiveString> visitedNodes) {
+                                    FanInGraphContext context, Set<CaseInsensitiveString> visitedNodes, Map<String, Modifications> modificationsMap) {
         for (Map.Entry<String, List<PipelineTimelineEntry.Revision>> revisionList : entry.revisions().entrySet()) {
             String fingerprint = revisionList.getKey();
             PipelineTimelineEntry.Revision revision = revisionList.getValue().get(0);
             if (isScmMaterial(fingerprint, context)) {
-                scmMaterials.add(new FaninScmMaterial(fingerprint, revision));
+                Modifications modifications = modificationsMap.get(fingerprint);
+                DependencyFanInNode node = childByPipelineName(this, new CaseInsensitiveString(entry.getPipelineName()));
+                FaninScmMaterial scmMaterial = new FaninScmMaterial(fingerprint, revision);
+                if (!scmMaterials.contains(scmMaterial) || node.changeExistsInNodeOrChildren(modifications, fingerprint)) {
+                    scmMaterials.add(scmMaterial);
+                }
                 continue;
             }
 
@@ -326,12 +327,15 @@ public class DependencyFanInNode extends FanInNode {
             if (child instanceof DependencyFanInNode && !visitedNodes.contains(child)) {
                 DependencyFanInNode dependencyNode = (DependencyFanInNode) child;
                 visitedNodes.add(dependencyNode);
-                DependencyMaterialRevision revision = (DependencyMaterialRevision) materialRevisions.findRevisionFor(child.materialConfig).getRevision();
-                StageIdentifier stageIdentifier = new StageIdentifier(revision.getPipelineName(), revision.getPipelineCounter(),
-                        revision.getStageName(), String.valueOf(revision.getStageCounter()));
-                Modifications modifications = dependencyNode.modificationsForFingerprint(fingerprint, stageIdentifier, pipelineDao, visitedNodes);
-                if (modifications != null) {
-                    return modifications;
+                MaterialRevision revision = materialRevisions.findRevisionFor(child.materialConfig);
+                if (revision != null) {
+                    DependencyMaterialRevision nodeRevision = (DependencyMaterialRevision) revision.getRevision();
+                    StageIdentifier stageIdentifier = new StageIdentifier(nodeRevision.getPipelineName(), nodeRevision.getPipelineCounter(),
+                            nodeRevision.getStageName(), String.valueOf(nodeRevision.getStageCounter()));
+                    Modifications modifications = dependencyNode.modificationsForFingerprint(fingerprint, stageIdentifier, pipelineDao, visitedNodes);
+                    if (modifications != null) {
+                        return modifications;
+                    }
                 }
             }
         }

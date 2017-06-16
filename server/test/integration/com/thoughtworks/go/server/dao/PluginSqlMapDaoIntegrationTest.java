@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dao;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.server.cache.GoCache;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -46,6 +48,8 @@ public class PluginSqlMapDaoIntegrationTest {
     private PluginSqlMapDao pluginSqlMapDao;
     @Autowired
     private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
 
     @Before
     public void setup() throws Exception {
@@ -87,8 +91,10 @@ public class PluginSqlMapDaoIntegrationTest {
     public void shouldReturnCorrectPluginIfPluginIdExists() throws Exception {
         Plugin plugin = savePlugin("plugin-id");
 
+        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id")), is(nullValue()));
         Plugin pluginInDB = pluginSqlMapDao.findPlugin("plugin-id");
         assertThat(pluginInDB, is(plugin));
+        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings("plugin-id")), is(pluginInDB));
     }
 
     @Test

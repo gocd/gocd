@@ -34,7 +34,7 @@ jar {
 }
 
 task fatJar(type: Jar, dependsOn: [jar]) {
-
+  finalizedBy 'verifyJar'
   doFirst {
     from(jar.archivePath) { into('lib/') }
 
@@ -50,10 +50,6 @@ task fatJar(type: Jar, dependsOn: [jar]) {
       include "**/*.*"
       into "tfssdk/native"
     }
-  }
-
-  doLast {
-    verifyJar.execute()
   }
 }
 

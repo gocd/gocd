@@ -418,6 +418,7 @@ task inlinePartials {
 
 task war(type: Jar) {
   dependsOn ':server:jar', ':server:compileAssets', ':server:inlinePartials'
+  finalizedBy 'verifyWar'
   baseName = 'cruise'
   extension 'war'
 
@@ -478,9 +479,6 @@ task war(type: Jar) {
     }
   }
 
-  doLast {
-    verifyWar.execute()
-  }
 }
 
 task verifyWar(type: VerifyJarTask) {

@@ -32,6 +32,7 @@ jar {
 }
 
 task fatJar(type: Jar, dependsOn: [':agent-bootstrapper:jar', ":agent-launcher:fatJar"]) {
+  finalizedBy 'verifyJar'
   manifest {
     attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper'
@@ -55,10 +56,6 @@ task fatJar(type: Jar, dependsOn: [':agent-bootstrapper:jar', ":agent-launcher:f
       exclude 'OneJar.class'
       into("/")
     })
-  }
-
-  doLast {
-    verifyJar.execute()
   }
 }
 

@@ -28,6 +28,7 @@ jar {
 }
 
 task fatJar(type: Jar, dependsOn: [':agent-launcher:jar', ':agent-common:jar']) {
+  finalizedBy 'verifyJar'
   manifest {
     attributes 'Go-Agent-Launcher-Class': 'com.thoughtworks.go.agent.launcher.AgentLauncherImpl'
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
@@ -36,10 +37,6 @@ task fatJar(type: Jar, dependsOn: [':agent-launcher:jar', ':agent-common:jar']) 
   doFirst {
     from(configurations.compile) { into "libs/" }
     from(jar.archivePath) { into('libs/') }
-  }
-
-  doLast {
-    verifyJar.execute()
   }
 }
 

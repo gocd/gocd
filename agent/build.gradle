@@ -58,6 +58,7 @@ clean.doFirst {
 }
 
 task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar']) {
+  finalizedBy 'verifyJar'
   manifest {
     attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.agent.AgentMain'
@@ -82,9 +83,6 @@ task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar'])
     })
   }
 
-  doLast {
-    verifyJar.execute()
-  }
 }
 
 task verifyJar(type: VerifyJarTask) {

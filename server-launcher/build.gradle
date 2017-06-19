@@ -189,7 +189,11 @@ task pluginsZip(type: Zip, dependsOn: ':server-launcher:createVersionFile') {
 task verifyPluginZip(type: VerifyJarTask) {
   jarTask = pluginsZip
   expectedJars = [
-      '/': ['yum-repo-exec-poller.jar']
+      '/': [
+        'yum-repo-exec-poller.jar',
+        'gocd-ldap-authentication-plugin.jar',
+        'filebased-authentication-plugin.jar'
+      ]
   ]
 }
 clean.doLast {

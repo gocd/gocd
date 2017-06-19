@@ -22,19 +22,25 @@ import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 
+import org.apache.log4j.Logger;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 
 /**
  * @understands when to trigger updates for materials
  */
 public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateMessage> {
+    private static final Logger LOGGER = Logger.getLogger(MaterialUpdateListener.class);
     private final GoMessageTopic<MaterialUpdateCompletedMessage> topic;
     private final MaterialDatabaseUpdater updater;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
 
-    public MaterialUpdateListener(GoMessageTopic<MaterialUpdateCompletedMessage> topic, MaterialDatabaseUpdater updater,
-                                  MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor) {
+    public MaterialUpdateListener(
+        GoMessageTopic<MaterialUpdateCompletedMessage> topic,
+        MaterialDatabaseUpdater updater,
+        MDUPerformanceLogger mduPerformanceLogger,
+        GoDiskSpaceMonitor diskSpaceMonitor
+    ) {
         this.topic = topic;
         this.updater = updater;
         this.mduPerformanceLogger = mduPerformanceLogger;
@@ -49,6 +55,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
             bombIf(diskSpaceMonitor.isLowOnDisk(), "Cruise server is too low on disk to continue with material update");
             updater.updateMaterial(material);
             mduPerformanceLogger.postingMessageAboutMDUCompletion(message.trackingId(), material);
+            LOGGER.trace("[ Config Save ] sending update successful message about: " + material);
             topic.post(new MaterialUpdateSuccessfulMessage(material, message.trackingId())); //This should happen only if the transaction is committed.
         }
         catch (Exception e) {

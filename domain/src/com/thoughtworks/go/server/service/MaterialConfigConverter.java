@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -75,7 +76,7 @@ public class MaterialConfigConverter {
     }
 
     public Set<Material> toMaterials(Set<MaterialConfig> materialConfigs) {
-        HashSet<Material> materials = new HashSet<>();
+        Set<Material> materials = new LinkedHashSet<>();
         for (MaterialConfig materialConfig : materialConfigs) {
             materials.add(toMaterial(materialConfig));
         }

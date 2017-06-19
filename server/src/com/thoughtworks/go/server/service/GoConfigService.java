@@ -540,7 +540,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public Set<MaterialConfig> getSchedulableSCMMaterials() {
-        HashSet<MaterialConfig> scmMaterials = new HashSet<>();
+        HashSet<MaterialConfig> scmMaterials = new LinkedHashSet<>();
 
         for (MaterialConfig materialConfig : getSchedulableMaterials()) {
             if (!(materialConfig instanceof DependencyMaterialConfig)) {

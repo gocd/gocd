@@ -107,7 +107,7 @@ public class DiskSpaceWarningCheckerTest {
 
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
-        String expectedHelpUrl = "https://docs.gocd.io/current/installation/configuring_server_details.html";
+        String expectedHelpUrl = "https://docs.gocd.org/current/installation/configuring_server_details.html";
 
         GoConfigService goConfigService = mockGoConfigServiceToHaveSiteUrl();
 

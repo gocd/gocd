@@ -40,7 +40,8 @@
                     <div class="color_code_small"></div>
                     #end
                 <strong>${listPresenter.buildLocatorForDisplay}</strong>
-                <div class="time_ago">${listPresenter.humanReadableScheduledDate}</div>
+                <div class="time_ago" data="${listPresenter.scheduledTime}"></div>
+
                 </a>
                 <!-- should be ${listPresenter.tabToShow} -->
             </li>
@@ -51,5 +52,14 @@
     #foreach( $listPresenter in $presenter.recent25 )
         json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${velocityCount}, "$req.getContextPath()/$concatenatedStageBarCancelledIconFilePath");
     #end
+
+      jQuery(function() {
+          jQuery(".buildlist .time_ago").each(function(idx, timeSpan) {
+            var timestamp = parseInt(jQuery(timeSpan).attr("data"));
+            if (isNaN(timestamp)) return;
+            var time = new Date(timestamp);
+            jQuery(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+          });
+        });
     </script>
 </div>

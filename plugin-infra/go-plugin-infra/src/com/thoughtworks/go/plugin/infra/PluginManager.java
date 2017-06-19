@@ -39,8 +39,6 @@ public interface PluginManager {
 
     void startInfrastructure(boolean shouldPoll);
 
-    void registerPluginsFolderChangeListener();
-
     void stopInfrastructure();
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);

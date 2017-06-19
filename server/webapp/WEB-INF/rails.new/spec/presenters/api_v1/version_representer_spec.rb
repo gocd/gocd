@@ -34,7 +34,7 @@ describe ApiV1::VersionRepresenter do
     expect(actual_json).to have_links(:self, :doc)
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/version')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#version')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#version')
   end
 
 end

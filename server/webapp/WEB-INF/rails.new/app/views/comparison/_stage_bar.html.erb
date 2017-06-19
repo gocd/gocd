@@ -15,4 +15,15 @@
 <% end %>
 <div class="triggered_by">
     <%= trigger_message_with_formatted_date_time(scope[:pipeline].getScheduledDate(), scope[:pipeline].getApprovedBy()) -%>
+
+  <script>
+    jQuery(function() {
+      jQuery(".triggered_by .time").each(function(idx, timeSpan) {
+        var timestamp = parseInt(jQuery(timeSpan).attr("data"));
+        if (isNaN(timestamp)) return;
+        var time = new Date(timestamp);
+        jQuery(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+      });
+    });
+  </script>
 </div>

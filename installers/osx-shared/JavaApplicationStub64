@@ -241,7 +241,7 @@ test -z "${JAVACMD}" -o ! -x "${JAVACMD}" && show_message_and_exit 2 "${APPLICAT
       "You need to have Java 1.7 or newer installed to run the ${APPLICATION_NAME} application." "" \
       "Java found was: \\\"${JAVACMD}\\\"" "" \
       "If you do have Java 1.7 or newer installed, please see: \
-https://docs.gocd.io/current/installation/troubleshoot_installer.html#mac_java"
+https://docs.gocd.org/current/installation/troubleshoot_installer.html#mac_java"
 
 COMMAND=()
 add_arg "$JAVACMD"

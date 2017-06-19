@@ -129,7 +129,7 @@ describe 'stages/stage.html.erb' do
 
           Capybara.string(response.body).find(".run_details .schedule_info").tap do |f|
             expect(f).to have_selector("span.label", :text => "Automatically triggered")
-            expect(f).to have_selector("span.time", :text => /\s+at\s+/)
+            expect(f).to have_selector("span.time[data]")
           end
         end
 
@@ -137,7 +137,7 @@ describe 'stages/stage.html.erb' do
           render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
           Capybara.string(response.body).find(".run_details .duration").tap do |f|
             expect(f).to have_selector("span.label", :text => "Duration:")
-            expect(f).to have_selector("span.time", :text => /\d{2}:\d{2}:\d{2}/)
+            expect(f).to have_selector("span.time")
           end
         end
 
@@ -153,7 +153,7 @@ describe 'stages/stage.html.erb' do
           render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
           Capybara.string(response.body).find(".schedule_info").tap do |f|
             expect(f).to have_selector(".label", :text => "Automatically triggered")
-            expect(f).to have_selector(".time", :text => /\s+at\s+/)
+            expect(f).to have_selector("span.time[data]")
           end
         end
 
@@ -392,7 +392,7 @@ describe 'stages/stage.html.erb' do
         render
 
         Capybara.string(response.body).find("div.vsm_not_supported.notification").tap do |f|
-          expect(f).to have_selector "p.information", :text => /^[\s\S]*Your browser is not supported. Please either upgrade your browser or use a different browser to view <a href='https:\/\/docs.gocd.io\/current\/navigation\/value_stream_map\.html' target='_blank'>Value Stream Map<\/a>.[\s\S]*$/
+          expect(f).to have_selector "p.information", :text => /^[\s\S]*Your browser is not supported. Please either upgrade your browser or use a different browser to view <a href='https:\/\/docs.gocd.org\/current\/navigation\/value_stream_map\.html' target='_blank'>Value Stream Map<\/a>.[\s\S]*$/
         end
       end
 

@@ -173,7 +173,7 @@ describe Admin::ConfigurationController do
       response.should render_template "split_pane"
       flash.now[:error].should == "Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."
       assigns[:errors][0].should == "Conflict in merging"
-      assigns[:flash_help_link].should == "<a class='' href='https://docs.gocd.io/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>"
+      assigns[:flash_help_link].should == "<a class='' href='https://docs.gocd.org/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>"
       assigns[:conflicted_config].content.should == submitted_copy['content']
       assigns[:conflicted_config].md5.should == submitted_copy['md5']
       assigns[:conflicted_config].location.should == submitted_copy['location']

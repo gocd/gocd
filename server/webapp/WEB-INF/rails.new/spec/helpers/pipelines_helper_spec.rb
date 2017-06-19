@@ -83,14 +83,14 @@ describe PipelinesHelper do
       joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
       expect(message).to have_selector(".who", text: "Vipul")
-      expect(message).to have_selector(".time", text: "20 Aug, 2010 at 18:03:44 [+0530]")
+      expect(message).to have_selector(".time[data='#{joda_date.to_date.getTime}']")
     end
 
     it "should display appropriate message when when auto triggered " do
       joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
       expect(message).to have_selector(".label", "Automatically triggered")
-      expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
+      expect(message).to have_selector(".time[data='#{joda_date.to_date.getTime}']")
     end
   end
 

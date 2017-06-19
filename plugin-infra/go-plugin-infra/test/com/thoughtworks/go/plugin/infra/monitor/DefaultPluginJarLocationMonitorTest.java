@@ -1,23 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.infra.monitor;
-
-import java.io.File;
-import java.util.Random;
 
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -29,14 +26,13 @@ import org.mockito.InOrder;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import java.io.File;
+import java.util.Random;
+
 import static com.thoughtworks.go.util.FileUtil.recreateDirectory;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_GO_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS;
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -51,8 +47,6 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     private SystemEnvironment systemEnvironment;
     @Mock
     private PluginJarChangeListener changeListener;
-    @Mock
-    private PluginsFolderChangeListener pluginsFolderChangeListener;
 
     @Before
     public void setUp() throws Exception {
@@ -297,14 +291,10 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
             return;
         }
         monitor.addPluginJarChangeListener(changeListener);
-        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
         monitor.start();
         copyPluginToThePluginDirectory(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin.jar");
         waitAMoment();
         verify(changeListener).pluginJarAdded(pluginFileDetails(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin.jar", true));
-
-        verify(pluginsFolderChangeListener, atLeast(1)).handle();
-        verifyNoMoreInteractions(pluginsFolderChangeListener);
     }
 
     @Test
@@ -313,7 +303,6 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
             return;
         }
         monitor.addPluginJarChangeListener(changeListener);
-        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
         monitor.start();
         String pluginJar = "descriptor-aware-test-plugin.jar";
         copyPluginToThePluginDirectory(BUNDLED_PLUGIN_DIR, pluginJar);
@@ -323,9 +312,6 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         FileUtils.deleteQuietly(new File(BUNDLED_PLUGIN_DIR, pluginJar));
         waitAMoment();
         verify(changeListener).pluginJarRemoved(pluginFileDetails(BUNDLED_PLUGIN_DIR, pluginJar, true));
-
-        verify(pluginsFolderChangeListener, atLeast(1)).handle();
-        verifyNoMoreInteractions(pluginsFolderChangeListener);
     }
 
     @Test
@@ -334,7 +320,6 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
             return;
         }
         monitor.addPluginJarChangeListener(changeListener);
-        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
         monitor.start();
 
         copyPluginToThePluginDirectory(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin-1.jar");
@@ -345,9 +330,6 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         PluginFileDetails newFile = pluginFileDetails(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin-1-new.jar", true);
         FileUtils.moveFile(orgFile.file(), newFile.file());
         waitAMoment();
-
-        verify(pluginsFolderChangeListener, atLeast(1)).handle();
-        verifyNoMoreInteractions(pluginsFolderChangeListener);
     }
 
     @Test
@@ -356,12 +338,8 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
             return;
         }
         monitor.addPluginJarChangeListener(changeListener);
-        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
         monitor.start();
         waitAMoment();
-
-        verify(pluginsFolderChangeListener, never()).handle();
-        verifyNoMoreInteractions(pluginsFolderChangeListener);
     }
 
     @Test

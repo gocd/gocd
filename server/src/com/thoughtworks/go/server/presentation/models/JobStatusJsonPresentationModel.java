@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,8 @@ import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.TimeConverter;
 import org.joda.time.DateTime;
 
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.JobState.*;
@@ -38,7 +37,6 @@ import static java.lang.String.valueOf;
 public class JobStatusJsonPresentationModel {
     private AgentConfig agentConfig;
     private final JobInstance instance;
-    private TimeConverter timeConverter = new TimeConverter();
     private DurationBean durationBean;
 
     public JobStatusJsonPresentationModel(JobInstance instance, AgentConfig agentConfig, DurationBean durationBean) {
@@ -60,7 +58,7 @@ public class JobStatusJsonPresentationModel {
         jsonParams.put("agent", agentConfig.getHostNameForDispaly());
         jsonParams.put("agent_ip", agentConfig.getIpAddress());
         jsonParams.put("agent_uuid", agentConfig.getUuid());
-        jsonParams.put("build_scheduled_date", getPreciseScheduledDate());
+        jsonParams.put("build_scheduled_date", getScheduledTime());
         jsonParams.put("build_assigned_date", getPreciseDateFor(Assigned));
         jsonParams.put("build_preparing_date", getPreciseDateFor(Preparing));
         jsonParams.put("build_building_date", getPreciseDateFor(Building));
@@ -140,21 +138,21 @@ public class JobStatusJsonPresentationModel {
         return instance.buildLocatorForDisplay();
     }
 
-    public String getPreciseScheduledDate() {
-        return timeConverter.nullSafeDate(instance.getScheduledDate());
+    private long getPreciseDateFor(JobState state) {
+        Date date = instance.getStartedDateFor(state);
+        if (date != null) {
+            return date.getTime();
+        }
+        return -1;
     }
 
-    public String getPreciseCompletedDate() {
-        return getPreciseDateFor(JobState.Completed);
-    }
 
-    public String getPreciseDateFor(JobState state) {
-        return timeConverter.nullSafeDate(instance.getStartedDateFor(state));
-    }
-
-    public String getHumanReadableScheduledDate() {
-        return timeConverter.getHumanReadableStringWithTimeZone(instance.getScheduledDate());
-
+    private long getScheduledTime() {
+        Date date = instance.getScheduledDate();
+        if (date != null) {
+            return date.getTime();
+        }
+        return -1;
     }
 
     public boolean isCopy() {

@@ -28,7 +28,7 @@ module ApiV3
       end
 
       link :doc do
-        'https://api.gocd.io/#plugin-info'
+        'https://api.gocd.org/#plugin-info'
       end
 
       collection :plugins,

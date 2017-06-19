@@ -26,7 +26,7 @@ describe ApiV2::Config::EnvironmentConfigRepresenter do
       expect(actual_json).to have_links(:self, :find, :doc)
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/environments/:environment_name')
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/environments/dev')
-      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#environment-config')
+      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#environment-config')
 
       actual_json.delete(:_links)
       expect(actual_json).to eq({

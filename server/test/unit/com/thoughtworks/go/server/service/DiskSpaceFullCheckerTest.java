@@ -128,7 +128,7 @@ public class DiskSpaceFullCheckerTest {
 
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
-        String expectedHelpUrl = "https://docs.gocd.io/current/installation/configuring_server_details.html";
+        String expectedHelpUrl = "https://docs.gocd.org/current/installation/configuring_server_details.html";
         ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);

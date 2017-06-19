@@ -22,10 +22,13 @@ import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.controller.beans.GoMailSenderProvider;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.ModelAndView;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -45,7 +48,7 @@ public class GoConfigAdministrationControllerTest {
         provider = mock(GoMailSenderProvider.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        controller = new GoConfigAdministrationController(goConfigService, securityService);
+        controller = new GoConfigAdministrationController(goConfigService, securityService, new SystemEnvironment());
     }
 
     @Test
@@ -59,5 +62,14 @@ public class GoConfigAdministrationControllerTest {
 
         assertThat(response.getContentAsString(), is(configXml));
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5).toString(), is("some-md5"));
+    }
+
+    @Test
+    public void shouldEnsurePresenceOfCustomHeaderWhileUpdatingTheConfig() throws Exception {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        controller.postFileAsXml("content", "md5", new MockHttpServletRequest(), response);
+
+        assertThat(response.getStatus(), is(400));
     }
 }

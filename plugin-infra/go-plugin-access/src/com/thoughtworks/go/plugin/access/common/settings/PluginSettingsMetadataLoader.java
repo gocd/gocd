@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtensionConstants;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -61,7 +61,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
 
             for (GoPluginExtension extension : extensions) {
                 if (extension.canHandlePlugin(pluginId)) {
-                    if (extension.extensionName().equals(TaskExtension.TASK_EXTENSION)) {
+                    if (extension.extensionName().equals(TaskExtensionConstants.TASK_EXTENSION)) {
                         isTaskPlugin = true;
                     } else {
                         configuration = extension.getPluginSettingsConfiguration(pluginId);

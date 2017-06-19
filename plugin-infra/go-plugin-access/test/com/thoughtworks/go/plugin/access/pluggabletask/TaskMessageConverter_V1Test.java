@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class JsonBasedTaskExtensionHandler_V1Test {
+public class TaskMessageConverter_V1Test {
     @Test
     public void shouldConvertTaskConfigJsonToTaskConfig() {
 
@@ -45,7 +45,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
                 "\"PASSWORD\":{}," +
                 "\"FOO\":null" +
                 "}";
-        TaskConfig config = new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json);
+        TaskConfig config = new TaskMessageConverter_V1().convertJsonToTaskConfig(json);
 
         Property url = config.get("URL");
         assertThat(url.getOption(Property.REQUIRED), is(true));
@@ -78,7 +78,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
                 "\"PASSWORD\":{\"display-order\":\"2\"}," +
                 "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}" +
                 "}";
-        TaskConfig config = new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json);
+        TaskConfig config = new TaskMessageConverter_V1().convertJsonToTaskConfig(json);
         assertThat(config.list().get(0).getKey(), is("URL"));
         assertThat(config.list().get(1).getKey(), is("USER"));
         assertThat(config.list().get(2).getKey(), is("PASSWORD"));
@@ -98,7 +98,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         taskConfig.add(p1);
         taskConfig.add(p2);
 
-        String json = new JsonBasedTaskExtensionHandler_V1().convertTaskConfigToJson(taskConfig);
+        String json = new TaskMessageConverter_V1().convertTaskConfigToJson(taskConfig);
         Map taskConfigMap = (Map) new GsonBuilder().create().fromJson(json, Object.class);
 
         Map property1 = (Map) taskConfigMap.get("k1");
@@ -116,7 +116,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     public void shouldThrowExceptionForWrongJsonWhileConvertingJsonToTaskConfig() {
         String json1 = "{}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json1);
+            new TaskMessageConverter_V1().convertJsonToTaskConfig(json1);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: The Json for Task Config cannot be empty."));
@@ -124,7 +124,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String json2 = "{\"URL\":{\"default-value\":true,\"secure\":false,\"required\":true}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json2);
+            new TaskMessageConverter_V1().convertJsonToTaskConfig(json2);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - The Json for Task Config should contain a not-null 'default-value' of type String."));
@@ -132,7 +132,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String json3 = "{\"URL\":{\"default-value\":\"some value\",\"secure\":\"string\",\"required\":true}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json3);
+            new TaskMessageConverter_V1().convertJsonToTaskConfig(json3);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - The Json for Task Config should contain a 'secure' field of type Boolean."));
@@ -140,7 +140,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String json4 = "{\"URL\":{\"default-value\":\"some value\",\"secure\":false,\"required\":\"string\"}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json4);
+            new TaskMessageConverter_V1().convertJsonToTaskConfig(json4);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - The Json for Task Config should contain a 'required' field of type Boolean."));
@@ -150,39 +150,39 @@ public class JsonBasedTaskExtensionHandler_V1Test {
                 "\"URL2\":{\"default-value\":\"some value\",\"secure\":\"some-string\",\"required\":false}," +
                 "\"URL3\":{\"default-value\":\"some value\",\"secure\":true,\"required\":\"some-string\"}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json5);
+            new TaskMessageConverter_V1().convertJsonToTaskConfig(json5);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL1' - The Json for Task Config should contain a not-null 'default-value' of type String, Key: 'URL1' - The Json for Task Config should contain a 'secure' field of type Boolean, Key: 'URL2' - The Json for Task Config should contain a 'secure' field of type Boolean, Key: 'URL3' - The Json for Task Config should contain a 'required' field of type Boolean."));
         }
 
-        assertThat(new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":\"1\"}}").get("URL").getOption(Property.DISPLAY_ORDER), is(1));
+        assertThat(new TaskMessageConverter_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":\"1\"}}").get("URL").getOption(Property.DISPLAY_ORDER), is(1));
 
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":\"first\"}}");
+            new TaskMessageConverter_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":\"first\"}}");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-order' should be a String containing a numerical value."));
         }
 
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":1}}");
+            new TaskMessageConverter_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":1}}");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-order' should be a String containing a numerical value."));
         }
 
-        assertThat(new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":\"Uniform Resource Locator\"}}").get("URL").getOption(Property.DISPLAY_NAME), is("Uniform Resource Locator"));
+        assertThat(new TaskMessageConverter_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":\"Uniform Resource Locator\"}}").get("URL").getOption(Property.DISPLAY_NAME), is("Uniform Resource Locator"));
 
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":{}}}");
+            new TaskMessageConverter_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":{}}}");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-name' should be of type String."));
         }
 
         try {
-            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":1}}");
+            new TaskMessageConverter_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":1}}");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-name' should be of type String."));
@@ -199,7 +199,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         property.with(Property.REQUIRED, true);
         configuration.add(property);
 
-        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
+        ValidationResult result = new TaskMessageConverter_V1().toValidationResult(jsonResponse);
 
         Assert.assertThat(result.isSuccessful(), CoreMatchers.is(false));
 
@@ -223,21 +223,21 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         property.with(Property.REQUIRED, true);
         configuration.add(property);
 
-        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
+        ValidationResult result = new TaskMessageConverter_V1().toValidationResult(jsonResponse);
 
         Assert.assertThat(result.isSuccessful(), CoreMatchers.is(true));
     }
 
     @Test
     public void shouldThrowExceptionForWrongJsonWhileConvertingJsonResponseToValidation() {
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
+        Assert.assertTrue(new TaskMessageConverter_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
+        Assert.assertTrue(new TaskMessageConverter_V1().toValidationResult("{}").isSuccessful());
+        Assert.assertTrue(new TaskMessageConverter_V1().toValidationResult("").isSuccessful());
+        Assert.assertTrue(new TaskMessageConverter_V1().toValidationResult(null).isSuccessful());
 
         String jsonResponse2 = "{\"errors\":{\"key1\":\"err1\",\"key2\":true}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse2);
+            new TaskMessageConverter_V1().toValidationResult(jsonResponse2);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Validation Result. Error: Key: 'key2' - The Json for Validation Request must contain a not-null error message of type String."));
@@ -245,7 +245,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse3 = "{\"errors\":{\"key1\":null}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse3);
+            new TaskMessageConverter_V1().toValidationResult(jsonResponse3);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Validation Result. Error: Key: 'key1' - The Json for Validation Request must contain a not-null error message of type String."));
@@ -253,7 +253,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse4 = "{\"errors\":{\"key1\":true,\"key2\":\"err2\",\"key3\":null}}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse4);
+            new TaskMessageConverter_V1().toValidationResult(jsonResponse4);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Validation Result. Error: Key: 'key1' - The Json for Validation Request must contain a not-null error message of type String, Key: 'key3' - The Json for Validation Request must contain a not-null error message of type String."));
@@ -264,7 +264,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     public void shouldCreateTaskViewFromResponse() {
         String jsonResponse = "{\"displayValue\":\"MyTaskPlugin\", \"template\":\"<html>junk</html>\"}";
 
-        TaskView view = new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse);
+        TaskView view = new TaskMessageConverter_V1().toTaskView(jsonResponse);
 
         Assert.assertThat(view.displayValue(), CoreMatchers.is("MyTaskPlugin"));
         Assert.assertThat(view.template(), CoreMatchers.is("<html>junk</html>"));
@@ -274,7 +274,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     public void shouldThrowExceptionForWrongJsonWhileCreatingTaskViewFromResponse() {
         String jsonResponse1 = "{}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse1);
+            new TaskMessageConverter_V1().toTaskView(jsonResponse1);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View cannot be empty."));
@@ -282,7 +282,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse2 = "{\"template\":\"<html>junk</html>\"}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse2);
+            new TaskMessageConverter_V1().toTaskView(jsonResponse2);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'displayValue' of type String."));
@@ -290,7 +290,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse3 = "{\"displayValue\":\"MyTaskPlugin\"}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse3);
+            new TaskMessageConverter_V1().toTaskView(jsonResponse3);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'template' of type String."));
@@ -298,7 +298,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse4 = "{\"displayValue\":null, \"template\":\"<html>junk</html>\"}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse4);
+            new TaskMessageConverter_V1().toTaskView(jsonResponse4);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'displayValue' of type String."));
@@ -306,7 +306,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse5 = "{\"displayValue\":\"MyTaskPlugin\", \"template\":true}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse5);
+            new TaskMessageConverter_V1().toTaskView(jsonResponse5);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'template' of type String."));
@@ -314,7 +314,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String jsonResponse6 = "{\"displayValue\":true, \"template\":null}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse6);
+            new TaskMessageConverter_V1().toTaskView(jsonResponse6);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'displayValue' of type String, The Json for Task View must contain a not-null 'template' of type String."));
@@ -326,7 +326,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(response.responseBody()).thenReturn("{\"success\":true,\"message\":\"message1\"}");
 
-        ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response.responseBody());
+        ExecutionResult result = new TaskMessageConverter_V1().toExecutionResult(response.responseBody());
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.getMessagesForDisplay(), is("message1"));
     }
@@ -336,7 +336,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(response.responseBody()).thenReturn("{\"success\":false,\"message\":\"error1\"}");
 
-        ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response.responseBody());
+        ExecutionResult result = new TaskMessageConverter_V1().toExecutionResult(response.responseBody());
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getMessagesForDisplay(), is("error1"));
     }
@@ -345,7 +345,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     public void shouldThrowExceptionForWrongJsonWhileConstructingExecutionResultFromExecutionResponse() {
         String json1 = "{}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json1);
+            new TaskMessageConverter_V1().toExecutionResult(json1);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The Json for Execution Result must contain a not-null 'success' field of type Boolean."));
@@ -353,7 +353,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String json2 = "{\"success\":\"yay\",\"message\":\"error1\"}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json2);
+            new TaskMessageConverter_V1().toExecutionResult(json2);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The Json for Execution Result must contain a not-null 'success' field of type Boolean."));
@@ -361,7 +361,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String json3 = "{\"success\":false,\"message\":true}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json3);
+            new TaskMessageConverter_V1().toExecutionResult(json3);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String."));
@@ -369,7 +369,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         String json4 = "{\"message\":null}";
         try {
-            new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json4);
+            new TaskMessageConverter_V1().toExecutionResult(json4);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The Json for Execution Result must contain a not-null 'success' field of type Boolean, If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String."));
@@ -378,7 +378,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
     @Test
     public void shouldReturnOneDotZeroForVersion() {
-        assertThat(new JsonBasedTaskExtensionHandler_V1().version(), is("1.0"));
+        assertThat(new TaskMessageConverter_V1().version(), is("1.0"));
     }
 
     @Test
@@ -392,7 +392,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         when(context.workingDir()).thenReturn(workingDir);
         when(context.environment()).thenReturn(getEnvironmentVariables());
 
-        String requestBody = new JsonBasedTaskExtensionHandler_V1().getTaskExecutionBody(config, context);
+        String requestBody = new TaskMessageConverter_V1().getTaskExecutionBody(config, context);
         Map result = (Map) new GsonBuilder().create().fromJson(requestBody, Object.class);
         Map taskExecutionContextFromRequest = (Map) result.get("context");
 

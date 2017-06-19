@@ -28,9 +28,9 @@ import java.util.HashMap;
 public class JsonBasedTaskExecutor implements TaskExecutor {
     private String pluginId;
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerMap;
+    private HashMap<String, TaskMessageConverter> handlerMap;
 
-    public JsonBasedTaskExecutor(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {
+    public JsonBasedTaskExecutor(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, TaskMessageConverter> handlerMap) {
         this.pluginId = pluginId;
         this.pluginRequestHelper = pluginRequestHelper;
         this.handlerMap = handlerMap;
@@ -38,7 +38,7 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
 
     @Override
     public ExecutionResult execute(final TaskConfig config, final TaskExecutionContext taskExecutionContext) {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.EXECUTION_REQUEST, new DefaultPluginInteractionCallback<ExecutionResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtensionConstants.EXECUTION_REQUEST, new DefaultPluginInteractionCallback<ExecutionResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).getTaskExecutionBody(config, taskExecutionContext);

@@ -79,7 +79,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
         });
     }
 
-    public void registerHandler(String version, PluginSettingsJsonMessageHandler1_0 handler) {
+    public void registerHandler(String version, PluginSettingsJsonMessageHandler handler) {
         pluginSettingsMessageHandlerMap.put(version, handler);
     }
 }

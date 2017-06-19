@@ -28,10 +28,10 @@ import java.util.HashMap;
 
 public class JsonBasedPluggableTask implements Task {
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerMap;
+    private HashMap<String, TaskMessageConverter> handlerMap;
     private String pluginId;
 
-    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {
+    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, TaskMessageConverter> handlerMap) {
         this.pluginId = pluginId;
         this.pluginRequestHelper = pluginRequestHelper;
         this.handlerMap = handlerMap;
@@ -39,7 +39,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskConfig config() {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtensionConstants.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
             @Override
             public TaskConfig onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertJsonToTaskConfig(responseBody);
@@ -54,7 +54,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskView view() {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<TaskView>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtensionConstants.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<TaskView>() {
 
 
             @Override
@@ -66,7 +66,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public ValidationResult validate(final TaskConfig configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtensionConstants.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertTaskConfigToJson(configuration);

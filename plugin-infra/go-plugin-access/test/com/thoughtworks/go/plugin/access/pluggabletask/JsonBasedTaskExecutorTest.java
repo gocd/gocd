@@ -48,9 +48,9 @@ public class JsonBasedTaskExecutorTest {
     private PluginManager pluginManager;
     private String pluginId;
     private GoPluginApiResponse response;
-    private JsonBasedTaskExtensionHandler handler;
+    private TaskMessageConverter handler;
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
+    private HashMap<String, TaskMessageConverter> handlerHashMap = new HashMap<>();
 
     @Before
     public void setup() {
@@ -58,13 +58,13 @@ public class JsonBasedTaskExecutorTest {
         pluginManager = mock(PluginManager.class);
         pluginId = "pluginId";
         response = mock(GoPluginApiResponse.class);
-        handler = mock(JsonBasedTaskExtensionHandler.class);
+        handler = mock(TaskMessageConverter.class);
         handlerHashMap.put("1.0", handler);
         final List<String> goSupportedVersions = asList("1.0");
-        pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, TaskExtension.TASK_EXTENSION);
+        pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, TaskExtensionConstants.TASK_EXTENSION);
         when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
-        when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(TaskExtensionConstants.TASK_EXTENSION, pluginId)).thenReturn(true);
     }
 
     @Test
@@ -79,9 +79,9 @@ public class JsonBasedTaskExecutorTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
-        assertThat(argument.getValue().extension(), is(TaskExtension.TASK_EXTENSION));
+        assertThat(argument.getValue().extension(), is(TaskExtensionConstants.TASK_EXTENSION));
         assertThat(argument.getValue().extensionVersion(), is(extensionVersion));
-        assertThat(argument.getValue().requestName(), is(TaskExtension.EXECUTION_REQUEST));
+        assertThat(argument.getValue().requestName(), is(TaskExtensionConstants.EXECUTION_REQUEST));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class JsonBasedTaskExecutorTest {
                 return response;
             }
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
-        handler = new JsonBasedTaskExtensionHandler_V1();
+        handler = new TaskMessageConverter_V1();
         handlerHashMap.put("1.0", handler);
         new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
 

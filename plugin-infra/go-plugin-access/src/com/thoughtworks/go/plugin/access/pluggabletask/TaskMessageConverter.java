@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 
-public interface JsonBasedTaskExtensionHandler {
+public interface TaskMessageConverter {
     String version();
 
     String convertTaskConfigToJson(TaskConfig taskConfig);

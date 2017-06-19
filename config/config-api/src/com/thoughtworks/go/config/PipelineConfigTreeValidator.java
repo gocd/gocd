@@ -61,8 +61,6 @@ public class PipelineConfigTreeValidator {
         isValid = pipelineConfig.getVariables().validateTree(contextForChildren) && isValid;
         if (pipelineConfig.getTrackingTool() != null)
             isValid = pipelineConfig.getTrackingTool().validateTree(contextForChildren) && isValid;
-        if (pipelineConfig.getMingleConfig() != null)
-            isValid = pipelineConfig.getMingleConfig().validateTree(contextForChildren) && isValid;
         if (pipelineConfig.getTimer() != null)
             isValid = pipelineConfig.getTimer().validateTree(contextForChildren) && isValid;
         return isValid;

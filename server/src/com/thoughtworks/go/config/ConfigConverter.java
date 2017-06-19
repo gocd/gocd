@@ -569,7 +569,6 @@ public class ConfigConverter {
         }
         CRMingle crMingle = crPipeline.getMingle();
         if (crMingle != null) {
-            pipelineConfig.setMingleConfig(toMingleConfig(crMingle));
         }
 
         CRTimer crTimer = crPipeline.getTimer();
@@ -592,10 +591,6 @@ public class ConfigConverter {
         if(StringUtil.isBlank(spec))
             throw new RuntimeException("timer schedule is not specified");
         return new TimerConfig(spec, crTimer.isOnlyOnChanges() == null ? false : crTimer.isOnlyOnChanges());
-    }
-
-    private MingleConfig toMingleConfig(CRMingle crMingle) {
-        return new MingleConfig(crMingle.getBaseUrl(), crMingle.getProjectIdentifier(), crMingle.getMqlGroupingConditions());
     }
 
     private TrackingTool toTrackingTool(CRTrackingTool crTrackingTool) {

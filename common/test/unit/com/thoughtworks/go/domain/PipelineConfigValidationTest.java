@@ -302,20 +302,17 @@ public class PipelineConfigValidationTest {
         ParamsConfig paramsConfig = mock(ParamsConfig.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         TrackingTool trackingTool = mock(TrackingTool.class);
-        MingleConfig mingleConfig = mock(MingleConfig.class);
         TimerConfig timerConfig = mock(TimerConfig.class);
         when(stageConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(materialConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(paramsConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(variables.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(trackingTool.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(mingleConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(timerConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), materialConfigs, stageConfig);
         pipelineConfig.setParams(paramsConfig);
         pipelineConfig.setVariables(variables);
         pipelineConfig.setTrackingTool(trackingTool);
-        pipelineConfig.setMingleConfig(mingleConfig);
         pipelineConfig.setTimer(timerConfig);
 
         boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
@@ -326,7 +323,6 @@ public class PipelineConfigValidationTest {
         verify(paramsConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
         verify(variables).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
         verify(trackingTool).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
-        verify(mingleConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
         verify(timerConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
     }
 
@@ -338,20 +334,17 @@ public class PipelineConfigValidationTest {
         ParamsConfig paramsConfig = mock(ParamsConfig.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         TrackingTool trackingTool = mock(TrackingTool.class);
-        MingleConfig mingleConfig = mock(MingleConfig.class);
         TimerConfig timerConfig = mock(TimerConfig.class);
         when(stageConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(materialConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(paramsConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(variables.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(trackingTool.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(mingleConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(timerConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), materialConfigs, stageConfig);
         pipelineConfig.setParams(paramsConfig);
         pipelineConfig.setVariables(variables);
         pipelineConfig.setTrackingTool(trackingTool);
-        pipelineConfig.setMingleConfig(mingleConfig);
         pipelineConfig.setTimer(timerConfig);
 
         boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
@@ -361,7 +354,6 @@ public class PipelineConfigValidationTest {
         verify(paramsConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
         verify(variables).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
         verify(trackingTool).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
-        verify(mingleConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
         verify(timerConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
     }
 

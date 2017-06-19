@@ -1,28 +1,27 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 public class ViewCacheKey {
@@ -87,10 +86,8 @@ public class ViewCacheKey {
 
         for (PipelineInstanceModel pim : model.getActivePipelineInstances()) {
             TrackingTool trackingTool = pim.getTrackingTool();
-            MingleConfig mingleConfig = pim.getMingleConfig();
             int trackingToolHash = trackingTool == null ? -1 : trackingTool.hashCode();
-            int mingleToolHash = mingleConfig == null ? -1 : mingleConfig.hashCode();
-            s.append("[").append(pim.getId()).append("|").append(trackingToolHash).append("|").append(mingleToolHash).append("]");
+            s.append("[").append(pim.getId()).append("|").append(trackingToolHash).append("]");
         }
         return s.toString();
     }

@@ -70,37 +70,8 @@ TrackingTool.Generic.fromJSON = ({url_pattern, regex}) => new TrackingTool.Gener
   regex
 });
 
-TrackingTool.Mingle = function (data) {
-  TrackingTool.call(this, "mingle");
-  Validatable.call(this, data);
-  this.baseUrl               = Stream(s.defaultToIfBlank(data.baseUrl, ''));
-  this.projectIdentifier     = Stream(s.defaultToIfBlank(data.projectIdentifier, ''));
-  this.mqlGroupingConditions = Stream(s.defaultToIfBlank(data.mqlGroupingConditions, ''));
-
-  this.validatePresenceOf('baseUrl');
-  this.validateUrlPattern('baseUrl');
-  this.validatePresenceOf('projectIdentifier');
-  this.validatePresenceOf('mqlGroupingConditions');
-
-  this._attributesToJSON = function () {
-    return {
-      baseUrl:               this.baseUrl(),
-      projectIdentifier:     this.projectIdentifier(),
-      mqlGroupingConditions: this.mqlGroupingConditions()
-    };
-  };
-
-};
-
-TrackingTool.Mingle.fromJSON = ({base_url, project_identifier, mql_grouping_conditions}) => new TrackingTool.Mingle({ //eslint-disable-line camelcase
-  baseUrl:               base_url, //eslint-disable-line camelcase
-  projectIdentifier:     project_identifier, //eslint-disable-line camelcase
-  mqlGroupingConditions: mql_grouping_conditions //eslint-disable-line camelcase
-});
-
 TrackingTool.Types = {
   generic: {type: TrackingTool.Generic, description: "Generic"},
-  mingle:  {type: TrackingTool.Mingle, description: "Mingle"}
 };
 
 TrackingTool.create = (type) => new TrackingTool.Types[type].type({});

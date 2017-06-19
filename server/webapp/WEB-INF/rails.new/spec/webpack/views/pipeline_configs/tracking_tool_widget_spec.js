@@ -18,7 +18,6 @@ describe("Tracking Tool Widget", () => {
 
   const m             = require('mithril');
   const Stream        = require('mithril/stream');
-  const _             = require('lodash');
   const simulateEvent = require('simulate-event');
 
   require("jasmine-jquery");
@@ -56,14 +55,12 @@ describe("Tracking Tool Widget", () => {
   });
 
   it("should set proper tracking tool when it is selected", () => {
-    _.each(['generic', 'mingle', 'generic', 'mingle'], (type) => {
-      const radioButton = $root.find(`#tracking-tool-${type}`).get(0);
-      simulateEvent.simulate(radioButton, 'click');
-      m.redraw();
+    const radioButton = $root.find(`#tracking-tool-generic`).get(0);
+    simulateEvent.simulate(radioButton, 'click');
+    m.redraw();
 
-      expect(trackingToolProp().type()).toBe(type);
-      expect(radioButton).toBeChecked();
-    });
+    expect(trackingToolProp().type()).toBe('generic');
+    expect(radioButton).toBeChecked();
   });
 
 });

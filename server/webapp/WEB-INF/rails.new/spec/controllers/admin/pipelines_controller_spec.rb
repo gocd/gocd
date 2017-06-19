@@ -77,7 +77,7 @@ describe Admin::PipelinesController do
 
   describe "pause_info" do
     before(:each) do
-      pipeline_config = PipelineConfigMother.pipelineConfigWithMingleConfiguration("HelloWorld", "http://mingleurl.com:7823", "go", "'status' > 'In Dev'")
+      pipeline_config = PipelineConfigMother.pipelineConfig("HelloWorld")
 
       pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, BasicCruiseConfig.new, BasicCruiseConfig.new)
 
@@ -102,7 +102,7 @@ describe Admin::PipelinesController do
 
   describe "edit" do
     before(:each) do
-      pipeline_config = PipelineConfigMother.pipelineConfigWithMingleConfiguration("HelloWorld", "http://mingleurl.com:7823", "go", "'status' > 'In Dev'")
+      pipeline_config = PipelineConfigMother.pipelineConfig("HelloWorld")
       pipeline_config.setLabelTemplate("some_label_template")
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, BasicCruiseConfig.new, BasicCruiseConfig.new)
 
@@ -131,15 +131,6 @@ describe Admin::PipelinesController do
         end
       end
 
-      describe "GET project_management" do
-        it "should load mingle gadget config" do
-          get :edit, {:pipeline_name => "HelloWorld", :current_tab => 'project_management', :stage_parent=>"pipelines"}
-
-          assigns[:pipeline].getMingleConfig().getProjectIdentifier() == "go"
-          assigns[:pipeline].getMingleConfig().getQuotedMql() == "'status' > 'In Dev'"
-          assigns[:pause_info].should == @pause_info
-        end
-      end
     end
 
     describe "with view" do

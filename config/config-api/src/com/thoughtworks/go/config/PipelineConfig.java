@@ -62,7 +62,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private static final String ERR_TEMPLATE = "You have defined a label template in pipeline %s that refers to a material called %s, but no material with this name is defined.";
     public static final String LABEL_TEMPLATE = "labelTemplate";
-    public static final String MINGLE_CONFIG = "mingleConfig";
     public static final String TRACKING_TOOL = "trackingTool";
     public static final String TIMER_CONFIG = "timer";
     public static final String ENVIRONMENT_VARIABLES = "variables";
@@ -98,9 +97,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigSubtag
     private TrackingTool trackingTool;
 
-    @ConfigSubtag
-    private MingleConfig mingleConfig = new MingleConfig();
-
     @ConfigSubtag(optional = true)
     private TimerConfig timer;
 
@@ -125,7 +121,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String NAME = "name";
     public static final String INTEGRATION_TYPE = "integrationType";
     public static final String INTEGRATION_TYPE_NONE = "none";
-    public static final String INTEGRATION_TYPE_MINGLE = "mingle";
     public static final String INTEGRATION_TYPE_TRACKING_TOOL = "trackingTool";
     public static final String MATERIALS = "materials";
     public static final String STAGE = "stage";
@@ -611,14 +606,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.templateName = templateName;
     }
 
-    public void setMingleConfig(MingleConfig mingleConfig) {
-        this.mingleConfig = mingleConfig;
-    }
-
-    public MingleConfig getMingleConfig() {
-        return mingleConfig;
-    }
-
     private void ensureNoStagesDefined(CaseInsensitiveString newTemplateName) {
         bombIf(!isEmpty(), String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", newTemplateName, name));
     }
@@ -769,31 +756,19 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     private void setIntegrationType(Map attributeMap) {
         String integrationType = (String) attributeMap.get(INTEGRATION_TYPE);
         if (integrationType.equals(INTEGRATION_TYPE_NONE)) {
-            mingleConfig = new MingleConfig();
-            trackingTool = null;
-        } else if (integrationType.equals(INTEGRATION_TYPE_MINGLE)) {
-            mingleConfig = MingleConfig.create(attributeMap.get(MINGLE_CONFIG));
             trackingTool = null;
         } else if (integrationType.equals(INTEGRATION_TYPE_TRACKING_TOOL)) {
-            mingleConfig = new MingleConfig();
             trackingTool = TrackingTool.createTrackingTool((Map) attributeMap.get(TRACKING_TOOL));
         }
     }
 
     public String getIntegrationType() {
-        boolean isMingleConfigEmpty = (mingleConfig.equals(new MingleConfig()) && mingleConfig.errors().isEmpty());
         boolean isTrackingToolEmpty = (trackingTool == null || (trackingTool.equals(new TrackingTool()) && trackingTool.errors().isEmpty()));
 
-        if (isMingleConfigEmpty && isTrackingToolEmpty) {
+        if (isTrackingToolEmpty) {
             return INTEGRATION_TYPE_NONE;
         }
-        if (!isTrackingToolEmpty && isMingleConfigEmpty) {
-            return INTEGRATION_TYPE_TRACKING_TOOL;
-        }
-        if (!isMingleConfigEmpty && isTrackingToolEmpty) {
-            return INTEGRATION_TYPE_MINGLE;
-        }
-        throw new RuntimeException("Cannot have both tracking tool and mingle config specified");
+        return INTEGRATION_TYPE_TRACKING_TOOL;
     }
 
     public String getConfigurationType() {
@@ -855,11 +830,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public CommentRenderer getCommentRenderer() {
-        if (getIntegrationType().equals(INTEGRATION_TYPE_MINGLE)) {
-            return mingleConfig;
-        } else {
-            return trackingTool();
-        }
+        return trackingTool();
     }
 
     public void validateNameUniqueness(Map<CaseInsensitiveString, PipelineConfig> pipelineNameMap) {

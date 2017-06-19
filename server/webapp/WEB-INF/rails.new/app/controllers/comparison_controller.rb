@@ -23,7 +23,7 @@ class ComparisonController < ApplicationController
   def show
     redirect_to compare_pipelines_path(:pipeline_name => params[:pipeline_name], :to_counter => params[:to_counter], :from_counter => "1") and return if (params[:from_counter].to_i < 1)
     redirect_to compare_pipelines_path(:pipeline_name => params[:pipeline_name], :from_counter => params[:from_counter], :to_counter => "1") and return if (params[:to_counter].to_i < 1)
-    
+
     @pipeline_name = params[:pipeline_name]
 
     @to_pipeline = load_pipeline_instance(@pipeline_name, params[:to_counter].to_i)
@@ -32,10 +32,7 @@ class ComparisonController < ApplicationController
     @from_pipeline = load_pipeline_instance(@pipeline_name, params[:from_counter].to_i)
     return unless @from_pipeline
 
-    @mingle_config = mingle_config_service.mingleConfigForPipelineNamed(@pipeline_name, current_user, result = HttpLocalizedOperationResult.new)
-    return render_localized_operation_result(result) unless result.isSuccessful()
-
-    revisions = changeset_service.revisionsBetween(@pipeline_name, @from_pipeline.getCounter(), @to_pipeline.getCounter(), current_user, result = HttpLocalizedOperationResult.new, true, show_bisect?) || {}
+    revisions = changeset_service.revisionsBetween(@pipeline_name, @from_pipeline.getCounter(), @to_pipeline.getCounter(), current_user, result = HttpLocalizedOperationResult.new, show_bisect?) || {}
     @material_revisions = revisions.find_all { | material | material.getMaterialType() != "Pipeline" }
     @dependency_material_revisions = revisions.find_all { | material | material.getMaterialType() == "Pipeline" }
 

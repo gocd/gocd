@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -276,7 +276,6 @@
     <entry key="NO_AVAILABLE_PIPELINES">There are no available pipelines.</entry>
     <entry key="INVALID_CONFIG_ON_DISK">Invalid config on disk. Displaying the last known valid config (Editing config through Go will overwrite the invalid copy. Edit it on disk to fix this problem).</entry>
     <entry key="NEGATIVE_PIPELINE_COUNTER">Pipeline counters should be positive.</entry>
-    <entry key="NO_MINGLE_CONFIG_FOUND">No mingle project configured for this pipeline.</entry>
     <entry key="COMPARE">Compare</entry>
     <entry key="COMPARE_PIPELINES_PAGE">Compare Pipelines Page</entry>
     <entry key="COMPARED_TO">compared to</entry>
@@ -331,9 +330,6 @@
     <entry key="TRACKING">Tracking Tool Integration</entry>
     <entry key="TRACKING_TOOL_REGEX">Pattern</entry>
     <entry key="TRACKING_TOOL_URL">URI</entry>
-    <entry key="MINGLE_URL">URI</entry>
-    <entry key="MINGLE_PROJECT_IDENTIFIER">Project Identifier</entry>
-    <entry key="MQL_GROUPING_CONDITIONS">MQL Grouping Conditions</entry>
     <entry key="PARAMETERS">Parameters</entry>
     <entry key="STAGES">Stages</entry>
     <entry key="ORDER">Order</entry>

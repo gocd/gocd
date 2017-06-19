@@ -21,7 +21,6 @@ describe ComparisonController do
 
   before :each do
     controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
-    controller.stub(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
   end
 
   describe "routes" do
@@ -61,7 +60,6 @@ describe ComparisonController do
 
     describe "show" do
       before :each do
-        @mingle_service.stub(:mingleConfigForPipelineNamed)
         @result = HttpOperationResult.new
         HttpOperationResult.stub(:new).and_return(@result)
       end

@@ -53,7 +53,6 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.ui.MingleCard;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -630,11 +629,8 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotLoadStageAuthorsAndMingleCards_fromUpstreamInvisibleToUser() throws Exception {
-        MingleConfig upstreamMingle = new MingleConfig("https://mingle.gingle/when/single", "jingle");
-        MingleConfig downstreamMingle = new MingleConfig("https://downstream-mingle", "go");
-
-        PipelineConfig downstream = setup2DependentInstances(upstreamMingle, downstreamMingle);
+    public void shouldNotLoadStageAuthors_fromUpstreamInvisibleToUser() throws Exception {
+        PipelineConfig downstream = setup2DependentInstances();
 
         configFileHelper.enableSecurity();
         configFileHelper.addAdmins("super-hero");
@@ -647,47 +643,36 @@ public class StageServiceIntegrationTest {
 
         assertAuthorsAndCardsOnEntry((StageFeedEntry) feed.get(0),
                 Arrays.asList(new Author("svn 3 guy", "svn.3@gmail.com"),
-                        new Author("p4 2 guy", "p4.2@gmail.com")),
-                Arrays.asList(new MingleCard(downstreamMingle, "103")));
+                        new Author("p4 2 guy", "p4.2@gmail.com")));
 
         assertAuthorsAndCardsOnEntry((StageFeedEntry) feed.get(1),
                 Arrays.asList(new Author("svn 1 guy", "svn.1@gmail.com"),
                         new Author("svn 2 guy", "svn.2@gmail.com"),
-                        new Author("p4 1 guy", "p4.1@gmail.com")),
-                Arrays.asList(new MingleCard(downstreamMingle, "101"),
-                        new MingleCard(downstreamMingle, "102")));
+                        new Author("p4 1 guy", "p4.1@gmail.com")));
     }
 
     @Test
-    public void shouldLoadStageAuthorsAndMingleCards_forFirstPageOfFeed() throws Exception {
-        MingleConfig upstreamMingle = new MingleConfig("https://mingle.gingle/when/single", "jingle");
-        MingleConfig downstreamMingle = new MingleConfig("https://downstream-mingle", "go");
+    public void shouldLoadStageAuthors_forFirstPageOfFeed() throws Exception {
 
-        PipelineConfig downstream = setup2DependentInstances(upstreamMingle, downstreamMingle);
+        PipelineConfig downstream = setup2DependentInstances();
 
         FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
 
-        assertStageEntryAuthorAndMingleCards(upstreamMingle, downstreamMingle, feed);
+        assertStageEntryAuthorAndMingleCards(feed);
     }
 
     @Test
-    public void shouldLoadStageAuthorsAndMingleCards_forSubsequentPages() throws Exception {
-        MingleConfig upstreamMingle = new MingleConfig("https://mingle.gingle/when/single", "jingle");
-        MingleConfig downstreamMingle = new MingleConfig("https://downstream-mingle", "go");
-
-        PipelineConfig downstream = setup2DependentInstances(upstreamMingle, downstreamMingle);
+    public void shouldLoadStageAuthors_forSubsequentPages() throws Exception {
+        PipelineConfig downstream = setup2DependentInstances();
 
         FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
 
-        assertStageEntryAuthorAndMingleCards(upstreamMingle, downstreamMingle, feed);
+        assertStageEntryAuthorAndMingleCards(feed);
     }
 
     @Test
     public void shouldFetchLatestStageInstanceForEachStage() {
-        MingleConfig upstreamMingle = new MingleConfig("https://mingle.gingle/when/single", "jingle");
-        MingleConfig downstreamMingle = new MingleConfig("https://downstream-mingle", "go");
-
-        setup2DependentInstances(upstreamMingle, downstreamMingle);
+        setup2DependentInstances();
         List<StageIdentity> latestStageInstances = stageService.findLatestStageInstances();
         assertThat(latestStageInstances.size(), is(4));
         assertThat(latestStageInstances.contains(new StageIdentity("mingle", "dev",8L)),is(true));
@@ -696,17 +681,13 @@ public class StageServiceIntegrationTest {
         assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage",10L)),is(true));
     }
 
-    private void assertStageEntryAuthorAndMingleCards(MingleConfig upstreamMingle, MingleConfig downstreamMingle, FeedEntries feed) {
+    private void assertStageEntryAuthorAndMingleCards(FeedEntries feed) {
 
         assertAuthorsAndCardsOnEntry((StageFeedEntry) feed.get(0),
                 Arrays.asList(new Author("hg 3 guy", "hg.3@gmail.com"),
                         new Author("git 2&3 guy", "git.2.and.3@gmail.com"),
                         new Author("svn 3 guy", "svn.3@gmail.com"),
-                        new Author("p4 2 guy", "p4.2@gmail.com")),
-                Arrays.asList(new MingleCard(downstreamMingle, "103"),
-                        new MingleCard(upstreamMingle, "303"),
-                        new MingleCard(upstreamMingle, "402"),
-                        new MingleCard(upstreamMingle, "403")));
+                        new Author("p4 2 guy", "p4.2@gmail.com")));
 
         assertAuthorsAndCardsOnEntry((StageFeedEntry) feed.get(1),
                 Arrays.asList(new Author("hg 1 guy", "hg.1@gmail.com"),
@@ -714,28 +695,18 @@ public class StageServiceIntegrationTest {
                         new Author("git 1 guy", "git.1@gmail.com"),
                         new Author("svn 1 guy", "svn.1@gmail.com"),
                         new Author("svn 2 guy", "svn.2@gmail.com"),
-                        new Author("p4 1 guy", "p4.1@gmail.com")),
-                Arrays.asList(new MingleCard(downstreamMingle, "101"),
-                        new MingleCard(downstreamMingle, "102"),
-                        new MingleCard(upstreamMingle, "301"),
-                        new MingleCard(upstreamMingle, "302"),
-                        new MingleCard(upstreamMingle, "401")));
+                        new Author("p4 1 guy", "p4.1@gmail.com")));
     }
 
-    private void assertAuthorsAndCardsOnEntry(StageFeedEntry stage2, List<Author> authors, List<MingleCard> cards) {
+    private void assertAuthorsAndCardsOnEntry(StageFeedEntry stage2, List<Author> authors) {
         List<Author> stage2Authors = stage2.getAuthors();
 
         assertThat(stage2Authors, hasItems(authors.toArray(new Author[0])));
 
         assertThat(stage2Authors.size(), is(authors.size()));
-
-        List<MingleCard> stage2cards = stage2.getMingleCards();
-
-        assertThat(stage2cards, hasItems(cards.toArray(new MingleCard[0])));
-        assertThat(stage2cards.size(), is(cards.size()));
     }
 
-    private PipelineConfig setup2DependentInstances(MingleConfig upstreamMingle, MingleConfig downstreamMingle) {
+    private PipelineConfig setup2DependentInstances() {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
@@ -746,7 +717,6 @@ public class StageServiceIntegrationTest {
         hg.setFolder("hg");
         PipelineConfig upstreamWithMingle = PipelineConfigMother.createPipelineConfig("upstream-with-mingle", "stage", "build");
         upstreamWithMingle.setMaterialConfigs(new MaterialConfigs(git.config(), hg.config()));
-        upstreamWithMingle.setMingleConfig(upstreamMingle);
         configFileHelper.addPipelineToGroup(upstreamWithMingle, "upstream-with-mingle");
 
         P4Material p4 = MaterialsMother.p4Material("loser:007", "loser", "boozer", "through-the-window", true);
@@ -760,7 +730,6 @@ public class StageServiceIntegrationTest {
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfig("downstream", "down-stage", "job");
         downstream.setMaterialConfigs(new MaterialConfigs(dependencyMaterial.config(), svn.config(), dependencyMaterialViaP4.config()));
 
-        downstream.setMingleConfig(downstreamMingle);
         configFileHelper.addPipelineToGroup(downstream, "downstream");
 
         //mingle card nos.

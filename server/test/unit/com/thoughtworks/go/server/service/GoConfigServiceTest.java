@@ -70,7 +70,6 @@ import java.util.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -265,13 +264,6 @@ public class GoConfigServiceTest {
         newPipeline.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipeline));
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool("link", "regex"));
-
-        pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUrl", "projIdentifier", "mql"));
-        newPipeline = new BasicPipelineConfigs();
-        newPipeline.add(pipelineConfig);
-        expectLoad(new BasicCruiseConfig(newPipeline));
-        assertEquals(goConfigService.getCommentRendererFor("pipeline"), new MingleConfig("baseUrl", "projIdentifier", "mql"));
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline = new BasicPipelineConfigs();

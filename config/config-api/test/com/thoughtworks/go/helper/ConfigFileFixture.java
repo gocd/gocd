@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helper;
 
@@ -995,31 +995,6 @@ public final class ConfigFileFixture {
                 + "  <agents>\n"
                 + "    <agent hostname=\"agent1\" ipaddress=\"1.2.3.4\" uuid=\"ywZRuHFIKvw93TssFeWl8g==\" />\n"
                 + "  </agents>"
-                + "</cruise>";
-    }
-
-    public static String withMingleConfig(String mingleConfig) {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + " <server artifactsdir=\"logs\"></server>"
-                + "  <pipelines>\n"
-                + "    <pipeline name=\"pipeline1\">\n"
-                + mingleConfig
-                + "      <materials>\n"
-                + "        <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                + "      </materials>\n"
-                + "      <stage name=\"mingle\">\n"
-                + "       <jobs>\n"
-                + "        <job name=\"functional\">\n"
-                + "         <tasks>\n"
-                + "          <exec command=\"ls\" args=\"-la\" />\n"
-                + "         </tasks>\n"
-                + "        </job>\n"
-                + "       </jobs>\n"
-                + "      </stage>\n"
-                + "    </pipeline>\n"
-                + "  </pipelines>\n"
                 + "</cruise>";
     }
 

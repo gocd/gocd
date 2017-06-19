@@ -324,8 +324,6 @@ public class PipelineConfigTest {
     @Test
     public void shouldSetPipelineConfigFromConfigAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap mingleConfigMap = new HashMap();
-        mingleConfigMap.put("mingleconfig", "mingleconfig");
         HashMap trackingToolMap = new HashMap();
         trackingToolMap.put("trackingtool", "trackingtool");
         HashMap timerConfigMap = new HashMap();
@@ -334,7 +332,6 @@ public class PipelineConfigTest {
 
         Map configMap = new HashMap();
         configMap.put(PipelineConfig.LABEL_TEMPLATE, "LABEL123-${COUNT}");
-        configMap.put(PipelineConfig.MINGLE_CONFIG, mingleConfigMap);
         configMap.put(PipelineConfig.TRACKING_TOOL, trackingToolMap);
         configMap.put(PipelineConfig.TIMER_CONFIG, timerConfigMap);
 
@@ -464,28 +461,11 @@ public class PipelineConfigTest {
         pipelineConfig = new PipelineConfig();
         pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
         assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_TRACKING_TOOL));
-
-        pipelineConfig = new PipelineConfig();
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUri", "projId"));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_MINGLE));
-    }
-
-    @Test
-    public void shouldSetIntegrationTypeToMingleInCaseAnEmptyMingleConfigIsSubmitted() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        MingleConfig mingleConfig = new MingleConfig();
-        mingleConfig.addError(MingleConfig.BASE_URL, "some error");
-        pipelineConfig.setMingleConfig(mingleConfig);
-
-        String integrationType = pipelineConfig.getIntegrationType();
-
-        assertThat(integrationType, is(PipelineConfig.INTEGRATION_TYPE_MINGLE));
     }
 
     @Test
     public void shouldPopulateTrackingToolWhenIntegrationTypeIsTrackingToolAndLinkAndRegexAreDefined() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUri", "go"));
 
         HashMap map = new HashMap();
         HashMap valueHashMap = new HashMap();
@@ -497,42 +477,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
         assertThat(pipelineConfig.getTrackingTool(), is(new TrackingTool("GoleyLink", "GoleyRegex")));
-        assertThat(pipelineConfig.getMingleConfig(), is(new MingleConfig()));
         assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_TRACKING_TOOL));
-    }
-
-    @Test
-    public void shouldPopulateMingleConfigWhenIntegrationTypeIsMingle() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
-
-        Map map = new HashMap();
-        HashMap valueHashMap = new HashMap();
-        valueHashMap.put(MingleConfig.BASE_URL, "url");
-        valueHashMap.put(MingleConfig.PROJECT_IDENTIFIER, "identifier");
-        valueHashMap.put(MqlCriteria.MQL, "criteria");
-        valueHashMap.put(MingleConfig.MQL_GROUPING_CONDITIONS, valueHashMap);
-
-        map.put(PipelineConfig.MINGLE_CONFIG, valueHashMap);
-        map.put(PipelineConfig.INTEGRATION_TYPE, PipelineConfig.INTEGRATION_TYPE_MINGLE);
-
-        pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getMingleConfig(), is(new MingleConfig("url", "identifier", "criteria")));
-        assertThat(pipelineConfig.getTrackingTool(), is(nullValue()));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_MINGLE));
-    }
-
-    @Test
-    public void shouldResetMingleConfigWhenIntegrationTypeIsNone() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUri", "go"));
-
-        Map map = new HashMap();
-        map.put(PipelineConfig.INTEGRATION_TYPE, PipelineConfig.INTEGRATION_TYPE_NONE);
-
-        pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getMingleConfig(), is(new MingleConfig()));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_NONE));
     }
 
     @Test

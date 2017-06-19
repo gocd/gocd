@@ -30,7 +30,6 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.ConfigForEdit;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -376,7 +375,6 @@ public class GoConfigServiceIntegrationTest {
     @Test
     public void shouldReturnAllErrorsAppliedOverEditedCopy() {
         configHelper.addPipeline("pipeline", "stage");
-        configHelper.addParamToPipeline("pipeline", "mingle_url", "http://foo.bar");
         String md5 = goConfigService.getConfigForEditing().getMd5();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new UpdateConfigFromUI() {
@@ -394,7 +392,6 @@ public class GoConfigServiceIntegrationTest {
 
             public void update(Validatable pipeline) {
                 PipelineConfig pipelineConfig = (PipelineConfig) pipeline;
-                pipelineConfig.setMingleConfig(new MingleConfig("#{mingle_url}", "go"));
             }
 
             public Validatable subject(Validatable node) {
@@ -405,10 +402,6 @@ public class GoConfigServiceIntegrationTest {
                 return subject(updatedNode);
             }
         }, md5, new Username(new CaseInsensitiveString("admin")), result);
-
-        MingleConfig mingleConfig = ((PipelineConfig) response.getNode()).getMingleConfig();
-        assertThat(mingleConfig.errors().on(MingleConfig.BASE_URL), is("Should be a URL starting with https://"));
-        assertThat(mingleConfig.getBaseUrl(), is("#{mingle_url}"));
     }
 
     @Test

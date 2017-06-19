@@ -1,43 +1,32 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.ui;
 
-import java.util.Date;
-
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
-import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -68,11 +57,9 @@ public class ViewCacheKeyTest {
 
         PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", 7, "label-7", BuildCause.createExternal(), new StageInstanceModels());
         pipelineInstance2.setId(14);
-        MingleConfig mingleConfig = new MingleConfig("mingle", "project", "mql");
-        pipelineInstance2.setMingleConfig(mingleConfig);
         model.addPipelineInstance(pipelineInstance2);
 
-        assertThat(viewCacheKey.forPipelineModelBuildCauses(model), is(String.format("view_buildCausesForPipelineModel_pipelineName[12|%s|%s][14|%s|%s]", trackingTool.hashCode(), -1, -1, mingleConfig.hashCode())));
+        assertThat(viewCacheKey.forPipelineModelBuildCauses(model), is(String.format("view_buildCausesForPipelineModel_pipelineName[12|%s][14|%s]", trackingTool.hashCode(), -1)));
     }
 
     @Test
@@ -113,7 +100,7 @@ public class ViewCacheKeyTest {
         PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", 7, "label-7", BuildCause.createExternal(), stages2);
         pipelineInstance2.setId(14);
         model.addPipelineInstance(pipelineInstance2);
-        
+
         assertThat(viewCacheKey.forPipelineModelBox(model), is("view_dashboardPipelineFragment_pipelineName{false|false|false}[12|stageName|13|Building|stage2|0|Unknown|][14|stageName|7|Passed|stage2|10|Building|]true|true|false|||true"));
     }
 
@@ -151,7 +138,7 @@ public class ViewCacheKeyTest {
         pipelineInstance.setIsLockable(true);
         pipelineInstance.setCurrentlyLocked(true);
         model.addPipelineInstance(pipelineInstance);
-        
+
         assertThat(viewCacheKey.forPipelineModelBox(model), is("view_dashboardPipelineFragment_pipelineName{true|true|false}[12|stageName|13|Building|stage2|0|Unknown|]true|true|false|||true"));
     }
 

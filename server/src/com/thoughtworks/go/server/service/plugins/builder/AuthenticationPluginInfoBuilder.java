@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class AuthenticationPluginInfoBuilder implements NewPluginInfoBuilder<AuthenticationPluginInfo> {
     private final PluginManager pluginManager;
     private final AuthenticationPluginRegistry registry;

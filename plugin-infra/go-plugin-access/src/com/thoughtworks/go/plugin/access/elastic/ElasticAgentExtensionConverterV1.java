@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
-import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
+    private static final Gson GSON = new Gson();
 
     public static final String VERSION = "1.0";
 
     @Override
     public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration) {
-        Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("auto_register_key", autoRegisterKey);
         JsonObject properties = new JsonObject();
@@ -47,12 +47,11 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
         }
         jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
-        return gson.toJson(jsonObject);
+        return GSON.toJson(jsonObject);
     }
 
     @Override
     public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration) {
-        Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         JsonObject properties = new JsonObject();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
@@ -61,7 +60,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
         jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
         jsonObject.add("agent", elasticAgent.toJSON());
-        return gson.toJson(jsonObject);
+        return GSON.toJson(jsonObject);
     }
 
     @Override
@@ -98,7 +97,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
 
     @Override
     public com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
-        return Image.fromJSON(responseBody).toDomainImage();
+        return new ImageDeserializer().fromJSON(responseBody);
     }
 
     @Override

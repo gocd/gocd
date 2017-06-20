@@ -16,15 +16,20 @@
 
 package com.thoughtworks.go.plugin.domain.common;
 
+import java.util.Base64;
+
 public class Image {
     private final String contentType;
     private final String data;
-    private String hash;
+    private final byte[] dataAsBytes;
+
+    private final String hash;
 
     public Image(String contentType, String data, String hash) {
         this.contentType = contentType;
         this.data = data;
         this.hash = hash;
+        this.dataAsBytes = Base64.getDecoder().decode(data);
     }
 
     public String getContentType() {
@@ -37,6 +42,10 @@ public class Image {
 
     public String getHash() {
         return hash;
+    }
+
+    public byte[] getDataAsBytes() {
+        return dataAsBytes;
     }
 
     @Override

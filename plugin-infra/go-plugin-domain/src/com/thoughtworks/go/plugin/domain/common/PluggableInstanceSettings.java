@@ -43,6 +43,10 @@ public class PluggableInstanceSettings {
         return view;
     }
 
+    public boolean hasView() {
+        return view != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

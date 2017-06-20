@@ -16,6 +16,18 @@
 module ApiV3
   module Plugin
     class AuthenticationPluginInfoRepresenter < BasePluginInfoRepresenter
+      property :display_name
+      property :display_image_url
+
+      property :supports_password_based_authentication
+      property :supports_web_based_authentication
+
+      property :plugin_settings,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
 
     end
   end

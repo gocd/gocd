@@ -16,9 +16,27 @@
 
 package com.thoughtworks.go.plugin.access.common;
 
+import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public interface PluginInfoBuilder<T extends PluginInfo> {
     T pluginInfoFor(GoPluginDescriptor descriptor);
+
+    default List<PluginConfiguration> configurations(Configuration config) {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+
+        for (Property property : config.list()) {
+            Metadata metadata = new Metadata(property.getOption(Property.REQUIRED), property.getOption(Property.SECURE));
+            pluginConfigurations.add(new PluginConfiguration(property.getKey(), metadata));
+        }
+        return pluginConfigurations;
+    }
+
 }

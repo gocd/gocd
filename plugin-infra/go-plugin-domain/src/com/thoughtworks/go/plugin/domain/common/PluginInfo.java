@@ -34,4 +34,22 @@ public class PluginInfo {
     public String getExtensionName() {
         return extensionName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PluginInfo that = (PluginInfo) o;
+
+        if (descriptor != null ? !descriptor.equals(that.descriptor) : that.descriptor != null) return false;
+        return extensionName != null ? extensionName.equals(that.extensionName) : that.extensionName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = descriptor != null ? descriptor.hashCode() : 0;
+        result = 31 * result + (extensionName != null ? extensionName.hashCode() : 0);
+        return result;
+    }
 }

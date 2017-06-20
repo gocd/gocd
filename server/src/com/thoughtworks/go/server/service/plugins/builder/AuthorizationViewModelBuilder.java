@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for (AuthorizationPluginInfo pluginInfo : metadataStore.getPlugins()) {
+        for (AuthorizationPluginInfo pluginInfo : metadataStore.allPluginInfos()) {
             Image icon = image(pluginInfo.getImage());
             pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), AuthorizationPluginConstants.EXTENSION_NAME, null, null, icon));
         }

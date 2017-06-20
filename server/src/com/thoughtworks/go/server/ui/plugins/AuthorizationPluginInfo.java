@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+@Deprecated
 public class AuthorizationPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings authConfigSettings;
     private final PluggableInstanceSettings roleSettings;

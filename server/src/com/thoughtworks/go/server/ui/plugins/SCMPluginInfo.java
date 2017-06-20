@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.ui.plugins;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+@Deprecated
 public class SCMPluginInfo extends NewPluginInfo {
     private final String displayName;
     private final PluggableInstanceSettings scmSettings;

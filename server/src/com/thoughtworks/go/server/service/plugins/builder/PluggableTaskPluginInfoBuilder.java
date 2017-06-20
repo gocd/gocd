@@ -30,7 +30,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginView;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+@Deprecated
 public class PluggableTaskPluginInfoBuilder implements NewPluginInfoBuilder<PluggableTaskPluginInfo> {
     private final PluginManager pluginManager;
     private final PluggableTaskConfigStore store;
@@ -72,7 +72,6 @@ public class PluggableTaskPluginInfoBuilder implements NewPluginInfoBuilder<Plug
             Map<String, Object> metaData = new HashMap<>();
             metaData.put("required", property.getOption(Property.REQUIRED));
             metaData.put("secure", property.getOption(Property.SECURE));
-
             pluginConfigurations.add(new PluginConfiguration(property.getKey(), metaData));
         }
         return pluginConfigurations;

@@ -20,6 +20,7 @@ import com.thoughtworks.go.server.ui.plugins.NewPluginInfo;
 
 import java.util.Collection;
 
+@Deprecated
 public interface NewPluginInfoBuilder<T extends NewPluginInfo> {
     T pluginInfoFor(String pluginId);
 

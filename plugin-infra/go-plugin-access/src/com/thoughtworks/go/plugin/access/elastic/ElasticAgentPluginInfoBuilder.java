@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
@@ -38,7 +39,10 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
 
     @Override
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()));
+        PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
+        String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
+        PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
+        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()), pluggableInstanceSettings);
     }
 
     private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {

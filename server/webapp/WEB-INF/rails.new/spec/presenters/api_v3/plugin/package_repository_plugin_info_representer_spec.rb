@@ -22,13 +22,15 @@ describe ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    package_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('package_view_template')
-    package_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('url', {required: true, secure: false, display_name: 'Url', display_order: '1'}, nil)], package_view)
+    package_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('package_view_template')
+    package_metadata = com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata.new(true, false, true, "Url", 1)
+    package_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', package_metadata)], package_view)
 
-    repo_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('role_config_view_template')
-    repo_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('memberOf', {required: true, secure: false, display_name: 'Member Of', display_order: '1'}, nil)], repo_view)
+    repo_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('repo_view_template')
+    repo_metadata = com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata.new(true, false, true, "Member Of", 1)
+    repo_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', repo_metadata)], repo_view)
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.PackageRepositoryPluginInfo.new(descriptor, package_settings, repo_settings)
+    plugin_info = com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, repo_settings, package_settings)
     actual_json = ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)

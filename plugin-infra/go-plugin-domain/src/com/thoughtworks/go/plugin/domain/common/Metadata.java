@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.domain.common;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Metadata {
@@ -37,7 +37,7 @@ public class Metadata {
     }
 
     public Map<String, Object> toMap() {
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
 
         map.put("secure", isSecure());
         map.put("required", isRequired());

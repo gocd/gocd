@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.ui.plugins;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+@Deprecated
 public class NewPluginInfo {
     protected final PluginDescriptor descriptor;
     protected final String extensionName;

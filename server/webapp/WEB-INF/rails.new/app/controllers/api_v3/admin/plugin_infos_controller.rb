@@ -20,13 +20,13 @@ module ApiV3
       before_action :check_admin_user_or_group_admin_user_and_401
 
       def index
-        render DEFAULT_FORMAT => Plugin::PluginInfosRepresenter.new(default_plugin_info_builder.allPluginInfos(params[:type])).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => Plugin::PluginInfosRepresenter.new(default_plugin_info_finder.allPluginInfos(params[:type])).to_hash(url_builder: self)
       rescue InvalidPluginTypeException
         raise UnprocessableEntity, "Invalid plugins type - `#{params[:type]}` !"
       end
 
       def show
-        plugin = default_plugin_info_builder.pluginInfoFor(params[:id])
+        plugin = default_plugin_info_finder.pluginInfoFor(params[:id])
 
         raise RecordNotFound unless plugin
 

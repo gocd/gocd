@@ -20,8 +20,12 @@ describe ApiV3::Admin::PluginInfosController do
   include ApiHeaderSetupTeardown, ApiV3::ApiVersionHelper
 
   before(:each) do
-    @default_plugin_info_builder = double('default_plugin_info_builder')
-    controller.stub('default_plugin_info_builder').and_return(@default_plugin_info_builder)
+    @default_plugin_info_finder = double('default_plugin_info_finder')
+    controller.stub('default_plugin_info_finder').and_return(@default_plugin_info_finder)
+    notification_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
+    metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    @plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], notification_view)
+
   end
 
   describe :security do
@@ -82,10 +86,10 @@ describe ApiV3::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      plugin_info = com.thoughtworks.go.server.ui.plugins.NotificationPluginInfo.new(descriptor)
+      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
 
-      @default_plugin_info_builder.should_receive(:allPluginInfos).with(nil).and_return([plugin_info])
+      @default_plugin_info_finder.should_receive(:allPluginInfos).with(nil).and_return([plugin_info])
 
       get_with_api_header :index
 
@@ -98,9 +102,9 @@ describe ApiV3::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      plugin_info = com.thoughtworks.go.server.ui.plugins.NotificationPluginInfo.new(descriptor)
+      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
-      @default_plugin_info_builder.should_receive(:allPluginInfos).with('scm').and_return([plugin_info])
+      @default_plugin_info_finder.should_receive(:allPluginInfos).with('scm').and_return([plugin_info])
 
       get_with_api_header :index, type: 'scm'
 
@@ -109,7 +113,7 @@ describe ApiV3::Admin::PluginInfosController do
     end
 
     it 'should be a unprocessible entity for a invalid plugin type' do
-      @default_plugin_info_builder.should_receive(:allPluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
+      @default_plugin_info_finder.should_receive(:allPluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
 
       get_with_api_header :index, type: 'invalid_type'
 
@@ -147,9 +151,9 @@ describe ApiV3::Admin::PluginInfosController do
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-      plugin_info = com.thoughtworks.go.server.ui.plugins.NotificationPluginInfo.new(descriptor)
+      plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
-      @default_plugin_info_builder.should_receive(:pluginInfoFor).with('plugin_id').and_return(plugin_info)
+      @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin_id').and_return(plugin_info)
 
       get_with_api_header :show, id: 'plugin_id'
 
@@ -158,7 +162,7 @@ describe ApiV3::Admin::PluginInfosController do
     end
 
     it 'should return 404 in absence of plugin_info' do
-      @default_plugin_info_builder.should_receive(:pluginInfoFor).with('plugin_id').and_return(nil)
+      @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin_id').and_return(nil)
 
       get_with_api_header :show, id: 'plugin_id'
 

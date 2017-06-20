@@ -199,4 +199,13 @@ public class ServerConfigTest {
         serverConfig.ensureAgentAutoregisterKeyExists();
         assertTrue(StringUtils.isNotBlank(serverConfig.getAgentAutoRegisterKey()));
     }
+
+    @Test
+    public void shouldEnsureWebhookSecretExists() throws Exception {
+        ServerConfig serverConfig = new ServerConfig();
+        assertNull(serverConfig.getWebhookSecret());
+        assertNotNull(serverConfig.getClass().getMethod("ensureWebhookSecretExists").getAnnotation(PostConstruct.class));
+        serverConfig.ensureWebhookSecretExists();
+        assertTrue(StringUtils.isNotBlank(serverConfig.getWebhookSecret()));
+    }
 }

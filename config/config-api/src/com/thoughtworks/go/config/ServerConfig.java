@@ -37,6 +37,7 @@ public class ServerConfig implements Validatable {
     @ConfigAttribute(value = "purgeUpto", optional = true, allowNull = true) private Double purgeUpto;
     @ConfigAttribute(value = "jobTimeout", optional = true) private String jobTimeout = "0";
     @ConfigAttribute(value="agentAutoRegisterKey", optional = true, allowNull = true) private String agentAutoRegisterKey;
+    @ConfigAttribute(value="webhookSecret", optional = true, allowNull = true) private String webhookSecret;
     @ConfigAttribute(value="commandRepositoryLocation", alwaysWrite = true) private String commandRepositoryLocation = "default";
 
     @ConfigSubtag private ElasticConfig elasticConfig = new ElasticConfig();
@@ -78,6 +79,13 @@ public class ServerConfig implements Validatable {
     public void ensureAgentAutoregisterKeyExists() {
         if (StringUtils.isBlank(agentAutoRegisterKey)) {
             agentAutoRegisterKey = UUID.randomUUID().toString();
+        }
+    }
+
+    @PostConstruct
+    public void ensureWebhookSecretExists() {
+        if (StringUtils.isBlank(webhookSecret)) {
+            webhookSecret = UUID.randomUUID().toString();
         }
     }
 
@@ -330,6 +338,10 @@ public class ServerConfig implements Validatable {
 
     public String getAgentAutoRegisterKey() {
         return agentAutoRegisterKey;
+    }
+
+    public String getWebhookSecret() {
+        return webhookSecret;
     }
 
     public boolean shouldAutoRegisterAgentWith(String agentKey) {

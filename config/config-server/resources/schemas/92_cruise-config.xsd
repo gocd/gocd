@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="93"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="92"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -832,7 +832,6 @@
         <xsd:attribute name="purgeUpto" type="xsd:double"/>
         <xsd:attribute name="jobTimeout" type="xsd:double"/>
         <xsd:attribute name="agentAutoRegisterKey" type="xsd:string"/>
-        <xsd:attribute name="webhookSecret" type="xsd:string"/>
     </xsd:attributeGroup>
     <xsd:attributeGroup name="execAttributes">
         <xsd:attribute name="command" type="commandType" use="required"/>
@@ -1029,3 +1028,5 @@
         <xsd:attribute name="secure" type="xsd:boolean"/>
     </xsd:complexType>
 </xsd:schema>
+
+

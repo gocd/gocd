@@ -239,7 +239,10 @@
             <value><![CDATA[
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
-                /remoting/**=ROLE_AGENT
+                /remoting/remotebuildrepository=ROLE_AGENT
+                /remoting/files/**=ROLE_AGENT
+                /remoting/properties/**=ROLE_AGENT
+                /remoting/**=ROLE_SUPERVISOR
                 /agent-websocket/**=ROLE_AGENT
             ]]></value>
         </property>

@@ -59,7 +59,7 @@ public class X509AuthoritiesPopulator implements org.springframework.security.pr
         Matcher ouMatcher = OU_PATTERN.matcher(principal.getName());
         if (cnMatcher.find() && ouMatcher.find()) {
             GrantedAuthorityImpl agentAuthority = new GrantedAuthorityImpl(role);
-            return new User(cnMatcher.group(1), "", true, true, true, true, new GrantedAuthority[]{agentAuthority});
+            return new User("_go_agent_" + cnMatcher.group(1), "", true, true, true, true, new GrantedAuthority[]{agentAuthority});
         }
         throw new BadCredentialsException("Couldn't find CN and/or OU for the certificate");
     }

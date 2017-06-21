@@ -51,7 +51,7 @@
                        :success => "Modalbox.show(request.responseText, { title: '#{scope[:pipeline_name]} - Deploy', overlayClose: false, width: 850, height: 525, slideDownDuration: 0, overlayDuration: 0});" %>
         <div class='operate trigger_with_options_wrapper'>
             <input type="hidden" name="pipeline_name" value="<%= scope[:pipeline_name] %>"/>
-            <%= submit_button(l.string("DEPLOY_SPECIFIC_REVISION"), :type => 'image', :class=> "change_revision") %>
+            <%= submit_button(l.string("DEPLOY_SPECIFIC_REVISION"), :type => 'image', :class=> "change_revision", :disabled => !(scope[:pipeline_model].canForce() || scope[:pipeline_model].canOperate()) ) %>
         </div>
     <%= end_form_tag %>
 </div>

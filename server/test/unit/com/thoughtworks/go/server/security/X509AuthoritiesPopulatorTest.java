@@ -53,6 +53,7 @@ public class X509AuthoritiesPopulatorTest {
         GrantedAuthority expected = new GrantedAuthorityImpl(ROLE_AGENT);
         assertThat(actual.length, is(1));
         assertThat(actual[0], is(expected));
+        assertThat(userDetails.getUsername(), is("_go_agent_hostname"));
     }
 
 }

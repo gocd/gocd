@@ -32,7 +32,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 
@@ -47,13 +49,12 @@ public class ConfigRepoPluginInfoBuilderTest {
         value.add(new PluginSettingsProperty("username", null).with(Property.REQUIRED, true).with(Property.SECURE, false));
         value.add(new PluginSettingsProperty("password", null).with(Property.REQUIRED, true).with(Property.SECURE, true));
         stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(value);
-        stub(extension.getPluginSettingsView("plugin1")).toReturn("some-html");
     }
 
     @Test
     public void shouldBuildPluginInfo() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-
+        stub(extension.getPluginSettingsView("plugin1")).toReturn("some-html");
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
@@ -65,5 +66,18 @@ public class ConfigRepoPluginInfoBuilderTest {
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("configrepo"));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+    }
+
+    @Test
+    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() throws Exception {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
+
+        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+
+        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getExtensionName(), is("configrepo"));
+        assertNull(pluginInfo.getPluginSettings());
+
     }
 }

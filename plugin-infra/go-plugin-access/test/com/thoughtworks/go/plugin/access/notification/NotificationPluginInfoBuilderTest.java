@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
@@ -65,5 +66,29 @@ public class NotificationPluginInfoBuilderTest {
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("notification"));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+    }
+
+    @Test
+    public void shouldContinueWithBuildingPluginInfoWhenPluginSettingsIsNotProvidedByPlugin() throws Exception {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(null);
+        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
+
+        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getExtensionName(), is("notification"));
+        assertNull(pluginInfo.getPluginSettings());
+    }
+
+    @Test
+    public void shouldContinueWithBuildingPluginInfoWhenPluginViewIsNotProvidedByPlugin() throws Exception {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        stub(extension.getPluginSettingsView("plugin1")).toReturn(null);
+        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
+
+        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getExtensionName(), is("notification"));
+        assertNull(pluginInfo.getPluginSettings());
     }
 }

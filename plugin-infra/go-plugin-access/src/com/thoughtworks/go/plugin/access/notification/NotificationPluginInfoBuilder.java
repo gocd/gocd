@@ -22,11 +22,13 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationPluginInfoBuilder implements PluginInfoBuilder<NotificationPluginInfo> {
+    private static final Logger LOGGER = Logger.getLogger(NotificationPluginInfoBuilder.class);
 
     private NotificationExtension extension;
 
@@ -36,9 +38,17 @@ public class NotificationPluginInfoBuilder implements PluginInfoBuilder<Notifica
     }
 
     public NotificationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
-        String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
-        PluggableInstanceSettings pluginSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
+        PluggableInstanceSettings pluginSettings = null;
+        try {
+            PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
+            String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
+            if (pluginSettingsConfiguration == null || pluginSettingsView == null) {
+                throw new RuntimeException("The plugin does not provide plugin settings or view.");
+            }
+            pluginSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
+        } catch (Exception e) {
+            LOGGER.warn(String.format("Plugin settings configuration and view could not be retrieved."), e);
+        }
 
         return new NotificationPluginInfo(descriptor, pluginSettings);
     }

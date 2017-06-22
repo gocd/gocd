@@ -21,7 +21,9 @@ import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,9 +32,13 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 
 public class SCMPluginInfoBuilderTest {
     private SCMExtension extension;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -71,5 +77,21 @@ public class SCMPluginInfoBuilderTest {
         assertThat(pluginInfo.getExtensionName(), is("scm"));
         assertThat(pluginInfo.getDisplayName(), is("some scm plugin"));
         assertThat(pluginInfo.getScmSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+    }
+
+    @Test
+    public void shouldThrowAnExceptionIfScmConfigReturnedByPluginIsNull() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        when(extension.getSCMConfiguration("plugin1")).thenReturn(null);
+        thrown.expectMessage("Plugin[plugin1] returned null scm configuration");
+        new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+    }
+
+    @Test
+    public void shouldThrowAnExceptionIfScmViewReturnedByPluginIsNull() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        when(extension.getSCMView("plugin1")).thenReturn(null);
+        thrown.expectMessage("Plugin[plugin1] returned null scm view");
+        new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
     }
 }

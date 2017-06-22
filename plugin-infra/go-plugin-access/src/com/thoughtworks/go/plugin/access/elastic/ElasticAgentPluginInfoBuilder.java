@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,8 @@ import java.util.List;
 
 @Component
 public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticAgentPluginInfo> {
+    private static final Logger LOGGER = Logger.getLogger(ElasticAgentPluginInfoBuilder.class);
+
     private ElasticAgentExtension extension;
 
     @Autowired
@@ -39,9 +42,18 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
 
     @Override
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
-        String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
-        PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
+        PluggableInstanceSettings pluggableInstanceSettings = null;
+        try {
+            PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
+            String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
+            if (pluginSettingsConfiguration == null || pluginSettingsView == null) {
+                throw new RuntimeException("No plugin settings.");
+            }
+            pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
+        } catch (Exception e) {
+            LOGGER.warn(String.format("Plugin settings configuration and view could not be retrieved. May be because the plugin doesn't have any plugin settings"), e);
+        }
+
         return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()), pluggableInstanceSettings);
     }
 

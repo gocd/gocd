@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+
 @Component
 public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
 
@@ -40,6 +42,13 @@ public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
     public SCMPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         SCMPropertyConfiguration scmConfiguration = extension.getSCMConfiguration(descriptor.id());
         SCMView scmView = extension.getSCMView(descriptor.id());
+        if (scmConfiguration == null) {
+            throw new RuntimeException(format("Plugin[%s] returned null scm configuration", descriptor.id()));
+        }
+
+        if (scmView == null) {
+            throw new RuntimeException(format("Plugin[%s] returned null scm view", descriptor.id()));
+        }
 
         PluggableInstanceSettings scmSettings = new PluggableInstanceSettings(configurations(scmConfiguration), new PluginView(scmView.template()));
         return new SCMPluginInfo(descriptor, scmView.displayValue(), scmSettings);

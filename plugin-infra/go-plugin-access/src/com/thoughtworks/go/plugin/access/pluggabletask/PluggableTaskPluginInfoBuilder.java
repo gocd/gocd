@@ -28,6 +28,8 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static java.lang.String.format;
+
 @Component
 public class PluggableTaskPluginInfoBuilder implements PluginInfoBuilder<PluggableTaskPluginInfo> {
 
@@ -49,6 +51,12 @@ public class PluggableTaskPluginInfoBuilder implements PluginInfoBuilder<Pluggab
 
         TaskConfig config = tp[0].getConfig();
         TaskView view = tp[0].getView();
+        if (config == null) {
+            throw new RuntimeException(format("Plugin[%s] returned null task configuration", descriptor.id()));
+        }
+        if (view == null) {
+            throw new RuntimeException(format("Plugin[%s] returned null task configuration", descriptor.id()));
+        }
         String displayName = view.displayValue();
 
         PluggableInstanceSettings taskSettings = new PluggableInstanceSettings(configurations(config), new PluginView(view.template()));

@@ -25,7 +25,9 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,9 +36,13 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 
 public class PackageMaterialPluginInfoBuilderTest {
     private PackageRepositoryExtension extension;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -76,5 +82,27 @@ public class PackageMaterialPluginInfoBuilderTest {
 
         assertThat(pluginInfo.getPackageSettings(), is(new PluggableInstanceSettings(packageSettings, null)));
         assertThat(pluginInfo.getRepositorySettings(), is(new PluggableInstanceSettings(repoSettings, null)));
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenRepoConfigProvidedByPluginIsNull() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        when(extension.getRepositoryConfiguration("plugin1")).thenReturn(null);
+        thrown.expectMessage("Plugin[plugin1] returned null repository configuration");
+        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+
+        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenPackageConfigProvidedByPluginIsNull() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        when(extension.getPackageConfiguration("plugin1")).thenReturn(null);
+        thrown.expectMessage("Plugin[plugin1] returned null package configuration");
+        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+
+        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
     }
 }

@@ -23,13 +23,14 @@ import com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Deprecated
 @Component
 public class AuthenticationPluginInfoBuilder implements PluginInfoBuilder<AuthenticationPluginInfo> {
-
+    private static final Logger LOGGER = Logger.getLogger(AuthenticationPluginInfoBuilder.class);
     private AuthenticationExtension extension;
 
     @Autowired
@@ -38,11 +39,19 @@ public class AuthenticationPluginInfoBuilder implements PluginInfoBuilder<Authen
     }
 
     public AuthenticationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
-        String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
+        PluggableInstanceSettings pluggableInstanceSettings = null;
+        try {
+            String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
+            PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
+            if (pluginSettingsConfiguration == null || pluginSettingsView == null) {
+                throw new RuntimeException("No plugin settings.");
+            }
+        pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
+        } catch (Exception e) {
+            LOGGER.warn(String.format("Plugin settings configuration and view could not be retrieved. May be because the plugin doesn't have any plugin settings"), e);
+        }
         AuthenticationPluginConfiguration pluginConfiguration = extension.getPluginConfiguration(descriptor.id());
 
-        PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
         return new AuthenticationPluginInfo(descriptor,
                 pluginConfiguration.getDisplayName(),
                 pluginConfiguration.getDisplayImageURL(),

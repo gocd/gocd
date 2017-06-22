@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.materials.postcommit;
 
-
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 

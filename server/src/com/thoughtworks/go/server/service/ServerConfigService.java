@@ -186,6 +186,10 @@ public class ServerConfigService implements BaseUrlProvider {
         return serverConfig().getAgentAutoRegisterKey();
     }
 
+    public String getWebhookSecret() {
+        return serverConfig().getWebhookSecret();
+    }
+
     public boolean hasAutoregisterKey() {
         return StringUtils.isNotBlank(getAutoregisterKey());
     }

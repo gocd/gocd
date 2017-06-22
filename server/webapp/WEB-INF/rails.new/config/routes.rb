@@ -386,6 +386,10 @@ Go::Application.routes.draw do
 
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 
+      # Vendor Webhooks
+      post 'webhooks/github/notify' => 'git_hub#notify', as: :github_notify
+
+
       scope 'admin/feature_toggles' do
         defaults :no_layout => true, :format => :json do
           get "" => "feature_toggles#index", as: :api_admin_feature_toggles

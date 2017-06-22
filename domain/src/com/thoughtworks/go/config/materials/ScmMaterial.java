@@ -76,7 +76,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
     }
 
     //most of the material such as hg, git, p4 all print the file from the root without '/'
-    //but subverion print it with '/', we standarize it here. look at the implementation of subversion as well.
+    //but subversion print it with '/', we standarize it here. look at the implementation of subversion as well.
 
     public boolean matches(String name, String regex) {
         if (regex.startsWith("/")) {

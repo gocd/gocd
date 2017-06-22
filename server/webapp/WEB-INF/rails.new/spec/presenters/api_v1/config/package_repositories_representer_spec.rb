@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe ApiV1::Config::EnvironmentsConfigRepresenter do
+describe ApiV1::Config::PackageRepositoriesRepresenter do
 
   it 'renders a list of package repositories' do
     npm_repo = PackageRepositoryMother.create('npm-repo')

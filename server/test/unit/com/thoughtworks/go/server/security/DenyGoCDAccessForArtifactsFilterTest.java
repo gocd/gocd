@@ -29,7 +29,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.ui.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 
-public class ArtifactsFilterTest {
+public class DenyGoCDAccessForArtifactsFilterTest {
 
     private HttpServletRequest request;
     private HttpServletResponse response;
@@ -47,7 +47,7 @@ public class ArtifactsFilterTest {
         when(request.getHeader("Referer")).thenReturn("http://example.com/go/files/foo");
         when(request.getRequestURI()).thenReturn("/go/api/admin");
 
-        new ArtifactsFilter().doFilterHttp(request, response, chain);
+        new DenyGoCDAccessForArtifactsFilter().doFilterHttp(request, response, chain);
 
         verifyNoMoreInteractions(chain);
     }
@@ -57,7 +57,7 @@ public class ArtifactsFilterTest {
         when(request.getHeader("Referer")).thenReturn("http://example.com/go/files/file1");
         when(request.getRequestURI()).thenReturn("/go/files/file2");
 
-        new ArtifactsFilter().doFilterHttp(request, response, chain);
+        new DenyGoCDAccessForArtifactsFilter().doFilterHttp(request, response, chain);
 
         verify(chain).doFilter(request, response);
     }
@@ -67,13 +67,23 @@ public class ArtifactsFilterTest {
         when(request.getHeader("Referer")).thenReturn(null);
         when(request.getRequestURI()).thenReturn("/go/files/file2");
 
-        new ArtifactsFilter().doFilterHttp(request, response, chain);
+        new DenyGoCDAccessForArtifactsFilter().doFilterHttp(request, response, chain);
 
         verify(chain).doFilter(request, response);
     }
 
+    @Test(expected = AccessDeniedException.class)
+    public void shouldNormalizeRequestUrlsBeforeComparing() throws Exception {
+        when(request.getHeader("Referer")).thenReturn("http://example.com/go/files/foo");
+        when(request.getRequestURI()).thenReturn("go/files/../admin/config_xml");
+
+        new DenyGoCDAccessForArtifactsFilter().doFilterHttp(request, response, chain);
+
+        verifyNoMoreInteractions(chain);
+    }
+
     @Test
     public void shouldHaveAnOrderHigherThanExceptionTranslationFilter() throws Exception {
-        assertThat(new ArtifactsFilter().getOrder(), greaterThan(EXCEPTION_TRANSLATION_FILTER));
+        assertThat(new DenyGoCDAccessForArtifactsFilter().getOrder(), greaterThan(EXCEPTION_TRANSLATION_FILTER));
     }
 }

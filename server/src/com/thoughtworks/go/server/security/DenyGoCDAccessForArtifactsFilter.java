@@ -25,12 +25,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.springframework.security.ui.FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
 
-public class ArtifactsFilter extends SpringSecurityFilter {
+public class DenyGoCDAccessForArtifactsFilter extends SpringSecurityFilter {
 
     @Override
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -43,7 +45,13 @@ public class ArtifactsFilter extends SpringSecurityFilter {
     }
 
     private boolean requestingAnArtifact(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/go/files");
+        String requestURI;
+        try {
+            requestURI = new URI(request.getRequestURI()).normalize().toString();
+        } catch (URISyntaxException e) {
+            requestURI = request.getRequestURI();
+        }
+        return requestURI.startsWith("/go/files");
     }
 
     private boolean isRequestFromArtifact(HttpServletRequest request) throws MalformedURLException {

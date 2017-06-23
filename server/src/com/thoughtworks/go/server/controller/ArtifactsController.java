@@ -246,10 +246,9 @@ public class ArtifactsController {
                                    @RequestParam(value = "startLineNumber", required = false) Long start
     ) throws Exception {
         start = start == null ? 0L : start;
-        JobIdentifier job = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
-                buildName);
 
-        try (ConsoleConsumer streamer = consoleService.getStreamer(start, job)) {
+        try (ConsoleConsumer streamer = consoleService.getStreamer(start, restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
+                buildName))) {
             return new ModelAndView(new ConsoleOutView(streamer));
         } catch (Exception e) {
             return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);

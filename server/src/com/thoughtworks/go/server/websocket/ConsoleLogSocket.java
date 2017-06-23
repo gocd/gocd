@@ -42,26 +42,28 @@ public class ConsoleLogSocket implements SocketEndpoint {
     private final ConsoleLogSender handler;
     private Session session;
     private String sessionId;
+    private String key;
 
     ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier) {
         this.handler = handler;
         this.jobIdentifier = jobIdentifier;
+        this.key = String.format("%s:%d", jobIdentifier, hashCode());
     }
 
     @OnWebSocketConnect
     public void onConnect(Session session) throws Exception {
         this.session = session;
-        LOGGER.debug("{} connected", sessionId());
+        LOGGER.debug("{} connected", sessionName());
 
 
         long start = parseStartLine(session.getUpgradeRequest());
-        LOGGER.debug("{} sending logs for {} starting at line {}.", sessionId(), jobIdentifier, start);
+        LOGGER.debug("{} sending logs for {} starting at line {}.", sessionName(), jobIdentifier, start);
 
         try {
             handler.process(this, jobIdentifier, start);
         } catch (IOException e) {
             if ("Connection output is closed".equals(e.getMessage())) {
-                LOGGER.debug("{} client (likely, browser) closed connection prematurely.", sessionId());
+                LOGGER.debug("{} client (likely, browser) closed connection prematurely.", sessionName());
                 close(); // for good measure
             } else {
                 throw e;
@@ -71,7 +73,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     @OnWebSocketError
     public void onError(Throwable error) {
-        LOGGER.error("{} closing session because an error was thrown", sessionId(), error);
+        LOGGER.error("{} closing session because an error was thrown", sessionName(), error);
         close(StatusCode.SERVER_ERROR, error.getMessage());
     }
 
@@ -100,9 +102,15 @@ public class ConsoleLogSocket implements SocketEndpoint {
         session.close(code, reason);
     }
 
-    private String sessionId() {
+    @Override
+    public String key() {
+        return key;
+    }
+
+    private String sessionName() {
         if (null == sessionId) {
-            sessionId = String.format("Session[%s:%s]", session.getRemoteAddress(), jobIdentifier);
+            if (null == session) throw new IllegalStateException(String.format("Cannot get session name because the session has not been assigned to socket %s", key()));
+            sessionId = String.format("Session[%s:%s]", session.getRemoteAddress(), key());
         }
         return sessionId;
     }

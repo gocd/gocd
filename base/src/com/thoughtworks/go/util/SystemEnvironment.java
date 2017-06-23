@@ -189,7 +189,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> GO_WEBSOCKET_SEND_RETRY_COUNT = new GoIntSystemProperty("go.websocket.send.retry.count", 5);
 
     public static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
-    public static GoSystemProperty<Long> GO_WEBSOCKET_KEEPALIVE_INTERVAL = new GoLongSystemProperty("go.websocket.keepalive.interval", 5 * 1000L);
     public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
     public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
     public static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
@@ -293,11 +292,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public String getListenHost() {
         return getPropertyImpl(CRUISE_LISTEN_HOST);
     }
-
-    public long getWsKeepAlive() {
-        return GO_WEBSOCKET_KEEPALIVE_INTERVAL.getValue();
-    }
-
 
     public long getArtifactReposiotryFullLimit() {
         if (artifactFullSizeLimit != null) {

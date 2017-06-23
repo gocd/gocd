@@ -30,8 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -52,18 +50,20 @@ public class ConsoleLogSender {
     @Autowired
     private JobDetailService jobDetailService;
 
-    private static boolean isIdledTooLong(Instant startTime, long threshold) {
-        return Duration.between(startTime, Instant.now()).toMillis() >= threshold;
-    }
+    @Autowired
+    private SocketHealthService socketHealthService;
 
     @Autowired
-    ConsoleLogSender(ConsoleService consoleService, JobDetailService jobDetailService) {
+    ConsoleLogSender(ConsoleService consoleService, JobDetailService jobDetailService, SocketHealthService socketHealthService) {
         this.consoleService = consoleService;
         this.jobDetailService = jobDetailService;
+        this.socketHealthService = socketHealthService;
     }
 
     public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
         if (start < 0L) start = 0L;
+
+        socketHealthService.register(webSocket);
 
         // check if we're tailing a running build, or viewing a prior build's logs
         boolean isRunningBuild = !detectCompleted(jobIdentifier);
@@ -72,30 +72,18 @@ public class ConsoleLogSender {
         try {
             waitForLogToExist(webSocket, jobIdentifier);
         } catch (Retryable.TooManyRetriesException e) {
+            socketHealthService.deregister(webSocket);
             webSocket.close(LOG_DOES_NOT_EXIST, e.getMessage());
             return;
         }
 
-        Instant t1 = Instant.now();
-        long numLinesProcessed;
-        long keepAlive = systemEnvironment.getWsKeepAlive();
-
         try (ConsoleConsumer streamer = consoleService.getStreamer(start, jobIdentifier)) {
             do {
-                start += (numLinesProcessed = sendLogs(webSocket, streamer, jobIdentifier));
+                start += sendLogs(webSocket, streamer, jobIdentifier);
 
                 // allow buffers to fill to avoid sending 1 line at a time for running builds
                 if (isRunningBuild) {
                     Thread.sleep(FILL_INTERVAL);
-
-                    // reset keepAlive timer if we sent data -- we're not idling
-                    if (numLinesProcessed > 0) t1 = Instant.now();
-
-                    // send ping if we've been idle for too long (i.e. no frames transmitted over connection)
-                    if (isIdledTooLong(t1, keepAlive)) {
-                        webSocket.ping();
-                        t1 = Instant.now(); // reset timer after ping()
-                    }
                 }
             } while (webSocket.isOpen() && !detectCompleted(jobIdentifier));
 
@@ -104,9 +92,10 @@ public class ConsoleLogSender {
             if (isRunningBuild) sendLogs(webSocket, streamer, jobIdentifier);
 
             LOGGER.debug("Sent {} log lines for {}", streamer.totalLinesConsumed(), jobIdentifier);
+        } finally {
+            socketHealthService.deregister(webSocket);
+            webSocket.close();
         }
-
-        webSocket.close();
     }
 
     private void waitForLogToExist(final SocketEndpoint websocket, final JobIdentifier jobIdentifier) throws Retryable.TooManyRetriesException {

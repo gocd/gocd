@@ -28,4 +28,12 @@ public interface SocketEndpoint {
     void close();
 
     void close(int code, String reason);
+
+    /**
+     * Returns a unique key for hashing/registration. Implementations should not rely on underlying session
+     * as it may not be guaranteed that registration happens after an onConnect event.
+     *
+     * @return a unique String
+     */
+    String key();
 }

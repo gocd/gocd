@@ -39,14 +39,16 @@ public class ConsoleLogSenderTest {
     private SocketEndpoint socket;
     private JobIdentifier jobIdentifier;
     private JobInstance jobInstance;
+    private SocketHealthService socketHealthService;
 
     @Before
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
+        socketHealthService = mock(SocketHealthService.class);
         JobDetailService jobDetailService = mock(JobDetailService.class);
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
-        consoleLogSender = new ConsoleLogSender(consoleService, jobDetailService);
+        consoleLogSender = new ConsoleLogSender(consoleService, jobDetailService, socketHealthService);
         jobIdentifier = mock(JobIdentifier.class);
         jobInstance = mock(JobInstance.class);
         when(jobDetailService.findMostRecentBuild(jobIdentifier)).thenReturn(jobInstance);

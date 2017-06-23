@@ -56,6 +56,8 @@ public class ConsoleOutView implements View {
                     throw e;
                 }
             }
+        } finally {
+            consumer.close();
         }
     }
 }

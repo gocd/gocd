@@ -23,14 +23,15 @@ import com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Deprecated
 @Component
 public class AuthenticationPluginInfoBuilder implements PluginInfoBuilder<AuthenticationPluginInfo> {
-    private static final Logger LOGGER = Logger.getLogger(AuthenticationPluginInfoBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationPluginInfoBuilder.class);
     private AuthenticationExtension extension;
 
     @Autowired
@@ -48,7 +49,7 @@ public class AuthenticationPluginInfoBuilder implements PluginInfoBuilder<Authen
             }
         pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
         } catch (Exception e) {
-            LOGGER.warn(String.format("Plugin settings configuration and view could not be retrieved. May be because the plugin doesn't have any plugin settings"), e);
+            LOGGER.warn("Plugin settings configuration and view could not be retrieved. May be because the plugin doesn't have any plugin settings", e);
         }
         AuthenticationPluginConfiguration pluginConfiguration = extension.getPluginConfiguration(descriptor.id());
 

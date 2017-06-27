@@ -23,7 +23,8 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ import java.util.List;
 
 @Component
 public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticAgentPluginInfo> {
-    private static final Logger LOGGER = Logger.getLogger(ElasticAgentPluginInfoBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginInfoBuilder.class);
 
     private ElasticAgentExtension extension;
 

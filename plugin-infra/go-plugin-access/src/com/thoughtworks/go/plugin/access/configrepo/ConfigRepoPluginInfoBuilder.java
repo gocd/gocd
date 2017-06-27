@@ -22,13 +22,14 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepoPluginInfo> {
-    private static final Logger LOGGER = Logger.getLogger(ConfigRepoPluginInfoBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoPluginInfoBuilder.class);
     private ConfigRepoExtension extension;
 
     @Autowired

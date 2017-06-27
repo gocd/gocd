@@ -17,9 +17,7 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.slf4j.Logger;
@@ -29,7 +27,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepoPluginInfo> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoPluginInfoBuilder.class);
     private ConfigRepoExtension extension;
 
     @Autowired
@@ -38,18 +35,8 @@ public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepo
     }
 
     public ConfigRepoPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluggableInstanceSettings pluginSettings = null;
-        try {
-            String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());
-            PluginSettingsConfiguration pluginSettingsConfiguration = extension.getPluginSettingsConfiguration(descriptor.id());
-            if (pluginSettingsConfiguration == null || pluginSettingsView == null) {
-                throw new RuntimeException("The plugin does not provide plugin settings or view.");
-            }
-            pluginSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
-        } catch (Exception e) {
-            LOGGER.warn(String.format("Plugin settings configuration and view could not be retrieved."), e);
-        }
-        return new ConfigRepoPluginInfo(descriptor, pluginSettings);
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettings(descriptor, extension);
+        return new ConfigRepoPluginInfo(descriptor, pluggableInstanceSettings);
     }
 
 }

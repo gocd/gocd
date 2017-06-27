@@ -55,7 +55,7 @@ public class PluggableTaskPluginInfoBuilder implements PluginInfoBuilder<Pluggab
             throw new RuntimeException(format("Plugin[%s] returned null task configuration", descriptor.id()));
         }
         if (view == null) {
-            throw new RuntimeException(format("Plugin[%s] returned null task configuration", descriptor.id()));
+            throw new RuntimeException(format("Plugin[%s] returned null task view", descriptor.id()));
         }
         String displayName = view.displayValue();
 

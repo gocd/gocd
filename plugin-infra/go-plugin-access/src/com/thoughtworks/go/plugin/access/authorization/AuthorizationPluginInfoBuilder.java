@@ -39,8 +39,11 @@ public class AuthorizationPluginInfoBuilder implements PluginInfoBuilder<Authori
     public AuthorizationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         Capabilities capabilities = capabilities(descriptor.id());
 
-        return new AuthorizationPluginInfo(descriptor, authConfigSettings(descriptor.id()), roleSettings(descriptor.id(), capabilities),
-                image(descriptor.id()), capabilities);
+        PluggableInstanceSettings authConfigSettings = authConfigSettings(descriptor.id());
+        PluggableInstanceSettings roleSettings = roleSettings(descriptor.id(), capabilities);
+        Image image = image(descriptor.id());
+
+        return new AuthorizationPluginInfo(descriptor, authConfigSettings, roleSettings, image, capabilities);
     }
 
     private Capabilities capabilities(String pluginId) {

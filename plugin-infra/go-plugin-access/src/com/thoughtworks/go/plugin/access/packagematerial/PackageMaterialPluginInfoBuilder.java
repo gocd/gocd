@@ -59,6 +59,7 @@ public class PackageMaterialPluginInfoBuilder implements PluginInfoBuilder<Packa
         return new PackageMaterialPluginInfo(descriptor, new PluggableInstanceSettings(configurations(repositoryConfiguration)), new PluggableInstanceSettings(configurations(packageConfiguration)));
     }
 
+    @Override
     public List<PluginConfiguration> configurations(Configuration repositoryConfiguration) {
         List<? extends Property> list = repositoryConfiguration.list();
 

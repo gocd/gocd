@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
+import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
@@ -54,7 +55,8 @@ public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
         return new SCMPluginInfo(descriptor, scmView.displayValue(), scmSettings);
     }
 
-    static List<PluginConfiguration> configurations(SCMPropertyConfiguration config) {
+    @Override
+    public List<PluginConfiguration> configurations(Configuration config) {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         for (Property property : config.list()) {

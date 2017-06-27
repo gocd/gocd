@@ -27,6 +27,7 @@ module ApiV3
         com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo => SCMPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.common.BadPluginInfo => BadPluginInfoRepresenter,
       }
 
       class <<self

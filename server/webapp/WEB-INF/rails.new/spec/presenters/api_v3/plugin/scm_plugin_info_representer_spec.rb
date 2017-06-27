@@ -39,6 +39,9 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'scm',
+                                status: {
+                                  state: 'active'
+                                },
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

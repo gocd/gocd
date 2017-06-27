@@ -22,6 +22,7 @@ describe ApiV3::Plugin::BasePluginInfoRepresenter do
     vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
+    descriptor.markAsInvalid(%w(foo bar), java.lang.RuntimeException.new('boom!'))
 
     plugin_info = com.thoughtworks.go.server.ui.plugins.NewPluginInfo.new(descriptor, 'plugin-type')
     actual_json = ApiV3::Plugin::BasePluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
@@ -36,6 +37,10 @@ describe ApiV3::Plugin::BasePluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'plugin-type',
+                                status: {
+                                  state: 'invalid',
+                                  messages: %w(foo bar)
+                                },
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

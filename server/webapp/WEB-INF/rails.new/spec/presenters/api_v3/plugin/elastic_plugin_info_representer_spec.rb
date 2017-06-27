@@ -46,6 +46,9 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'elastic-agent',
+                                status: {
+                                  state: 'active'
+                                },
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

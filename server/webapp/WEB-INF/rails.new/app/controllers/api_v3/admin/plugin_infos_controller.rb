@@ -17,10 +17,18 @@
 module ApiV3
   module Admin
     class PluginInfosController < BaseController
+
+      java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo
+
       before_action :check_admin_user_or_group_admin_user_and_401
 
       def index
-        render DEFAULT_FORMAT => Plugin::PluginInfosRepresenter.new(default_plugin_info_finder.allPluginInfos(params[:type])).to_hash(url_builder: self)
+        plugin_infos = default_plugin_info_finder.allPluginInfos(params[:type])
+
+        if params[:include_bad].to_bool
+          plugin_infos += default_plugin_manager.plugins().find_all(&:isInvalid).collect {|descriptor| BadPluginInfo.new(descriptor)}
+        end
+        render DEFAULT_FORMAT => Plugin::PluginInfosRepresenter.new(plugin_infos).to_hash(url_builder: self)
       rescue InvalidPluginTypeException
         raise UnprocessableEntity, "Invalid plugins type - `#{params[:type]}` !"
       end

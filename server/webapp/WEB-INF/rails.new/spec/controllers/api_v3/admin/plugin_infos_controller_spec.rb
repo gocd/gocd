@@ -22,6 +22,9 @@ describe ApiV3::Admin::PluginInfosController do
   before(:each) do
     @default_plugin_info_finder = double('default_plugin_info_finder')
     controller.stub('default_plugin_info_finder').and_return(@default_plugin_info_finder)
+
+    @default_plugin_manager = double('default_plugin_manager')
+    controller.stub('default_plugin_manager').and_return(@default_plugin_manager)
     notification_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
     metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
     @plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], notification_view)
@@ -88,13 +91,33 @@ describe ApiV3::Admin::PluginInfosController do
 
       plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
-
       @default_plugin_info_finder.should_receive(:allPluginInfos).with(nil).and_return([plugin_info])
 
       get_with_api_header :index
 
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response([plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
+    end
+
+    it 'should list bad plugins when `include_bad` param is true' do
+      good_vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      good_about = GoPluginDescriptor::About.new('Good plugin', '1.2.3', '17.2.0', 'Does foo', good_vendor, ['Linux'])
+      good_plugin = GoPluginDescriptor.new('good.plugin', '1.0', good_about, nil, nil, false)
+      good_plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(good_plugin, nil)
+
+      bad_vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      bad_about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', bad_vendor, ['Linux'])
+      bad_plugin = GoPluginDescriptor.new('bad.plugin', '1.0', bad_about, nil, nil, false)
+      bad_plugin.markAsInvalid(%w(foo bar), java.lang.RuntimeException.new('boom!'))
+
+      bad_plugin_info = com.thoughtworks.go.plugin.domain.common.BadPluginInfo.new(bad_plugin)
+
+      @default_plugin_manager.should_receive(:plugins).and_return([bad_plugin, good_plugin])
+      @default_plugin_info_finder.should_receive(:allPluginInfos).with(nil).and_return([good_plugin_info])
+
+      get_with_api_header :index, include_bad: true
+      expect(response).to be_ok
+      expect(actual_response).to eq(expected_response([good_plugin_info, bad_plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
     end
 
     it 'should filter plugin_infos by type' do

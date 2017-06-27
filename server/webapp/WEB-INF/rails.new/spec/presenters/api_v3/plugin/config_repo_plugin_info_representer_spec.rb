@@ -26,8 +26,8 @@ describe ApiV3::Plugin::ConfigRepoPluginInfoRepresenter do
     metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
     plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], config_repo_view)
 
-    plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, plugin_settings)
-    actual_json = ApiV3::Plugin::NotificationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+    plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, plugin_settings)
+    actual_json = ApiV3::Plugin::ConfigRepoPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
@@ -38,7 +38,10 @@ describe ApiV3::Plugin::ConfigRepoPluginInfoRepresenter do
     expect(actual_json).to eq({
                                 id: 'foo.example',
                                 version: '1.0',
-                                type: 'notification',
+                                type: 'configrepo',
+                                status: {
+                                  state: 'active'
+                                },
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

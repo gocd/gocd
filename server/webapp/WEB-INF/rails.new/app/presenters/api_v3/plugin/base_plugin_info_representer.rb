@@ -34,12 +34,17 @@ module ApiV3
       property :version, exec_context: :decorator
       property :getExtensionName, as: :type
 
+      property :status, exec_context: :decorator do
+        property :state, getter: lambda {|*| state.to_s.downcase}
+        property :messages, if: lambda {|args| !self.messages.blank?}
+      end
+
       property :about, exec_context: :decorator do
         property :name
         property :version
         property :target_go_version
         property :description
-        property :target_operating_systems, getter: lambda { |opts| self.target_operating_systems.to_a }
+        property :target_operating_systems, getter: lambda {|opts| self.target_operating_systems.to_a}
 
         property :vendor do
           property :name
@@ -49,7 +54,7 @@ module ApiV3
 
       protected
 
-      delegate :id, :version, :about, to: :descriptor
+      delegate :id, :version, :status, :about, to: :descriptor
 
       def descriptor
         plugin.getDescriptor()

@@ -39,6 +39,9 @@ describe ApiV3::Plugin::NotificationPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'notification',
+                                status: {
+                                  state: 'active'
+                                },
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

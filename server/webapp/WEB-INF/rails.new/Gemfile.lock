@@ -83,10 +83,6 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.25.1)
     minitest (4.7.5)
-    mithril_rails (0.0.7)
-      execjs (>= 2.2.2)
-      rails (>= 3.2.0)
-      tilt
     multi_json (1.12.1)
     nokogiri (1.6.6.2-java)
     phantomjs (1.9.8.0)
@@ -195,7 +191,6 @@ DEPENDENCIES
   jasmine-rails
   js-routes
   minitest
-  mithril_rails
   oauth2_provider (= 1.0.3)!
   rack-throttle (~> 0.4.2)
   rails (= 4.0.4)

@@ -33,11 +33,13 @@ module ApiV3
       property :id, exec_context: :decorator
       property :version, exec_context: :decorator
       property :getExtensionName, as: :type
-
       property :status, exec_context: :decorator do
         property :state, getter: lambda {|*| state.to_s.downcase}
         property :messages, if: lambda {|args| !self.messages.blank?}
       end
+
+      property :plugin_file_location, exec_context: :decorator
+      property :isBundledPlugin, as: :bundled_plugin, exec_context: :decorator
 
       property :about, exec_context: :decorator do
         property :name
@@ -54,7 +56,7 @@ module ApiV3
 
       protected
 
-      delegate :id, :version, :status, :about, to: :descriptor
+      delegate :id, :version, :status, :about, :plugin_file_location, :isBundledPlugin, to: :descriptor
 
       def descriptor
         plugin.getDescriptor()

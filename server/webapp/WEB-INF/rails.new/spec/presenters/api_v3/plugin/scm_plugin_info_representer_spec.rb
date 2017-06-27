@@ -42,6 +42,8 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
                                 status: {
                                   state: 'active'
                                 },
+                                plugin_file_location: nil,
+                                bundled_plugin: false,
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

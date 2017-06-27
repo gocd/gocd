@@ -209,7 +209,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> INBUILT_LDAP_PASSWORD_AUTH_ENABLED = new GoBooleanSystemProperty("go.security.inbuilt.auth.enabled", false);
-
+    public static GoSystemProperty<String> PROXY_URL = new GoStringSystemProperty("go.proxy.url", "");
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -825,6 +825,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getReAuthenticationTimeInterval() {
         return REAUTHENTICATION_TIME_INTERVAL.getValue();
+    }
+
+    public String getProxyUrl(){
+        return PROXY_URL.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

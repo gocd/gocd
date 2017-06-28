@@ -72,7 +72,7 @@ public class CRDependencyMaterialTest extends CRBaseTest<CRDependencyMaterial> {
         String json = gson.toJson(value);
 
         CRDependencyMaterial deserializedValue = (CRDependencyMaterial)gson.fromJson(json,CRMaterial.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 

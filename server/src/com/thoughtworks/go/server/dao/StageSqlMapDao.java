@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -42,7 +42,8 @@ import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.FuncVarArg;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
@@ -59,7 +60,7 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
-    private static final Logger LOGGER = Logger.getLogger(SqlMapClientDaoSupport.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlMapClientDaoSupport.class);
 
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
@@ -243,7 +244,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                     // It is essential that cancelUpdate is called if the
                     // cached content could not be rebuilt
                     cache.cancelUpdate(key);
-                    LOGGER.warn("refresh cancelled for " + key);
+                    LOGGER.warn("refresh cancelled for {}", key);
                 }
             }
         }

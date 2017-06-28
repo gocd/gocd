@@ -16,28 +16,29 @@
 
 package com.thoughtworks.go.agent.testhelpers;
 
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.AgentInstruction;
+import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.Work;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
-
 public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     public final static List<AgentRuntimeStatus> AGENT_STATUS = new ArrayList<>();
 
-    private static final Logger LOGGER = Logger.getLogger(FakeBuildRepositoryRemote.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FakeBuildRepositoryRemote.class);
 
     public static final String PIPELINE_NAME = "studios";
     public static final String PIPELINE_LABEL = "100";
@@ -64,17 +65,18 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     }
 
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
-        LOGGER.info("Current status of build instance with id " + jobIdentifier + " is " + jobState);
+        LOGGER.info("Current status of build instance with id {} is {}", jobIdentifier, jobState);
         if (jobState.isCompleted()) {
             buildResult.offer(Boolean.TRUE);
         }
     }
 
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-        LOGGER.info("Build result of project " + jobIdentifier + " is " + result);
+        LOGGER.info("Build result of project {} is {}", jobIdentifier, result);
     }
 
-    @Override public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobId, JobResult result) {
+    @Override
+    public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobId, JobResult result) {
         LOGGER.info("Completed Build");
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@ import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ public class GoConfigAdministrationController {
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
-    private static final org.apache.commons.logging.Log LOGGER = LogFactory.getLog(GoConfigAdministrationController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigAdministrationController.class);
 
     public GoConfigAdministrationController() {
     }
@@ -113,10 +114,10 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/POST/xml", method = RequestMethod.POST)
-    public ModelAndView postFileAsXml(@RequestParam("xmlFile")String xmlFile,
-                                      @RequestParam("md5")String md5,
+    public ModelAndView postFileAsXml(@RequestParam("xmlFile") String xmlFile,
+                                      @RequestParam("md5") String md5,
                                       HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if(!headerConstraint.isSatisfied(request)) {
+        if (!headerConstraint.isSatisfied(request)) {
             return JsonAction.jsonBadRequest(Collections.singletonMap("message", "Missing required header `Confirm`")).respond(response);
         }
 

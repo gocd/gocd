@@ -155,7 +155,7 @@ public class PluginsZip implements PluginChangeListener {
         boolean external = externalPlugins.canRead();
         if (!bundled || !external) {
             String folder = bundled ? externalPlugins.getAbsolutePath() : bundledPlugins.getAbsolutePath();
-            LOG.error(String.format("Could not read plugins. Please check access rights on files in folder: %s.", folder));
+            LOG.error("Could not read plugins. Please check access rights on files in folder: {}.", folder);
             throw new FileAccessRightsCheckException(String.format("Could not read plugins. Please make sure that the user running GoCD can access %s", folder));
         }
     }

@@ -45,7 +45,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,7 @@ public class PackageDefinitionService {
     private GoConfigService goConfigService;
     PackageRepositoryExtension packageRepositoryExtension;
 
-    public static final Logger LOGGER = Logger.getLogger(PackageDefinitionService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
 
     @Autowired
     public PackageDefinitionService(PackageRepositoryExtension packageRepositoryExtension, Localizer localizer, EntityHashingService entityHashingService, GoConfigService goConfigService) {

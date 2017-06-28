@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,16 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.Writer;
+import java.io.*;
 import java.util.Properties;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistrationProperties {
-    private static final Logger LOG = Logger.getLogger(AgentAutoRegistrationPropertiesImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentAutoRegistrationPropertiesImpl.class);
 
     public static final String AGENT_AUTO_REGISTER_KEY = "agent.auto.register.key";
     public static final String AGENT_AUTO_REGISTER_RESOURCES = "agent.auto.register.resources";

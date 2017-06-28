@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.CommandArgument;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.util.List;
 
 public abstract class AbstractTfsCommand extends SCMCommand implements TfsCommand {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractTfsCommand.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractTfsCommand.class);
 
     private final CommandArgument url;
     private final String domain;
@@ -86,9 +86,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
                 FileUtils.deleteQuietly(workDir);
             }
             setupWorkspace(workDir);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[TFS] Retrieving Files from Workspace %s, Working Folder %s, Revision %s ", workspace, workDir, revision));
-            }
+            LOGGER.debug("[TFS] Retrieving Files from Workspace {}, Working Folder {}, Revision {} ", workspace, workDir, revision);
             retrieveFiles(workDir, revision);
         } catch (Exception e) {
             String exceptionMessage = String.format("Failed while checking out into Working Folder: %s, Project Path: %s, Workspace: %s, Username: %s, Domain: %s, Root Cause: %s", workDir, projectPath,
@@ -104,9 +102,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     @Override
     public final List<Modification> latestModification(File workDir) {
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[TFS] History for Workspace: %s, Working Folder: %s, Latest Revision: null, RevToLoad: 1", workspace, workDir));
-            }
+            LOGGER.debug("[TFS] History for Workspace: {}, Working Folder: {}, Latest Revision: null, RevToLoad: 1", workspace, workDir);
             return latestInHistory();
         } catch (Exception e) {
             String message = String.format("[TFS] Failed while checking for latest modifications on Server: %s, Project Path: %s, Username: %s, Domain: %s", url,
@@ -120,9 +116,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     @Override
     public final List<Modification> modificationsSince(File workDir, Revision revision) {
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[TFS] Modification check for Workspace: %s, Working Folder %s, Revision %s ", workspace, workDir, revision));
-            }
+            LOGGER.debug("[TFS] Modification check for Workspace: {}, Working Folder {}, Revision {} ", workspace, workDir, revision);
             return modificationsSinceRevInHistory(revision);
         } catch (Exception e) {
             String message = String.format("Failed while checking for modifications since revision %s on Server: %s, Project Path: %s, Username: %s, Domain: %s,"
@@ -137,8 +131,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
 
     @Override
     public final void checkConnection() {
-        LOGGER.info(String.format("[TFS] Checking Connection: Server %s, Domain %s, User %s, Project Path %s",
-                url, domain, userName, projectPath));
+        LOGGER.info("[TFS] Checking Connection: Server {}, Domain {}, User {}, Project Path {}", url, domain, userName, projectPath);
         try {
             List<Modification> modifications = latestInHistory();
             if (modifications.isEmpty()) {
@@ -153,21 +146,17 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     }
 
     private void setupWorkspace(File workDir) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS] Initializing Workspace %s, Working Folder %s", workspace, workDir));
-        }
+        LOGGER.debug("[TFS] Initializing Workspace {}, Working Folder {}", workspace, workDir);
         initializeWorkspace(workDir);
     }
 
 
     private void clearMapping(File workDir) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS] Unmapping Project Path %s for Workspace %s, User %s ", projectPath, workspace, userName));
-        }
+        LOGGER.debug("[TFS] Unmapping Project Path {} for Workspace {}, User {} ", projectPath, workspace, userName);
         try {
             unMap(workDir);
         } catch (Exception e) {
-            LOGGER.warn(String.format("[TFS] Unmapping Project Path %s failed for Workspace %s, User %s", projectPath, workspace, userName), e);
+            LOGGER.warn("[TFS] Unmapping Project Path {} failed for Workspace {}, User {}", projectPath, workspace, userName, e);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
-    private static final Log LOG = LogFactory.getLog(DefaultAgentLauncherCreatorImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultAgentLauncherCreatorImpl.class);
 
     public static final String GO_AGENT_LAUNCHER_CLASS = "Go-Agent-Launcher-Class";
     public static final String GO_AGENT_LAUNCHER_LIB_DIR = "Go-Agent-Launcher-Lib-Dir";
@@ -86,7 +86,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
             int oneSec = 1000;
             sleepForAMoment();
 
-            LOG.info("Attempt No: " + (retryCount + 1) + " to cleanup launcher temp files");
+            LOG.info("Attempt No: {} to cleanup launcher temp files", retryCount + 1);
 
             FileUtils.deleteQuietly(inUseLauncher);
             JarUtil.cleanup(inUseLauncher.getName());

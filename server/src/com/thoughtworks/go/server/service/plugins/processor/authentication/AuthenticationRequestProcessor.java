@@ -29,7 +29,8 @@ import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
@@ -45,7 +46,7 @@ import static java.util.Arrays.asList;
 
 @Component
 public class AuthenticationRequestProcessor implements GoPluginApiRequestProcessor {
-    private static final Logger LOGGER = Logger.getLogger(AuthenticationRequestProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationRequestProcessor.class);
 
     public static final String AUTHENTICATE_USER_REQUEST = "go.processor.authentication.authenticate-user";
     private static final List<String> goSupportedVersions = asList("1.0");

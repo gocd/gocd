@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,16 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.apache.log4j.Logger.getLogger;
-
 @Component
 public class NotificationPluginRegistrar implements PluginChangeListener {
-    private static Logger LOGGER = getLogger(NotificationPluginRegistrar.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(NotificationPluginRegistrar.class);
 
     private NotificationExtension notificationExtension;
     private NotificationPluginRegistry notificationPluginRegistry;
@@ -62,7 +61,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
     private void checkNotificationTypes(GoPluginDescriptor pluginDescriptor, List<String> notificationsInterestedIn) {
         for (String notificationType : notificationsInterestedIn) {
             if (!NotificationExtension.VALID_NOTIFICATION_TYPES.contains(notificationType)) {
-                LOGGER.warn(String.format("Plugin '%s' is trying to register for '%s' which is not a valid notification type. Valid notification types are: %s", pluginDescriptor.id(), notificationType, NotificationExtension.VALID_NOTIFICATION_TYPES));
+                LOGGER.warn("Plugin '{}' is trying to register for '{}' which is not a valid notification type. Valid notification types are: {}", pluginDescriptor.id(), notificationType, NotificationExtension.VALID_NOTIFICATION_TYPES);
             }
         }
     }

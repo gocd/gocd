@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -25,10 +25,11 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArtifactsDiskCleaner extends DiskSpaceChecker {
-    private static final Logger LOGGER = Logger.getLogger(ArtifactsDiskCleaner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsDiskCleaner.class);
     private final Object triggerCleanup = new Object();
     private final Thread cleaner;
     private final ArtifactsService artifactService;
@@ -51,7 +52,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
                         deleteOldArtifacts();
                     }
                 } catch (Exception e) {
-                    LOGGER.error(String.format("Artifact disk cleanup task aborted. Error encountered: '%s'", e.getMessage()));//logging not tested
+                    LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
                     throw new RuntimeException(e);
                 }
             }
@@ -64,7 +65,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         Double requiredSpaceInGb = serverConfig.getPurgeUpto();
         if (serverConfig.isArtifactPurgingAllowed()) {
             double requiredSpace = requiredSpaceInGb * GoConstants.GIGA_BYTE;
-            LOGGER.info(String.format("Clearing old artifacts as the disk space is low. Current space: '%s'. Need to clear till we hit: '%s'.", availableSpace(), requiredSpace));
+            LOGGER.info("Clearing old artifacts as the disk space is low. Current space: '{}'. Need to clear till we hit: '{}'.", availableSpace(), requiredSpace);
             List<Stage> stages;
             int numberOfStagesPurged = 0;
             do {
@@ -81,7 +82,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
             if (availableSpace() < requiredSpace) {
                 LOGGER.warn("Ran out of stages to clear artifacts from but the disk space is still low");
             }
-            LOGGER.info(String.format("Finished clearing old artifacts. Deleted artifacts for '%s' stages. Current space: '%s'", numberOfStagesPurged, availableSpace()));
+            LOGGER.info("Finished clearing old artifacts. Deleted artifacts for '{}' stages. Current space: '{}'", numberOfStagesPurged, availableSpace());
         }
     }
 
@@ -100,7 +101,8 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         return serverConfig.isArtifactPurgingAllowed() ? new Double(serverConfig.getPurgeStart() * GoConstants.MEGABYTES_IN_GIGABYTE).longValue() : Integer.MAX_VALUE;
     }
 
-    @Override public OperationResult resultFor(OperationResult result) {
+    @Override
+    public OperationResult resultFor(OperationResult result) {
         return new ServerHealthStateOperationResult();
     }
 }

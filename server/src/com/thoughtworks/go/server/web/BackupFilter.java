@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class BackupFilter implements Filter {
             response.getWriter().print(content);
             resourceAsStream.close();
         } catch (IOException e) {
-            LOGGER.error(String.format("General IOException: %s", e.getMessage()));
+            LOGGER.error("General IOException: {}", e.getMessage());
         }
     }
 
@@ -127,7 +127,7 @@ public class BackupFilter implements Filter {
             }
 
         } catch (IOException e) {
-            LOGGER.error(String.format("General IOException: %s", e.getMessage()));
+            LOGGER.error("General IOException: {}", e.getMessage());
         }
         ((HttpServletResponse) response).setStatus(503);
     }
@@ -150,7 +150,7 @@ public class BackupFilter implements Filter {
         try {
             response.getWriter().print(json);
         } catch (IOException e) {
-            LOGGER.error(String.format("General IOException: %s", e.getMessage()));
+            LOGGER.error("General IOException: {}", e.getMessage());
         }
     }
 

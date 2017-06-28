@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +48,7 @@ import static java.lang.String.format;
 @Controller
 public class StageController {
 
-    private static final Logger LOGGER = Logger.getLogger(StageController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageController.class);
 
     private ScheduleService scheduleService;
     private Localizer localizer;
@@ -69,7 +70,7 @@ public class StageController {
                                    @RequestParam(value = "stageName") String stageName,
                                    HttpServletResponse response, HttpServletRequest request) {
 
-        if(!headerConstraint.isSatisfied(request)) {
+        if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
 
@@ -80,10 +81,10 @@ public class StageController {
         } catch (GoUnauthorizedException e) {
             return ResponseCodeView.create(HttpServletResponse.SC_UNAUTHORIZED, "");
         } catch (StageNotFoundException e) {
-            LOGGER.error(String.format("Error while rerunning %s/%s/%s", pipelineName, counterOrLabel, stageName), e);
+            LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, counterOrLabel, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (Exception e) {
-            LOGGER.error(String.format("Error while rerunning %s/%s/%s", pipelineName, counterOrLabel, stageName), e);
+            LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, counterOrLabel, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
@@ -91,7 +92,7 @@ public class StageController {
     @RequestMapping(value = "/**/cancel.json", method = RequestMethod.POST)
     public ModelAndView cancelViaPost(@RequestParam(value = "id") Long stageId, HttpServletResponse response,
                                       HttpServletRequest request) {
-        if(!headerConstraint.isSatisfied(request)) {
+        if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
 

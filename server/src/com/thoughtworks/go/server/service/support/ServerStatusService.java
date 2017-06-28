@@ -23,7 +23,8 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ import java.util.*;
 public class ServerStatusService {
     private SecurityService securityService;
     private List<ServerInfoProvider> providers = new ArrayList<>();
-    private static final Logger LOGGER = Logger.getLogger(ServerStatusService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerStatusService.class);
 
     @Autowired
     public ServerStatusService(SecurityService securityService, ServerInfoProvider... providerArray) throws IOException {

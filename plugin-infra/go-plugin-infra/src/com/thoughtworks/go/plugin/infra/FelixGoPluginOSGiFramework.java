@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.infra;
 
@@ -28,10 +28,11 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +48,7 @@ import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 @Component
 public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
-    private static Logger LOGGER = Logger.getLogger(FelixGoPluginOSGiFramework.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(FelixGoPluginOSGiFramework.class);
     private final PluginRegistry registry;
     private Framework framework;
     private SystemEnvironment systemEnvironment;
@@ -99,12 +100,12 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private Bundle getBundle(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
-        Bundle bundle =null;
+        Bundle bundle = null;
         try {
             bundle = framework.getBundleContext().installBundle("reference:" + bundleLocation.toURI());
             pluginDescriptor.setBundle(bundle);
             bundle.start();
-            if(pluginDescriptor.isInvalid()){
+            if (pluginDescriptor.isInvalid()) {
                 handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
                 return bundle;
             }
@@ -112,7 +113,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             return bundle;
         } catch (Exception e) {
             pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
-            LOGGER.error("Failed to load plugin: " + bundleLocation,e);
+            LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
             stopAndUninstallBundle(bundle, bundleLocation);
             throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
         }
@@ -126,13 +127,13 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private void stopAndUninstallBundle(Bundle bundle, File bundleLocation) {
-        if(bundle!=null){
+        if (bundle != null) {
             try {
                 bundle.stop();
                 bundle.uninstall();
             } catch (BundleException e) {
                 String stopFailMsg = "Failed to stop/uninstall bundle: " + bundleLocation;
-                LOGGER.error(stopFailMsg,e);
+                LOGGER.error(stopFailMsg, e);
                 throw new RuntimeException(stopFailMsg, e);
             }
         }
@@ -200,7 +201,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public <T> void doOnAllWithExceptionHandling(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> handler) {
         if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of " + serviceReferenceClass);
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return;
         }
         BundleContext bundleContext = framework.getBundleContext();
@@ -234,7 +235,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> action) {
         if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of " + serviceReferenceClass);
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return null;
         }
 
@@ -253,7 +254,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public <T> void doOnWithExceptionHandling(Class<T> serviceReferenceClass, String pluginId, Action<T> action, ExceptionHandler<T> handler) {
         if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of " + serviceReferenceClass);
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return;
         }
 
@@ -274,7 +275,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     public <T> void doOnAllWithExceptionHandlingForPlugin(Class<T> serviceReferenceClass, String pluginId, Action<T> action,
                                                           ExceptionHandler<T> handler) {
         if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of " + serviceReferenceClass);
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return;
         }
 
@@ -289,7 +290,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId) {
         if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of " + serviceReferenceClass);
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
             return false;
         }
 

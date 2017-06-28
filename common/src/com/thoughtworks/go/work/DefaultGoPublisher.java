@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.work;
 
@@ -29,12 +29,10 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-
-import static java.lang.String.format;
 
 public class DefaultGoPublisher implements GoPublisher {
     private GoArtifactsManipulator manipulator;
@@ -43,7 +41,7 @@ public class DefaultGoPublisher implements GoPublisher {
     private BuildRepositoryRemote remoteBuildRepository;
     private final AgentRuntimeInfo agentRuntimeInfo;
     private ConsoleOutputTransmitter consoleOutputTransmitter;
-    private static final Log LOG = LogFactory.getLog(DefaultGoPublisher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
     private String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
@@ -86,25 +84,22 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void stop() {
-        LOG.info("Stopping Transmission for " + jobIdentifier.toFullString());
+        LOG.info("Stopping Transmission for {}", jobIdentifier.toFullString());
         consoleOutputTransmitter.stop();
     }
 
     public void reportCurrentStatus(JobState state) {
-        LOG.info(format("%s is reporting status [%s] to Go Server for %s", agentIdentifier, state,
-                jobIdentifier.toFullString()));
+        LOG.info("{} is reporting status [{}] to Go Server for {}", agentIdentifier, state, jobIdentifier.toFullString());
         remoteBuildRepository.reportCurrentStatus(agentRuntimeInfo, jobIdentifier, state);
     }
 
     public void reportCompleting(JobResult result) {
-        LOG.info(String.format("%s is reporting build result [%s] to Go Server for %s", agentIdentifier, result,
-                jobIdentifier.toFullString()));
+        LOG.info("{} is reporting build result [{}] to Go Server for {}", agentIdentifier, result, jobIdentifier.toFullString());
         remoteBuildRepository.reportCompleting(agentRuntimeInfo, jobIdentifier, result);
     }
 
     public void reportCompleted(JobResult result) {
-        LOG.info(String.format("%s is reporting build result [%s] to Go Server for %s", agentIdentifier, result,
-                jobIdentifier.toFullString()));
+        LOG.info("{} is reporting build result [{}] to Go Server for {}", agentIdentifier, result, jobIdentifier.toFullString());
         remoteBuildRepository.reportCompleted(agentRuntimeInfo, jobIdentifier, result);
         reportCompletedAction();
     }
@@ -124,9 +119,7 @@ public class DefaultGoPublisher implements GoPublisher {
     public void reportAction(String tag, String action) {
         String message = String.format("[%s] %s %s on %s [%s]", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
                 agentIdentifier.getHostName(), currentWorkingDirectory);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(message);
-        }
+        LOG.debug(message);
         taggedConsumeLine(tag, message);
     }
 

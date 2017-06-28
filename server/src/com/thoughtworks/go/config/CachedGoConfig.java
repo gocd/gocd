@@ -172,7 +172,7 @@ public class CachedGoConfig {
                     entityConfigChangedListener.onEntityConfigChange(saveResult.getEntityConfig());
                     LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {
-                    LOGGER.error("failed to fire config changed event for listener: " + listener, e);
+                    LOGGER.error("failed to fire config changed event for listener: {}", listener, e);
                 }
             }
         }
@@ -228,7 +228,7 @@ public class CachedGoConfig {
             try {
                 listener.onConfigChange(newCruiseConfig);
             } catch (Exception e) {
-                LOGGER.error("Failed to fire config changed event for listener: " + listener, e);
+                LOGGER.error("Failed to fire config changed event for listener: {}", listener, e);
             }
         }
         LOGGER.info("Finished notifying all listeners");

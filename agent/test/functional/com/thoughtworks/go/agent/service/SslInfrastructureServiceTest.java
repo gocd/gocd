@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -37,6 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +49,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
 public class SslInfrastructureServiceTest {
-    private static final Logger LOGGER = Logger.getLogger(SslInfrastructureServiceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SslInfrastructureServiceTest.class);
     private final Mockery context = new ClassMockery();
     private SslInfrastructureService sslInfrastructureService;
     private boolean remoteCalled;
@@ -128,7 +129,7 @@ public class SslInfrastructureServiceTest {
             {
                 try {
                     allowing(client).reset();
-                } catch (Exception e){
+                } catch (Exception e) {
                     throw bomb(e);
                 }
             }

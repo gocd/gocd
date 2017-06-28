@@ -21,7 +21,8 @@ import com.thoughtworks.go.server.util.LastOperationTime;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.*;
@@ -35,7 +36,7 @@ public class ArtifactSizeEnforcementFilter implements Filter {
     private SystemEnvironment systemEnvironment;
     private LastOperationTime lastOperationTime;
     private long totalAvailableSpace;
-    private static final Logger LOG = Logger.getLogger(ArtifactSizeEnforcementFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArtifactSizeEnforcementFilter.class);
 
 
     @Autowired
@@ -62,9 +63,7 @@ public class ArtifactSizeEnforcementFilter implements Filter {
 
         if (!StringUtil.isBlank(headerValue) && Long.valueOf(headerValue) * 2 > totalAvailableSpace) {
             Long artifactSize = Long.valueOf(headerValue);
-            String logMsg = String.format("[Artifact Upload] Artifact upload (Required Size %s * 2 = %s) was denied by the server because it has run out of disk space (Available Space %s).",
-                    artifactSize, artifactSize * 2, totalAvailableSpace);
-            LOG.error(logMsg);
+            LOG.error("[Artifact Upload] Artifact upload (Required Size {} * 2 = {}) was denied by the server because it has run out of disk space (Available Space {}).", artifactSize, artifactSize * 2, totalAvailableSpace);
             res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         } else {
             chain.doFilter(req, response);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,24 @@ package com.thoughtworks.go.agent.bootstrapper.osx;
 
 import com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * worker thread for Mac only
  */
-public class MacBootstrapperThread extends Thread{
-    private static final Log LOG = LogFactory.getLog(MacBootstrapperThread.class);
+public class MacBootstrapperThread extends Thread {
+    private static final Logger LOG = LoggerFactory.getLogger(MacBootstrapperThread.class);
     private final AgentBootstrapperArgs bootstrapperArgs;
     private AgentBootstrapper bootstrapper;
 
     public MacBootstrapperThread(AgentBootstrapperArgs bootstrapperArgs) {
         this.bootstrapperArgs = bootstrapperArgs;
-        setName("MacBootstrapper"+getName() +" "+ this.bootstrapperArgs);
+        setName("MacBootstrapper" + getName() + " " + this.bootstrapperArgs);
     }
 
     public void run() {
-        LOG.info("Launching Agent Bootstrapper for server " + bootstrapperArgs);
+        LOG.info("Launching Agent Bootstrapper for server {}", bootstrapperArgs);
         bootstrapper = new AgentBootstrapper();
         bootstrapper.go(true, bootstrapperArgs);
     }

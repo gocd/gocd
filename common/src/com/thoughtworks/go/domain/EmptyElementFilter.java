@@ -1,24 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 
 package com.thoughtworks.go.domain;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -33,7 +35,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class EmptyElementFilter extends XMLFilterImpl {
 
-    private static final Logger LOG = Logger.getLogger(EmptyElementFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EmptyElementFilter.class);
 
     private final String tagName;
 
@@ -53,6 +55,7 @@ public class EmptyElementFilter extends XMLFilterImpl {
 
     /**
      * Constructor for EmptyElementFilter.
+     *
      * @param arg0
      */
     public EmptyElementFilter(String tagName, XMLReader arg0) {
@@ -61,7 +64,7 @@ public class EmptyElementFilter extends XMLFilterImpl {
     }
 
     /**
-     * @see org.xml.sax.ContentHandler#characters(char[], int, int)
+     * @see ContentHandler#characters(char[], int, int)
      */
     public void characters(char[] ch, int start, int length) throws SAXException {
         if (checkingTag) {
@@ -71,22 +74,20 @@ public class EmptyElementFilter extends XMLFilterImpl {
     }
 
     /**
-     * @see org.xml.sax.ContentHandler#endElement(String, String, String)
+     * @see ContentHandler#endElement(String, String, String)
      */
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (checkingTag) {
             // localName must be tagName now, and we're dealing with an empty tag
             checkingTag = false;
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Skipping empty <" + localName + ">-tag");
-            }
+            LOG.debug("Skipping empty <{}>-tag", localName);
         } else {
             super.endElement(uri, localName, qName);
         }
     }
 
     /**
-     * @see org.xml.sax.ContentHandler#startElement(String, String, String, org.xml.sax.Attributes)
+     * @see ContentHandler#startElement(String, String, String, Attributes)
      */
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         if (checkingTag) {

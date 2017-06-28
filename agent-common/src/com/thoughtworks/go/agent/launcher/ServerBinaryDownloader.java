@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SslVerificationMode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -32,12 +30,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class ServerBinaryDownloader implements Downloader {
 
-    private static final Log LOG = LogFactory.getLog(ServerBinaryDownloader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerBinaryDownloader.class);
     private final ServerUrlGenerator urlGenerator;
     private String md5 = null;
     private String sslPort;
@@ -68,22 +68,20 @@ public class ServerBinaryDownloader implements Downloader {
     public boolean downloadIfNecessary(final DownloadableFile downloadableFile) {
         boolean updated = false;
         boolean downloaded = false;
-        while (!updated) {
-            try {
-                fetchUpdateCheckHeaders(downloadableFile);
-                if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
-                    PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
-                    downloaded = download(downloadableFile);
-                    timer.stop();
-                }
-                updated = true;
-            } catch (Exception e) {
-                LOG.error("Couldn't update " + downloadableFile + ". Sleeping for 1m. Error: ", e);
-                try {
-                    int period = Integer.parseInt(System.getProperty("sleep.for.download", "60000"));
-                    Thread.sleep(period);
-                } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
+        while (!updated) try {
+            fetchUpdateCheckHeaders(downloadableFile);
+            if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
+                PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
+                downloaded = download(downloadableFile);
+                timer.stop();
             }
+            updated = true;
+        } catch (Exception e) {
+            LOG.error("Couldn't update {}. Sleeping for 1m. Error: ", downloadableFile, e);
+            try {
+                int period = Integer.parseInt(System.getProperty("sleep.for.download", "60000"));
+                Thread.sleep(period);
+            } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
         }
         return downloaded;
     }
@@ -105,7 +103,7 @@ public class ServerBinaryDownloader implements Downloader {
 
     protected synchronized boolean download(final DownloadableFile downloadableFile) throws Exception {
         File toDownload = downloadableFile.getLocalFile();
-        LOG.info("Downloading " + toDownload);
+        LOG.info("Downloading {}", toDownload);
         String url = downloadableFile.url(urlGenerator);
         final HttpRequestBase request = new HttpGet(url);
         request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
@@ -120,7 +118,7 @@ public class ServerBinaryDownloader implements Downloader {
             handleInvalidResponse(response, url);
             try (BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(downloadableFile.getLocalFile()))) {
                 response.getEntity().writeTo(outStream);
-                LOG.info("Piped the stream to " + downloadableFile);
+                LOG.info("Piped the stream to {}", downloadableFile);
             }
         }
         return true;
@@ -132,7 +130,7 @@ public class ServerBinaryDownloader implements Downloader {
             out.print("Problem accessing server at ");
             out.println(url);
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                LOG.info("Response code: " + response.getStatusLine().getStatusCode());
+                LOG.info("Response code: {}", response.getStatusLine().getStatusCode());
                 out.println("Few Possible Causes: ");
                 out.println("1. Your Go Server is down or not accessible.");
                 out.println("2. This agent might be incompatible with your Go Server. Please fix the version mismatch between Go Server and Go Agent.");

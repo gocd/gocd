@@ -30,7 +30,8 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ import static java.lang.Double.parseDouble;
 
 @Service
 public class DefaultPluginManager implements PluginManager {
-    private static final Logger LOGGER = Logger.getLogger(DefaultPluginManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPluginManager.class);
     private final DefaultPluginJarLocationMonitor monitor;
     private DefaultPluginRegistry registry;
     private final DefaultPluginJarChangeListener defaultPluginJarChangeListener;

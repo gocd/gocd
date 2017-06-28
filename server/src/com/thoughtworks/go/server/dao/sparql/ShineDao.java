@@ -31,7 +31,8 @@ import com.thoughtworks.studios.shine.cruise.stage.StagesQuery;
 import com.thoughtworks.studios.shine.semweb.BoundVariables;
 import com.thoughtworks.studios.shine.xunit.XUnitOntology;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -42,7 +43,7 @@ import java.util.List;
  */
 
 public class ShineDao {
-    private static final Logger LOGGER = Logger.getLogger(ShineDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShineDao.class);
     private StagesQuery stagesQuery;
     private final StageService stageService;
 
@@ -68,8 +69,7 @@ public class ShineDao {
             populateUsers(stageTestRuns, getCommitters(failedStageIds));
             stageTestRuns.removeDuplicateTestEntries();
             return stageTestRuns;
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             LOGGER.error("can not retrieve shine test history!", e);
             result.connectionError(LocalizedMessage.unableToRetrieveFailureResults());
             return new StageTestRuns(0, 0, 0);
@@ -120,7 +120,7 @@ public class ShineDao {
                         + "  ?testCase a xunit:TestCase .\n"
                         + "  OPTIONAL {\n"
                         + "     ?testCase xunit:hasFailure ?failure .\n"
-                        + "     ?failure xunit:isError ?error .\n" 
+                        + "     ?failure xunit:isError ?error .\n"
                         + "  }"
                         + "}";
 

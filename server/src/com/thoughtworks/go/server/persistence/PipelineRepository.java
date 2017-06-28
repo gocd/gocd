@@ -33,11 +33,12 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -48,7 +49,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PipelineRepository extends HibernateDaoSupport {
-    private static final Logger LOGGER = Logger.getLogger(PipelineRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRepository.class);
     private final QueryExtensions queryExtensions;
     private GoCache goCache;
 
@@ -105,7 +106,7 @@ public class PipelineRepository extends HibernateDaoSupport {
                 List<Object[]> matches = (List<Object[]>) query.list();
                 long duration = System.currentTimeMillis() - startedAt;
                 if (duration > 1000) {
-                    LOGGER.warn("updating in memory pipeline-timeline took: " + duration + " ms");
+                    LOGGER.warn("updating in memory pipeline-timeline took: {} ms", duration);
                 }
                 return matches;
             }

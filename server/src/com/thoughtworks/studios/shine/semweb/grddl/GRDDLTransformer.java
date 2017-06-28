@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ import com.thoughtworks.studios.shine.ShineRuntimeException;
 import com.thoughtworks.studios.shine.XSLTTransformerExecutor;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
 import org.dom4j.io.SAXReader;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -35,7 +36,7 @@ import java.io.StringReader;
 public class GRDDLTransformer {
     private final XSLTTransformerRegistry xsltTransformerRegistry;
     private final String key;
-    private final static Logger LOGGER = Logger.getLogger(GRDDLTransformer.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GRDDLTransformer.class);
 
 
     public GRDDLTransformer(XSLTTransformerRegistry xsltTransformerRegistry, String key) {
@@ -60,10 +61,10 @@ public class GRDDLTransformer {
             graph.addTriplesFromRDFXMLAbbrev(new StringReader(result.getDocument().asXML()));
             return graph;
         } catch (ShineRuntimeException e) {
-            LOGGER.error("Could not convert to a graph. The document was: \n" + result.getDocument().asXML(), e);
+            LOGGER.error("Could not convert to a graph. The document was: \n{}", result.getDocument().asXML(), e);
             throw e;
         } catch (TransformerException e) {
-            LOGGER.warn("Could not perform grddl transform. The document was: \n" + result.getDocument().asXML(), e);
+            LOGGER.warn("Could not perform grddl transform. The document was: \n{}", result.getDocument().asXML(), e);
             throw new GrddlTransformException(e);
         }
     }

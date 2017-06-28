@@ -18,7 +18,8 @@ package com.thoughtworks.go.server.util;
 
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.thoughtworks.go.CurrentGoCDVersion;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -28,17 +29,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServerVersion implements InitializingBean {
 
-    private static final Logger LOG = Logger.getLogger(ServerVersion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerVersion.class);
 
     public String version() {
         return CurrentGoCDVersion.getInstance().formatted();
     }
 
     public void afterPropertiesSet() throws Exception {
-        LOG.info(String.format("[Startup] Go Version: %s", version()));
-        LOG.info(String.format("[Startup] PID: %s", new JavaSysMon().currentPid()));
-        LOG.info(String.format("[Startup] JVM properties: %s", System.getProperties()));
-        LOG.info(String.format("[Startup] Environment Variables: %s", System.getenv()));
+        LOG.info("[Startup] Go Version: {}", version());
+        LOG.info("[Startup] PID: {}", new JavaSysMon().currentPid());
+        LOG.info("[Startup] JVM properties: {}", System.getProperties());
+        LOG.info("[Startup] Environment Variables: {}", System.getenv());
     }
 
 }

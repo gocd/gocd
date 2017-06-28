@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.command.StreamConsumer;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.ConsoleTransmission;

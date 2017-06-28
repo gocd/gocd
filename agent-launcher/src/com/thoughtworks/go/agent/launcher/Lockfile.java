@@ -1,30 +1,30 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.launcher;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class Lockfile implements Runnable {
-    private static final Log LOG = LogFactory.getLog(Lockfile.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Lockfile.class);
 
     static final String TOUCH_FREQUENCY_PROPERTY = "lockfile.touch.frequency.mins";
     static final String SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY = "lockfile.sleep.before.lastmodified.check.secs";
@@ -69,7 +69,7 @@ public class Lockfile implements Runnable {
 
     private void sleepForSomeTime() {
         try {
-            LOG.info("Sleeping for " + sleepTimeBeforeLastModifiedCheck + " secs to before 'last modified check'...");
+            LOG.info("Sleeping for {} secs to before 'last modified check'...", sleepTimeBeforeLastModifiedCheck);
             Thread.sleep(sleepTimeBeforeLastModifiedCheck);
         } catch (InterruptedException e) {
         }
@@ -99,7 +99,7 @@ public class Lockfile implements Runnable {
     }
 
     public void run() {
-        LOG.info("Using lock file: " + lockFile.getAbsolutePath());
+        LOG.info("Using lock file: {}", lockFile.getAbsolutePath());
         do {
             try {
                 touch();
@@ -116,7 +116,7 @@ public class Lockfile implements Runnable {
         try {
             deleteLockFile();
         } catch (Exception e) {
-            LOG.error("Error deleting lock file at " + lockFile.getAbsolutePath(), e);
+            LOG.error("Error deleting lock file at {}", lockFile.getAbsolutePath(), e);
         }
     }
 
@@ -134,12 +134,12 @@ public class Lockfile implements Runnable {
             return;
         }
         if (!lockFile.exists()) {
-            LOG.warn("No lock file found at " + lockFile.getAbsolutePath());
+            LOG.warn("No lock file found at {}", lockFile.getAbsolutePath());
             return;
         }
         if (!lockFile.delete()) {
-            LOG.error("Unable to delete lock file at " + lockFile.getAbsolutePath());
-        } 
+            LOG.error("Unable to delete lock file at {}", lockFile.getAbsolutePath());
+        }
     }
 
     private void waitForTouchLoopThread() {

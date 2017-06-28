@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.util.SslVerificationMode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class AgentBootstrapperBackwardCompatibility {
-    private static final Log LOG = LogFactory.getLog(AgentBootstrapperBackwardCompatibility.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrapperBackwardCompatibility.class);
 
     private final Map context;
 

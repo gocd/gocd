@@ -63,7 +63,7 @@ public class CRPluggableScmMaterialTest extends CRBaseTest<CRPluggableScmMateria
         String json = gson.toJson(value);
 
         CRPluggableScmMaterial deserializedValue = (CRPluggableScmMaterial)gson.fromJson(json,CRMaterial.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 

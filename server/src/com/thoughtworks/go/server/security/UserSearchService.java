@@ -27,7 +27,8 @@ import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +50,7 @@ public class UserSearchService {
     private AuthenticationPluginRegistry authenticationPluginRegistry;
     private AuthenticationExtension authenticationExtension;
 
-    private static final Logger LOGGER = Logger.getLogger(UserSearchService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserSearchService.class);
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
 
     @Autowired
@@ -89,7 +90,7 @@ public class UserSearchService {
                 result.setMessage(LocalizedMessage.string("NOT_ALL_RESULTS_SHOWN"));
                 users = ex.getUsers();
             } catch (Exception ex) {
-                LOGGER.error(String.format("User search for %s on ldap failed with Exception.", searchText), ex);
+                LOGGER.error("User search for {} on ldap failed with Exception.", searchText, ex);
                 if (passwordSearchFailed) {
                     result.badRequest(LocalizedMessage.string("USER_SEARCH_FAILED"));
                 } else {
@@ -112,7 +113,7 @@ public class UserSearchService {
         } catch (Exception e) {
             passwordSearchFailed = true;
             result.setMessage(LocalizedMessage.string("PASSWORD_SEARCH_FAILED"));
-            LOGGER.error(String.format("User search for %s on password failed with IOException.", searchText), e);
+            LOGGER.error("User search for {} on password failed with IOException.", searchText, e);
         }
         return passwordSearchFailed;
     }
@@ -130,7 +131,7 @@ public class UserSearchService {
                     }
                 }
             } catch (Exception e) {
-                LOGGER.warn("Error occurred while performing user search using plugin: " + pluginId, e);
+                LOGGER.warn("Error occurred while performing user search using plugin: {}", pluginId, e);
             }
         }
         userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));

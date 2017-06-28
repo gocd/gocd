@@ -26,7 +26,8 @@ import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,7 @@ import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAnd
 @Component
 public class ConsoleService {
 
-    public static final Logger LOGGER = Logger.getLogger(ConsoleService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
     private ArtifactDirectoryChooser chooser;
     public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
     private ArtifactsDirHolder artifactsDirHolder;
@@ -81,16 +82,14 @@ public class ConsoleService {
         File parentFile = dest.getParentFile();
         parentFile.mkdirs();
 
-        LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
+        LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(dest, dest.exists()))) {
             IOUtils.copy(in, out);
         } catch (IOException e) {
-            LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
+            LOGGER.error("Failed to update console log at : [{}]", dest.getAbsolutePath(), e);
             return false;
         }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Console log [" + dest.getAbsolutePath() + "] saved.");
-        }
+        LOGGER.trace("Console log [{}] saved.", dest.getAbsolutePath());
         return true;
     }
 

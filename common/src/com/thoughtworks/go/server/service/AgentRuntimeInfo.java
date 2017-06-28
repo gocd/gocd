@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.Serializable;
@@ -34,7 +35,7 @@ import java.io.Serializable;
 import static java.lang.String.format;
 
 public class AgentRuntimeInfo implements Serializable {
-    private static Logger LOGGER = Logger.getLogger(AgentRuntimeInfo.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AgentRuntimeInfo.class);
 
     @Expose
     private AgentIdentifier identifier;
@@ -220,10 +221,7 @@ public class AgentRuntimeInfo implements Serializable {
     public static long usableSpace(String currentWorkingDir) {
         File file = new File(currentWorkingDir, "pipelines");
         if (!file.exists()) {
-            LOGGER.warn(
-                    "the [" + file.getAbsolutePath() + "] should be created when agent starts up, "
-                            + "but it seems missing at the moment. "
-                            + "Cruise should be able to automatically create it later");
+            LOGGER.warn("the [{}] should be created when agent starts up, but it seems missing at the moment. Cruise should be able to automatically create it later", file.getAbsolutePath());
         }
         return file.getUsableSpace();
     }

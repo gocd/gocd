@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.controller;
 
@@ -25,7 +25,8 @@ import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +46,7 @@ public class PropertiesController {
     private final RestfulService restfulService;
     private final PipelineService pipelineService;
     private HeaderConstraint headerConstraint;
-    private static final Logger LOGGER = Logger.getLogger(PropertiesController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesController.class);
 
     public static final String INVALID_VALUE =
             "Unable to set property with invalid characters (must be numbers, letters, or _ - . /) or a valid URI";
@@ -62,16 +63,16 @@ public class PropertiesController {
     }
 
     @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
-    public void setProperty(@RequestParam("pipelineName")String pipelineName,
-                            @RequestParam("pipelineLabel")String pipelineLabel,
-                            @RequestParam("stageName")String stageName,
-                            @RequestParam("stageCounter")String stageCounter,
-                            @RequestParam("jobName")String buildName,
-                            @RequestParam("property")String property,
-                            @RequestParam("value")String value,
+    public void setProperty(@RequestParam("pipelineName") String pipelineName,
+                            @RequestParam("pipelineLabel") String pipelineLabel,
+                            @RequestParam("stageName") String stageName,
+                            @RequestParam("stageCounter") String stageCounter,
+                            @RequestParam("jobName") String buildName,
+                            @RequestParam("property") String property,
+                            @RequestParam("value") String value,
                             HttpServletResponse response, HttpServletRequest request) throws Exception {
 
-        if(!headerConstraint.isSatisfied(request)) {
+        if (!headerConstraint.isSatisfied(request)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
             return;
         }
@@ -89,11 +90,11 @@ public class PropertiesController {
     }
 
     @RequestMapping("/repository/restful/properties/jobs/search")
-    public ModelAndView jobsSearch(@RequestParam("pipelineName")String pipelineName,
-                                   @RequestParam("stageName")String stageName,
-                                   @RequestParam("jobName")String jobName,
-                                   @RequestParam(value = "limitPipeline", required = false)String limitPipeline,
-                                   @RequestParam(value = "limitCount", required = false)Integer limitCount,
+    public ModelAndView jobsSearch(@RequestParam("pipelineName") String pipelineName,
+                                   @RequestParam("stageName") String stageName,
+                                   @RequestParam("jobName") String jobName,
+                                   @RequestParam(value = "limitPipeline", required = false) String limitPipeline,
+                                   @RequestParam(value = "limitCount", required = false) Integer limitCount,
                                    HttpServletResponse response) throws Exception {
 
         Long limitPipelineId = null;
@@ -127,13 +128,13 @@ public class PropertiesController {
 
     @RequestMapping("/repository/restful/properties/job/search")
     public ModelAndView jobSearch(
-            @RequestParam("pipelineName")String pipelineName,
-            @RequestParam("pipelineLabel")String pipelineLabel,
-            @RequestParam("stageName")String stageName,
-            @RequestParam("stageCounter")String stageCounter,
-            @RequestParam("jobName")String buildName,
-            @RequestParam(value = "type", required = false)String type,
-            @RequestParam(value = "property", required = false)String propertyKey,
+            @RequestParam("pipelineName") String pipelineName,
+            @RequestParam("pipelineLabel") String pipelineLabel,
+            @RequestParam("stageName") String stageName,
+            @RequestParam("stageCounter") String stageCounter,
+            @RequestParam("jobName") String buildName,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "property", required = false) String propertyKey,
             HttpServletResponse response) throws Exception {
         JobIdentifier jobIdentifier;
         try {

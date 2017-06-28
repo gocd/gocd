@@ -1,36 +1,38 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.database;
-
-import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-import javax.sql.DataSource;
 
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.server.util.H2EventListener;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.log4j.Logger;
 import org.h2.tools.Server;
+import org.h2.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
 
 import static com.thoughtworks.go.server.util.SqlUtil.joinWithQuotesForSql;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -39,7 +41,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands database administration
  */
 public class H2Database implements Database {
-    private static final Logger LOG = Logger.getLogger(H2Database.class);
+    private static final Logger LOG = LoggerFactory.getLogger(H2Database.class);
     static final String DIALECT_H2 = "org.hibernate.dialect.H2Dialect";
 
     private final H2Configuration configuration;
@@ -111,11 +113,11 @@ public class H2Database implements Database {
                 String url = String.format("jdbc:h2:tcp://%s:%s/%s", configuration.getHost(),
                         configuration.getPort(), configuration.getName());
                 configureDataSource(source, url);
-                LOG.info("Creating debug data source on port=" + configuration.getPort());
+                LOG.info("Creating debug data source on port={}", configuration.getPort());
             } else {
                 String url = dburl(mvccEnabled);
                 configureDataSource(source, url);
-                LOG.info("Creating data source with url=" + url);
+                LOG.info("Creating data source with url={}", url);
             }
             this.dataSource = source;
         }
@@ -125,7 +127,7 @@ public class H2Database implements Database {
     private void configureDataSource(BasicDataSource source, String url) {
         String databaseUsername = configuration.getUser();
         String databasePassword = configuration.getPassword();
-        LOG.info(String.format("[db] Using connection configuration %s [User: %s]", url, databaseUsername));
+        LOG.info("[db] Using connection configuration {} [User: {}]", url, databaseUsername);
         source.setDriverClassName("org.h2.Driver");
         source.setUrl(url);
         source.setUsername(databaseUsername);
@@ -221,7 +223,7 @@ public class H2Database implements Database {
                 return "WITH LINK(id) AS ( "
                         + "  SELECT id "
                         + "     FROM pipelines "
-                        + "     WHERE name = " + org.h2.util.StringUtils.quoteStringSQL(
+                        + "     WHERE name = " + StringUtils.quoteStringSQL(
                         pipelineName)  // using string concatenation because Hibernate does not seem to be able to replace named or positional parameters here
                         + "         AND counter >= " + fromCounter
                         + "         AND counter <= " + toCounter
@@ -252,7 +254,7 @@ public class H2Database implements Database {
                         + ")"
                         + "SELECT id, name, lookedUpId FROM link";
             }
-            
+
             @Override
             public String retrievePipelineTimeline() {
                 return "SELECT CAST(p.name AS VARCHAR), p.id AS p_id, p.counter, m.modifiedtime, "

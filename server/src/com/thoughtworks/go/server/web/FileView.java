@@ -1,25 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.View;
 
@@ -35,7 +36,7 @@ import java.util.zip.Deflater;
 
 public class FileView implements View, ServletContextAware {
 
-    private static final Logger LOGGER = Logger.getLogger(FileView.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileView.class);
 
     private ServletContext servletContext;
     public static final String NEED_TO_ZIP = "need_to_zip";
@@ -70,7 +71,7 @@ public class FileView implements View, ServletContextAware {
         out.flush();
     }
 
-     void setContentLength(boolean needToZip, File file, HttpServletResponse response) {
+    void setContentLength(boolean needToZip, File file, HttpServletResponse response) {
         if (!needToZip) {
             response.addHeader("Content-Length", Long.toString(file.length()));
         }
@@ -105,13 +106,13 @@ public class FileView implements View, ServletContextAware {
     }
 
     private void handleFileWithLogging(HttpServletResponse httpServletResponse, File file, boolean needToZip) throws Exception {
-        LOGGER.info(String.format("[Artifact Download] About to download: %s. ShouldZip? = %s", file.getAbsolutePath(), needToZip));
+        LOGGER.info("[Artifact Download] About to download: {}. ShouldZip? = {}", file.getAbsolutePath(), needToZip);
         long before = System.currentTimeMillis();
 
         handleFile(file, needToZip, httpServletResponse);
 
         long timeTaken = System.currentTimeMillis() - before;
-        LOGGER.info(String.format("[Artifact Download] Finished downloading: %s. ShouldZip? = %s. The time taken is: %sms", file.getAbsolutePath(), needToZip, timeTaken));
+        LOGGER.info("[Artifact Download] Finished downloading: {}. ShouldZip? = {}. The time taken is: {}ms", file.getAbsolutePath(), needToZip, timeTaken);
     }
 
 }

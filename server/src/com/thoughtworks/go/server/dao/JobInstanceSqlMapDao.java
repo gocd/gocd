@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@ import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
@@ -55,7 +56,7 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 @SuppressWarnings("unchecked")
 @Component
 public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobInstanceDao, JobStatusListener {
-    private static final Logger LOG = Logger.getLogger(JobInstanceSqlMapDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobInstanceSqlMapDao.class);
     private Cache cache;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private GoCache goCache;
@@ -197,7 +198,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         }
         environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
 
-        if (plan.requiresElasticAgent()){
+        if (plan.requiresElasticAgent()) {
             jobAgentMetadataDao.save(new JobAgentMetadata(jobId, plan.getElasticProfile()));
         }
     }
@@ -215,7 +216,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job));
         plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
         JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(plan.getJobId());
-        if (jobAgentMetadata != null){
+        if (jobAgentMetadata != null) {
             plan.setElasticProfile(jobAgentMetadata.elasticProfile());
         }
     }
@@ -296,7 +297,8 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
+                    @Override
+                    public void afterCommit() {
                         // Methods not extracted in order to make synchronization visible.
                         synchronized (cacheKeyForJobPlan(jobInstance.getId())) {
                             removeCachedJobPlan(jobInstance);
@@ -333,7 +335,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     private void logIfJobIsCompleted(JobInstance jobInstance) {
         JobState currentState = getCurrentState(jobInstance.getId());
-        if(currentState.isCompleted()) {
+        if (currentState.isCompleted()) {
             String message = String.format(
                     "State change for a completed Job is not allowed. Job %s is currently State=%s, Result=%s",
                     jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getResult());
@@ -343,7 +345,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     private JobState getCurrentState(long jobId) {
         String state = (String) getSqlMapClientTemplate().queryForObject("currentJobState", jobId);
-        if (state==null) {
+        if (state == null) {
             return JobState.Unknown;
         }
         return JobState.valueOf(state);
@@ -382,24 +384,24 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return new JobInstances(results);
     }
 
-	public int getJobHistoryCount(String pipelineName, String stageName, String jobName) {
-		Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).and("jobConfigName", jobName).asMap();
-		Integer count = (Integer) getSqlMapClientTemplate().queryForObject("getJobHistoryCount", toGet);
-		return count;
-	}
+    public int getJobHistoryCount(String pipelineName, String stageName, String jobName) {
+        Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).and("jobConfigName", jobName).asMap();
+        Integer count = (Integer) getSqlMapClientTemplate().queryForObject("getJobHistoryCount", toGet);
+        return count;
+    }
 
-	public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset) {
-		Map params = new HashMap();
-		params.put("pipelineName", pipelineName);
-		params.put("stageName", stageName);
-		params.put("jobConfigName", jobConfigName);
-		params.put("count", count);
-		params.put("offset", offset);
+    public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset) {
+        Map params = new HashMap();
+        params.put("pipelineName", pipelineName);
+        params.put("stageName", stageName);
+        params.put("jobConfigName", jobConfigName);
+        params.put("count", count);
+        params.put("offset", offset);
 
-		List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
+        List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
 
-		return new JobInstances(results);
-	}
+        return new JobInstances(results);
+    }
 
     public List<JobPlan> orderedScheduledBuilds() {
         List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
@@ -484,7 +486,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public void jobStatusChanged(final JobInstance job) {
-        if(job.isRescheduled()) {
+        if (job.isRescheduled()) {
             goCache.remove(cacheKeyForOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName()));
         }
     }

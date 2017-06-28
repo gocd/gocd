@@ -21,18 +21,16 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static java.lang.String.format;
-import static org.apache.log4j.Logger.getLogger;
-
 @Component
 public class PluginSettingsMetadataLoader implements PluginChangeListener {
-    private static final Logger LOGGER = getLogger(PluginSettingsMetadataLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginSettingsMetadataLoader.class);
     private final List<GoPluginExtension> extensions;
     private PluginSettingsMetadataStore metadataStore = PluginSettingsMetadataStore.getInstance();
 
@@ -74,7 +72,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
             }
             metadataStore.addMetadataFor(pluginId, configuration, view);
         } catch (Exception e) {
-            LOGGER.error(format("Failed to fetch Plugin Settings metadata for plugin : %s", pluginId), e);
+            LOGGER.error("Failed to fetch Plugin Settings metadata for plugin : {}", pluginId, e);
         }
     }
 }

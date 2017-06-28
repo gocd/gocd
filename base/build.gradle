@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ dependencies {
   }
   compile group: 'joda-time', name: 'joda-time', version: '2.3'
   compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
-  compile group: 'log4j', name: 'log4j', version: '1.2.17'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'

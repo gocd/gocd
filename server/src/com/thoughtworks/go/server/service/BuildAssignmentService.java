@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -25,7 +24,6 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.domain.BuildComposer;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -103,7 +101,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         return new EntityConfigChangedListener<PipelineConfig>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-                LOGGER.info(String.format("[Configuration Changed] Removing deleted jobs for pipeline %s.", pipelineConfig.name()));
+                LOGGER.info("[Configuration Changed] Removing deleted jobs for pipeline {}.", pipelineConfig.name());
 
                 synchronized (BuildAssignmentService.this) {
                     List<JobPlan> jobsToRemove = new ArrayList<>();
@@ -215,9 +213,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 continue;
             }
             if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Ignore agent [{}] that is {}", agentInstance.getAgentIdentifier().toString(), agentInstance.getStatus());
-                }
+                LOGGER.debug("Ignore agent [{}] that is {} and {}", agentInstance.getAgentIdentifier(), agentInstance.getRuntimeStatus(), agentInstance.getAgentConfigStatus());
                 continue;
             }
             Work work = assignWorkToAgent(agentInstance);
@@ -230,9 +226,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 }
             }
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Matching {} agents with {} jobs took: {}ms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start);
-        }
+        LOGGER.debug("Matching {} agents with {} jobs took: {}ms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start);
     }
 
     private BuildSettings createBuildSettings(BuildAssignment assignment) {

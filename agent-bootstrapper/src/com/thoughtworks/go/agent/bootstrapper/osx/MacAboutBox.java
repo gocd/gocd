@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.bootstrapper.osx;
 
@@ -22,17 +22,19 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import com.thoughtworks.go.agent.common.util.JarUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MacAboutBox extends JFrame implements ActionListener {
-    private static final Log LOG = LogFactory.getLog(MacAboutBox.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacAboutBox.class);
     private static final int FRAME_WIDTH = 280;
     private static final int FRAME_HEIGHT = 230;
     private static final int FRAME_TOP = 200;
@@ -71,7 +73,7 @@ public class MacAboutBox extends JFrame implements ActionListener {
     }
 
     private String getBootstrapperVersion() {
-            return JarUtil.getGoVersion("agent-bootstrapper.jar");
+        return JarUtil.getGoVersion("agent-bootstrapper.jar");
     }
 
     private JLabel emptyLabel() {
@@ -95,8 +97,8 @@ public class MacAboutBox extends JFrame implements ActionListener {
         return jLabel;
     }
 
-    class SymWindow extends java.awt.event.WindowAdapter {
-        public void windowClosing(java.awt.event.WindowEvent event) {
+    class SymWindow extends WindowAdapter {
+        public void windowClosing(WindowEvent event) {
             setVisible(false);
         }
     }

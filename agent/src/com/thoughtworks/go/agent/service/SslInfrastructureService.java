@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,10 @@ import org.apache.commons.io.input.NullInputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,8 +54,9 @@ import static org.apache.http.HttpStatus.SC_ACCEPTED;
 public class SslInfrastructureService {
 
     private static final String CHAIN_ALIAS = "agent";
-    private static final Logger LOGGER = Logger.getLogger(SslInfrastructureService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SslInfrastructureService.class);
     private static final int REGISTER_RETRY_INTERVAL = 5000;
+    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final RemoteRegistrationRequester remoteRegistrationRequester;
     private final KeyStoreManager keyStoreManager;
     private final GoAgentServerHttpClient httpClient;
@@ -125,8 +129,7 @@ public class SslInfrastructureService {
     private void storeChainIntoAgentStore(Registration keyEntry) {
         try {
             keyStoreManager.storeCertificate(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword(), keyEntry);
-            LOGGER.info(String.format("[Agent Registration] Stored registration for cert with hash code: %s not valid before: %s", md5Fingerprint(keyEntry.getFirstCertificate()),
-                    keyEntry.getCertificateNotBeforeDate()));
+            LOGGER.info("[Agent Registration] Stored registration for cert with hash code: {} not valid before: {}", md5Fingerprint(keyEntry.getFirstCertificate()), keyEntry.getCertificateNotBeforeDate());
         } catch (Exception e) {
             throw bomb("Couldn't save agent key into store", e);
         }
@@ -137,7 +140,7 @@ public class SslInfrastructureService {
             httpClient.reset();
             keyStoreManager.deleteEntry(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
         } catch (Exception e) {
-            LOGGER.fatal("[Agent Registration] Error while deleting key from key store", e);
+            LOGGER.error(FATAL, "[Agent Registration] Error while deleting key from key store", e);
             deleteKeyStores();
         }
     }
@@ -158,9 +161,7 @@ public class SslInfrastructureService {
         }
 
         protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException, ClassNotFoundException {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[Agent Registration] Using URL %s to register.", serverUrl));
-            }
+            LOGGER.debug("[Agent Registration] Using URL {} to register.", serverUrl);
 
             HttpRequestBase postMethod = (HttpRequestBase) RequestBuilder.post(serverUrl)
                     .addParameter("hostname", agentHostName)
@@ -190,7 +191,7 @@ public class SslInfrastructureService {
                         LOGGER.info("This agent is now approved by the server.");
                         return readResponse(responseBody);
                     } else {
-                        LOGGER.warn(String.format("The server sent a response that we could not understand. The HTTP status was %s. The response body was:\n%s", response.getStatusLine(), responseBody));
+                        LOGGER.warn("The server sent a response that we could not understand. The HTTP status was {}. The response body was:\n{}", response.getStatusLine(), responseBody);
                         return Registration.createNullPrivateKeyEntry();
                     }
                 }

@@ -1,22 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
-
-import java.io.File;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
@@ -24,13 +22,16 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 @Component
 public class ArtifactsDirHolder implements ConfigChangedListener {
-    private static final Logger LOGGER = Logger.getLogger(ArtifactsDirHolder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsDirHolder.class);
     private final ServerHealthService serverHealthService;
     private GoConfigService goConfigService;
     private File artifactsDir;
@@ -56,7 +57,7 @@ public class ArtifactsDirHolder implements ConfigChangedListener {
         if (isArtifactsDirChanged(newCruiseConfig)) {
             serverHealthState = ServerHealthState.warning(ARTIFACTS_ROOT_CHANGED_MESSAGE, ARTIFACTS_ROOT_CHANGED_DESC,
                     ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE);
-            LOGGER.info(String.format("[Configuration Changed] Artifacts directory was changed."));
+            LOGGER.info("[Configuration Changed] Artifacts directory was changed.");
         } else {
             serverHealthState = ServerHealthState.success(ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE);
         }

@@ -19,8 +19,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.MessagingException;
 import javax.mail.Transport;
@@ -31,7 +31,7 @@ import static com.thoughtworks.go.util.GoConstants.DEFAULT_TIMEOUT;
 import static javax.mail.Message.RecipientType.TO;
 
 public class GoSmtpMailSender implements GoMailSender {
-    private static final Log LOGGER = LogFactory.getLog(GoSmtpMailSender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoSmtpMailSender.class);
 
     private String host;
     private int port;
@@ -78,9 +78,7 @@ public class GoSmtpMailSender implements GoMailSender {
     public ValidationBean send(String subject, String body, String to) {
         Transport transport = null;
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("Sending email [%s] to [%s]", subject, to));
-            }
+            LOGGER.debug("Sending email [{}] to [{}]", subject, to);
             Properties props = mailProperties();
             MailSession session = MailSession.getInstance().createWith(props, username, password);
             transport = session.getTransport();
@@ -89,7 +87,7 @@ public class GoSmtpMailSender implements GoMailSender {
             transport.sendMessage(msg, msg.getRecipients(TO));
             return ValidationBean.valid();
         } catch (Exception e) {
-            LOGGER.error(String.format("Sending failed for email [%s] to [%s]", subject, to), e);
+            LOGGER.error("Sending failed for email [{}] to [{}]", subject, to, e);
             return ValidationBean.notValid(ERROR_MESSAGE);
         } finally {
             if (transport != null) {
@@ -111,7 +109,7 @@ public class GoSmtpMailSender implements GoMailSender {
     }
 
     private String nullIfEmpty(String aString) {
-        if (aString ==null || aString.isEmpty()) {
+        if (aString == null || aString.isEmpty()) {
             return null;
         }
         return aString;

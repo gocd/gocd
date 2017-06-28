@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,9 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -50,7 +51,7 @@ import static java.lang.String.format;
  * @understands configuration for subversion
  */
 public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
-    private static final Logger LOGGER = Logger.getLogger(SvnMaterial.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SvnMaterial.class);
     private UrlArgument url;
     private String userName;
     private String password;
@@ -139,9 +140,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Updating to revision: " + revision + " in workingdirectory " + workingDir);
-        }
+        LOGGER.debug("Updating to revision: {} in workingdirectory {}", revision, workingDir);
         outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         boolean shouldDoFreshCheckout = !workingDir.isDirectory() || isRepositoryChanged(workingDir);
         if (shouldDoFreshCheckout) {
@@ -172,9 +171,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         if (workingFolder.isDirectory()) {
             FileUtil.deleteFolder(workingFolder);
         }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Checking out to revision " + revision + " in " + workingFolder);
-        }
+        LOGGER.trace("Checking out to revision {} in {}", revision, workingFolder);
         createParentFolderIfNotExist(workingFolder);
         svn().checkoutTo(outputStreamConsumer, workingFolder, revision);
     }
@@ -188,9 +185,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
             LOGGER.error(message);
             LOGGER.debug(message, e);
         }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Updating to revision " + revision + " on " + workingFolder);
-        }
+        LOGGER.trace("Updating to revision {} on {}", revision, workingFolder);
         svn().updateTo(outputStreamConsumer, workingFolder, revision);
     }
 

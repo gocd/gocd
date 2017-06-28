@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -166,7 +166,7 @@ public class LdapUserSearchTest {
 
         verify(filter1).searchForUser("username");
         verify(filter2).searchForUser("username");
-        verify(logger).warn("The ldap configuration for search base 'base1' is invalid", runtimeException);
+        verify(logger).warn("The ldap configuration for search base '{}' is invalid", "base1", runtimeException);
     }
 
     @Test
@@ -190,8 +190,8 @@ public class LdapUserSearchTest {
 
         assertThat(spy.searchForUser("username"), is(foundUser));
 
-        verify(logger, times(1)).warn("The ldap configuration for search base 'base1' is invalid", runtimeException);
-        verify(logger, times(1)).warn("The ldap configuration for search base 'base3' is invalid", runtimeException);
+        verify(logger, times(1)).warn("The ldap configuration for search base '{}' is invalid", "base1", runtimeException);
+        verify(logger, times(1)).warn("The ldap configuration for search base '{}' is invalid", "base3", runtimeException);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class LdapUserSearchTest {
         thrown.expect(RuntimeException.class);
 
         spy.searchForUser("username");
-        verify(logger, never()).warn(Matchers.<Object>any(), Matchers.<Throwable>any());
+        verify(logger, never()).warn(Matchers.any(), Matchers.<Object>any(), Matchers.<Throwable>any());
     }
 
     @Test
@@ -221,7 +221,7 @@ public class LdapUserSearchTest {
         thrown.expect(RuntimeException.class);
 
         spy.searchForUser("username");
-        verify(logger, never()).warn(Matchers.<Object>any(), Matchers.<Throwable>any());
+        verify(logger, never()).warn(Matchers.any(), Matchers.<Object>any(), Matchers.<Throwable>any());
     }
 
     @Test
@@ -238,7 +238,7 @@ public class LdapUserSearchTest {
 
         spy.searchForUser("username");
 
-        verify(logger, never()).warn(Matchers.<Object>any(), Matchers.<Throwable>any());
+        verify(logger, never()).warn(Matchers.any(), Matchers.<Object>any(), Matchers.<Throwable>any());
     }
 
     @Test

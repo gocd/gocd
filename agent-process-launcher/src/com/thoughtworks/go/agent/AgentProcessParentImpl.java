@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import com.thoughtworks.go.agent.launcher.DownloadableFile;
 import com.thoughtworks.go.agent.launcher.ServerBinaryDownloader;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SslVerificationMode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import static org.apache.commons.lang.StringUtils.join;
 public class AgentProcessParentImpl implements AgentProcessParent {
 
     /* 40-50 for launcher error codes*/
-    private static final Log LOG = LogFactory.getLog(AgentProcessParentImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentProcessParentImpl.class);
     private static final int EXCEPTION_OCCURRED = -373;
     static final String AGENT_STARTUP_ARGS = "AGENT_STARTUP_ARGS";
     static final String GO_AGENT_STDERR_LOG = "go-agent-stderr.log";
@@ -49,7 +49,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
     public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
         int exitValue = 0;
-        LOG.info("Agent is version: " + JarUtil.getGoVersion(Downloader.AGENT_BINARY));
+        LOG.info("Agent is version: {}", JarUtil.getGoVersion(Downloader.AGENT_BINARY));
         String command[] = new String[]{};
 
         try {
@@ -67,7 +67,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             tfsImplDownloader.downloadIfNecessary(DownloadableFile.TFS_IMPL);
 
             command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(), env, context, agentDownloader.getSslPort());
-            LOG.info("Launching Agent with command: " + join(command, " "));
+            LOG.info("Launching Agent with command: {}", join(command, " "));
 
             Process agent = invoke(command);
 
@@ -83,7 +83,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             try {
                 exitValue = agent.waitFor();
             } catch (InterruptedException ie) {
-                LOG.error("Agent was interrupted. Terminating agent and respawning. " + ie.toString());
+                LOG.error("Agent was interrupted. Terminating agent and respawning. {}", ie.toString());
                 agent.destroy();
             } finally {
                 removeShutdownHook(shutdownHook);
@@ -91,7 +91,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
                 stdOutThd.stopAndJoin();
             }
         } catch (Exception e) {
-            LOG.error("Exception while executing command: " + join(command, " ") + " - " + e.toString());
+            LOG.error("Exception while executing command: {} - {}", join(command, " "), e.toString());
             exitValue = EXCEPTION_OCCURRED;
         }
         return exitValue;
@@ -165,7 +165,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     }
 
     private static class Shutdown extends Thread {
-        private static final Log LOG = LogFactory.getLog(Shutdown.class);
+        private static final Logger LOG = LoggerFactory.getLogger(Shutdown.class);
         private final Process agent;
 
         public Shutdown(Process agent) {
@@ -174,7 +174,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         }
 
         public void run() {
-            LOG.info("Shutdown hook invoked. Shutting down " + agent);
+            LOG.info("Shutdown hook invoked. Shutting down {}", agent);
             agent.destroy();
         }
     }

@@ -23,7 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
@@ -38,7 +39,7 @@ public class GoServer {
         System.setProperty("jruby.ji.objectProxyCache", "false");
     }
 
-    private static final Logger LOG = Logger.getLogger(GoServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);
 
     private SystemEnvironment systemEnvironment;
     private SSLSocketFactory sslSocketFactory;
@@ -94,7 +95,7 @@ public class GoServer {
         ArrayList<File> extraClassPathFiles = new ArrayList<>();
         extraClassPathFiles.addAll(getAddonJarFiles());
         String extraClasspath = convertToClasspath(extraClassPathFiles);
-        LOG.info("Including addons: " + extraClasspath);
+        LOG.info("Including addons: {}", extraClasspath);
         return extraClasspath;
     }
 

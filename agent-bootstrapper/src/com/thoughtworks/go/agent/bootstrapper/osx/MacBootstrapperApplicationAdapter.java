@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.agent.bootstrapper.osx;
 
+import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-class MacBootstrapperApplicationAdapter extends com.apple.eawt.ApplicationAdapter {
-    private static final Log LOG = LogFactory.getLog(MacBootstrapperApplicationAdapter.class);
+class MacBootstrapperApplicationAdapter extends ApplicationAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(MacBootstrapperApplicationAdapter.class);
     private MacAboutBox aboutBox;
     private MacPreferencesPane prefPane;
     private AgentMacWindow agentMacWindow;

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server;
 
@@ -23,7 +23,7 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
@@ -36,6 +36,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.eclipse.jetty.xml.XmlConfiguration;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.management.MBeanServer;
@@ -56,7 +57,7 @@ public class Jetty9Server extends AppServer {
     private static final String JETTY_VERSION = "jetty-v9.2.3";
     private Server server;
     private WebAppContext webAppContext;
-    private static final Logger LOG = Logger.getLogger(Jetty9Server.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
     private GoSSLConfig goSSLConfig;
 
     public Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
@@ -174,7 +175,7 @@ public class Jetty9Server extends AppServer {
         File jettyConfig = systemEnvironment.getJettyConfigFile();
         if (jettyConfig.exists()) {
             replaceJettyXmlIfItBelongsToADifferentVersion(jettyConfig);
-            LOG.info("Configuring Jetty using " + jettyConfig.getAbsolutePath());
+            LOG.info("Configuring Jetty using {}", jettyConfig.getAbsolutePath());
             FileInputStream serverConfiguration = new FileInputStream(jettyConfig);
             XmlConfiguration configuration = new XmlConfiguration(serverConfiguration);
             configuration.configure(server);

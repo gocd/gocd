@@ -20,15 +20,16 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.server.domain.StageStatusHandler;
 import com.thoughtworks.go.util.Clock;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
 public class Stage extends PersistentObject {
-    private static final Logger LOG = Logger.getLogger(Stage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Stage.class);
 
     private Long pipelineId;
     private String name;
@@ -216,9 +217,9 @@ public class Stage extends PersistentObject {
         if (state.completed()) {
             long latestTransitionId = jobInstances.latestTransitionId();
             if (latestTransitionId != JobStateTransition.NOT_PERSISTED) {
-                LOG.info("Stage is being completed by transition id: " + latestTransitionId);
+                LOG.info("Stage is being completed by transition id: {}", latestTransitionId);
                 if (completedByTransitionId != null) {
-                    LOG.warn("Completing transition id for stage is being changed from " + completedByTransitionId + " to " + latestTransitionId);
+                    LOG.warn("Completing transition id for stage is being changed from {} to {}", completedByTransitionId, latestTransitionId);
                 }
                 this.completedByTransitionId = latestTransitionId;
             }
@@ -428,7 +429,7 @@ public class Stage extends PersistentObject {
 
     public void building() {
         if (state != null) {
-            LOG.warn(String.format("Expected stage [%s] to have no state, but was %s", identifier, state), new Exception().fillInStackTrace());
+            LOG.warn("Expected stage [{}] to have no state, but was {}", identifier, state, new Exception().fillInStackTrace());
         }
         state = StageState.Building;
     }

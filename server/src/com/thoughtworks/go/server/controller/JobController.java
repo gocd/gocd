@@ -29,8 +29,8 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,7 +53,7 @@ import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 @Controller
 public class JobController {
 
-    private static final Log LOGGER = LogFactory.getLog(JobController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
     @Autowired
     private JobInstanceService jobInstanceService;
     @Autowired
@@ -186,7 +186,7 @@ public class JobController {
                     stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
-            LOGGER.warn(e);
+            LOGGER.warn(null, e);
             json = errorJsonMap(e);
         }
         return jsonFound(json).respond(response);

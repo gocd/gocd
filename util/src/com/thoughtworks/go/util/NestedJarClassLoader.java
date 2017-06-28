@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,7 +38,7 @@ import java.util.jar.JarInputStream;
  */
 public class NestedJarClassLoader extends ClassLoader {
 
-    private static final Logger LOGGER = Logger.getLogger(NestedJarClassLoader.class);
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(NestedJarClassLoader.class);
     private final ClassLoader jarClassLoader;
     private final ClassLoader parentClassLoader;
     private final String[] excludes;
@@ -73,20 +73,16 @@ public class NestedJarClassLoader extends ClassLoader {
     }
 
     private ClassLoader createLoaderForJar(URL jarURL) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Creating Loader For jar: " + jarURL);
-        }
+        LOGGER.debug("Creating Loader For jar: {}", jarURL);
         ClassLoader jarLoader = new URLClassLoader(enumerateJar(jarURL), this);
         if (jarLoader == null) {
-            LOGGER.warn("No jar found with url: " + jarURL);
+            LOGGER.warn("No jar found with url: {}", jarURL);
         }
         return jarLoader;
     }
 
     private URL[] enumerateJar(URL urlOfJar) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Enumerating jar: " + urlOfJar);
-        }
+        LOGGER.debug("Enumerating jar: {}", urlOfJar);
         List<URL> urls = new ArrayList<>();
         urls.add(urlOfJar);
         try {
@@ -98,7 +94,7 @@ public class NestedJarClassLoader extends ClassLoader {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to enumerate jar " + urlOfJar, e);
+            LOGGER.error("Failed to enumerate jar {}", urlOfJar, e);
         }
         return urls.toArray(new URL[0]);
     }
@@ -109,7 +105,7 @@ public class NestedJarClassLoader extends ClassLoader {
         try (FileOutputStream out = new FileOutputStream(nestedJarFile)) {
             IOUtils.copy(jarStream, out);
         }
-        LOGGER.info(String.format("Exploded Entry %s from to %s", entry.getName(), nestedJarFile));
+        LOGGER.info("Exploded Entry {} from to {}", entry.getName(), nestedJarFile);
         return nestedJarFile.toURI().toURL();
     }
 
@@ -131,9 +127,7 @@ public class NestedJarClassLoader extends ClassLoader {
     }
 
     private Class<?> invokeParentClassloader(String name, boolean resolve) throws ClassNotFoundException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Invoking parent classloader for %s with resolve %s", name, resolve));
-        }
+        LOGGER.debug("Invoking parent classloader for {} with resolve {}", name, resolve);
         try {
             Method loadClass = findNonPublicMethod("loadClass", parentClassLoader.getClass(), String.class, boolean.class);
             return (Class<?>) loadClass.invoke(parentClassLoader, name, resolve);
@@ -170,9 +164,7 @@ public class NestedJarClassLoader extends ClassLoader {
             return false;
         }
         URL url = jarClassLoader.getResource(classAsResourceName);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Loading %s from jar returned %s for url: %s  ", name, url != null, url));
-        }
+        LOGGER.debug("Loading {} from jar returned {} for url: {}  ", name, url != null, url);
         return url != null;
     }
 

@@ -27,7 +27,8 @@ import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +46,7 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final JobResolverService jobResolverService;
     private final StageDao stageDao;
     private SystemService systemService;
-    public static final Logger LOGGER = Logger.getLogger(ArtifactsService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsService.class);
     public static final String LOG_XML_NAME = "log.xml";
     private ArtifactDirectoryChooser chooser;
 
@@ -76,17 +77,13 @@ public class ArtifactsService implements ArtifactUrlReader {
     public boolean saveFile(File dest, InputStream stream, boolean shouldUnzip, int attempt) {
         String destPath = dest.getAbsolutePath();
         try {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Saving file [" + destPath + "]");
-            }
+            LOGGER.trace("Saving file [{}]", destPath);
             if (shouldUnzip) {
                 zipUtil.unzip(new ZipInputStream(stream), dest);
             } else {
                 systemService.streamToFile(stream, dest);
             }
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("File [" + destPath + "] saved.");
-            }
+            LOGGER.trace("File [{}] saved.", destPath);
             return true;
         } catch (IOException e) {
             final String message = format("Failed to save the file to: [%s]", destPath);
@@ -96,7 +93,7 @@ public class ArtifactsService implements ArtifactUrlReader {
                 LOGGER.error(message, e);
             }
             return false;
-        } catch (IllegalPathException e){
+        } catch (IllegalPathException e) {
             final String message = format("Failed to save the file to: [%s]", destPath);
             LOGGER.error(message, e);
             return false;
@@ -106,16 +103,12 @@ public class ArtifactsService implements ArtifactUrlReader {
     public boolean saveOrAppendFile(File dest, InputStream stream) {
         String destPath = dest.getAbsolutePath();
         try {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Appending file [" + destPath + "]");
-            }
+            LOGGER.trace("Appending file [{}]", destPath);
             systemService.streamToFile(stream, dest);
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("File [" + destPath + "] appended.");
-            }
+            LOGGER.trace("File [{}] appended.", destPath);
             return true;
         } catch (IOException e) {
-            LOGGER.error("Failed to save the file to : [" + destPath + "]", e);
+            LOGGER.error("Failed to save the file to : [{}]", destPath, e);
             return false;
         }
     }
@@ -169,15 +162,13 @@ public class ArtifactsService implements ArtifactUrlReader {
             boolean didDelete = deleteArtifactsExceptCruiseOutput(stageRoot);
 
             if (!didDelete) {
-                LOGGER.error(format("Artifacts for stage '%s' at path '%s' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath()));
+                LOGGER.error("Artifacts for stage '{}' at path '{}' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath());
             }
         } catch (Exception e) {
-            LOGGER.error(format("Error occurred while clearing artifacts for '%s'. Error: '%s'", stageIdentifier.entityLocator(), e.getMessage()), e);
+            LOGGER.error("Error occurred while clearing artifacts for '{}'. Error: '{}'", stageIdentifier.entityLocator(), e.getMessage(), e);
         }
         stageDao.markArtifactsDeletedFor(stage);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(format("Marked stage '%s' as artifacts deleted.", stageIdentifier.entityLocator()));
-        }
+        LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
     }
 
     private boolean deleteArtifactsExceptCruiseOutput(File stageRoot) throws IOException {

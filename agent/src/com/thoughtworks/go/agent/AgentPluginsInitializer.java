@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -34,7 +34,7 @@ import java.io.IOException;
 
 @Component
 public class AgentPluginsInitializer implements ApplicationListener<ContextRefreshedEvent> {
-    private static final Log LOG = LogFactory.getLog(AgentPluginsInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentPluginsInitializer.class);
     private final DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
     private PluginManager pluginManager;
     private ZipUtil zipUtil;

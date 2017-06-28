@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.service.lookups;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -30,9 +24,16 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Component
 public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
@@ -42,7 +43,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
     private SystemEnvironment systemEnvironment;
     private CommandSnippetXmlParser commandSnippetXmlParser;
 
-    private static final Logger LOGGER = Logger.getLogger(CommandRepositoryDirectoryWalker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandRepositoryDirectoryWalker.class);
     private ThreadLocal<String> commandRepositoryBaseDirectory = new ThreadLocal<>();
 
     @Autowired
@@ -63,8 +64,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
         if (xmlContentOfFie == null || !file.canRead()) {
             serverHealthService.update(ServerHealthState.warning("Command Repository", "Failed to access command snippet XML file located in Go Server Directory at " + file.getPath() +
                     ". Go does not have sufficient permissions to access it.", HealthStateType.commandRepositoryAccessibilityIssue(), systemEnvironment.getCommandRepoWarningTimeout()));
-            LOGGER.warn("[Command Repository] Failed to access command snippet XML file located in Go Server Directory at " + file.getAbsolutePath() +
-                    ". Go does not have sufficient permissions to access it.");
+            LOGGER.warn("[Command Repository] Failed to access command snippet XML file located in Go Server Directory at {}. Go does not have sufficient permissions to access it.", file.getAbsolutePath());
             return;
         }
 
@@ -72,14 +72,12 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
             String relativeFilePath = FileUtil.removeLeadingPath(commandRepositoryBaseDirectory.get(), file.getAbsolutePath());
             results.add(commandSnippetXmlParser.parse(xmlContentOfFie, FilenameUtils.getBaseName(fileName), relativeFilePath));
         } catch (Exception e) {
-            LOGGER.warn("Failed loading command snippet from " + file.getAbsolutePath());
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(e);
-            }
+            LOGGER.warn("Failed loading command snippet from {}", file.getAbsolutePath());
+            LOGGER.debug(null, e);
         }
     }
 
-    private String safeReadFileToString(File file){
+    private String safeReadFileToString(File file) {
         try {
             return FileUtils.readFileToString(file);
         } catch (IOException e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -63,7 +64,7 @@ import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
 @Service
 public class ScheduleService {
-    private static final Logger LOGGER = Logger.getLogger(ScheduleService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleService.class);
 
     private GoConfigService goConfigService;
     private PipelineService pipelineService;
@@ -158,7 +159,7 @@ public class ScheduleService {
                     String pipelineName = entry.getKey();
                     BuildCause buildCause = entry.getValue();
 
-                    LOGGER.info(String.format("[Pipeline Schedule] Scheduling pipeline %s with build cause %s", pipelineName, buildCause));
+                    LOGGER.info("[Pipeline Schedule] Scheduling pipeline {} with build cause {}", pipelineName, buildCause);
 
                     long schedulingStartTime = System.currentTimeMillis();
                     Pipeline pipeline = schedulePipeline(pipelineName, buildCause);
@@ -170,7 +171,7 @@ public class ScheduleService {
                     }
                 }
             } catch (Throwable e) {
-                LOGGER.error(String.format("[Pipeline Schedule] An exception occurred while scheduling the pipeline. %s", e));
+                LOGGER.error("[Pipeline Schedule] An exception occurred while scheduling the pipeline. {}", e);
             }
         }
     }
@@ -186,13 +187,13 @@ public class ScheduleService {
                 return pipelineInstance;
             }
         } catch (PipelineNotFoundException e) {
-            LOGGER.error("Could not find pipeline " + pipelineName, e);
+            LOGGER.error("Could not find pipeline {}", pipelineName, e);
             pipelineScheduleQueue.clearPipeline(pipelineName);
         } catch (CannotScheduleException e) {
             pipelineScheduleQueue.clearPipeline(pipelineName);
             serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
         } catch (Exception e) {
-            LOGGER.error("Error while scheduling pipeline " + pipelineName, e);
+            LOGGER.error("Error while scheduling pipeline {}", pipelineName, e);
             pipelineScheduleQueue.clearPipeline(pipelineName);
         }
         return null;
@@ -236,7 +237,7 @@ public class ScheduleService {
                 Stage instance = null;
                 try {
                     instance = creator.create(pipelineName, stageName, context);
-                    LOGGER.info(String.format("[Stage Schedule] Scheduling stage %s for pipeline %s", stageName, pipeline.getName()));
+                    LOGGER.info("[Stage Schedule] Scheduling stage {} for pipeline {}", stageName, pipeline.getName());
                 } catch (CannotScheduleException e) {
                     serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
                     errorHandler.cantSchedule(e, pipelineName);
@@ -434,7 +435,7 @@ public class ScheduleService {
         Stage stage = stageService.findLatestStage(pipelineName, stageName);
         if (stage == null) {
             String stageLocator = String.format("(pipeline name: %s, stage name %s)", pipelineName, stageName);
-            LOGGER.warn("[Stage Cancellation] Failed to retrieve stage" + stageLocator);
+            LOGGER.warn("[Stage Cancellation] Failed to retrieve stage{}", stageLocator);
             result.notFound(LocalizedMessage.string("STAGE_FOR_LOCATOR_NOT_FOUND", stageLocator), HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
@@ -473,7 +474,7 @@ public class ScheduleService {
                 return null;
             }
 
-            LOGGER.info("[Stage Cancellation] Cancelling stage " + stage.getIdentifier());
+            LOGGER.info("[Stage Cancellation] Cancelling stage {}", stage.getIdentifier());
             transactionTemplate.executeWithExceptionHandling(new com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult() {
                 @Override
                 public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
@@ -576,7 +577,7 @@ public class ScheduleService {
             if (!liveAgentIdList.isEmpty()) {
                 JobInstances jobs = jobInstanceService.findHungJobs(liveAgentIdList);
                 for (JobInstance buildId : jobs) {
-                    LOGGER.warn("Found hung job[id=" + buildId + "], rescheduling it");
+                    LOGGER.warn("Found hung job[id={}], rescheduling it", buildId);
                     rescheduleJob(buildId);
                 }
             }
@@ -610,7 +611,7 @@ public class ScheduleService {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 final JobInstance jobInstance = agentAssignment.latestActiveJobOnAgent(identifier.getUuid());
                 if (jobInstance != null) {
-                    LOGGER.warn(String.format("[Job Reschedule] Found latest incomplete job for agent %s [Job Instance: %s]", identifier, jobInstance));
+                    LOGGER.warn("[Job Reschedule] Found latest incomplete job for agent {} [Job Instance: {}]", identifier, jobInstance);
                     rescheduleJob(jobInstance);
                 }
             }
@@ -625,7 +626,7 @@ public class ScheduleService {
                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override
                     protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        LOGGER.warn(String.format("[Job Reschedule] Rescheduling and marking old job as ignored: %s", toBeRescheduled));
+                        LOGGER.warn("[Job Reschedule] Rescheduling and marking old job as ignored: {}", toBeRescheduled);
                         //Reloading it because we want to see the latest committed state after acquiring the mutex.
                         JobInstance oldJob = jobInstanceService.buildById(toBeRescheduled.getId());
                         if (oldJob.isCompleted()) {
@@ -643,7 +644,7 @@ public class ScheduleService {
                         //Copy the plan for the old job since we don't load job plan with jobInstance by default
                         JobPlan plan = jobInstanceDao.loadPlan(oldJob.getId());
                         jobInstanceDao.save(newJob.getId(), plan);
-                        LOGGER.info(String.format("[Job Reschedule] Scheduled new job: %s. Replacing old job: %s", newJob.getIdentifier(), oldJob.getIdentifier()));
+                        LOGGER.info("[Job Reschedule] Scheduled new job: {}. Replacing old job: {}", newJob.getIdentifier(), oldJob.getIdentifier());
                     }
                 });
             }
@@ -667,7 +668,7 @@ public class ScheduleService {
                 //TODO: #2318 JobInstance should contain identifier after it's loaded from database
                 jobInstance.setIdentifier(jobIdentifier);
                 if (!StringUtils.equals(jobInstance.getAgentUuid(), agentUuid)) {
-                    LOGGER.error(String.format("Build Instance is using agent [%s] but status updating from agent [%s]", jobInstance.getAgentUuid(), agentUuid));
+                    LOGGER.error("Build Instance is using agent [{}] but status updating from agent [{}]", jobInstance.getAgentUuid(), agentUuid);
                     throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:"
                             + agentUuid + ", Build: " + jobInstance.toString());
                 }
@@ -683,7 +684,7 @@ public class ScheduleService {
         synchronized (mutexForStageInstance(jobIdentifier)) {
             JobInstance instance = jobInstanceService.buildByIdWithTransitions(job.getJobId());
             if (instance.getState() == JobState.Completed) {
-                LOGGER.info(String.format("[Agent Assignment] Not assigning a completed job [%s] to agent %s", instance.getIdentifier(), agentUuid));
+                LOGGER.info("[Agent Assignment] Not assigning a completed job [{}] to agent {}", instance.getIdentifier(), agentUuid);
                 return true;
             }
             instance.assign(agentUuid, timeProvider.currentTime());

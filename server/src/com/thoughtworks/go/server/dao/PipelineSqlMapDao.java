@@ -39,17 +39,16 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.*;
-import org.hibernate.transform.BasicTransformerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
@@ -62,7 +61,8 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 @SuppressWarnings({"ALL"})
 @Component
 public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initializer, PipelineDao, StageStatusListener {
-    private static final Logger LOGGER = Logger.getLogger(PipelineSqlMapDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineSqlMapDao.class);
+    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private StageDao stageDao;
     private MaterialRepository materialRepository;
     private EnvironmentVariableDao environmentVariableDao;
@@ -76,6 +76,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
     private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
+
     @Autowired
     public PipelineSqlMapDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
                              SqlMapClient sqlMapClient, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
@@ -99,7 +100,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             cacheActivePipelines();
             LOGGER.info("Done loading active pipelines into memory.");
         } catch (Exception e) {
-            LOGGER.fatal(e.getMessage(), e);
+            LOGGER.error(FATAL, e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -498,7 +499,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 continue;
             }
             if (!pipelinesInConfig.contains(new CaseInsensitiveString(model.getName()))) {
-                LOGGER.debug("Skipping PIM for pipeline " + model.getName() + " ,since its not found in current config");
+                LOGGER.debug("Skipping PIM for pipeline {} ,since its not found in current config", model.getName());
                 continue;
             }
             models.add(model);
@@ -680,10 +681,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         long begin = System.currentTimeMillis();
         List<PipelineInstanceModel> matchingPIMs = (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("findMatchingPipelineInstances", args);
         List<PipelineInstanceModel> exactMatchingPims = (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("findExactMatchingPipelineInstances", args);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[Compare Pipelines] Query initiated for pipeline %s with pattern %s. Query execution took %s milliseconds", pipelineName, pattern,
-                    System.currentTimeMillis() - begin));
-        }
+        LOGGER.debug("[Compare Pipelines] Query initiated for pipeline {} with pattern {}. Query execution took {} milliseconds", pipelineName, pattern, System.currentTimeMillis() - begin);
         exactMatchingPims.addAll(matchingPIMs);
         return PipelineInstanceModels.createPipelineInstanceModels(exactMatchingPims);
     }

@@ -47,7 +47,8 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +70,7 @@ public class PackageRepositoryService {
     private RepositoryMetadataStore repositoryMetadataStore;
     private PackageRepositoryExtension packageRepositoryExtension;
 
-    public static final Logger LOGGER = Logger.getLogger(PackageRepositoryService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(PackageRepositoryService.class);
 
     @Autowired
     public PackageRepositoryService(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
@@ -106,7 +107,7 @@ public class PackageRepositoryService {
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
-                result.connectionError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository",messages));
+                result.connectionError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository", messages));
                 return;
             }
             result.setMessage(LocalizedMessage.string("CONNECTION_OK", messages));
@@ -267,14 +268,14 @@ public class PackageRepositoryService {
         }
     }
 
-    public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result){
+    public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result) {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, this, repository, username, result);
         update(username, result, command, repository);
     }
 
-    public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result, String oldRepoId){
+    public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result, String oldRepoId) {
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, newRepo, username, md5, entityHashingService, result, oldRepoId);
-        update(username,result, command, newRepo);
+        update(username, result, command, newRepo);
     }
 
     private RepositoryConfiguration populateConfiguration(Configuration configuration) {

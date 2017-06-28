@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 @Service
 public class RailsAssetsService implements ServletContextAware {
     private static final Pattern MANIFEST_FILE_PATTERN = Pattern.compile("^\\.sprockets-manifest.*\\.json$");
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RailsAssetsService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RailsAssetsService.class);
     private RailsAssetsManifest railsAssetsManifest;
     private ServletContext servletContext;
     private final SystemEnvironment systemEnvironment;
@@ -63,11 +65,11 @@ public class RailsAssetsService implements ServletContextAware {
 
         File manifestFile = (File) files.iterator().next();
 
-        LOG.info(String.format("Found rails assets manifest file named %s ", manifestFile.getName()));
+        LOG.info("Found rails assets manifest file named {} ", manifestFile.getName());
         String manifest = FileUtil.readContentFromFile(manifestFile);
         Gson gson = new Gson();
         railsAssetsManifest = gson.fromJson(manifest, RailsAssetsManifest.class);
-        LOG.info(String.format("Successfully read rails assets manifest file located at %s", manifestFile.getAbsolutePath()));
+        LOG.info("Successfully read rails assets manifest file located at {}", manifestFile.getAbsolutePath());
     }
 
     public String getAssetPath(String asset) {
@@ -80,7 +82,7 @@ public class RailsAssetsService implements ServletContextAware {
         this.servletContext = servletContext;
     }
 
-    RailsAssetsManifest getRailsAssetsManifest(){
+    RailsAssetsManifest getRailsAssetsManifest() {
         return railsAssetsManifest;
     }
 

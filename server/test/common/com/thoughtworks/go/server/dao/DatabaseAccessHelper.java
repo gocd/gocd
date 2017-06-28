@@ -48,10 +48,15 @@ import org.dbunit.database.AmbiguousTableNameException;
 import org.dbunit.dataset.DefaultDataSet;
 import org.dbunit.dataset.DefaultTable;
 import org.dbunit.operation.DatabaseOperation;
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsNot;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -553,11 +558,11 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     static void assertNotInserted(long instanceId) {
-        org.junit.Assert.assertThat("Already thinks it's inserted", instanceId, org.hamcrest.core.Is.is(PersistentObject.NOT_PERSISTED));
+        Assert.assertThat("Already thinks it's inserted", instanceId, Is.is(PersistentObject.NOT_PERSISTED));
     }
 
     static void assertIsInserted(long instanceId) {
-        org.junit.Assert.assertThat("Not inserted", instanceId, org.hamcrest.core.Is.is(org.hamcrest.core.IsNot.not(PersistentObject.NOT_PERSISTED)));
+        Assert.assertThat("Not inserted", instanceId, Is.is(IsNot.not(PersistentObject.NOT_PERSISTED)));
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, Clock clock) {
@@ -609,7 +614,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public MaterialRevision addRevisionsWithModifications(Material material, Modification... modifications) {
         final MaterialRevision revision = filterUnsaved(new MaterialRevision(material, modifications));
-        if (revision.getModifications().isEmpty()){
+        if (revision.getModifications().isEmpty()) {
             return revision;
         }
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {

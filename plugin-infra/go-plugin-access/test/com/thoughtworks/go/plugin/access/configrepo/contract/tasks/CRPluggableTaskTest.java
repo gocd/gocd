@@ -61,7 +61,7 @@ public class CRPluggableTaskTest extends CRBaseTest<CRPluggableTask> {
         String json = gson.toJson(value);
 
         CRPluggableTask deserializedValue = (CRPluggableTask)gson.fromJson(json,CRTask.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 }

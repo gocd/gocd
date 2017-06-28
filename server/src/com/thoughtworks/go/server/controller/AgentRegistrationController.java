@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
@@ -202,9 +203,7 @@ public class AgentRegistrationController {
                                      @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
                                      HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
-        }
+        LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         Registration keyEntry;
         String preferredHostname = hostname;
 
@@ -230,7 +229,7 @@ public class AgentRegistrationController {
             }
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
-                LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
+                LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new AgentConfigService.AddAgentCommand(agentConfig),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
@@ -239,7 +238,7 @@ public class AgentRegistrationController {
                 HttpOperationResult result = new HttpOperationResult();
                 agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, agentService.agentUsername(uuid, ipAddress, preferredHostname));
                 if (!result.isSuccess()) {
-                    List<ConfigErrors> errors = com.thoughtworks.go.config.ErrorCollector.getAllErrors(agentConfig);
+                    List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
 
                     ConfigErrors e = new ConfigErrors();
                     e.add("resultMessage", result.detailedMessage());

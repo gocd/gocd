@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
@@ -20,10 +20,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.URIReference;
 import com.thoughtworks.studios.shine.semweb.XMLRDFizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -36,7 +37,7 @@ import java.util.List;
 
 public class XMLArtifactImporter {
 
-    private final static Logger LOGGER = Logger.getLogger(XMLArtifactImporter.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(XMLArtifactImporter.class);
 
     SystemEnvironment systemEnvironment;
 
@@ -70,11 +71,11 @@ public class XMLArtifactImporter {
             if (handler.canHandle(doc)) {
                 try {
                     Graph artifactGraph = handler.importFile(parentJob.getURIText(), doc);
-                    LOGGER.debug("Imported a total of " + artifactGraph.size() + " triples in artifact.");
+                    LOGGER.debug("Imported a total of {} triples in artifact.", artifactGraph.size());
                     graph.addTriplesFromGraph(artifactGraph);
                     return;
                 } catch (Exception e) {
-                    LOGGER.warn(handler.getClass().getName() + " was unable to handle document it said it could.  Exception happened while importing artifacts for job: " + parentJob + "...", e);
+                    LOGGER.warn("{} was unable to handle document it said it could.  Exception happened while importing artifacts for job: {}...", handler.getClass().getName(), parentJob, e);
                 }
             }
         }

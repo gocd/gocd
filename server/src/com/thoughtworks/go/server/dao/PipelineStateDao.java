@@ -31,12 +31,13 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -52,7 +53,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @SuppressWarnings({"ALL"})
 @Component
 public class PipelineStateDao extends SqlMapClientDaoSupport implements StageStatusListener {
-    private static final Logger LOGGER = Logger.getLogger(PipelineStateDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineStateDao.class);
     private StageDao stageDao;
     private MaterialRepository materialRepository;
     private EnvironmentVariableDao environmentVariableDao;

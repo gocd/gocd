@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 /*
  * Copyright 2004-2010 H2 Group. Multiple-Licensed under the H2 License,
@@ -20,16 +20,18 @@
  * (http://h2database.com/html/license.html).
  * Initial Developer: H2 Group
  */
+
 package com.thoughtworks.go.server.database;
+
+import org.apache.commons.io.FileUtils;
+import org.h2.tools.RunScript;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-import org.h2.tools.RunScript;
 
 /**
  * Migrate a H2 database version 1.1.x (page store not enabled) to 1.2.x (page
@@ -43,14 +45,14 @@ import org.h2.tools.RunScript;
 public class Migrate {
 
     public static final String USER = "sa";
-    public static final String PASSWORD  = "";
+    public static final String PASSWORD = "";
     private static final File OLD_H2_FILE = new File("./historical_jars/h2-1.2.127.jar");
     private static final String TEMP_SCRIPT = "backup.sql";
     private static final String MAX_MEMORY_FOR_MIGRATION = "256m";
     private PrintStream sysOut = System.out;
     private boolean quiet;
 
-    private static final Logger LOGGER = Logger.getLogger(Migrate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Migrate.class);
 
     /**
      * Migrate databases. The user name and password are both "sa".
@@ -65,12 +67,12 @@ public class Migrate {
     /**
      * Migrate a database.
      *
-     * @param file the database file (must end with .data.db) or directory
+     * @param file      the database file (must end with .data.db) or directory
      * @param recursive if the file parameter is in fact a directory (in which
-     *            case the directory is scanned recursively)
-     * @param user the user name of the database
-     * @param password the password
-     * @param runQuiet to run in quiet mode
+     *                  case the directory is scanned recursively)
+     * @param user      the user name of the database
+     * @param password  the password
+     * @param runQuiet  to run in quiet mode
      * @throws Exception if conversion fails
      */
     public void execute(File file, boolean recursive, String user, String password, boolean runQuiet) throws Exception {
@@ -85,18 +87,18 @@ public class Migrate {
         if (!file.getName().endsWith(".data.db")) {
             return;
         }
-        LOGGER.info("Migrating the database at " + file.getAbsolutePath() + " to the new format. This might take a while based on the size of your database.");
+        LOGGER.info("Migrating the database at {} to the new format. This might take a while based on the size of your database.", file.getAbsolutePath());
         String fileNameWithoutExtension = truncateFileExtension(file.getAbsolutePath());
         File newDatabaseFile = new File(fileNameWithoutExtension + ".h2.db");
-        if(newDatabaseFile.exists()) {
-            LOGGER.info("Removing " + newDatabaseFile.getAbsolutePath() + " [the new database file]");
+        if (newDatabaseFile.exists()) {
+            LOGGER.info("Removing {} [the new database file]", newDatabaseFile.getAbsolutePath());
             FileUtils.deleteQuietly(newDatabaseFile);
         }
         if (!OLD_H2_FILE.exists()) {
             throw new IllegalStateException(String.format("h2 file %s not found, migration could not be completed successfully", OLD_H2_FILE.getAbsolutePath()));
         }
         String url = "jdbc:h2:" + fileNameWithoutExtension;
-        exec(new String[] {
+        exec(new String[]{
                 pathToJavaExe,
                 "-Xmx" + MAX_MEMORY_FOR_MIGRATION,
                 "-cp", OLD_H2_FILE.getAbsolutePath(),
@@ -164,7 +166,7 @@ public class Migrate {
                     throw new RuntimeException(e);
                 }
             }
-        } .start();
+        }.start();
     }
 
 }

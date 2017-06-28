@@ -35,8 +35,9 @@ import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.jdom2.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +52,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
 import static java.lang.String.format;
 
 public class BuildWork implements Work {
-    private static final Log LOGGER = LogFactory.getLog(BuildWork.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
 
     private final BuildAssignment assignment;
 
@@ -101,7 +102,7 @@ public class BuildWork implements Work {
         try {
             goPublisher.reportErrorMessage(messageOf(e), e);
         } catch (Exception reportException) {
-            LOGGER.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
+            LOGGER.error("Unable to report error message - %s.", messageOf(e), reportException);
         }
         reportCompletion(JobResult.Failed);
     }
@@ -219,7 +220,7 @@ public class BuildWork implements Work {
         try {
             plan.publishArtifacts(goPublisher, workingDirectory);
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error(null, e);
             goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, e.getMessage());
             return JobResult.Failed;
         }

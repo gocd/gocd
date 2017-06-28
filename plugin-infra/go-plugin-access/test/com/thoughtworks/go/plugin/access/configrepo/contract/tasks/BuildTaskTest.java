@@ -78,7 +78,7 @@ public class BuildTaskTest extends CRBaseTest<CRBuildTask> {
         String json = gson.toJson(value);
 
         CRBuildTask deserializedValue = (CRBuildTask)gson.fromJson(json,CRTask.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
     @Test
@@ -88,7 +88,7 @@ public class BuildTaskTest extends CRBaseTest<CRBuildTask> {
         String json = gson.toJson(value);
 
         CRBuildTask deserializedValue = (CRBuildTask)gson.fromJson(json,CRTask.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 }

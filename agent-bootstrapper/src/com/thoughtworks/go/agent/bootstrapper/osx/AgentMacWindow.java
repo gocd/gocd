@@ -19,8 +19,8 @@ package com.thoughtworks.go.agent.bootstrapper.osx;
 import com.apple.eawt.Application;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.logging.LogConfigurator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.File;
@@ -35,7 +35,7 @@ import static com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper.DEFAULT_L
 
 public class AgentMacWindow extends JFrame {
     private static final File PREFS_FILE = new File(System.getProperty("user.home"), "/Library/Preferences/com.thoughtworks.go.agent.properties");
-    private static final Log LOG = LogFactory.getLog(AgentMacWindow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentMacWindow.class);
 
     private AgentBootstrapperArgs bootstrapperArgs;
     private final boolean firstRun;
@@ -67,7 +67,7 @@ public class AgentMacWindow extends JFrame {
     }
 
     private void saveDefaultPrefs() {
-        LOG.info("Initializing preferences in " + PREFS_FILE);
+        LOG.info("Initializing preferences in {}", PREFS_FILE);
         savePrefs(defaultArgs());
     }
 
@@ -77,7 +77,7 @@ public class AgentMacWindow extends JFrame {
                 args.toProperties().store(fos, null);
             }
         } catch (IOException e) {
-            LOG.error("IO error on " + PREFS_FILE, e);
+            LOG.error("IO error on {}", PREFS_FILE, e);
         }
     }
 
@@ -109,10 +109,10 @@ public class AgentMacWindow extends JFrame {
         try (FileInputStream stream = new FileInputStream(PREFS_FILE)) {
             Properties myProps = new Properties();
             myProps.load(stream);
-            LOG.info("Loaded preferences from " + PREFS_FILE);
+            LOG.info("Loaded preferences from {}", PREFS_FILE);
             return AgentBootstrapperArgs.fromProperties(myProps);
         } catch (Exception e) {
-            LOG.error("Error for " + PREFS_FILE, e);
+            LOG.error("Error for {}", PREFS_FILE, e);
         }
         return defaultArgs();
     }

@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.util.validators;
 
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
 
 public class Validation {
     public static final Validation SUCCESS = new Validation();
@@ -34,7 +35,7 @@ public class Validation {
         }
     }
 
-    public void logErrors(Log logger) {
+    public void logErrors(Logger logger) {
         for (Exception error : errors) {
             logger.error(error.getMessage());
         }

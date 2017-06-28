@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,14 +56,13 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
-import static java.lang.String.format;
 
 /**
  * @understands when to send requests to update a material on the database
  */
 @Service
 public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, ConfigChangedListener {
-    private static final Logger LOGGER = Logger.getLogger(MaterialUpdateService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaterialUpdateService.class);
 
     private final MaterialUpdateQueue updateQueue;
     private final ConfigMaterialUpdateQueue configUpdateQueue;
@@ -109,9 +109,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     public void onTimer() {
         for (MaterialSource materialSource : materialSources) {
             Set<Material> materialsForUpdate = materialSource.materialsForUpdate();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(format("[Material Update] [On Timer] materials IN-PROGRESS: %s, ALL-MATERIALS: %s", inProgress, materialsForUpdate));
-            }
+            LOGGER.debug("[Material Update] [On Timer] materials IN-PROGRESS: {}, ALL-MATERIALS: {}", inProgress, materialsForUpdate);
 
             for (Material material : materialsForUpdate) {
                 updateMaterial(material);
@@ -171,9 +169,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     public boolean updateMaterial(Material material) {
         Date inProgressSince = inProgress.putIfAbsent(material, new Date());
         if (inProgressSince == null || !material.isAutoUpdate()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(format("[Material Update] Starting update of material %s", material));
-            }
+            LOGGER.debug("[Material Update] Starting update of material {}", material);
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
@@ -185,7 +181,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                 throw e;
             }
         } else {
-            LOGGER.warn(format("[Material Update] Skipping update of material %s which has been in-progress since %s", material, inProgressSince));
+            LOGGER.warn("[Material Update] Skipping update of material {} which has been in-progress since {}", material, inProgressSince);
             long idleTime = getProcessManager().getIdleTimeFor(material.getFingerprint());
             if (idleTime > getMaterialUpdateInActiveTimeoutInMillis()) {
                 HealthStateScope scope = HealthStateScope.forMaterialUpdate(material);
@@ -204,15 +200,12 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public void onMessage(MaterialUpdateCompletedMessage message) {
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(format("[Material Update] Material update completed for material %s", message.getMaterial()));
-            }
+            LOGGER.debug("[Material Update] Material update completed for material {}", message.getMaterial());
 
             Date addedOn = inProgress.remove(message.getMaterial());
             serverHealthService.removeByScope(HealthStateScope.forMaterialUpdate(message.getMaterial()));
             if (addedOn == null) {
-                LOGGER.warn(format("[Material Update] Material %s was not removed from those inProgress. This might result in it's pipelines not getting scheduled. in-progress: %s",
-                        message.getMaterial(), inProgress));
+                LOGGER.warn("[Material Update] Material {} was not removed from those inProgress. This might result in it's pipelines not getting scheduled. in-progress: {}", message.getMaterial(), inProgress);
             }
 
             for (MaterialUpdateCompleteListener listener : materialUpdateCompleteListeners) {

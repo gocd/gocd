@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
@@ -28,7 +28,8 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ import java.util.Map;
 
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
     public static final String VERSION = "1.0";
-    private static final Logger LOGGER = Logger.getLogger(JsonBasedTaskExtensionHandler_V1.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonBasedTaskExtensionHandler_V1.class);
 
     @Override
     public String version() {
@@ -106,7 +107,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             }
             return taskConfig;
         } catch (Exception e) {
-            LOGGER.error(String.format("Error occurred while converting the Json to Task Config. Error: %s. The Json received was '%s'.", e.getMessage(), configJson));
+            LOGGER.error("Error occurred while converting the Json to Task Config. Error: {}. The Json received was '{}'.", e.getMessage(), configJson);
             throw new RuntimeException(String.format("Error occurred while converting the Json to Task Config. Error: %s.", e.getMessage()));
         }
     }
@@ -133,7 +134,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             }
             return validationResult;
         } catch (Exception e) {
-            LOGGER.error(String.format("Error occurred while converting the Json to Validation Result. Error: %s. The Json received was '%s'.", e.getMessage(), responseBody));
+            LOGGER.error("Error occurred while converting the Json to Validation Result. Error: {}. The Json received was '{}'.", e.getMessage(), responseBody);
             throw new RuntimeException(String.format("Error occurred while converting the Json to Validation Result. Error: %s.", e.getMessage()));
         }
     }
@@ -168,7 +169,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 }
             };
         } catch (Exception e) {
-            LOGGER.error(String.format("Error occurred while converting the Json to Task View. Error: %s. The Json received was '%s'.", e.getMessage(), responseBody));
+            LOGGER.error("Error occurred while converting the Json to Task View. Error: {}. The Json received was '{}'.", e.getMessage(), responseBody);
             throw new RuntimeException(String.format("Error occurred while converting the Json to Task View. Error: %s.", e.getMessage()));
         }
     }
@@ -195,7 +196,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             }
             return executionResult;
         } catch (Exception e) {
-            LOGGER.error(String.format("Error occurred while converting the Json to Execution Result. Error: %s. The Json received was '%s'.", e.getMessage(), responseBody));
+            LOGGER.error("Error occurred while converting the Json to Execution Result. Error: {}. The Json received was '{}'.", e.getMessage(), responseBody);
             throw new RuntimeException(String.format("Error occurred while converting the Json to Execution Result. Error: %s.", e.getMessage()));
         }
     }

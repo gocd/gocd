@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.joda.time.DateTimeUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,15 +37,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static java.lang.String.format;
-
 /**
  * Provides a list of unique SCMMaterials to be updated which will be consumed by MaterialUpdateService
  */
 
 @Component
 public class SCMMaterialSource implements ConfigChangedListener, MaterialSource, MaterialUpdateCompleteListener {
-    private static final Logger LOGGER = Logger.getLogger(SCMMaterialSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SCMMaterialSource.class);
 
     private final GoConfigService goConfigService;
     private ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<>();
@@ -112,7 +111,7 @@ public class SCMMaterialSource implements ConfigChangedListener, MaterialSource,
         if (lastMaterialUpdateTime != null) {
             boolean shouldUpdateMaterial = (DateTimeUtils.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
             if (LOGGER.isDebugEnabled() && !shouldUpdateMaterial) {
-                LOGGER.debug(format("[Material Update] Skipping update of material %s which has been last updated at %s", material, new Date(lastMaterialUpdateTime)));
+                LOGGER.debug("[Material Update] Skipping update of material {} which has been last updated at {}", material, new Date(lastMaterialUpdateTime));
             }
             return shouldUpdateMaterial;
         }

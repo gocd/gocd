@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.beust.jcommander.ParameterException;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.CertificateFileValidator;
 import com.thoughtworks.go.agent.common.ServerUrlValidator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 
 public class MacPreferencesPane extends JFrame {
-    private static final Log LOG = LogFactory.getLog(AgentMacWindow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentMacWindow.class);
     private JTextField serverTextField;
     private FileBrowser fileBrowser;
     private JButton okButton;
@@ -82,9 +82,9 @@ public class MacPreferencesPane extends JFrame {
 
                     if (!newArgs.equals(agentMacWindow.getBootstrapperArgs())) {
                         agentMacWindow.setBootstrapperArgs(newArgs);
-                        LOG.info("Updating preferences to " + newArgs);
+                        LOG.info("Updating preferences to {}", newArgs);
                     } else {
-                        LOG.info("Preferences are unchanged " + newArgs);
+                        LOG.info("Preferences are unchanged {}", newArgs);
                     }
                     setVisible(false);
                 } catch (MalformedURLException e) {

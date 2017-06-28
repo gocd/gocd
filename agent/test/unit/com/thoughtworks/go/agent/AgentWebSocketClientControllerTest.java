@@ -37,7 +37,10 @@ import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
+import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.message.BasicStatusLine;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.junit.After;
 import org.junit.Rule;
@@ -248,6 +251,9 @@ public class AgentWebSocketClientControllerTest {
     public void processBuildCommand() throws Exception {
         ArgumentCaptor<Message> currentStatusMessageCaptor = ArgumentCaptor.forClass(Message.class);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
+        when(httpService.execute(any())).thenReturn(httpResponse);
 
         agentController = createAgentController();
         agentController.init();

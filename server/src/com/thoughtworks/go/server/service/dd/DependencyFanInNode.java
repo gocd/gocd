@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.dd;
 
@@ -26,7 +26,8 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,7 +35,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.*;
 
 public class DependencyFanInNode extends FanInNode {
-    private static final Logger LOGGER = Logger.getLogger(DependencyFanInNode.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DependencyFanInNode.class);
 
     private int totalInstanceCount = Integer.MAX_VALUE;
     private int maxBackTrackLimit = Integer.MAX_VALUE;
@@ -192,7 +193,7 @@ public class DependencyFanInNode extends FanInNode {
             Collection disjunctionWithConfig = CollectionUtils.disjunction(currentScmFingerprint, commonMaterials);
             Collection disjunctionWithInstance = CollectionUtils.disjunction(scmMaterialsFingerprint, commonMaterials);
 
-            LOGGER.warn(String.format("[Fan-in] - Incompatible materials for %s. Config: %s. Instance: %s.", stageIdentifierScmPair.first().getStageLocator(), disjunctionWithConfig, disjunctionWithInstance));
+            LOGGER.warn("[Fan-in] - Incompatible materials for {}. Config: {}. Instance: {}.", stageIdentifierScmPair.first().getStageLocator(), disjunctionWithConfig, disjunctionWithInstance);
 
             //This is it. We will not go beyond this revision in history
             totalInstanceCount = currentCount;

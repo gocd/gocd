@@ -33,7 +33,8 @@ import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialUpdater;
 import com.thoughtworks.go.util.ObjectUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.Serializable;
@@ -43,7 +44,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 // Understands multiple materials each with their own revision
 public class MaterialRevisions implements Serializable, Iterable<MaterialRevision> {
-    private static final Logger LOGGER = Logger.getLogger(MaterialRevisions.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRevisions.class);
 
     public static final MaterialRevisions EMPTY = new MaterialRevisions();
     private List<MaterialRevision> revisions = new ArrayList<>();
@@ -375,7 +376,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         List<BuildCommand> commands = new ArrayList<>();
         for (MaterialRevision revision : revisions) {
             Material material = revision.getMaterial();
-            if(material instanceof ScmMaterial) {
+            if (material instanceof ScmMaterial) {
                 if (material instanceof GitMaterial) {
                     GitMaterialUpdater updater = new GitMaterialUpdater((GitMaterial) material);
                     commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,8 @@ import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.util.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +49,7 @@ public class PipelineConfigService {
     private final SecurityService securityService;
     private final PluggableTaskService pluggableTaskService;
     private final EntityHashingService entityHashingService;
-    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(PipelineConfigService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigService.class);
 
     @Autowired
     public PipelineConfigService(GoConfigService goConfigService, SecurityService securityService, PluggableTaskService pluggableTaskService, EntityHashingService entityHashingService) {
@@ -64,12 +66,10 @@ public class PipelineConfigService {
         List<CaseInsensitiveString> pipelineNames = cruiseConfig.getAllPipelineNames();
 
         for (CaseInsensitiveString pipelineName : pipelineNames) {
-            ConfigOrigin origin = pipelineConfigOrigin(cruiseConfig,pipelineName);
-            if(origin != null && !origin.isLocal())
-            {
+            ConfigOrigin origin = pipelineConfigOrigin(cruiseConfig, pipelineName);
+            if (origin != null && !origin.isLocal()) {
                 nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_REMOTE_PIPELINE", pipelineName, origin.displayName())));
-            }
-            else {
+            } else {
                 CaseInsensitiveString envName = environmentUsedIn(cruiseConfig, pipelineName);
                 if (envName != null) {
                     nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", pipelineName, envName)));
@@ -86,9 +86,9 @@ public class PipelineConfigService {
         return nameToCanDeleteIt;
     }
 
-    private ConfigOrigin pipelineConfigOrigin(CruiseConfig cruiseConfig,final CaseInsensitiveString pipelineName) {
+    private ConfigOrigin pipelineConfigOrigin(CruiseConfig cruiseConfig, final CaseInsensitiveString pipelineName) {
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(pipelineName);
-        if(pipelineConfig == null)
+        if (pipelineConfig == null)
             return null;
         return pipelineConfig.getOrigin();
     }
@@ -115,7 +115,7 @@ public class PipelineConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                if(!result.hasMessage()){
+                if (!result.hasMessage()) {
                     result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), CaseInsensitiveString.str(pipelineConfig.name()), e.getMessage()));
                 }
             } else if (!(e instanceof ConfigUpdateCheckFailedException)) {
@@ -145,14 +145,14 @@ public class PipelineConfigService {
     public List<PipelineConfigs> viewableOrOperatableGroupsFor(Username username) {
         ArrayList<PipelineConfigs> list = new ArrayList<>();
         for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
-            if(hasViewOrOperatePermissionForGroup(username, pipelineConfigs.getGroup())) {
+            if (hasViewOrOperatePermissionForGroup(username, pipelineConfigs.getGroup())) {
                 list.add(pipelineConfigs);
             }
         }
         return list;
     }
 
-        public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
+    public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         validatePluggableTasks(pipelineConfig);
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
@@ -161,7 +161,7 @@ public class PipelineConfigService {
     public void deletePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {
         DeletePipelineConfigCommand deletePipelineConfigCommand = new DeletePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
         update(currentUser, pipelineConfig, result, deletePipelineConfigCommand);
-        if(result.isSuccessful()) {
+        if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "pipeline", pipelineConfig.name()));
         }
     }
@@ -172,17 +172,17 @@ public class PipelineConfigService {
     }
 
     private void validatePluggableTasks(PipelineConfig config) {
-        for(PluggableTask task: pluggableTask(config)) {
+        for (PluggableTask task : pluggableTask(config)) {
             pluggableTaskService.isValid(task);
         }
     }
 
     private List<PluggableTask> pluggableTask(PipelineConfig config) {
         List<PluggableTask> tasks = new ArrayList<>();
-        for(StageConfig stageConfig: config.getStages()) {
-            for(JobConfig jobConfig: stageConfig.getJobs()) {
-                for(Task task: jobConfig.getTasks()) {
-                    if(task instanceof PluggableTask) {
+        for (StageConfig stageConfig : config.getStages()) {
+            for (JobConfig jobConfig : stageConfig.getJobs()) {
+                for (Task task : jobConfig.getTasks()) {
+                    if (task instanceof PluggableTask) {
                         tasks.add((PluggableTask) task);
                     }
                 }

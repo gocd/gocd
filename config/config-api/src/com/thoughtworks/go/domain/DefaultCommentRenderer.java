@@ -1,32 +1,32 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class DefaultCommentRenderer implements CommentRenderer {
-    private static final Log LOGGER = LogFactory.getLog(DefaultCommentRenderer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommentRenderer.class);
     private final String link;
     private final String regex;
 
@@ -45,7 +45,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
             return comment.render();
         }
         try {
-            java.util.regex.Matcher matcher = Pattern.compile(regex).matcher(text);
+            Matcher matcher = Pattern.compile(regex).matcher(text);
             int start = 0;
             Comment comment = new Comment();
             while (hasMatch(matcher)) {
@@ -56,7 +56,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
             comment.escapeAndAdd(text.substring(start));
             return comment.render();
         } catch (PatternSyntaxException e) {
-            LOGGER.warn(String.format("Illegal regular expression: %s - %s", regex, e.getMessage()));
+            LOGGER.warn("Illegal regular expression: {} - {}", regex, e.getMessage());
         }
         return text;
     }
@@ -75,7 +75,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
     }
 
     private String contentsOfFirstGroupThatMatched(Matcher matcher) {
-        for(int i = 1; i <= matcher.groupCount(); i++) {
+        for (int i = 1; i <= matcher.groupCount(); i++) {
             String groupContent = matcher.group(i);
             if (groupContent != null) {
                 return groupContent;

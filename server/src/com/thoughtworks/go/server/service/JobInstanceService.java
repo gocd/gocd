@@ -37,7 +37,8 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -47,7 +48,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
@@ -66,7 +66,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     private final List<JobStatusListener> listeners;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
-    private static Logger LOGGER = Logger.getLogger(JobInstanceService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(JobInstanceService.class);
     private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
 
     @Autowired
@@ -131,9 +131,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 internalUpdateJobStateAndResult(job);
 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("job status updated [%s]", job));
-                }
+                LOGGER.debug("job status updated [{}]", job);
                 notifyJobStatusChangeListeners(job);
             }
         });
@@ -147,13 +145,12 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
                 synchronized (LISTENERS_MODIFICATION_MUTEX) {
                     listeners1 = new ArrayList<>(listeners);
                 }
-                for (JobStatusListener jobStatusListener : listeners1) {
+                for (JobStatusListener jobStatusListener : listeners1)
                     try {
                         jobStatusListener.jobStatusChanged(job);
                     } catch (Exception e) {
-                        LOGGER.error("error notifying listener for job " + job, e);
+                        LOGGER.error("error notifying listener for job {}", job, e);
                     }
-                }
             }
         });
     }
@@ -197,7 +194,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     public void cancelJob(final JobInstance job) {
-        LOGGER.info(String.format("cancelling job [%s]", job));
+        LOGGER.info("cancelling job [{}]", job);
         boolean cancelled = job.cancel();
         if (cancelled) {
             updateStateAndResult(job);

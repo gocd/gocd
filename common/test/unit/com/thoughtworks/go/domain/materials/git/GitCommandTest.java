@@ -205,7 +205,7 @@ public class GitCommandTest {
             git.fetch(output);
             fail("should have failed for non 0 return code. Git output was:\n " + output.getAllOutput());
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format("git fetch failed for [git://user:******@foo.bar/baz]")));
+            assertThat(e.getMessage(), is("git fetch failed for [git://user:******@foo.bar/baz]"));
         }
     }
 

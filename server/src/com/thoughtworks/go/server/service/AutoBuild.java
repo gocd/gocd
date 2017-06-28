@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @understands a build that was triggered by a change in some external materials
@@ -44,7 +45,7 @@ public class AutoBuild implements BuildType {
     private final SystemEnvironment systemEnvironment;
     private final MaterialChecker materialChecker;
     private final ServerHealthService serverHealthService;
-    private static final Logger LOGGER = Logger.getLogger(AutoBuild.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutoBuild.class);
 
     public AutoBuild(GoConfigService goConfigService, PipelineService pipelineService, String pipelineName, SystemEnvironment systemEnvironment, MaterialChecker materialChecker,
                      ServerHealthService serverHealthService) {
@@ -117,22 +118,18 @@ public class AutoBuild implements BuildType {
         } catch (RuntimeException e) {
             serverHealthService.update(ServerHealthState.warning("Turning off Fan-In for pipeline: '" + pipelineName + "'", "Error occurred during Fan-In resolution for the pipeline.",
                     HealthStateType.general(HealthStateScope.forFanin(pipelineName))));
-            LOGGER.info("[Revision Resolution] Error occurred during Fan-In resolution for the pipeline: '" + pipelineName + "'. Switching to Triangle Resolution");
+            LOGGER.info("[Revision Resolution] Error occurred during Fan-In resolution for the pipeline: '{}'. Switching to Triangle Resolution", pipelineName);
             return fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
         }
     }
 
     private MaterialRevisions fanInOn(MaterialRevisions originalMaterialRevisions, CruiseConfig cruiseConfig, CaseInsensitiveString targetPipelineName) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[Revision Resolution] Fan-In Resolution is active for pipeline " + pipelineName);
-        }
+        LOGGER.debug("[Revision Resolution] Fan-In Resolution is active for pipeline {}", pipelineName);
         return pipelineService.getRevisionsBasedOnDependencies(originalMaterialRevisions, cruiseConfig, targetPipelineName);
     }
 
     private MaterialRevisions fanInOffTriangleDependency(MaterialRevisions originalMaterialRevisions, CruiseConfig cruiseConfig) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[Revision Resolution] Triangle Resolution is active for pipeline " + pipelineName);
-        }
+        LOGGER.debug("[Revision Resolution] Triangle Resolution is active for pipeline {}", pipelineName);
         PipelineConfigDependencyGraph dependencyGraph = goConfigService.upstreamDependencyGraphOf(pipelineName, cruiseConfig);
         if (hasAnyUnsharedMaterialChanged(dependencyGraph, originalMaterialRevisions) || dependencyGraph.isRevisionsOfSharedMaterialsIgnored(originalMaterialRevisions)) {
             return pipelineService.getRevisionsBasedOnDependencies(dependencyGraph, originalMaterialRevisions);

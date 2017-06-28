@@ -1,32 +1,32 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.io.*;
-import java.util.zip.*;
-
-import static java.lang.String.format;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class ZipUtil {
-    private static final Logger LOGGER = Logger.getLogger(ZipUtil.class);
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZipUtil.class);
     private ZipEntryHandler zipEntryHandler = null;
 
     public ZipUtil() {
@@ -154,13 +154,13 @@ public class ZipUtil {
                         try {
                             stream.close();
                         } catch (IOException e) {
-                            LOGGER.warn(String.format("Failed to close the file-handle to file '%s' which was created as artifact download.", outputFile.getAbsolutePath()), e);
+                            LOGGER.warn("Failed to close the file-handle to file '{}' which was created as artifact download.", outputFile.getAbsolutePath(), e);
                         }
                     }
                 }
             }
         } catch (IOException e) {
-            LOGGER.error(format("Failed to unzip file [%s] to directory [%s]", entryName, toDir.getAbsolutePath()), e);
+            LOGGER.error("Failed to unzip file [{}] to directory [{}]", entryName, toDir.getAbsolutePath(), e);
             throw e;
         } finally {
             IOUtils.closeQuietly(os);

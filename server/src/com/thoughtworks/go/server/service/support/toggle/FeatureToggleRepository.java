@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.support.toggle;
 
@@ -24,7 +24,8 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -40,7 +41,7 @@ import static com.thoughtworks.go.util.SystemEnvironment.USER_FEATURE_TOGGLES_FI
 @Repository
 public class FeatureToggleRepository {
     private SystemEnvironment environment;
-    private final Logger LOGGER = Logger.getLogger(FeatureToggleRepository.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(FeatureToggleRepository.class);
     private Gson gson;
 
     @Autowired
@@ -54,7 +55,7 @@ public class FeatureToggleRepository {
 
         InputStream streamForAvailableToggles = getClass().getResourceAsStream(availableTogglesResourcePath);
         if (streamForAvailableToggles == null) {
-            LOGGER.error("Failed to read toggles from " + availableTogglesResourcePath + ". Saying there are no toggles.");
+            LOGGER.error("Failed to read toggles from {}. Saying there are no toggles.", availableTogglesResourcePath);
             return new FeatureToggles();
         }
 
@@ -65,14 +66,14 @@ public class FeatureToggleRepository {
         String userTogglesPath = userTogglesFile().getAbsolutePath();
 
         if (!new File(userTogglesPath).exists()) {
-            LOGGER.warn("Toggles file, " + userTogglesPath + " does not exist. Saying there are no toggles.");
+            LOGGER.warn("Toggles file, {} does not exist. Saying there are no toggles.", userTogglesPath);
             return new FeatureToggles();
         }
 
         try {
             return readTogglesFromStream(new FileInputStream(userTogglesPath), "user");
         } catch (FileNotFoundException e) {
-            LOGGER.warn("Toggles file, " + userTogglesPath + " does not exist. Saying there are no toggles.");
+            LOGGER.warn("Toggles file, {} does not exist. Saying there are no toggles.", userTogglesPath);
             return new FeatureToggles();
         }
     }
@@ -89,7 +90,7 @@ public class FeatureToggleRepository {
             FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);
         } catch (Exception e) {
-            LOGGER.error("Failed to read " + kindOfToggle + " toggles. Saying there are no toggles.", e);
+            LOGGER.error("Failed to read {} toggles. Saying there are no toggles.", kindOfToggle, e);
             return new FeatureToggles();
         } finally {
             IOUtils.closeQuietly(streamForToggles);

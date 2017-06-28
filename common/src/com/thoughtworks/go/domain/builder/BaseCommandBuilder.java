@@ -20,12 +20,13 @@ import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 public abstract class BaseCommandBuilder extends Builder {
-    private static final Logger LOG = Logger.getLogger(BaseCommandBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BaseCommandBuilder.class);
 
     protected String command;
     protected File workingDir;
@@ -89,7 +90,8 @@ public abstract class BaseCommandBuilder extends Builder {
         LOG.warn(errorMessage);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "BaseCommandBuilder{" +
                 "command='" + command + '\'' +
                 ", workingDir=" + workingDir +

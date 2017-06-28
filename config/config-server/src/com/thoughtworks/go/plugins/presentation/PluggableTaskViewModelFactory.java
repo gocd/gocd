@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel;
 import com.thoughtworks.go.presentation.PluggableTaskViewModel;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ import java.util.regex.Pattern;
  */
 public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<PluggableTask> {
 
-    private static final Logger LOG = Logger.getLogger(PluggableTaskViewModelFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluggableTaskViewModelFactory.class);
 
     private Map<String, String> viewTemplates = new HashMap<>();
     private static final Pattern CLASSPATH_MATCHER_PATTERN = Pattern.compile("^classpath:(.+)");
@@ -65,8 +66,7 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
         final Matcher matcher = CLASSPATH_MATCHER_PATTERN.matcher(templateString);
         if (matcher.matches()) {
             return loadTemplateFromClasspath(matcher.group(1), view);
-        }
-        else return templateString;
+        } else return templateString;
     }
 
     private String loadTemplateFromClasspath(final String filepath, final TaskView view) {
@@ -75,8 +75,7 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
             in = view.getClass().getResourceAsStream(filepath);
             return in != null ? IOUtils.toString(in) : String.format("Template \"%s\" is missing.", filepath);
         } catch (IOException e) {
-            LOG.error(String.format("Failed to load template from view from path \"%s\". Make sure your the template is" +
-                    " on the classpath of your plugin", filepath), e);
+            LOG.error("Failed to load template from view from path \"{}\". Make sure your the template is on the classpath of your plugin", filepath, e);
             return String.format("Template \"%s\" failed to load.", filepath);
         } finally {
             if (in != null) {

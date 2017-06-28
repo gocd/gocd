@@ -1,20 +1,27 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.perforce;
+
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.ModifiedAction;
+import com.thoughtworks.go.util.command.ConsoleResult;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,16 +33,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.domain.materials.ModifiedAction;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class P4OutputParser {
-    private static final Logger LOG = Logger.getLogger(P4OutputParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(P4OutputParser.class);
     private static final String P4_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss";
     private static final String DESCRIBE_OUTPUT_PATTERN = "^(.+)\n\\s+((.*\n)*)\\s+";
     private static final String FIRST_LINE_PATTERN =
@@ -64,7 +65,7 @@ public class P4OutputParser {
         Matcher matcher = pattern.matcher(parts[0]);
         if (matcher.find()) {
             Modification modification = new Modification();
-            parseFistline(modification, matcher.group(1),result);
+            parseFistline(modification, matcher.group(1), result);
             parseComment(matcher, modification);
             parseAffectedFiles(parts, modification);
             return modification;
@@ -113,7 +114,7 @@ public class P4OutputParser {
                 throw bomb(e);
             }
         } else {
-            LOG.warn("Could not parse P4 describe: " + result.replaceSecretInfo(line));
+            LOG.warn("Could not parse P4 describe: {}", result.replaceSecretInfo(line));
             throw new P4OutputParseException("Could not parse P4 describe: " + result.replaceSecretInfo(line));
         }
     }
@@ -126,9 +127,9 @@ public class P4OutputParser {
                 try {
                     long revision = revisionFromChange(change);
                     description = p4Client.describe(revision);
-                    modifications.add(modificationFromDescription(description,result));
+                    modifications.add(modificationFromDescription(description, result));
                 } catch (P4OutputParseException e) {
-                    LOG.error("Error parsing changes for " + this);
+                    LOG.error("Error parsing changes for {}", this);
                     LOG.error("---- change ---------");
                     LOG.error(result.replaceSecretInfo(change));
                     LOG.error("---- description ----");

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,10 +44,11 @@ import com.thoughtworks.studios.shine.semweb.URIReference;
 import com.thoughtworks.studios.shine.semweb.UUIDURIGenerator;
 import com.thoughtworks.studios.shine.semweb.UnsupportedSPARQLStatementException;
 import com.thoughtworks.studios.shine.util.ArgumentUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BooleanQuery;
@@ -75,13 +76,14 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.n3.N3Writer;
 import org.openrdf.rio.rdfxml.RDFXMLWriter;
+import org.slf4j.LoggerFactory;
 
 public class SesameGraph implements Graph {
     private final RepositoryConnection conn;
     private org.openrdf.model.Resource[] contextResource;
     private Var contextVar;
     private List<Graph> tempGraphs = new ArrayList<>();
-    private final static Logger LOGGER = Logger.getLogger(SesameGraph.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(SesameGraph.class);
 
     private Map<RDFProperty, URI> sesameNativeTypeByRDFProperty = new HashMap<>();
 
@@ -311,7 +313,7 @@ public class SesameGraph implements Graph {
         return new SesameURIReference(conn.getValueFactory().createURI(uri));
     }
 
-    org.openrdf.model.Value getPropertyValue(org.openrdf.model.Resource resource, RDFProperty rdfProperty) {
+    Value getPropertyValue(org.openrdf.model.Resource resource, RDFProperty rdfProperty) {
         try {
             return conn.getStatements(resource, getSesameNativeProperty(rdfProperty), null, false).next().getObject();
         } catch (RepositoryException e) {
@@ -385,7 +387,6 @@ public class SesameGraph implements Graph {
     public void removeTypeOn(Resource tripleSubject, RDFType tripleObject) {
         remove(tripleSubject, RDFOntology.TYPE, getURIReference(tripleObject.getURIText()));
     }
-
 
 
     public void remove(Resource tripleSubject, RDFProperty triplePredicate, String tripleObject) {

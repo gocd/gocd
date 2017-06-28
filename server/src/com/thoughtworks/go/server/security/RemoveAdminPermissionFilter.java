@@ -24,7 +24,8 @@ import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
@@ -41,7 +42,7 @@ import java.io.IOException;
  * @understands when a logged in user's authorization needs to be redone to get the new roles.
  */
 public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements ConfigChangedListener, PluginRoleChangeListener {
-    private static final Logger LOGGER = Logger.getLogger(RemoveAdminPermissionFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoveAdminPermissionFilter.class);
 
     protected static final String SECURITY_CONFIG_LAST_CHANGE = "security_config_last_changed_time";
     private SecurityConfig securityConfig;
@@ -94,7 +95,7 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
         if (this.securityConfig != null && !this.securityConfig.equals(newSecurityConfig)) {
-            LOGGER.info(String.format("[Configuration Changed] Security Configuration is changed. Updating the last changed time."));
+            LOGGER.info("[Configuration Changed] Security Configuration is changed. Updating the last changed time.");
             this.lastChangedTime = timeProvider.currentTimeMillis();
         }
         this.securityConfig = newSecurityConfig;

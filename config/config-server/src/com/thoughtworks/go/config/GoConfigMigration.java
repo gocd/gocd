@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
@@ -46,7 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -77,9 +74,7 @@ public class GoConfigMigration {
                 System.err.println(
                         "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
                                 + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
-                LOG.error(
-                        "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
+                LOG.error("There are errors in the Cruise config file.  Please read the error message and correct the errors.\nOnce fixed, please restart Cruise.\nError: {}", e.getMessage());
                 // Send exit signal in a separate thread otherwise it will deadlock jetty
                 new Thread(new Runnable() {
                     public void run() {
@@ -208,7 +203,7 @@ public class GoConfigMigration {
 
     private void backup(File configFile, File backupFile) throws IOException {
         FileUtils.copyFile(configFile, backupFile);
-        LOG.info("Config file is backed up, location: " + backupFile.getAbsolutePath());
+        LOG.info("Config file is backed up, location: {}", backupFile.getAbsolutePath());
     }
 
     File getBackupFile(File configFile, final String prefix) {
@@ -222,7 +217,7 @@ public class GoConfigMigration {
     }
 
     private String upgrade(String content, int currentVersion, int targetVersion) {
-        LOG.info("Upgrading config file from version " + currentVersion + " to version " + targetVersion);
+        LOG.info("Upgrading config file from version {} to version {}", currentVersion, targetVersion);
         List<URL> upgradeScripts = upgradeScripts(currentVersion, targetVersion);
 
         for (URL upgradeScript : upgradeScripts) {

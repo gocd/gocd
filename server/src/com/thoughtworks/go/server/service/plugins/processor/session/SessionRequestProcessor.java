@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -38,7 +39,7 @@ import static java.util.Arrays.asList;
 
 @Component
 public class SessionRequestProcessor implements GoPluginApiRequestProcessor {
-    private static final Logger LOGGER = Logger.getLogger(SessionRequestProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionRequestProcessor.class);
 
     public static final String PUT_INTO_SESSION = "go.processor.session.put";
     public static final String GET_FROM_SESSION = "go.processor.session.get";

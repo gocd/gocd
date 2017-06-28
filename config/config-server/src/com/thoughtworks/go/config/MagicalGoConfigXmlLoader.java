@@ -30,10 +30,11 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -47,7 +48,7 @@ import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
-    private static final Logger LOGGER = Logger.getLogger(MagicalGoConfigXmlLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
 
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
             new TemplateExpansionPreprocessor(),
@@ -62,7 +63,7 @@ public class MagicalGoConfigXmlLoader {
             new CommandRepositoryLocationValidator(new SystemEnvironment())
     );
 
-    public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator)new UniqueOnCancelValidator());
+    public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator) new UniqueOnCancelValidator());
 
     private static final Cloner CLONER = new Cloner();
     private ConfigCache configCache;
@@ -135,10 +136,10 @@ public class MagicalGoConfigXmlLoader {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {
-            if(config.isLocal())
+            if (config.isLocal())
                 throw new GoConfigInvalidException(config, allErrors.get(0).asString());
             else
-                throw new GoConfigInvalidMergeException("Merged validation failed",config,config.getMergedPartials(),allErrors);
+                throw new GoConfigInvalidMergeException("Merged validation failed", config, config.getMergedPartials(), allErrors);
         }
 
         LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");
@@ -172,7 +173,7 @@ public class MagicalGoConfigXmlLoader {
         return classParser(element, o, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
     }
 
-    public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends com.thoughtworks.go.config.GoConfigPreprocessor> clazz) {
+    public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends GoConfigPreprocessor> clazz) {
         return ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
             @Override
             public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {

@@ -143,8 +143,8 @@ public class GoFileConfigDataSource {
 
             reloadStrategy.performingReload(result);
 
-            LOGGER.info("Config file changed at " + result.modifiedTime);
-            LOGGER.info("Reloading config file: " + configFile);
+            LOGGER.info("Config file changed at {}", result.modifiedTime);
+            LOGGER.info("Reloading config file: {}", configFile);
 
             if(systemEnvironment.optimizeFullConfigSave()) {
                 LOGGER.debug("Starting config reload using the optimized flow.");
@@ -173,9 +173,7 @@ public class GoFileConfigDataSource {
         File configFile = goConfigFileReader.fileLocation();
 
         CruiseConfig cruiseConfig = this.magicalGoConfigXmlLoader.deserializeConfig(goConfigFileReader.configXml());
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Reloading config file: {}", configFile.getAbsolutePath());
-        }
+        LOGGER.debug("Reloading config file: {}", configFile.getAbsolutePath());
 
         GoConfigHolder goConfigHolder;
         try {
@@ -202,9 +200,7 @@ public class GoFileConfigDataSource {
     }
 
     synchronized GoConfigHolder forceLoad(File configFile) throws Exception {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Reloading config file: " + configFile.getAbsolutePath());
-        }
+        LOGGER.debug("Reloading config file: {}", configFile.getAbsolutePath());
         GoConfigHolder holder;
         try {
             try {
@@ -220,7 +216,7 @@ public class GoFileConfigDataSource {
             }
             return holder;
         } catch (Exception e) {
-            LOGGER.error("Unable to load config file: " + configFile.getAbsolutePath() + " " + e.getMessage(), e);
+            LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
             if (configFile.exists()) {
                 LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
                 LOGGER.warn(FileUtil.readContentFromFile(configFile));
@@ -240,14 +236,11 @@ public class GoFileConfigDataSource {
             }
             GoConfigHolder configHolder = internalLoad(configFileContent, new ConfigModifyingUser(), new ArrayList<>());
             String toWrite = configAsXml(configHolder.configForEdit, false);
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Writing config file: " + configFile.getAbsolutePath());
-            }
+            LOGGER.trace("Writing config file: {}", configFile.getAbsolutePath());
             writeToConfigXmlFile(toWrite);
             return configHolder;
         } catch (Exception e) {
-            LOGGER.error("Unable to write config file: " + configFile.getAbsolutePath()
-                    + "\n" + e.getMessage(), e);
+            LOGGER.error("Unable to write config file: {}\n{}", configFile.getAbsolutePath(), e.getMessage(), e);
             throw e;
         }
     }
@@ -340,17 +333,13 @@ public class GoFileConfigDataSource {
                 if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
                     throw e;
                 } else {
-                    LOGGER.warn(
-                            "Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials. Exception message was: {}",
-                            lastKnownPartials.size(), lastValidPartials.size(), e.getMessage(), e);
+                    LOGGER.warn("Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials. Exception message was: {}", lastKnownPartials.size(), lastValidPartials.size(), e.getMessage(), e);
                     try {
                         validatedConfigHolder = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
                         updateMergedConfigForEdit(validatedConfigHolder, lastValidPartials);
                         LOGGER.info("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
                     } catch (GoConfigInvalidException fallbackFailed) {
-                        LOGGER.warn(
-                                "Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}",
-                                lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
+                        LOGGER.warn("Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}", lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
                         throw new GoConfigInvalidMergeException("Fallback merge failed", lastValidPartials, fallbackFailed);
                     }
                 }
@@ -358,13 +347,13 @@ public class GoFileConfigDataSource {
             ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
             return new GoConfigSaveResult(validatedConfigHolder, configSaveState);
         } catch (ConfigFileHasChangedException e) {
-            LOGGER.warn("Configuration file could not be merged successfully after a concurrent edit: " + e.getMessage(), e);
+            LOGGER.warn("Configuration file could not be merged successfully after a concurrent edit: {}", e.getMessage(), e);
             throw e;
         } catch (GoConfigInvalidException e) {
-            LOGGER.warn("Configuration file is invalid: " + e.getMessage(), e);
+            LOGGER.warn("Configuration file is invalid: {}", e.getMessage(), e);
             throw bomb(e.getMessage(), e);
         } catch (Exception e) {
-            LOGGER.error("Configuration file is not valid: " + e.getMessage(), e);
+            LOGGER.error("Configuration file is not valid: {}", e.getMessage(), e);
             throw bomb(e.getMessage(), e);
         } finally {
             LOGGER.debug("[Config Save] Done writing with lock");
@@ -380,8 +369,7 @@ public class GoFileConfigDataSource {
                 if (!canUpdateConfigWithLastValidPartials())
                     throw e;
 
-                LOGGER.warn("Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials." +
-                        " Exception message was: {}", cachedGoPartials.lastKnownPartials().size(), cachedGoPartials.lastValidPartials().size(), e.getMessage(), e);
+                LOGGER.warn("Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials. Exception message was: {}", cachedGoPartials.lastKnownPartials().size(), cachedGoPartials.lastValidPartials().size(), e.getMessage(), e);
 
                 validatedConfigHolder = trySavingConfigWithLastValidPartials(updatingCommand, configHolder);
             }
@@ -414,9 +402,7 @@ public class GoFileConfigDataSource {
             goConfigHolder = trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastValidPartials());
             LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
         } catch (GoConfigInvalidException fallbackFailed) {
-            LOGGER.warn(
-                    "Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}",
-                    lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
+            LOGGER.warn("Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}", lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
             throw new GoConfigInvalidMergeException("Fallback merge failed", lastValidPartials, fallbackFailed);
         }
         return goConfigHolder;

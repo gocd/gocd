@@ -16,19 +16,19 @@
 
 package com.thoughtworks.go.agent.common.ssl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.Closeable;
 import java.io.IOException;
 
 public class GoAgentServerHttpClient implements Closeable {
-    private static final Log LOG = LogFactory.getLog(GoAgentServerHttpClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GoAgentServerHttpClient.class);
 
     private CloseableHttpClient client;
     private X500Principal principal;

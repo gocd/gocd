@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,8 @@ import java.util.zip.Deflater;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
@@ -47,7 +48,7 @@ public class MigrateHsqldbToH2 implements Migration {
     private static final String BACKUP_FILE_NAME_DATE_PATTERN = "yyyy-MM-dd-hhmm";
     public static final int LINES_PER_DOT = 2000;
     private BasicDataSource source;
-    private static final Logger LOGGER = Logger.getLogger(MigrateHsqldbToH2.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrateHsqldbToH2.class);
 
 
     public MigrateHsqldbToH2(BasicDataSource source, SystemEnvironment env) {
@@ -62,7 +63,7 @@ public class MigrateHsqldbToH2 implements Migration {
     private void runScript() {
         File oldHsqlScript = new File(oldHsql(), "cruise.script");
         if (oldHsql().exists()) {
-            LOGGER.info(String.format("Found database at %s to be hsql. Migrating it to h2db.", oldHsqlScript.getAbsolutePath()));
+            LOGGER.info("Found database at {} to be hsql. Migrating it to h2db.", oldHsqlScript.getAbsolutePath());
             try {
                 backupOldDb(dbDirectory(), oldHsql());
                 if (oldHsqlScript.exists()) {
@@ -96,7 +97,9 @@ public class MigrateHsqldbToH2 implements Migration {
         File backup = new File(dbDirectory, "h2db-template-backup-" + dateString() + ".zip");
         new ZipUtil().zip(newDb, backup, Deflater.DEFAULT_COMPRESSION);
         deleteDirectory(newDb);
-        if (newDb.exists()) { bomb("Database " + newDb + " could not be deleted."); }
+        if (newDb.exists()) {
+            bomb("Database " + newDb + " could not be deleted.");
+        }
     }
 
     private void backupOldDb(File dbDirectory, File oldHsql) throws IOException {
@@ -112,7 +115,9 @@ public class MigrateHsqldbToH2 implements Migration {
     }
 
     private void replayScript(File scriptFile) throws SQLException, IOException {
-        if (!scriptFile.exists()) { return; }
+        if (!scriptFile.exists()) {
+            return;
+        }
 
         System.out.println("Migrating hsql file: " + scriptFile.getName());
         Connection con = source.getConnection();
@@ -128,9 +133,15 @@ public class MigrateHsqldbToH2 implements Migration {
                     table = matcher.group(2).trim();
                 }
 
-                if (line.equals("CREATE SCHEMA PUBLIC AUTHORIZATION DBA")) { continue; }
-                if (line.equals("CREATE SCHEMA CRUISE AUTHORIZATION DBA")) { continue; }
-                if (line.startsWith("CREATE USER SA PASSWORD")) { continue; }
+                if (line.equals("CREATE SCHEMA PUBLIC AUTHORIZATION DBA")) {
+                    continue;
+                }
+                if (line.equals("CREATE SCHEMA CRUISE AUTHORIZATION DBA")) {
+                    continue;
+                }
+                if (line.startsWith("CREATE USER SA PASSWORD")) {
+                    continue;
+                }
                 if (line.contains("BUILDEVENT VARCHAR(255)")) {
                     line = line.replace("BUILDEVENT VARCHAR(255)", "BUILDEVENT LONGVARCHAR");
                 }
@@ -144,10 +155,18 @@ public class MigrateHsqldbToH2 implements Migration {
                         && line.contains("VALUE VARCHAR(255),")) {
                     line = line.replace("VALUE VARCHAR(255),", "VALUE LONGVARCHAR,");
                 }
-                if (line.startsWith("GRANT DBA TO SA")) { continue; }
-                if (line.startsWith("CONNECT USER")) { continue; }
-                if (line.contains("DISCONNECT")) { continue; }
-                if (line.contains("AUTOCOMMIT")) { continue; }
+                if (line.startsWith("GRANT DBA TO SA")) {
+                    continue;
+                }
+                if (line.startsWith("CONNECT USER")) {
+                    continue;
+                }
+                if (line.contains("DISCONNECT")) {
+                    continue;
+                }
+                if (line.contains("AUTOCOMMIT")) {
+                    continue;
+                }
                 stmt.executeUpdate(line);
                 if (reader.getLineNumber() % LINES_PER_DOT == 0) {
                     System.out.print(".");

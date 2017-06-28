@@ -46,7 +46,7 @@ public class SiteUrlProvider {
                 siteUrl = urlProvider.siteUrlFor(requestRootUrl, false);
             }
         } catch (URISyntaxException e) {
-            LOGGER.error(String.format("Error fetching site url, reasons: %s", e.getMessage()), e);
+            LOGGER.error("Error fetching site url, reasons: {}", e.getMessage(), e);
         }
 
         return siteUrl;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.thoughtworks.go.util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +42,7 @@ import static java.lang.System.getProperty;
 
 public class FileUtil {
     private static final String CRUISE_TMP_FOLDER = "cruise" + "-" + UUID.randomUUID().toString();
-    private static final Logger LOGGER = Logger.getLogger(FileUtil.class);
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(FileUtil.class);
 
     private static final boolean ON_NETWARE = OperatingSystem.isFamily("netware");
     private static final boolean ON_DOS = OperatingSystem.isFamily("dos");
@@ -152,7 +152,7 @@ public class FileUtil {
             return actualFileToUse;
         }
 
-        if(StringUtil.isBlank(baseDir.getPath())) {
+        if (StringUtil.isBlank(baseDir.getPath())) {
             return actualFileToUse;
         }
 
@@ -341,7 +341,7 @@ public class FileUtil {
     }
 
     public static String removeLeadingPath(String leading, String path) {
-        if(StringUtil.isBlank(leading)) {
+        if (StringUtil.isBlank(leading)) {
             return path;
         }
         return (path.startsWith(leading)) ? path.substring(leading.length()) : path;
@@ -490,7 +490,7 @@ public class FileUtil {
 
     public static String join(File defaultWorkingDir, String actualFileToUse) {
         if (actualFileToUse == null) {
-            LOGGER.trace("Using the default Directory->" + defaultWorkingDir);
+            LOGGER.trace("Using the default Directory->{}", defaultWorkingDir);
             return normalizePath(defaultWorkingDir);
         }
         return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));

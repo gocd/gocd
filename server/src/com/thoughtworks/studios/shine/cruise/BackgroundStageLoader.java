@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,14 @@ import com.thoughtworks.studios.shine.cruise.stage.feeds.StageFeedHandler;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
 import com.thoughtworks.studios.shine.time.Clock;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BackgroundStageLoader implements StageFeedHandler {
-    private final static Logger LOGGER = Logger.getLogger(BackgroundStageLoader.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BackgroundStageLoader.class);
 
     private StageAtomFeedsReader stageFeedsReader;
     private StageResourceImporter stageResourceImporter;
@@ -63,16 +64,12 @@ public class BackgroundStageLoader implements StageFeedHandler {
 
     public void handle(StageFeedEntry feedEntry, final PipelineInstanceLoader pipelineInstanceLoader) {
         StageIdentifier stageIdentifier = feedEntry.getStageIdentifier();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("handling stage:<" + stageIdentifier + ">...");
-        }
+        LOGGER.debug("handling stage:<{}>...", stageIdentifier);
         try {
             stageStorage.save(stageResourceImporter.load(stageIdentifier, new InMemoryTempGraphFactory(), transformerRegistry));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("importing stage:<" + stageIdentifier + "> finished.");
-            }
+            LOGGER.debug("importing stage:<{}> finished.", stageIdentifier);
         } catch (GoIntegrationException e) {
-            LOGGER.error("Can not import stage <" + stageIdentifier + ">, will skip to next...", e);
+            LOGGER.error("Can not import stage <{}>, will skip to next...", stageIdentifier, e);
         }
     }
 

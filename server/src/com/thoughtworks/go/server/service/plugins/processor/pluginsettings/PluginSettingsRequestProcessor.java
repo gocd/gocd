@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,7 @@ import static java.util.Arrays.asList;
 
 @Component
 public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcessor {
-    private static final Logger LOGGER = Logger.getLogger(PluginSettingsRequestProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginSettingsRequestProcessor.class);
 
     public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
     private static final List<String> goSupportedVersions = asList("1.0", "2.0");

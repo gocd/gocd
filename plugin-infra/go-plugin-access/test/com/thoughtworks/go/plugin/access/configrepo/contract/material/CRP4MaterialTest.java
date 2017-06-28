@@ -62,7 +62,7 @@ public class CRP4MaterialTest extends CRBaseTest<CRP4Material> {
         String json = gson.toJson(value);
 
         CRP4Material deserializedValue = (CRP4Material)gson.fromJson(json,CRMaterial.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 }

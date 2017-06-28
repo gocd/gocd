@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Collections;
-
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -34,10 +27,13 @@ import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevis
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class Modifications extends BaseCollection<Modification> {
-    private static final Logger LOG = Logger.getLogger(Modifications.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Modifications.class);
 
     public static final Comparator<Modification> LATEST_MODIFICATION_FIRST = new Comparator<Modification>() {
         public int compare(Modification me, Modification other) {
@@ -77,7 +73,7 @@ public class Modifications extends BaseCollection<Modification> {
 
     public Boolean containsRevisionFor(Modification modification) {
         for (Modification curModification : this) {
-            if(curModification.isSameRevision(modification)) {
+            if (curModification.isSameRevision(modification)) {
                 return true;
             }
         }
@@ -114,9 +110,9 @@ public class Modifications extends BaseCollection<Modification> {
             String revision = latestModification.getRevision();
             return DependencyMaterialRevision.create(revision, latestModification.getPipelineLabel());
         }
-        if(material instanceof PackageMaterial) {
+        if (material instanceof PackageMaterial) {
             Modification latestModification = this.get(0);
-            return new PackageMaterialRevision(latestModification.getRevision(),latestModification.getModifiedTime(), latestModification.getAdditionalDataMap());
+            return new PackageMaterialRevision(latestModification.getRevision(), latestModification.getModifiedTime(), latestModification.getAdditionalDataMap());
         }
         if (material instanceof PluggableSCMMaterial) {
             Modification latestModification = this.get(0);
@@ -136,17 +132,15 @@ public class Modifications extends BaseCollection<Modification> {
             appyIgnoreFilter(materialConfig, file, ignoredFiles);
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Checking ignore filters for " + materialConfig);
-            LOG.debug("Ignored files: " + ignoredFiles);
-            LOG.debug("Changed files: " + CollectionUtils.subtract(allFiles, ignoredFiles));
-        }
+        LOG.debug("Checking ignore filters for {}", materialConfig);
+        LOG.debug("Ignored files: {}", ignoredFiles);
+        LOG.debug("Changed files: {}", CollectionUtils.subtract(allFiles, ignoredFiles));
 
         if (materialConfig.isInvertFilter()) {
-          // return true (ignore) if we are inverting the filter, and the ignoredFiles and allFiles are disjoint sets
-          return Collections.disjoint(allFiles, ignoredFiles);
+            // return true (ignore) if we are inverting the filter, and the ignoredFiles and allFiles are disjoint sets
+            return Collections.disjoint(allFiles, ignoredFiles);
         } else {
-          return ignoredFiles.containsAll(allFiles);
+            return ignoredFiles.containsAll(allFiles);
         }
     }
 

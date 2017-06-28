@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,19 @@
 
 package com.thoughtworks.go.server.messaging.activemq;
 
+import com.thoughtworks.go.server.messaging.GoMessage;
+import com.thoughtworks.go.server.messaging.GoMessageListener;
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
 
-import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
-import com.thoughtworks.go.server.messaging.GoMessage;
-import com.thoughtworks.go.server.messaging.GoMessageListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class JMSMessageListenerAdapter implements Runnable {
-    private static final Log LOG = LogFactory.getLog(JMSMessageListenerAdapter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JMSMessageListenerAdapter.class);
 
     private final MessageConsumer consumer;
     private final GoMessageListener listener;
@@ -43,7 +43,7 @@ public class JMSMessageListenerAdapter implements Runnable {
 
         thread = new Thread(this);
         String threadNameSuffix = "MessageListener for " + listener.getClass().getSimpleName();
-        thread.setName(thread.getId() +"@"+ threadNameSuffix);
+        thread.setName(thread.getId() + "@" + threadNameSuffix);
         thread.setDaemon(true);
         thread.start();
     }
@@ -74,8 +74,8 @@ public class JMSMessageListenerAdapter implements Runnable {
         } catch (JMSException e) {
             LOG.warn("Error receiving message. Message receiving will continue despite this error.", e);
         } catch (Exception e) {
-            LOG.error("Exception thrown in message handling by listener " + listener, e);
-        }finally {
+            LOG.error("Exception thrown in message handling by listener {}", listener, e);
+        } finally {
             daemonThreadStatsCollector.clearStats(thread.getId());
         }
         return false;

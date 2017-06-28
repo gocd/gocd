@@ -1,24 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -29,15 +25,20 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.buildcause.BuildCauseOutOfDateException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Component
 public class PipelineScheduleQueue {
-    private static final Logger LOGGER = Logger.getLogger(PipelineScheduleQueue.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineScheduleQueue.class);
 
     private PipelineService pipelineService;
     private TransactionTemplate transactionTemplate;
@@ -132,23 +133,17 @@ public class PipelineScheduleQueue {
                 Pipeline pipeline = null;
 
                 if (shouldCancel(buildCause, pipelineName)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(String.format("[Pipeline Schedule] Cancelling scheduling as build cause %s is the same as the most recent schedule", buildCause));
-                    }
+                    LOGGER.debug("[Pipeline Schedule] Cancelling scheduling as build cause {} is the same as the most recent schedule", buildCause);
                     cancelSchedule(pipelineName);
                 } else {
                     try {
                         Pipeline newPipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, md5, clock);
                         pipeline = pipelineService.save(newPipeline);
                         finishSchedule(pipelineName, buildCause, pipeline.getBuildCause());
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug(String.format("[Pipeline Schedule] Successfully scheduled pipeline %s, buildCause:%s, configOrigin: %s",
-                                    pipelineName, buildCause,pipelineConfig.getOrigin()));
-                        }
+                        LOGGER.debug("[Pipeline Schedule] Successfully scheduled pipeline {}, buildCause:{}, configOrigin: {}", pipelineName, buildCause, pipelineConfig.getOrigin());
                     } catch (BuildCauseOutOfDateException e) {
                         cancelSchedule(pipelineName);
-                        LOGGER.info(String.format("[Pipeline Schedule] Build cause %s is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: %s",
-                                buildCause, pipelineConfig.getOrigin()));
+                        LOGGER.info("[Pipeline Schedule] Build cause {} is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: {}", buildCause, pipelineConfig.getOrigin());
                     }
                 }
                 return pipeline;

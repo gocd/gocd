@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -38,13 +38,9 @@ import org.junit.Test;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static com.thoughtworks.go.helper.ModificationsMother.TODAY_CHECKIN;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class PipelineSqlMapDaoTest {
@@ -89,7 +85,7 @@ public class PipelineSqlMapDaoTest {
         when(materialRepository.findMaterialRevisionsForPipeline(expected.getId())).thenReturn(null);
 
         PipelineInstanceModel primed = pipelineSqlMapDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);//prime cache
-        
+
         assertThat(primed, is(expected));
 
         verify(sqlMapClientTemplate, times(1)).queryForObject("getPipelineHistoryByNameAndCounter", map);

@@ -315,7 +315,7 @@ public class ConfigConverter {
             ((PluggableSCMMaterialConfig)repoMaterial).setFolder(destination);
         }
         else
-            LOGGER.warn("Unknown material type " + repoMaterial.getTypeForDisplay());
+            LOGGER.warn("Unknown material type {}", repoMaterial.getTypeForDisplay());
     }
 
     public PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {

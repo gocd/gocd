@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials;
 
@@ -32,7 +32,8 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -45,7 +46,7 @@ import java.io.File;
 @Component
 public class MaterialDatabaseUpdater {
     public static final String MATERIALS_MUTEX_FORMAT = MaterialDatabaseUpdater.class.getName() + "_MaterialMutex_%s_%s";
-    private static final Logger LOGGER = Logger.getLogger(MaterialDatabaseUpdater.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaterialDatabaseUpdater.class);
     static final int STAGES_PER_PAGE = 100;
 
     private final MaterialRepository materialRepository;
@@ -77,9 +78,7 @@ public class MaterialDatabaseUpdater {
         try {
             MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
             if (materialInstance == null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("[Material Update] Material repository not found, creating with latest revision from %s", material));
-                }
+                LOGGER.debug("[Material Update] Material repository not found, creating with latest revision from {}", material);
 
                 synchronized (materialMutex) {
                     if (materialRepository.findMaterialInstance(material) == null) {
@@ -93,9 +92,7 @@ public class MaterialDatabaseUpdater {
                     }
                 }
             } else {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("[Material Update] Existing material repository, fetching new revisions from %s in flyweight %s", material, materialInstance.getFlyweightName()));
-                }
+                LOGGER.debug("[Material Update] Existing material repository, fetching new revisions from {} in flyweight {}", material, materialInstance.getFlyweightName());
 
                 synchronized (materialMutex) {
                     transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
@@ -112,7 +109,7 @@ public class MaterialDatabaseUpdater {
             String message = "Modification check failed for material: " + material.getLongDescription();
             String errorDescription = e.getMessage() == null ? "Unknown error" : e.getMessage();
             healthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
-            LOGGER.warn(String.format("[Material Update] %s", message), e);
+            LOGGER.warn("[Material Update] {}", message, e);
             throw e;
         }
     }

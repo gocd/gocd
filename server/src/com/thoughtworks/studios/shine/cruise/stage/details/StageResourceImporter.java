@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,14 +33,15 @@ import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class StageResourceImporter {
-    private final static Logger LOGGER = Logger.getLogger(StageResourceImporter.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(StageResourceImporter.class);
 
     private String artifactsBaseDir;
     private final XmlApiService xmlApiService;
@@ -58,7 +59,7 @@ public class StageResourceImporter {
         this.systemEnvironment = systemEnvironment;
     }
 
-//used for tests
+    //used for tests
     public StageResourceImporter(String artifactsBaseDir, XmlApiService xmlApiService, StageFinder stageFinder, PipelineInstanceLoader pipelineInstanceLoader, SystemEnvironment systemEnvironment) {
         this.artifactsBaseDir = artifactsBaseDir;
         this.xmlApiService = xmlApiService;
@@ -67,14 +68,12 @@ public class StageResourceImporter {
         this.systemEnvironment = systemEnvironment;
     }
 
-    public void initialize(){
-       this.artifactsBaseDir = goConfigService.artifactsDir().getAbsolutePath();
+    public void initialize() {
+        this.artifactsBaseDir = goConfigService.artifactsDir().getAbsolutePath();
     }
 
     public Graph load(StageIdentifier stageIdentifier, TempGraphFactory tempGraphFactory, final XSLTTransformerRegistry transformerRegistry) throws GoIntegrationException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Attempting to import stage with url <" + stageIdentifier + "> !");
-        }
+        LOGGER.debug("Attempting to import stage with url <{}> !", stageIdentifier);
         long importStartingTime = System.currentTimeMillis();
         try {
             Stage stage = stageFinder.findStageWithIdentifier(stageIdentifier);
@@ -84,9 +83,7 @@ public class StageResourceImporter {
             importJobs(graph, transformerRegistry, stage, baseUri);
             return graph;
         } finally {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Done importing stage with url <" + stageIdentifier + "> with " + (System.currentTimeMillis() - importStartingTime) + " ms!");
-            }
+            LOGGER.debug("Done importing stage with url <{}> with {} ms!", stageIdentifier, System.currentTimeMillis() - importStartingTime);
         }
     }
 

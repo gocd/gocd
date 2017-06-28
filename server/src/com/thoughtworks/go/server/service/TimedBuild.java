@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -24,13 +24,14 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @understands builds that are triggered by a timer
  */
 public class TimedBuild implements BuildType {
-    private static final Logger LOGGER = Logger.getLogger(TimedBuild.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimedBuild.class);
     private Username username;
 
     public TimedBuild() {
@@ -52,16 +53,16 @@ public class TimedBuild implements BuildType {
     }
 
     public void canProduce(PipelineConfig pipelineConfig, SchedulingCheckerService schedulingChecker,
-                                        ServerHealthService serverHealthService,
-                                        OperationResult operationResult) {
-        schedulingChecker.canTriggerPipelineWithTimer(pipelineConfig,operationResult);
+                           ServerHealthService serverHealthService,
+                           OperationResult operationResult) {
+        schedulingChecker.canTriggerPipelineWithTimer(pipelineConfig, operationResult);
         if (!operationResult.canContinue()) {
             ServerHealthState serverHealthState = operationResult.getServerHealthState();
-            LOGGER.info(String.format("'%s'  because '%s'", serverHealthState.getMessage(), serverHealthState.getDescription()));
+            LOGGER.info("'{}'  because '{}'", serverHealthState.getMessage(), serverHealthState.getDescription());
         } else {
             TimerConfig timer = pipelineConfig.getTimer();
             String timerSpec = timer == null ? "Missing timer spec" : timer.getTimerSpec();
-            LOGGER.info(String.format("Timer scheduling pipeline '%s' using spec '%s'", pipelineConfig.name(), timerSpec));
+            LOGGER.info("Timer scheduling pipeline '{}' using spec '{}'", pipelineConfig.name(), timerSpec);
         }
     }
 
@@ -76,6 +77,6 @@ public class TimedBuild implements BuildType {
 
     @Override
     public void notifyPipelineNotScheduled(PipelineConfig pipelineConfig) {
-        LOGGER.info(String.format("Skipping scheduling of timer-triggered pipeline '%s' as it has previously run with the latest material(s).", pipelineConfig.name()));
+        LOGGER.info("Skipping scheduling of timer-triggered pipeline '{}' as it has previously run with the latest material(s).", pipelineConfig.name());
     }
 }

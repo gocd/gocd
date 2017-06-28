@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -65,7 +66,7 @@ public class AgentService {
 
     private AgentInstances agentInstances;
 
-    private static final Logger LOGGER = Logger.getLogger(AgentService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
 
     @Autowired
     public AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
@@ -286,11 +287,11 @@ public class AgentService {
 
     public void updateRuntimeInfo(AgentRuntimeInfo info) {
         if (!info.hasCookie()) {
-            LOGGER.warn(format("Agent [%s] has no cookie set", info.agentInfoDebugString()));
+            LOGGER.warn("Agent [{}] has no cookie set", info.agentInfoDebugString());
             throw new AgentNoCookieSetException(format("Agent [%s] has no cookie set", info.agentInfoDebugString()));
         }
         if (info.hasDuplicateCookie(agentDao.cookieFor(info.getIdentifier()))) {
-            LOGGER.warn(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", info.agentInfoDebugString()));
+            LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", info.agentInfoDebugString());
             serverHealthService.update(
                     ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", info.agentInfoForDisplay(), findAgentAndRefreshStatus(info.getUUId()).agentInfoForDisplay()),
                             "Please check the agent installation. Click <a href='https://docs.gocd.org/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
@@ -300,10 +301,8 @@ public class AgentService {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (agentInstance.isIpChangeRequired(info.getIpAdress())) {
             AgentConfig agentConfig = agentInstance.agentConfig();
-            LOGGER.warn(
-                    String.format("Agent with UUID [%s] changed IP Address from [%s] to [%s]",
-                            info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress()));
             Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDisplay());
+            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }
         agentInstances.updateAgentRuntimeInfo(info);
@@ -314,16 +313,12 @@ public class AgentService {
     }
 
     public Registration requestRegistration(Username username, AgentRuntimeInfo agentRuntimeInfo) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Agent is requesting registration " + agentRuntimeInfo);
-        }
+        LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
         if (agentInstance.isRegistered()) {
             agentConfigService.saveOrUpdateAgent(agentInstance, username);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("New Agent approved " + agentRuntimeInfo);
-            }
+            LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
         }
         return registration;
     }

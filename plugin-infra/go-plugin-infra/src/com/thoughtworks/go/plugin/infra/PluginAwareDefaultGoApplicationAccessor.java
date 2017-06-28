@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ public class PluginAwareDefaultGoApplicationAccessor extends GoApplicationAccess
                 GoPluginApiRequestProcessor processor = requestProcessorRegistry.processorFor(request);
                 return processor.process(pluginDescriptor, request);
             } catch (Exception e) {
-                LOGGER.warn(String.format("Error while processing request api [%s]", request.api()), e);
+                LOGGER.warn("Error while processing request api [{}]", request.api(), e);
                 throw new RuntimeException(String.format("Error while processing request api %s", request.api()), e);
             }
         }
-        LOGGER.warn(String.format("Plugin %s sent a request that could not be understood %s at version %s", request.pluginIdentifier().getExtension(), request.api(), request.apiVersion()));
+        LOGGER.warn("Plugin {} sent a request that could not be understood {} at version {}", request.pluginIdentifier().getExtension(), request.api(), request.apiVersion());
         return unhandledApiRequest();
     }
 

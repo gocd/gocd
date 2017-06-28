@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ import com.thoughtworks.go.server.messaging.EmailNotificationTopic;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +51,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Service
 public class StageNotificationService {
-    private static final Log LOGGER = LogFactory.getLog(StageNotificationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageNotificationService.class);
     private final PipelineService pipelineService;
     private final UserService userService;
     private EmailNotificationTopic emailNotificationTopic;
@@ -91,9 +91,7 @@ public class StageNotificationService {
         String emailBody = new EmailBodyGenerator(materialRevisions, cancelledBy, systemEnvironment, stageIdentifier, failedTestSuites).getContent();
 
         String subject = "Stage [" + stageIdentifier.stageLocator() + "]" + event.describe();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Processing notification titled [%s]", subject));
-        }
+        LOGGER.debug("Processing notification titled [{}]", subject);
         for (User user : users) {
             if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
                 StringBuilder emailWithSignature = new StringBuilder(emailBody)
@@ -105,9 +103,7 @@ public class StageNotificationService {
                 emailNotificationTopic.post(sendEmailMessage);
             }
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Finished processing notification titled [%s]", subject));
-        }
+        LOGGER.debug("Finished processing notification titled [{}]", subject);
     }
 
     //only for test

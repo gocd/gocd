@@ -19,7 +19,7 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.util.Properties;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
-    private static final Logger LOG = Logger.getLogger(SystemEnvironment.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(SystemEnvironment.class);
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     private static final String CRUISE_DATABASE_PORT = "cruise.database.port";
@@ -219,6 +219,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         }};
         GIT_ALLOW_PROTOCOL = Collections.unmodifiableMap(map);
     }
+
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
     private volatile static String cruiseConfigDir;
@@ -393,7 +394,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         try {
             return Integer.parseInt(port);
         } catch (NumberFormatException e) {
-            LOG.info("Could not parse port=" + port);
+            LOG.info("Could not parse port={}", port);
         }
         return Integer.parseInt(defaultDbPort);
     }
@@ -508,10 +509,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private Properties properties() {
         if (properties == null) {
             properties = new Properties();
-            try(InputStream is = getClass().getResourceAsStream(CRUISE_PROPERTIES)) {
+            try (InputStream is = getClass().getResourceAsStream(CRUISE_PROPERTIES)) {
                 properties.load(is);
             } catch (Exception e) {
-                LOG.error("Unable to load newProperties file " + CRUISE_PROPERTIES);
+                LOG.error("Unable to load newProperties file {}", CRUISE_PROPERTIES);
             }
         }
         return properties;

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,8 +49,9 @@ import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.joda.time.DateTime;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BackupService implements BackupStatusProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(BackupService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackupService.class);
 
     public static final String BACKUP = "backup_";
     private final DataSource dataSource;
@@ -119,7 +120,8 @@ public class BackupService implements BackupStatusProvider {
                 backupVersion(destDir);
                 backupConfig(destDir);
                 configRepository.doLocked(new VoidThrowingFn<IOException>() {
-                    @Override public void run() throws IOException {
+                    @Override
+                    public void run() throws IOException {
                         backupConfigRepository(destDir);
                     }
                 });

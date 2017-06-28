@@ -34,7 +34,8 @@ import com.thoughtworks.go.tfssdk14.wrapper.GoTfsWorkspace;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ import java.util.List;
 
 public class TfsSDKCommand extends AbstractTfsCommand {
 
-    private static final Logger LOGGER = Logger.getLogger(TfsSDKCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TfsSDKCommand.class);
     private GoTfsVersionControlClient client;
     private TFSTeamProjectCollection collection;
     private SystemEnvironment systemEnvironment;
@@ -80,18 +81,14 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     protected void deleteWorkspace() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Deleting TFS workspace %s for user %s ", getWorkspace(), getUserName()));
-        }
+        LOGGER.debug("[TFS SDK] Deleting TFS workspace {} for user {} ", getWorkspace(), getUserName());
         GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
         client.deleteWorkspace(workspace);
     }
 
     @Override
     protected void retrieveFiles(File workDir, Revision revision) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Getting Files for TFS workspace %s for user %s ", getWorkspace(), getUserName()));
-        }
+        LOGGER.debug("[TFS SDK] Getting Files for TFS workspace {} for user {} ", getWorkspace(), getUserName());
         GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
         ItemSpec spec = new ItemSpec(FileUtil.getCanonicalPath(workDir), RecursionType.FULL);
         VersionSpec versionSpec = getVersionSpec(revision);
@@ -121,18 +118,13 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     private GoTfsWorkspace createWorkspace() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Creating workspace %s ", getWorkspace()));
-        }
+        LOGGER.debug("[TFS SDK] Creating workspace {} ", getWorkspace());
         return client.createWorkspace(getWorkspace());
     }
 
     @Override
     public List<Modification> history(String latestRevision, long revsToLoad) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] History for Server: %s, Project Path: %s, Latest Revision: %s, RevToLoad: %s",
-                    getUrl(), getProjectPath(), latestRevision, revsToLoad));
-        }
+        LOGGER.debug("[TFS SDK] History for Server: {}, Project Path: {}, Latest Revision: {}, RevToLoad: {}", getUrl(), getProjectPath(), latestRevision, revsToLoad);
         Changeset[] changesets = retrieveChangeset(latestRevision, (int) revsToLoad);
         ArrayList<Modification> modifications = new ArrayList<>();
         for (Changeset changeset : changesets) {
@@ -170,11 +162,9 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     private void mapWorkingDirectory(GoTfsWorkspace workspace, File workDir) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Mapping Folder: %s, Workspace: %s, Username: %s", workDir, getWorkspace(), getUserName()));
-        }
+        LOGGER.debug("[TFS SDK] Mapping Folder: {}, Workspace: {}, Username: {}", workDir, getWorkspace(), getUserName());
         if (!workspace.isLocalPathMapped(FileUtil.getCanonicalPath(workDir))) {
-            com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder workingFolder = new com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder(
+            WorkingFolder workingFolder = new WorkingFolder(
                     getProjectPath(),
                     FileUtil.getCanonicalPath(workDir));
             workspace.createWorkingFolder(workingFolder);
@@ -182,9 +172,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     public void init() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Init TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), getDomain()));
-        }
+        LOGGER.debug("[TFS SDK] Init TFS Collection & Client for URL: {}, Username: {}, Domain: {}", getUrl(), getUserName(), getDomain());
         try {
             collection = new TFSTeamProjectCollection(getUri(), createCredentials());
             collection.getHTTPClient().getParams().setSoTimeout(systemEnvironment.getTfsSocketTimeout());
@@ -199,9 +187,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     public void destroy() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Destroying TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), getDomain()));
-        }
+        LOGGER.debug("[TFS SDK] Destroying TFS Collection & Client for URL: {}, Username: {}, Domain: {}", getUrl(), getUserName(), getDomain());
         closeClient();
         closeCollection();
     }

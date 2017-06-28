@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.mercurial;
 
@@ -20,7 +20,8 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.util.command.*;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -35,7 +36,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.lang.String.format;
 
 public class HgCommand extends SCMCommand {
-    private static final Logger LOGGER = Logger.getLogger(HgCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HgCommand.class);
     private final File workingDir;
     private static String templatePath;
     private final String branch;
@@ -137,10 +138,8 @@ public class HgCommand extends SCMCommand {
         CommandLine hg = hg("showconfig", "paths.default");
 
         final ConsoleResult result = execute(hg);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Current repository url of [" + workingDir + "]: " + result.outputForDisplayAsString());
-            LOGGER.trace("Target repository url: " + url);
-        }
+        LOGGER.trace("Current repository url of [{}]: {}", workingDir, result.outputForDisplayAsString());
+        LOGGER.trace("Target repository url: {}", url);
         return result;
     }
 

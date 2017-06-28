@@ -35,7 +35,8 @@ import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -45,7 +46,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
  * @understands a sorted collection of PipelineMaterialModification
  */
 public class PipelineTimeline {
-    private static final Logger LOGGER = Logger.getLogger(PipelineTimeline.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineTimeline.class);
 
     private final Map<CaseInsensitiveString, TreeSet<PipelineTimelineEntry>> naturalOrderPmm;
     private final Map<CaseInsensitiveString, ArrayList<PipelineTimelineEntry>> scheduleOrderPmm;
@@ -109,7 +110,8 @@ public class PipelineTimeline {
                 public Object doInTransaction(TransactionStatus transactionStatus) {
                     final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
                     transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                        @Override public void afterCompletion(int status) {
+                        @Override
+                        public void afterCompletion(int status) {
                             if (STATUS_ROLLED_BACK == status) {
                                 rollbackTempEntries();
                             } else if (STATUS_COMMITTED == status) {
@@ -171,7 +173,7 @@ public class PipelineTimeline {
                 try {
                     listener.added(entry.getValue(), naturalOrderPmm.get(entry.getKey()));
                 } catch (Exception e) {
-                    LOGGER.warn("Ignoring exception when notifying listener: " + listener, e);
+                    LOGGER.warn("Ignoring exception when notifying listener: {}", listener, e);
                 }
             }
         }
@@ -350,7 +352,7 @@ public class PipelineTimeline {
         scheduleOrderLock.readLock().lock();
         try {
             ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
-            for (int i=instances.size()-1; i >= 0; i--) {
+            for (int i = instances.size() - 1; i >= 0; i--) {
                 PipelineTimelineEntry instance = instances.get(i);
                 if (instance.getCounter() == pipelineCounter) {
                     return instance;
@@ -388,7 +390,8 @@ public class PipelineTimeline {
             return entries;
         }
 
-        @Override public int compareTo(MaterialUserConfig o) {
+        @Override
+        public int compareTo(MaterialUserConfig o) {
             int diff = pipelineName.compareTo(o.pipelineName);
             if (diff != 0) {
                 return diff;
@@ -432,7 +435,8 @@ public class PipelineTimeline {
             return result;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return "MaterialUserConfig{" +
                     "pipelineName=" + pipelineName +
                     ", folder='" + folder + '\'' +

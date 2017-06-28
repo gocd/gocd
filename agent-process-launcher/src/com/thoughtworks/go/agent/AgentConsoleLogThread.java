@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.util.LoggingHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +30,7 @@ import java.io.InputStreamReader;
 import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC;
 
 public class AgentConsoleLogThread extends Thread {
-    private static final Log LOG = LogFactory.getLog(AgentConsoleLogThread.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AgentConsoleLogThread.class);
     private volatile InputStream consoleError;
     private volatile CONSOLE_NDC ndc;
     private volatile boolean keepRunning;

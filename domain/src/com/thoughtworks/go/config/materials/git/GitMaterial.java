@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ import com.thoughtworks.go.util.command.SecretString;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -53,7 +54,7 @@ import static java.lang.String.format;
  * Understands configuration for git version control
  */
 public class GitMaterial extends ScmMaterial {
-    private static final Logger LOG = Logger.getLogger(GitMaterial.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
 
@@ -118,7 +119,7 @@ public class GitMaterial extends ScmMaterial {
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
-        if(!execCtx.isGitShallowClone()) {
+        if (!execCtx.isGitShallowClone()) {
             fullyUnshallow(gitCommand, inMemoryConsumer());
         }
         if (gitCommand.containsRevisionInBranch(revision)) {
@@ -220,9 +221,7 @@ public class GitMaterial extends ScmMaterial {
 
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables(), secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Invalid git working copy or repository changed. Delete folder: " + workingFolder);
-            }
+            LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
             deleteDirectoryNoisily(workingFolder);
         }
         createParentFolderIfNotExist(workingFolder);
@@ -240,10 +239,9 @@ public class GitMaterial extends ScmMaterial {
             }
             int cloneDepth = shallowClone ? preferredCloneDepth : Integer.MAX_VALUE;
             int returnValue;
-            if(executionContext.isServer()) {
+            if (executionContext.isServer()) {
                 returnValue = gitCommand.cloneWithNoCheckout(outputStreamConsumer, url.forCommandline());
-            }
-            else {
+            } else {
                 returnValue = gitCommand.clone(outputStreamConsumer, url.forCommandline(), cloneDepth);
             }
             bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
@@ -261,6 +259,7 @@ public class GitMaterial extends ScmMaterial {
 
         return Arrays.asList(secretSubstitution);
     }
+
     // Unshallow local repo to include a revision operating on via two step process:
     // First try to fetch forward 100 level with "git fetch -depth 100". If revision still missing,
     // unshallow the whole repo with "git fetch --2147483647".
@@ -275,7 +274,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private void fullyUnshallow(GitCommand gitCommand, ConsoleOutputStreamConsumer streamConsumer) {
-        if(gitCommand.isShallow()) {
+        if (gitCommand.isShallow()) {
             gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
         }
     }
@@ -290,10 +289,8 @@ public class GitMaterial extends ScmMaterial {
 
     private boolean isRepositoryChanged(GitCommand command, File workingDirectory) {
         UrlArgument currentWorkingUrl = command.workingRepositoryUrl();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Current repository url of [" + workingDirectory + "]: " + currentWorkingUrl);
-            LOG.trace("Target repository url: " + url);
-        }
+        LOG.trace("Current repository url of [{}]: {}", workingDirectory, currentWorkingUrl);
+        LOG.trace("Target repository url: {}", url);
         return !MaterialUrl.sameUrl(url.forDisplay(), currentWorkingUrl.forCommandline())
                 || !isBranchEqual(command)
                 || (!shallowClone && command.isShallow());

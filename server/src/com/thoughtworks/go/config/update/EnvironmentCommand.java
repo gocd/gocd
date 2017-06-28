@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,9 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.validation.EnvironmentAgentValidator;
-import com.thoughtworks.go.config.validation.EnvironmentPipelineValidator;
-import com.thoughtworks.go.config.validation.GoConfigValidator;
 import com.thoughtworks.go.domain.AllConfigErrors;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class EnvironmentCommand {
     private Localizable.CurryableLocalizable actionFailed;

@@ -28,11 +28,12 @@ import com.thoughtworks.go.domain.UnitTestReportGenerator;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ConfigTag("test")
 public class TestArtifactPlan extends ArtifactPlan {
-    private static final Logger LOG = Logger.getLogger(TestArtifactPlan.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestArtifactPlan.class);
     public static final String TEST_OUTPUT_FOLDER = "testoutput";
     private final ArrayList<ArtifactPlan> plans = new ArrayList<>();
     static final String MERGED_RESULT_FOLDER = "result";
@@ -101,7 +102,7 @@ public class TestArtifactPlan extends ArtifactPlan {
                 generator.generate(allFiles.toArray(new File[allFiles.size()]), "testoutput");
                 publisher.upload(testResultSource, "testoutput");
             } finally {
-                if (tempFolder!=null) {
+                if (tempFolder != null) {
                     FileUtil.deleteFolder(tempFolder);
                 }
             }

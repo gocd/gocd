@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.websocket;
 
-import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
 
 public interface Transmission {

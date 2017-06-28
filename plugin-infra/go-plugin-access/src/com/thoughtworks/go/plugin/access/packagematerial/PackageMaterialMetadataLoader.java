@@ -22,12 +22,12 @@ import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
-import static org.apache.log4j.Logger.getLogger;
 
 @Deprecated
 @Component
@@ -36,7 +36,7 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
     private RepositoryMetadataStore repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     private PackageMetadataStore packageMetadataStore = PackageMetadataStore.getInstance();
 
-    private static final Logger LOGGER = getLogger(PackageMaterialMetadataLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackageMaterialMetadataLoader.class);
 
     PackageRepositoryExtension packageRepositoryExtension;
 
@@ -59,7 +59,7 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
             repositoryMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(repositoryConfiguration));
             packageMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(packageConfiguration));
         } catch (GoPluginFrameworkException e) {
-            LOGGER.error(format("Failed to fetch package metadata for plugin : %s", pluginDescriptor.id()), e);
+            LOGGER.error("Failed to fetch package metadata for plugin : {}", pluginDescriptor.id(), e);
         }
     }
 

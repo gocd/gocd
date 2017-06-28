@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,9 @@ import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,7 +61,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Controller
 public class ArtifactsController {
-    private static final Logger LOGGER = Logger.getLogger(ArtifactsController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsController.class);
+
     private final ConsoleActivityMonitor consoleActivityMonitor;
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
@@ -189,7 +192,7 @@ public class ArtifactsController {
                 return artifactsService.saveOrAppendFile(checksumFile, checksumMultipartFile.getInputStream());
             }
         } else {
-            LOGGER.warn(String.format("[Artifacts Upload] Checksum file not uploaded for artifact at path '%s'", filePath));
+            LOGGER.warn("[Artifacts Upload] Checksum file not uploaded for artifact at path '{}'", filePath);
         }
         return true;
     }
@@ -264,7 +267,7 @@ public class ArtifactsController {
     }
 
     ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha, String serverAlias) throws Exception {
-        LOGGER.info(String.format("[Artifact Download] Trying to resolve '%s' for '%s/%s/%s/%s/%s'", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName));
+        LOGGER.info("[Artifact Download] Trying to resolve '{}' for '{}/{}/{}/{}/{}'", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         long before = System.currentTimeMillis();
         ArtifactsView view;
         //Work out the job that we are trying to retrieve
@@ -282,8 +285,7 @@ public class ArtifactsController {
         view = new LocalArtifactsView(folderViewFactory, artifactsService, translatedId, consoleService);
 
         ModelAndView createdView = view.createView(filePath, sha);
-        LOGGER.info(String.format("[Artifact Download] Successfully resolved '%s' for '%s/%s/%s/%s/%s'. It took: %sms", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName,
-                System.currentTimeMillis() - before));
+        LOGGER.info("[Artifact Download] Successfully resolved '{}' for '{}/{}/{}/{}/{}'. It took: {}ms", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName, System.currentTimeMillis() - before);
         return createdView;
     }
 

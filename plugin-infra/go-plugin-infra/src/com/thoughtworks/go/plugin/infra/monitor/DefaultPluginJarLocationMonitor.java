@@ -21,7 +21,8 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +36,7 @@ import static com.thoughtworks.go.util.SystemEnvironment.*;
 
 @Component
 public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor {
-    private static final Logger LOGGER = Logger.getLogger(DefaultPluginJarLocationMonitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarLocationMonitor.class);
 
 
     private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener = new CopyOnWriteArrayList<>();
@@ -84,7 +85,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
 
-    private void initializeMonitorThread(){
+    private void initializeMonitorThread() {
         if (monitorThread != null) {
             throw new IllegalStateException("Cannot start the monitor multiple times.");
         }
@@ -117,9 +118,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             return;
         }
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Force creating the plugins jar directory as it does not exist " + bundledPluginDirectory.getAbsolutePath());
-            }
+            LOGGER.debug("Force creating the plugins jar directory as it does not exist {}", bundledPluginDirectory.getAbsolutePath());
             FileUtils.forceMkdir(bundledPluginDirectory);
         } catch (IOException e) {
             String message = "Failed to create plugins folder in location " + bundledPluginDirectory.getAbsolutePath();
@@ -134,9 +133,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             return;
         }
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Force creating the plugins jar directory as it does not exist " + externalPluginDirectory.getAbsolutePath());
-            }
+            LOGGER.debug("Force creating the plugins jar directory as it does not exist {}", externalPluginDirectory.getAbsolutePath());
             FileUtils.forceMkdir(externalPluginDirectory);
         } catch (IOException e) {
             String message = "Failed to create external plugins folder in location " + externalPluginDirectory.getAbsolutePath();

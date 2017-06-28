@@ -108,7 +108,7 @@ public class PipelineConfigServicePerformanceTest {
     private static Logger LOGGER = Logger.getLogger(PipelineConfigServicePerformanceTest.class.getName());
 
     @AfterClass
-    public static void removeLogger(){
+    public static void removeLogger() {
         LOGGER.removeAppender(consoleAppenderForPerformanceTest);
         LOGGER.removeAppender(rollingFileAppenderForPerformanceTest);
     }
@@ -238,7 +238,7 @@ public class PipelineConfigServicePerformanceTest {
         int exitCode = commandLine.run(outputStreamConsumer, "thread" + i);
         LOGGER.info(outputStreamConsumer.getAllOutput());
         assertThat(exitCode, is(0));
-        LOGGER.info(String.format("Heap dump available at %s", dumpDir.getAbsolutePath()));
+        LOGGER.info("Heap dump available at " + dumpDir.getAbsolutePath());
     }
 
     private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
@@ -278,7 +278,7 @@ public class PipelineConfigServicePerformanceTest {
         String xml = FileUtil.readContentFromFile(new File(configFile));
         xml = goConfigMigration.upgradeIfNecessary(xml);
         goConfigService.fileSaver(false).saveConfig(xml, goConfigService.getConfigForEditing().getMd5());
-        LOGGER.info(String.format("Total number of pipelines in this config: %s", goConfigService.getConfigForEditing().allPipelines().size()));
+        LOGGER.info("Total number of pipelines in this config: " + goConfigService.getConfigForEditing().allPipelines().size());
         if (goConfigService.getConfigForEditing().hasPipelineGroup(groupName)) {
             ((BasicPipelineConfigs) goConfigService.getConfigForEditing().findGroup(groupName)).clear();
         }

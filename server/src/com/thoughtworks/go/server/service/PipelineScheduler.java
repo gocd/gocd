@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,11 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 @Service
 public class PipelineScheduler implements ConfigChangedListener, GoMessageListener<ScheduleCheckCompletedMessage> {
-    private static final Logger LOGGER = Logger.getLogger(PipelineScheduler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineScheduler.class);
 
     private GoConfigService goConfigService;
     private ServerHealthService serverHealthService;
@@ -58,13 +57,14 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     protected PipelineScheduler() {
     }
 
-    @Autowired PipelineScheduler(GoConfigService goConfigService,
-                                 ServerHealthService serverHealthService,
-                                 SchedulingCheckerService schedulingChecker,
-                                 BuildCauseProducerService buildCauseProducerService,
-                                 ScheduleCheckQueue scheduleCheckQueue,
-                                 ScheduleCheckCompletedTopic scheduleCheckCompletedTopic,
-                                 SchedulingPerformanceLogger schedulingPerformanceLogger) {
+    @Autowired
+    PipelineScheduler(GoConfigService goConfigService,
+                      ServerHealthService serverHealthService,
+                      SchedulingCheckerService schedulingChecker,
+                      BuildCauseProducerService buildCauseProducerService,
+                      ScheduleCheckQueue scheduleCheckQueue,
+                      ScheduleCheckCompletedTopic scheduleCheckCompletedTopic,
+                      SchedulingPerformanceLogger schedulingPerformanceLogger) {
         this.goConfigService = goConfigService;
         this.serverHealthService = serverHealthService;
         this.schedulingChecker = schedulingChecker;
@@ -105,8 +105,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
 
             removeLicenseInvalidFromLog();
             checkPipelines();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Error autoScheduling pipelines", e);
         }
 
@@ -121,29 +120,33 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                     scheduleCheckQueue.post(new ScheduleCheckMessage(entry.getKey(), trackingId));
                     pipelines.put(entry.getKey(), ScheduleCheckState.BUSY);
 
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace(String.format("try to schedule pipeline %s, current pipeline state: %s", entry.getKey(), pipelines));
-                    }
+                    LOGGER.trace("try to schedule pipeline {}, current pipeline state: {}", entry.getKey(), pipelines);
                 } else {
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace(format("skipping scheduling pipeline %s because it's busy scheduling, current pipelines state: %s", entry.getKey(), pipelines));
-                    }
+                    LOGGER.trace("skipping scheduling pipeline {} because it's busy scheduling, current pipelines state: {}", entry.getKey(), pipelines);
                 }
             }
         }
     }
 
-    public void manualProduceBuildCauseAndSave(String pipelineName, Username username, ScheduleOptions scheduleOptions, OperationResult result){
-        LOGGER.info(String.format("[Pipeline Schedule] [Requested] Manual trigger of pipeline '%s' requested by %s", pipelineName, CaseInsensitiveString.str(username.getUsername())));
-        if (pipelineNotFound(pipelineName, result)) { return; }
-        if (materialNotFound(pipelineName, scheduleOptions.getSpecifiedRevisions(), result)) { return; }
-        if (revisionInvalid(scheduleOptions.getSpecifiedRevisions(), result)) { return; }
-        if (hasUsedUnconfiguredVariable(pipelineName, scheduleOptions.getVariables(), result)) { return; }
+    public void manualProduceBuildCauseAndSave(String pipelineName, Username username, ScheduleOptions scheduleOptions, OperationResult result) {
+        LOGGER.info("[Pipeline Schedule] [Requested] Manual trigger of pipeline '{}' requested by {}", pipelineName, CaseInsensitiveString.str(username.getUsername()));
+        if (pipelineNotFound(pipelineName, result)) {
+            return;
+        }
+        if (materialNotFound(pipelineName, scheduleOptions.getSpecifiedRevisions(), result)) {
+            return;
+        }
+        if (revisionInvalid(scheduleOptions.getSpecifiedRevisions(), result)) {
+            return;
+        }
+        if (hasUsedUnconfiguredVariable(pipelineName, scheduleOptions.getVariables(), result)) {
+            return;
+        }
 
-        LOGGER.info(String.format("[Pipeline Schedule] [Accepted] Manual trigger of pipeline '%s' accepted for user %s", pipelineName, CaseInsensitiveString.str(username.getUsername())));
+        LOGGER.info("[Pipeline Schedule] [Accepted] Manual trigger of pipeline '{}' accepted for user {}", pipelineName, CaseInsensitiveString.str(username.getUsername()));
         removeLicenseInvalidFromLog();
         buildCauseProducerService.manualSchedulePipeline(username, new CaseInsensitiveString(pipelineName), scheduleOptions, result);
-        LOGGER.info(String.format("[Pipeline Schedule] [Processed] Manual trigger of pipeline '%s' processed with result '%s'", pipelineName, result.getServerHealthState()));
+        LOGGER.info("[Pipeline Schedule] [Processed] Manual trigger of pipeline '{}' processed with result '{}'", pipelineName, result.getServerHealthState());
     }
 
     private boolean hasUsedUnconfiguredVariable(String pipelineName, EnvironmentVariablesConfig environmentVariables, OperationResult result) {
@@ -218,9 +221,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     private void addPipelineIfNotPresent(PipelineConfig pipelineConfig, Map<String, ScheduleCheckState> pipelines) {
         if (!pipelines.containsKey(CaseInsensitiveString.str(pipelineConfig.name()))) {
             pipelines.put(CaseInsensitiveString.str(pipelineConfig.name()), ScheduleCheckState.IDLE);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[Configuration Changed] Marking new pipeline %s as IDLE", pipelineConfig.name()));
-            }
+            LOGGER.debug("[Configuration Changed] Marking new pipeline {} as IDLE", pipelineConfig.name());
         }
     }
 
@@ -229,9 +230,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
             pipelines.put(message.getPipelineName(), ScheduleCheckState.IDLE);
 
             schedulingPerformanceLogger.completionMessageForScheduleCheckReceived(message.trackingId(), message.getPipelineName());
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(format("marked pipeline %s as IDLE, current pipelines state: %s", message.getPipelineName(), pipelines));
-            }
+            LOGGER.trace("marked pipeline {} as IDLE, current pipelines state: {}", message.getPipelineName(), pipelines);
         }
     }
 }

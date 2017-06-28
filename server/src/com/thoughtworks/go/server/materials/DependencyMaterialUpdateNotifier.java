@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +50,7 @@ import static java.lang.String.format;
 
 @Component
 public class DependencyMaterialUpdateNotifier implements StageStatusListener, ConfigChangedListener, Initializer, MaterialUpdateCompleteListener {
-    private static final Logger LOGGER = Logger.getLogger(DependencyMaterialUpdateNotifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DependencyMaterialUpdateNotifier.class);
     private final GoConfigService goConfigService;
     private final MaterialConfigConverter materialConfigConverter;
     private final MaterialUpdateService materialUpdateService;
@@ -82,9 +83,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     public void onMaterialUpdate(Material material) {
         if (material instanceof DependencyMaterial) {
             if (retryQueue.remove(material)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(format("[Material Update] Retrying update of dependency material %s ", material));
-                }
+                LOGGER.debug("[Material Update] Retrying update of dependency material {} ", material);
                 updateMaterial(material);
             }
         }
@@ -127,7 +126,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     }
 
     private void updateMaterial(Material material) {
-        if(skipUpdate) return;
+        if (skipUpdate) return;
 
         try {
             if (!materialUpdateService.updateMaterial(material)) {

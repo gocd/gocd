@@ -19,8 +19,6 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -31,6 +29,8 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletResponse;
@@ -40,7 +40,8 @@ import java.util.Properties;
 
 public class HttpService {
     private HttpClientFactory httpClientFactory;
-    private static final Log LOGGER = LogFactory.getLog(HttpService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
+    public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     @Autowired
     public HttpService(GoAgentServerHttpClient httpClient) {
@@ -58,13 +59,13 @@ public class HttpService {
             LOGGER.error(message);
             throw new FileNotFoundException(message);
         }
-        LOGGER.info(String.format("Uploading file [%s] to url [%s]", absolutePath, url));
+        LOGGER.info("Uploading file [{}] to url [{}]", absolutePath, url);
 
         HttpPost filePost = createHttpPostForUpload(url, size, artifactFile, artifactChecksums);
         try (CloseableHttpResponse response = execute(filePost)) {
             return response.getStatusLine().getStatusCode();
         } catch (IOException e) {
-            LOGGER.error("Error while uploading file [" + artifactFile.getAbsolutePath() + "]", e);
+            LOGGER.error("Error while uploading file [{}]", artifactFile.getAbsolutePath(), e);
             throw e;
         } finally {
             filePost.releaseConnection();
@@ -98,7 +99,7 @@ public class HttpService {
                 return statusCode;
             }
         } catch (IOException e) {
-            LOGGER.error("Error while downloading [" + url + "]", e);
+            LOGGER.error("Error while downloading [{}]", url, e);
             throw e;
         } finally {
             IOUtils.closeQuietly(is);
@@ -109,7 +110,7 @@ public class HttpService {
     }
 
     public void postProperty(String url, String value) throws IOException {
-        LOGGER.info("Posting property to the URL " + url + "Property Value =" + value);
+        LOGGER.info("Posting property to the URL {}Property Value ={}", url, value);
         HttpPost post = httpClientFactory.createPost(url);
         CloseableHttpResponse response = null;
         try {
@@ -125,7 +126,7 @@ public class HttpService {
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
         CloseableHttpResponse response = client.execute(httpMethod);
-        LOGGER.info("Got back " + response.getStatusLine().getStatusCode() + " from server");
+        LOGGER.info("Got back {} from server", response.getStatusLine().getStatusCode());
         return response;
     }
 

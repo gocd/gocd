@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 public class AgentStub {
-    private static final Log LOGGER = LogFactory.getLog(AgentStub.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentStub.class);
 
     public static void main(String[] args) {
         LOGGER.info("Starting agent......");
@@ -42,7 +42,7 @@ public class AgentStub {
         try {
             LOGGER.info(work.description());
         } catch (UnregisteredAgentException e) {
-            LOGGER.warn("Unregistered Agent: " + e.getMessage());
+            LOGGER.warn("Unregistered Agent: {}", e.getMessage());
         }
     }
 }

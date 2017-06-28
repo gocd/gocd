@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +46,7 @@ import java.util.List;
 
 public class JobResourceImporter {
 
-    private final static Logger LOGGER = Logger.getLogger(JobResourceImporter.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JobResourceImporter.class);
 
     private final XMLArtifactImporter importer;
     private final GoGRDDLResourceRDFizer rdfizer;
@@ -61,44 +62,33 @@ public class JobResourceImporter {
     }
 
     public Graph importJob(JobInstance job, final String baseUri) throws GoIntegrationException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Attempting to import job " + job);
-        }
+        LOGGER.debug("Attempting to import job {}", job);
 
         JobXmlViewModel xmlModel = new JobXmlViewModel(job);
         Graph jobGraph = rdfizer.importURIUsingGRDDL(xmlModel, baseUri);
         URIReference jobURI = jobGraph.getURIReference(xmlModel.httpUrl(baseUri));
         importArtifactsForJob(jobURI, jobGraph);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Done building jobs graph with " + jobGraph.size() + " triples");
-        }
+        LOGGER.debug("Done building jobs graph with {} triples", jobGraph.size());
 
         return jobGraph;
     }
 
     private void importArtifactsForJob(URIReference jobResource, Graph jobsGraph) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Importing artifacts for job " + jobResource.getURIText());
-        }
+        LOGGER.debug("Importing artifacts for job {}", jobResource.getURIText());
 
         String artifactsPathFromRoot = jobArtifactsPath(jobResource, jobsGraph);
 
         for (String jobArtifactPath : unitTestArtifactPathsForJob(jobsGraph, jobResource)) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Found artifact at pathFromArtifactRoot: " + artifactsPathFromRoot + " and artifactPath: " + jobArtifactPath);
-            }
+            LOGGER.debug("Found artifact at pathFromArtifactRoot: {} and artifactPath: {}", artifactsPathFromRoot, jobArtifactPath);
 
-            for (File testSuiteXMLFile : getArtifactFilesOfType(artifactsPathFromRoot, jobArtifactPath, "xml")) {
+            for (File testSuiteXMLFile : getArtifactFilesOfType(artifactsPathFromRoot, jobArtifactPath, "xml"))
                 try {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Trying to import " + testSuiteXMLFile);
-                    }
+                    LOGGER.debug("Trying to import {}", testSuiteXMLFile);
                     importer.importFile(jobsGraph, jobResource, new FileInputStream(testSuiteXMLFile));
                 } catch (FileNotFoundException e) {
-                    LOGGER.debug("Unable to find file: " + testSuiteXMLFile.toString());
+                    LOGGER.debug("Unable to find file: {}", testSuiteXMLFile.toString());
                 }
-            }
         }
     }
 
@@ -138,23 +128,17 @@ public class JobResourceImporter {
     }
 
     File[] getArtifactFilesOfType(String artifactsPathFromRoot, String jobArtifactPath, final String fileExtension) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getArtifactFilesOfType(" + artifactsPathFromRoot + ", " + jobArtifactPath + ", " + fileExtension + ")");
-        }
+        LOGGER.debug("getArtifactFilesOfType({}, {}, {})", artifactsPathFromRoot, jobArtifactPath, fileExtension);
 
         File jobArtifactFile = new File(artifactBaseDir, artifactsPathFromRoot + File.separator + jobArtifactPath);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Artifact directory calculated to be " + jobArtifactFile.getAbsolutePath());
-        }
+        LOGGER.debug("Artifact directory calculated to be {}", jobArtifactFile.getAbsolutePath());
 
         if (!jobArtifactFile.exists() || !jobArtifactFile.isDirectory()) {
             return new File[0];
         }
 
         Collection collection = FileUtils.listFiles(jobArtifactFile, new SuffixFileFilter(fileExtension, IOCase.INSENSITIVE), TrueFileFilter.INSTANCE);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("" + collection.size() + " artifact files found.");
-        }
+        LOGGER.debug("{} artifact files found.", collection.size());
         return (File[]) collection.toArray(new File[0]);
     }
 }

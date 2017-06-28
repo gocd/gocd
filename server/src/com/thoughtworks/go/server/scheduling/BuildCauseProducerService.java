@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -31,13 +27,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.materials.MaterialChecker;
-import com.thoughtworks.go.server.materials.MaterialUpdateCompletedMessage;
-import com.thoughtworks.go.server.materials.MaterialUpdateFailedMessage;
-import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusListener;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusNotifier;
-import com.thoughtworks.go.server.materials.SpecificMaterialRevisionFactory;
+import com.thoughtworks.go.server.materials.*;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
@@ -48,15 +38,20 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.String.format;
 
 @Service
 public class BuildCauseProducerService {
-    private static final Logger LOGGER = Logger.getLogger(BuildCauseProducerService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildCauseProducerService.class);
 
     private SchedulingCheckerService schedulingChecker;
     private ServerHealthService serverHealthService;
@@ -158,9 +153,7 @@ public class BuildCauseProducerService {
             return result.getServerHealthState();
         }
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("start producing build cause:" + pipelineName);
-        }
+        LOGGER.debug("start producing build cause:{}", pipelineName);
 
         try {
             MaterialRevisions peggedRevisions = specificMaterialRevisionFactory.create(pipelineName, scheduleOptions.getSpecifiedRevisions());
@@ -172,29 +165,28 @@ public class BuildCauseProducerService {
             BuildCause buildCause = null;
             boolean materialConfigurationChanged = hasConfigChanged(previousBuild, expandedMaterials);
             if (previousBuild.hasNeverRun() || materialConfigurationChanged) {
-                LOGGER.debug("Using latest modifications from repository for " + pipelineConfig.name());
+                LOGGER.debug("Using latest modifications from repository for {}", pipelineConfig.name());
                 MaterialRevisions revisions = materialChecker.findLatestRevisions(peggedRevisions, materials);
                 if (!revisions.isMissingModifications()) {
                     buildCause = buildType.onModifications(revisions, materialConfigurationChanged, null);
                     if (buildCause != null) {
                         if (!buildCause.materialsMatch(expandedMaterialConfigs)) {
-                            LOGGER.warn("Error while scheduling pipeline: " + pipelineName + ". Possible Reasons: (1) Upstream pipelines have not been built yet."
-                                    + " (2) Materials do not match between configuration and build-cause.");
+                            LOGGER.warn("Error while scheduling pipeline: {}. Possible Reasons: (1) Upstream pipelines have not been built yet. (2) Materials do not match between configuration and build-cause.", pipelineName);
                             return ServerHealthState.success(HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
                         }
                     }
                 }
             } else {
-                LOGGER.debug("Checking if materials are different for " + pipelineConfig.name());
+                LOGGER.debug("Checking if materials are different for {}", pipelineConfig.name());
                 MaterialRevisions latestRevisions = materialChecker.findLatestRevisions(peggedRevisions, materials);
                 if (!latestRevisions.isMissingModifications()) {
                     MaterialRevisions original = previousBuild.getMaterialRevisions();
                     MaterialRevisions revisions = materialChecker.findRevisionsSince(peggedRevisions, expandedMaterials, original, latestRevisions);
                     if (!revisions.hasChangedSince(original) || (buildType.shouldCheckWhetherOlderRunsHaveRunWithLatestMaterials() && materialChecker.hasPipelineEverRunWith(pipelineName, latestRevisions))) {
-                        LOGGER.debug("Repository for [" + pipelineName + "] not modified");
+                        LOGGER.debug("Repository for [{}] not modified", pipelineName);
                         buildCause = buildType.onEmptyModifications(pipelineConfig, latestRevisions);
                     } else {
-                        LOGGER.debug("Repository for [" + pipelineName + "] modified; scheduling...");
+                        LOGGER.debug("Repository for [{}] modified; scheduling...", pipelineName);
                         buildCause = buildType.onModifications(revisions, materialConfigurationChanged, original);
                     }
                 }
@@ -203,34 +195,24 @@ public class BuildCauseProducerService {
                 buildCause.addOverriddenVariables(scheduleOptions.getVariables());
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
             }
-            if(isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged))
-            {
+            if (isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged)) {
                 pipelineScheduleQueue.schedule(pipelineName, buildCause);
 
                 schedulingPerformanceLogger.sendingPipelineToTheToBeScheduledQueue(trackingId, pipelineName);
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(format("scheduling pipeline %s with build-cause %s; config origin %s",
-                            pipelineName, buildCause,pipelineConfig.getOrigin()));
-                }
-            }
-            else
-            {
+                LOGGER.debug("scheduling pipeline {} with build-cause {}; config origin {}", pipelineName, buildCause, pipelineConfig.getOrigin());
+            } else {
                 buildType.notifyPipelineNotScheduled(pipelineConfig);
             }
 
             serverHealthService.removeByScope(HealthStateScope.forPipeline(pipelineName));
-            LOGGER.debug("finished producing buildcause for " + pipelineName);
+            LOGGER.debug("finished producing buildcause for {}", pipelineName);
             return ServerHealthState.success(HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         } catch (NoCompatibleUpstreamRevisionsException ncure) {
             String message = "Error while scheduling pipeline: " + pipelineName + " as no compatible revisions were identified.";
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(message, ncure);
-            }
+            LOGGER.debug(message, ncure);
             return showError(pipelineName, message, ncure.getMessage());
         } catch (NoModificationsPresentForDependentMaterialException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.error(e.getMessage(), e);
-            }
+            LOGGER.error(e.getMessage(), e);
             return ServerHealthState.success(HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         } catch (Exception e) {
             String message = "Error while scheduling pipeline: " + pipelineName;
@@ -241,28 +223,23 @@ public class BuildCauseProducerService {
 
     private boolean isGoodReasonToSchedule(PipelineConfig pipelineConfig, BuildCause buildCause, BuildType buildType,
                                            boolean materialConfigurationChanged) {
-        if(buildCause == null)
+        if (buildCause == null)
             return false;
 
         boolean validCause = buildType.isValidBuildCause(pipelineConfig, buildCause);
 
-        if(pipelineConfig.isConfigOriginSameAsOneOfMaterials())
-        {
-            if(buildCause.isForced())
-            {
+        if (pipelineConfig.isConfigOriginSameAsOneOfMaterials()) {
+            if (buildCause.isForced()) {
                 // build is manual - skip scm-config consistency
                 return validCause;
             }
             // then we need config and material revisions to be consistent
-            if(!buildCause.pipelineConfigAndMaterialRevisionMatch(pipelineConfig))
-            {
+            if (!buildCause.pipelineConfigAndMaterialRevisionMatch(pipelineConfig)) {
                 return false;
             }
 
             return validCause;
-        }
-        else
-        {
+        } else {
             return materialConfigurationChanged || validCause;
         }
     }
@@ -298,8 +275,7 @@ public class BuildCauseProducerService {
             this.scheduleOptions = scheduleOptions;
             pendingMaterials = new ConcurrentHashMap<>();
 
-            if(isConfigurationInMaterials())
-            {
+            if (isConfigurationInMaterials()) {
                 // Then we must update config first and then continue as usual.
                 // it is also possible that config will disappear at update
                 RepoConfigOrigin configRepo = (RepoConfigOrigin) this.pipelineConfig.getOrigin();
@@ -346,37 +322,31 @@ public class BuildCauseProducerService {
 
             if (message instanceof MaterialUpdateFailedMessage) {
                 String failureReason = ((MaterialUpdateFailedMessage) message).getReason();
-                LOGGER.error(format("not scheduling pipeline %s after manual-trigger because update of material failed with reason %s", pipelineConfig.name(), failureReason));
+                LOGGER.error("not scheduling pipeline {} after manual-trigger because update of material failed with reason {}", pipelineConfig.name(), failureReason);
                 showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
                         format("Material update failed for material '%s' because: %s", material.getDisplayName(), failureReason));
                 failed = true;
-            }
-            else if(this.configMaterial != null &&
-                    material.isSameFlyweight(this.configMaterial))
-            {
+            } else if (this.configMaterial != null &&
+                    material.isSameFlyweight(this.configMaterial)) {
                 // Then we have just updated configuration material.
                 // A chance to refresh our config instance.
                 // This does not guarantee that this config is from newest revision:
                 //  - it might have been invalid
                 // then this instance is still like last time.
                 // We have protection (higher) against that so this will eventually not schedule
-                if(!goConfigService.hasPipelineNamed(this.pipelineConfig.name()))
-                {
+                if (!goConfigService.hasPipelineNamed(this.pipelineConfig.name())) {
                     // pipeline we just triggered got removed from configuration
-                    LOGGER.error(format("not scheduling pipeline %s after manual-trigger because pipeline's %s configuration was removed from origin repository",
-                            pipelineConfig.name(), pipelineConfig.name()));
+                    LOGGER.error("not scheduling pipeline {} after manual-trigger because pipeline's {} configuration was removed from origin repository", pipelineConfig.name(), pipelineConfig.name());
                     showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
                             format("Pipeline '%s' configuration has been removed from %s", pipelineConfig.name(), configMaterial.getDisplayName()));
                     failed = true;
-                }
-                else {
+                } else {
                     //TODO #1133 we could also check if last parsing in the origin repository failed
                     PipelineConfig newPipelineConfig = goConfigService.pipelineConfigNamed(this.pipelineConfig.name());
                     ConfigOrigin oldOrigin = this.pipelineConfig.getOrigin();
                     ConfigOrigin newOrigin = newPipelineConfig.getOrigin();
                     if (!oldOrigin.equals(newOrigin)) {
-                        LOGGER.debug(format("Configuration of manually-triggered pipeline %s has been updated.",
-                                pipelineConfig.name()));
+                        LOGGER.debug("Configuration of manually-triggered pipeline {} has been updated.", pipelineConfig.name());
                         // if all seems good:
                         // In case materials have changed, we should poll new ones as well
                         for (MaterialConfig materialConfig : newPipelineConfig.materialConfigs()) {
@@ -387,8 +357,7 @@ public class BuildCauseProducerService {
                                 pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), newMaterial);
                                 // and force update of it
                                 materialUpdateService.updateMaterial(newMaterial);
-                                LOGGER.info(format("new material %s in %s was added after manual-trigger. Scheduled update for it.",
-                                        newMaterial.getDisplayName(), pipelineConfig.name()));
+                                LOGGER.info("new material {} in {} was added after manual-trigger. Scheduled update for it.", newMaterial.getDisplayName(), pipelineConfig.name());
                             }
                         }
                         this.pipelineConfig = newPipelineConfig;

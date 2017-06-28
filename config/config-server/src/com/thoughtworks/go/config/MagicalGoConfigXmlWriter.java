@@ -21,10 +21,12 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.jdom2.*;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static java.text.MessageFormat.format;
 
 public class MagicalGoConfigXmlWriter {
-    private static final Logger LOGGER = Logger.getLogger(MagicalGoConfigXmlWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlWriter.class);
     public static final String XML_NS = "http://www.w3.org/2001/XMLSchema-instance";
     private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
@@ -65,10 +67,10 @@ public class MagicalGoConfigXmlWriter {
     }
 
     public void write(CruiseConfig configForEdit, OutputStream output, boolean skipPreprocessingAndValidation) throws Exception {
-        LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
+        LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? {}", skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
-            throw new GoConfigInvalidException(configForEdit,"Attempted to save merged configuration with patials");
+            throw new GoConfigInvalidException(configForEdit, "Attempted to save merged configuration with patials");
         }
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
@@ -234,8 +236,8 @@ public class MagicalGoConfigXmlWriter {
 
     private static Element elementFor(Class<?> aClass, ConfigCache configCache) {
         ConfigTag configTag = annotationFor(aClass, ConfigTag.class);
-        if(configTag == null)
-            throw bomb(format("Cannot get config tag for {0}",aClass));
+        if (configTag == null)
+            throw bomb(format("Cannot get config tag for {0}", aClass));
         return new Element(configTag.value(), namespaceFor(configTag));
     }
 

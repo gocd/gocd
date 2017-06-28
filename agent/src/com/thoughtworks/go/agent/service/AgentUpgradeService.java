@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import com.thoughtworks.go.util.URLService;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,8 @@ import java.io.IOException;
 
 @Service
 public class AgentUpgradeService {
-    private static final Logger LOGGER = Logger.getLogger(AgentUpgradeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentUpgradeService.class);
+    static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final GoAgentServerHttpClient httpClient;
     private final SystemEnvironment systemEnvironment;
     private URLService urlService;
@@ -43,7 +47,7 @@ public class AgentUpgradeService {
     static class DefaultJvmExitter implements JvmExitter {
         @Override
         public void jvmExit(String type, String oldChecksum, String newChecksum) {
-            LOGGER.fatal(String.format("[Agent Upgrade] Agent needs to upgrade %s. Currently has md5 [%s] but server version has md5 [%s]. Exiting.", type, oldChecksum, newChecksum));
+            LOGGER.error(FATAL,"[Agent Upgrade] Agent needs to upgrade %s. Currently has md5 {} but server version has md5 {}. Exiting.", type, oldChecksum, newChecksum);
             System.exit(0);
         }
     }
@@ -70,7 +74,7 @@ public class AgentUpgradeService {
         HttpGet method = getAgentLatestStatusGetMethod();
         try (final CloseableHttpResponse response = httpClient.execute(method)) {
             if (response.getStatusLine().getStatusCode() != 200) {
-                LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", response.getStatusLine().getStatusCode(), response.getStatusLine()));
+                LOGGER.error("[Agent Upgrade] Got status %d {} from Go", response.getStatusLine().getStatusCode(), response.getStatusLine());
                 return;
             }
             validateMd5(agentMd5, response, SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "itself");

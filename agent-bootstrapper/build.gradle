@@ -1,7 +1,7 @@
 import com.thoughtworks.go.build.VerifyJarTask
 
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,8 @@ task verifyJar(type: VerifyJarTask) {
       "jcommander-1.60.jar",
       "joda-time-2.3.jar",
       "log4j-1.2.17.jar",
+      "slf4j-api-1.7.21.jar",
+      "slf4j-log4j12-1.7.21.jar",
     ]
   ]
 }

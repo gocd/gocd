@@ -24,10 +24,11 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     private PasswordArgument password;
     private boolean checkExternals;
 
-    private static final Logger LOG = Logger.getLogger(SvnCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SvnCommand.class);
     public static final String SVN_DATE_FORMAT_IN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static final String SVN_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     private static final String ERR_SVN_NOT_FOUND = "Failed to find 'svn' on your PATH. Please ensure 'svn' is executable by the Go Server and on the Go Agents where this material will be used.";
@@ -77,12 +78,11 @@ public class SvnCommand extends SCMCommand implements Subversion {
             executeCommand(command);
             return ValidationBean.valid();
         } catch (Exception e) {
-            try{
+            try {
                 version();
-                LOG.error("failed to connect to " + getUrlForDisplay(), e);
+                LOG.error("failed to connect to {}", getUrlForDisplay(), e);
                 return ValidationBean.notValid("svn: Malformed URL " + getUrlForDisplay() + " : \n" + e.getMessage());
-            }
-            catch (Exception exp){
+            } catch (Exception exp) {
                 return ValidationBean.notValid(ERR_SVN_NOT_FOUND);
             }
         }
@@ -151,7 +151,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
 
     private SAXBuilder getBuilder() {
         SAXBuilder saxBuilder = saxBuilderThreadLocal.get();
-        if(saxBuilder == null){
+        if (saxBuilder == null) {
             saxBuilder = new SAXBuilder();
             saxBuilderThreadLocal.set(saxBuilder);
         }
@@ -287,7 +287,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
                 consoleResult = executeCommand(command);
                 urlToUUIDMap.putAll(svnLogXmlParser.parseInfoToGetUUID(consoleResult.outputAsString(), queryUrl, getBuilder()));
             } catch (RuntimeException e) {
-                LOG.warn("Failed to map UUID to URL. SVN post-commit will not work for materials with URL " + queryUrl, e);
+                LOG.warn("Failed to map UUID to URL. SVN post-commit will not work for materials with URL {}", queryUrl, e);
             }
         }
         return urlToUUIDMap;
@@ -331,6 +331,8 @@ public class SvnCommand extends SCMCommand implements Subversion {
             return encodedUrl;
         }
 
-        public String getRoot() { return root; }
+        public String getRoot() {
+            return root;
+        }
     }
 }

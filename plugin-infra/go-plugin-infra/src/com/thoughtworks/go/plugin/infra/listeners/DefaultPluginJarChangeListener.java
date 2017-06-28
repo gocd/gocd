@@ -16,36 +16,33 @@
 
 package com.thoughtworks.go.plugin.infra.listeners;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ExceptionHandler;
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
-import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptorBuilder;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifest;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifestGenerator;
+import com.thoughtworks.go.plugin.infra.plugininfo.*;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 
 @Component
 public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private static final String ACTIVATOR_JAR_NAME = GoPluginOSGiManifest.ACTIVATOR_JAR_NAME;
-    private static Logger LOGGER = Logger.getLogger(DefaultPluginJarChangeListener.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarChangeListener.class);
     private final DefaultPluginRegistry registry;
     private final GoPluginOSGiManifestGenerator osgiManifestGenerator;
     private final GoPluginOSGiFramework goPluginOSGiFramework;
@@ -85,17 +82,14 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     @Override
     public void pluginJarRemoved(PluginFileDetails pluginFileDetails) {
         GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(null, pluginFileDetails.file().getName());
-        if(existingDescriptor==null){
+        if (existingDescriptor == null) {
             return;
         }
         boolean externalPlugin = !pluginFileDetails.isBundledPlugin();
         boolean bundledPlugin = existingDescriptor.isBundledPlugin();
         boolean externalPluginWithSameIdAsBundledPlugin = bundledPlugin && externalPlugin;
         if (externalPluginWithSameIdAsBundledPlugin) {
-            LOGGER.info(
-                    String.format("External Plugin file '%s' having same name as bundled plugin file has been removed. "
-                            + "Refusing to unload bundled plugin with id: '%s'",
-                            pluginFileDetails.file(), existingDescriptor.id()));
+            LOGGER.info("External Plugin file '{}' having same name as bundled plugin file has been removed. Refusing to unload bundled plugin with id: '{}'", pluginFileDetails.file(), existingDescriptor.id());
             return;
         }
         removePlugin(existingDescriptor);
@@ -170,7 +164,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
                 }, new ExceptionHandler<PluginDescriptorAware>() {
                     @Override
                     public void handleException(PluginDescriptorAware obj, Throwable t) {
-                        LOGGER.warn("Set Plugin Descriptor Call failed for plugin: " + descriptor.id(),t);
+                        LOGGER.warn("Set Plugin Descriptor Call failed for plugin: {}", descriptor.id(), t);
                     }
                 }
         );

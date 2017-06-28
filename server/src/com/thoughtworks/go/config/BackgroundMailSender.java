@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BackgroundMailSender implements GoMailSender {
-    private static final Log LOGGER = LogFactory.getLog(BackgroundMailSender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundMailSender.class);
 
     private static final Integer CRUISE_MAIL_SENDER_TIMEOUT = Integer.parseInt(
             SystemEnvironment.getProperty("cruise.mail.sender.timeout", String.valueOf(GoConstants.DEFAULT_TIMEOUT)));

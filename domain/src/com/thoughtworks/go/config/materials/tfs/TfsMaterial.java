@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.tfs;
 
@@ -33,8 +33,9 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -47,7 +48,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 
 public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter {
-    private static final Logger LOGGER = Logger.getLogger(TfsMaterial.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TfsMaterial.class);
 
     public static final String TYPE = "TfsMaterial";
 
@@ -91,7 +92,8 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return domain;
     }
 
-    @Override public String getUserName() {
+    @Override
+    public String getUserName() {
         return userName;
     }
 
@@ -99,7 +101,8 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         resetPassword(password);
     }
 
-    @Override public String getPassword() {
+    @Override
+    public String getPassword() {
         try {
             return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {
@@ -107,7 +110,8 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         }
     }
 
-    @Override public String getEncryptedPassword() {
+    @Override
+    public String getEncryptedPassword() {
         return encryptedPassword;
     }
 
@@ -115,48 +119,50 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return projectPath;
     }
 
-    @Override public boolean isCheckExternals() {
+    @Override
+    public boolean isCheckExternals() {
         return false;
     }
 
-    @Override public String getUrl() {
+    @Override
+    public String getUrl() {
         return url == null ? null : url.forCommandline();
     }
 
-    @Override protected UrlArgument getUrlArgument() {
+    @Override
+    protected UrlArgument getUrlArgument() {
         return url;
     }
 
     public String getLongDescription() {
-       return String.format("URL: %s, Username: %s, Domain: %s, ProjectPath: %s", url.forDisplay(), userName, domain, projectPath);
+        return String.format("URL: %s, Username: %s, Domain: %s, ProjectPath: %s", url.forDisplay(), userName, domain, projectPath);
     }
 
-    @Override protected String getLocation() {
+    @Override
+    protected String getLocation() {
         return url == null ? null : url.forDisplay();
     }
 
-    @Override protected void appendCriteria(Map<String, Object> parameters) {
+    @Override
+    protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.forCommandline());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put(TfsMaterialConfig.DOMAIN, domain);
         parameters.put(TfsMaterialConfig.PROJECT_PATH, projectPath);
     }
 
-    @Override protected void appendAttributes(Map<String, Object> parameters) {
+    @Override
+    protected void appendAttributes(Map<String, Object> parameters) {
         appendCriteria(parameters);
     }
 
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[TFS] Updating to revision: " + revision + " in workingdirectory " + workingDir);
-        }
+        LOGGER.debug("[TFS] Updating to revision: {} in workingdirectory {}", revision, workingDir);
         outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         tfs(execCtx).checkout(workingDir, revision);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[TFS] done with update");
-        }
+        LOGGER.debug("[TFS] done with update");
         outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
     }
 

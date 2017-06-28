@@ -23,14 +23,15 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
 import static java.lang.String.format;
 
 public abstract class Builder implements Serializable {
-    private static final Logger LOGGER = Logger.getLogger(Builder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Builder.class);
     public static final int UNSET_EXIT_CODE = -1;
     static final int SUCCESS_EXIT_CODE = 0;
 
@@ -39,6 +40,7 @@ public abstract class Builder implements Serializable {
     protected final RunIfConfigs conditions;
     private String description;
     private Builder cancelBuilder;
+
     public Builder(RunIfConfigs conditions, Builder cancelBuilder, String description) {
         this.conditions = conditions;
         this.cancelBuilder = cancelBuilder;

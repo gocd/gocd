@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +34,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class ProcessManager {
 
-    private static final Logger LOG = Logger.getLogger(ProcessManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessManager.class);
     private static final ProcessManager processManager = new ProcessManager();
 
     private ConcurrentMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<>();
@@ -48,13 +49,9 @@ public class ProcessManager {
     public ProcessWrapper createProcess(String[] commandLine, String commandLineForDisplay, File workingDir, Map<String, String> envMap, EnvironmentVariableContext environmentVariableContext,
                                         ConsoleOutputStreamConsumer consumer, String processTag, String encoding, String errorPrefix) {
         ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Executing: " + commandLineForDisplay);
-        }
+        LOG.debug("Executing: {}", commandLineForDisplay);
         if (workingDir != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("[Command Line] Using working directory %s to start the process.", workingDir.getAbsolutePath()));
-            }
+            LOG.debug("[Command Line] Using working directory {} to start the process.", workingDir.getAbsolutePath());
             processBuilder.directory(workingDir);
         }
 
@@ -99,16 +96,12 @@ public class ProcessManager {
     Process startProcess(ProcessBuilder processBuilder, String commandLineForDisplay) {
         Process process;
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[Command Line] START command " + commandLineForDisplay);
-            }
+            LOG.debug("[Command Line] START command {}", commandLineForDisplay);
             process = processBuilder.start();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[Command Line] END command " + commandLineForDisplay);
-            }
+            LOG.debug("[Command Line] END command {}", commandLineForDisplay);
         } catch (IOException e) {
-            LOG.error(String.format("[Command Line] Failed executing [%s]", commandLineForDisplay));
-            LOG.error(String.format("[Command Line] Agent's Environment Variables: %s", System.getenv()));
+            LOG.error("[Command Line] Failed executing [{}]", commandLineForDisplay);
+            LOG.error("[Command Line] Agent's Environment Variables: {}", System.getenv());
             throw new CommandLineException(String.format("Error while executing [%s] \n Make sure this command can execute manually.", commandLineForDisplay), e);
         }
         return process;

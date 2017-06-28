@@ -223,7 +223,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     private void loadPMRsIntoCache(List<Long> ids, int batchSize) {
         int total = ids.size(), remaining = total;
         while (!ids.isEmpty()) {
-            LOGGER.info(String.format("Loading PMRs,Remaining %s Pipelines (Total: %s)...", remaining, total));
+            LOGGER.info("Loading PMRs,Remaining {} Pipelines (Total: {})...", remaining, total);
             final List<Long> idsBatch = batchIds(ids, batchSize);
             loadPMRByPipelineIds(idsBatch);
             remaining -= batchSize;
@@ -308,7 +308,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         List<PipelineMaterialRevision> pmrList = new ArrayList<>(pmrs);
         int batchSize = 100, total = pmrList.size(), remaining = total;
         while (!pmrList.isEmpty()) {
-            LOGGER.info(String.format("Loading modifications, Remaining %s PMRs(Total: %s)...", remaining, total));
+            LOGGER.info("Loading modifications, Remaining {} PMRs(Total: {})...", remaining, total);
             final List<PipelineMaterialRevision> pmrBatch = batchIds(pmrList, batchSize);
             loadModificationsForPMR(pmrBatch);
             remaining -= batchSize;
@@ -436,7 +436,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public MaterialInstance saveMaterialRevision(MaterialRevision materialRevision) {
-        LOGGER.info("Saving revision " + materialRevision);
+        LOGGER.info("Saving revision {}", materialRevision);
         MaterialInstance materialInstance = findOrCreateFrom(materialRevision.getMaterial());
         saveModifications(materialInstance, materialRevision.getModifications());
         return materialInstance;
@@ -462,9 +462,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         synchronized (cacheKey) {
             MaterialInstance materialInstance = findMaterialInstance(material);
             if (materialInstance == null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("Material instance for material '%s' not found in the database, creating a new instance now.", material));
-                }
+                LOGGER.debug("Material instance for material '{}' not found in the database, creating a new instance now.", material);
                 materialInstance = material.createMaterialInstance();
                 saveOrUpdate(materialInstance);
             }
@@ -698,7 +696,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             long sinceModificationId = revision.getLatestModification().getId();
             Modifications modifications = cachedModifications(materialInstance);
             if (!modificationExists(sinceModificationId, modifications)) {
-                LOGGER.debug("CACHE-MISS for findModificationsSince - " + materialInstance + ": " + revision.getLatestModification());
+                LOGGER.debug("CACHE-MISS for findModificationsSince - {}: {}", materialInstance, revision.getLatestModification());
                 modifications = _findModificationsSince(materialInstance, sinceModificationId);
                 if (shouldCache(modifications)) {
                     goCache.put(cacheKey, modifications);
@@ -867,7 +865,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                     final long materialId = findOrCreateFrom(material).getId();
                     return MaterialRepository.this.findModificationWithRevision(session, materialId, revision);
                 } catch (Exception e) {
-                    LOGGER.error("Error while retrieving modification with material [" + material + "] containing revision [" + revision + "]", e);
+                    LOGGER.error("Error while retrieving modification with material [{}] containing revision [{}]", material, revision, e);
                     throw e instanceof HibernateException ? (HibernateException) e : new RuntimeException(e);
                 }
             }

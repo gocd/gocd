@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -45,7 +46,7 @@ public class GoCache {
 
     private Cache ehCache;
 
-    private static final Logger LOGGER = Logger.getLogger(GoCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoCache.class);
     private TransactionSynchronizationManager transactionSynchronizationManager;
 
     private final Set<Class<? extends PersistentObject>> nullObjectClasses;
@@ -93,11 +94,9 @@ public class GoCache {
     }
 
     private void put(String key, Object value, Predicate predicate) {
-        logUnsavedPersistentObjectInteraction(value, "PersistentObject %s added to cache without an id.");
+        logUnsavedPersistentObjectInteraction(value, "PersistentObject {} added to cache without an id.");
         if (predicate.isTrue()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("transaction active during cache put for %s = %s", key, value), new IllegalStateException());
-            }
+            LOGGER.debug("transaction active during cache put for {} = {}", key, value, new IllegalStateException());
             return;
         }
         ehCache.put(new Element(key, value));
@@ -153,7 +152,7 @@ public class GoCache {
             return null;
         }
         Object value = element.getObjectValue();
-        logUnsavedPersistentObjectInteraction(value, "PersistentObject %s without an id served out of cache.");
+        logUnsavedPersistentObjectInteraction(value, "PersistentObject {} without an id served out of cache.");
         return value;
     }
 
@@ -216,7 +215,7 @@ public class GoCache {
                 if (parent == null) {
                     return;
                 }
-                GoCache.KeyList subKeys = (GoCache.KeyList) parent.getObjectValue();
+                KeyList subKeys = (KeyList) parent.getObjectValue();
                 subKeys.remove(childKey);
             }
         }

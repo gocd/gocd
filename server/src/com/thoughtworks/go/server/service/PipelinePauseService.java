@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -29,7 +29,8 @@ import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +41,7 @@ public class PipelinePauseService {
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
 
-    private static final Logger LOGGER = Logger.getLogger(PipelinePauseService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelinePauseService.class);
 
     @Autowired
     public PipelinePauseService(PipelineSqlMapDao pipelineSqlMapDao, GoConfigService goConfigService, SecurityService securityService) {
@@ -58,7 +59,7 @@ public class PipelinePauseService {
         if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, pauseByUserName, result)) {
             return;
         }
-        if(StringUtils.isBlank(pauseCause)) {
+        if (StringUtils.isBlank(pauseCause)) {
             pauseCause = "";
         }
         try {
@@ -76,7 +77,7 @@ public class PipelinePauseService {
             String pauseByDisplayName = pauseBy.getDisplayName();
             String sanitizedPauseBy = pauseByDisplayName.substring(0, Math.min(255, pauseByDisplayName.length()));
             pipelineSqlMapDao.pause(pipelineName, sanitizedPauseCause, sanitizedPauseBy);
-            LOGGER.info(String.format("[Pipeline Pause] Pipeline [%s] is paused by [%s] because [%s]", pipelineName, pauseBy, pauseCause));
+            LOGGER.info("[Pipeline Pause] Pipeline [{}] is paused by [{}] because [{}]", pipelineName, pauseBy, pauseCause);
         }
     }
 
@@ -103,9 +104,9 @@ public class PipelinePauseService {
         unpause(pipelineName, UserHelper.getUserName(), new DefaultLocalizedOperationResult());
     }
 
-     public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {
-         String unpauseByUserName = unpausedBy == null ? "" : unpausedBy.getUsername().toString();
-         if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
+    public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {
+        String unpauseByUserName = unpausedBy == null ? "" : unpausedBy.getUsername().toString();
+        if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
             return;
         }
         try {
@@ -120,7 +121,7 @@ public class PipelinePauseService {
         String mutextPipelineName = mutexForPausePipeline(pipelineName);
         synchronized (mutextPipelineName) {
             pipelineSqlMapDao.unpause(pipelineName);
-            LOGGER.info(String.format("[Pipeline Unpause] Pipeline [%s] is unpaused by [%s]", pipelineName,unpausedBy));
+            LOGGER.info("[Pipeline Unpause] Pipeline [{}] is unpaused by [{}]", pipelineName, unpausedBy);
         }
     }
 

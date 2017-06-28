@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.IO;
 import com.thoughtworks.go.util.command.StreamConsumer;
 import com.thoughtworks.go.util.command.StreamPumper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProcessWrapper {
 
@@ -39,7 +40,7 @@ public class ProcessWrapper {
     private String processTag;
     private String command;
     private ConsoleOutputStreamConsumer consumer;
-    private static final Logger LOGGER = Logger.getLogger(ProcessWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
     ProcessWrapper(Process process, String processTag, String command, ConsoleOutputStreamConsumer consumer, String encoding, String errorPrefix) {
         this.process = process;

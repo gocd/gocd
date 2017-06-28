@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ import java.util.List;
  */
 @Component
 public class GoConfigWatchList implements ConfigChangedListener {
-    private static final Logger LOGGER = Logger.getLogger(GoConfigWatchList.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigWatchList.class);
 
     private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<>();
     private ConfigReposConfig reposConfig;
@@ -56,13 +57,12 @@ public class GoConfigWatchList implements ConfigChangedListener {
     }
 
     private synchronized void notifyListeners(ConfigReposConfig configRepoConfigs) {
-        for (ChangedRepoConfigWatchListListener listener : listeners) {
+        for (ChangedRepoConfigWatchListListener listener : listeners)
             try {
                 listener.onChangedRepoConfigWatchList(configRepoConfigs);
             } catch (Exception e) {
-                LOGGER.error("failed to fire config repos list changed event for listener: " + listener, e);
+                LOGGER.error("failed to fire config repos list changed event for listener: {}", listener, e);
             }
-        }
     }
 
     public boolean hasConfigRepoWithFingerprint(String fingerprint) {

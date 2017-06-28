@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstanc
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
 public class DependencyMaterial extends AbstractMaterial {
-    private static final Logger LOGGER = Logger.getLogger(DependencyMaterial.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DependencyMaterial.class);
     public static final String TYPE = "DependencyMaterial";
 
     private CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
@@ -80,7 +81,8 @@ public class DependencyMaterial extends AbstractMaterial {
         return new DependencyMaterialConfig(name, pipelineName, stageName);
     }
 
-    @Override public CaseInsensitiveString getName() {
+    @Override
+    public CaseInsensitiveString getName() {
         return super.getName() == null ? pipelineName : super.getName();
     }
 
@@ -94,7 +96,8 @@ public class DependencyMaterial extends AbstractMaterial {
 
     }
 
-    @Override protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
+    @Override
+    protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         //Dependency materials are already unique within a pipeline
     }
 
@@ -107,10 +110,10 @@ public class DependencyMaterial extends AbstractMaterial {
     } //NEW
 
     public Revision oldestRevision(Modifications modifications) {
-        if(modifications.size() > 1){
-            LOGGER.warn(String.format("Dependency material %s has multiple modifications", this.getDisplayName()));
+        if (modifications.size() > 1) {
+            LOGGER.warn("Dependency material {} has multiple modifications", this.getDisplayName());
         }
-        Modification oldestModification = modifications.get(modifications.size() -1);
+        Modification oldestModification = modifications.get(modifications.size() - 1);
         String revision = oldestModification.getRevision();
         return DependencyMaterialRevision.create(revision, oldestModification.getPipelineLabel());
     }
@@ -223,7 +226,8 @@ public class DependencyMaterial extends AbstractMaterial {
         return result;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "DependencyMaterial{" +
                 "pipelineName='" + pipelineName + '\'' +
                 ", stageName='" + stageName + '\'' +
@@ -249,10 +253,10 @@ public class DependencyMaterial extends AbstractMaterial {
         return materialMap;
     }
 
-    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig){
+    public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
         for (FetchTask fetchTask : fetchTasks) {
-            if(pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
+            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
                 return true;
         }
         return false;

@@ -17,24 +17,24 @@
 const Stream = require('mithril/stream');
 
 const About = function (data) {
-  this.name                  = Stream(data.name);
-  this.version               = Stream(data.version);
-  this.targetGoVersion       = Stream(data.targetGoVersion);
-  this.description           = Stream(data.description);
-  this.targetOperatingSystem = Stream(data.targetOperatingSystem);
-  this.vendor                = Stream(data.vendor);
+  this.name                   = Stream(data.name);
+  this.version                = Stream(data.version);
+  this.targetGoVersion        = Stream(data.targetGoVersion);
+  this.description            = Stream(data.description);
+  this.targetOperatingSystems = Stream(data.targetOperatingSystems);
+  this.vendor                 = Stream(data.vendor);
 };
 
 About.fromJSON = (data = {}) => new About({
-  name:                  data.name,
-  version:               data.version,
-  targetGoVersion:       data.target_go_version,
-  description:           data.description,
-  targetOperatingSystem: data.target_operating_systems,
-  vendor:                About.Vendor.fromJSON(data.vendor)
+  name:                   data.name,
+  version:                data.version,
+  targetGoVersion:        data.target_go_version,
+  description:            data.description,
+  targetOperatingSystems: data.target_operating_systems,
+  vendor:                 About.Vendor.fromJSON(data.vendor)
 });
 
-About.Vendor = function({name, url}) {
+About.Vendor = function ({name, url}) {
   this.name = Stream(name);
   this.url  = Stream(url);
 };

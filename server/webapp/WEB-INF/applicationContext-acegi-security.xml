@@ -287,6 +287,7 @@
                 /api/admin/config_repos=ROLE_SUPERVISOR
                 /api/elastic/profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /admin/elastic_profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
+                /admin/new_plugins/**=ROLE_SUPERVISOR
                 /api/admin/templates/**=ROLE_USER
                 /api/admin/**=ROLE_SUPERVISOR
                 /api/config-repository.git/**=ROLE_SUPERVISOR

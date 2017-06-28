@@ -75,7 +75,10 @@ describe("ElasticProfilesWidget", () => {
       "name":    "Docker Elastic Agent Plugin",
       "version": "0.5"
     },
-    "type":           "elastic-agent",
+    "type":             "elastic-agent",
+    "status": {
+      "state": "active"
+    },
     "extension_info": {
       "profile_settings": {
         "configurations": [
@@ -119,7 +122,10 @@ describe("ElasticProfilesWidget", () => {
       "name":    "ECS Elastic Agent Plugin",
       "version": "0.5"
     },
-    "type":           "elastic-agent",
+    "type":             "elastic-agent",
+    "status": {
+      "state": "active"
+    },
     "extension_info": {
       "profile_settings": {
         "configurations": [],

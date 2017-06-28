@@ -23,8 +23,10 @@ describe('PluginInfos', () => {
     const json = [
       {
         "id":      "github.oauth.login",
-        "version": "1",
         "type":    "authentication",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "GitHub OAuth Login",
           "version":                  "2.2",
@@ -48,8 +50,10 @@ describe('PluginInfos', () => {
     it("should deserialize", () => {
       const json = {
         "id":      "github.oauth.login",
-        "version": "1",
         "type":    "authentication",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "GitHub OAuth Login",
           "version":                  "2.2",
@@ -60,21 +64,48 @@ describe('PluginInfos', () => {
             "name": "GoCD Contributors",
             "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
           }
+        },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "server_base_url",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "authentication plugin view"
+            }
+          }
         }
       };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['server_base_url']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+
     });
   });
 
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "cd.go.contrib.elastic-agent.docker",
-        "version":        "1",
-        "type":           "elastic-agent",
-        "about":          {
+        "id":               "cd.go.contrib.elastic-agent.docker",
+        "type":             "elastic-agent",
+        "status":           {
+          "state": "active"
+        },
+        "about":            {
           "name":                     "Docker Elastic Agent Plugin",
           "version":                  "0.6.1",
           "target_go_version":        "16.12.0",
@@ -86,6 +117,20 @@ describe('PluginInfos', () => {
           }
         },
         "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "instance_type",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "elastic agent plugin settings view"
+            }
+          },
           "profile_settings": {
             "configurations": [
               {
@@ -131,6 +176,14 @@ describe('PluginInfos', () => {
         required: true
       });
       expect(pluginInfo.capabilities().supportsStatusReport()).toBeTruthy();
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['instance_type']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
     });
   });
 
@@ -138,8 +191,10 @@ describe('PluginInfos', () => {
     it("should deserialize", () => {
       const json = {
         "id":      "github.pr.status",
-        "version": "1",
         "type":    "notification",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "GitHub Pull Requests status notifier",
           "version":                  "1.2",
@@ -150,21 +205,47 @@ describe('PluginInfos', () => {
             "name": "Srinivas Upadhya",
             "url":  "https://github.com/srinivasupadhya/gocd-build-status-notifier"
           }
+        },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "hostname",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "notification plugin view"
+            }
+          }
         }
       };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['hostname']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
     });
   });
 
   describe("PackageRepository", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "nuget",
-        "version":        "1",
-        "type":           "package-repository",
-        "about":          {
+        "id":                  "nuget",
+        "type":                "package-repository",
+        "status":              {
+          "state": "active"
+        },
+        "about":               {
           "name":                     "Nuget plugin",
           "version":                  "1.0.0",
           "target_go_version":        "15.3.0",
@@ -285,10 +366,12 @@ describe('PluginInfos', () => {
   describe("Task", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "docker-task",
-        "version":        "1",
-        "type":           "task",
-        "about":          {
+        "id":            "docker-task",
+        "type":          "task",
+        "status":        {
+          "state": "active"
+        },
+        "about":         {
           "name":                     "Docker Task",
           "version":                  "0.1.27",
           "target_go_version":        "14.4.0",
@@ -358,11 +441,13 @@ describe('PluginInfos', () => {
   describe("SCM", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "github.pr",
-        "version":        "1",
-        "type":           "scm",
-        "about":          {
-          "name":                     "GitHub Pull Requests Builder",
+        "id":           "github.pr",
+        "type":         "scm",
+        "status":       {
+          "state": "active"
+        },
+        "about":        {
+          "name":                     "Github Pull Requests Builder",
           "version":                  "1.3.0-RC2",
           "target_go_version":        "15.1.0",
           "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
@@ -425,10 +510,12 @@ describe('PluginInfos', () => {
   describe("Authorization", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "cd.go.authorization.ldap",
-        "version":        "1",
-        "type":           "authorization",
-        "about":          {
+        "id":                   "cd.go.authorization.ldap",
+        "type":                 "authorization",
+        "status":               {
+          "state": "active"
+        },
+        "about":                {
           "name":                     "LDAP Authorization Plugin for GoCD",
           "version":                  "0.0.1",
           "target_go_version":        "16.12.0",
@@ -547,8 +634,10 @@ describe('PluginInfos', () => {
     it("should deserialize", () => {
       const json = {
         "id":      "json.config.plugin",
-        "version": "1",
         "type":    "configrepo",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "JSON Configuration Plugin",
           "version":                  "0.2",
@@ -560,10 +649,35 @@ describe('PluginInfos', () => {
             "url":  "https://github.com/tomzo/gocd-json-config-plugin"
           }
         },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "pipeline_pattern",
+                "metadata": {
+                  "required": false,
+                  "secure": false
+                }
+              }
+            ],
+            "view": {
+              "template": "config repo plugin view"
+            }
+          }
+        }
       };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['pipeline_pattern']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: false
+      });
+
     });
   });
 
@@ -575,7 +689,9 @@ describe('PluginInfos', () => {
         }
       },
       "id":      "github.pr",
-      "version": "1",
+      "status":  {
+        "state": "active"
+      },
       "about":   {
         "name":                     "GitHub Pull Requests Builder",
         "version":                  "1.3.0-RC2",
@@ -599,15 +715,16 @@ describe('PluginInfos', () => {
     });
   });
 
-  const verifyBasicProperties = (pluginInfo, {id, type, version, about}) => {
+  const verifyBasicProperties = (pluginInfo, {id, type, about, status}) => {
     expect(pluginInfo.id()).toEqual(id);
     expect(pluginInfo.type()).toEqual(type);
-    expect(pluginInfo.version()).toEqual(version);
+    expect(pluginInfo.status().state()).toEqual(status.state);
+    expect(pluginInfo.status().messages()).toEqual(status.messages);
     expect(pluginInfo.about().name()).toEqual(about.name);
     expect(pluginInfo.about().version()).toEqual(about.version);
     expect(pluginInfo.about().targetGoVersion()).toEqual(about.target_go_version);
     expect(pluginInfo.about().description()).toEqual(about.description);
-    expect(pluginInfo.about().targetOperatingSystem()).toEqual(about.target_operating_systems);
+    expect(pluginInfo.about().targetOperatingSystems()).toEqual(about.target_operating_systems);
     expect(pluginInfo.about().vendor().name()).toEqual(about.vendor.name);
     expect(pluginInfo.about().vendor().url()).toEqual(about.vendor.url);
   };

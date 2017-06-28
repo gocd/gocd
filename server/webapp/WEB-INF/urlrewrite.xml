@@ -69,6 +69,13 @@
     </rule>
 
     <rule>
+        <name>Plugins UI</name>
+        <from>^/admin/new_plugins$</from>
+        <to last="true">/rails/admin/new_plugins</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Rails Security Auth Config UI</name>
         <from>^/admin/security/auth_configs$</from>
         <to last="true">/rails/admin/security/auth_configs</to>

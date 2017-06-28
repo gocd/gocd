@@ -430,6 +430,9 @@ describe("Materials Config Widget", () => {
       "id":      "github.oauth.login",
       "version": "1",
       "type":    "authentication",
+      "status": {
+        "state": "active"
+      },
       "about":   {
         "name":                     "GitHub OAuth Login",
         "version":                  "2.2",

@@ -101,6 +101,9 @@ describe("Edit Pluggable SCM Material Widget", () => {
       "id":           "github.pr",
       "version":      "1",
       "type":         "scm",
+      "status": {
+        "state": "active"
+      },
       "about":        {
         "name":                     "GitHub Pull Requests Builder",
         "version":                  "1.3.0-RC2",

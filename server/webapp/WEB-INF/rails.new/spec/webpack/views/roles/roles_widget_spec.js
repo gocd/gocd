@@ -81,6 +81,9 @@ describe("RolesWidget", () => {
   const ldapPluginInfoJSON = {
     "id":             "cd.go.authorization.ldap",
     "type":           "authorization",
+    "status": {
+      "state": "active"
+    },
     "about":          {"name": "Ldap authorization plugin"},
     "extension_info": {
       "role_settings": {
@@ -98,6 +101,9 @@ describe("RolesWidget", () => {
   const githubPluginInfoJSON = {
     "id":             "cd.go.authorization.github",
     "type":           "authorization",
+    "status": {
+      "state": "active"
+    },
     "about":          {"name": "GitHub authorization plugin"},
     "extension_info": {
       "role_settings": {

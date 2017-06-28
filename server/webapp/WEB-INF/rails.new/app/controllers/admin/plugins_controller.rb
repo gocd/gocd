@@ -1,4 +1,5 @@
-# Copyright 2015 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-JsRoutes.setup do |config|
-  config.prefix     = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
-  config.camel_case = true
-  config.include    = [
-    /^api_internal/,
-    /^apiv\d/,
-    /^admin_elastic_profile/,
-    /^admin_status_report/
-  ]
+
+module Admin
+  class PluginsController < ::ApplicationController
+    include AuthenticationHelper
+
+    layout 'single_page_app'
+    before_action :check_admin_user_and_401
+
+    def index
+      @view_title = 'Plugins'
+    end
+  end
 end

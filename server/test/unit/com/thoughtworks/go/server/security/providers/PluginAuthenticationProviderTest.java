@@ -43,6 +43,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
@@ -149,6 +150,11 @@ public class PluginAuthenticationProviderTest {
         assertThat(goUserPrincipal.getAuthorities().length, is(1));
         assertThat(goUserPrincipal.getAuthorities()[0], is(userAuthority));
         assertFalse(goUserPrincipal.authenticatedUsingAuthorizationPlugin());
+    }
+
+    @Test(expected = BadCredentialsException.class)
+    public void shouldValidatePresenceOfPassword() throws Exception {
+        provider.retrieveUser("username", new UsernamePasswordAuthenticationToken("principal", " \t"));
     }
 
     @Test

@@ -31,10 +31,12 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
@@ -77,6 +79,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        assertPasswordNotBlank(authentication);
         boolean authenticatedUsingAuthorizationPlugin = true;
         User user = getUserDetailsFromAuthorizationPlugins(username, authentication);
 
@@ -93,6 +96,14 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         userService.addUserIfDoesNotExist(toDomainUser(user));
         GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication), authenticatedUsingAuthorizationPlugin);
         return goUserPrinciple;
+    }
+
+    private void assertPasswordNotBlank(UsernamePasswordAuthenticationToken authentication) {
+        String password = (String) authentication.getCredentials();
+
+        if (StringUtils.isBlank(password)) {
+            throw new BadCredentialsException("Empty Password");
+        }
     }
 
     private com.thoughtworks.go.domain.User toDomainUser(User user) {

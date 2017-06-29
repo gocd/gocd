@@ -184,8 +184,25 @@ describe ApiV3::Admin::PluginInfosController do
       expect(actual_response).to eq(expected_response(plugin_info, ApiV3::Plugin::PluginInfoRepresenter))
     end
 
+    it 'should fetch a bad plugin info if plugin is bad' do
+      bad_vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      bad_about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', bad_vendor, ['Linux'])
+      bad_plugin = GoPluginDescriptor.new('bad.plugin', '1.0', bad_about, nil, nil, false)
+      bad_plugin.markAsInvalid(%w(foo bar), java.lang.RuntimeException.new('boom!'))
+
+      bad_plugin_info = com.thoughtworks.go.plugin.domain.common.BadPluginInfo.new(bad_plugin)
+
+      @default_plugin_info_finder.should_receive(:pluginInfoFor).with('bad.plugin').and_return(nil)
+      @default_plugin_manager.should_receive(:getPluginDescriptorFor).with('bad.plugin').and_return(bad_plugin)
+
+      get_with_api_header :show, id: 'bad.plugin'
+      expect(response).to be_ok
+      expect(actual_response).to eq(expected_response(bad_plugin_info, ApiV3::Plugin::BadPluginInfoRepresenter))
+    end
+
     it 'should return 404 in absence of plugin_info' do
       @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin_id').and_return(nil)
+      @default_plugin_manager.should_receive(:getPluginDescriptorFor).with('plugin_id').and_return(nil)
 
       get_with_api_header :show, id: 'plugin_id'
 

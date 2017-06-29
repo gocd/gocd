@@ -34,11 +34,16 @@ module ApiV3
       end
 
       def show
-        plugin = default_plugin_info_finder.pluginInfoFor(params[:id])
+        plugin_info = default_plugin_info_finder.pluginInfoFor(params[:id])
 
-        raise RecordNotFound unless plugin
+        unless plugin_info
+          descriptor = default_plugin_manager.getPluginDescriptorFor(params[:id])
+          plugin_info = BadPluginInfo.new(descriptor) if descriptor.try(:isInvalid)
+        end
 
-        render DEFAULT_FORMAT => Plugin::PluginInfoRepresenter.new(plugin).to_hash(url_builder: self)
+        raise RecordNotFound unless plugin_info
+
+        render DEFAULT_FORMAT => Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: self)
       end
 
     end

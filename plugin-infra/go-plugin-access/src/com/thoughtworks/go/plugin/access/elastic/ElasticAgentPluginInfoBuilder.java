@@ -39,7 +39,7 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
 
     @Override
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettings(descriptor, extension);
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
 
         return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()), pluggableInstanceSettings);
     }

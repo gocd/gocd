@@ -35,7 +35,7 @@ public class AuthenticationPluginInfoBuilder implements PluginInfoBuilder<Authen
     }
 
     public AuthenticationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettings(descriptor, extension);
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
         AuthenticationPluginConfiguration pluginConfiguration = extension.getPluginConfiguration(descriptor.id());
 
         return new AuthenticationPluginInfo(descriptor,

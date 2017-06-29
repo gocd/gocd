@@ -42,7 +42,7 @@ public interface PluginInfoBuilder<T extends PluginInfo> {
         return pluginConfigurations;
     }
 
-    default PluggableInstanceSettings getPluginSettings(GoPluginDescriptor descriptor, AbstractExtension extension) {
+    default PluggableInstanceSettings getPluginSettingsAndView(GoPluginDescriptor descriptor, AbstractExtension extension) {
         PluggableInstanceSettings pluggableInstanceSettings = null;
         try {
             String pluginSettingsView = extension.getPluginSettingsView(descriptor.id());

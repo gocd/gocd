@@ -20,8 +20,6 @@ import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +33,7 @@ public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepo
     }
 
     public ConfigRepoPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettings(descriptor, extension);
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
         return new ConfigRepoPluginInfo(descriptor, pluggableInstanceSettings);
     }
 

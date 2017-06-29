@@ -34,7 +34,7 @@ public class NotificationPluginInfoBuilder implements PluginInfoBuilder<Notifica
     }
 
     public NotificationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettings(descriptor, extension);
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
         return new NotificationPluginInfo(descriptor, pluggableInstanceSettings);
     }
 

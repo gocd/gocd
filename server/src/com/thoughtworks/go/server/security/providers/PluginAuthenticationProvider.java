@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -42,6 +41,7 @@ import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticat
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -133,21 +133,21 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     }
 
     private User getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
-        Set<AuthorizationPluginInfo> authorizationPlugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
         String loginName = loginName(username, authentication);
-        for (AuthorizationPluginInfo pluginInfo : authorizationPlugins) {
-            String pluginId = pluginInfo.getDescriptor().id();
-            String password = (String) authentication.getCredentials();
-            List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginId);
-            final List<PluginRoleConfig> roleConfigs = configService.security().getPluginRoles(pluginId);
+        String password = (String) authentication.getCredentials();
 
-            if (authConfigs == null || authConfigs.isEmpty()) {
+        for (SecurityAuthConfig authConfig : configService.security().securityAuthConfigs()) {
+            String pluginId = authConfig.getPluginId();
+
+            if (!store.doesPluginSupportPasswordBasedAuthentication(pluginId)) {
                 continue;
             }
 
+            final List<PluginRoleConfig> roleConfigs = configService.security().getRoles().pluginRoleConfigsFor(authConfig.getId());
+
             try {
                 LOGGER.debug("[Authenticate] Authenticating user: `{}` using the authorization plugin: `{}`", loginName, pluginId);
-                AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, loginName, password, authConfigs, roleConfigs);
+                AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, loginName, password, Collections.singletonList(authConfig), roleConfigs);
                 User user = ensureDisplayNamePresent(response.getUser());
                 if (user != null) {
                     pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));

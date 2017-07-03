@@ -258,35 +258,6 @@
         WHERE stages.pipelineId = #pipelineId# AND stages.name = #stageName# AND stages.counter = #stageCounter#
     </select>
 
-    <sql id="selectStages">
-        SELECT builds.*,builds.id as buildId,
-        stages.name as stageName,
-        stages.counter as stageCounter,
-        stages.pipelineId as pipelineId,
-        stages.approvedBy,
-        stages.createdTime,
-        stages.orderId,
-        stages.result as stageResult,
-        stages.approvalType,
-        stages.completedByTransitionId as completedByTransitionId,
-        stages.state as stageState,
-        stages.latestRun,
-        stages.fetchMaterials,
-        stages.cleanWorkingDir,
-        stages.rerunOfCounter,
-        stages.artifactsDeleted,
-        stages.configVersion,
-        stages.lastTransitionedTime,
-        resources.name as resourceName,
-        buildstatetransitions.currentState,
-        buildstatetransitions.statechangetime, buildstatetransitions.id as stateId
-        FROM stages
-        INNER JOIN builds ON stages.id = builds.stageId AND builds.ignored != true
-        LEFT JOIN resources ON builds.id = resources.buildId
-        LEFT JOIN buildstatetransitions ON builds.id = buildstatetransitions.buildId
-    </sql>
-
-
     <sql id="selectStagesWithIdentifier">
         SELECT builds.*,builds.id as buildId,
         stages.name as stageName,
@@ -414,12 +385,6 @@
         <include refid="selectLatestStageInPipeline"/>
     </sql>
 
-    <sql id="selectStagesInPipeline">
-        <include refid="selectStages"/>
-        <include refid="innerJoinPipelines"/>
-        WHERE stages.pipelineId = #pipelineId#
-    </sql>
-
     <select id="getStagesByPipelineId" resultMap="select-stage-with-identifier-jobs" parameterClass="long">
         <include refid="selectStagesWithIdentifier"/>
         WHERE stages.pipelineId = #pipelineId#
@@ -441,12 +406,6 @@
         AND pipelines.counter = #pipelineCounter#
         AND stages.name = #stageName#
         ORDER BY stages.counter
-    </select>
-
-    <select id="getStageByCounter" resultMap="select-stage-map">
-        <include refid="selectStages"/>
-        WHERE stages.name = #stageName# AND stages.counter = #counter# AND stages.pipelineId = #pipelineId#
-        ORDER BY builds.name, buildstatetransitions.statechangetime
     </select>
 
     <select id="getStageById" resultMap="select-stage-with-identifier-jobs" parameterClass="long">
@@ -590,11 +549,6 @@
         ORDER BY stages.id, stages.lastTransitionedTime
         LIMIT #limit# OFFSET #offset#
     ]]>
-    </select>
-
-    <select id="getScheduledStages" resultMap="select-stage-map">
-        <include refid="selectStages"/>
-        WHERE builds.state = 'Scheduled'
     </select>
 
     <select id="getStageByBuildId" parameterClass="long" resultMap="select-stage-without-builds">

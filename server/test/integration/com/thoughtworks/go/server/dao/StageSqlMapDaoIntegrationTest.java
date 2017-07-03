@@ -968,16 +968,6 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldRetrieveStageInstances() throws Exception {
-        dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        Stages stages = stageDao.scheduledStages();
-        assertThat(stages.size(), is(1));
-        Stage stage = stages.get(0);
-        assertThat(stage.getName(), is(STAGE_DEV));
-        assertThat(stage.getApprovalType(), is(GoConstants.APPROVAL_SUCCESS));
-    }
-
-    @Test
     public void shouldGetPreviousStageDurations() throws Exception {
         Pipeline completed = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         dbHelper.pass(completed);

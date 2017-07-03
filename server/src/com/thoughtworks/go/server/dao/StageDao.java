@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.util.Pagination;
 import java.util.List;
 
 public interface StageDao extends JobDurationStrategy {
-    Stages scheduledStages();
 
     Stage mostRecentWithBuilds(String pipelineName, StageConfig stageConfig);
 

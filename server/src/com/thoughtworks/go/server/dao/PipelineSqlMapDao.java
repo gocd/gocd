@@ -276,16 +276,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return (String) getSqlMapClientTemplate().queryForObject("mostRecentLabel", pipelineName);
     }
 
-
-    public Pipeline fullPipelineByBuildId(long buildId) {
-        Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("getPipelineByBuildId", buildId);
-        if (pipeline == null) {
-            /* We throw this exception any time you issue a query for a specific id and it's not found */
-            throw new DataRetrievalFailureException("Could not load pipeline from build with id " + buildId);
-        }
-        return loadAssociations(pipeline, pipeline.getName());
-    }
-
     public Pipeline pipelineByBuildIdWithMods(long buildId) {
         Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("getPipelineByBuildId", buildId);
         if (pipeline == null) {

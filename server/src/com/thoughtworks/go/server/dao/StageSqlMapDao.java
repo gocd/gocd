@@ -81,12 +81,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         this.transactionSynchronizationManager = transactionSynchronizationManager;
     }
 
-    public Stages scheduledStages() {
-        Stages scheduledStages = new Stages(
-                (List<Stage>) getSqlMapClientTemplate().queryForList("getScheduledStages"));
-        return new Stages(scheduledStages);
-    }
-
     public Stage save(final Pipeline pipeline, final Stage stage) {
         return (Stage) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {

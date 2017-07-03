@@ -76,10 +76,6 @@ public class PipelineService implements UpstreamPipelineResolver {
         this.materialConfigConverter = materialConfigConverter;
     }
 
-    public Pipeline fullPipelineByBuildId(long buildId) {
-        return pipelineDao.fullPipelineByBuildId(buildId);
-    }
-
     public Pipeline pipelineWithModsByStageId(String pipelineName, long stageId) {
         return pipelineDao.pipelineWithModsByStageId(pipelineName, stageId);
     }

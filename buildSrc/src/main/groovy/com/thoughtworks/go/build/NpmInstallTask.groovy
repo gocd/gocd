@@ -21,7 +21,6 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.internal.os.OperatingSystem
 
-@CacheableTask
 class NpmInstallTask extends DefaultTask {
   @InputDirectory
   File workingDir = project.projectDir

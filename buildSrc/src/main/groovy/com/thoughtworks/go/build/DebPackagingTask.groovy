@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.tasks.ParallelizableTask
-
-@ParallelizableTask
 class DebPackagingTask extends LinuxPackagingTask {
 
   public File getOutputFile() {

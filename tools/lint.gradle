@@ -40,7 +40,7 @@ task jsLint {
   description "Run ESLint"
   dependsOn ':tools:prepareNodeJS'
   doFirst {
-    def binary = isWindows() ? project.file('node_modules/.bin/eslint.cmd') : project.file('node_modules/.bin/eslint')
+    def binary = org.gradle.internal.os.OperatingSystem.current().isWindows() ? project.file('node_modules/.bin/eslint.cmd') : project.file('node_modules/.bin/eslint')
 
     def commonCommandLine = [
       binary,

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.build
 
-import org.gradle.api.tasks.ParallelizableTask
-
-@ParallelizableTask
 class RpmPackagingTask extends LinuxPackagingTask {
 
   public File getOutputFile() {

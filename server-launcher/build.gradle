@@ -31,10 +31,8 @@ dependencies {
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
 
-  packagingInLibDir project(path: ':tfs-impl-10', configuration: 'fatJarConfig')
   packagingInLibDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 
-  packagingInDefaultFilesDir project(path: ':tfs-impl-10', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir(project(path: ':go-plugin-activator')) {
@@ -203,7 +201,7 @@ clean {
 
 task fatJar(type: Jar,
   dependsOn: [
-    ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar', ':server-launcher:mainJar',
+    ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl-14:fatJar', ':server-launcher:mainJar',
     ':agent-launcher:fatJar', ':agent-bootstrapper:fatJar', ':agent:fatJar',
     ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':server-launcher:pluginsZip'
   ]) {
@@ -265,7 +263,6 @@ task verifyFatJar(type: VerifyJarTask) {
     "defaultFiles": [
       "agent-launcher.jar",
       "agent.jar",
-      "tfs-impl-10.jar",
       "tfs-impl-14.jar",
     ],
     "main"        : [
@@ -294,7 +291,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "log4j-1.2.17.jar",
       "slf4j-api-1.7.21.jar",
       "slf4j-log4j12-1.7.21.jar",
-      "tfs-impl-10.jar",
       "tfs-impl-14.jar",
       "websocket-api-${versions.jetty}.jar",
       "websocket-client-${versions.jetty}.jar",

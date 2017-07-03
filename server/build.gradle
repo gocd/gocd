@@ -93,7 +93,6 @@ dependencies {
     exclude(module: 'commons-collections')
   }
 
-  copyOnly project(path: ':tfs-impl-10', configuration: 'fatJarConfig')
   copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
@@ -361,7 +360,6 @@ clean {
   delete 'logs'
   delete 'pipelines'
   delete 'plugins'
-  delete 'tfs-impl-10.jar'
   delete 'tfs-impl-14.jar'
   delete 'agent-launcher.jar'
   delete 'agent.jar'

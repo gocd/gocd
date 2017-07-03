@@ -100,7 +100,6 @@ server-launcher/target/
 server/*.log*
 server/agent.jar
 server/agent-launcher.jar
-server/tfs-impl-10.jar
 server/tfs-impl-14.jar
 server/artifacts/
 server/artifactsDir/
@@ -137,7 +136,6 @@ target/
 test-addon/target/
 test-agent/target/
 test-utils/target/
-tfs-impl/tfs-impl-10/target/
 tfs-impl/tfs-impl-14/target/
 tw-go-plugins/dist/
 util/target/

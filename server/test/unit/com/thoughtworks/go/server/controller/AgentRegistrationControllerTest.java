@@ -65,7 +65,6 @@ public class AgentRegistrationControllerTest {
         goConfigService = mock(GoConfigService.class);
 
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
-        when(systemEnvironment.get(SystemEnvironment.TFS_SDK_10)).thenReturn(true);
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
     }

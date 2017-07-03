@@ -154,7 +154,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY9));
-    public static GoSystemProperty<Boolean> TFS_SDK_10 = new CachedProperty<>(new GoBooleanSystemProperty("tfs.sdk.old", false));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 

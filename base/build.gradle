@@ -46,8 +46,8 @@ sourceSets {
   }
 }
 
-clean.doLast {
-  project.delete(generatedResourcesOutput)
+clean {
+  delete(generatedResourcesOutput)
 }
 
 task generateResources {

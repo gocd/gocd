@@ -45,7 +45,7 @@ jar {
   classifier 'classes'
 }
 
-clean.doFirst {
+clean {
   delete 'config'
   delete 'felix-cache'
   delete 'main'

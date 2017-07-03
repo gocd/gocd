@@ -81,10 +81,10 @@ task prepareNodeJS(type: NpmInstallTask) {
   workingDir = project.projectDir
 }
 
-clean.doFirst {
-  project.delete('jruby')
-  project.delete('jruby-1.7.11')
-  project.delete('node_modules')
+clean {
+  delete('jruby')
+  delete('jruby-1.7.11')
+  delete('node_modules')
 }
 
 task prepare {

@@ -254,14 +254,13 @@ def findGemsToNotPack = {
 }
 
 task cleanDb(type: Delete) {
-  outputs.upToDateWhen { false }
-  doFirst {
-    delete "db/h2db"
-    delete "db/h2deltas"
-    delete "db/shine"
-    delete "db/config.git"
-  }
+  delete "db/h2db"
+  delete "db/h2deltas"
+  delete "db/shine"
+  delete "db/config.git"
 }
+
+clean.dependsOn cleanDb
 
 task prepareDb(dependsOn: [':server:cleanDb']) {
   outputs.upToDateWhen { false }
@@ -354,7 +353,7 @@ test {
   }
 }
 
-clean.doFirst {
+clean {
   delete 'artifacts'
   delete 'artifactsDir'
   delete 'data'
@@ -366,13 +365,13 @@ clean.doFirst {
   delete 'tfs-impl-14.jar'
   delete 'agent-launcher.jar'
   delete 'agent.jar'
+  delete 'plugins_work'
   delete 'testdata/test-agent.jar'
   delete 'config/agentkeystore'
   delete 'config/keystore'
   delete 'config/truststore'
   delete "${project.railsRoot}/node_modules"
-  cleanDb.execute()
-  cleanRails.execute()
+  delete "${project.railsRoot}/yarn-error.log"
 }
 
 task inlinePartials {

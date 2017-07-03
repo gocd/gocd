@@ -196,7 +196,8 @@ task verifyPluginZip(type: VerifyJarTask) {
     ]
   ]
 }
-clean.doLast {
+
+clean {
   delete 'defaultFiles'
 }
 

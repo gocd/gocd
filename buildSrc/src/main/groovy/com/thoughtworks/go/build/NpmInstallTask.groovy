@@ -17,11 +17,22 @@
 package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.internal.os.OperatingSystem
 
 class NpmInstallTask extends DefaultTask {
+
+  NpmInstallTask() {
+    doLast {
+      nodeModules().setLastModified(System.currentTimeMillis())
+    }
+  }
+
   @InputDirectory
   File workingDir = project.projectDir
 
@@ -45,11 +56,15 @@ class NpmInstallTask extends DefaultTask {
     return project.file("${workingDir}/node_modules")
   }
 
+  @Input
+  boolean isWindows() {
+    OperatingSystem.current().isWindows()
+  }
 
   @TaskAction
   def execute(IncrementalTaskInputs inputs) {
     if (!inputs.incremental) {
-      project.delete("${workingDir}/node_modules")
+      project.delete(nodeModules())
     }
 
     project.exec { execTask ->
@@ -61,9 +76,5 @@ class NpmInstallTask extends DefaultTask {
     }
   }
 
-  @Input
-  boolean isWindows() {
-    OperatingSystem.current().isWindows()
-  }
 
 }

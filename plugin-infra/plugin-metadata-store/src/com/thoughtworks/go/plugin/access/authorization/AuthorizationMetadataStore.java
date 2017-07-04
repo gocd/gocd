@@ -60,4 +60,12 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
     public Set<AuthorizationPluginInfo> getPluginsThatSupportsWebBasedAuthentication() {
         return getPluginsThatSupports(SupportedAuthType.Web);
     }
+
+    public boolean doesPluginSupportPasswordBasedAuthentication(String pluginId) {
+        if (!pluginInfos.containsKey(pluginId)) {
+            return false;
+        }
+
+        return pluginInfos.get(pluginId).getCapabilities().getSupportedAuthType() == SupportedAuthType.Password;
+    }
 }

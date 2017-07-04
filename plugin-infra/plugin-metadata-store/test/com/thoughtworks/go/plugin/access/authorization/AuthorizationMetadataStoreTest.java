@@ -9,8 +9,10 @@ import org.junit.Test;
 
 import java.util.Set;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +50,12 @@ public class AuthorizationMetadataStoreTest {
         assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin2), is(true));
     }
 
+    @Test
+    public void shouldBeAbleToAnswerIfPluginSupportsPasswordBasedAuthentication() throws Exception {
+        assertTrue(store.doesPluginSupportPasswordBasedAuthentication("plugin-2"));
+        assertFalse(store.doesPluginSupportPasswordBasedAuthentication("plugin-1"));
+    }
+
     private AuthorizationPluginInfo pluginInfo(String pluginId, SupportedAuthType supportedAuthType) {
         AuthorizationPluginInfo pluginInfo = mock(AuthorizationPluginInfo.class);
         PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
@@ -58,5 +66,4 @@ public class AuthorizationMetadataStoreTest {
         when(pluginInfo.getCapabilities()).thenReturn(capabilities);
         return pluginInfo;
     }
-
 }

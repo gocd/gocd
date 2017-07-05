@@ -19,9 +19,6 @@ package com.thoughtworks.go.server.domain;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.PersistentObject;
 
-/**
- * @understands agent uuid to cookie mapping
- */
 public class Agent extends PersistentObject {
     private String uuid;
     private String cookie;

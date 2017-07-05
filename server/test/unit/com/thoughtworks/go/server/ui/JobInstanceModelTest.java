@@ -1,23 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.Agent;
@@ -59,7 +58,7 @@ public class JobInstanceModelTest {
     @Test
     public void should_return_false_for_unassign() {
         assertThat(new JobInstanceModel(JobInstanceMother.cancelled("cruise"), JobDurationStrategy.ALWAYS_ZERO).hasAgentInfo(), is(false));
-        assertThat(new JobInstanceModel(JobInstanceMother.cancelled("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building(), agent).hasAgentInfo(), is(true));
+        assertThat(new JobInstanceModel(JobInstanceMother.cancelled("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building()).hasAgentInfo(), is(true));
     }
 
     @Test
@@ -117,13 +116,19 @@ public class JobInstanceModelTest {
 
     @Test
     public void shouldHaveLiveAgent() throws Exception {
-        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building(), agent);
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building());
         assertThat(instance.hasLiveAgent(), is(true));
     }
 
     @Test
-    public void shouldNotHaveLiveAgent() throws Exception {
-        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new NullAgentInstance("whatever"), agent);
+    public void shouldReturnFalseForLiveAgentIfAgentInfoIsNotProvided() throws Exception {
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO);
+        assertThat(instance.hasLiveAgent(), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForLiveAgentIfAgentInfoIsConstructedFromDb() throws Exception {
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new Agent("uuid", "cookie", "hostname", "ip"));
         assertThat(instance.hasLiveAgent(), is(false));
     }
 }

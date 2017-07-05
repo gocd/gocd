@@ -16,24 +16,24 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.sql.SQLException;
-
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Agent;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import org.hibernate.Query;
-import org.hibernate.SessionFactory;
-import org.hibernate.Session;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.TransactionStatus;
+
+import java.sql.SQLException;
 
 /**
  * @understands persisting and retrieving agent uuid-cookie mapping
@@ -64,6 +64,10 @@ public class AgentDao extends HibernateDaoSupport {
 
         if (agent == null) {
             synchronized (key) {
+                agent = (Agent) cache.get(key);
+                if (agent != null){
+                    return agent;
+                }
                 agent = fetchAgentByUuid(uuid);
                 cache.put(key, agent);
             }
@@ -107,14 +111,5 @@ public class AgentDao extends HibernateDaoSupport {
                 return query.uniqueResult();
             }
         });
-    }
-
-    public void syncAgent(AgentIdentifier agentIdentifier) {
-        Agent agent = fetchAgentByUuid(agentIdentifier.getUuid());
-        if (agent != null &&
-                (!agentIdentifier.getHostName().equals(agent.getHostname()) ||
-                        !agentIdentifier.getIpAddress().equals(agent.getIpaddress()))) {
-            associateCookie(agentIdentifier, agent.getCookie());
-        }
     }
 }

@@ -147,38 +147,6 @@ public class AgentDaoTest {
         agentDao.setHibernateTemplate(originalTemplate);
     }
 
-    @Test
-    public void shouldNotSyncXMLConfigAndDatabaseIfAgentDoesNotExist() throws Exception {
-        AgentIdentifier originalAgent = new AgentIdentifier("host", "127.0.0.1", "uuid");
-        agentDao.syncAgent(originalAgent);
-        assertThat(agentDao.cookieFor(originalAgent), is(nullValue()));
-    }
-
-    @Test
-    public void shouldUpdateAgentRecordIfHostnameOrIPChangesInXMLConfig() throws Exception {
-        String uuid = "uuid";
-        String cookie = "cookie";
-        String originalHostname = "host";
-        String changedHostname = "host_changed";
-        String originalIpAddress = "127.0.0.1";
-        String changedIpAddress = "1.1.1.1";
-
-        AgentIdentifier originalAgent = new AgentIdentifier(originalHostname, originalIpAddress, uuid);
-        agentDao.associateCookie(originalAgent, cookie);
-
-        AgentIdentifier hostnameChanged = new AgentIdentifier(changedHostname, originalIpAddress, uuid);
-        agentDao.syncAgent(hostnameChanged);
-        Agent updatedAgent = getAgentByUuid(originalAgent);
-        assertThat(updatedAgent.getHostname(), is(changedHostname));
-        assertThat(updatedAgent.getIpaddress(), is(originalIpAddress));
-
-        AgentIdentifier ipChanged = new AgentIdentifier(originalHostname, changedIpAddress, uuid);
-        agentDao.syncAgent(ipChanged);
-        updatedAgent = getAgentByUuid(originalAgent);
-        assertThat(updatedAgent.getHostname(), is(originalHostname));
-        assertThat(updatedAgent.getIpaddress(), is(changedIpAddress));
-    }
-
     private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
         return (Agent) hibernateTemplate.execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {

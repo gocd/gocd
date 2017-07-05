@@ -368,13 +368,13 @@ public class AgentService {
     }
 
     public Agent findAgentObjectByUuid(String uuid) {
-        Agent agent = agentDao.agentByUuid(uuid);
-
-        if (null == agent) {
-            AgentConfig agentConfig = agentConfigService.agents().getAgentByUuid(uuid);
-            return Agent.fromConfig(agentConfig);
+        Agent agent;
+        AgentConfig agentFromConfig = agentConfigService.agents().getAgentByUuid(uuid);
+        if (agentFromConfig != null && !agentFromConfig.isNull()) {
+            agent = Agent.fromConfig(agentFromConfig);
+        } else {
+            agent = agentDao.agentByUuid(uuid);
         }
-
         return agent;
     }
 

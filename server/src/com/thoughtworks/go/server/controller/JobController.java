@@ -109,12 +109,6 @@ public class JobController {
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(), stageName, stageCounter);
 
         JobInstance instance = jobDetailService.findMostRecentBuild(new JobIdentifier(stageIdentifier, jobName));
-        Agent agent =  agentService.findAgentObjectByUuid(instance.getAgentUuid());
-
-        if (null == agent) {
-            agent = Agent.fromConfig(goConfigService.agentByUuid(instance.getAgentUuid()));
-        }
-
         return getModelAndView(instance);
     }
 

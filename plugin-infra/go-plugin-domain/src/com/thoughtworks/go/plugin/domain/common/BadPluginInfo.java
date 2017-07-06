@@ -24,4 +24,8 @@ public class BadPluginInfo extends PluginInfo {
         super(pluginDescriptor, null);
     }
 
+    @Override
+    public PluggableInstanceSettings getPluginSettings() {
+        return null;
+    }
 }

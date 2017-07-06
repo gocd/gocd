@@ -55,8 +55,9 @@ public class PackageMaterialPluginInfoBuilder implements PluginInfoBuilder<Packa
         if (packageConfiguration == null) {
             throw new RuntimeException(format("Plugin[%s] returned null package configuration", descriptor.id()));
         }
+        PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, extension);
 
-        return new PackageMaterialPluginInfo(descriptor, new PluggableInstanceSettings(configurations(repositoryConfiguration)), new PluggableInstanceSettings(configurations(packageConfiguration)));
+        return new PackageMaterialPluginInfo(descriptor, new PluggableInstanceSettings(configurations(repositoryConfiguration)), new PluggableInstanceSettings(configurations(packageConfiguration)), pluginSettingsAndView);
     }
 
     @Override

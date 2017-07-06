@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,7 +56,7 @@ public class AuthorizationMetadataLoaderTest {
     public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null, null);
 
         when(extension.canHandlePlugin(descriptor.id())).thenReturn(true);
         when(infoBuilder.pluginInfoFor(descriptor)).thenReturn(pluginInfo);
@@ -84,7 +83,7 @@ public class AuthorizationMetadataLoaderTest {
     public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         AuthorizationMetadataLoader metadataLoader = new AuthorizationMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, null, null, null);
 
         metadataStore.setPluginInfo(pluginInfo);
 

@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.domain.common;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
-public class PluginInfo {
+public abstract class PluginInfo {
     protected final PluginDescriptor descriptor;
     protected final String extensionName;
 
@@ -34,6 +34,8 @@ public class PluginInfo {
     public String getExtensionName() {
         return extensionName;
     }
+
+    public abstract PluggableInstanceSettings getPluginSettings();
 
     @Override
     public boolean equals(Object o) {

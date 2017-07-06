@@ -43,6 +43,7 @@ public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
     public SCMPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         SCMPropertyConfiguration scmConfiguration = extension.getSCMConfiguration(descriptor.id());
         SCMView scmView = extension.getSCMView(descriptor.id());
+        PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, extension);
         if (scmConfiguration == null) {
             throw new RuntimeException(format("Plugin[%s] returned null scm configuration", descriptor.id()));
         }
@@ -52,7 +53,7 @@ public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
         }
 
         PluggableInstanceSettings scmSettings = new PluggableInstanceSettings(configurations(scmConfiguration), new PluginView(scmView.template()));
-        return new SCMPluginInfo(descriptor, scmView.displayValue(), scmSettings);
+        return new SCMPluginInfo(descriptor, scmView.displayValue(), scmSettings, pluginSettingsAndView);
     }
 
     @Override

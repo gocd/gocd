@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.server.domain;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +62,6 @@ public class PluginSettingsTest {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
         pluginSettings.populateSettingsMap(configuration);
 
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
         assertThat(pluginSettings.getValueFor("k1"), is(""));
         assertThat(pluginSettings.getValueFor("k2"), is(""));
         assertThat(pluginSettings.getValueFor("k3"), is(""));
@@ -75,7 +77,6 @@ public class PluginSettingsTest {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
         pluginSettings.populateSettingsMap(parameterMap);
 
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
         assertThat(pluginSettings.getValueFor("k1"), is("v1"));
         assertThat(pluginSettings.getValueFor("k2"), is(""));
         assertThat(pluginSettings.getValueFor("k3"), is(nullValue()));
@@ -101,14 +102,35 @@ public class PluginSettingsTest {
     @Test
     public void shouldPopulateSettingsMapWithErrorsCorrectly() {
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.populateErrorMessageFor("k1", "e1");
-        pluginSettings.populateErrorMessageFor("k2", "");
-        pluginSettings.populateErrorMessageFor("k3", null);
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("k1", "v1");
 
-        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
-        assertThat(pluginSettings.getErrorFor("k1"), is("e1"));
-        assertThat(pluginSettings.getErrorFor("k2"), is(""));
-        assertThat(pluginSettings.getErrorFor("k3"), is(nullValue()));
+        pluginSettings.populateSettingsMap(parameterMap);
+
+        pluginSettings.populateErrorMessageFor("k1", "e1");
+
+        assertThat(pluginSettings.getErrorFor("k1"), is(Arrays.asList("e1")));
+    }
+
+    @Test
+    public void shouldProvidePluginSettingsAsAWeirdMapForView() {
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("k1", "v1");
+
+        pluginSettings.populateSettingsMap(parameterMap);
+
+        pluginSettings.populateErrorMessageFor("k1", "e1");
+
+        HashMap<String, Map<String, String>> expectedMap = new HashMap<>();
+        HashMap<String, String> valuesAndErrorsMap = new HashMap<>();
+        valuesAndErrorsMap.put("value", "v1");
+        valuesAndErrorsMap.put("errors", "[e1]");
+        expectedMap.put("k1", valuesAndErrorsMap);
+
+        Map<String, Map<String, String>> settingsMap = pluginSettings.getSettingsMap();
+
+        assertThat(settingsMap, is(expectedMap));
     }
 
     @Test

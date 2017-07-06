@@ -27,14 +27,16 @@ public class AuthorizationPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings roleSettings;
     private final Image image;
     private final Capabilities capabilities;
+    private final PluggableInstanceSettings pluginSettings;
 
     public AuthorizationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings authConfigSettings,
-                                   PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities) {
+                                   PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities, PluggableInstanceSettings pluginSettings) {
         super(descriptor, PluginConstants.AUTHORIZATION_EXTENSION);
         this.authConfigSettings = authConfigSettings;
         this.roleSettings = roleSettings;
         this.image = image;
         this.capabilities = capabilities;
+        this.pluginSettings = pluginSettings;
     }
 
     public PluggableInstanceSettings getAuthConfigSettings() {
@@ -43,6 +45,11 @@ public class AuthorizationPluginInfo extends PluginInfo {
 
     public PluggableInstanceSettings getRoleSettings() {
         return roleSettings;
+    }
+
+    @Override
+    public PluggableInstanceSettings getPluginSettings() {
+        return pluginSettings;
     }
 
     public Image getImage() {
@@ -76,4 +83,6 @@ public class AuthorizationPluginInfo extends PluginInfo {
         result = 31 * result + (capabilities != null ? capabilities.hashCode() : 0);
         return result;
     }
+
+
 }

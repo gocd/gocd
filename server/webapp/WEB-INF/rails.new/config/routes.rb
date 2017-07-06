@@ -242,6 +242,7 @@ Go::Application.routes.draw do
 
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
+        resources :plugin_settings, param: :plugin_id, only: [:show, :create, :update], constraints: {plugin_id: ALLOW_DOTS}
 
         post 'encrypt', controller: :encryption, action: :encrypt_value
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}

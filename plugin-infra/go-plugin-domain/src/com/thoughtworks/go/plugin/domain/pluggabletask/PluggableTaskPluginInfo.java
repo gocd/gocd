@@ -39,4 +39,9 @@ public class PluggableTaskPluginInfo extends PluginInfo {
     public PluggableInstanceSettings getTaskSettings() {
         return taskSettings;
     }
+
+    @Override
+    public PluggableInstanceSettings getPluginSettings() {
+        return null;
+    }
 }

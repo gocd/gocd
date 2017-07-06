@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class NotificationPluginInfoBuilder implements NewPluginInfoBuilder<NotificationPluginInfo> {
     private final PluginManager pluginManager;
     private final NotificationPluginRegistry registry;

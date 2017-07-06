@@ -22,11 +22,17 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    image = com.thoughtworks.go.plugin.access.common.models.Image.new('foo', Base64.strict_encode64('bar'))
-    task_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('role_config_view_template')
-    profile_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('memberOf', {required: true, secure: false, display_name: 'Member Of', display_order: '1'}, nil)], task_view)
+    image = com.thoughtworks.go.plugin.domain.common.Image.new('foo', Base64.strict_encode64('bar'), "945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756")
+    profile_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('elastic_agent_view_template')
+    metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    profile_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], profile_view)
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.ElasticPluginInfo.new(descriptor, profile_settings, image)
+    plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
+    plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
+
+
+    plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings)
     actual_json = ApiV3::Plugin::ElasticPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find, :image)
@@ -40,6 +46,11 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'elastic-agent',
+                                status: {
+                                  state: 'active'
+                                },
+                                plugin_file_location: nil,
+                                bundled_plugin: false,
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',
@@ -50,7 +61,8 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
                                 },
-                                profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new)
+                                profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new),
+                                plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new)
                               })
   end
 end

@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class SCMPluginInfoBuilder implements NewPluginInfoBuilder<SCMPluginInfo> {
     private final PluginManager pluginManager;
     private final SCMMetadataStore store;

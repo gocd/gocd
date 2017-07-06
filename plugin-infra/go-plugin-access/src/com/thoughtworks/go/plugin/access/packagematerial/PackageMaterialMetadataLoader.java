@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import static java.lang.String.format;
 import static org.apache.log4j.Logger.getLogger;
 
+@Deprecated
 @Component
 public class PackageMaterialMetadataLoader implements PluginChangeListener {
 

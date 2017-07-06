@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.ui.plugins;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
+@Deprecated
 public class NotificationPluginInfo extends NewPluginInfo {
     public NotificationPluginInfo(GoPluginDescriptor plugin) {
         super(plugin, NotificationExtension.EXTENSION_NAME);

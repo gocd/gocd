@@ -22,10 +22,11 @@ describe ApiV3::Plugin::PluggableTaskPluginInfoRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    task_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('role_config_view_template')
-    task_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('memberOf', {required: true, secure: false, display_name: 'Member Of', display_order: '1'}, nil)], task_view)
+    task_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
+    metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    task_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], task_view)
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_settings)
+    plugin_info = com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_settings)
     actual_json = ApiV3::Plugin::PluggableTaskPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)
@@ -38,6 +39,11 @@ describe ApiV3::Plugin::PluggableTaskPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'task',
+                                status: {
+                                  state: 'active'
+                                },
+                                plugin_file_location: nil,
+                                bundled_plugin: false,
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

@@ -17,21 +17,21 @@ module ApiV3
   module Plugin
     class AuthorizationPluginInfoRepresenter < BasePluginInfoRepresenter
       link :image do |opts|
-        opts[:url_builder].plugin_images_url(plugin_id: id, hash: plugin.image.getHash) if plugin.image
+        opts[:url_builder].plugin_images_url(plugin_id: id, hash: plugin.getImage.getHash()) if plugin.image
       end
 
       property :auth_config_settings,
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: PluggableInstanceSettings,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
 
       property :role_settings,
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: PluggableInstanceSettings,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
 
       property :capabilities,

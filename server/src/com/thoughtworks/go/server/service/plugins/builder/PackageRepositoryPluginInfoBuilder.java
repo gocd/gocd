@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class PackageRepositoryPluginInfoBuilder implements NewPluginInfoBuilder<PackageRepositoryPluginInfo> {
     private final RepositoryMetadataStore repositoryMetadataStore;
 

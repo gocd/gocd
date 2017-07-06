@@ -25,11 +25,13 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class ElasticAgentPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings profileSettings;
     private final Image image;
+    private final PluggableInstanceSettings pluginSettings;
 
-    public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image) {
+    public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image, PluggableInstanceSettings pluginSettings) {
         super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION);
         this.profileSettings = profileSettings;
         this.image = image;
+        this.pluginSettings = pluginSettings;
     }
 
     public PluggableInstanceSettings getProfileSettings() {
@@ -40,23 +42,30 @@ public class ElasticAgentPluginInfo extends PluginInfo {
         return image;
     }
 
+    public PluggableInstanceSettings getPluginSettings() {
+        return pluginSettings;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         ElasticAgentPluginInfo that = (ElasticAgentPluginInfo) o;
 
         if (profileSettings != null ? !profileSettings.equals(that.profileSettings) : that.profileSettings != null)
             return false;
-        return image != null ? image.equals(that.image) : that.image == null;
-
+        if (image != null ? !image.equals(that.image) : that.image != null) return false;
+        return pluginSettings != null ? pluginSettings.equals(that.pluginSettings) : that.pluginSettings == null;
     }
 
     @Override
     public int hashCode() {
-        int result = profileSettings != null ? profileSettings.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (profileSettings != null ? profileSettings.hashCode() : 0);
         result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (pluginSettings != null ? pluginSettings.hashCode() : 0);
         return result;
     }
 }

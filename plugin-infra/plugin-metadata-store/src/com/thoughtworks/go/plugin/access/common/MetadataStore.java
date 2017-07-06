@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public class MetadataStore<T extends PluginInfo> {
+public abstract class MetadataStore<T extends PluginInfo> {
     protected Map<String, T> pluginInfos = new ConcurrentHashMap<>();
 
     public T getPluginInfo(String pluginId) {
@@ -44,7 +44,8 @@ public class MetadataStore<T extends PluginInfo> {
         pluginInfos.remove(pluginId);
     }
 
-    public Collection<T> getPlugins() {
+    @Deprecated
+    public Collection<T> allPluginInfos() {
         return pluginInfos.values();
     }
 

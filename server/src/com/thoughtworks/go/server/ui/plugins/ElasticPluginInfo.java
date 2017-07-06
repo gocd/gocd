@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+@Deprecated
 public class ElasticPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings profileSettings;
     private final Image image;

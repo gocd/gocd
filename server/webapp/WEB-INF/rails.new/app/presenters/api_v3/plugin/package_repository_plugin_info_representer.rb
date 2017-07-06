@@ -21,7 +21,7 @@ module ApiV3
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: PluggableInstanceSettings,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
 
 
@@ -29,7 +29,7 @@ module ApiV3
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: PluggableInstanceSettings,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
     end
   end

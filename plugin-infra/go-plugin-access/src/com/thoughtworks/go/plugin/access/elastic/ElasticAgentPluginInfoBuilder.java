@@ -29,6 +29,7 @@ import java.util.List;
 
 @Component
 public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticAgentPluginInfo> {
+
     private ElasticAgentExtension extension;
 
     @Autowired
@@ -38,7 +39,9 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
 
     @Override
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()));
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
+
+        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()), pluggableInstanceSettings);
     }
 
     private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {

@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
-import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -46,7 +46,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
 
     @Override
     public com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
-        return Image.fromJSON(responseBody).toDomainImage();
+        return new ImageDeserializer().fromJSON(responseBody);
     }
 
     @Override

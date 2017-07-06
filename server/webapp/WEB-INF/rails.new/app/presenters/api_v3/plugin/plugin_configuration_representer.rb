@@ -21,7 +21,7 @@ module ApiV3
       property :metadata, exec_context: :decorator
 
       def metadata
-        represented.metadata.to_hash
+        represented.metadata.toMap.to_hash
       end
     end
   end

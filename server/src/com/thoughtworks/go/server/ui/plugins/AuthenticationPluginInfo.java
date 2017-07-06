@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.ui.plugins;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+@Deprecated
 public class AuthenticationPluginInfo extends NewPluginInfo {
     public AuthenticationPluginInfo(PluginDescriptor descriptor) {
         super(descriptor, AuthenticationExtension.EXTENSION_NAME);

@@ -32,9 +32,11 @@ import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
+import com.thoughtworks.go.domain.materials.mercurial.HgMaterialUpdater;
 import com.thoughtworks.go.util.ObjectUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.log4j.Logger;
@@ -378,6 +380,9 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
             if(material instanceof ScmMaterial) {
                 if (material instanceof GitMaterial) {
                     GitMaterialUpdater updater = new GitMaterialUpdater((GitMaterial) material);
+                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
+                } else if (material instanceof HgMaterial) {
+                    HgMaterialUpdater updater = new HgMaterialUpdater((HgMaterial) material);
                     commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
                 } else {
                     commands.add(BuildCommand.fail("%s Material is not supported for new build command agent", material.getTypeForDisplay()));

@@ -254,6 +254,10 @@ public class HgMaterial extends ScmMaterial {
         return url;
     }
 
+    public HgUrlArgument getHgUrlArgument() {
+        return url;
+    }
+
     public String getLongDescription() {
        return String.format("URL: %s", url.forDisplay());
     }
@@ -324,7 +328,7 @@ public class HgMaterial extends ScmMaterial {
                 '}';
     }
 
-    String getBranch() {
+    public String getBranch() {
         return getBranchFromUrl(url.forCommandline());
     }
 

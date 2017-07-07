@@ -93,7 +93,6 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         assertThat(newFile.exists(), is(true));
     }
 
-
     @Test
     public void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();

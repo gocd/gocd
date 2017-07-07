@@ -85,6 +85,20 @@ public class TestCommandExecutorTest extends BuildSessionBasedTestCase {
     }
 
     @Test
+    public void testCommandOutputContainsString() throws IOException {
+        runBuild(test("-in", "foo", echo("foo bar")), Passed);
+        runBuild(test("-in", "foo", echo("bar")), Failed);
+        assertThat(console.lineCount(), is(0));
+    }
+
+    @Test
+    public void testCommandOutputDoesNotContainsString() throws IOException {
+        runBuild(test("-nin", "foo", echo("foo bar")), Failed);
+        runBuild(test("-nin", "foo", echo("bar")), Passed);
+        assertThat(console.lineCount(), is(0));
+    }
+
+    @Test
     public void mkdirWithWorkingDir() {
         runBuild(mkdirs("foo").setWorkingDirectory("bar"), Passed);
         assertThat(new File(sandbox, "bar/foo").isDirectory(), is(true));

@@ -78,7 +78,7 @@ public class P4MaterialUpdater {
 
     private BuildCommand constructClient(String workingDir, String clientName) {
         String clientArgs = "Client: " + clientName + "\n\n"
-                + "Root: " + new File(workingDir).getAbsolutePath() + "\n\n"
+                + "Root: " + workingDir + "\n\n"
                 + "Options: clobber rmdir\n\n"
                 + "LineEnd: local\n\n"
                 + "View:\n"
@@ -87,7 +87,7 @@ public class P4MaterialUpdater {
     }
 
     private BuildCommand sync(String workingDir, String revision) {
-        return exec("p4", "-d", workingDir, "sync", "@" + parseLong(revision)).setCommandEnvVars(envVars());
+        return exec("p4", "-d", workingDir, "sync", "-f", "@" + parseLong(revision)).setCommandEnvVars(envVars());
     }
 
     private BuildCommand cleanWorkingDir(String workingDir) {

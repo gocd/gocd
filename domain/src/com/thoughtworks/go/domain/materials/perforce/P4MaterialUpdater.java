@@ -70,7 +70,7 @@ public class P4MaterialUpdater {
         if (!StringUtil.isBlank(material.getUserName())) {
             env.put("P4USER", material.getUserName());
         }
-        if (material.getUseTickets() && !StringUtil.isBlank(material.getPassword())) {
+        if (!material.getUseTickets() && !StringUtil.isBlank(material.getPassword())) {
             env.put("P4PASSWD", material.getPassword());
         }
         return env;

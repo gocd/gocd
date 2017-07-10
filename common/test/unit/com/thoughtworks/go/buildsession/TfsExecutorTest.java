@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.RevisionContext;
-import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -36,31 +35,24 @@ import static org.mockito.Mockito.*;
 
 public class TfsExecutorTest {
 
-    TfsExecutor tfsExecutor;
-    TfsMaterial tfsMaterial;
-    ConsoleOutputStreamConsumer consoleOutputStreamConsumer;
-    SubprocessExecutionContext subprocessExecutionContext;
-    BuildCommand buildCommand;
-    BuildSession buildSession;
-    File workingDir;
-    RevisionContext revisionContext;
+    private TfsExecutor tfsExecutor;
+    private TfsMaterial tfsMaterial;
+    private BuildCommand buildCommand;
+    private BuildSession buildSession;
 
     @Before
     public void setUp() throws Exception {
         createBuildCommand();
         createBuildSession();
         tfsMaterial = mock(TfsMaterial.class);
-        consoleOutputStreamConsumer = mock(ConsoleOutputStreamConsumer.class);
-        subprocessExecutionContext = mock(SubprocessExecutionContext.class);
-        revisionContext = new RevisionContext(new StringRevision("revision"));
 
         tfsExecutor = new TfsExecutor(tfsMaterial);
     }
 
-    public void createBuildSession() {
+    private void createBuildSession() {
         AgentIdentifier agentIdentifier = mock(AgentIdentifier.class);
 
-        workingDir = mock(File.class);
+        File workingDir = mock(File.class);
         when(workingDir.getAbsolutePath()).thenReturn("working dir");
 
         ProcessOutputStreamConsumer processOutputStreamConsumer = mock(ProcessOutputStreamConsumer.class);
@@ -71,7 +63,7 @@ public class TfsExecutorTest {
         when(buildSession.processOutputStreamConsumer()).thenReturn(processOutputStreamConsumer);
     }
 
-    public void createBuildCommand() {
+    private void createBuildCommand() {
         buildCommand = mock(BuildCommand.class);
         when(buildCommand.getStringArg("url")).thenReturn("some url");
         when(buildCommand.getStringArg("username")).thenReturn("username");

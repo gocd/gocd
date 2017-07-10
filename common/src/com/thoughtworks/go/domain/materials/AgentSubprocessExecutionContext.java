@@ -23,11 +23,11 @@ import com.thoughtworks.go.util.CachedDigestUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-class AgentSubprocessExecutionContext implements SubprocessExecutionContext {
+public class AgentSubprocessExecutionContext implements SubprocessExecutionContext {
     private AgentIdentifier agentIdentifier;
     private final String workingDirectory;
 
-    AgentSubprocessExecutionContext(final AgentIdentifier agentIdentifier, String workingDirectory) {
+    public AgentSubprocessExecutionContext(final AgentIdentifier agentIdentifier, String workingDirectory) {
         this.agentIdentifier = agentIdentifier;
         this.workingDirectory = workingDirectory;
     }

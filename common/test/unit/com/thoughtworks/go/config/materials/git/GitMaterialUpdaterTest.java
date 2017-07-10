@@ -70,7 +70,6 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         workingDir = new File(sandbox, "working");
     }
 
-
     @After
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
@@ -92,7 +91,6 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
                 containsString("Start updating files at revision " + REVISION_2.getRevision()));
         assertThat(newFile.exists(), is(true));
     }
-
 
     @Test
     public void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {

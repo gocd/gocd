@@ -81,6 +81,7 @@ buildSrc/.gradle/
 buildSrc/build/
 common/*.log
 common/target/
+common/logs/
 config/config-api/target/
 config/config-server/target/
 config/config-server/config/cipher

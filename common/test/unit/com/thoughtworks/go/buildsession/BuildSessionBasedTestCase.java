@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildStateReporterStub;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.helper.TestStreamConsumer;
+import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.HttpServiceStub;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -44,6 +45,7 @@ public class BuildSessionBasedTestCase {
     protected ArtifactsRepositoryStub artifactsRepository;
     protected TestStreamConsumer console;
     protected HttpServiceStub httpService;
+    protected AgentIdentifier agentIdentifier;
 
     @Before
     public void superSetup() {
@@ -53,6 +55,7 @@ public class BuildSessionBasedTestCase {
         sandbox = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
         console = new TestStreamConsumer();
         httpService = new HttpServiceStub();
+        agentIdentifier = new AgentIdentifier("hostname", "ipaddress", "uuid");
     }
 
     @After
@@ -62,7 +65,7 @@ public class BuildSessionBasedTestCase {
 
     protected BuildSession newBuildSession() {
         return new BuildSession("build1",
-                statusReporter,
+                agentIdentifier, statusReporter,
                 console,
                 StrLookup.mapLookup(buildVariables),
                 artifactsRepository, httpService, new TestingClock(), sandbox);

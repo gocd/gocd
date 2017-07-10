@@ -17,6 +17,7 @@ package com.thoughtworks.go.buildsession;
 
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.HttpService;
@@ -44,6 +45,7 @@ public class BuildSession {
     private final Map<String, String> envs;
     private final Map<String, String> secretSubstitutions;
     private final String buildId;
+    private AgentIdentifier agentIdentifier;
     private final BuildStateReporter buildStateReporter;
     private final TaggedStreamConsumer console;
     private final DownloadAction downloadAction;
@@ -71,6 +73,7 @@ public class BuildSession {
         executors.put("mkdirs", new MkdirsCommandExecutor());
         executors.put("cleandir", new CleandirCommandExecutor());
         executors.put("exec", new ExecCommandExecutor());
+        executors.put("plugin", new PluginCommandExecutor(new TfsExecutor()));
         executors.put("test", new TestCommandExecutor());
         executors.put("reportCurrentStatus", new ReportCurrentStatusCommandExecutor());
         executors.put("reportCompleting", new ReportCompletingCommandExecutor());
@@ -79,8 +82,9 @@ public class BuildSession {
         executors.put("error", new ErrorCommandExecutor());
     }
 
-    public BuildSession(String buildId, BuildStateReporter buildStateReporter, TaggedStreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir) {
+    public BuildSession(String buildId, AgentIdentifier agentIdentifier, BuildStateReporter buildStateReporter, TaggedStreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir) {
         this.buildId = buildId;
+        this.agentIdentifier = agentIdentifier;
         this.buildStateReporter = buildStateReporter;
         this.console = console;
         this.buildVariables = buildVariables;
@@ -282,7 +286,7 @@ public class BuildSession {
 
     BuildSession newTestingSession(TaggedStreamConsumer console) {
         BuildSession buildSession = new BuildSession(
-                buildId, new UncaringBuildStateReport(), console, buildVariables, artifactsRepository, httpService, clock, workingDir);
+                buildId, agentIdentifier, new UncaringBuildStateReport(), console, buildVariables, artifactsRepository, httpService, clock, workingDir);
         buildSession.cancelLatch = this.cancelLatch;
         return buildSession;
     }
@@ -307,7 +311,7 @@ public class BuildSession {
 
 
     private BuildSession newCancelSession() {
-        return new BuildSession(buildId, new UncaringBuildStateReport(),
+        return new BuildSession(buildId, agentIdentifier, new UncaringBuildStateReport(),
                 console, buildVariables, artifactsRepository, httpService, clock, workingDir);
     }
 
@@ -337,5 +341,9 @@ public class BuildSession {
         } catch (Exception reportException) {
             LOG.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
+    }
+
+    public AgentIdentifier getAgentIdentifier() {
+        return agentIdentifier;
     }
 }

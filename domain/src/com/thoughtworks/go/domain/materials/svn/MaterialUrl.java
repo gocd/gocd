@@ -37,6 +37,10 @@ public class MaterialUrl {
         return url;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;

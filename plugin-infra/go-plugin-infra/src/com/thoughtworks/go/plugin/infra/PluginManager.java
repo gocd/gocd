@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -32,6 +33,10 @@ public interface PluginManager {
     <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> exceptionHandler);
 
     <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches);
+
+    <R> R doOnPluginExtensionImpl(String pluginId, ActionWithReturn<GoPlugin, R> actionToDoOnTheRegisteredServiceWhichMatches, String extension);
+
+    void doOnPluginExtensionImpl(String pluginId, Action<GoPlugin> actionToDoOnTheRegisteredServiceWhichMatches, String extension);
 
     <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action);
 

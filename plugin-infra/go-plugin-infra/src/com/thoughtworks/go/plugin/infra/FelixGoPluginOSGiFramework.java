@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
@@ -244,6 +246,63 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         T service = bundleContext.getService(serviceReference);
         return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
     }
+
+    @Override
+    public <R> R doOnPluginExtensionImpl(String pluginId, ActionWithReturn<GoPlugin, R> action, String extension) {
+        if (framework == null) {
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on implementations of " + extension);
+            return null;
+        }
+
+        BundleContext bundleContext = framework.getBundleContext();
+        Collection<ServiceReference<GoPlugin>> matchingServiceReferences = findServiceReferenceWithPluginId(GoPlugin.class, pluginId, bundleContext);
+
+        for (ServiceReference<GoPlugin> currentServiceReference : matchingServiceReferences) {
+            GoPlugin service = bundleContext.getService(currentServiceReference);
+            GoPluginIdentifier goPluginIdentifier = service.pluginIdentifier();
+            if(extension.equals(goPluginIdentifier.getExtension())){
+                return executeActionOnTheService(action, service, getDescriptorFor(currentServiceReference));
+            }
+        }
+        throw new RuntimeException(String.format("Couldn't find an implementation of %s extension in plugin with ID: %s", extension, pluginId));
+    }
+
+    @Override
+    public void doOnPluginExtensionImpl(String pluginId, Action<GoPlugin> action, String extension) {
+        if (framework == null) {
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on implementations of " + extension);
+            return;
+        }
+
+        BundleContext bundleContext = framework.getBundleContext();
+        Collection<ServiceReference<GoPlugin>> matchingServiceReferences = findServiceReferenceWithPluginId(GoPlugin.class, pluginId, bundleContext);
+
+        for (ServiceReference<GoPlugin> currentServiceReference : matchingServiceReferences) {
+            GoPlugin service = bundleContext.getService(currentServiceReference);
+            GoPluginIdentifier goPluginIdentifier = service.pluginIdentifier();
+            if(extension.equals(goPluginIdentifier.getExtension())){
+                executeActionOnTheService(action, service, getDescriptorFor(currentServiceReference));
+                return;
+            }
+        }
+        throw new RuntimeException(String.format("Couldn't find an implementation of %s extension in plugin with ID: %s", extension, pluginId));
+    }
+
+    private <R> R executeActionOnTheService(ActionWithReturn<GoPlugin, R> action, GoPlugin service, GoPluginDescriptor goPluginDescriptor) {
+        try {
+            return action.execute(service, goPluginDescriptor);
+        } catch (Throwable t) {
+            throw new RuntimeException(t.getMessage(), t);
+        }
+    }
+    private <R> R executeActionOnTheService(Action<GoPlugin> action, GoPlugin service, GoPluginDescriptor goPluginDescriptor) {
+        try {
+            action.execute(service, goPluginDescriptor);
+        } catch (Throwable t) {
+            throw new RuntimeException(t.getMessage(), t);
+        }
+    }
+
 
     @Override
     public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {

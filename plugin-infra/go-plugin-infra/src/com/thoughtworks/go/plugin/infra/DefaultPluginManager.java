@@ -31,6 +31,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +104,16 @@ public class DefaultPluginManager implements PluginManager {
     @Override
     public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches) {
         return goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, actionToDoOnTheRegisteredServiceWhichMatches);
+    }
+
+    @Override
+    public <R> R doOnPluginExtensionImpl(String pluginId, ActionWithReturn<GoPlugin, R> actionToDoOnTheRegisteredServiceWhichMatches, String extension) {
+        return goPluginOSGiFramework.doOnPluginExtensionImpl(pluginId, actionToDoOnTheRegisteredServiceWhichMatches, extension);
+    }
+
+    @Override
+    public void doOnPluginExtensionImpl(String pluginId, Action<GoPlugin> actionToDoOnTheRegisteredServiceWhichMatches, String extension) {
+        goPluginOSGiFramework.doOnPluginExtensionImpl(pluginId, actionToDoOnTheRegisteredServiceWhichMatches, extension);
     }
 
     @Override

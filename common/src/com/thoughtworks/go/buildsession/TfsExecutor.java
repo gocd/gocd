@@ -26,6 +26,7 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.LabeledOutputStreamConsumer;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.io.File;
 
@@ -50,6 +51,29 @@ public class TfsExecutor implements BuildCommandExecutor {
     }
 
     protected TfsMaterial createMaterial(String url, String username, String password, String domain, String projectPath) {
-        return new TfsMaterial(new GoCipher(), new UrlArgument(url), username, domain, password, projectPath);
+        return new TfsMaterial(new GoCipherWhichDoesNothingForAgent(), new UrlArgument(url), username, domain, password, projectPath);
+    }
+
+    /* There's no cipher on the agent side. In this case, the plain-text is used only in memory. */
+    private class GoCipherWhichDoesNothingForAgent extends GoCipher {
+        @Override
+        public String encrypt(String plainText) throws InvalidCipherTextException {
+            return plainText;
+        }
+
+        @Override
+        public String decrypt(String cipherTextWhichIsActuallyPlainText) throws InvalidCipherTextException {
+            return cipherTextWhichIsActuallyPlainText;
+        }
+
+        @Override
+        public String cipher(byte[] key, String plainText) throws InvalidCipherTextException {
+            throw new RuntimeException("Unexpected call to cipher");
+        }
+
+        @Override
+        public String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
+            throw new RuntimeException("Unexpected call to decipher");
+        }
     }
 }

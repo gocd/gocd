@@ -69,7 +69,7 @@ public class AuthenticationExtensionTest {
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"), authenticationExtension.extensionName())).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AuthenticationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
     }

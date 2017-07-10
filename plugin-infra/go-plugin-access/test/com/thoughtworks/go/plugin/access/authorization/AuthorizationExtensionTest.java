@@ -70,7 +70,7 @@ public class AuthorizationExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"), AuthorizationPluginConstants.EXTENSION_NAME)).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AuthorizationPluginConstants.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
 
         authorizationExtension = new AuthorizationExtension(pluginManager);

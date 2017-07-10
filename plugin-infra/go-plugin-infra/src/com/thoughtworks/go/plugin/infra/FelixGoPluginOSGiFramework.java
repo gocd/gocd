@@ -295,12 +295,33 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             throw new RuntimeException(t.getMessage(), t);
         }
     }
-    private <R> R executeActionOnTheService(Action<GoPlugin> action, GoPlugin service, GoPluginDescriptor goPluginDescriptor) {
+    private void executeActionOnTheService(Action<GoPlugin> action, GoPlugin service, GoPluginDescriptor goPluginDescriptor) {
         try {
             action.execute(service, goPluginDescriptor);
         } catch (Throwable t) {
             throw new RuntimeException(t.getMessage(), t);
         }
+    }
+
+
+    @Override
+    public boolean hasReferenceFor(String extensionName, String pluginId) {
+        if (framework == null) {
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on implementations of " + extensionName);
+            return false;
+        }
+
+        BundleContext bundleContext = framework.getBundleContext();
+        Collection<ServiceReference<GoPlugin>> matchingServiceReferences = findServiceReferenceWithPluginId(GoPlugin.class, pluginId, bundleContext);
+
+        for (ServiceReference<GoPlugin> currentServiceReference : matchingServiceReferences) {
+            GoPlugin service = bundleContext.getService(currentServiceReference);
+            GoPluginIdentifier goPluginIdentifier = service.pluginIdentifier();
+            if(extensionName.equals(goPluginIdentifier.getExtension())){
+                return true;
+            }
+        }
+        return false;
     }
 
 

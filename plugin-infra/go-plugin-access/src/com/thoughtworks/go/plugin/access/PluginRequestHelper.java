@@ -25,7 +25,7 @@ public class PluginRequestHelper {
             throw new PluginNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
         }
         try {
-            String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions);
+            String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions, extensionName);
             DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(extensionName, resolvedExtensionVersion, requestName);
             apiRequest.setRequestBody(pluginInteractionCallback.requestBody(resolvedExtensionVersion));
             apiRequest.setRequestParams(pluginInteractionCallback.requestParams(resolvedExtensionVersion));

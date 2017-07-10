@@ -368,7 +368,7 @@ public class DefaultPluginManagerTest {
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
         when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", asList("1.0", "2.0")));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
-        assertThat(pluginManager.resolveExtensionVersion(pluginId, asList("1.0", "2.0", "3.0")), is("2.0"));
+        assertThat(pluginManager.resolveExtensionVersion(pluginId, asList("1.0", "2.0", "3.0"), "sample-extension"), is("2.0"));
 
     }
 
@@ -381,7 +381,7 @@ public class DefaultPluginManagerTest {
         when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", asList("1.0", "2.0")));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment);
         try {
-            pluginManager.resolveExtensionVersion(pluginId, asList("3.0", "4.0"));
+            pluginManager.resolveExtensionVersion(pluginId, asList("3.0", "4.0"), "sample-extension");
             fail("should have thrown exception for not finding matching extension version");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Could not find matching extension version between Plugin[plugin-id] and Go"));
@@ -469,6 +469,21 @@ public class DefaultPluginManagerTest {
         @Override
         public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> action) {
             return action.execute((T) serviceReferenceInstance, mock(GoPluginDescriptor.class));
+        }
+
+        @Override
+        public <R> R doOnPluginExtensionImpl(String pluginId, ActionWithReturn<GoPlugin, R> action, String extension) {
+            return null;
+        }
+
+        @Override
+        public void doOnPluginExtensionImpl(String pluginId, Action<GoPlugin> action, String extension) {
+
+        }
+
+        @Override
+        public boolean hasReferenceFor(String extensionName, String pluginId) {
+            return false;
         }
 
         @Override

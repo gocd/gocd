@@ -41,6 +41,8 @@ public interface GoPluginOSGiFramework {
 
     void doOnPluginExtensionImpl(String pluginId, Action<GoPlugin> action, String extension);
 
+    boolean hasReferenceFor(String extensionName, String pluginId);
+
     <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action);
 
     <T> void doOnWithExceptionHandling(Class<T> serviceReferenceClass, String pluginId, Action<T> action, ExceptionHandler<T> handler);

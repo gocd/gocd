@@ -83,7 +83,7 @@ public class PackageRepositoryExtensionTest {
         packageConfiguration.add(new PackageMaterialProperty("key-four", "value-four"));
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"), PackageRepositoryExtension.EXTENSION_NAME)).thenReturn("1.0");
     }
 
     @Test

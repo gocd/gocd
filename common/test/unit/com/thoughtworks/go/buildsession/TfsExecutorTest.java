@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 
@@ -35,24 +36,50 @@ import static org.mockito.Mockito.*;
 
 public class TfsExecutorTest {
 
-    private TfsExecutor tfsExecutor;
     private TfsMaterial tfsMaterial;
     private BuildCommand buildCommand;
     private BuildSession buildSession;
+    private File workingDir;
 
     @Before
     public void setUp() throws Exception {
-        createBuildCommand();
-        createBuildSession();
+        workingDir = mock(File.class);
         tfsMaterial = mock(TfsMaterial.class);
 
-        tfsExecutor = new TfsExecutor(tfsMaterial);
+        createBuildCommand();
+        createBuildSession();
+    }
+
+    @Test
+    public void shouldUpdateTheTfsMaterial() throws Exception {
+        TfsExecutor tfsExecutor = new TfsExecutor() {
+            @Override
+            protected TfsMaterial createMaterial(String url, String username, String password, String domain, String projectPath) {
+                assertThat(url, is("some url"));
+                assertThat(username, is("username"));
+                assertThat(password, is("password"));
+                assertThat(domain, is("domain"));
+                assertThat(projectPath, is("project path"));
+
+                return tfsMaterial;
+            }
+        };
+
+        boolean result = tfsExecutor.execute(buildCommand, buildSession);
+
+        ArgumentCaptor<RevisionContext> revisionCaptor = ArgumentCaptor.forClass(RevisionContext.class);
+        ArgumentCaptor<File> workingDirCaptor = ArgumentCaptor.forClass(File.class);
+        verify(tfsMaterial).updateTo(any(ConsoleOutputStreamConsumer.class), workingDirCaptor.capture(), revisionCaptor.capture(),
+                any(SubprocessExecutionContext.class));
+
+        assertThat(revisionCaptor.getValue().getLatestRevision().getRevision(), is("revision1"));
+        assertThat(workingDirCaptor.getValue(), is(workingDir));
+        assertThat(result, is(true));
     }
 
     private void createBuildSession() {
         AgentIdentifier agentIdentifier = mock(AgentIdentifier.class);
 
-        File workingDir = mock(File.class);
         when(workingDir.getAbsolutePath()).thenReturn("working dir");
 
         ProcessOutputStreamConsumer processOutputStreamConsumer = mock(ProcessOutputStreamConsumer.class);
@@ -70,16 +97,7 @@ public class TfsExecutorTest {
         when(buildCommand.getStringArg("password")).thenReturn("password");
         when(buildCommand.getStringArg("domain")).thenReturn("domain");
         when(buildCommand.getStringArg("projectPath")).thenReturn("project path");
-        when(buildCommand.getStringArg("revision")).thenReturn("revision");
+        when(buildCommand.getStringArg("revision")).thenReturn("revision1");
         when(buildCommand.getWorkingDirectory()).thenReturn("working dir");
-    }
-
-    @Test
-    public void shouldUpdateTheTfsMaterial() throws Exception {
-        boolean result = tfsExecutor.execute(buildCommand, buildSession);
-
-        verify(tfsMaterial).updateTo(any(ConsoleOutputStreamConsumer.class), any(File.class), any(RevisionContext.class),
-                any(SubprocessExecutionContext.class));
-        assertThat(result, is(true));
     }
 }

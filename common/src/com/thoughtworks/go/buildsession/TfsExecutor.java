@@ -30,17 +30,6 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import java.io.File;
 
 public class TfsExecutor implements BuildCommandExecutor {
-
-    TfsMaterial tfsMaterial;
-
-    public TfsExecutor() {
-        tfsMaterial = null;
-    }
-
-    public TfsExecutor(TfsMaterial tfsMaterial) {
-        this.tfsMaterial = tfsMaterial;
-    }
-
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
         String url = command.getStringArg("url");
@@ -56,9 +45,11 @@ public class TfsExecutor implements BuildCommandExecutor {
         RevisionContext revisionContext = new RevisionContext(new StringRevision(revision));
         AgentSubprocessExecutionContext execCtx = new AgentSubprocessExecutionContext(buildSession.getAgentIdentifier(), workingDir.getAbsolutePath());
 
-        tfsMaterial = (tfsMaterial == null) ? new TfsMaterial(new GoCipher(), new UrlArgument(url), username, domain, password, projectPath) : tfsMaterial;
-        tfsMaterial.updateTo(consoleOutputStreamConsumer, workingDir, revisionContext, execCtx);
-
+        createMaterial(url, username, password, domain, projectPath).updateTo(consoleOutputStreamConsumer, workingDir, revisionContext, execCtx);
         return true;
+    }
+
+    protected TfsMaterial createMaterial(String url, String username, String password, String domain, String projectPath) {
+        return new TfsMaterial(new GoCipher(), new UrlArgument(url), username, domain, password, projectPath);
     }
 }

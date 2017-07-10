@@ -55,4 +55,16 @@ public class MapBuilder {
         return values;
     }
 
+    public static <S, T> Map<S, T> map(S k1, T v1, S k2, T v2, S k3, T v3, S k4, T v4, S k5, T v5, S k6, T v6) {
+        Map<S, T> values = map(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5);
+        values.put(k6, v6);
+        return values;
+    }
+
+    public static <S, T> Map<S, T> map(S k1, T v1, S k2, T v2, S k3, T v3, S k4, T v4, S k5, T v5, S k6, T v6, S k7, T v7) {
+        Map<S, T> values = map(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
+        values.put(k7, v7);
+        return values;
+    }
+
 }

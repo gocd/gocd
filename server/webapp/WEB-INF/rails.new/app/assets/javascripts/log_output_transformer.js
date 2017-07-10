@@ -120,6 +120,13 @@
           timestamp = match[2];
           line = match[3] || "";
 
+          // For one-line sections such as job status, we need to explicitly start a new section
+          // before we invoke detectStatus(), which marks sections as errored; otherwise, we may
+          // unintenitonally mark the previous section as errored and assign the wrong classnames.
+          if (!currentSection.isPartOfSection(prefix) && currentSection.isExplicitEndBoundary(prefix)) {
+            currentSection = currentSection.closeAndStartNew(queue, writer);
+          }
+
           currentSection.detectStatus(prefix);
 
           if (!currentSection.type()) {

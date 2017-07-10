@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.util.command;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.OUT;
+
 public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends StreamConsumer> implements ConsoleOutputStreamConsumer<T, T2> {
     private T stdConsumer;
     private T2 errorConsumer;
@@ -38,11 +41,11 @@ public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends St
     }
 
     public void stdOutput(String line) {
-        taggedStdOutput(TaggedStreamConsumer.OUT, line);
+        taggedStdOutput(OUT, line);
     }
 
     public void errOutput(String line) {
-        taggedErrOutput(TaggedStreamConsumer.ERR, line);
+        taggedErrOutput(ERR, line);
     }
 
     public void taggedStdOutput(String tag, String line) {

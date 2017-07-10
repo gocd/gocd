@@ -44,6 +44,7 @@ import org.mockito.stubbing.Answer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
@@ -256,7 +257,7 @@ public class PluggableTaskBuilderTest {
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-            verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
+            verify(goPublisher).taggedConsumeLine(eq(ERR), captor.capture());
             String error = "Error: err";
             assertThat(captor.getValue(), is(error));
             assertThat(e.getMessage(), is(new RuntimeException("err").toString()));
@@ -286,7 +287,7 @@ public class PluggableTaskBuilderTest {
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-            verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
+            verify(goPublisher).taggedConsumeLine(eq(ERR), captor.capture());
             assertThat(captor.getValue(), is("err"));
             assertThat(e.getMessage(), is("err"));
         }

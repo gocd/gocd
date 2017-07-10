@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+
 public abstract class BaseCommandBuilder extends Builder {
     private static final Logger LOG = Logger.getLogger(BaseCommandBuilder.class);
 
@@ -46,7 +48,7 @@ public abstract class BaseCommandBuilder extends Builder {
 
         if (!workingDir.isDirectory()) {
             String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
-            publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
+            publisher.taggedConsumeLine(ERR, message);
             setBuildError(buildLogElement, message);
             throw new CruiseControlException(message);
         }
@@ -63,9 +65,7 @@ public abstract class BaseCommandBuilder extends Builder {
             commandLine.runScript(execScript, consumer, environmentVariableContext, null);
             setBuildDuration(startTime, buildLogElement);
 
-            if (SUCCESS_EXIT_CODE != execScript.getExitCode()) {
-                setExitCode(execScript.getExitCode());
-            }
+            setExitCode(execScript.getExitCode());
 
             if (execScript.foundError()) {
                 // detected the error string in the command output

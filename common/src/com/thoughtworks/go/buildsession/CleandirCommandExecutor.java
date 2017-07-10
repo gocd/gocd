@@ -22,6 +22,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PREP_TAGS;
+
 public class CleandirCommandExecutor implements BuildCommandExecutor {
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
@@ -34,7 +36,7 @@ public class CleandirCommandExecutor implements BuildCommandExecutor {
                 return false;
             }
         } else {
-            DirectoryCleaner cleaner = new DirectoryCleaner(dir, buildSession.processOutputStreamConsumer());
+            DirectoryCleaner cleaner = new DirectoryCleaner(dir, buildSession.processOutputStreamConsumer(PREP_TAGS));
             cleaner.allowed(allowed);
             cleaner.clean();
         }

@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.builder.Builder;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 public class BuildAssignment implements Serializable {
     private final File buildWorkingDirectory;
@@ -37,9 +37,9 @@ public class BuildAssignment implements Serializable {
     private final MaterialRevisions materialRevisions = new MaterialRevisions();
     private final String approver;
 
-    private BuildAssignment(BuildCause buildCause, File buildWorkingDirectory, List<Builder> builder, JobPlan plan) {
+    private BuildAssignment(BuildCause buildCause, File buildWorkingDirectory, List<Builder> builders, JobPlan plan) {
         this.buildWorkingDirectory = buildWorkingDirectory;
-        this.builders = builder;
+        this.builders = builders;
         this.plan = plan;
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             ArrayList<Modification> modifications = new ArrayList<>();
@@ -64,8 +64,8 @@ public class BuildAssignment implements Serializable {
         return plan;
     }
 
-    public static BuildAssignment create(JobPlan plan, BuildCause buildCause, List<Builder> builder, File file) {
-        return new BuildAssignment(buildCause, file, builder, plan);
+    public static BuildAssignment create(JobPlan plan, BuildCause buildCause, List<Builder> builders, File file) {
+        return new BuildAssignment(buildCause, file, builders, plan);
     }
 
     public MaterialRevisions materialRevisions() {

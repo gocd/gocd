@@ -36,8 +36,8 @@ import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH_ERR;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.removeStart;
 

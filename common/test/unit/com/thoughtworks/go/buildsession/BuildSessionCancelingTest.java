@@ -56,7 +56,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             public void run() {
                 buildSession.build(compose(
                         execSleepScript(50),
-                        echo("build done")));
+                        echo(null, "build done")));
             }
         });
         buildingThread.start();
@@ -76,7 +76,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             @Override
             public void run() {
                 buildSession.build(compose(
-                        echo("after sleep").setTest(execSleepScript(50))));
+                        echo(null, "after sleep").setTest(execSleepScript(50))));
             }
         });
         buildingThread.start();
@@ -132,10 +132,10 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             public void run() {
                 buildSession.build(compose(
                         compose(
-                                execSleepScript(50).setOnCancel(echo("exec canceled")),
-                                echo("after sleep"))
-                                .setOnCancel(echo("inner oncancel"))
-                ).setOnCancel(echo("outter oncancel")));
+                                execSleepScript(50).setOnCancel(echo(null, "exec canceled")),
+                                echo(null, "after sleep"))
+                                .setOnCancel(echo(null, "inner oncancel"))
+                ).setOnCancel(echo(null, "outter oncancel")));
             }
         });
 
@@ -176,7 +176,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             public void run() {
                 buildSession.build(compose(
                         compose(execSleepScript(50),
-                                echo("after sleep"))
+                                echo(null, "after sleep"))
                                 .setOnCancel(printSubProcessCount)));
             }
         });

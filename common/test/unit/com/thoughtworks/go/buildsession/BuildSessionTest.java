@@ -40,7 +40,7 @@ public class BuildSessionTest extends BuildSessionBasedTestCase {
 
     @Test
     public void echoCommandAppendContentToConsole() {
-        runBuild(echo("o1o2"), Passed);
+        runBuild(echo(null, "o1o2"), Passed);
         assertThat(console.asList(), is(Collections.singletonList("o1o2")));
     }
 
@@ -73,15 +73,15 @@ public class BuildSessionTest extends BuildSessionBasedTestCase {
 
     @Test
     public void composeRunAllSubCommands() {
-        runBuild(compose(echo("hello"), echo("world")), Passed);
+        runBuild(compose(echo(null, "hello"), echo(null, "world")), Passed);
         assertThat(console.asList(), is(Arrays.asList("hello", "world")));
     }
 
     @Test
     public void shouldNotRunCommandWithRunIfFailedIfBuildIsPassing() {
         runBuild(compose(
-                echo("on pass"),
-                echo("on failure").runIf("failed")), Passed);
+                echo(null, "on pass"),
+                echo(null, "on failure").runIf("failed")), Passed);
         assertThat(console.asList(), is(Collections.singletonList("on pass")));
     }
 
@@ -89,27 +89,27 @@ public class BuildSessionTest extends BuildSessionBasedTestCase {
     public void shouldRunCommandWithRunIfFailedIfBuildIsFailed() {
         runBuild(compose(
                 fail("force failure"),
-                echo("on failure").runIf("failed")), Failed);
+                echo(null, "on failure").runIf("failed")), Failed);
         assertThat(console.lastLine(), is("on failure"));
     }
 
     @Test
     public void shouldRunCommandWithRunIfAnyRegardlessOfBuildResult() {
         runBuild(compose(
-                echo("foo"),
-                echo("on passing").runIf("any"),
+                echo(null, "foo"),
+                echo(null, "on passing").runIf("any"),
                 fail("force failure"),
-                echo("on failure").runIf("any")), Failed);
+                echo(null, "on failure").runIf("any")), Failed);
         assertThat(console.asList(), is(Arrays.asList("foo", "on passing", "force failure", "on failure")));
     }
 
 
     @Test
     public void echoWithBuildVariableSubstitution() {
-        runBuild(echo("hello ${test.foo}"), Passed);
+        runBuild(echo(null, "hello ${test.foo}"), Passed);
         assertThat(console.lastLine(), is("hello ${test.foo}"));
         buildVariables.put("test.foo", "world");
-        runBuild(echo("hello ${test.foo}"), Passed);
+        runBuild(echo(null, "hello ${test.foo}"), Passed);
         assertThat(console.lastLine(), is("hello world"));
     }
 }

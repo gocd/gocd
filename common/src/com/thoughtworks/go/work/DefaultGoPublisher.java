@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 
 public class DefaultGoPublisher implements GoPublisher {
@@ -141,7 +142,7 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     @Override
-    public void reportErrorMessage(String message, Exception e) {
+    public void reportErrorMessage(String tag, String message, Exception e) {
         LOG.error(message, e);
         taggedConsumeLine(ERR, message);
     }

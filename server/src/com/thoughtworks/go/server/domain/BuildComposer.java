@@ -29,6 +29,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobState.*;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 
 public class BuildComposer {
     private BuildAssignment assignment;
@@ -39,19 +40,22 @@ public class BuildComposer {
 
     public BuildCommand compose() {
         return BuildCommand.compose(
-                echoWithPrefix("Job Started: ${date}"),
+                echoWithPrefix(NOTICE, "Job Started: ${date}\n"),
                 prepare(),
                 build(),
-                reportAction("Job completed").runIf("any"))
-                .setOnCancel(BuildCommand.compose(
-                        reportAction("Job is canceled"),
-                        reportAction("Job completed")));
-
+                jobResult().runIf("any"),
+                reportAction(COMPLETED, "Job completed").runIf("any")
+        ).setOnCancel(BuildCommand.compose(
+                // can't use jobResult() command here because it starts a new cancel session, and will
+                // report the incorrect result
+                echoWithPrefix(JOB_CANCELLED, String.format("Current job status: %s", JobResult.Cancelled.toLowerCase())),
+                reportAction(COMPLETED, "Job completed"))
+        );
     }
 
     private BuildCommand prepare() {
         return BuildCommand.compose(
-                reportAction("Start to prepare"),
+                reportAction(PREP, "Start to prepare"),
                 reportCurrentStatus(Preparing),
                 refreshWorkingDir(),
                 updateMaterials());
@@ -59,11 +63,11 @@ public class BuildComposer {
 
     private BuildCommand build() {
         return BuildCommand.compose(
-                reportAction("Start to build"),
                 reportCurrentStatus(Building),
                 setupSecrets(),
                 setupEnvironmentVariables(),
-                runBuilders(),
+                reportAction(NOTICE, "Start to build"),
+                runBuildTasks(),
                 BuildCommand.compose(
                         reportCompleting(),
                         reportCurrentStatus(Completing),
@@ -81,28 +85,25 @@ public class BuildComposer {
             commands.add(command);
         }
         return BuildCommand.compose(
-                reportAction("Start to create properties"),
+                reportAction(PUBLISH, "Start to create properties"),
                 BuildCommand.compose(commands));
     }
 
 
-    private BuildCommand runBuilders() {
+    private BuildCommand runBuildTasks() {
         List<BuildCommand> commands = new ArrayList<>();
         for (Builder builder : assignment.getBuilders()) {
-            commands.add(runSingleBuilder(builder));
+            commands.add(runSingleTask(builder));
         }
         return BuildCommand.compose(commands);
     }
 
-    private BuildCommand runSingleBuilder(Builder builder) {
+    private BuildCommand runSingleTask(Builder builder) {
         String runIfConfig = builder.resolvedRunIfConfig().toString();
-        return BuildCommand.compose(
-                echoWithPrefix("Current job status: passed"),
-                echoWithPrefix("Current job status: failed").runIf("failed"),
-                echoWithPrefix("Task: %s", builder.getDescription()).runIf(runIfConfig),
-                builder.buildCommand()
-                        .runIf(runIfConfig)
-                        .setOnCancel(runCancelTask(builder.getCancelBuilder()))).runIf(runIfConfig);
+        BuildCommand cancelTask = runCancelTask(builder.getCancelBuilder());
+        BuildCommand baseCommand = builder.buildCommand().runIf(runIfConfig).setOnCancel(cancelTask);
+
+        return BuildCommand.task(builder.getDescription(), baseCommand).runIf(runIfConfig);
     }
 
     private BuildCommand runCancelTask(Builder cancelBuilder) {
@@ -110,9 +111,9 @@ public class BuildComposer {
             return null;
         }
         return BuildCommand.compose(
-                echoWithPrefix("Cancel task: %s", cancelBuilder.getDescription()),
+                echoWithPrefix(CANCEL_TASK_START, "On Cancel Task: %s", cancelBuilder.getDescription()),
                 cancelBuilder.buildCommand(),
-                echoWithPrefix("Task is cancelled"));
+                echoWithPrefix(CANCEL_TASK_PASS, "On Cancel Task completed"));
     }
 
     private BuildCommand uploadArtifacts() {
@@ -123,7 +124,7 @@ public class BuildComposer {
         }
 
         return BuildCommand.compose(
-                reportAction("Start to upload"),
+                reportAction(PUBLISH, "Start to upload"),
                 BuildCommand.compose(commands),
                 generateTestReport());
     }
@@ -158,20 +159,20 @@ public class BuildComposer {
         return BuildCommand.compose(commands);
     }
 
-    private BuildCommand reportAction(String action) {
-        return echoWithPrefix("%s %s on ${agent.hostname} [${agent.location}]", action, getJobIdentifier().buildLocatorForDisplay());
+    private BuildCommand reportAction(String tag, String action) {
+        return echoWithPrefix(tag, "%s %s on ${agent.hostname} [${agent.location}]", action, getJobIdentifier().buildLocatorForDisplay());
     }
 
     private BuildCommand updateMaterials() {
         if (!assignment.getPlan().shouldFetchMaterials()) {
-            return echoWithPrefix("Skipping material update since stage is configured not to fetch materials");
+            return echoWithPrefix(PREP, "Skipping material update since stage is configured not to fetch materials");
         }
 
         MaterialRevisions materialRevisions = assignment.materialRevisions();
         Materials materials = materialRevisions.getMaterials();
         return BuildCommand.compose(
                 materials.cleanUpCommand(workingDirectory()),
-                echoWithPrefix("Start to update materials \n"),
+                echoWithPrefix(PREP, "Start to update materials \n"),
                 materialRevisions.updateToCommand(workingDirectory()));
     }
 
@@ -187,7 +188,7 @@ public class BuildComposer {
         }
         return BuildCommand.compose(
                 cleandir(workingDirectory()),
-                echoWithPrefix("Cleaning working directory \"$%s\" since stage is configured to clean working directory", workingDirectory())
+                echoWithPrefix(PREP, "Cleaning working directory \"$%s\" since stage is configured to clean working directory", workingDirectory())
         ).setTest(test("-d", workingDirectory()));
     }
 

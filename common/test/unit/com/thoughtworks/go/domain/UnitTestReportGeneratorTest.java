@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.*;
-import java.util.UUID;
-
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.FileUtil;
@@ -33,13 +30,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.FAILED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.IGNORED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TEST_TIME;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TOTAL_TEST_COUNT;
-import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static com.thoughtworks.go.util.TestUtils.restoreConsoleOutput;
-import static com.thoughtworks.go.util.TestUtils.suppressConsoleOutput;
+import java.io.*;
+import java.util.UUID;
+
+import static com.thoughtworks.go.domain.UnitTestReportGenerator.*;
+import static com.thoughtworks.go.util.TestUtils.*;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.PUBLISH;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -112,7 +108,7 @@ public class UnitTestReportGeneratorTest {
     public void shouldNotGenerateAnyReportIfTestResultIsEmpty() throws IOException, ArtifactPublishingException {
         context.checking(new Expectations() {
             {
-                one(publisher).consumeLine("Ignoring file empty.xml - it is not a recognised test file.");
+                one(publisher).taggedConsumeLine(PUBLISH, "Ignoring file empty.xml - it is not a recognised test file.");
                 one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
                 one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
                 one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
@@ -144,7 +140,7 @@ public class UnitTestReportGeneratorTest {
     public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws IOException, ArtifactPublishingException {
         context.checking(new Expectations() {
             {
-                one(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
+                one(publisher).taggedConsumeLine(PUBLISH, "Ignoring file Invalid.xml - it is not a recognised test file.");
                 one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
                 one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
                 one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
@@ -165,7 +161,7 @@ public class UnitTestReportGeneratorTest {
     public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws IOException, ArtifactPublishingException {
         context.checking(new Expectations() {
             {
-                one(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
+                one(publisher).taggedConsumeLine(PUBLISH, "Ignoring file Coverage.xml - it is not a recognised test file.");
                 one(publisher).upload(with(any(File.class)), with(any(String.class)));
                 one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
                 one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
@@ -240,7 +236,7 @@ public class UnitTestReportGeneratorTest {
     public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws ArtifactPublishingException, IOException {
          context.checking(new Expectations() {
             {
-                one(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
+                one(publisher).taggedConsumeLine(PUBLISH, "Ignoring file Coverage.xml - it is not a recognised test file.");
                 one(publisher).upload(with(any(File.class)), with(any(String.class)));
                 one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "204"));
                 one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));

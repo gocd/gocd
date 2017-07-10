@@ -17,11 +17,13 @@ package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+
 public class FailCommandExecutor implements BuildCommandExecutor {
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
         if (command.hasArg("message")) {
-            buildSession.println(command.getStringArg("message"));
+            buildSession.println(ERR, command.getStringArg("message"));
         }
         return false;
     }

@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 
 public class Builders {
@@ -51,11 +52,11 @@ public class Builders {
     }
 
     public JobResult build(EnvironmentVariableContext environmentVariableContext) {
-        JobResult result = JobResult.Passed;
+        JobResult jobResult = JobResult.Passed;
 
         for (Builder builder : builders) {
             if (cancelStarted) {
-                return JobResult.Cancelled;
+                return builder.recordResult(JobResult.Cancelled);
             }
 
             synchronized (this) {
@@ -64,40 +65,20 @@ public class Builders {
 
             BuildLogElement buildLogElement = new BuildLogElement();
 
-            if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
-                JobResult taskStatus = JobResult.Passed;
-                Instant start = Instant.now();
+            if (builder.allowRun(RunIfConfig.fromJobResult(jobResult.toLowerCase()))) {
+                printTaskLine(builder);
 
-                try {
-                    String executeMessage = format("Task: %s", builder.getDescription());
-                    goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
+                JobResult taskResult = benchExec(builder, environmentVariableContext, buildLogElement);
 
-                    builder.build(buildLogElement, goPublisher,
-                            environmentVariableContext, taskExtension);
-                } catch (Exception e) {
-                    result = taskStatus = JobResult.Failed;
+                if (!taskResult.isPassed()) {
+                    jobResult = taskResult;
                 }
-
-                Duration duration = Duration.between(start, Instant.now());
-                String statusLine = format("Task status: %s (%d ms)", taskStatus.toLowerCase(), duration.toMillis());
 
                 if (cancelStarted) {
-                    result = taskStatus = JobResult.Cancelled;
+                    jobResult = builder.recordResult(JobResult.Cancelled);
                 }
 
-                String tag;
-
-                if (taskStatus.isPassed()) {
-                    tag = DefaultGoPublisher.TASK_PASS;
-                } else {
-                    if (Builder.UNSET_EXIT_CODE != builder.getExitCode()) {
-                        statusLine = format("%s (exit code: %d)", statusLine, builder.getExitCode());
-                    }
-
-                    tag = taskStatus.isCancelled() ? DefaultGoPublisher.TASK_CANCELLED : DefaultGoPublisher.TASK_FAIL;
-                }
-
-                goPublisher.taggedConsumeLineWithPrefix(tag, statusLine);
+                printTaskStatusLine(builder);
             }
 
             buildLog.addContent(buildLogElement.getElement());
@@ -110,7 +91,62 @@ public class Builders {
         if (cancelStarted) {
             return JobResult.Cancelled;
         }
-        return result;
+        return jobResult;
+    }
+
+    /**
+     * Executes the task, gathering metrics such as task result, exit code, and execution duration
+     *
+     * @param builder                    the task builder instance
+     * @param environmentVariableContext a set of environment variables for execution
+     * @param buildLogElement            the build log element
+     * @return the task result
+     */
+    private JobResult benchExec(Builder builder, EnvironmentVariableContext environmentVariableContext, BuildLogElement buildLogElement) {
+        builder.recordResult(JobResult.Passed);
+
+        Instant start = Instant.now();
+
+        try {
+            builder.build(buildLogElement, goPublisher, environmentVariableContext, taskExtension);
+        } catch (Exception e) {
+            builder.recordResult(JobResult.Failed);
+        }
+
+        builder.setDuration(Duration.between(start, Instant.now()));
+
+        return builder.result();
+    }
+
+    private void printTaskLine(Builder builder) {
+        String executeMessage = format("Task: %s", builder.getDescription());
+        goPublisher.taggedConsumeLineWithPrefix(TASK_START, executeMessage);
+    }
+
+    private void printTaskStatusLine(Builder builder) {
+        JobResult taskResult = builder.result();
+
+        String statusLine = format("Task status: %s (%d ms)", taskResult.toLowerCase(), builder.duration().toMillis());
+
+        if (!taskResult.isPassed() && Builder.UNSET_EXIT_CODE != builder.exitCode()) {
+            statusLine = format("%s (exit code: %d)", statusLine, builder.exitCode());
+        }
+
+        goPublisher.taggedConsumeLineWithPrefix(statusTag(taskResult), statusLine);
+    }
+
+    /**
+     * Determine a console log tag for a task status line based on the task result
+     *
+     * @param taskResult the task result
+     * @return a task status tag ({@link String})
+     */
+    private String statusTag(JobResult taskResult) {
+        if (taskResult.isCancelled()) {
+            return TASK_CANCELLED;
+        }
+
+        return taskResult.isPassed() ? TASK_PASS : TASK_FAIL;
     }
 
     public void cancel(EnvironmentVariableContext environmentVariableContext) {

@@ -214,7 +214,7 @@ public class AgentWebSocketClientControllerTest {
         build.setBuildLocator("build1");
         build.setBuildLocatorForDisplay("build1ForDisplay");
         build.setBuildCommand(BuildCommand.compose(
-                BuildCommand.echo("building"),
+                BuildCommand.echo(null, "building"),
                 BuildCommand.reportCurrentStatus(JobState.Building)));
 
         agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
@@ -259,7 +259,7 @@ public class AgentWebSocketClientControllerTest {
         build.setBuildLocator("build1");
         build.setBuildLocatorForDisplay("build1ForDisplay");
         build.setBuildCommand(BuildCommand.compose(
-                BuildCommand.echo("building"),
+                BuildCommand.echo(null, "building"),
                 BuildCommand.reportCurrentStatus(JobState.Building)));
 
         agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));

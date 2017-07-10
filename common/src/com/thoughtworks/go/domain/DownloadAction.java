@@ -23,6 +23,8 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
+import static com.thoughtworks.go.util.command.ConsoleLogTags.ERR;
+
 public class DownloadAction {
 
     private final HttpService httpService;
@@ -65,7 +67,7 @@ public class DownloadAction {
 
     private void publishDownloadError(String url, String cause, long backout) throws InterruptedException {
         String message = String.format("Could not fetch artifact %s. Pausing %s seconds to retry. Error was : %s", url, backout, cause);
-        goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, message);
+        goPublisher.taggedConsumeLineWithPrefix(ERR, message);
         LOG.warn(message);
     }
 

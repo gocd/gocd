@@ -22,7 +22,7 @@
     PUBLISH: "ar", PUBLISH_ERR: "ae",
     TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1", CANCELLED: "^C",
     CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
-    JOB_PASS: "j0", JOB_FAIL: "j1"
+    JOB_PASS: "j0", JOB_FAIL: "j1", JOB_CANCELLED: "jx"
   };
 
   var ReverseTypes = _.invert(Types);
@@ -39,7 +39,7 @@
     }
 
     function isStatusLine(prefix) {
-      return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
+      return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.JOB_CANCELLED, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
     function formatContent(cursor, node, prefix, line) {
@@ -236,6 +236,10 @@
         section.classList.add("log-fs-status");
         section.classList.add("log-fs-job-status-failed");
         section.priv.errored = true;
+      } else if (Types.JOB_CANCELLED === prefix) {
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-job-status-cancelled");
+        section.priv.errored = true;
       } else if (Types.PUBLISH_ERR === prefix) { // we only care if it failed, so no need to detect a success status
         section.classList.add("log-fs-status");
         section.classList.add("log-fs-publish-failed");
@@ -254,7 +258,7 @@
         section.priv.type = "task";
       } else if ([Types.CANCEL_TASK_START, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1) {
         section.priv.type = "cancel";
-      } else if ([Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1) {
+      } else if ([Types.JOB_PASS, Types.JOB_FAIL, Types.JOB_CANCELLED].indexOf(prefix) > -1) {
         section.priv.type = "result";
       } else if (Types.COMPLETED === prefix) {
         section.priv.type = "end";
@@ -291,7 +295,7 @@
     }
 
     function isExplicitEndBoundary(prefix) {
-      return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
+      return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.JOB_CANCELLED, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
     function closeAndStartNew(parentNode, writer) {

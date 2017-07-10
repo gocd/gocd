@@ -50,6 +50,7 @@ import java.util.Set;
 import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
+import static com.thoughtworks.go.util.command.ConsoleLogTags.*;
 import static java.lang.String.format;
 
 public class BuildWork implements Work {
@@ -103,7 +104,7 @@ public class BuildWork implements Work {
 
     private void reportFailure(Exception e) {
         try {
-            goPublisher.reportErrorMessage(messageOf(e), e);
+            goPublisher.reportErrorMessage(ERR, messageOf(e), e);
         } catch (Exception reportException) {
             LOGGER.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
@@ -151,7 +152,7 @@ public class BuildWork implements Work {
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
         Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
         List<String> report = environmentVariableContext.report(processLevelEnvVariables);
-        ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, safeOutputStreamConsumer(environmentVariableContext));
+        ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(PREP_TAGS, safeOutputStreamConsumer(environmentVariableContext));
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
             safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);
@@ -167,21 +168,21 @@ public class BuildWork implements Work {
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-        goPublisher.reportAction(DefaultGoPublisher.PREP, "Start to prepare");
+        goPublisher.reportAction(PREP, "Start to prepare");
         goPublisher.reportCurrentStatus(Preparing);
 
         createWorkingDirectoryIfNotExist(workingDirectory);
         if (!plan.shouldFetchMaterials()) {
-            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Skipping material update since stage is configured not to fetch materials");
+            goPublisher.taggedConsumeLineWithPrefix(PREP, "Skipping material update since stage is configured not to fetch materials");
             return;
         }
 
-        ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, processOutputStreamConsumer());
+        ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(PREP_TAGS, processOutputStreamConsumer());
         MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 
-        goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Start to update materials.\n");
+        goPublisher.taggedConsumeLineWithPrefix(PREP, "Start to update materials.\n");
 
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
             materialAgentFactory.createAgent(revision).prepare();
@@ -207,28 +208,41 @@ public class BuildWork implements Work {
     }
 
     private JobResult completeJob(JobResult result) throws SocketTimeoutException {
+        goPublisher.taggedConsumeLineWithPrefix(statusTag(result), format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
+
         if (goPublisher.isIgnored()) {
             return result;
         }
 
-        String tag = result.isPassed() ? DefaultGoPublisher.JOB_PASS : DefaultGoPublisher.JOB_FAIL;
-        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
-
         goPublisher.reportCurrentStatus(Completing);
-        goPublisher.reportAction("Start to create properties");
+        goPublisher.reportAction(PUBLISH, "Start to create properties");
         harvestProperties(goPublisher);
 
-        goPublisher.reportAction(DefaultGoPublisher.PUBLISH, "Start to upload");
+        goPublisher.reportAction(PUBLISH, "Start to upload");
 
         try {
             plan.publishArtifacts(goPublisher, workingDirectory);
         } catch (Exception e) {
             LOGGER.error(e);
-            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, e.getMessage());
+            goPublisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, e.getMessage());
             return JobResult.Failed;
         }
 
         return result;
+    }
+
+    /**
+     * Determine a console log tag for a job status line based on the job result
+     *
+     * @param jobResult the job result
+     * @return a task status tag ({@link String})
+     */
+    private String statusTag(JobResult jobResult) {
+        if (jobResult.isCancelled()) {
+            return JOB_CANCELLED;
+        }
+
+        return jobResult.isPassed() ? JOB_PASS : JOB_FAIL;
     }
 
     private JobResult execute(EnvironmentVariableContext environmentVariableContext) {

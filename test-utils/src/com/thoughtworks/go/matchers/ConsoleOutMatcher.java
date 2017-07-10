@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.matchers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -148,7 +148,7 @@ public class ConsoleOutMatcher {
 
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
-                stdout = format("Job is canceled %s", jobIdentifer.toString());
+                stdout = "Current job status: cancelled";
                 return StringUtils.contains(consoleOut, stdout);
             }
 

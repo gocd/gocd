@@ -83,6 +83,17 @@ PluginInfos.PluginInfo.Authentication.fromJSON = (data = {}) => new PluginInfos.
   imageUrl: _.get(data, '_links.image.href')
 });
 
+PluginInfos.PluginInfo.ConfigRepo = function (data) {
+  PluginInfos.PluginInfo.call(this, "configrepo", data);
+};
+
+PluginInfos.PluginInfo.ConfigRepo.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ConfigRepo({
+  id:       data.id,
+  version:  data.version,
+  about:    About.fromJSON(data.about),
+  imageUrl: _.get(data, '_links.image.href')
+});
+
 PluginInfos.PluginInfo.Notification = function (data) {
   PluginInfos.PluginInfo.call(this, "notification", data);
 };
@@ -172,7 +183,13 @@ PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.Pl
 
 PluginInfos.PluginInfo.createByType = ({type}) => new PluginInfos.Types[type]({});
 
-PluginInfos.PluginInfo.fromJSON = (data = {}) => PluginInfos.Types[data.type].fromJSON(data);
+PluginInfos.PluginInfo.fromJSON = (data = {}) => {
+  if (PluginInfos.Types[data.type]) {
+    return PluginInfos.Types[data.type].fromJSON(data);
+  } else {
+    throw `Could not find plugin type ${data.type}`;
+  }
+};
 
 PluginInfos.Types = {
   'authentication':     PluginInfos.PluginInfo.Authentication,
@@ -182,6 +199,7 @@ PluginInfos.Types = {
   'package-repository': PluginInfos.PluginInfo.PackageRepository,
   'task':               PluginInfos.PluginInfo.Task,
   'scm':                PluginInfos.PluginInfo.SCM,
+  'configrepo':         PluginInfos.PluginInfo.ConfigRepo,
 };
 
 Mixins.fromJSONCollection({

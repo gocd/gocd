@@ -17,27 +17,24 @@ package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.lang.String.format;
+
 public class PluginCommandExecutor implements BuildCommandExecutor {
-    BuildCommandExecutor buildCommandExecutor;
+    private final TfsExecutor tfsExecutor;
 
-    public PluginCommandExecutor() {
-        buildCommandExecutor = null;
-    }
-
-    public PluginCommandExecutor(BuildCommandExecutor buildCommandExecutor) {
-        this.buildCommandExecutor = buildCommandExecutor;
+    PluginCommandExecutor(TfsExecutor tfsExecutor) {
+        this.tfsExecutor = tfsExecutor;
     }
 
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
         String type = command.getStringArg("type");
-        boolean executorResult = false;
 
         if ("tfs".equals(type)) {
-            buildCommandExecutor = (buildCommandExecutor == null) ? new TfsExecutor() : buildCommandExecutor;
-            executorResult = buildCommandExecutor.execute(command, buildSession);
+            return tfsExecutor.execute(command, buildSession);
         }
 
-        return executorResult;
+        throw bomb(format("Don't know how to handle plugin of type: %s", type));
     }
 }

@@ -73,7 +73,7 @@ public class BuildSession {
         executors.put("mkdirs", new MkdirsCommandExecutor());
         executors.put("cleandir", new CleandirCommandExecutor());
         executors.put("exec", new ExecCommandExecutor());
-        executors.put("plugin", new PluginCommandExecutor());
+        executors.put("plugin", new PluginCommandExecutor(new TfsExecutor()));
         executors.put("test", new TestCommandExecutor());
         executors.put("reportCurrentStatus", new ReportCurrentStatusCommandExecutor());
         executors.put("reportCompleting", new ReportCompletingCommandExecutor());

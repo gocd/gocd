@@ -20,20 +20,21 @@ import com.thoughtworks.go.domain.BuildCommand;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class PluginCommandExecutorTest {
-    PluginCommandExecutor pluginCommandExecutor;
-    BuildCommandExecutor buildCommandExecutor;
-    BuildCommand buildCommand;
-    BuildSession buildSession;
+    private PluginCommandExecutor pluginCommandExecutor;
+    private TfsExecutor tfsExecutor;
+    private BuildCommand buildCommand;
+    private BuildSession buildSession;
 
     @Before
     public void setUp() throws Exception {
-        buildCommandExecutor = mock(BuildCommandExecutor.class);
-        pluginCommandExecutor = new PluginCommandExecutor(buildCommandExecutor);
+        tfsExecutor = mock(TfsExecutor.class);
+        pluginCommandExecutor = new PluginCommandExecutor(tfsExecutor);
         buildCommand = mock(BuildCommand.class);
         buildSession = mock(BuildSession.class);
     }
@@ -42,20 +43,22 @@ public class PluginCommandExecutorTest {
     public void shouldNotExecuteATfsExecutorIfPluginTypeIsNotTfs() throws Exception {
         when(buildCommand.getStringArg("type")).thenReturn("non-tfs type");
 
-        boolean result = pluginCommandExecutor.execute(buildCommand, buildSession);
-
-        verify(buildCommandExecutor, never()).execute(buildCommand, buildSession);
-        assertThat(result, is(false));
+        try {
+            pluginCommandExecutor.execute(buildCommand, buildSession);
+            fail("Should have failed since this type in not understood");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("Don't know how to handle plugin of type: non-tfs type"));
+        }
     }
 
     @Test
     public void shouldExecuteATfsExecutorIfPluginTypeIsTfs() throws Exception {
         when(buildCommand.getStringArg("type")).thenReturn("tfs");
-        when(buildCommandExecutor.execute(buildCommand, buildSession)).thenReturn(true);
+        when(tfsExecutor.execute(buildCommand, buildSession)).thenReturn(true);
 
         boolean result = pluginCommandExecutor.execute(buildCommand, buildSession);
 
-        verify(buildCommandExecutor).execute(buildCommand, buildSession);
+        verify(tfsExecutor).execute(buildCommand, buildSession);
         assertThat(result, is(true));
     }
 }

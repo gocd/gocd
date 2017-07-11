@@ -52,6 +52,7 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
         if(isWebBasedPluginLoginRequest(httpRequest)) {
             httpResponse.sendRedirect(authorizationServerUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest)));
+            return;
         }
 
         chain.doFilter(httpRequest, httpResponse);

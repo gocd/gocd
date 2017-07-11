@@ -69,22 +69,42 @@
       setTimeout(init, 500);
     }
 
+    function maybeGunzip(gzippedBuf) {
+      var inflator = new pako.Inflate({to: 'string'});
+      inflator.push(gzippedBuf, true);
+
+      if (inflator.err) {
+        return String.fromCharCode.apply(null, gzippedBuf);
+      } else {
+        return inflator.result;
+      }
+    }
+
     function renderLines(e) {
       var buildOutput = e.data, lines, slice = [];
 
       if (buildOutput) {
-        lines = buildOutput.split(/\r?\n/);
+        var reader = new FileReader();
 
-        startLine += lines.length;
+        reader.addEventListener("loadend", function () {
+          var arrayBuffer   = reader.result;
+          var gzippedBuf    = new Uint8Array(arrayBuffer);
+          var consoleOutput = maybeGunzip(gzippedBuf);
 
-        while (lines.length) {
-          slice = lines.splice(0, 1000);
-          transformer.transform(slice);
-        }
+          lines = consoleOutput.split(/\r?\n/);
 
-        if (options && "function" === typeof options.onUpdate) {
-          transformer.invoke(options.onUpdate);
-        }
+          startLine += lines.length;
+
+          while (lines.length) {
+            slice = lines.splice(0, 1000);
+            transformer.transform(slice);
+          }
+
+          if (options && "function" === typeof options.onUpdate) {
+            transformer.invoke(options.onUpdate);
+          }
+        });
+        reader.readAsArrayBuffer(buildOutput);
       }
     }
 

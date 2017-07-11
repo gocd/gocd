@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-define([], function () {
-  var Roles = {};
+const Roles = {};
 
-  Roles.initializeWith = function (values) {
-    Roles.list = values || [];
-  };
+Roles.initializeWith = function (values) {
+  Roles.list = values || [];
+};
 
-  Roles.list = [];
+Roles.list = [];
 
-  return Roles;
-});
+module.exports = Roles;

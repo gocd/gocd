@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-var m        = require('mithril');
-var Stream   = require('mithril/stream');
-var $        = require('jquery');
-var _        = require('lodash');
-var s        = require('string-plus');
-var mrequest = require('helpers/mrequest');
-var Routes   = require('gen/js-routes');
-var Mixins   = require('models/mixins/model_mixins');
+const Stream   = require('mithril/stream');
+const $        = require('jquery');
+const _        = require('lodash');
+const s        = require('string-plus');
+const mrequest = require('helpers/mrequest');
+const Routes   = require('gen/js-routes');
+const Mixins   = require('models/mixins/model_mixins');
 
-var Templates = function (data) {
+const Templates = function (data) {
   Mixins.HasMany.call(this, {
     factory:    Templates.Template.fromJSON,
     as:         'Template',
@@ -40,20 +39,20 @@ Templates.Template = function (data) {
 
   this.delete = function () {
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'DELETE',
         url:         Routes.apiv3AdminTemplatePath({template_name: data.name}), //eslint-disable-line camelcase
         beforeSend:  mrequest.xhrConfig.forVersion('v3'),
         contentType: false
       });
 
-      jqXHR.done(function (data, _textStatus, _jqXHR) {
+      jqXHR.done((data, _textStatus, _jqXHR) => {
         deferred.resolve(data);
       });
 
-      jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
+      jqXHR.fail((jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
       });
 
@@ -65,7 +64,7 @@ Templates.Template.fromJSON = function (data) {
   return new Templates.Template({
     name:      data.name,
     url:       data._links.self.href,
-    pipelines: _.map(data._embedded.pipelines, function (pipeline) {
+    pipelines: _.map(data._embedded.pipelines, (pipeline) => {
       return new function () {
         this.name = Stream(pipeline.name);
         this.url  = Stream(pipeline._links.self.href);
@@ -76,20 +75,20 @@ Templates.Template.fromJSON = function (data) {
 
 Templates.all = function () {
   return $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
       url:         Routes.apiv3AdminTemplatesPath(),
       beforeSend:  mrequest.xhrConfig.forVersion('v3'),
       contentType: false
     });
 
-    jqXHR.done(function (data, _textStatus, _jqXHR) {
+    jqXHR.done((data, _textStatus, _jqXHR) => {
       deferred.resolve(Templates.fromJSON(data._embedded.templates));
     });
 
-    jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
+    jqXHR.fail((jqXHR, _textStatus, _errorThrown) => {
       deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
     });
 

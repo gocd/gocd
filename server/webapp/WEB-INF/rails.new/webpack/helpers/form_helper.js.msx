@@ -566,10 +566,10 @@ let f = {
   },
 
   switch: {
-    view: function (vnode) {
-      var args = vnode.attrs;
+    view (vnode) {
+      const args = vnode.attrs;
 
-      var model     = deleteKeyAndReturnValue(args, 'model'),
+      const model     = deleteKeyAndReturnValue(args, 'model'),
         modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
         disabled  = deleteKeyAndReturnValue(args, 'disabled'),
         labelText = deleteKeyAndReturnValue(args, 'label'),
@@ -577,7 +577,7 @@ let f = {
 
       return (
         <f.column {...args}
-                  class={"toggle-switch " + args.class}>
+                  class={`toggle-switch ${  args.class}`}>
           <input id="toggle"
                  class="cbx-toggle cbx-toggle-round-flat"
                  type="checkbox"

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var $      = require('jquery');
-var f      = require('helpers/form_helper');
+const m      = require('mithril');
+const Stream = require('mithril/stream');
+const $      = require('jquery');
+const f      = require('helpers/form_helper');
 
-var ComponentMixins = require('helpers/mithril_component_mixins');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 
-var Users = require('models/shared/users');
-var Roles = require('models/shared/roles');
+const Users = require('models/shared/users');
+const Roles = require('models/shared/roles');
 require('jquery-textcomplete');
 
-var autoComplete = function (values, model, attrName) {
+const autoComplete = function (values, model, attrName) {
   return function (elem, isInitialized, context) {
     if (!isInitialized) {
-      var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+      const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
 
       context.onunload = function () {
         $inputElem.textcomplete('destroy');
@@ -36,35 +36,35 @@ var autoComplete = function (values, model, attrName) {
 
       $inputElem.textcomplete([
         {
-          words:   values, //the list of auto-completes
-          match:   /(^|,)\s*([^,]+)$/,
-          index:   2, // use the second match in the regex to extract the search term
-          search:  function (term, callback) {
+          words: values, //the list of auto-completes
+          match: /(^|,)\s*([^,]+)$/,
+          index: 2, // use the second match in the regex to extract the search term
+          search (term, callback) {
             term = term.toLowerCase();
-            callback($.map(this.words, function (word) {
+            callback($.map(this.words, (word) => {
               return word.toLowerCase().indexOf(term) === 0 ? word : null;
             }));
           },
-          replace: function (word) {
-            return '$1 ' + word + ', ';
+          replace (word) {
+            return `$1 ${  word  }, `;
           }
         }
       ]);
 
-      $inputElem.on('textComplete:select', function () {
+      $inputElem.on('textComplete:select', () => {
         model[attrName]($inputElem.val());
       });
     }
   };
 };
 
-var ApprovalWidget = {
-  oninit: function (vnode) {
+const ApprovalWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.accordion accordionTitles={[(<span>Permissions</span>)]}
                    accordionKeys={['templatePermissions']}
@@ -72,13 +72,12 @@ var ApprovalWidget = {
                    class='accordion'>
         <div>
           <f.row>
-            <f.inputWithLabel config={autoComplete(Users.list, vnode.attrs.authorization().admins(), 'users')}
-                              attrName='users'
-                              model={vnode.attrs.authorization().admins()}/>
-            <f.inputWithLabel
-              config={autoComplete(Roles.list, vnode.attrs.authorization().admins(), 'roles')}
-              attrName='roles'
-              model={vnode.attrs.authorization().admins()} end/>
+            <f.input config={autoComplete(Users.list, vnode.attrs.authorization().admins(), 'users')}
+                     attrName='users'
+                     model={vnode.attrs.authorization().admins()}/>
+            <f.input config={autoComplete(Roles.list, vnode.attrs.authorization().admins(), 'roles')}
+                     attrName='roles'
+                     model={vnode.attrs.authorization().admins()} end/>
 
           </f.row>
         </div>

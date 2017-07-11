@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-var m           = require('mithril');
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var $           = require('jquery');
-var mrequest    = require('helpers/mrequest');
-var Routes      = require('gen/js-routes');
-var Validatable = require('models/mixins/validatable_mixin');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const $           = require('jquery');
+const mrequest    = require('helpers/mrequest');
+const Routes      = require('gen/js-routes');
+const Validatable = require('models/mixins/validatable_mixin');
 
-var Stages = require('models/pipeline_configs/stages');
-var Jobs   = require('models/pipeline_configs/jobs');
+const Stages = require('models/pipeline_configs/stages');
+const Jobs   = require('models/pipeline_configs/jobs');
 
-var Template = function (data) {
+const Template = function (data) {
   Validatable.call(this, data);
 
-  var self                     = this;
+  const self                     = this;
   this.name                    = Stream(s.defaultToIfBlank(data.name, ''));
   this.isExtractedFromPipeline = Stream(s.defaultToIfBlank(data.isExtractedFromPipeline, false));
   this.pipeline                = Stream(s.defaultToIfBlank(data.pipeline, ''));
@@ -40,16 +39,16 @@ var Template = function (data) {
   this.validateAssociated('stages');
 
   this.update = function (etag, extract) {
-    var self   = this;
-    var config = function (xhr) {
+    const self   = this;
+    const config = function (xhr) {
       mrequest.xhrConfig.v3(xhr);
       xhr.setRequestHeader("If-Match", etag);
     };
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PUT',
         url:         Routes.apiv3AdminTemplatePath({template_name: self.name()}), //eslint-disable-line camelcase
         timeout:     mrequest.timeout,
@@ -58,12 +57,12 @@ var Template = function (data) {
         contentType: 'application/json',
       });
 
-      var didFulfill = function (data, _textStatus, jqXHR) {
-        extract(jqXHR)
+      const didFulfill = function (data, _textStatus, jqXHR) {
+        extract(jqXHR);
         deferred.resolve(Template.fromJSON(data));
       };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+      const didReject = function (jqXHR, _textStatus, _errorThrown) {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -72,11 +71,11 @@ var Template = function (data) {
 
   };
 
-  var createNew = function () {
+  const createNew = function () {
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'POST',
         url:         Routes.apiv3AdminTemplatesPath(),
         timeout:     mrequest.timeout,
@@ -85,11 +84,11 @@ var Template = function (data) {
         contentType: 'application/json',
       });
 
-      var didFulfill = function (data, _textStatus, _jqXHR) {
+      const didFulfill = function (data, _textStatus, _jqXHR) {
         deferred.resolve(Template.fromJSON(data));
       };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+      const didReject = function (jqXHR, _textStatus, _errorThrown) {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -104,11 +103,11 @@ var Template = function (data) {
     return createNew();
   };
 
-  var extractFromPipeline = function () {
+  const extractFromPipeline = function () {
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'POST',
         url:         Routes.apiv1AdminInternalExtractTemplatesPath(),
         timeout:     mrequest.timeout,
@@ -117,11 +116,11 @@ var Template = function (data) {
         contentType: 'application/json',
       });
 
-      var didFulfill = function (data, _textStatus, _jqXHR) {
+      const didFulfill = function (data, _textStatus, _jqXHR) {
         deferred.resolve(Template.fromJSON(data));
       };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+      const didReject = function (jqXHR, _textStatus, _errorThrown) {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -154,21 +153,21 @@ Template.Authorization.AdminConfig = function (data) {
 
 Template.get = function (url, extract) {
   return $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
-      url:         url,
+      url,
       beforeSend:  mrequest.xhrConfig.forVersion('v3'),
       contentType: false
     });
 
-    jqXHR.done(function (data, _textStatus, jqXHR) {
+    jqXHR.done((data, _textStatus, jqXHR) => {
       extract(jqXHR);
       deferred.resolve(Template.fromJSON(data));
     });
 
-    jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
+    jqXHR.fail((jqXHR, _textStatus, _errorThrown) => {
       deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
     });
 
@@ -177,20 +176,20 @@ Template.get = function (url, extract) {
 
 Template.getPipelinesForNewTemplate = function () {
   return $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
       url:         Routes.apiv1AdminInternalNonTemplatePipelinesPath(),
       beforeSend:  mrequest.xhrConfig.forVersion('v1'),
       contentType: false
     });
 
-    jqXHR.done(function (data, _textStatus, _jqXHR) {
+    jqXHR.done((data, _textStatus, _jqXHR) => {
       deferred.resolve(data);
     });
 
-    jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
+    jqXHR.fail((jqXHR, _textStatus, _errorThrown) => {
       deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
     });
 
@@ -198,15 +197,15 @@ Template.getPipelinesForNewTemplate = function () {
 };
 
 Template.defaultTemplate = function () {
-  var defaultJob   = new Jobs.Job({name: "defaultJob"});
-  var defaultStage = new Stages.Stage({name: "defaultStage", jobs: new Jobs([defaultJob])});
+  const defaultJob   = new Jobs.Job({name: "defaultJob"});
+  const defaultStage = new Stages.Stage({name: "defaultStage", jobs: new Jobs([defaultJob])});
 
   return new Template({stages: new Stages([defaultStage])});
 };
 
 Template.vm = function () {
   this.saveState = Stream('');
-  var errors     = [];
+  let errors     = [];
 
   this.updating = function () {
     this.saveState('in-progress disabled');

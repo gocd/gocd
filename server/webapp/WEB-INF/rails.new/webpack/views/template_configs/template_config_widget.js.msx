@@ -14,42 +14,41 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var _      = require('lodash');
-var Stream = require('mithril/stream');
-var f      = require('helpers/form_helper');
+const m      = require('mithril');
+const _      = require('lodash');
+const Stream = require('mithril/stream');
+const f      = require('helpers/form_helper');
 
-var ComponentMixins = require('helpers/mithril_component_mixins');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 
-var Routes = require('gen/js-routes');
+const Routes = require('gen/js-routes');
 
-var Template           = require('models/template_configs/template');
-var PipelineFlowWidget = require('views/pipeline_configs/pipeline_flow_widget');
-var ErrorsWidget       = require('views/pipeline_configs/errors_widget');
-var ApprovalWidget     = require('views/template_configs/approval_widget');
+const Template           = require('models/template_configs/template');
+const PipelineFlowWidget = require('views/pipeline_configs/pipeline_flow_widget');
+const ErrorsWidget       = require('views/pipeline_configs/errors_widget');
+const ApprovalWidget     = require('views/template_configs/approval_widget');
 
 
-var TemplateConfigWidget = {
-  oninit: function (vnode) {
-    var templateName = m.route.param('templateName') || vnode.attrs.templateName;
+const TemplateConfigWidget = {
+  oninit (vnode) {
+    const templateName = m.route.param('templateName') || vnode.attrs.templateName;
 
-    var self              = this;
+    const self            = this;
     self.etag             = Stream();
     self.template         = Stream();
     self.currentSelection = Stream();
-    self.elasticProfiles  = vnode.attrs.elasticProfiles;
     self.vm               = new Template.vm();
 
     ComponentMixins.HasViewModel.call(this);
 
-    var setTemplateAndPreserveSelection = function (newTemplate) {
-      var newSelection = newTemplate.stages().firstStage() || self.currentSelection();
+    const setTemplateAndPreserveSelection = function (newTemplate) {
+      const newSelection = newTemplate.stages().firstStage() || self.currentSelection();
 
       self.template(newTemplate);
       self.currentSelection(newSelection);
     };
 
-    var extractEtag = function (xhr) {
+    const extractEtag = function (xhr) {
       if (xhr.status === 200) {
         self.etag = Stream(xhr.getResponseHeader('ETag'));
       }
@@ -57,7 +56,7 @@ var TemplateConfigWidget = {
     };
 
     self.reloadPage = function () {
-      var url = Routes.apiv3AdminTemplatePath({template_name: templateName}); //eslint-disable-line camelcase
+      const url = Routes.apiv3AdminTemplatePath({template_name: templateName}); //eslint-disable-line camelcase
       Template.get(url, extractEtag).then(setTemplateAndPreserveSelection).always(m.redraw);
     };
 
@@ -78,10 +77,10 @@ var TemplateConfigWidget = {
 
       self.vm.updating();
 
-      self.template().update(self.etag(), extractEtag).then(function (data) {
-        setTemplateAndPreserveSelection(Template.fromJSON(data));
+      self.template().update(self.etag(), extractEtag).then((data) => {
+        setTemplateAndPreserveSelection(data);
         self.vm.saveSuccess();
-      }, function (data) {
+      }, (data) => {
         self.vm.saveFailed(data);
         if (data.data) {
           setTemplateAndPreserveSelection(Template.fromJSON(data.data));
@@ -90,14 +89,14 @@ var TemplateConfigWidget = {
     };
   },
 
-  view: function (vnode) {
+  view (vnode) {
     if (
       _.isNil(vnode.state.template())) {
       return (<div class="page-spinner"/>);
     }
-    var errors = vnode.state.vm.hasErrors() ? (<ErrorsWidget errors={vnode.state.vm.errors()}/>) : undefined;
+    const errors = vnode.state.vm.hasErrors() ? (<ErrorsWidget errors={vnode.state.vm.errors()}/>) : undefined;
 
-    var header = (
+    const header = (
       <div class="header-panel">
         <header class="page-header">
           <f.row>
@@ -111,8 +110,8 @@ var TemplateConfigWidget = {
             </f.column>
             <f.column size={1}>
               <f.button onclick={vnode.state.onSaveTemplate.bind(vnode.state)}
-                        class={'save-template ' + vnode.state.vm.saveState()}>
-                <span class={'save-state ' + vnode.state.vm.saveState()}/>
+                        class={`save-template ${  vnode.state.vm.saveState()}`}>
+                <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
                 Save
               </f.button>
             </f.column>
@@ -121,7 +120,7 @@ var TemplateConfigWidget = {
       </div>
     );
 
-    var auth;
+    let auth;
     if (vnode.attrs.isUserAdmin) {
       auth = (
         <f.row class="permissions">
@@ -145,7 +144,8 @@ var TemplateConfigWidget = {
               <PipelineFlowWidget class="stages"
                                   pipeline={vnode.state.template}
                                   currentSelection={vnode.state.currentSelection}
-                                  elasticProfiles={vnode.state.elasticProfiles}
+                                  elasticProfiles={vnode.attrs.elasticProfiles}
+                                  pluginInfos={vnode.attrs.pluginInfos}
                                   vm={vnode.state.vmState('templateFlowConfig')}
               />
             </f.column>

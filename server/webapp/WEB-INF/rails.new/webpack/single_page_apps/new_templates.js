@@ -14,48 +14,54 @@
  * limitations under the License.
  */
 
-var $                       = require('jquery');
-var m                       = require('mithril');
-var Stream                  = require('mithril/stream');
-var TemplatesConfigWidget   = require('views/template_configs/templates_config_widget');
-var TemplateConfigWidget    = require('views/template_configs/template_config_widget');
-var NewTemplateConfigWidget = require('views/template_configs/new_template_config_widget')
-var ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
-var Users                   = require('models/shared/users');
-var Roles                   = require('models/shared/roles');
+const $                       = require('jquery');
+const m                       = require('mithril');
+const Stream                  = require('mithril/stream');
+const TemplatesConfigWidget   = require('views/template_configs/templates_config_widget');
+const TemplateConfigWidget    = require('views/template_configs/template_config_widget');
+const NewTemplateConfigWidget = require('views/template_configs/new_template_config_widget');
+const ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
+const PluginInfos             = require('models/shared/plugin_infos');
+const Users                   = require('models/shared/users');
+const Roles                   = require('models/shared/roles');
 
 require('foundation-sites');
 
-$(function () {
-  var templatesConfigElem = $('#templates');
-  var allUserNames        = JSON.parse(templatesConfigElem.attr('data-user-names'));
-  var allRoleNames        = JSON.parse(templatesConfigElem.attr('data-role-names'));
-  var isUserAdmin         = JSON.parse(templatesConfigElem.attr('is-current-user-an-admin'));
+$(() => {
+  const templatesConfigElem = $('#templates');
+  const allUserNames        = JSON.parse(templatesConfigElem.attr('data-user-names'));
+  const allRoleNames        = JSON.parse(templatesConfigElem.attr('data-role-names'));
+  const isUserAdmin         = JSON.parse(templatesConfigElem.attr('is-current-user-an-admin'));
 
   Users.initializeWith(allUserNames);
   Roles.initializeWith(allRoleNames);
 
-  ElasticProfiles.all().then(function (args) {
-
+  Promise.all([PluginInfos.all(), ElasticProfiles.all()]).then((args) => {
     m.route.prefix("#");
-    var elasticProfiles = Stream(args[0]);
+
+    const pluginInfos     = Stream(args[0]);
+    const elasticProfiles = Stream(args[1]);
 
     m.route(templatesConfigElem.get(0), '', {
       '':               {
-        view: function () {
-          return m(TemplatesConfigWidget, {isUserAdmin: isUserAdmin});
+        view () {
+          return m(TemplatesConfigWidget, {isUserAdmin});
         }
       },
       '/create/new':    {
-        view: function () {
-          return m(NewTemplateConfigWidget, {elasticProfiles: elasticProfiles});
+        view () {
+          return m(NewTemplateConfigWidget, {
+            elasticProfiles,
+            pluginInfos
+          });
         }
       },
       '/:templateName': {
-        view: function () {
+        view () {
           return m(TemplateConfigWidget, {
-            elasticProfiles: elasticProfiles,
-            isUserAdmin:     isUserAdmin
+            elasticProfiles,
+            pluginInfos,
+            isUserAdmin
           });
         }
       }

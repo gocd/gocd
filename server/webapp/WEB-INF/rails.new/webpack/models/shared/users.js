@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-define([], function () {
-  var Users = {};
+const Users = {};
 
-  Users.initializeWith = function (values) {
-    Users.list = values || [];
-  };
+Users.initializeWith = function (values) {
+  Users.list = values || [];
+};
 
-  Users.list = [];
+Users.list = [];
 
-  return Users;
-});
+module.exports = Users;

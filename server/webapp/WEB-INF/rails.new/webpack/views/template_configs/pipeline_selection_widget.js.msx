@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var f      = require('helpers/form_helper');
+const m      = require('mithril');
+const Stream = require('mithril/stream');
+const f      = require('helpers/form_helper');
+const Template        = require('models/template_configs/template');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 
-var Template        = require('models/template_configs/template');
-var ComponentMixins = require('helpers/mithril_component_mixins');
-
-var PipelineSelectionWidget = {
-  oninit: function (vnode) {
-    var self = this;
+const PipelineSelectionWidget = {
+  oninit (vnode) {
+    const self = this;
     ComponentMixins.HasViewModel.call(this);
     self.pipelines = Stream([]);
     self.args      = vnode.attrs;
 
     self.reloadPipelines = function () {
-      Template.getPipelinesForNewTemplate().then(function (response) {
-        var pipelines = response.map(function (pipeline) {
+      Template.getPipelinesForNewTemplate().then((response) => {
+        const pipelines = response.map((pipeline) => {
           return {id: pipeline, text: pipeline};
         });
         self.pipelines(pipelines);
@@ -40,17 +39,17 @@ var PipelineSelectionWidget = {
     self.reloadPipelines();
   },
 
-  view: function (vnode) {
-    var arePipelinesAvailable = (vnode.state.pipelines().length > 0);
+  view (vnode) {
+    const arePipelinesAvailable = (vnode.state.pipelines().length > 0);
 
-    var selectPipelineSection = (
+    let selectPipelineSection = (
       <f.info>
         There are no Pipelines available to extract a new Template.
       </f.info>
     );
 
     if (arePipelinesAvailable) {
-      var template = vnode.attrs.template();
+      const template = vnode.attrs.template();
       template.pipeline(vnode.state.pipelines()[0].text);
 
       selectPipelineSection = (<f.row class='pipeline-selector'>

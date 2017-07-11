@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-var _        = require('lodash');
-var m        = require('mithril');
-var s        = require('string-plus');
-var Template = require('models/template_configs/template');
-var Stages   = require('models/pipeline_configs/stages');
+const _        = require('lodash');
+const m        = require('mithril');
+const s        = require('string-plus');
+const Template = require('models/template_configs/template');
+const Stages   = require('models/pipeline_configs/stages');
 
-describe('Template', function () {
+describe('Template', () => {
 
-  var templateJSON = {
+  /*eslint-disable*/
+  const templateJSON = {
     name:                       "template.name",
     is_extracted_from_pipeline: false,
     pipeline:                   '',
@@ -65,46 +66,47 @@ describe('Template', function () {
       }
     ]
   };
+  /*eslint-enable*/
 
-  describe('deserialization', function () {
-    var template;
+  describe('deserialization', () => {
+    let template;
 
-    beforeAll(function () {
+    beforeAll(() => {
       template = Template.fromJSON(templateJSON);
     });
 
-    it('should initialize template model with name', function () {
+    it('should initialize template model with name', () => {
       expect(template.name()).toBe("template.name");
     });
 
-    it('should initialize template model with stages', function () {
-      var expectedStages = Stages.fromJSON(templateJSON.stages);
-      var actualStages   = template.stages();
+    it('should initialize template model with stages', () => {
+      const expectedStages = Stages.fromJSON(templateJSON.stages);
+      const actualStages   = template.stages();
 
       expect(actualStages.countStage()).toBe(expectedStages.countStage());
       expect(actualStages.firstStage().name()).toBe(expectedStages.firstStage().name());
     });
 
-    it('should initialize template with authorization', function () {
+    it('should initialize template with authorization', () => {
       expect(template.authorization().admins().users()).toEqual(['user1', 'user2']);
       expect(template.authorization().admins().roles()).toEqual(['role1', 'role2']);
     });
 
-    it("should serialize to JSON", function () {
+    it("should serialize to JSON", () => {
       expect(JSON.parse(JSON.stringify(template, s.snakeCaser))).toEqual(templateJSON);
     });
   });
 
-  describe('validation', function () {
-    it('should validate presence of template name', function () {
-      var template = new Template({});
+  describe('validation', () => {
+    it('should validate presence of template name', () => {
+      const template = new Template({});
 
       expect(template.isValid()).toBe(false);
       expect(template.errors().errors('name')).toEqual(['Name must be present']);
     });
 
-    it('should validate stages', function () {
-      var template = Template.fromJSON(templateJSON);
+    it('should validate stages', () => {
+      const template = Template.fromJSON(templateJSON);
 
       expect(template.isValid()).toBe(true);
 
@@ -115,16 +117,16 @@ describe('Template', function () {
     });
   });
 
-  describe('update', function () {
-    var template;
-    beforeAll(function () {
+  describe('update', () => {
+    let template;
+    beforeAll(() => {
       template = Template.fromJSON(templateJSON);
       spyOn(m, 'request');
     });
 
-    it('should post data to templates API', function () {
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/admin/templates/' + templateJSON.name, undefined, 'PUT').andReturn({
+    it('should post data to templates API', () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/templates/${  templateJSON.name}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify(templateJSON),
           status:          200,
           responseHeaders: {
@@ -132,7 +134,7 @@ describe('Template', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (template) {
+        const successCallback = jasmine.createSpy().and.callFake((template) => {
           expect(template.name()).toEqual(templateJSON.name);
         });
 
@@ -142,15 +144,15 @@ describe('Template', function () {
     });
   });
 
-  describe('create', function () {
-    var template;
-    beforeAll(function () {
+  describe('create', () => {
+    let template;
+    beforeAll(() => {
       template = Template.fromJSON(templateJSON);
       spyOn(m, 'request');
     });
 
-    it('should post data to templates API', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should post data to templates API', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/templates', undefined, 'POST').andReturn({
           responseText:    JSON.stringify(templateJSON),
           status:          200,
@@ -159,7 +161,7 @@ describe('Template', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (template) {
+        const successCallback = jasmine.createSpy().and.callFake((template) => {
           expect(template.name()).toEqual(templateJSON.name);
         });
 

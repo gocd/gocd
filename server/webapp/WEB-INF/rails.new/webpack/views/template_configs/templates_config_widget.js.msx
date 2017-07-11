@@ -15,21 +15,19 @@
  */
 
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var f      = require('helpers/form_helper');
+const m               = require('mithril');
+const Stream          = require('mithril/stream');
+const f               = require('helpers/form_helper');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 
-var ComponentMixins = require('helpers/mithril_component_mixins');
-
-var Modal = require('views/shared/new_modal');
-
-var Templates         = require('models/template_configs/templates');
-var TemplateRowWidget = require('views/template_configs/template_row_widget');
+const Modal             = require('views/shared/new_modal');
+const Templates         = require('models/template_configs/templates');
+const TemplateRowWidget = require('views/template_configs/template_row_widget');
 
 
-var TemplatesConfigWidget = {
-  oninit: function () {
-    var self = this;
+const TemplatesConfigWidget = {
+  oninit () {
+    const self = this;
     ComponentMixins.ManagesCollection.call(this, {as: 'Template'});
     ComponentMixins.HasViewModel.call(this);
     self.modal     = null;
@@ -42,10 +40,10 @@ var TemplatesConfigWidget = {
     };
 
     self.reloadPage = function () {
-      Templates.all().then(function (templates) {
+      Templates.all().then((templates) => {
         self.templates(templates);
-      }, function (message) {
-        self.message({type: 'alert', message: message});
+      }, (message) => {
+        self.message({type: 'alert', message});
       }).always(m.redraw);
     };
 
@@ -56,34 +54,34 @@ var TemplatesConfigWidget = {
     };
 
     self.deleteTemplate = function (modal, template) {
-      var onSuccess = function (response) {
+      const onSuccess = function (response) {
         modal.destroy();
         self.deleteVm(template.name());
         self.reloadPage();
         self.message({type: 'success', message: response.message});
       };
 
-      var onFailure = function (message) {
+      const onFailure = function (message) {
         modal.destroy();
-        self.message({type: 'alert', message: message});
+        self.message({type: 'alert', message});
       };
 
       template.delete().then(onSuccess, onFailure).always(m.redraw);
     };
 
     self.deleteConfirm = function (template) {
-      var modal = new Modal({
-        title:    'Are you sure?',
-        body:     () => (<div>Are you sure you want to delete the template <strong>{template.name()}</strong>?</div>),
-        oncancel: function () {
+      const modal = new Modal({
+        title: 'Are you sure?',
+        body:  () => (<div>Are you sure you want to delete the template <strong>{template.name()}</strong>?</div>),
+        oncancel () {
           modal.destroy();
         },
-        buttons:  function () {
+        buttons () {
           return [
             {
-              text:    'Delete',
-              class:   'delete-template',
-              onclick: function () {
+              text:  'Delete',
+              class: 'delete-template',
+              onclick () {
                 self.deleteTemplate(modal, template);
               }
             }
@@ -94,8 +92,8 @@ var TemplatesConfigWidget = {
     };
   },
 
-  view: function (vnode) {
-    var message;
+  view (vnode) {
+    let message;
     if (vnode.state.message().message) {
       message = (
         <f.row>
@@ -134,7 +132,7 @@ var TemplatesConfigWidget = {
           {message}
           <f.row>
             {
-              vnode.state.templates().mapTemplates(function (template) {
+              vnode.state.templates().mapTemplates((template) => {
                 return (
                   <TemplateRowWidget template={template}
                                      deleteConfirm={vnode.state.deleteConfirm}

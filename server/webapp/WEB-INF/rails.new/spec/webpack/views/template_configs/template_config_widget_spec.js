@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-var $                     = require("jquery");
-var m                     = require("mithril");
-var Stream                = require("mithril/stream");
-var TemplateConfigWidget  = require("views/template_configs/template_config_widget");
-var TemplatesConfigWidget = require("views/template_configs/templates_config_widget");
-var ElasticProfiles       = require("models/elastic_profiles/elastic_profiles");
+const $                    = require("jquery");
+const m                    = require("mithril");
+const Stream               = require("mithril/stream");
+const TemplateConfigWidget = require("views/template_configs/template_config_widget");
+const ElasticProfiles      = require("models/elastic_profiles/elastic_profiles");
+const PluginInfos          = require('models/shared/plugin_infos');
 
-describe("TemplateConfigWidget", function () {
-  var $root, root;
+describe("TemplateConfigWidget", () => {
+  let root;
   beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
+    [, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-
-  var templateJSON = {
+  const templateJSON = {
     "_links":        {
       "self": {
         "href": "https://ci.example.com/go/api/admin/templates/baz"
@@ -79,7 +78,7 @@ describe("TemplateConfigWidget", function () {
     ]
   };
 
-  var partialTemplateJSON = {
+  const partialTemplateJSON = {
     "name":      "baz",
     "_links":    {
       "self": {
@@ -91,13 +90,13 @@ describe("TemplateConfigWidget", function () {
     }
   };
 
-  var allTemplatesJSON = {
+  const allTemplatesJSON = {
     "_embedded": {
       "templates": [partialTemplateJSON]
     }
   };
 
-  var profileJSON     = {
+  const profileJSON     = {
     "id":         "unit-tests",
     "plugin_id":  "cd.go.contrib.elastic-agent.docker",
     "properties": [
@@ -111,13 +110,13 @@ describe("TemplateConfigWidget", function () {
       }
     ]
   };
-  var allProfilesJSON = {
+  const allProfilesJSON = {
     "_embedded": {
       "profiles": [profileJSON]
     }
   };
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest('/go/api/admin/templates/baz', undefined, 'GET').andReturn({
       responseText: JSON.stringify(templateJSON),
@@ -134,14 +133,16 @@ describe("TemplateConfigWidget", function () {
       status:       200
     });
 
-    var elasticProfiles = Stream(ElasticProfiles.fromJSON(allProfilesJSON));
+    const elasticProfiles = Stream(ElasticProfiles.fromJSON(allProfilesJSON));
+    const pluginInfos     = Stream(PluginInfos.fromJSON([]));
 
     m.mount(root, {
-      view: function () {
+      view () {
         return m(TemplateConfigWidget, {
-          elasticProfiles: elasticProfiles,
-          isUserAdmin:     true,
-          templateName:    templateJSON.name
+          elasticProfiles,
+          pluginInfos,
+          isUserAdmin:  true,
+          templateName: templateJSON.name
         });
       }
     });
@@ -149,21 +150,21 @@ describe("TemplateConfigWidget", function () {
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     jasmine.Ajax.uninstall();
 
     m.mount(root, null);
     m.redraw(true);
   });
 
-  describe('Headers', function () {
-    it('should list the name of the template', function () {
+  describe('Headers', () => {
+    it('should list the name of the template', () => {
       expect($('.page-header')).toContainText(templateJSON.name);
     });
   });
 
-  describe('Save', function () {
-    it('should save the edited template', function () {
+  describe('Save', () => {
+    it('should save the edited template', () => {
       jasmine.Ajax.stubRequest('/go/api/admin/templates/baz', undefined, 'PUT').andReturn({
         responseText: JSON.stringify(templateJSON),
         status:       200
@@ -175,7 +176,7 @@ describe("TemplateConfigWidget", function () {
       expect($('.save-template')).toHaveClass('success');
     });
 
-    it('shoould show error occured while editing template', function () {
+    it('shoould show error occured while editing template', () => {
       jasmine.Ajax.stubRequest('/go/api/admin/templates/baz', undefined, 'PUT').andReturn({
         responseText: JSON.stringify({message: "Boom!"}),
         status:       500
@@ -190,8 +191,8 @@ describe("TemplateConfigWidget", function () {
     });
   });
 
-  describe('Back', function () {
-    it('should route back to templates page', function () {
+  describe('Back', () => {
+    it('should route back to templates page', () => {
       spyOn(m.route, 'set');
 
       $('.button')[0].click();
@@ -200,19 +201,22 @@ describe("TemplateConfigWidget", function () {
     });
   });
 
-  describe("Permissions", function () {
-    it('should show permissions tab for admin users', function () {
+  describe("Permissions", () => {
+    it('should show permissions tab for admin users', () => {
       expect($('.permissions')).toBeInDOM();
     });
 
-    it('should not show permissions tab for non admin users', function () {
-      var elasticProfiles = Stream(ElasticProfiles.fromJSON(allProfilesJSON));
+    it('should not show permissions tab for non admin users', () => {
+      const elasticProfiles = Stream(ElasticProfiles.fromJSON(allProfilesJSON));
+      const pluginInfos     = Stream(PluginInfos.fromJSON([]));
+
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplateConfigWidget, {
-            elasticProfiles: elasticProfiles,
-            isUserAdmin:     false,
-            templateName:    templateJSON.name
+            elasticProfiles,
+            pluginInfos,
+            isUserAdmin:  false,
+            templateName: templateJSON.name
           });
         }
       });
@@ -222,8 +226,8 @@ describe("TemplateConfigWidget", function () {
     });
   });
 
-  describe("Stages", function () {
-    it('should show stages of the template', function () {
+  describe("Stages", () => {
+    it('should show stages of the template', () => {
       expect($('.stages')).toBeInDOM();
     });
   });

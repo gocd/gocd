@@ -14,129 +14,101 @@
  * limitations under the License.
  */
 
-define(['lodash', 'mithril', 'string-plus', 'models/template_configs/templates'], function (_, m, s, Templates) {
-  describe('Templates', function () {
+const m         = require('mithril');
+const Templates = require('models/template_configs/templates');
 
-    var templatesJSON = [
-      {
-        "_links":    {
-          "self": {
-            "href": "https://ciexample.com/go/api/admin/templates/template1"
-          },
-          "doc":  {
-            "href": "https://api.go.cd/#template-config"
-          },
-          "find": {
-            "href": "https://ciexample.com/go/api/admin/templates/:template_name"
-          }
+describe('Templates', () => {
+
+  const templatesJSON = [
+    {
+      "_links":    {
+        "self": {
+          "href": "https://ciexample.com/go/api/admin/templates/template1"
         },
-        "name":      "template1",
-        "_embedded": {
-          "pipelines": [
-            {
-              "_links": {
-                "self": {
-                  "href": "https://ciexample.com/go/api/admin/pipelines/up42"
-                },
-                "doc":  {
-                  "href": "https://api.go.cd/#pipeline-config"
-                },
-                "find": {
-                  "href": "https://ciexample.com/go/api/admin/pipelines/:pipeline_name"
-                }
-              },
-              "name":   "up42"
-            },
-            {
-              "_links": {
-                "self": {
-                  "href": "https://ciexample.com/go/api/admin/pipelines/down42"
-                },
-                "doc":  {
-                  "href": "https://api.go.cd/#pipeline-config"
-                },
-                "find": {
-                  "href": "https://ciexample.com/go/api/admin/pipelines/:pipeline_name"
-                }
-              },
-              "name":   "down42"
-            }
-          ]
+        "doc":  {
+          "href": "https://api.go.cd/#template-config"
+        },
+        "find": {
+          "href": "https://ciexample.com/go/api/admin/templates/:template_name"
         }
+      },
+      "name":      "template1",
+      "_embedded": {
+        "pipelines": [
+          {
+            "_links": {
+              "self": {
+                "href": "https://ciexample.com/go/api/admin/pipelines/up42"
+              },
+              "doc":  {
+                "href": "https://api.go.cd/#pipeline-config"
+              },
+              "find": {
+                "href": "https://ciexample.com/go/api/admin/pipelines/:pipeline_name"
+              }
+            },
+            "name":   "up42"
+          },
+          {
+            "_links": {
+              "self": {
+                "href": "https://ciexample.com/go/api/admin/pipelines/down42"
+              },
+              "doc":  {
+                "href": "https://api.go.cd/#pipeline-config"
+              },
+              "find": {
+                "href": "https://ciexample.com/go/api/admin/pipelines/:pipeline_name"
+              }
+            },
+            "name":   "down42"
+          }
+        ]
       }
-    ];
+    }
+  ];
 
-    describe('Templates.Template', function () {
-      describe('deserialization', function () {
-        var templates;
+  describe('Templates.Template', () => {
+    describe('deserialization', () => {
+      let templates;
 
-        beforeEach(function () {
-          templates = Templates.fromJSON(templatesJSON);
-        });
-
-        it('should initialize template model with name', function () {
-          expect(templates.countTemplate()).toBe(1);
-          expect(templates.firstTemplate().name()).toBe('template1');
-        });
-
-        it('should initialize template model with self link', function () {
-          expect(templates.firstTemplate().url()).toBe('https://ciexample.com/go/api/admin/templates/template1');
-        });
-
-        it('should initialize template model with pipelines', function () {
-          expect(templates.firstTemplate().pipelines().length).toBe(2);
-
-          expect(templates.firstTemplate().pipelines()[0].name()).toBe('up42');
-          expect(templates.firstTemplate().pipelines()[0].url()).toBe('https://ciexample.com/go/api/admin/pipelines/up42');
-
-          expect(templates.firstTemplate().pipelines()[1].name()).toBe('down42');
-          expect(templates.firstTemplate().pipelines()[1].url()).toBe('https://ciexample.com/go/api/admin/pipelines/down42');
-        })
+      beforeEach(() => {
+        templates = Templates.fromJSON(templatesJSON);
       });
 
-      describe('delete', function () {
-        var template;
+      it('should initialize template model with name', () => {
+        expect(templates.countTemplate()).toBe(1);
+        expect(templates.firstTemplate().name()).toBe('template1');
+      });
 
-        beforeEach(function () {
-          template = Templates.fromJSON(templatesJSON).firstTemplate();
-          spyOn(m, 'request');
-        });
+      it('should initialize template model with self link', () => {
+        expect(templates.firstTemplate().url()).toBe('https://ciexample.com/go/api/admin/templates/template1');
+      });
 
-        it('should post a delete request to templates API', function () {
-          jasmine.Ajax.withMock(function () {
-            jasmine.Ajax.stubRequest('/go/api/admin/templates/template1', undefined, 'DELETE').andReturn({
-              responseText:    JSON.stringify({
-                message: 'Ok'
-              }),
-              status:          200,
-              responseHeaders: {
-                'Content-Type': 'application/vnd.go.cd.v3+json'
-              }
-            });
+      it('should initialize template model with pipelines', () => {
+        expect(templates.firstTemplate().pipelines().length).toBe(2);
 
-            var successCallback = jasmine.createSpy().and.callFake(function (response) {
-              expect(response.message).toBe('Ok');
-            });
+        expect(templates.firstTemplate().pipelines()[0].name()).toBe('up42');
+        expect(templates.firstTemplate().pipelines()[0].url()).toBe('https://ciexample.com/go/api/admin/pipelines/up42');
 
-            template.delete().then(successCallback);
-            expect(successCallback).toHaveBeenCalled();
-          });
-        });
+        expect(templates.firstTemplate().pipelines()[1].name()).toBe('down42');
+        expect(templates.firstTemplate().pipelines()[1].url()).toBe('https://ciexample.com/go/api/admin/pipelines/down42');
       });
     });
 
-    describe('Templates.all', function () {
-      beforeEach(function () {
+    describe('delete', () => {
+      let template;
+
+      beforeEach(() => {
+        template = Templates.fromJSON(templatesJSON).firstTemplate();
         spyOn(m, 'request');
       });
 
-      it('should fetch all templates from templates API', function () {
-        jasmine.Ajax.withMock(function () {
-          jasmine.Ajax.stubRequest('/go/api/admin/templates', undefined, 'GET').andReturn({
+      it('should post a delete request to templates API', () => {
+        jasmine.Ajax.withMock(() => {
+          jasmine.Ajax.stubRequest('/go/api/admin/templates/template1', undefined, 'DELETE').andReturn({
             responseText:    JSON.stringify({
-              _embedded: {
-                templates: templatesJSON
-              }
+              message: 'Ok'
             }),
             status:          200,
             responseHeaders: {
@@ -144,14 +116,43 @@ define(['lodash', 'mithril', 'string-plus', 'models/template_configs/templates']
             }
           });
 
-          var successCallback = jasmine.createSpy().and.callFake(function (templates) {
-            expect(templates.countTemplate()).toBe(1);
-            expect(templates.firstTemplate().name()).toBe('template1');
+          const successCallback = jasmine.createSpy().and.callFake((response) => {
+            expect(response.message).toBe('Ok');
           });
 
-          Templates.all().then(successCallback);
+          template.delete().then(successCallback);
           expect(successCallback).toHaveBeenCalled();
         });
+      });
+    });
+  });
+
+  describe('Templates.all', () => {
+    beforeEach(() => {
+      spyOn(m, 'request');
+    });
+
+    it('should fetch all templates from templates API', () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest('/go/api/admin/templates', undefined, 'GET').andReturn({
+          responseText:    JSON.stringify({
+            _embedded: {
+              templates: templatesJSON
+            }
+          }),
+          status:          200,
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v3+json'
+          }
+        });
+
+        const successCallback = jasmine.createSpy().and.callFake((templates) => {
+          expect(templates.countTemplate()).toBe(1);
+          expect(templates.firstTemplate().name()).toBe('template1');
+        });
+
+        Templates.all().then(successCallback);
+        expect(successCallback).toHaveBeenCalled();
       });
     });
   });

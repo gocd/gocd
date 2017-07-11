@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-var $                     = require("jquery");
-var _                     = require("lodash");
-var m                     = require("mithril");
-var simulateEvent         = require('simulate-event');
-var TemplatesConfigWidget = require("views/template_configs/templates_config_widget");
+const $                     = require("jquery");
+const _                     = require("lodash");
+const m                     = require("mithril");
+const simulateEvent         = require('simulate-event');
+const TemplatesConfigWidget = require("views/template_configs/templates_config_widget");
 
-describe("TemplatesConfigWidget", function () {
-  var $root, root;
+describe("TemplatesConfigWidget", () => {
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var templateJSON = {
+  const templateJSON = {
     "name":      "scratch",
     "_links":    {
       "self": {
@@ -48,7 +48,7 @@ describe("TemplatesConfigWidget", function () {
     }
   };
 
-  var unusedTemplateJSON = {
+  const unusedTemplateJSON = {
     "name":      "scratch2",
     "_links":    {
       "self": {
@@ -60,21 +60,21 @@ describe("TemplatesConfigWidget", function () {
     }
   };
 
-  var allTemplatesJSON = {
+  const allTemplatesJSON = {
     "_embedded": {
       "templates": [templateJSON, unusedTemplateJSON]
     }
   };
 
-  var removeModal = function () {
-    $('.new-modal-container').each(function (_i, elem) {
-      _.each($(elem).data('modals'), function (modal) {
+  const removeModal = function () {
+    $('.new-modal-container').each((_i, elem) => {
+      _.each($(elem).data('modals'), (modal) => {
         modal.destroy();
       });
     });
   };
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest('/go/api/admin/templates', undefined, 'GET').andReturn({
       responseText: JSON.stringify(allTemplatesJSON),
@@ -82,33 +82,33 @@ describe("TemplatesConfigWidget", function () {
     });
 
     m.mount(root, {
-      view: function () {
+      view () {
         return m(TemplatesConfigWidget);
       }
     });
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     jasmine.Ajax.uninstall();
 
     m.mount(root, null);
     m.redraw();
   });
 
-  describe("list all templates", function () {
-    it("should render a list of all templates", function () {
+  describe("list all templates", () => {
+    it("should render a list of all templates", () => {
       expect($root.find('#template-link-header')).toContainText(templateJSON.name);
     });
 
-    it("should render error if index call fails", function () {
+    it("should render error if index call fails", () => {
       jasmine.Ajax.stubRequest('/go/api/admin/templates').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });
 
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplatesConfigWidget);
         }
       });
@@ -118,8 +118,8 @@ describe("TemplatesConfigWidget", function () {
     });
   });
 
-  describe("Add new Template", function () {
-    it('should redirect to add template page', function () {
+  describe("Add new Template", () => {
+    it('should redirect to add template page', () => {
       spyOn(m.route, 'set');
 
       $('.add-template').click();
@@ -127,9 +127,9 @@ describe("TemplatesConfigWidget", function () {
       expect(m.route.set).toHaveBeenCalledWith('/create/new');
     });
 
-    it('should allow admins only to add new template', function () {
+    it('should allow admins only to add new template', () => {
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplatesConfigWidget, {isUserAdmin: true});
         }
       });
@@ -138,9 +138,9 @@ describe("TemplatesConfigWidget", function () {
       expect($('.add-template')).not.toBeDisabled();
     });
 
-    it('should not allow admins only to add new template', function () {
+    it('should not allow admins only to add new template', () => {
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplatesConfigWidget, {isUserAdmin: false});
         }
       });
@@ -151,8 +151,8 @@ describe("TemplatesConfigWidget", function () {
 
   });
 
-  describe("Edit Template", function () {
-    it('should redirect to edit template page', function () {
+  describe("Edit Template", () => {
+    it('should redirect to edit template page', () => {
       spyOn(m.route, 'set');
 
       $('.edit-template').click();
@@ -161,18 +161,18 @@ describe("TemplatesConfigWidget", function () {
     });
   });
 
-  describe("Delete Template", function () {
+  describe("Delete Template", () => {
     afterEach(removeModal);
 
-    it("should show confirm modal when deleting a profile", function () {
+    it("should show confirm modal when deleting a profile", () => {
       simulateEvent.simulate($('.delete-template-confirm').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
     });
 
-    it('should allow admins to delete a template', function () {
+    it('should allow admins to delete a template', () => {
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplatesConfigWidget, {isUserAdmin: true});
         }
       });
@@ -180,9 +180,9 @@ describe("TemplatesConfigWidget", function () {
       expect($('.delete-template-confirm')[1]).not.toHaveClass('disabled');
     });
 
-    it('should not allow non admins users to delete a template', function () {
+    it('should not allow non admins users to delete a template', () => {
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplatesConfigWidget, {isUserAdmin: false});
         }
       });
@@ -190,9 +190,9 @@ describe("TemplatesConfigWidget", function () {
       expect($('.delete-template-confirm')[1]).toHaveClass('disabled');
     });
 
-    it('should not allow admins to delete a template if its used in a pipeline', function () {
+    it('should not allow admins to delete a template if its used in a pipeline', () => {
       m.mount(root, {
-        view: function () {
+        view () {
           return m(TemplatesConfigWidget, {isUserAdmin: true});
         }
       });
@@ -200,8 +200,8 @@ describe("TemplatesConfigWidget", function () {
       expect($('.delete-template-confirm')[0]).toHaveClass('disabled');
     });
 
-    it("should show success message when template is deleted", function () {
-      jasmine.Ajax.stubRequest('/go/api/admin/templates/' + templateJSON.name, undefined, 'DELETE').andReturn({
+    it("should show success message when template is deleted", () => {
+      jasmine.Ajax.stubRequest(`/go/api/admin/templates/${  templateJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Success!'}),
         status:       200
       });
@@ -214,8 +214,8 @@ describe("TemplatesConfigWidget", function () {
       expect($('.success')).toContainText('Success!');
     });
 
-    it("should show error message when deleting template fails", function () {
-      jasmine.Ajax.stubRequest('/go/api/admin/templates/' + templateJSON.name, undefined, 'DELETE').andReturn({
+    it("should show error message when deleting template fails", () => {
+      jasmine.Ajax.stubRequest(`/go/api/admin/templates/${  templateJSON.name}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       422
       });
@@ -229,8 +229,8 @@ describe("TemplatesConfigWidget", function () {
     });
   });
 
-  describe("Pipeline Information", function () {
-    it('should show the information of pipelines which uses current template', function () {
+  describe("Pipeline Information", () => {
+    it('should show the information of pipelines which uses current template', () => {
       expect($('.exp-col-body')[0]).toHaveClass('hide');
       $('#template-link-header').click();
       m.redraw();
@@ -239,16 +239,16 @@ describe("TemplatesConfigWidget", function () {
       expect($('.exp-col-body')[0]).toContainText('up42');
     });
 
-    it('should show information message for no associated pipelines', function () {
+    it('should show information message for no associated pipelines', () => {
       expect($('.exp-col-body')[1]).toHaveClass('hide');
       $('#template-link-header').click();
       m.redraw();
 
-      var message = "No pipelines are associated with this template";
+      const message = "No pipelines are associated with this template";
       expect($('.exp-col-body')[1]).toContainText(message);
     });
 
-    it('should toggle pipeline information view on clicks', function () {
+    it('should toggle pipeline information view on clicks', () => {
       expect($('.exp-col-body')).toHaveClass('hide');
       $('#template-link-header').click();
       m.redraw();

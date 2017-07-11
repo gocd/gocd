@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
-var _ = require('lodash');
+const m = require('mithril');
+const _ = require('lodash');
 
 
-var ErrorsWidget = {
-  view: function (vnode) {
+const ErrorsWidget = {
+  view (vnode) {
     return (
       <div class='alert callout'>
         <ul>
-          {_.map(vnode.attrs.errors, function (error) {
+          {_.map(vnode.attrs.errors, (error) => {
             return (<li>{error}</li>);
           })}
         </ul>

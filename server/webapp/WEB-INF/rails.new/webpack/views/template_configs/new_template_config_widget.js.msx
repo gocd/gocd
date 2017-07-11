@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var $      = require('jquery');
-var f      = require('helpers/form_helper');
+const m               = require('mithril');
+const Stream          = require('mithril/stream');
+const f               = require('helpers/form_helper');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 
-var ComponentMixins = require('helpers/mithril_component_mixins');
+const Template = require('models/template_configs/template');
 
-var Template = require('models/template_configs/template');
-var Stages   = require('models/pipeline_configs/stages');
-var Jobs     = require('models/pipeline_configs/jobs');
+let PipelineFlowWidget      = require('views/pipeline_configs/pipeline_flow_widget');
+let ErrorsWidget            = require('views/pipeline_configs/errors_widget');
+let ApprovalWidget          = require('views/template_configs/approval_widget');
+let PipelineSelectionWidget = require('views/template_configs/pipeline_selection_widget');
 
-var PipelineFlowWidget      = require('views/pipeline_configs/pipeline_flow_widget');
-var ErrorsWidget            = require('views/pipeline_configs/errors_widget');
-var ApprovalWidget          = require('views/template_configs/approval_widget');
-var PipelineSelectionWidget = require('views/template_configs/pipeline_selection_widget');
-
-var TemplateConfigWidget = {
-  oninit: function (vnode) {
-    var self              = this;
+const TemplateConfigWidget = {
+  oninit () {
+    const self            = this;
     self.template         = Stream(Template.defaultTemplate());
     self.currentSelection = Stream(self.template().stages().firstStage());
     self.vm               = new Template.vm();
     ComponentMixins.HasViewModel.call(this);
 
-    var setTemplateAndPreserveSelection = function (newTemplate) {
-      var oldtemplate  = self.template();
-      var newSelection = newTemplate.stages().firstStage();
+    const setTemplateAndPreserveSelection = function (newTemplate) {
+      const oldtemplate = self.template();
+      let newSelection  = newTemplate.stages().firstStage();
 
       if (oldtemplate) {
-        newSelection = newTemplate.stages().findStage(function (stage) {
+        newSelection = newTemplate.stages().findStage((stage) => {
           return stage.name() === self.currentSelection().name();
         });
       }
@@ -69,9 +65,9 @@ var TemplateConfigWidget = {
 
       self.vm.updating();
 
-      self.template().create().then(function (template) {
-        m.route.set('/' + template.name());
-      }, function (data) {
+      self.template().create().then((template) => {
+        m.route.set(`/${  template.name()}`);
+      }, (data) => {
         self.vm.saveFailed(data);
         if (data.data) {
           setTemplateAndPreserveSelection(Template.fromJSON(data.data));
@@ -80,15 +76,16 @@ var TemplateConfigWidget = {
     };
   },
 
-  view: function (vnode) {
-    var errors                  = vnode.state.vm.hasErrors() ? (
-        <ErrorsWidget errors={vnode.state.vm.errors()}/>) : undefined;
-    var isExtractedFromPipeline = vnode.state.template().isExtractedFromPipeline();
+  view (vnode) {
+    const errors                  = vnode.state.vm.hasErrors() ? (
+      <ErrorsWidget errors={vnode.state.vm.errors()}/>) : undefined;
+    const isExtractedFromPipeline = vnode.state.template().isExtractedFromPipeline();
 
-    var templateStages = (
+    let templateStages = (
       <PipelineFlowWidget pipeline={vnode.state.template}
                           currentSelection={vnode.state.currentSelection}
                           elasticProfiles={vnode.attrs.elasticProfiles}
+                          pluginInfos={vnode.attrs.pluginInfos}
                           vm={vnode.state.vmState('templateFlowConfig')}/>
     );
 
@@ -98,7 +95,7 @@ var TemplateConfigWidget = {
       );
     }
 
-    var header = (
+    const header = (
       <div class="header-panel">
         <header class="page-header">
           <f.row>
@@ -114,8 +111,8 @@ var TemplateConfigWidget = {
             </f.column>
             <f.column size={1}>
               <f.button onclick={vnode.state.onCreateTemplate.bind(vnode.state)}
-                        class={'save-template ' + vnode.state.vm.saveState()}>
-                <span class={'save-state ' + vnode.state.vm.saveState()}/>
+                        class={`save-template ${  vnode.state.vm.saveState()}`}>
+                <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
                 Save
               </f.button>
             </f.column>
@@ -132,13 +129,13 @@ var TemplateConfigWidget = {
             {errors}
           </f.row>
           <f.row>
-            <f.inputWithLabel attrName='name'
-                              label='Template name'
-                              model={vnode.state.template()}
-                              validate={true}
-                              isRequired={true}
-                              size={12}
-                              largeSize={12}/>
+            <f.input attrName='name'
+                     label='Template name'
+                     model={vnode.state.template()}
+                     validate={true}
+                     isRequired={true}
+                     size={12}
+                     largeSize={12}/>
           </f.row>
           <f.row>
             <f.column end={true} size={12} class="permissions">

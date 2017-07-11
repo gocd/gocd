@@ -59,6 +59,7 @@ const PipelineFlowWidget = {
       dragulaConfig(elem.dom, {dragulaOptions: {}, onDropCallback: onDrop});
     };
 
+
     return (
       <f.accordion accordionTitles={[(<span>Stages</span>)]}
                    selectedIndex={vnode.state.vmState('pipelineFlowSelected', Stream(0))}

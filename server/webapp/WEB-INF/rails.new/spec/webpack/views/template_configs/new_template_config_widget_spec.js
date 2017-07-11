@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-var $                       = require('jquery');
-var m                       = require('mithril');
-var Stream                  = require('mithril/stream');
-var NewTemplateConfigWidget = require('views/template_configs/new_template_config_widget');
-var ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
-var simulateEvent           = require('simulate-event');
+const $                       = require('jquery');
+const m                       = require('mithril');
+const Stream                  = require('mithril/stream');
+const NewTemplateConfigWidget = require('views/template_configs/new_template_config_widget');
+const ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
+const PluginInfos             = require('models/shared/plugin_infos');
+const simulateEvent           = require('simulate-event');
 
-describe("NeWTemplateConfigWidget", function () {
-  var templateJSON = {
+describe("NeWTemplateConfigWidget", () => {
+  const templateJSON = {
     "_links":        {
       "self": {
         "href": "https://ci.example.com/go/api/admin/templates/baz"
@@ -72,13 +73,13 @@ describe("NeWTemplateConfigWidget", function () {
     ]
   };
 
-  var allTemplatesJSON = {
+  const allTemplatesJSON = {
     "_embedded": {
       "templates": []
     }
   };
 
-  var profileJSON     = {
+  const profileJSON     = {
     "id":         "unit-tests",
     "plugin_id":  "cd.go.contrib.elastic-agent.docker",
     "properties": [
@@ -92,19 +93,19 @@ describe("NeWTemplateConfigWidget", function () {
       }
     ]
   };
-  var allProfilesJSON = {
+  const allProfilesJSON = {
     "_embedded": {
       "profiles": [profileJSON]
     }
   };
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
 
     jasmine.Ajax.stubRequest('/go/api/admin/templates', undefined, 'GET').andReturn({
@@ -122,35 +123,39 @@ describe("NeWTemplateConfigWidget", function () {
       status:       200
     });
 
-    var elasticProfiles = Stream(ElasticProfiles.fromJSON(allProfilesJSON));
+    const elasticProfiles = Stream(ElasticProfiles.fromJSON(allProfilesJSON));
+    const pluginInfos     = Stream(PluginInfos.fromJSON([]));
 
     m.mount(root, {
-      view: function () {
-        return m(NewTemplateConfigWidget, {elasticProfiles: elasticProfiles});
+      view () {
+        return m(NewTemplateConfigWidget, {
+          elasticProfiles,
+          pluginInfos
+        });
       }
     });
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     jasmine.Ajax.uninstall();
 
     m.mount(root, null);
     m.redraw();
   });
 
-  describe('Headers', function () {
-    it('should show add template heading', function () {
+  describe('Headers', () => {
+    it('should show add template heading', () => {
       expect($('.page-header h1')).toContainText('Add Template');
     });
   });
 
-  describe('Extract from Pipelines', function () {
-    it('should show the extract from pipelines option', function () {
+  describe('Extract from Pipelines', () => {
+    it('should show the extract from pipelines option', () => {
       expect($('.extract-from-pipeline')).toContainText('Extract From Pipeline');
     });
 
-    it('should show select pipeline widget if template is extracted from a pipeline', function () {
+    it('should show select pipeline widget if template is extracted from a pipeline', () => {
       expect($('.extract-from-pipeline input')[0].checked).toBe(false);
       $('.extract-from-pipeline input')[0].click();
       m.redraw();
@@ -158,29 +163,29 @@ describe("NeWTemplateConfigWidget", function () {
       expect($('.extract-from-pipeline input')[0].checked).toBe(true);
     });
 
-    it('should show new stages widget if template is not extracted from a pipeline', function () {
+    it('should show new stages widget if template is not extracted from a pipeline', () => {
       expect($('.extract-from-pipeline input')[0].checked).toBe(false);
       expect($('.select-pipeline')).not.toBeInDOM();
       expect($('.stages')).toBeInDOM();
     });
   });
 
-  describe('Save', function () {
-    it('should create a new template', function () {
+  describe('Save', () => {
+    it('should create a new template', () => {
       spyOn(m.route, 'set');
 
-      var templateName = $($('.template-body input:text')[0]).val(templateJSON.name);
+      const templateName = $($('.template-body input:text')[0]).val(templateJSON.name);
       templateName.val(templateJSON.name);
-      var e = $.Event('input', {currentTarget: templateName.get(0)});
+      const e = $.Event('input', {currentTarget: templateName.get(0)});
       templateName.trigger(e);
       m.redraw();
       $root.find('.save-template').click();
       m.redraw();
 
-      expect(m.route.set).toHaveBeenCalledWith('/' + templateJSON.name);
+      expect(m.route.set).toHaveBeenCalledWith(`/${  templateJSON.name}`);
     });
 
-    it('should not create a template when validation fails', function () {
+    it('should not create a template when validation fails', () => {
       $root.find('.save-template').click();
       m.redraw();
 
@@ -189,8 +194,8 @@ describe("NeWTemplateConfigWidget", function () {
 
   });
 
-  describe('Back', function () {
-    it('should route back to templates page', function () {
+  describe('Back', () => {
+    it('should route back to templates page', () => {
       spyOn(m.route, 'set');
 
       simulateEvent.simulate($('.button').get(0), 'click');
@@ -200,14 +205,14 @@ describe("NeWTemplateConfigWidget", function () {
     });
   });
 
-  describe("Permissions", function () {
-    it('should show permissions tab for admin users', function () {
+  describe("Permissions", () => {
+    it('should show permissions tab for admin users', () => {
       expect($('.permissions')).toBeInDOM();
     });
   });
 
-  describe("Stages", function () {
-    it('should show stages of the template', function () {
+  describe("Stages", () => {
+    it('should show stages of the template', () => {
       expect($('.stages')).toBeInDOM();
     });
   });

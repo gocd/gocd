@@ -33,6 +33,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import javax.net.ssl.SSLSocketFactory;
 import javax.servlet.http.HttpServletRequest;
@@ -56,13 +59,22 @@ public class Jetty9ServerTest {
     private SystemEnvironment systemEnvironment;
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private SSLSocketFactory sslSocketFactory;
     private File configDir;
-
 
     @Before
     public void setUp() throws Exception {
         server = mock(Server.class);
+
+        Answer<Void> setHandlerMock = new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                Handler handler = (Handler) invocation.getArguments()[0];
+                handler.setServer((Server) invocation.getMock());
+                return null;
+            }
+        };
+        Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
+
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(temporaryFolder.newFolder());
@@ -78,7 +90,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
 
-        sslSocketFactory = mock(SSLSocketFactory.class);
+        SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
         jetty9Server = new Jetty9Server(systemEnvironment, "pwd", sslSocketFactory, server);
         ReflectionUtil.setStaticField(Jetty9Server.class, "JETTY_XML_LOCATION_IN_JAR", "config");
@@ -171,7 +183,6 @@ public class Jetty9ServerTest {
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
         verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response).setHeader("X-UA-Compatible", "chrome=1");
-
     }
 
     @Test
@@ -196,9 +207,7 @@ public class Jetty9ServerTest {
         verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
         verify(response, never()).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response, never()).setHeader("X-UA-Compatible", "chrome=1");
-
     }
-
 
     @Test
     public void shouldSkipDefaultHeadersIfContextPathIsAnyOtherUrlWithinGo() throws Exception {
@@ -222,7 +231,6 @@ public class Jetty9ServerTest {
         verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
         verify(response, never()).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response, never()).setHeader("X-UA-Compatible", "chrome=1");
-
     }
 
     @Test
@@ -311,7 +319,6 @@ public class Jetty9ServerTest {
         verify(server).addBean(any(JettyCustomErrorPageHandler.class));
     }
 
-
     @Test
     public void shouldSetErrorHandlerForWebAppContext() throws Exception {
         ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
@@ -327,7 +334,6 @@ public class Jetty9ServerTest {
 
         assertThat(webAppContext.getErrorHandler() instanceof JettyCustomErrorPageHandler, is(true));
     }
-
 
     private WebAppContext getWebAppContext(Jetty9Server server) {
         return (WebAppContext) ReflectionUtil.getField(server, "webAppContext");

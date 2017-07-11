@@ -16,21 +16,23 @@
 
 package com.thoughtworks.go.server.controller;
 
+import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.util.GoConstants;
 import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ConsoleOutView implements View {
-    private int offset;
-    private String content;
+    private ConsoleConsumer consumer;
 
-    public ConsoleOutView(int offset, String content) {
-        this.offset = offset;
-        this.content = content;
+    public ConsoleOutView(ConsoleConsumer consumer) {
+        this.consumer = consumer;
     }
 
     public String getContentType() {
@@ -38,19 +40,24 @@ public class ConsoleOutView implements View {
     }
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.addHeader("X-JSON", "[" + getOffset() + "]");
-        response.setContentType(getContentType());
-        try (PrintWriter writer = response.getWriter()) {
-            writer.write(getContent());
+        try (final PrintWriter writer = response.getWriter()) {
+            response.setContentType(getContentType());
+            try {
+                consumer.stream(new Consumer<String>() {
+                    @Override
+                    public void accept(String line) {
+                        writer.write(line + "\n");
+                    }
+                });
+            } catch (IOException e) {
+                if (e instanceof FileNotFoundException) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                } else {
+                    throw e;
+                }
+            }
+        } finally {
+            consumer.close();
         }
-
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public String getContent() {
-        return content;
     }
 }

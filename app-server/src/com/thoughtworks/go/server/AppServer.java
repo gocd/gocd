@@ -25,7 +25,7 @@ public abstract class AppServer {
     protected String password;
     protected SSLSocketFactory sslSocketFactory;
 
-    public AppServer(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory){
+    public AppServer(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
         this.systemEnvironment = systemEnvironment;
         this.password = password;
         this.sslSocketFactory = sslSocketFactory;

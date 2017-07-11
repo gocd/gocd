@@ -50,9 +50,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
@@ -68,6 +71,8 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -127,9 +132,27 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @After public void teardown() throws Exception {
-        if (artifactsRoot != null) {
-            deleteDirectory(artifactsRoot);
+        for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
+            String message = String.format("deleting {}, path: {}", f.getName(), f.getPath());
+            System.out.println(message);
+
+            if (!f.delete()) {
+                String deleteOnExitMessage = String.format("Couldn't delete {}, so marking deleteOnExit() path: {}", f.getName(), f.getPath());
+                System.out.println(deleteOnExitMessage);
+                f.deleteOnExit();
+            }
         }
+
+        if (artifactsRoot != null) {
+            try {
+                deleteDirectory(artifactsRoot);
+            } catch (IOException e) {
+                String deleteOnExitMessage = String.format("Couldn't delete {}, so marking deleteOnExit() path: {}", artifactsRoot.getName(), artifactsRoot.getPath());
+                System.out.println(deleteOnExitMessage);
+                artifactsRoot.deleteOnExit();
+            }
+        }
+
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }
@@ -433,14 +456,20 @@ public class ArtifactsControllerIntegrationTest {
         String secondLine = "Build succeeded.";
         prepareConsoleOut(firstLine + secondLine + "\n");
         Stage firstStage = pipeline.getFirstStage();
-        int startLineNumber = 1;
+        long startLineNumber = 1L;
         ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
                 firstStage.getName(),
                 "build", String.valueOf(firstStage.getCounter()), startLineNumber);
 
         assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
-        assertThat(((ConsoleOutView) view.getView()).getOffset(), is(2));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), containsString("Build succeeded."));
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ResponseOutput output = new ResponseOutput();
+        when(response.getWriter()).thenReturn(output.getWriter());
+        ConsoleOutView consoleOutView = (ConsoleOutView) view.getView();
+        consoleOutView.render(mock(Map.class), mock(HttpServletRequest.class), response);
+
+        assertEquals("Build succeeded.\n", output.getOutput());
     }
 
     @Test
@@ -454,30 +483,21 @@ public class ArtifactsControllerIntegrationTest {
                 "build", String.valueOf(firstStage.getCounter()), null);
 
         assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
-        assertThat(((ConsoleOutView) view.getView()).getOffset(), is(2));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), containsString("Chris sucks."));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), containsString("Build succeeded."));
-    }
 
-    @Test
-    public void nextLineShouldEqualsStartLineWhenNoOutputReturns() throws Exception {
-        prepareConsoleOut("");
-        Stage firstStage = pipeline.getFirstStage();
-        int startLineNumber = 0;
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
-                firstStage.getName(),
-                "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ResponseOutput output = new ResponseOutput();
+        when(response.getWriter()).thenReturn(output.getWriter());
+        ConsoleOutView consoleOutView = (ConsoleOutView) view.getView();
+        consoleOutView.render(mock(Map.class), mock(HttpServletRequest.class), response);
 
-        assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
-        assertThat(((ConsoleOutView) view.getView()).getOffset(), is(0));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), is(""));
+        assertEquals("Chris sucks.\nBuild succeeded.\n", output.getOutput());
     }
 
     @Test
     public void testConsoleOutShouldReturn404WhenJobIsNotFound() throws Exception {
         prepareConsoleOut("");
         Stage firstStage = pipeline.getFirstStage();
-        int startLineNumber = 0;
+        long startLineNumber = 0L;
         ModelAndView view = artifactsController.consoleout("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
 
         assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
@@ -627,4 +647,21 @@ public class ArtifactsControllerIntegrationTest {
         };
     }
 
+    class ResponseOutput {
+        private PrintWriter writer;
+        private ByteArrayOutputStream stream;
+
+        public ResponseOutput() {
+            stream = new ByteArrayOutputStream();
+            writer = new PrintWriter(stream);
+        }
+
+        public PrintWriter getWriter() {
+            return writer;
+        }
+
+        public String getOutput() {
+            return new String(stream.toByteArray());
+        }
+    }
 }

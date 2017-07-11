@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.remote.AgentInstruction;

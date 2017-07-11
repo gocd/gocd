@@ -23,9 +23,6 @@ import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
-/**
- * Created by marqueslee on 3/1/17.
- */
 public class StubBuilder extends Builder {
     boolean wasCalled;
 

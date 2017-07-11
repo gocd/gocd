@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
-import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.PatchEnvironmentCommand;

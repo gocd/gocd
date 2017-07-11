@@ -40,7 +40,7 @@ module ApiV3
 
         collection :pipelines,
                    exec_context: :decorator,
-                   decorator: ApiV3::Admin::Templates::PipelineConfigSummaryRepresenter,
+                   decorator: ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter,
                    class: com.thoughtworks.go.config.EnvironmentPipelineConfig
 
         collection :agents,

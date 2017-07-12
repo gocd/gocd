@@ -67,24 +67,6 @@ describe ApiV3::Admin::EnvironmentsController do
       end
     end
 
-    describe :unsupported_query_param do
-      describe :for_admins do
-        it 'should render 404 when unknown query param is specified' do
-          login_as_admin
-
-          get_with_api_header :index, alongwithconfigrepo: 'true'
-          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-        end
-
-        it 'should render 404 when unknown value for withconfigrepo query param is specified' do
-          login_as_admin
-
-          get_with_api_header :index, withconfigrepo: 'false'
-          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-        end
-      end
-    end
-
     describe :security do
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -187,26 +169,6 @@ describe ApiV3::Admin::EnvironmentsController do
           @environment_name = SecureRandom.hex
           @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(nil)
           get_with_api_header :show, name: @environment_name, withconfigrepo: 'true'
-          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-        end
-      end
-    end
-
-    describe :unsupported_query_param do
-      describe :for_admins do
-        it 'should render 404 when unknown query param is specified' do
-          login_as_admin
-
-          @environment_name = SecureRandom.hex
-          get_with_api_header :show, name: @environment_name, alongwithconfigrepo: 'true'
-          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-        end
-
-        it 'should render 404 when unknown value for withconfigrepo query param is specified' do
-          login_as_admin
-
-          @environment_name = SecureRandom.hex
-          get_with_api_header :show, name: @environment_name, withconfigrepo: 'false'
           expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
         end
       end

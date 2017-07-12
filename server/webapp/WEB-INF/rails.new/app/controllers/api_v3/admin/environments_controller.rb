@@ -22,32 +22,26 @@ module ApiV3
       before_action :check_for_stale_request, only: [:put]
 
       def index
-        is_query_param_provided = params.length > 2
         is_with_remote = params[:withconfigrepo]
         environment_names = environment_config_service.environmentNames()
 
-        if is_with_remote.nil? and !is_query_param_provided
-          load_local_environments(environment_names)
-        elsif is_with_remote and is_with_remote.downcase == 'true'
+        if is_with_remote and is_with_remote.downcase == 'true'
           load_merged_environments(environment_names)
         else
-          return render_not_found_error
+          load_local_environments(environment_names)
         end
 
         render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(@environments).to_hash(url_builder: self)
       end
 
       def show
-        is_query_param_provided = params.length > 3
         is_with_remote = params[:withconfigrepo]
         environment_name = params[:name]
 
-        if is_with_remote.nil? and !is_query_param_provided
-          load_local_environment(environment_name)
-        elsif is_with_remote and is_with_remote.downcase == 'true'
+        if is_with_remote and is_with_remote.downcase == 'true'
           load_merged_environment(environment_name)
         else
-          return render_not_found_error
+          load_local_environment(environment_name)
         end
 
         json = Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)

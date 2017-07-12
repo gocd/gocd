@@ -29,8 +29,7 @@ describe ApiV3::Admin::EnvironmentsController do
 
         @environment_config_service = double('environment-config-service')
         controller.stub(:environment_config_service).and_return(@environment_config_service)
-        @environment_config_service.should_receive(:environmentNames).and_return([CaseInsensitiveString.new(@environment_name)])
-        @environment_config_service.should_receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+        @environment_config_service.should_receive(:getAllLocalEnvironments).and_return([@environment_config])
       end
 
       describe :for_admins do
@@ -50,10 +49,7 @@ describe ApiV3::Admin::EnvironmentsController do
         @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
         @environment_config_service = double('environment-config-service')
         controller.stub(:environment_config_service).and_return(@environment_config_service)
-        @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
-        environment_config_element = com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment_config, "md5")
-        @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(environment_config_element)
-        @environment_config_service.stub(:environmentNames).and_return([CaseInsensitiveString.new(@environment_name)])
+        @environment_config_service.stub(:getAllMergedEnvironments).and_return([@environment_config])
       end
 
       describe :for_admins do

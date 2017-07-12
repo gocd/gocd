@@ -22,23 +22,18 @@ module ApiV3
       before_action :check_for_stale_request, only: [:put]
 
       def index
-        is_with_remote = params[:withconfigrepo]
-        environment_names = environment_config_service.environmentNames()
-
-        if is_with_remote and is_with_remote.downcase == 'true'
-          load_merged_environments(environment_names)
+        if params[:withconfigrepo].to_bool
+          @environments = environment_config_service.getAllMergedEnvironments()
         else
-          load_local_environments(environment_names)
+          @environments = environment_config_service.getAllLocalEnvironments()
         end
 
         render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(@environments).to_hash(url_builder: self)
       end
 
       def show
-        is_with_remote = params[:withconfigrepo]
         environment_name = params[:name]
-
-        if is_with_remote and is_with_remote.downcase == 'true'
+        if params[:withconfigrepo].to_bool
           load_merged_environment(environment_name)
         else
           load_local_environment(environment_name)
@@ -74,9 +69,9 @@ module ApiV3
 
         env_vars = params[:environment_variables] || {}
 
-        env_vars_to_add = (env_vars[:add] || []).map {|env_var|
+        env_vars_to_add = (env_vars[:add] || []).map do |env_var|
           Shared::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new).from_hash(env_var)
-        }
+        end
 
         env_vars_to_remove = env_vars[:remove] || []
 
@@ -104,20 +99,6 @@ module ApiV3
         config_element = environment_config_service.getMergedEnvironmentforDisplay(environment_name, result)
         raise RecordNotFound if config_element.nil?
         @environment_config = config_element.getConfigElement()
-      end
-
-      def load_local_environments(environment_names)
-        @environments = environment_names.collect {|env_name|
-          env = environment_config_service.getEnvironmentForEdit(env_name.to_s)
-          env.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
-          env
-        }
-      end
-
-      def load_merged_environments(environment_names)
-        @environments = environment_names.collect {|env_name|
-          environment_config_service.getMergedEnvironmentforDisplay(env_name.to_s, HttpLocalizedOperationResult.new).getConfigElement()
-        }
       end
 
       def get_environment_from_request

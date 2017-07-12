@@ -165,6 +165,23 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(environmentName)));
     }
 
+    public List<EnvironmentConfig> getAllLocalEnvironments() {
+        ArrayList<EnvironmentConfig> environments = new ArrayList<>();
+        for (CaseInsensitiveString environmentName : environmentNames()) {
+            environments.add(getEnvironmentForEdit(environmentName.toString()));
+        }
+        return environments;
+    }
+
+    public List<EnvironmentConfig> getAllMergedEnvironments() {
+        ArrayList<EnvironmentConfig> environments = new ArrayList<>();
+        for (CaseInsensitiveString environmentName : environmentNames()) {
+            environments.add(getMergedEnvironmentforDisplay(environmentName.toString(), new HttpLocalizedOperationResult()).getConfigElement());
+        }
+
+        return environments;
+    }
+
     public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {

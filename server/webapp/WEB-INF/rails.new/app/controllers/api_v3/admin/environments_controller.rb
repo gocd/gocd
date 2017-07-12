@@ -22,7 +22,19 @@ module ApiV3
       before_action :check_for_stale_request, only: [:put]
 
       def index
-        render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(environment_config_service.getEnvironments()).to_hash(url_builder: self)
+        is_query_param_provided = params.length > 2
+        is_with_remote = params[:withconfigrepo]
+        environment_names = environment_config_service.environmentNames()
+
+        if is_with_remote.nil? and !is_query_param_provided
+          load_local_environments(environment_names)
+        elsif is_with_remote and is_with_remote.downcase == 'true'
+          load_merged_environments(environment_names)
+        else
+          return render_not_found_error
+        end
+
+        render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(@environments).to_hash(url_builder: self)
       end
 
       def show
@@ -68,7 +80,7 @@ module ApiV3
 
         env_vars = params[:environment_variables] || {}
 
-        env_vars_to_add = (env_vars[:add] || []).map { |env_var|
+        env_vars_to_add = (env_vars[:add] || []).map {|env_var|
           Shared::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new).from_hash(env_var)
         }
 
@@ -98,6 +110,20 @@ module ApiV3
         config_element = environment_config_service.getMergedEnvironmentforDisplay(environment_name, result)
         raise RecordNotFound if config_element.nil?
         @environment_config = config_element.getConfigElement()
+      end
+
+      def load_local_environments(environment_names)
+        @environments = environment_names.collect {|env_name|
+          env = environment_config_service.getEnvironmentForEdit(env_name.to_s)
+          env.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
+          env
+        }
+      end
+
+      def load_merged_environments(environment_names)
+        @environments = environment_names.collect {|env_name|
+          environment_config_service.getMergedEnvironmentforDisplay(env_name.to_s, HttpLocalizedOperationResult.new).getConfigElement()
+        }
       end
 
       def get_environment_from_request

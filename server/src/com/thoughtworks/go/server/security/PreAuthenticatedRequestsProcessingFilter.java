@@ -45,7 +45,6 @@ public class PreAuthenticatedRequestsProcessingFilter extends AbstractProcessing
     public PreAuthenticatedRequestsProcessingFilter(AuthorizationExtension authorizationExtension, GoConfigService configService) {
         this.authorizationExtension = authorizationExtension;
         this.configService = configService;
-        setAlwaysUseDefaultTargetUrl(true);
     }
 
     protected Map<String, String> fetchAuthorizationServerAccessToken(HttpServletRequest request) {

@@ -81,6 +81,7 @@ public class WebBasedAuthenticationFilterTest {
         filter.doFilter(request, response, filterChain);
 
         verify(response).sendRedirect(redirectUrl);
+        verifyNoMoreInteractions(filterChain);
     }
 
     @Test

@@ -98,18 +98,9 @@ public class PluginSettings {
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
             for (ConfigurationProperty property : configurationProperties) {
-                PluggableInstanceSettings pluginSettings = pluginInfo.getPluginSettings();
-                if (isValidPluginConfiguration(property.getConfigKeyName(), pluginSettings)) {
-                    settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, false));
-                } else {
-                    settingsMap.add(property);
-                }
+                settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, false));
             }
         }
-    }
-
-    private boolean isValidPluginConfiguration(String configKeyName, PluggableInstanceSettings pluginSettings) {
-        return configPropertyFor(configKeyName, pluginSettings) != null;
     }
 
     private PluginConfiguration configPropertyFor(String configKeyName, PluggableInstanceSettings pluginSettings) {

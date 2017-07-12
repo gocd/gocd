@@ -16,17 +16,23 @@
 
 package com.thoughtworks.go.server.domain;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
+import com.thoughtworks.go.security.GoCipher;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -157,6 +163,48 @@ public class PluginSettingsTest {
         assertThat(configuration.get("k1").getValue(), is("v1"));
         assertThat(configuration.get("k2").getValue(), is(""));
         assertThat(configuration.get("k3").getValue(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldAddConfigurationsToSettingsMapCorrectly() throws InvalidCipherTextException {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
+        pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
+        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, new PluggableInstanceSettings(pluginConfigurations));
+
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2"))));
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, configurationProperties);
+
+        PluginSettingsConfiguration pluginSettingsProperties = pluginSettings.toPluginSettingsConfiguration();
+        assertThat(pluginSettingsProperties.size(), is(2));
+        assertThat(pluginSettingsProperties.get("k1").getValue(), is("v1"));
+        assertThat(pluginSettingsProperties.get("k2").getValue(), is("v2"));
+    }
+
+    @Test
+    public void shouldEncryptedValuesForSecureProperties() throws InvalidCipherTextException {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
+        pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
+        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty configProperty1 = new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"));
+        ConfigurationProperty configProperty2 = new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2")));
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(configProperty1);
+        configurationProperties.add(configProperty2);
+
+        PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
+        pluginSettings.addConfigurations(pluginInfo, configurationProperties);
+
+        List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getSecurePluginSettingsProperties(pluginInfo);
+        assertThat(pluginSettingsProperties.size(), is(2));
+        assertThat(pluginSettingsProperties.get(0), is(configProperty1));
+        assertThat(pluginSettingsProperties.get(1), is(configProperty2));
     }
 
     private String toJSON(Map<String, String> map) {

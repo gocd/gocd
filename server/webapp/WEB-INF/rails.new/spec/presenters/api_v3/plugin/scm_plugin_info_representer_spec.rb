@@ -26,7 +26,7 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
     metadata = com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity.new(true, false, true)
     scm_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], task_view)
 
-    plugin_info = com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, 'Foo task', scm_settings)
+    plugin_info = com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, 'Foo task', scm_settings, nil)
     actual_json = ApiV3::Plugin::SCMPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)

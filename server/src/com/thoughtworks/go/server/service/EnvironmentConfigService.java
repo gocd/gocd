@@ -39,6 +39,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @understands grouping of agents and pipelines within an environment
@@ -163,6 +165,24 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public EnvironmentConfig getEnvironmentForEdit(String environmentName) {
         return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(environmentName)));
+    }
+
+    public List<EnvironmentConfig> getAllLocalEnvironments() {
+        return environmentNames().stream().map(new Function<CaseInsensitiveString, EnvironmentConfig>() {
+            @Override
+            public EnvironmentConfig apply(CaseInsensitiveString environmentName) {
+                return EnvironmentConfigService.this.getEnvironmentForEdit(environmentName.toString());
+            }
+        }).collect(Collectors.toList());
+    }
+
+    public List<EnvironmentConfig> getAllMergedEnvironments() {
+        return environmentNames().stream().map(new Function<CaseInsensitiveString, EnvironmentConfig>() {
+            @Override
+            public EnvironmentConfig apply(CaseInsensitiveString environmentName) {
+                return EnvironmentConfigService.this.getMergedEnvironmentforDisplay(environmentName.toString(), new HttpLocalizedOperationResult()).getConfigElement();
+            }
+        }).collect(Collectors.toList());
     }
 
     public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String environmentName, HttpLocalizedOperationResult result) {

@@ -20,21 +20,46 @@ describe ApiV3::Admin::EnvironmentsController do
   include ApiHeaderSetupTeardown, ApiV3::ApiVersionHelper
 
   describe :index do
-    describe :for_admins do
-      it 'should render a list of environments, for admins' do
-        login_as_admin
-
-        env = BasicEnvironmentConfig.new(CaseInsensitiveString.new('foo-env'))
-        environments = java.util.HashSet.new
-        environments.add(env)
+    describe :local do
+      before(:each) do
+        @environment_name = 'foo-env'
+        @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+        @environments = java.util.HashSet.new
+        @environments.add(@environment_config)
 
         @environment_config_service = double('environment-config-service')
         controller.stub(:environment_config_service).and_return(@environment_config_service)
-        @environment_config_service.should_receive(:getEnvironments).and_return(environments)
+        @environment_config_service.should_receive(:getAllLocalEnvironments).and_return([@environment_config])
+      end
 
-        get_with_api_header :index
-        expect(response).to be_ok
-        expect(actual_response).to eq(expected_response([env], ApiV3::Admin::Environments::EnvironmentsConfigRepresenter))
+      describe :for_admins do
+        it 'should render the list of environments' do
+          login_as_admin
+
+          get_with_api_header :index
+          expect(response).to be_ok
+          expect(actual_response).to eq(expected_response([@environment_config], ApiV3::Admin::Environments::EnvironmentsConfigRepresenter))
+        end
+      end
+    end
+
+    describe :merged do
+      before(:each) do
+        @environment_name = 'foo-environment'
+        @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+        @environment_config_service = double('environment-config-service')
+        controller.stub(:environment_config_service).and_return(@environment_config_service)
+        @environment_config_service.stub(:getAllMergedEnvironments).and_return([@environment_config])
+      end
+
+      describe :for_admins do
+        it 'should render the environment' do
+          login_as_admin
+
+          get_with_api_header :index, withconfigrepo: 'true'
+          expect(response).to be_ok
+          expect(actual_response).to eq(expected_response([@environment_config], ApiV3::Admin::Environments::EnvironmentsConfigRepresenter))
+        end
       end
     end
 
@@ -140,26 +165,6 @@ describe ApiV3::Admin::EnvironmentsController do
           @environment_name = SecureRandom.hex
           @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(nil)
           get_with_api_header :show, name: @environment_name, withconfigrepo: 'true'
-          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-        end
-      end
-    end
-
-    describe :unsupported_query_param do
-      describe :for_admins do
-        it 'should render 404 when unknown query param is specified' do
-          login_as_admin
-
-          @environment_name = SecureRandom.hex
-          get_with_api_header :show, name: @environment_name, alongwithconfigrepo: 'true'
-          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-        end
-
-        it 'should render 404 when unknown value for withconfigrepo query param is specified' do
-          login_as_admin
-
-          @environment_name = SecureRandom.hex
-          get_with_api_header :show, name: @environment_name, withconfigrepo: 'false'
           expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
         end
       end

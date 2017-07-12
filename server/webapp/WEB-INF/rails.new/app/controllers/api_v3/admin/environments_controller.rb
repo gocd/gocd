@@ -22,20 +22,21 @@ module ApiV3
       before_action :check_for_stale_request, only: [:put]
 
       def index
-        render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(environment_config_service.getEnvironments()).to_hash(url_builder: self)
+        if params[:withconfigrepo].to_bool
+          @environments = environment_config_service.getAllMergedEnvironments()
+        else
+          @environments = environment_config_service.getAllLocalEnvironments()
+        end
+
+        render DEFAULT_FORMAT => Admin::Environments::EnvironmentsConfigRepresenter.new(@environments).to_hash(url_builder: self)
       end
 
       def show
-        is_query_param_provided = params.length > 3
-        is_with_remote = params[:withconfigrepo]
         environment_name = params[:name]
-
-        if is_with_remote.nil? and !is_query_param_provided
-          load_local_environment(environment_name)
-        elsif is_with_remote and is_with_remote.downcase == 'true'
+        if params[:withconfigrepo].to_bool
           load_merged_environment(environment_name)
         else
-          return render_not_found_error
+          load_local_environment(environment_name)
         end
 
         json = Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
@@ -68,9 +69,9 @@ module ApiV3
 
         env_vars = params[:environment_variables] || {}
 
-        env_vars_to_add = (env_vars[:add] || []).map { |env_var|
+        env_vars_to_add = (env_vars[:add] || []).map do |env_var|
           Shared::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new).from_hash(env_var)
-        }
+        end
 
         env_vars_to_remove = env_vars[:remove] || []
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.builder;
 
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -36,5 +37,10 @@ public class NullBuilder extends Builder {
     public void build(BuildLogElement buildElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws
             CruiseControlException {
         buildElement.setBuildDuration(DateUtils.getDurationAsString(0));
+    }
+
+    @Override
+    public BuildCommand buildCommand() {
+        return BuildCommand.noop();
     }
 }

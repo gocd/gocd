@@ -23,14 +23,24 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobDetailService;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.function.Consumer;
+import java.util.zip.GZIPInputStream;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ConsoleLogSenderTest {
@@ -64,7 +74,7 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket).send(expected);
+        verify(socket).send(ByteBuffer.wrap(consoleLogSender.gzip((expected + '\n').getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
@@ -81,8 +91,8 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send("First Output");
-        verify(socket, times(1)).send("Second Output");
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("First Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("Second Output\n".getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
@@ -95,7 +105,7 @@ public class ConsoleLogSenderTest {
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
         verify(jobInstance, times(2)).isCompleted();
-        verify(socket, times(1)).send(anyString());
+        verify(socket, times(1)).send(anyObject());
     }
 
     @Test
@@ -108,6 +118,27 @@ public class ConsoleLogSenderTest {
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
         verify(socket).close();
+    }
+
+    @Test
+    public void shouldNotGzipContentsLessThan512Bytes() throws Exception {
+        byte[] bytes = RandomStringUtils.randomAlphanumeric(511).getBytes(StandardCharsets.UTF_8);
+        byte[] gzipped = consoleLogSender.gzip(bytes);
+        assertThat(bytes, equalTo(gzipped));
+    }
+
+    @Test
+    public void shouldGzipContentsGreaterThan512Bytes() throws Exception {
+        byte[] bytes = RandomStringUtils.randomAlphanumeric(512).getBytes(StandardCharsets.UTF_8);
+
+        byte[] gzipped = consoleLogSender.gzip(bytes);
+        assertThat(gzipped.length, lessThanOrEqualTo(bytes.length));
+
+        GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(gzipped));
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(gzipped.length);
+        IOUtils.copy(gzipInputStream, byteArrayOutputStream);
+        assertThat(bytes, equalTo(byteArrayOutputStream.toByteArray()));
     }
 
     private File makeConsoleFile(String message) throws IOException, IllegalArtifactLocationException {

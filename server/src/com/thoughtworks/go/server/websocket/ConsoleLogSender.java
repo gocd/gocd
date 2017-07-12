@@ -22,27 +22,28 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobDetailService;
 import com.thoughtworks.go.server.util.Retryable;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.output.ProxyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.zip.GZIPOutputStream;
 
 @Component
 public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
 
     private static final int LOG_DOES_NOT_EXIST = 4004;
-    private static final int BUFFER_SIZE = 1000;
+    private static final int BUF_SIZE = 1024 * 1024; // 1MB
     private static final int FILL_INTERVAL = 500;
-
-    private final SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @Autowired
     private ConsoleService consoleService;
@@ -118,18 +119,18 @@ public class ConsoleLogSender {
     }
 
     private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
-        final ArrayList<String> buffer = new ArrayList<>();
-
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUF_SIZE);
+        final OutputStream proxyOutputStream = new AutoFlushingStream(buffer, webSocket, BUF_SIZE);
         long linesProcessed = console.stream(new Consumer<String>() {
+
             @Override
             public void accept(String line) {
                 try {
-                    if (buffer.size() >= BUFFER_SIZE) {
-                        flushBuffer(buffer, webSocket);
-                    } else {
-                        buffer.add(line);
-                    }
-
+                    byte[] bytes = line.getBytes(StandardCharsets.UTF_8);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(bytes.length);
+                    byteArrayOutputStream.write(bytes);
+                    byteArrayOutputStream.write('\n');
+                    proxyOutputStream.write(byteArrayOutputStream.toByteArray());
                 } catch (IOException e) {
                     LOGGER.error("Failed to send log line {} for {}", console.totalLinesConsumed(), jobIdentifier, e);
                 }
@@ -140,11 +141,55 @@ public class ConsoleLogSender {
         return linesProcessed;
     }
 
-    private void flushBuffer(ArrayList<String> buffer, SocketEndpoint webSocket) throws IOException {
-        if (buffer.isEmpty()) return;
-
-        webSocket.send(StringUtils.join(buffer, "\n"));
-        buffer.clear();
+    private void flushBuffer(ByteArrayOutputStream buffer, SocketEndpoint webSocket) throws IOException {
+        if (buffer.size() == 0) return;
+        webSocket.send(ByteBuffer.wrap(gzip(buffer.toByteArray())));
+        buffer.reset();
     }
 
+    byte[] gzip(byte[] input) {
+        if (input.length < 512) {
+            return input;
+        }
+        // To avoid having to re-allocate the internal byte array, allocate an initial buffer assuming a safe 10:1 compression ratio
+        final ByteArrayOutputStream gzipBytes = new ByteArrayOutputStream(input.length / 10);
+        try {
+            final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(gzipBytes, 1024 * 8);
+            gzipOutputStream.write(input);
+            gzipOutputStream.close();
+        } catch (IOException e) {
+            LOGGER.error("Could not gzip {}", input);
+        }
+        return gzipBytes.toByteArray();
+    }
+
+    // Flushes stream just before it becomes larger than `bufSize`
+    private class AutoFlushingStream extends ProxyOutputStream {
+        private final ByteArrayOutputStream buffer;
+        private final SocketEndpoint webSocket;
+        private final int bufSize;
+
+        public AutoFlushingStream(ByteArrayOutputStream buffer, SocketEndpoint webSocket, int bufSize) {
+            super(buffer);
+            this.buffer = buffer;
+            this.webSocket = webSocket;
+            this.bufSize = bufSize;
+        }
+
+        @Override
+        protected void beforeWrite(int n) throws IOException {
+            maybeFlush(n);
+        }
+
+        @Override
+        protected void afterWrite(int n) throws IOException {
+            maybeFlush(n);
+        }
+
+        private void maybeFlush(int n) throws IOException {
+            if (buffer.size() + n >= bufSize) {
+                flushBuffer(buffer, webSocket);
+            }
+        }
+    }
 }

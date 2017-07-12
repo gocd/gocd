@@ -58,6 +58,7 @@
 //= require "lib/moment-2.18.1.js"
 //= require "lib/moment-duration-format-1.3.0.js"
 //= require "lib/humanize-for-gocd.js"
+//= require "lib/pako_inflate-1.0.5.js"
 //= require "ansi_up.js"
 //= require "crel.js"
 //= require "json_to_css.js"

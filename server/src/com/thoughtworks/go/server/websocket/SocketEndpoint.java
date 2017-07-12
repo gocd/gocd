@@ -17,9 +17,10 @@
 package com.thoughtworks.go.server.websocket;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public interface SocketEndpoint {
-    void send(String msg) throws IOException;
+    void send(ByteBuffer data) throws IOException;
 
     void ping() throws IOException;
 

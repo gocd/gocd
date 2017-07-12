@@ -78,8 +78,8 @@ public class ConsoleLogSocket implements SocketEndpoint {
     }
 
     @Override
-    public void send(String msg) throws IOException {
-        session.getRemote().sendString(msg);
+    public void send(ByteBuffer data) throws IOException {
+        session.getRemote().sendBytes(data);
     }
 
     @Override

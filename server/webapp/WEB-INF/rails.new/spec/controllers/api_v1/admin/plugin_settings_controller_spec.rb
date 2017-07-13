@@ -30,6 +30,10 @@ describe ApiV1::Admin::PluginSettingsController do
 
   describe 'show' do
     describe 'authorization_check' do
+      before :each do
+        controller.stub(:load_plugin_settings).and_return(nil)
+      end
+
       it 'should allow all with security disabled' do
         disable_security
 
@@ -221,6 +225,10 @@ describe ApiV1::Admin::PluginSettingsController do
 
   describe 'update' do
     describe 'authorization_check' do
+      before :each do
+        controller.stub(:load_plugin_settings).and_return(nil)
+        controller.stub(:check_for_stale_request).and_return(nil)
+      end
       it 'should allow all with security disabled' do
         disable_security
 

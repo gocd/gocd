@@ -74,8 +74,9 @@ public class PluginSettings {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+            PluggableInstanceSettings pluginSettings = pluginInfo.getPluginSettings();
             for (ConfigurationProperty configurationProperty : settingsMap) {
-                PluginConfiguration pluginConfiguration = configPropertyFor(configurationProperty.getConfigKeyName(), pluginInfo.getPluginSettings());
+                PluginConfiguration pluginConfiguration = configPropertyFor(configurationProperty.getConfigKeyName(), pluginSettings);
                 if (pluginConfiguration != null && pluginConfiguration.isSecure()) {
                     configurationProperties.add(builder.create(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue(), configurationProperty.getEncryptedValue(), true));
                 } else {

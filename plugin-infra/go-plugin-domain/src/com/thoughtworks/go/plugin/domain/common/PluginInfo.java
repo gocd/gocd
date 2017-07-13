@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 public class PluginInfo {
     protected final PluginDescriptor descriptor;
     protected final String extensionName;
-
     public PluggableInstanceSettings pluginSettings;
 
     public PluginInfo(PluginDescriptor descriptor, String extensionName, PluggableInstanceSettings pluginSettings) {

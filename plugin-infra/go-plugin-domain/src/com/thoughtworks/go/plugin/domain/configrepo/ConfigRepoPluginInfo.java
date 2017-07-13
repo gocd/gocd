@@ -27,8 +27,4 @@ public class ConfigRepoPluginInfo extends PluginInfo {
         super(descriptor, PluginConstants.CONFIG_REPO_EXTENSION, pluginSettings);
     }
 
-    public PluggableInstanceSettings getPluginSettings() {
-        return pluginSettings;
-    }
-
 }

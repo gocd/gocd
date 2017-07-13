@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -48,7 +49,7 @@ public class ConfigRepoConfig implements Validatable {
     // then pattern-based plugin is just one option
 
     @ConfigAttribute(value = "id", allowNull = false)
-    private String id = "id";
+    private String id = UUID.randomUUID().toString();
 
     public static final String AUTO_UPDATE = "autoUpdate";
     public static final String UNIQUE_REPO = "unique_repo";

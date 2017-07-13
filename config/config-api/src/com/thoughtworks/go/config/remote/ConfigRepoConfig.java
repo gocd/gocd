@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -109,6 +110,11 @@ public class ConfigRepoConfig implements Validatable {
         if (repo != null ? !repo.equals(that.repo) : that.repo != null) {
             return false;
         }
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+
         if (configProviderPluginName != null ? !configProviderPluginName.equals(that.configProviderPluginName) : that.configProviderPluginName != null) {
             return false;
         }
@@ -152,6 +158,15 @@ public class ConfigRepoConfig implements Validatable {
             return;
         }
         map.put(materialFingerprint, this);
+    }
+
+    public void validateIdUniqueness(ArrayList<String> allIds) {
+        if(StringUtil.isBlank(this.id)) {
+            this.errors.add("id",String.format( "Invalid config-repo id", id));
+        }
+        if(allIds.contains(this.id)) {
+            this.errors.add("unique_id",String.format( "You have defined multiple configuration repositories with the same id - %s", id));
+        }
     }
 
     private void validateAutoUpdateEnabled() {

@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
+import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata;
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
@@ -59,6 +60,9 @@ public class PackageMaterialPluginInfoBuilderTest {
         stub(extension.getPackageConfiguration("plugin1")).toReturn(packageSettings);
         stub(extension.getRepositoryConfiguration("plugin1")).toReturn(repoSettings);
         stub(extension.getPluginSettingsView("plugin1")).toReturn("some-html");
+        PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
+        pluginSettingsConfiguration.add(new PluginSettingsProperty("k1", null).with(Property.REQUIRED, true).with(Property.SECURE, false).with(Property.DISPLAY_ORDER, 3));
+        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(pluginSettingsConfiguration);
     }
 
     @Test
@@ -77,11 +81,14 @@ public class PackageMaterialPluginInfoBuilderTest {
                 new PluginConfiguration("bar", new PackageMaterialMetadata(true, true, true, "", 2))
         );
 
+        List<PluginConfiguration> pluginSettings = Arrays.asList(new PluginConfiguration("k1", new Metadata(true, false)));
+
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("package-repository"));
 
         assertThat(pluginInfo.getPackageSettings(), is(new PluggableInstanceSettings(packageSettings, null)));
         assertThat(pluginInfo.getRepositorySettings(), is(new PluggableInstanceSettings(repoSettings, null)));
+        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginSettings, new PluginView("some-html"))));
     }
 
     @Test

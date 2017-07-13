@@ -55,12 +55,12 @@ public class PackageMaterialPluginInfoBuilder implements PluginInfoBuilder<Packa
         if (packageConfiguration == null) {
             throw new RuntimeException(format("Plugin[%s] returned null package configuration", descriptor.id()));
         }
+        PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, extension);
 
-        return new PackageMaterialPluginInfo(descriptor, new PluggableInstanceSettings(configurations(repositoryConfiguration)), new PluggableInstanceSettings(configurations(packageConfiguration)));
+        return new PackageMaterialPluginInfo(descriptor, new PluggableInstanceSettings(packageRepoConfigurations(repositoryConfiguration)), new PluggableInstanceSettings(packageRepoConfigurations(packageConfiguration)), pluginSettingsAndView);
     }
 
-    @Override
-    public List<PluginConfiguration> configurations(Configuration repositoryConfiguration) {
+    private List<PluginConfiguration> packageRepoConfigurations(Configuration repositoryConfiguration) {
         List<? extends Property> list = repositoryConfiguration.list();
 
         return list.stream().map(new Function<Property, PluginConfiguration>() {

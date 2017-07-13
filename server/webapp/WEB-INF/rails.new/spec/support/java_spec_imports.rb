@@ -116,4 +116,5 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.TemplateToPipelines unless defined? TemplateToPipelines
   java_import com.thoughtworks.go.config.PipelineWithAuthorization unless defined? PipelineWithAuthorization
   java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString
+  java_import com.thoughtworks.go.server.domain.PluginSettings unless defined? PluginSettings
 end

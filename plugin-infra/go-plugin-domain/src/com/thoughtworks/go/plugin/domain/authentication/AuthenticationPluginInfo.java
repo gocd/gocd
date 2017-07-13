@@ -28,15 +28,13 @@ public class AuthenticationPluginInfo extends PluginInfo {
     private final String displayImageURL;
     private final boolean supportsPasswordBasedAuthentication;
     private final boolean supportsWebBasedAuthentication;
-    private final PluggableInstanceSettings pluginSettings;
 
     public AuthenticationPluginInfo(PluginDescriptor descriptor, String displayName, String displayImageURL, boolean supportsPasswordBasedAuthentication, boolean supportsWebBasedAuthentication, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.AUTHENTICATION_EXTENSION);
+        super(descriptor, PluginConstants.AUTHENTICATION_EXTENSION, pluginSettings);
         this.displayName = displayName;
         this.displayImageURL = displayImageURL;
         this.supportsPasswordBasedAuthentication = supportsPasswordBasedAuthentication;
         this.supportsWebBasedAuthentication = supportsWebBasedAuthentication;
-        this.pluginSettings = pluginSettings;
     }
 
     public String getDisplayName() {
@@ -55,10 +53,6 @@ public class AuthenticationPluginInfo extends PluginInfo {
         return supportsWebBasedAuthentication;
     }
 
-    public PluggableInstanceSettings getPluginSettings() {
-        return pluginSettings;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,9 +64,7 @@ public class AuthenticationPluginInfo extends PluginInfo {
         if (supportsPasswordBasedAuthentication != that.supportsPasswordBasedAuthentication) return false;
         if (supportsWebBasedAuthentication != that.supportsWebBasedAuthentication) return false;
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
-        if (displayImageURL != null ? !displayImageURL.equals(that.displayImageURL) : that.displayImageURL != null)
-            return false;
-        return pluginSettings != null ? pluginSettings.equals(that.pluginSettings) : that.pluginSettings == null;
+        return displayImageURL != null ? displayImageURL.equals(that.displayImageURL) : that.displayImageURL == null;
     }
 
     @Override
@@ -82,7 +74,6 @@ public class AuthenticationPluginInfo extends PluginInfo {
         result = 31 * result + (displayImageURL != null ? displayImageURL.hashCode() : 0);
         result = 31 * result + (supportsPasswordBasedAuthentication ? 1 : 0);
         result = 31 * result + (supportsWebBasedAuthentication ? 1 : 0);
-        result = 31 * result + (pluginSettings != null ? pluginSettings.hashCode() : 0);
         return result;
     }
 }

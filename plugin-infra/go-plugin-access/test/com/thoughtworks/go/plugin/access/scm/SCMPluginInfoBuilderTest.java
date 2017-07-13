@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
@@ -59,6 +61,10 @@ public class SCMPluginInfoBuilderTest {
                 return "some html";
             }
         });
+        PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
+        pluginSettingsConfiguration.add(new PluginSettingsProperty("k1", null).with(Property.REQUIRED, true).with(Property.SECURE, false).with(Property.DISPLAY_ORDER, 3));
+        stub(extension.getPluginSettingsConfiguration("plugin1")).toReturn(pluginSettingsConfiguration);
+        stub(extension.getPluginSettingsView("plugin1")).toReturn("settings view");
     }
 
     @Test
@@ -67,16 +73,19 @@ public class SCMPluginInfoBuilderTest {
 
         SCMPluginInfo pluginInfo = new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> scmConfigurations = Arrays.asList(
                 new PluginConfiguration("username", new MetadataWithPartOfIdentity(true, false, true)),
                 new PluginConfiguration("password", new MetadataWithPartOfIdentity(true, true, false))
         );
         PluginView pluginView = new PluginView("some html");
+        List<PluginConfiguration> pluginSettings = Arrays.asList(new PluginConfiguration("k1", new Metadata(true, false)));
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("scm"));
         assertThat(pluginInfo.getDisplayName(), is("some scm plugin"));
-        assertThat(pluginInfo.getScmSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+        assertThat(pluginInfo.getScmSettings(), is(new PluggableInstanceSettings(scmConfigurations, pluginView)));
+        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginSettings, new PluginView("settings view"))));
+
     }
 
     @Test

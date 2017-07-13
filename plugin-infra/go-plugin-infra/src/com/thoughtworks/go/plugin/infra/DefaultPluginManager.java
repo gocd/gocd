@@ -105,6 +105,16 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
+    public <R> R doOnPluginExtensionImpl(String pluginId, ActionWithReturn<GoPlugin, R> actionToDoOnTheRegisteredServiceWhichMatches, String extension) {
+        return goPluginOSGiFramework.doOnPluginExtensionImpl(pluginId, actionToDoOnTheRegisteredServiceWhichMatches, extension);
+    }
+
+    @Override
+    public void doOnPluginExtensionImpl(String pluginId, Action<GoPlugin> actionToDoOnTheRegisteredServiceWhichMatches, String extension) {
+        goPluginOSGiFramework.doOnPluginExtensionImpl(pluginId, actionToDoOnTheRegisteredServiceWhichMatches, extension);
+    }
+
+    @Override
     public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
         goPluginOSGiFramework.doOn(serviceReferenceClass, pluginId, action);
     }
@@ -158,7 +168,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public GoPluginApiResponse submitTo(final String pluginId, final GoPluginApiRequest apiRequest) {
-        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
+        return goPluginOSGiFramework.doOnPluginExtensionImpl(pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 ensureInitializerInvoked(pluginDescriptor, plugin);
@@ -170,7 +180,7 @@ public class DefaultPluginManager implements PluginManager {
                     throw new RuntimeException(e);
                 }
             }
-        });
+        }, apiRequest.extension());
     }
 
     private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin) {
@@ -186,22 +196,18 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
-        return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
+        throw  new RuntimeException("Jyoti did this, use isPluginOfType instead");
+//        return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
     }
 
     @Override
     public boolean isPluginOfType(final String extension, String pluginId) {
-        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, Boolean>() {
-            @Override
-            public Boolean execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                return extension.equals(plugin.pluginIdentifier().getExtension());
-            }
-        });
+        return goPluginOSGiFramework.hasReferenceFor(extension, pluginId);
     }
 
     @Override
-    public String resolveExtensionVersion(String pluginId, final List<String> goSupportedExtensionVersions) {
-        String resolvedExtensionVersion = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
+    public String resolveExtensionVersion(String pluginId, final List<String> goSupportedExtensionVersions, String extensionName) {
+        String resolvedExtensionVersion = doOnPluginExtensionImpl(pluginId, new ActionWithReturn<GoPlugin, String>() {
             @Override
             public String execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
                 List<String> pluginSupportedVersions = goPlugin.pluginIdentifier().getSupportedExtensionVersions();
@@ -213,7 +219,7 @@ public class DefaultPluginManager implements PluginManager {
                 }
                 return currentMaxVersion;
             }
-        });
+        }, extensionName);
         if ("0".equals(resolvedExtensionVersion)) {
             throw new RuntimeException(String.format("Could not find matching extension version between Plugin[%s] and Go", pluginId));
         }

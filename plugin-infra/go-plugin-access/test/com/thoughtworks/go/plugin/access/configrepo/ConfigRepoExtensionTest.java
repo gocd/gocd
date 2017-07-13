@@ -39,7 +39,7 @@ public class ConfigRepoExtensionTest {
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"), ConfigRepoExtension.EXTENSION_NAME)).thenReturn("1.0");
         when(pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
     }

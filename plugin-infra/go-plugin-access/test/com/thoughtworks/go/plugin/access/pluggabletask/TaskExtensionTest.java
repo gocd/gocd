@@ -62,7 +62,7 @@ public class TaskExtensionTest {
         initMocks(this);
         extension = new TaskExtension(pluginManager);
         pluginId = "plugin-id";
-        when(pluginManager.resolveExtensionVersion(eq(pluginId), any(ArrayList.class))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(eq(pluginId), any(ArrayList.class), TaskExtension.TASK_EXTENSION)).thenReturn("1.0");
 
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);

@@ -62,7 +62,7 @@ public class JsonBasedTaskExecutorTest {
         handlerHashMap.put("1.0", handler);
         final List<String> goSupportedVersions = asList("1.0");
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, TaskExtension.TASK_EXTENSION);
-        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(extensionVersion);
+        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions, TaskExtension.TASK_EXTENSION)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
     }

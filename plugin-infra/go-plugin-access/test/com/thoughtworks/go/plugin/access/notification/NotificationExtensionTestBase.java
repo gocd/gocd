@@ -65,7 +65,7 @@ public abstract class NotificationExtensionTestBase {
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, NotificationExtension.goSupportedVersions)).thenReturn(apiVersion());
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, NotificationExtension.goSupportedVersions, NotificationExtension.EXTENSION_NAME)).thenReturn(apiVersion());
         when(pluginManager.isPluginOfType(NotificationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
     }

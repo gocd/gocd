@@ -126,7 +126,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
     }
 
     public String getStatusReportView(String responseBody) {
-        String statusReportView = (String) new Gson().fromJson(responseBody, Map.class).get("status_report");
+        String statusReportView = (String) new Gson().fromJson(responseBody, Map.class).get("view");
         if (StringUtils.isBlank(statusReportView)) {
             throw new RuntimeException("Status Report is blank!");
         }

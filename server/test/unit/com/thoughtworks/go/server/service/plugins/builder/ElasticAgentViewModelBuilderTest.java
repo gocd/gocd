@@ -38,15 +38,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ElasticAgentViewViewModelBuilderTest {
-    private ElasticAgentViewViewModelBuilder builder;
+public class ElasticAgentViewModelBuilderTest {
+    private ElasticAgentViewModelBuilder builder;
     private GoPluginDescriptor dockerPlugin;
     private GoPluginDescriptor awsPlugin;
 
     @Before
     public void setUp() {
         initMocks(this);
-        builder = new ElasticAgentViewViewModelBuilder(ElasticAgentMetadataStore.instance());
+        builder = new ElasticAgentViewModelBuilder(ElasticAgentMetadataStore.instance());
 
         dockerPlugin = new GoPluginDescriptor("cd.go.elastic-agent.docker", "1.0",
                 new GoPluginDescriptor.About("GoCD Docker Elastic Agent Plugin", "1.0", null, null, null, null),
@@ -66,8 +66,8 @@ public class ElasticAgentViewViewModelBuilderTest {
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() throws Exception {
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
-        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(dockerPlugin, null, null, null));
-        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(awsPlugin, null, null, null));
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(dockerPlugin, null, null, null, false));
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(awsPlugin, null, null, null, false));
 
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
@@ -85,7 +85,7 @@ public class ElasticAgentViewViewModelBuilderTest {
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)), "hash");;
         ElasticAgentPluginInfo elasticAgentPluginInfo = new ElasticAgentPluginInfo(dockerPlugin, new PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("foo", new Metadata(false, true))),
-                        new com.thoughtworks.go.plugin.domain.common.PluginView("foo_template")), image, null);
+                        new com.thoughtworks.go.plugin.domain.common.PluginView("foo_template")), image, null, false);
 
         metadataStore.setPluginInfo(elasticAgentPluginInfo);
 

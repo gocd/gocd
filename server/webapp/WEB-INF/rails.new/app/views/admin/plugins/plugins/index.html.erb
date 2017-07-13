@@ -39,6 +39,9 @@
                         <span class="name"><%= about.name() %></span>
                         <span class="smaller version"><%= about.version() %></span>
                         <span class=" smaller descriptor-id">[<%= descriptor.id() %>]</span>
+                      <% if plugin_supports_status_report?(descriptor.id()) %>
+                          <%= link_to 'Status Report', admin_status_report_path(descriptor.id()) -%>
+                      <% end %>
                         <span class="plugin-author smaller">
                             <span class="key">Author</span>
                             <% if vendor.url().nil? %>

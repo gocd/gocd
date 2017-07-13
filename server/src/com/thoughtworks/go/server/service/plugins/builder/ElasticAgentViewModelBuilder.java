@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Deprecated
-class ElasticAgentViewViewModelBuilder extends AbstractViewModelBuilder {
+class ElasticAgentViewModelBuilder extends AbstractViewModelBuilder {
     private ElasticAgentMetadataStore metadataStore;
 
-    ElasticAgentViewViewModelBuilder(ElasticAgentMetadataStore metadataStore) {
+    ElasticAgentViewModelBuilder(ElasticAgentMetadataStore metadataStore) {
         this.metadataStore = metadataStore;
     }
 

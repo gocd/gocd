@@ -52,7 +52,7 @@ public class ElasticAgentMetadataLoaderTest {
     public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null, false);
 
         when(extension.canHandlePlugin(descriptor.id())).thenReturn(true);
         when(infoBuilder.pluginInfoFor(descriptor)).thenReturn(pluginInfo);
@@ -79,7 +79,7 @@ public class ElasticAgentMetadataLoaderTest {
     public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null, false);
 
         metadataStore.setPluginInfo(pluginInfo);
 

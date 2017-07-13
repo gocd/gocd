@@ -19,6 +19,9 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ElasticAgentMetadataStore extends MetadataStore<ElasticAgentPluginInfo> {
     private static ElasticAgentMetadataStore store = new ElasticAgentMetadataStore();
 
@@ -27,5 +30,17 @@ public class ElasticAgentMetadataStore extends MetadataStore<ElasticAgentPluginI
 
     public static ElasticAgentMetadataStore instance() {
         return store;
+    }
+
+    public Set<ElasticAgentPluginInfo> pluginsSupportingStatusReports() {
+        final Set<ElasticAgentPluginInfo> pluginsSupportingStatusReports = new HashSet<>();
+
+        for (ElasticAgentPluginInfo elasticAgentPluginInfo : this.pluginInfos.values()) {
+            if (elasticAgentPluginInfo.supportsStatusReport()) {
+                pluginsSupportingStatusReports.add(elasticAgentPluginInfo);
+            }
+        }
+
+        return pluginsSupportingStatusReports;
     }
 }

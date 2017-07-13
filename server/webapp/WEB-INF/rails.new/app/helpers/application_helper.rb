@@ -461,6 +461,13 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
+  def plugin_supports_status_report?(plugin_id)
+    plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(plugin_id)
+
+    return false if plugin_info.nil?
+    plugin_info.supportsStatusReport()
+  end
+
   private
   def form_remote_tag(options = {})
     options[:form] = true

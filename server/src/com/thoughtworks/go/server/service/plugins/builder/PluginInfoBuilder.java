@@ -53,7 +53,7 @@ public class PluginInfoBuilder {
         pluginExtensionToBuilder.put(PackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(TaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(ElasticAgentMetadataStore.instance()));
+        pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewModelBuilder(ElasticAgentMetadataStore.instance()));
         pluginExtensionToBuilder.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationViewModelBuilder(AuthorizationMetadataStore.instance()));
     }
 

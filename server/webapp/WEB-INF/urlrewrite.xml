@@ -60,6 +60,13 @@
         <to last="true">/rails/admin/elastic_profiles</to>
         <set name="rails_bound">true</set>
     </rule>
+    
+    <rule>
+        <name>Rails Status Reports show call</name>
+        <from>^/admin/status_reports/(.*)$</from>
+        <to last="true">/rails/admin/status_reports/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
 
     <rule>
         <name>Rails Security Auth Config UI</name>

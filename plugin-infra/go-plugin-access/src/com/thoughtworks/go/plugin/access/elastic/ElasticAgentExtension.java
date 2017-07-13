@@ -27,13 +27,15 @@ import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConvert
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
+import static java.lang.String.format;
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
@@ -42,7 +44,7 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, ElasticAgentPluginConstants.SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
         addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2());
     }
@@ -126,9 +128,8 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public String getStatusReport(String pluginId) {
-        final GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(pluginId);
-        if (!pluginDescriptor.about().version().equals(ElasticAgentExtensionConverterV2.VERSION)) {
-            return null;
+        if (!ElasticAgentExtensionConverterV2.VERSION.equals(pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS))) {
+            throw new UnsupportedOperationException(format("Plugin `%s` implements Elastic Agent V1, `StatusReport` endpoint is not supported in this version.", pluginId));
         }
 
         return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {

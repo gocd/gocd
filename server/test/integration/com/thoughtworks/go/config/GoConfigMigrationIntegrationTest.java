@@ -1502,6 +1502,20 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
+    public void shouldAddIdOnConfigRepoAsPartOfMigration94() throws Exception {
+        String configXml = "<cruise schemaVersion='93'>" +
+                "<config-repos>\n" +
+                "   <config-repo plugin=\"json.config.plugin\">\n" +
+                "     <git url=\"https://github.com/tomzo/gocd-json-config-example.git\" />\n" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 93);
+        assertThat(migratedContent, containsString("id="));
+    }
+
+    @Test
     public void shouldKeepExistingAuthConfigsWhileMigratingLdapAsPartOfMigration91() throws Exception {
         String configXml = "<cruise schemaVersion='90'><server serverId='dev-id'><security>" +
                 "<ldap uri=\"ldap://ldap.server\" managerDn=\"cn=admin,ou=system,dc=example,dc=com\" encryptedManagerPassword=\"" + encryptedPassword + "\" searchFilter=\"uid\">\n" +

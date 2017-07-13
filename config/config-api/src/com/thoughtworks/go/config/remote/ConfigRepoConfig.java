@@ -46,6 +46,9 @@ public class ConfigRepoConfig implements Validatable {
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
 
+    @ConfigAttribute(value = "id", allowNull = false)
+    private String id = "id";
+
     public static final String AUTO_UPDATE = "autoUpdate";
     public static final String UNIQUE_REPO = "unique_repo";
     public static final String REPO = "repo";
@@ -59,6 +62,11 @@ public class ConfigRepoConfig implements Validatable {
         this.configProviderPluginName = configProviderPluginName;
     }
 
+    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName, String id){
+        this(repo, configProviderPluginName);
+        this.id = id;
+    }
+
     public MaterialConfig getMaterialConfig() {
         return repo;
     }
@@ -69,6 +77,16 @@ public class ConfigRepoConfig implements Validatable {
 
     public String getConfigProviderPluginName() {
         return configProviderPluginName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        if(StringUtil.isBlank(id))
+            id = null;
+        this.id = id;
     }
 
     public void setConfigProviderPluginName(String configProviderPluginName) {

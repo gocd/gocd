@@ -27,10 +27,10 @@ import static org.mockito.Mockito.mock;
 public class ConfigReposConfigTest {
     private  ConfigReposConfig repos;
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         repos = new ConfigReposConfig();
     }
+
     @Test
     public void shouldReturnFalseThatHasMaterialWhenEmpty(){
         assertThat(repos.isEmpty(),is(true));
@@ -45,7 +45,7 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo(){
-        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin"));
+        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin", "id"));
         assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin")),is(true));
     }
     @Test
@@ -70,10 +70,31 @@ public class ConfigReposConfigTest {
                 is("You have defined multiple configuration repositories with the same repository - http://git"));
 
     }
+
+    @Test
+    public void shouldErrorWhenDuplicateIdsExist(){
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "id");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("http://git2"), "myotherplugin", "id");
+        repos.add(repo1);
+        repos.add(repo2);
+        repos.validate(null);
+        assertThat(repo2.errors().on("unique_id"),
+                is("You have defined multiple configuration repositories with the same id - id"));
+    }
+
+    @Test
+    public void shouldErrorWhenEmptyIdIsProvided(){
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "  ");
+        repos.add(repo1);
+        repos.validate(null);
+        assertThat(repo1.errors().on("id"),
+                is("Invalid config-repo id"));
+    }
+
     @Test
     public void shouldNotErrorWhenReposFingerprintDiffer(){
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("http://git","develop"), "myotherplugin");
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin", "id1");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("https://git","develop"), "myotherplugin", "id2");
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);

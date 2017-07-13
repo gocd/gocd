@@ -19,7 +19,9 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +57,17 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
     @Override
     public void validate(ValidationContext validationContext) {
         this.validateMaterialUniqueness();
+        this.validateIdUniqueness();
     }
+
+    private void validateIdUniqueness() {
+        ArrayList<String> allIds = new ArrayList<>();
+        for (ConfigRepoConfig configRepo : this) {
+            configRepo.validateIdUniqueness(allIds);
+            allIds.add(configRepo.getId());
+        }
+    }
+
     private void validateMaterialUniqueness() {
         Map<String, ConfigRepoConfig> materialHashMap = new HashMap<>();
         for (ConfigRepoConfig material : this) {

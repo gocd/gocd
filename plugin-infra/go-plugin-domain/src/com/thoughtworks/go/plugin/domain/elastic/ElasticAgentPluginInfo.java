@@ -25,13 +25,11 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class ElasticAgentPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings profileSettings;
     private final Image image;
-    private final PluggableInstanceSettings pluginSettings;
 
     public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION);
+        super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION, pluginSettings);
         this.profileSettings = profileSettings;
         this.image = image;
-        this.pluginSettings = pluginSettings;
     }
 
     public PluggableInstanceSettings getProfileSettings() {
@@ -40,10 +38,6 @@ public class ElasticAgentPluginInfo extends PluginInfo {
 
     public Image getImage() {
         return image;
-    }
-
-    public PluggableInstanceSettings getPluginSettings() {
-        return pluginSettings;
     }
 
     @Override
@@ -56,8 +50,7 @@ public class ElasticAgentPluginInfo extends PluginInfo {
 
         if (profileSettings != null ? !profileSettings.equals(that.profileSettings) : that.profileSettings != null)
             return false;
-        if (image != null ? !image.equals(that.image) : that.image != null) return false;
-        return pluginSettings != null ? pluginSettings.equals(that.pluginSettings) : that.pluginSettings == null;
+        return image != null ? image.equals(that.image) : that.image == null;
     }
 
     @Override
@@ -65,7 +58,6 @@ public class ElasticAgentPluginInfo extends PluginInfo {
         int result = super.hashCode();
         result = 31 * result + (profileSettings != null ? profileSettings.hashCode() : 0);
         result = 31 * result + (image != null ? image.hashCode() : 0);
-        result = 31 * result + (pluginSettings != null ? pluginSettings.hashCode() : 0);
         return result;
     }
 }

@@ -91,10 +91,12 @@ public class PluginSettings {
     }
 
     public void setPluginSettingsProperties(List<ConfigurationProperty> configurationProperties) {
+        settingsMap.clear();
         settingsMap.addAll(configurationProperties);
     }
 
     public void addConfigurations(PluginInfo pluginInfo, List<ConfigurationProperty> configurationProperties) {
+        settingsMap.clear();
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
             for (ConfigurationProperty property : configurationProperties) {

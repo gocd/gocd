@@ -21,11 +21,6 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 public class BadPluginInfo extends PluginInfo {
 
     public BadPluginInfo(PluginDescriptor pluginDescriptor) {
-        super(pluginDescriptor, null);
-    }
-
-    @Override
-    public PluggableInstanceSettings getPluginSettings() {
-        return null;
+        super(pluginDescriptor, null, null);
     }
 }

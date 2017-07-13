@@ -25,13 +25,11 @@ public class PackageMaterialPluginInfo extends PluginInfo {
 
     private final PluggableInstanceSettings repositorySettings;
     private final PluggableInstanceSettings packageSettings;
-    private final PluggableInstanceSettings pluginSettings;
 
     public PackageMaterialPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings repositorySettings, PluggableInstanceSettings packageSettings, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.PACKAGE_MATERIAL_EXTENSION);
+        super(descriptor, PluginConstants.PACKAGE_MATERIAL_EXTENSION, pluginSettings);
         this.repositorySettings = repositorySettings;
         this.packageSettings = packageSettings;
-        this.pluginSettings = pluginSettings;
     }
 
     public PluggableInstanceSettings getRepositorySettings() {
@@ -40,11 +38,6 @@ public class PackageMaterialPluginInfo extends PluginInfo {
 
     public PluggableInstanceSettings getPackageSettings() {
         return packageSettings;
-    }
-
-    @Override
-    public PluggableInstanceSettings getPluginSettings() {
-        return pluginSettings;
     }
 
     @Override

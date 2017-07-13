@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -100,5 +101,6 @@ public class PluggableTaskPluginInfoBuilderTest {
         assertThat(pluginInfo.getExtensionName(), is("task"));
         assertThat(pluginInfo.getDisplayName(), is("my task plugin"));
         assertThat(pluginInfo.getTaskSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+        assertNull(pluginInfo.getPluginSettings());
     }
 }

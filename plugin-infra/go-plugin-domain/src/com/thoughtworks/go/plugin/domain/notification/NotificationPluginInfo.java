@@ -23,32 +23,8 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class NotificationPluginInfo extends PluginInfo {
 
-    private final PluggableInstanceSettings pluginSettings;
-
     public NotificationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.NOTIFICATION_EXTENSION);
-        this.pluginSettings = pluginSettings;
+        super(descriptor, PluginConstants.NOTIFICATION_EXTENSION, pluginSettings);
     }
 
-    public PluggableInstanceSettings getPluginSettings() {
-        return pluginSettings;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        NotificationPluginInfo that = (NotificationPluginInfo) o;
-
-        return pluginSettings != null ? pluginSettings.equals(that.pluginSettings) : that.pluginSettings == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (pluginSettings != null ? pluginSettings.hashCode() : 0);
-        return result;
-    }
 }

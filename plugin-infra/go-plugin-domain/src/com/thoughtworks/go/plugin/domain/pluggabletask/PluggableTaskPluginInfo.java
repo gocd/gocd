@@ -27,7 +27,7 @@ public class PluggableTaskPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings taskSettings;
 
     public PluggableTaskPluginInfo(PluginDescriptor descriptor, String displayName, PluggableInstanceSettings taskSettings) {
-        super(descriptor, PluginConstants.PLUGGABLE_TASK_EXTENSION);
+        super(descriptor, PluginConstants.PLUGGABLE_TASK_EXTENSION, null);
         this.displayName = displayName;
         this.taskSettings = taskSettings;
     }
@@ -41,7 +41,22 @@ public class PluggableTaskPluginInfo extends PluginInfo {
     }
 
     @Override
-    public PluggableInstanceSettings getPluginSettings() {
-        return null;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        PluggableTaskPluginInfo that = (PluggableTaskPluginInfo) o;
+
+        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
+        return taskSettings != null ? taskSettings.equals(that.taskSettings) : that.taskSettings == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+        result = 31 * result + (taskSettings != null ? taskSettings.hashCode() : 0);
+        return result;
     }
 }

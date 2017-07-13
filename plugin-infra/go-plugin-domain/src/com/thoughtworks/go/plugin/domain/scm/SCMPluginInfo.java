@@ -25,13 +25,11 @@ public class SCMPluginInfo extends PluginInfo {
 
     private final String displayName;
     private final PluggableInstanceSettings scmSettings;
-    private final PluggableInstanceSettings pluginSettings;
 
     public SCMPluginInfo(PluginDescriptor descriptor, String displayName, PluggableInstanceSettings scmSettings, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.SCM_EXTENSION);
+        super(descriptor, PluginConstants.SCM_EXTENSION, pluginSettings);
         this.displayName = displayName;
         this.scmSettings = scmSettings;
-        this.pluginSettings = pluginSettings;
     }
 
     public String getDisplayName() {
@@ -40,11 +38,6 @@ public class SCMPluginInfo extends PluginInfo {
 
     public PluggableInstanceSettings getScmSettings() {
         return scmSettings;
-    }
-
-    @Override
-    public PluggableInstanceSettings getPluginSettings() {
-        return pluginSettings;
     }
 
     @Override

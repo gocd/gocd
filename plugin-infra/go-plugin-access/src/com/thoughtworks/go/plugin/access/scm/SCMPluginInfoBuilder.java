@@ -52,12 +52,11 @@ public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
             throw new RuntimeException(format("Plugin[%s] returned null scm view", descriptor.id()));
         }
 
-        PluggableInstanceSettings scmSettings = new PluggableInstanceSettings(configurations(scmConfiguration), new PluginView(scmView.template()));
+        PluggableInstanceSettings scmSettings = new PluggableInstanceSettings(scmPluginConfigurations(scmConfiguration), new PluginView(scmView.template()));
         return new SCMPluginInfo(descriptor, scmView.displayValue(), scmSettings, pluginSettingsAndView);
     }
 
-    @Override
-    public List<PluginConfiguration> configurations(Configuration config) {
+    private List<PluginConfiguration> scmPluginConfigurations(Configuration config) {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         for (Property property : config.list()) {

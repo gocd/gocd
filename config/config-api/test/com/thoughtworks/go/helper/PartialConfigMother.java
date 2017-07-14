@@ -71,7 +71,7 @@ public class PartialConfigMother {
     }
 
     public static RepoConfigOrigin createRepoOrigin() {
-        return new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://some.git"), "myplugin"), "1234fed");
+        return new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://some.git"), "myplugin", "repo-id"), "1234fed");
     }
 
     public static PartialConfig withEnvironment(String name, RepoConfigOrigin repoConfigOrigin) {

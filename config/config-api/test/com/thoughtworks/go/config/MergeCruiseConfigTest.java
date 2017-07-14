@@ -97,8 +97,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldReturnRemoteOriginOfTheGroup()
-    {
+    public void shouldReturnRemoteOriginOfTheGroup() {
         assertThat(cruiseConfig.findGroup("remote_group").getOrigin(), Is.<ConfigOrigin>is(createRepoOrigin()));
     }
 

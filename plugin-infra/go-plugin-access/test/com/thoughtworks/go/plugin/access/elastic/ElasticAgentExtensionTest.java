@@ -54,7 +54,7 @@ public class ElasticAgentExtensionTest {
         when(pluginManager.resolveExtensionVersion("ecs.plugin", Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
         when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
         when(pluginManager.submitTo(eq("ecs.plugin"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{\n" +
-                "\"status_report\": \"foo\"\n" +
+                "\"view\": \"foo\"\n" +
                 "}"));
 
         final String statusReport = new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin");
@@ -64,14 +64,14 @@ public class ElasticAgentExtensionTest {
         assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_STATUS_REPORT));
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void getStatusReportIsSupportedOnlyInVersion2() throws Exception {
         final GoPluginDescriptor.About about = new GoPluginDescriptor.About("ECS Plugin", "1.0", null, null, null, null);
 
         final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("ecs.plugin", "1", about, null, null, false);
         when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
 
-        assertNull(new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin"));
+        new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin");
 
         verify(pluginManager, times(0)).submitTo(any(), any());
     }

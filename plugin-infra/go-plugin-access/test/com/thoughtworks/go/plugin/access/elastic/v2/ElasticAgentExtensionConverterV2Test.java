@@ -104,7 +104,7 @@ public class ElasticAgentExtensionConverterV2Test {
 
     @Test
     public void shouldGetStatusReportViewFromResponseBody() throws Exception {
-        String template = new ElasticAgentExtensionConverterV2().getStatusReportView("{\"status_report\":\"foo\"}");
+        String template = new ElasticAgentExtensionConverterV2().getStatusReportView("{\"view\":\"foo\"}");
         assertThat(template, is("foo"));
     }
 

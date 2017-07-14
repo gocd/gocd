@@ -77,5 +77,15 @@ describe Admin::StatusReportsController do
       expect(response).to be_ok
       assigns[:status_report].should == 'status_report'
     end
+
+    it 'should be not found if plugin does not support status_report endpoint' do
+      pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
+      ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, true))
+      controller.elastic_agent_extension.stub(:getStatusReport).with('com.tw.myplugin').and_raise(java.lang.UnsupportedOperationException.new)
+
+      get :show, :plugin_id => 'com.tw.myplugin'
+
+      expect(response.response_code).to eq(404)
+    end
   end
 end

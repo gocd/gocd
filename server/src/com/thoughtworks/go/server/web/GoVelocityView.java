@@ -102,7 +102,6 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(PATH_RESOLVER, railsAssetsService);
         velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
         velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
-        velocityContext.put(PLUGINS_SUPPORTING_STATUS_REPORT, ElasticAgentMetadataStore.instance().pluginsSupportingStatusReports());
 
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
                 SPRING_SECURITY_CONTEXT_KEY);

@@ -31,16 +31,4 @@ public class ElasticAgentMetadataStore extends MetadataStore<ElasticAgentPluginI
     public static ElasticAgentMetadataStore instance() {
         return store;
     }
-
-    public Set<ElasticAgentPluginInfo> pluginsSupportingStatusReports() {
-        final Set<ElasticAgentPluginInfo> pluginsSupportingStatusReports = new HashSet<>();
-
-        for (ElasticAgentPluginInfo elasticAgentPluginInfo : this.pluginInfos.values()) {
-            if (elasticAgentPluginInfo.supportsStatusReport()) {
-                pluginsSupportingStatusReports.add(elasticAgentPluginInfo);
-            }
-        }
-
-        return pluginsSupportingStatusReports;
-    }
 }

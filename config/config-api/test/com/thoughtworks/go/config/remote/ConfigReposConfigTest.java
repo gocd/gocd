@@ -45,9 +45,10 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo(){
-        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin", "id"));
-        assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin")),is(true));
+        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin", "repo-id"));
+        assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin", "repo-id")),is(true));
     }
+
     @Test
     public void shouldReturnFalseThatHasConfigRepoWhenEmpty(){
         assertThat(repos.isEmpty(),is(true));

@@ -27,13 +27,6 @@ module ApiV3
                class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
 
-      property :plugin_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
-
     end
   end
 end

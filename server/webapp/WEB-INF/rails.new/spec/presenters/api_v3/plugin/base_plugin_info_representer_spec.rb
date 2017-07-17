@@ -24,7 +24,11 @@ describe ApiV3::Plugin::BasePluginInfoRepresenter do
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
     descriptor.markAsInvalid(%w(foo bar), java.lang.RuntimeException.new('boom!'))
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.NewPluginInfo.new(descriptor, 'plugin-type')
+    plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
+    plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
+
+    plugin_info = com.thoughtworks.go.plugin.domain.common.PluginInfo.new(descriptor, 'plugin-type', plugin_settings)
     actual_json = ApiV3::Plugin::BasePluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)
@@ -52,6 +56,20 @@ describe ApiV3::Plugin::BasePluginInfoRepresenter do
                                   vendor: {
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
+                                },
+                                plugin_settings: {
+                                  configurations: [
+                                    {
+                                      key: "memberOf",
+                                      metadata: {
+                                        secure: false,
+                                        required: true
+                                      }
+                                    }
+                                  ],
+                                  view: {
+                                    template: "plugin_view_template"
+                                  }
                                 }
                               })
   end

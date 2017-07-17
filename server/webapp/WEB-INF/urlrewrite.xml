@@ -137,6 +137,20 @@
     </rule>
 
     <rule>
+        <name>Rails Config Repo API Index API</name>
+        <from>^/api/admin/config_repos</from>
+        <to last="true">/rails/api/admin/config_repos</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Config Repo API</name>
+        <from>^/api/admin/config_repos/(.*)$</from>
+        <to last="true">/rails/api/admin/config_repos/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Rails Security Roles API Index API</name>
         <from>^/api/admin/security/roles</from>
         <to last="true">/rails/api/admin/security/roles</to>

@@ -258,6 +258,7 @@ module JavaImports
   java_import com.thoughtworks.go.server.ui.TemplatesViewModel unless defined? TemplatesViewModel
   java_import com.thoughtworks.go.config.remote.RepoConfigOrigin unless defined? RepoConfigOrigin
   java_import com.thoughtworks.go.config.remote.FileConfigOrigin unless defined? FileConfigOrigin
+  java_import com.thoughtworks.go.config.remote.ConfigRepoConfig unless defined? ConfigRepoConfig
   java_import com.thoughtworks.go.config.PluginRoleConfig unless defined? PluginRoleConfig
   java_import com.thoughtworks.go.config.RoleConfig unless defined? RoleConfig
   java_import com.thoughtworks.go.config.RoleUser unless defined? RoleUser

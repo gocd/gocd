@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -58,6 +59,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new ElasticAgentProfileConfigListener());
         goConfigService.register(new PackageListener());
         goConfigService.register(new SecurityAuthConfigListener());
+        goConfigService.register(new ConfigRepoListener());
         goConfigService.register(new RoleConfigListener());
     }
 
@@ -88,6 +90,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(PipelineConfig config) {
         String cacheKey = cacheKey(config, config.name());
+        return getFromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(ConfigRepoConfig config) {
+        String cacheKey = cacheKey(config, config.getId());
         return getFromCache(config, cacheKey);
     }
 
@@ -223,6 +230,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(SecurityAuthConfig profile) {
             removeFromCache(profile, profile.getId());
+        }
+    }
+
+    class ConfigRepoListener extends EntityConfigChangedListener<ConfigRepoConfig> {
+        @Override
+        public void onEntityConfigChange(ConfigRepoConfig entity) {
+            removeFromCache(entity, entity.getId());
         }
     }
 

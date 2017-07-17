@@ -22,6 +22,8 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 
 public class ConfigReposConfigTest {
@@ -41,6 +43,19 @@ public class ConfigReposConfigTest {
     public void shouldReturnTrueThatHasMaterialWhenAddedConfigRepo(){
         repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin"));
         assertThat(repos.hasMaterial(new GitMaterialConfig("http://git")),is(true));
+    }
+
+    @Test
+    public void shouldFindConfigRepoWithSpecifiedId(){
+        String id = "repo1";
+        ConfigRepoConfig configRepo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin", id);
+        repos.add(configRepo1);
+        assertThat(repos.getConfigRepo(id),is(configRepo1));
+    }
+
+    @Test
+    public void shouldFindReturnNullWhenConfigRepoWithSpecifiedIdIsNotPresent(){
+        assertNull(repos.getConfigRepo("repo1"));
     }
 
     @Test

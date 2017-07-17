@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -65,7 +66,7 @@ public class JobControllerIntegrationTest {
     @Autowired
     private JobInstanceService jobInstanceService;
     @Autowired
-    private JobDetailService jobDetailService;
+    private JobInstanceDao jobInstanceDao;
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
@@ -104,7 +105,7 @@ public class JobControllerIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        controller = new JobController(jobInstanceService, agentService, jobDetailService,
+        controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
                 goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, jobAgentMetadataDao);
     }
 
@@ -160,7 +161,7 @@ public class JobControllerIntegrationTest {
 
     @Test
     public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
-        controller = new JobController(jobInstanceService, agentService, jobDetailService,
+        controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
                 goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, jobAgentMetadataDao);
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();

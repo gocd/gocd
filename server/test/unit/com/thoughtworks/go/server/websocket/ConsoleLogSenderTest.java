@@ -21,8 +21,8 @@ import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
-import com.thoughtworks.go.server.service.JobDetailService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
@@ -55,13 +55,13 @@ public class ConsoleLogSenderTest {
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
         socketHealthService = mock(SocketHealthService.class);
-        JobDetailService jobDetailService = mock(JobDetailService.class);
+        JobInstanceDao jobInstanceDao = mock(JobInstanceDao.class);
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
-        consoleLogSender = new ConsoleLogSender(consoleService, jobDetailService, socketHealthService);
+        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService);
         jobIdentifier = mock(JobIdentifier.class);
         jobInstance = mock(JobInstance.class);
-        when(jobDetailService.findMostRecentBuild(jobIdentifier)).thenReturn(jobInstance);
+        when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
     }
 
     @Test

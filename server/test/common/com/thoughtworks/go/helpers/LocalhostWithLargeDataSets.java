@@ -1,33 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helpers;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class LocalhostWithLargeDataSets extends Localhost {
     private static final int PORT = 7493;
@@ -57,11 +52,6 @@ public class LocalhostWithLargeDataSets extends Localhost {
         mainAction(localhostWithLargeDataSets, numberOfPipelines);
     }
 
-    @Override
-    protected void prepareSampleData(int numberOfPipelines) throws Exception {
-        //DO NOTHING
-    }
-    
     private static void prepareSampleDataFromZipFile() throws IOException {
         File dbDir = new File("db/hsqldb");
         File unzipped = unzipDatabaseFile(dbDir);
@@ -75,19 +65,6 @@ public class LocalhostWithLargeDataSets extends Localhost {
         unzipUtil.unzip(srcZip, dbDir);
         File unzipped = new File(dbDir, dataFileName);
         return unzipped;
-    }
-
-    @Override
-    protected void createLatestPipelines(DatabaseAccessHelper dbHelper,
-                                         JobInstanceDao jobInstanceDao) throws SQLException {
-        createBuildingAndScheduledDataAsLatestPipeline(dbHelper, PIPELINE_NAME);
-    }
-
-    private void createBuildingAndScheduledDataAsLatestPipeline(DatabaseAccessHelper dbHelper,
-                                                                String pipelineName) throws SQLException {
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled(pipelineName, baseStageNames,
-                baseBuildNames);
-        dbHelper.save(pipeline);
     }
 
 

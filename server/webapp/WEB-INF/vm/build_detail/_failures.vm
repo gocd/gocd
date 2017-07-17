@@ -16,7 +16,7 @@
 
 <div id="tab-content-of-failures" class="widget ansi-color-toggle" $errors_extra_attrs >
 <div>
-    #if (!$presenter.hasBuildError() && !$presenter.hasFailedTests() && !$presenter.hasStacktrace() && !$presenter.hasServerFailure())
+    #if (!$presenter.hasFailedTests())
         #if ($presenter.isFailed())
             #parse("build_detail/_build_output_raw.vm")
         #else
@@ -28,33 +28,10 @@
         #end
     #end
 
-    #if ($presenter.hasBuildError())
-        <h2 class="subtitle collapsible_title title_message_expanded">Error message</h2>
-        <div class="collapsible_content">
-            $esc.html($presenter.buildError)
-        </div>
-        <br/>
-    #end
-
     #if ($presenter.hasFailedTests())
         <h2 class="subtitle collapsible_title title_message_expanded">Failed tests</h2>
         <div class="collapsible_content">
             <iframe src="$req.getContextPath()/${presenter.indexPageURL}" width="95%" height="200" frameborder="0"></iframe>
-        </div>
-        <br/>
-    #end
-
-    #if($presenter.hasStacktrace())
-        <h2 class="subtitle collapsible_title title_message_expanded">Stacktrace</h2>
-        <div class="collapsible_content">
-            <pre>$esc.html($presenter.stacktrace)</pre>
-        </div>
-    #end
-
-    #if($presenter.hasServerFailure())
-        <h2 class="subtitle collapsible_title title_message_expanded">Server failure</h2>
-        <div class="collapsible_content">
-            <iframe src="$req.getContextPath()/${presenter.serverFailurePageURL}" width="95%" height="200" frameborder="0"></iframe>
         </div>
         <br/>
     #end

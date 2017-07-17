@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -58,7 +59,7 @@ public class JobController {
     @Autowired
     private AgentService agentService;
     @Autowired
-    private JobDetailService jobDetailService;
+    private JobInstanceDao jobInstanceDao;
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
@@ -82,13 +83,13 @@ public class JobController {
     }
 
     JobController(
-            JobInstanceService jobInstanceService, AgentService agentService, JobDetailService jobDetailService,
+            JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
             ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService,
             Localizer localizer, JobAgentMetadataDao jobAgentMetadataDao) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
-        this.jobDetailService = jobDetailService;
+        this.jobInstanceDao = jobInstanceDao;
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
         this.restfulService = restfulService;
@@ -114,7 +115,7 @@ public class JobController {
 
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(), stageName, stageCounter);
 
-        JobInstance instance = jobDetailService.findMostRecentBuild(new JobIdentifier(stageIdentifier, jobName));
+        JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
         return getModelAndView(instance, elasticProfilePluginId(instance));
     }
 
@@ -178,7 +179,7 @@ public class JobController {
         Object json;
         try {
             JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
-            JobInstance mostRecentJobInstance = jobDetailService.findMostRecentBuild(requestedInstance.getIdentifier());
+            JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
                     agentService.findAgentObjectByUuid(mostRecentJobInstance.getAgentUuid()),

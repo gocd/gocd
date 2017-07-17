@@ -52,6 +52,7 @@ import org.mockito.Mock;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -322,28 +323,31 @@ public class BuildWorkTest {
         final String url = String.format("%s/remoting/files/%s/%s/%s/%s/%s/%s?attempt=1&buildId=0", SERVER_URL, PIPELINE_NAME, PIPELINE_LABEL, STAGE_NAME, STAGE_COUNTER, JOB_PLAN_NAME,
                 destFolder.replaceAll("\\\\", "/"));
 
+        String artifactFile = "example.txt";
+        File basedir = new File("pipelines/pipeline1");
 
-        buildWork = (BuildWork) getWork(willUploadToDest("cruise-output/log.xml", destFolder), PIPELINE_NAME);
+        FileUtils.write(new File(basedir, artifactFile), "foo", StandardCharsets.UTF_8);
+
+        buildWork = (BuildWork) getWork(willUploadToDest(artifactFile, destFolder), PIPELINE_NAME);
         com.thoughtworks.go.remote.work.HttpServiceStub httpService = new com.thoughtworks.go.remote.work.HttpServiceStub(HttpServletResponse.SC_OK);
         artifactManipulator = new GoArtifactsManipulatorStub(httpService);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
-        artifactManipulator.printConsoleOut();
-        File basedir = new File("pipelines/pipeline1");
 
-        assertThat(actual.toLowerCase(), containsString(("Uploading artifacts from " + new File(basedir, "cruise-output/log.xml").getCanonicalPath()).toLowerCase()));
+        assertThat(actual.toLowerCase(), containsString(("Uploading artifacts from " + new File(basedir, artifactFile).getCanonicalPath()).toLowerCase()));
 
         Map<String, File> uploadedFiles = httpService.getUploadedFiles();
 
         assertThat(uploadedFiles.size(), is(1));
-        assertThat(uploadedFiles.get(url).getAbsolutePath(), containsString("log.xml.zip"));
+        assertThat(uploadedFiles.get(url).getAbsolutePath(), containsString(artifactFile + ".zip"));
     }
 
     @Test
     public void shouldFailTheJobWhenFailedToUploadArtifact() throws Exception {
-        buildWork = (BuildWork) getWork(willUpload("cruise-output/log.xml"), PIPELINE_NAME);
+        String artifactFile = "some.txt";
+        buildWork = (BuildWork) getWork(willUpload(artifactFile), PIPELINE_NAME);
         artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
@@ -351,8 +355,7 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
 
-        File basedir = new File("pipelines/pipeline1");
-        assertThat(actual, printedUploadingFailure(new File(basedir, "cruise-output/log.xml")));
+        assertThat(actual, printedRuleDoesNotMatchFailure(new File("pipelines/pipeline1").getPath(), artifactFile));
         assertThat(buildRepository.results, containsResult(Failed));
     }
 
@@ -571,7 +574,7 @@ public class BuildWorkTest {
         assertThat(artifactManipulator.consoleOut(), containsString("Cleaning working directory \"" + workingdir.getAbsolutePath()));
         assertThat(buildRepository.results.contains(Passed), is(true));
         assertThat(workingdir.exists(), is(true));
-        assertThat(workingdir.listFiles().length, is(1));
+        assertThat(workingdir.listFiles().length, is(0));
     }
 
     @Test

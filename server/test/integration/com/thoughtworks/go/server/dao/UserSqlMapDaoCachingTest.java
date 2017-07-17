@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.User;
@@ -34,6 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StopWatch;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;

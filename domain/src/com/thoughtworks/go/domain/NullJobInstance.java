@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Date;
-
 import com.thoughtworks.go.util.TimeProvider;
+
+import java.util.Date;
 
 import static com.thoughtworks.go.util.GoConstants.NEVER;
 
 public class NullJobInstance extends JobInstance {
     public NullJobInstance(String name) {
-        super(name, new NullJobInstanceLog(), new TimeProvider());
+        super(name, new TimeProvider());
     }
 
     public long getId() {

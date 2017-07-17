@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.Duration;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -42,7 +41,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     private boolean ignored;
 
     private BuildOutputMatcher matcher = new BuildOutputMatcher();
-    private JobInstanceLog log = new NullJobInstanceLog();
     private JobIdentifier identifier;
     private boolean runOnAllAgents;
     private boolean runMultipleInstance;
@@ -58,11 +56,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         this.name = jobConfigName;
         this.timeProvider = clock;
         schedule();
-    }
-
-    public JobInstance(String name, JobInstanceLog log, final Clock clock) {
-        this(name, clock);
-        this.log = log;
     }
 
     /**
@@ -153,7 +146,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
                 ", timeProvider=" + timeProvider +
                 ", ignored=" + ignored +
                 ", matcher=" + matcher +
-                ", log=" + log +
                 ", identifier=" + identifier +
                 ", plan=" + plan +
                 ", runOnAllAgents=" + runOnAllAgents +
@@ -273,28 +265,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
             return true;
         }
         return false;
-    }
-
-    public String getBuildError() {
-        return log.getBuildError();
-    }
-
-    public String getStacktrace() {
-        return log.stacktrace();
-    }
-
-    public File getTestIndexPage() {
-        return log.getTestIndexPage();
-    }
-
-
-    public File getServerFailurePage() {
-
-        return log.getServerFailurePage();
-    }
-
-    public void setInstanceLog(JobInstanceLog jobInstanceLog) {
-        this.log = jobInstanceLog;
     }
 
     public boolean isFailed() {
@@ -465,7 +435,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         result1 = 31 * result1 + (timeProvider != null ? timeProvider.hashCode() : 0);
         result1 = 31 * result1 + (ignored ? 1 : 0);
         result1 = 31 * result1 + (matcher != null ? matcher.hashCode() : 0);
-        result1 = 31 * result1 + (log != null ? log.hashCode() : 0);
         result1 = 31 * result1 + (identifier != null ? identifier.hashCode() : 0);
         result1 = 31 * result1 + (plan != null ? plan.hashCode() : 0);
         return result1;

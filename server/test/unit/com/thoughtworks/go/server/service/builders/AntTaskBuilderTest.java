@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.builders;
 
@@ -20,7 +20,6 @@ import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.domain.TasksTest;
@@ -31,7 +30,6 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,13 +95,11 @@ public class AntTaskBuilderTest {
         antTask.setBuildFile(buildXml);
         antTask.setTarget(target);
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
-        BuildLogElement element = new BuildLogElement();
 
         try {
-            builder.build(element, new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
+            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
-            assertThat(element.getBuildError(), Is.is("Build failed. Command ant reported [BUILD FAILED]."));
         }
     }
 

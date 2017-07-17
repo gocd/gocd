@@ -16,30 +16,23 @@
 
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
+import com.thoughtworks.go.plugin.api.task.Console;
+import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import java.io.StringBufferInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.thoughtworks.go.domain.BuildLogElement;
-import com.thoughtworks.go.work.DefaultGoPublisher;
-import com.thoughtworks.go.plugin.api.task.Console;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluggableTaskConsoleTest {
-    @Mock
-    BuildLogElement buildLogElement;
     @Mock
     DefaultGoPublisher publisher;
     private PluggableTaskConsole console;
@@ -49,7 +42,7 @@ public class PluggableTaskConsoleTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        console = new PluggableTaskConsole(buildLogElement, publisher);
+        console = new PluggableTaskConsole(publisher);
     }
 
     @Test

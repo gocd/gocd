@@ -19,8 +19,8 @@ package com.thoughtworks.go.server.websocket;
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
-import com.thoughtworks.go.server.service.JobDetailService;
 import com.thoughtworks.go.server.util.Retryable;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.slf4j.Logger;
@@ -49,15 +49,15 @@ public class ConsoleLogSender {
     private ConsoleService consoleService;
 
     @Autowired
-    private JobDetailService jobDetailService;
+    private JobInstanceDao jobInstanceDao;
 
     @Autowired
     private SocketHealthService socketHealthService;
 
     @Autowired
-    ConsoleLogSender(ConsoleService consoleService, JobDetailService jobDetailService, SocketHealthService socketHealthService) {
+    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService) {
         this.consoleService = consoleService;
-        this.jobDetailService = jobDetailService;
+        this.jobInstanceDao = jobInstanceDao;
         this.socketHealthService = socketHealthService;
     }
 
@@ -115,7 +115,7 @@ public class ConsoleLogSender {
     }
 
     private boolean detectCompleted(JobIdentifier jobIdentifier) throws Exception {
-        return jobDetailService.findMostRecentBuild(jobIdentifier).isCompleted();
+        return jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier).isCompleted();
     }
 
     private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {

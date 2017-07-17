@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.agent.common;
 
-import org.apache.tools.ant.ExitException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -115,6 +114,18 @@ public class AgentCLITest {
             Assert.fail("Was expecting an exception!");
         } catch (ExitException e) {
             assertThat(e.getStatus(), is(0));
+        }
+    }
+
+    class ExitException extends RuntimeException {
+        private final int status;
+
+        public ExitException(int status) {
+            this.status = status;
+        }
+
+        public int getStatus() {
+            return status;
         }
     }
 }

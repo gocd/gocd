@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,10 +131,6 @@ dependencies {
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
   compile group: 'org.springframework', name: 'web.servlet', version: '3.1.3.RELEASE'
-  compile(group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.2.1') {
-    exclude(module: 'servlet-api')
-    exclude(module: 'commons-logging')
-  }
   compile(group: 'org.springframework.security', name: 'spring-security-acl', version: '2.0.3') {
     exclude(module: 'spring-support')
     exclude(module: 'spring-jdbc')
@@ -145,11 +141,6 @@ dependencies {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')
-  }
-  compile(group: 'org.springframework.security', name: 'spring-security-cas-client', version: '2.0.3') {
-    exclude(module: 'spring-support')
-    exclude(module: 'spring-dao')
-    exclude(module: 'cas-client-core')
   }
   compile group: 'org.springframework.security', name: 'spring-security-core-tiger', version: '2.0.3'
   compile(group: 'org.springframework.ldap', name: 'spring-ldap', version: '1.2.1') {
@@ -489,7 +480,6 @@ task verifyWar(type: VerifyJarTask) {
       "aspectjrt-1.5.4.jar",
       "aspectjweaver-1.5.4.jar",
       "base-${project.version}.jar",
-      "cas-client-core-3.2.1.jar",
       "cglib-2.1_3.jar",
       "cglib-nodep-2.2.jar",
       "cloning-1.7.3.jar",
@@ -581,7 +571,6 @@ task verifyWar(type: VerifyJarTask) {
       "spring-ldap-1.2.1.jar",
       "spring-orm-3.1.3.RELEASE.jar",
       "spring-security-acl-2.0.3.jar",
-      "spring-security-cas-client-2.0.3.jar",
       "spring-security-core-2.0.3.jar",
       "spring-security-core-tiger-2.0.3.jar",
       "spring-tx-3.1.3.RELEASE.jar",

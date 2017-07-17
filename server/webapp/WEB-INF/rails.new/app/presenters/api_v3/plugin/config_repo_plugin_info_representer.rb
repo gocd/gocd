@@ -17,13 +17,6 @@ module ApiV3
   module Plugin
     class ConfigRepoPluginInfoRepresenter < BasePluginInfoRepresenter
 
-      property :plugin_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
-
     end
   end
 end

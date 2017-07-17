@@ -54,6 +54,13 @@ module ApiV3
         end
       end
 
+      property :plugin_settings,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
+
       protected
 
       delegate :id, :version, :status, :about, :plugin_file_location, :isBundledPlugin, to: :descriptor

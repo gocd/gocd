@@ -26,15 +26,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
@@ -286,5 +278,9 @@ public class PipelineWithTwoStages implements PreCondition {
 
     public void setRunOnAllAgentsForSecondStage() {
         configHelper.setRunOnAllAgents(pipelineName, ftStage, JOB_FOR_FT_STAGE, true);
+    }
+
+    public void addJobAgentMetadata(JobAgentMetadata jobAgentMetadata) {
+        dbHelper.addJobAgentMetadata(jobAgentMetadata);
     }
 }

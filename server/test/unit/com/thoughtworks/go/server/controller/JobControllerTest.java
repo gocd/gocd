@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.Agent;
@@ -55,7 +53,7 @@ public class JobControllerTest {
         agentService = mock(AgentService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, agentService, jobDetailService, jobConfigService, null, null, null, null, stageService, null);
+        jobController = new JobController(jobInstanceService, agentService, jobDetailService, jobConfigService, null, null, null, null, stageService, null, null);
     }
 
     @Test
@@ -90,6 +88,13 @@ public class JobControllerTest {
 
         assertThat(buildingInfo.getString("id"), is("2"));
         assertThat(buildingInfo.getString("last_build_duration"), is("5"));
+    }
+
+    @Test
+    public void jobDetailModel_shouldHaveTheElasticProfilePluginId() throws Exception {
+
+        ModelAndView modelAndView = jobController.jobDetail("my_pipelines", "1",
+                "stage", "1", "my_job");
     }
 
 }

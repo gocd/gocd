@@ -28,7 +28,9 @@
   {else}
     <span>Not yet assigned</span>
   {/if}
-
+  #if ( $elasticProfilePluginId && $userHasAdministratorRights )
+    <a href="$req.getContextPath()/admin/status_reports/$elasticProfilePluginId">Status Report</a>
+  #end
 </li>
   <li><span class="header">Completed on: </span><span id="build_completed_date">${% build.build_completed_date %}</span><a  href="#tab-properties" class ="more" target="_blank" onclick="new TabsManager('properties')">more...</a></li>
 <li><span class="header">Build cause: </span><span id="stage-${% build.id %}-buildCause">$esc.html($esc.html($presenter.buildCauseMessage))</span></li>

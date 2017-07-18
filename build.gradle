@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ buildscript {
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
+    classpath 'com.netflix.nebula:gradle-lint-plugin:7.9.3'
   }
 }
 
@@ -63,7 +64,7 @@ def getVersion = { ... args ->
       errorOutput = stdout
       ignoreExitValue = true
     }
-  } catch (Exception e){
+  } catch (Exception e) {
     return "could not determine version!"
   }
 
@@ -124,9 +125,12 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println("============================")
 }
 
+apply plugin: 'nebula.lint'
+
 allprojects {
   apply plugin: 'java'
   apply plugin: 'idea'
+  apply plugin: 'nebula.lint'
 
   rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
   rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
@@ -183,6 +187,11 @@ allprojects {
         srcDirs = ['test-resources']
       }
     }
+  }
+
+  gradleLint {
+    rules = ['all-dependency']
+    alwaysRun = false
   }
 
   tasks.withType(Jar) { jarTask ->
@@ -260,9 +269,11 @@ allprojects {
       tmpDir.mkdirs()
 
       def files = []
-      testTask.testClassesDir.eachFileRecurse(FileType.FILES) { f ->
-        def relPath = new File(testTask.testClassesDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
-        files << relPath
+      test.testClassesDirs.files.each { File classDir ->
+        classDir.eachFileRecurse(FileType.FILES) { f ->
+          def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+          files << relPath
+        }
       }
 
       List myPartition = project.partitionFiles(files)

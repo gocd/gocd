@@ -491,5 +491,9 @@ a.unpause-build-link-disabled {
   top: 11px;
   opacity: 0.4;
 }
+span.pause-message {
+  display: inline-block;
+  margin: 5px 10px 0 10px;
+}
 
 @import "../new-theme";

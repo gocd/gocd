@@ -524,6 +524,9 @@
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>
     <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete the template ''{0}'' as it is used by pipeline(s): ''{1}''</entry>
     <entry key="RESOURCE_DELETE_SUCCESSFUL">The {0} ''{1}'' was deleted successfully.</entry>
+    <entry key="RESOURCE_UPDATE_SUCCESSFUL">The {0} ''{1}'' was updated successfully.</entry>
+    <entry key="RESOURCE_ADD_FAILED">Failed to add {0}. {1}</entry>
+    <entry key="RESOURCE_UPDATE_FAILED">Failed to update {0}. {1}</entry>
     <entry key="ENTITY_ATTRIBUTE_NULL">The {0} config is invalid. Attribute ''{1}'' cannot be null.</entry>
     <entry key="DELETE_TEMPLATE">Delete this template</entry>
     <entry key="UNAUTHORIZED_TO_ADMINISTER">Unauthorized to edit configuration</entry>

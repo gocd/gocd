@@ -20,10 +20,12 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,6 +56,7 @@ public class ConfigRepoConfig implements Validatable {
     public static final String AUTO_UPDATE = "autoUpdate";
     public static final String UNIQUE_REPO = "unique_repo";
     public static final String REPO = "repo";
+    public static final String ID = "id";
 
     private ConfigErrors errors = new ConfigErrors();
 
@@ -132,6 +135,7 @@ public class ConfigRepoConfig implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
+        this.validatePresenceOfId();
         this.validateRepoIsSet();
         this.validateAutoUpdateEnabled();
         this.validateAutoUpdateState(validationContext);
@@ -189,6 +193,11 @@ public class ConfigRepoConfig implements Validatable {
         }
     }
 
+    private void validatePresenceOfId() {
+        if (this.getId() == null) {
+            this.errors.add(ID,"Configuration repository id not specified");
+        }
+    }
 
     public boolean hasSameMaterial(MaterialConfig config) {
         return this.getMaterialConfig().getFingerprint().equals(config.getFingerprint());
@@ -221,5 +230,9 @@ public class ConfigRepoConfig implements Validatable {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configuration) {
+        this.configuration.addAll(configuration);
     }
 }

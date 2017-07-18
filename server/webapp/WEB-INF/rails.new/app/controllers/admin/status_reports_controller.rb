@@ -18,7 +18,7 @@ module Admin
   class StatusReportsController < ::ApplicationController
     include AuthenticationHelper
 
-    layout 'application'
+    layout 'plugin'
     before_action :check_admin_user_and_401
     before_action :load_plugin_info
 
@@ -28,11 +28,20 @@ module Admin
       @status_report = elastic_agent_extension.getStatusReport(params[:plugin_id])
     rescue java.lang.UnsupportedOperationException => e
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} is not found.", 404
+    rescue java.lang.Exception => e
+      render_plugin_error e
     end
 
     def load_plugin_info
       plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(params[:plugin_id])
       render_error_template "Plugin with id: #{params[:plugin_id]} is not found.", 404 if plugin_info.nil?
+    end
+
+    private
+    def render_plugin_error e
+      message = e.cause != nil ? e.cause.message : e.message
+      self.error_template_for_request = 'status_report_error'
+      render_error_template message, 500
     end
   end
 end

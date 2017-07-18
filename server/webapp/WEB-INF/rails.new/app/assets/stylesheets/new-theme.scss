@@ -2752,6 +2752,7 @@ ul.plugins .plugin {
   padding:       20px;
   border-top:    0;
   border-bottom: 1px dotted #ccc;
+  position: relative;
   .plugin-details {
     margin-bottom: 10px;
   }
@@ -3743,4 +3744,8 @@ body#login-page {
 
 .config-materials .action_icon.delete_icon_disabled {
   padding-left: 3px;
+}
+
+a.btn-sub {
+  color: #333;
 }

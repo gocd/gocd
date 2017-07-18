@@ -21,12 +21,9 @@ description = 'GoCD TFS SDK wrapper v14'
 dependencies {
   compile project(':common')
   compile group: 'com.microsoft', name: 'tfs-sdk', version: '14.0.3'
-  compile(group: 'xalan', name: 'xalan', version: '2.7.1')
-  testCompile group: 'junit', name: 'junit', version: '4.12'
-  testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
-  testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
-  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
-  testCompile group: 'org.mockito', name: 'mockito-core', version: '1.9.5'
+  testCompile group: 'junit', name: 'junit', version: project.versions.junit
+  testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
 }
 
 jar {
@@ -38,10 +35,8 @@ task fatJar(type: Jar) {
   dependsOn jar
   from(jar.archivePath) { into('lib/') }
 
-  from({
-    project.configurations.compile.findAll {
-      it.absolutePath.contains('tfs-sdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
-    }
+  from(project.configurations.compile.findAll {
+    it.absolutePath.contains('tfs-sdk')
   }) {
     into 'lib/'
   }
@@ -56,10 +51,8 @@ task verifyJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
       "lib": [
-          "serializer-2.7.1.jar",
           "tfs-impl-14-${project.version}-classes.jar",
           "tfs-sdk-14.0.3.jar",
-          "xalan-2.7.1.jar",
       ]
   ]
 }

@@ -1906,7 +1906,7 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not support 2 environments with the same same");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Duplicate unique value [uat] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\""));
+            assertThat(e.getMessage(), containsString("Duplicate unique value [uat] declared for identity constraint of element \"environments\""));
         }
     }
 
@@ -1997,7 +1997,7 @@ public class MagicalGoConfigXmlLoaderTest {
             fail("XSD should not allow duplicate agent uuid in environment");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString(
-                    "Duplicate unique value [1] declared for identity constraint \"uniqueEnvironmentAgentsUuid\" of element \"agents\"."));
+                    "Duplicate unique value [1] declared for identity constraint of element \"agents\"."));
         }
     }
 
@@ -3230,7 +3230,7 @@ public class MagicalGoConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [repo-id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [repo-id] declared for identity constraint of element \"repositories\"."));
         }
     }
 
@@ -3241,7 +3241,7 @@ public class MagicalGoConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [repo] declared for identity constraint \"uniqueRepositoryName\" of element \"repositories\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [repo] declared for identity constraint of element \"repositories\"."));
         }
     }
 
@@ -3253,7 +3253,7 @@ public class MagicalGoConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [package-id] declared for identity constraint \"uniquePackageId\" of element \"cruise\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [package-id] declared for identity constraint of element \"cruise\"."));
         }
     }
 
@@ -3955,7 +3955,7 @@ public class MagicalGoConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(ConfigFileFixture.JOBS_WITH_SAME_NAME);
         } catch (Exception e) {
             assertTrue(e instanceof XsdValidationException);
-            assertThat(e.getMessage(), is("Duplicate unique value [unit] declared for identity constraint \"uniqueJob\" of element \"jobs\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [unit] declared for identity constraint of element \"jobs\"."));
         }
     }
 

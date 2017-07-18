@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.util;
 
-import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -83,7 +83,7 @@ public class FileDigester {
             else
                 md5.append(file.getName() + md5DigestOfFile(file));
         }
-        return md5DigestOfStream(new ByteArrayInputStream(md5.toString().getBytes(CharEncoding.UTF_8)));
+        return md5DigestOfStream(new ByteArrayInputStream(md5.toString().getBytes(StandardCharsets.UTF_8)));
     }
 
     public static String md5DigestOfStream(InputStream stream) throws IOException {

@@ -19,5 +19,7 @@ description = 'GoCD Agent Common Utilities'
 dependencies {
   compile project(':base')
   compile group: 'com.beust', name: 'jcommander', version: '1.60'
+  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   testCompile project(':test-utils')
 }

@@ -21,8 +21,8 @@ dependencies {
     compile project(':config-api')
     testCompile project(':test-utils')
     testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
-    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.9.5'
+    testCompile group: 'junit', name: 'junit', version: project.versions.junit
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+    testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
 }

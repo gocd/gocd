@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.mina.util.ConcurrentHashSet;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

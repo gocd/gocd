@@ -21,8 +21,10 @@ description = 'GoCD Agent Bootstrapper'
 dependencies {
   compile project(':agent-common')
   compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
+  compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
   testCompile project(':test-utils')
-
+  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
 }

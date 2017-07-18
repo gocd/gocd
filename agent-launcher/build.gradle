@@ -20,6 +20,7 @@ description = 'Agent Launcher Jar'
 
 dependencies {
   compile project(':agent-common')
+  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile project(':test-utils')
 }
 
@@ -46,7 +47,6 @@ task verifyJar(type: VerifyJarTask) {
           "agent-common-${project.version}.jar",
           "agent-launcher-${project.version}-classes.jar",
           "base-${project.version}.jar",
-          "commons-codec-1.10.jar",
           "commons-io-2.5.jar",
           "commons-lang-2.6.jar",
           "commons-logging-1.2.jar",

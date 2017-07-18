@@ -785,7 +785,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail();
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [passed] declared for identity constraint of element \"exec\"."));
         }
     }
 
@@ -911,7 +911,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(configToSave, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [id] declared for identity constraint of element \"repositories\"."));
         }
     }
 
@@ -931,7 +931,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(configToSave, output, false);
             fail("should not have allowed two package repositories with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [id] declared for identity constraint \"uniquePackageId\" of element \"cruise\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [id] declared for identity constraint of element \"cruise\"."));
         }
     }
 

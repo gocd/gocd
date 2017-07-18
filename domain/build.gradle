@@ -27,8 +27,11 @@ sourceSets {
 dependencies {
   compile project(':db')
   compile project(':commandline')
-  compile group: 'org.springframework', name: 'spring-orm', version: '3.1.3.RELEASE'
+  compile group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
+  testCompile(group: 'org.jmock', name: 'jmock-junit4', version: '2.4.0') {
+    exclude(module: 'junit-dep')
+  }
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 }

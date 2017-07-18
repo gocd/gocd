@@ -17,10 +17,7 @@
 description = 'GoCD Plugins Domain'
 
 dependencies {
-  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
   compile project(':go-plugin-api')
-  compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: '0.0.20'
-  compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: '0.0.20'
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.4.0'
   testCompile project(':test-utils')
 }

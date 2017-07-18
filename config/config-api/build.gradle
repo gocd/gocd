@@ -20,6 +20,8 @@ dependencies {
   compile project(':plugin-metadata-store')
   compile project(':go-plugin-domain')
   compile project(':db')
+  compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+  compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
   compile group: 'org.quartz-scheduler', name: 'quartz', version: '1.6.5'
   compile group: 'uk.com.robust-it', name: 'cloning', version: '1.7.3'
   compile group: 'org.jdom', name: 'jdom', version: '2.0.2'
@@ -27,7 +29,9 @@ dependencies {
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: '4.2.1'
   testCompile project(':test-utils')
   testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'
+  testCompile group: 'junit', name: 'junit', version: project.versions.junit
+  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   compileOnly group: 'com.google.guava', name: 'guava', version: '20.0'
-
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 }

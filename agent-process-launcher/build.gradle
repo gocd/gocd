@@ -18,5 +18,7 @@ description = 'GoCD Agent Process Launcher Classes'
 
 dependencies {
   compile project(':agent-common')
+  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   testCompile project(':test-utils')
 }

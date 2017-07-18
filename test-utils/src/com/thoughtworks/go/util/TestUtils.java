@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.*;
-import java.util.Collection;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -30,11 +25,16 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Assert;
+
+import java.io.*;
+import java.util.Collection;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.text.MessageFormat.format;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
 
 public class TestUtils {
     private static final PrintStream DROP_STREAM = new PrintStream(new OutputStream() {
@@ -79,7 +79,7 @@ public class TestUtils {
     }
 
     public static void assertContains(String fullString, String thatIsContained) {
-        Assert.assertEquals(thatIsContained + " was not found in " + fullString, true,
+        assertEquals(thatIsContained + " was not found in " + fullString, true,
                 StringUtils.contains(fullString, thatIsContained));
     }
 

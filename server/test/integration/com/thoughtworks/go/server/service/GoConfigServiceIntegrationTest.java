@@ -731,7 +731,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(config.getMd5(), is(md5BeforeAddingGroupAtBeginning));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_CONFLICT));
-        assertThat(result.message(localizer), is("Save failed. Duplicate unique value [first_group] declared for identity constraint \"uniquePipelines\" of element \"cruise\"."));
+        assertThat(result.message(localizer), is("Save failed. Duplicate unique value [first_group] declared for identity constraint of element \"cruise\"."));
     }
 
     @Test

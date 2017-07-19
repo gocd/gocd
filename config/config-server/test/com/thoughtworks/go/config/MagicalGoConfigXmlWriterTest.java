@@ -199,7 +199,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteConfigRepos() throws Exception {
         CruiseConfig config = GoConfigMother.configWithConfigRepo();
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("<config-repo plugin=\"myplugin\" id=\"id2\">"));
+        assertThat(output.toString(), containsString("<config-repo pluginId=\"myplugin\" id=\"id2\">"));
         assertThat(output.toString(), containsString("<git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />"));
     }
 

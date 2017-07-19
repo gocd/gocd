@@ -173,7 +173,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldLoadConfigWithConfigRepoAndPluginName() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
-                        + "    <config-repo plugin=\"myplugin\" id=\"repo-id\">\n"
+                        + "    <config-repo pluginId=\"myplugin\" id=\"repo-id\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
                         + "    </config-repo >\n"
                         + "  </config-repos>\n"
@@ -187,10 +187,10 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldLoadConfigWith2ConfigRepos() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
-                        + "    <config-repo plugin=\"myplugin\" id=\"repo-id1\">\n"
+                        + "    <config-repo pluginId=\"myplugin\" id=\"repo-id1\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
                         + "    </config-repo >\n"
-                        + "    <config-repo plugin=\"myplugin\" id=\"repo-id2\">\n"
+                        + "    <config-repo pluginId=\"myplugin\" id=\"repo-id2\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
                         + "    </config-repo >\n"
                         + "  </config-repos>\n"
@@ -228,7 +228,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldThrowXsdValidationException_WhenNoRepository() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
-                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "    <config-repo pluginId=\"myplugin\">\n"
                         + "    </config-repo >\n"
                         + "  </config-repos>\n"
         )).config;
@@ -238,7 +238,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
-                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "    <config-repo pluginId=\"myplugin\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
                         + "    </config-repo >\n"
@@ -250,10 +250,10 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
-                        + "    <config-repo plugin=\"myplugin\" id=\"id1\">\n"
+                        + "    <config-repo pluginId=\"myplugin\" id=\"id1\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
                         + "    </config-repo >\n"
-                        + "    <config-repo plugin=\"myotherplugin\" id=\"id2\">\n"
+                        + "    <config-repo pluginId=\"myotherplugin\" id=\"id2\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
                         + "    </config-repo >\n"
                         + "  </config-repos>\n"

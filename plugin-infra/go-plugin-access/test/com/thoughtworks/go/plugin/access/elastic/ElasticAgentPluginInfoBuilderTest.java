@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,30 +28,31 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ElasticAgentPluginInfoBuilderTest {
     private ElasticAgentExtension extension;
+    private PluginManager pluginManager;
 
     @Before
     public void setUp() throws Exception {
         extension = mock(ElasticAgentExtension.class);
+        pluginManager = mock(PluginManager.class);
     }
 
     @Test
     public void shouldBuildPluginInfoWithProfileSettings() throws Exception {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(property);
         Image icon = new Image("content_type", "data", "hash");
 
+        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("1.0");
         when(extension.getPluginSettingsConfiguration(descriptor.id())).thenReturn(pluginSettingsConfiguration);
         when(extension.getPluginSettingsView(descriptor.id())).thenReturn("some html");
 
@@ -59,7 +61,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         when(extension.getProfileMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getProfileView(descriptor.id())).thenReturn("profile_view");
 
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension, pluginManager);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
@@ -68,22 +70,24 @@ public class ElasticAgentPluginInfoBuilderTest {
         assertThat(pluginInfo.getImage(), is(icon));
         assertThat(pluginInfo.getProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertFalse(pluginInfo.supportsStatusReport());
     }
 
     @Test
     public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByThePlugin() {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
 
         Image icon = new Image("content_type", "data", "hash");
 
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration(descriptor.id());
+        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("1.0");
         when(extension.getIcon(descriptor.id())).thenReturn(icon);
 
         when(extension.getProfileMetadata(descriptor.id())).thenReturn(pluginConfigurations);
         when(extension.getProfileView(descriptor.id())).thenReturn("profile_view");
 
-        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension, pluginManager);
         ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
@@ -94,4 +98,14 @@ public class ElasticAgentPluginInfoBuilderTest {
         assertNull(pluginInfo.getPluginSettings());
     }
 
+    @Test
+    public void statusReportIsSupportedByElasticAgentPluginsWhichImplementV2() throws Exception {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("2.0");
+
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension, pluginManager).pluginInfoFor(descriptor);
+
+        assertTrue(pluginInfo.supportsStatusReport());
+    }
 }

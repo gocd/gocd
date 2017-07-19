@@ -313,7 +313,9 @@ ul.plugins{
             margin-top: 5px;
         }
         .plugin-author{
-            float: right
+            margin-top: 10px;
+            display: block;
+            clear: both;
         }
         .version{
             color: #999;

@@ -56,6 +56,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String PATH_RESOLVER = "pathResolver";
     public static final String GO_UPDATE = "goUpdate";
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
+
     private final SystemEnvironment systemEnvironment;
 
     public GoVelocityView() {

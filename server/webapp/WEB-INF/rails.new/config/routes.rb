@@ -329,6 +329,8 @@ Go::Application.routes.draw do
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
     resources :elastic_profiles, only: [:index], controller: :elastic_profiles, as: :elastic_profiles
+    resources :status_reports, only: [:show], controller: :status_reports, param: :plugin_id, as: :status_reports, constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false
+
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
       resources :roles, only: [:index], controller: :roles, as: :roles

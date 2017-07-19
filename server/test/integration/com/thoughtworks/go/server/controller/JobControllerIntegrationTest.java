@@ -17,13 +17,15 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -41,8 +43,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Collections;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 
@@ -87,6 +92,8 @@ public class JobControllerIntegrationTest {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private PipelineConfigService pipelineConfigService;
+    @Autowired
+    private JobAgentMetadataDao jobAgentMetadataDao;
 
     private GoConfigFileHelper configHelper;
     private PipelineWithTwoStages fixture;
@@ -100,12 +107,13 @@ public class JobControllerIntegrationTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, agentService, jobDetailService,
-                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer);
+                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, jobAgentMetadataDao);
     }
 
     @After
     public void tearDown() throws Exception {
         fixture.onTearDown();
+        ElasticAgentMetadataStore.instance().clear();
     }
 
     @Test
@@ -155,7 +163,7 @@ public class JobControllerIntegrationTest {
     @Test
     public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
         controller = new JobController(jobInstanceService, agentService, jobDetailService,
-                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer);
+                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, jobAgentMetadataDao);
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage devStage = pipeline.getStages().byName("dev");
@@ -165,6 +173,52 @@ public class JobControllerIntegrationTest {
 
         assertThat(presenter(modelAndView).getStageLocator(), is(devStage.stageLocator()));
         assertThat(presenter(modelAndView).getStage(), is(devStage));
+    }
+
+    @Test
+    public void jobDetailModel_shouldHaveTheElasticProfilePluginId() throws Exception {
+        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Stage stage = pipeline.getFirstStage();
+        JobInstance job = stage.getFirstJob();
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, true));
+
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+
+        ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
+                stage.getName(), String.valueOf(stage.getCounter()), job.getName());
+
+        assertThat(modelAndView.getModel().get("elasticProfilePluginId"), is("plugin_id"));
+    }
+
+    @Test
+    public void jobDetailModel_shouldNotHaveTheElasticProfilePluginInAbsenceOfJobAgentMetaData() throws Exception {
+        Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
+        Stage stage = pipeline.getFirstStage();
+        JobInstance job = stage.getFirstJob();
+
+        ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
+                stage.getName(), String.valueOf(stage.getCounter()), job.getName());
+
+        assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
+    }
+
+    @Test
+    public void jobDetailModel_shouldNotHaveElasticProfileForACompletedJob() throws Exception {
+        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
+        Stage stage = pipeline.getFirstStage();
+        JobInstance job = stage.getFirstJob();
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, true));
+
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+
+        ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
+                stage.getName(), String.valueOf(stage.getCounter()), job.getName());
+
+        assertNull(modelAndView.getModel().get("elasticProfilePluginId"));
     }
 
     private JobDetailPresentationModel presenter(ModelAndView modelAndView) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.elastic;
+package com.thoughtworks.go.plugin.access.elastic.v2;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMessageConverter;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -32,10 +33,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
+public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConverter {
     private static final Gson GSON = new Gson();
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "2.0";
 
     @Override
     public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration) {
@@ -124,5 +125,12 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
         return canHandlePluginResponseFromBody(responseBody);
     }
 
+    public String getStatusReportView(String responseBody) {
+        String statusReportView = (String) new Gson().fromJson(responseBody, Map.class).get("view");
+        if (StringUtils.isBlank(statusReportView)) {
+            throw new RuntimeException("Status Report is blank!");
+        }
+        return statusReportView;
+    }
 }
 

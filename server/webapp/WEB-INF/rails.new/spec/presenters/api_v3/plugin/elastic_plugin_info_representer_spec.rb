@@ -17,7 +17,7 @@
 require 'spec_helper'
 
 describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
-  it 'should describe an elastic agent plugin plugin' do
+  it 'should describe an elastic agent plugin' do
     vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
@@ -32,7 +32,7 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
     plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
 
 
-    plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings)
+    plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, false)
     actual_json = ApiV3::Plugin::ElasticPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find, :image)

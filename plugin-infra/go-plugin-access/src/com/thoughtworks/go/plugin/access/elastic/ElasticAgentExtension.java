@@ -19,8 +19,11 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.*;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConverterV1;
+import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -31,6 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
+import static java.lang.String.format;
+
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
 
@@ -38,13 +44,14 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, ElasticAgentPluginConstants.SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
+        addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2());
     }
 
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
-        messageHandlerMap.put(ElasticAgentExtensionConverterV1.VERSION, extensionHandler);
+        messageHandlerMap.put(version, extensionHandler);
     }
 
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration) {
@@ -116,6 +123,20 @@ public class ElasticAgentExtension extends AbstractExtension {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    public String getStatusReport(String pluginId) {
+        if (!ElasticAgentExtensionConverterV2.VERSION.equals(pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS))) {
+            throw new UnsupportedOperationException(format("Plugin `%s` implements Elastic Agent V1, `StatusReport` endpoint is not supported in this version.", pluginId));
+        }
+
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
+                return converter.getStatusReportView(responseBody);
             }
         });
     }

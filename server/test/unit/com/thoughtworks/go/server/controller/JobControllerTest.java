@@ -89,12 +89,4 @@ public class JobControllerTest {
         assertThat(buildingInfo.getString("id"), is("2"));
         assertThat(buildingInfo.getString("last_build_duration"), is("5"));
     }
-
-    @Test
-    public void jobDetailModel_shouldHaveTheElasticProfilePluginId() throws Exception {
-
-        ModelAndView modelAndView = jobController.jobDetail("my_pipelines", "1",
-                "stage", "1", "my_job");
-    }
-
 }

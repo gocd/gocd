@@ -70,6 +70,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         assertThat(pluginInfo.getImage(), is(icon));
         assertThat(pluginInfo.getProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertFalse(pluginInfo.supportsStatusReport());
     }
 
     @Test

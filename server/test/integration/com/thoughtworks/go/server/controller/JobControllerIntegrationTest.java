@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
@@ -194,7 +193,7 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void jobDetailModel_shouldNotHaveTheElastciProfilePluginInAbsenceOfJobAgentMetaData() throws Exception {
+    public void jobDetailModel_shouldNotHaveTheElasticProfilePluginInAbsenceOfJobAgentMetaData() throws Exception {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();

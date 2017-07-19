@@ -28,12 +28,20 @@ module ApiV3
           opts[:url_builder].apiv3_admin_environment_url(name: environment.name)
         end
 
+        link :self_with_config_repo do |opts|
+          opts[:url_builder].apiv3_admin_environment_url(name: environment.name) << '?withconfigrepo=true'
+        end
+
         link :doc do |opts|
           'https://api.gocd.io/#environment-config'
         end
 
         link :find do |opts|
           opts[:url_builder].apiv3_admin_environment_url(name: '__environment_name__').gsub(/__environment_name__/, ':environment_name')
+        end
+
+        link :find_with_config_repo do |opts|
+          opts[:url_builder].apiv3_admin_environment_url(name: '__environment_name__').gsub(/__environment_name__/, ':environment_name') << '?withconfigrepo=true'
         end
 
         property :name, case_insensitive_string: true

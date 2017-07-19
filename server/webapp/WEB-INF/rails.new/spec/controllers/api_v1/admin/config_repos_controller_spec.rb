@@ -75,11 +75,6 @@ describe ApiV1::Admin::ConfigReposController do
         login_as_admin
         expect(controller).to allow_action(:get, :show)
       end
-
-      it 'should allow pipeline group admin users, with security enabled' do
-        login_as_group_admin
-        expect(controller).to allow_action(:get, :show)
-      end
     end
 
     describe :route do
@@ -190,7 +185,7 @@ describe ApiV1::Admin::ConfigReposController do
 
     describe :security do
       before :each do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
+        @config_repo_service.stub(:getConfigRepo).and_return(@config_repo)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -211,7 +206,7 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:delete, :destroy)
+        expect(controller).to allow_action(:delete, :destroy, id: @config_repo_id)
       end
 
     end

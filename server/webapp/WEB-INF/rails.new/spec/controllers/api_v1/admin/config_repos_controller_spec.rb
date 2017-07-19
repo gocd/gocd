@@ -22,20 +22,26 @@ describe ApiV1::Admin::ConfigReposController do
   before :each do
     @material_config = GitMaterialConfig.new('git://foo', 'master')
     @config_repo_id = SecureRandom.hex
-    @plugin_name = 'config-repo-json-plugin'
-    @config_repo = ConfigRepoConfig.new(@material_config, @plugin_name, @config_repo_id)
+    @plugin_id = 'config-repo-json-plugin'
+    @config_repo = ConfigRepoConfig.new(@material_config, @plugin_id, @config_repo_id)
+    @md5 = 'some-digest'
+
+    @entity_hashing_service = double('entity-hashing-service')
+    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
 
     @config_repo_service = double('config-repo-service')
     controller.stub(:config_repo_service).and_return(@config_repo_service)
+
+    @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
   end
 
   describe :show do
-    before(:each) do
-      enable_security
-      login_as_admin
-    end
-
     describe :for_admins do
+      before(:each) do
+        enable_security
+        login_as_admin
+      end
+
       it 'should render the package repo' do
         @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
         get_with_api_header :show, id: @config_repo_id
@@ -73,11 +79,6 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:get, :show)
-      end
-
-      it 'should allow pipeline group admin users, with security enabled' do
-        login_as_group_admin
         expect(controller).to allow_action(:get, :show)
       end
     end
@@ -165,12 +166,12 @@ describe ApiV1::Admin::ConfigReposController do
   end
 
   describe :destroy do
-    before(:each) do
-      enable_security
-      login_as_admin
-    end
-
     describe :for_admins do
+      before(:each) do
+        enable_security
+        login_as_admin
+      end
+
       it 'should allow deleting config repo' do
         @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
         @config_repo_service.should_receive(:deleteConfigRepo).with(@config_repo_id, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
@@ -190,7 +191,7 @@ describe ApiV1::Admin::ConfigReposController do
 
     describe :security do
       before :each do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
+        @config_repo_service.stub(:getConfigRepo).and_return(@config_repo)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -211,7 +212,7 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:delete, :destroy)
+        expect(controller).to allow_action(:delete, :destroy, id: @config_repo_id)
       end
 
     end
@@ -239,12 +240,12 @@ describe ApiV1::Admin::ConfigReposController do
   end
 
   describe :create do
-    before(:each) do
-      enable_security
-      login_as_admin
-    end
-
     describe :for_admins do
+      before(:each) do
+        enable_security
+        login_as_admin
+      end
+
       it 'should render 200 created when config repo is created' do
         @config_repo_service.stub(:getConfigRepo).and_return(@config_repo)
         @config_repo_service.should_receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
@@ -306,19 +307,12 @@ describe ApiV1::Admin::ConfigReposController do
   end
 
   describe :update do
-    before(:each) do
-      enable_security
-      login_as_admin
-      @md5 = 'some-digest'
-      @config_repo_service = double('config-repo-service')
-      controller.stub(:config_repo_service).and_return(@config_repo_service)
-
-      @entity_hashing_service = double('entity-hashing-service')
-      controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-      @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
-    end
-
     describe :for_admins do
+      before(:each) do
+        enable_security
+        login_as_admin
+      end
+
       it 'should allow updating config repo' do
         @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
         result = HttpLocalizedOperationResult.new

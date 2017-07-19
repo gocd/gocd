@@ -65,7 +65,6 @@ public class PreAuthenticatedAuthenticationProviderTest {
     private GoConfigService goConfigService;
     private SecurityConfig securityConfig;
 
-
     @Before
     public void setUp() throws Exception {
         pluginId = "github.oauth";
@@ -84,6 +83,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
         stub(goConfigService.security()).toReturn(securityConfig);
         stub(authorizationExtension.authenticateUser(any(String.class), any(Map.class), any(List.class), any(List.class))).toReturn(authenticationResponse);
         stub(authorityGranter.authorities(anyString())).toReturn(authorities);
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
     }
 
     @Test
@@ -99,6 +99,59 @@ public class PreAuthenticatedAuthenticationProviderTest {
         authenticationProvider.authenticate(authenticationToken);
 
         verify(authorizationExtension).authenticateUser(pluginId, credentials, Collections.singletonList(githubConfig), Collections.singletonList(adminRole));
+    }
+
+    @Test
+    public void authenticate_inCaseOfMultipleAuthConfigsShouldTryAuthenticatingUserAgainstEachAuthConfig() throws Exception {
+        Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
+        SecurityAuthConfig githubPublic = new SecurityAuthConfig("github_public", pluginId);
+        SecurityAuthConfig githubEnterprise = new SecurityAuthConfig("github_enterprise", pluginId);
+        PluginRoleConfig adminRole = new PluginRoleConfig("admin", githubPublic.getId(), new ConfigurationProperty());
+        PluginRoleConfig operatorRole = new PluginRoleConfig("operator", githubEnterprise.getId(), new ConfigurationProperty());
+
+        securityConfig.securityAuthConfigs().clear();
+        securityConfig.securityAuthConfigs().add(githubPublic);
+        securityConfig.securityAuthConfigs().add(githubEnterprise);
+        securityConfig.addRole(adminRole);
+        securityConfig.addRole(operatorRole);
+
+        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
+        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole))).thenReturn(new AuthenticationResponse(null, null));
+        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubEnterprise), Collections.singletonList(operatorRole))).thenReturn(new AuthenticationResponse(null, null));
+
+        Authentication authenticate = authenticationProvider.authenticate(authenticationToken);
+
+        verify(authorizationExtension).authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole));
+        verify(authorizationExtension).authenticateUser(pluginId, credentials, Collections.singletonList(githubEnterprise), Collections.singletonList(operatorRole));
+        assertNull(authenticate);
+    }
+
+    @Test
+    public void authenticate_inCaseOfMultipleAuthConfigsOnSuccessfulAuthenticationShouldNotTryAuthenticatingUserUsingRemainingAuthConfig() throws Exception {
+        Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
+        SecurityAuthConfig githubPublic = new SecurityAuthConfig("github_public", pluginId);
+        SecurityAuthConfig githubEnterprise = new SecurityAuthConfig("github_enterprise", pluginId);
+        PluginRoleConfig adminRole = new PluginRoleConfig("admin", githubPublic.getId(), new ConfigurationProperty());
+        PluginRoleConfig operatorRole = new PluginRoleConfig("operator", githubEnterprise.getId(), new ConfigurationProperty());
+
+        securityConfig.securityAuthConfigs().clear();
+        securityConfig.securityAuthConfigs().add(githubPublic);
+        securityConfig.securityAuthConfigs().add(githubEnterprise);
+        securityConfig.addRole(adminRole);
+        securityConfig.addRole(operatorRole);
+
+        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
+        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole))).thenReturn(new AuthenticationResponse(user, Arrays.asList("admin")));
+
+        PreAuthenticatedAuthenticationToken authenticate = (PreAuthenticatedAuthenticationToken) authenticationProvider.authenticate(authenticationToken);
+
+        assertThat(authenticate.getCredentials(), is(credentials));
+        assertThat(authenticate.getPluginId(), is(pluginId));
+        assertThat(authenticate.getAuthorities(), is(authorities));
+        assertThat(authenticate.isAuthenticated(), is(true));
+
+        verify(authorizationExtension).authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole));
+        verify(authorizationExtension, never()).authenticateUser(pluginId, credentials, Collections.singletonList(githubEnterprise), Collections.singletonList(operatorRole));
     }
 
     @Test

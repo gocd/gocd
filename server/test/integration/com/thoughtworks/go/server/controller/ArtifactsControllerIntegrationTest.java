@@ -520,7 +520,7 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(file(artifactsRoot, "baz/foobar.html"), exists());
         File uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum");
         assertThat(uploadedChecksumFile, exists());
-        assertThat(FileUtils.readLines(uploadedChecksumFile).get(0).toString(), is("baz/foobar.html:FooMD5"));
+        assertThat(FileUtils.readLines(uploadedChecksumFile).get(0), is("baz/foobar.html:FooMD5"));
     }
 
     @Test

@@ -54,7 +54,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
     }
 
     public String nextStageName(String stageName) {
-        Collections.sort(this, STAGE_COMPARATOR);
+        this.sort(STAGE_COMPARATOR);
         int index = indexOf(byName(stageName));
         if (index > -1 && index < size() - 1) {
             return get(index + 1).getName();
@@ -108,7 +108,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
                 latestRunStages.add(stage);
             }
         }
-        Collections.sort(latestRunStages, new Comparator<Stage>() {
+        latestRunStages.sort(new Comparator<Stage>() {
             @Override
             public int compare(Stage s1, Stage s2) {
                 return new Integer(s1.getOrderId()).compareTo(s2.getOrderId());

@@ -431,7 +431,7 @@ public class UserService {
         List<UserModel> userModels = allUsersForDisplay();
         Comparator<UserModel> userModelComparator = direction.forColumn(column);
 
-        Collections.sort(userModels, userModelComparator);
+        userModels.sort(userModelComparator);
         return userModels;
     }
 

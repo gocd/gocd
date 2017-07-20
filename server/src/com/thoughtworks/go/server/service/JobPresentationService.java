@@ -60,7 +60,7 @@ public class JobPresentationService {
             }
             models.add(model);
         }
-        sort(models, JobInstanceModel.JOB_MODEL_COMPARATOR);
+        models.sort(JobInstanceModel.JOB_MODEL_COMPARATOR);
         return models;
     }
 }

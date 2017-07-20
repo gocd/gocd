@@ -374,7 +374,7 @@ public class FanInGraph {
 
     private StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {
         ArrayList<StageIdFaninScmMaterialPair> materialPairList = new ArrayList<>(scmWithDiffVersions);
-        Collections.sort(materialPairList, new Comparator<StageIdFaninScmMaterialPair>() {
+        materialPairList.sort(new Comparator<StageIdFaninScmMaterialPair>() {
             @Override
             public int compare(StageIdFaninScmMaterialPair pair1, StageIdFaninScmMaterialPair pair2) {
                 final PipelineTimelineEntry.Revision rev1 = pair1.faninScmMaterial.revision;

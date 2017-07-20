@@ -120,7 +120,7 @@ public class PipelineRepository extends HibernateDaoSupport {
             }
 
             private void sortTimeLineByPidAndPmrId(List<Object[]> matches) {
-                Collections.sort(matches, new Comparator<Object[]>() {
+                matches.sort(new Comparator<Object[]>() {
                     @Override
                     public int compare(Object[] m1, Object[] m2) {
                         long id1 = id(m1);

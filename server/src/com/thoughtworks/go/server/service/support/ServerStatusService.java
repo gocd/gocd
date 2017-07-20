@@ -41,7 +41,7 @@ public class ServerStatusService {
         this.securityService = securityService;
 
         providers.addAll(Arrays.asList(providerArray));
-        Collections.sort(providers, new Comparator<ServerInfoProvider>() {
+        providers.sort(new Comparator<ServerInfoProvider>() {
             @Override
             public int compare(ServerInfoProvider oneProvider, ServerInfoProvider anotherProvider) {
                 return Double.compare(oneProvider.priority(), anotherProvider.priority());

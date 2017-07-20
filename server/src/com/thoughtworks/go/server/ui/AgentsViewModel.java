@@ -41,7 +41,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     public void sortBy(Comparator<AgentViewModel> comparator, SortOrder direction) {
-        Collections.sort(this, direction.comparator(comparator));
+        this.sort(direction.comparator(comparator));
     }
 
     public int disabledCount() {

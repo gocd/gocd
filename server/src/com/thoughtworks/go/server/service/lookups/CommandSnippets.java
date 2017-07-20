@@ -106,7 +106,7 @@ public class CommandSnippets {
 
     private List<CommandSnippet> sortByName(List<CommandSnippet> snippets) {
         List<CommandSnippet> snippetsSortedByName = new ArrayList<>(snippets);
-        Collections.sort(snippetsSortedByName, new Comparator<CommandSnippet>() {
+        snippetsSortedByName.sort(new Comparator<CommandSnippet>() {
             @Override
             public int compare(CommandSnippet snippet1, CommandSnippet snippet2) {
                 return snippet1.getName().compareTo(snippet2.getName());

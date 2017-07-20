@@ -138,7 +138,7 @@ public class ServerHealthService {
 
     private List<Map.Entry<HealthStateType, ServerHealthState>> sortedEntries() {
         List<Map.Entry<HealthStateType, ServerHealthState>> entries = new ArrayList<>(serverHealth.entrySet());
-        Collections.sort(entries, new Comparator<Map.Entry<HealthStateType, ServerHealthState>>() {
+        entries.sort(new Comparator<Map.Entry<HealthStateType, ServerHealthState>>() {
             public int compare(Map.Entry<HealthStateType, ServerHealthState> one, Map.Entry<HealthStateType, ServerHealthState> other) {
                 return one.getKey().compareTo(other.getKey());
             }

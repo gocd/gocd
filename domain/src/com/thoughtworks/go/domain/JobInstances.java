@@ -147,7 +147,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public JobInstances sortByName() {
-        Collections.sort(this, JOB_INSTANCE_NAME_COMPARATOR);
+        this.sort(JOB_INSTANCE_NAME_COMPARATOR);
         return this;
     }
 

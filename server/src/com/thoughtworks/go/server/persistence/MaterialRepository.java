@@ -289,7 +289,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                 return (int) (po2.getId() - po1.getId());
             }
         };
-        Collections.sort(persistentObjects, asc ? ascendingSort : descendingSort);
+        persistentObjects.sort(asc ? ascendingSort : descendingSort);
     }
 
     public void putMaterialInstanceIntoCache(MaterialInstance materialInstance) {

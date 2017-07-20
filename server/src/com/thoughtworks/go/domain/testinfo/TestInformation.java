@@ -72,7 +72,7 @@ public class TestInformation {
     }
 
     private void sortJobIdentifiers(List<JobIdentifier> ids) {
-        Collections.sort(ids, new Comparator<JobIdentifier>() {
+        ids.sort(new Comparator<JobIdentifier>() {
             public int compare(JobIdentifier first, JobIdentifier second) {
                 return first.getBuildName().compareTo(second.getBuildName());
             }

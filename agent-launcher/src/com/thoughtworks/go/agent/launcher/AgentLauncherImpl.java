@@ -116,12 +116,7 @@ public class AgentLauncherImpl implements AgentLauncher {
     }
 
     private Thread registerShutdownHook() {
-        Thread shutdownHook = new Thread() {
-            @Override
-            public void run() {
-                lockFile.delete();
-            }
-        };
+        Thread shutdownHook = new Thread(() -> lockFile.delete());
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         return shutdownHook;
     }

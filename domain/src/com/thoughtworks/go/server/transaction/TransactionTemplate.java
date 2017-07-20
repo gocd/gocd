@@ -21,11 +21,7 @@ import org.springframework.transaction.TransactionStatus;
 public class TransactionTemplate {
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
-    private static final ThreadLocal<TransactionContext> txnCtx = new ThreadLocal<TransactionContext>() {
-        @Override protected TransactionContext initialValue() {
-            return new TransactionContext();
-        }
-    };
+    private static final ThreadLocal<TransactionContext> txnCtx = ThreadLocal.withInitial(() -> new TransactionContext());
 
     public TransactionTemplate(org.springframework.transaction.support.TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;

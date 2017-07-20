@@ -39,12 +39,7 @@ import java.util.List;
 
 public class BasicAuthenticationFilter extends BasicProcessingFilter {
 
-    private static ThreadLocal<Boolean> isProcessingBasicAuth = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
+    private static ThreadLocal<Boolean> isProcessingBasicAuth = ThreadLocal.withInitial(() -> false);
     private static final Logger LOG = Logger.getLogger(BasicAuthenticationFilter.class);
     private Localizer localizer;
 

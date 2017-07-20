@@ -148,23 +148,21 @@ public class Migrate {
     }
 
     private void copyInThread(final InputStream in, final OutputStream out) {
-        new Thread() {
-            public void run() {
-                try {
-                    while (true) {
-                        int x = in.read();
-                        if (x < 0) {
-                            return;
-                        }
-                        if (out != null) {
-                            out.write(x);
-                        }
+        new Thread(() -> {
+            try {
+                while (true) {
+                    int x = in.read();
+                    if (x < 0) {
+                        return;
                     }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    if (out != null) {
+                        out.write(x);
+                    }
                 }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } .start();
+        }).start();
     }
 
 }

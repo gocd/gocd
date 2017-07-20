@@ -645,12 +645,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(INBUILT_LDAP_PASSWORD_AUTH_ENABLED);
     }
 
-    public static final ThreadLocal<Boolean> enforceServerIdImmutability = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
+    public static final ThreadLocal<Boolean> enforceServerIdImmutability = ThreadLocal.withInitial(() -> false);
 
     public int getMaxEncryptionAPIRequestsPerMinute() {
         return GO_ENCRYPTION_API_MAX_REQUESTS.getValue();

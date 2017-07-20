@@ -176,17 +176,14 @@ public class AgentBootstrapper {
 
     private void initLauncherCreator() {
         launcherCreator = getLauncherCreator();
-        launcherCreatorShutdownHook = new Thread() {
-            @Override
-            public void run() {
-                NDC.push("Agent-BootStrapper-ShutdownHook");
-                LOG.info("Interrupting Launcher and initiating shutdown...");
-                loop = false;
-                launcherThread.interrupt();
-                destoryLauncherCreator();
-                NDC.pop();
-            }
-        };
+        launcherCreatorShutdownHook = new Thread(() -> {
+            NDC.push("Agent-BootStrapper-ShutdownHook");
+            LOG.info("Interrupting Launcher and initiating shutdown...");
+            loop = false;
+            launcherThread.interrupt();
+            destoryLauncherCreator();
+            NDC.pop();
+        });
         Runtime.getRuntime().addShutdownHook(launcherCreatorShutdownHook);
     }
 

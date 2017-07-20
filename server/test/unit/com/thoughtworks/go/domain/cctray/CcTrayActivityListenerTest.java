@@ -152,30 +152,15 @@ public class CcTrayActivityListenerTest {
     }
 
     private Thread callJobStatusChangeInNewThread(final CcTrayActivityListener listener) {
-        return new Thread() {
-            @Override
-            public void run() {
-                listener.jobStatusChanged(JobInstanceMother.passed("some-job"));
-            }
-        };
+        return new Thread(() -> listener.jobStatusChanged(JobInstanceMother.passed("some-job")));
     }
 
     private Thread callStageStatusChangeInNewThread(final CcTrayActivityListener listener) {
-        return new Thread() {
-            @Override
-            public void run() {
-                listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
-            }
-        };
+        return new Thread(() -> listener.stageStatusChanged(StageMother.unrunStage("some-stage")));
     }
 
     private Thread callConfigChangeInNewThread(final CcTrayActivityListener listener) {
-        return new Thread() {
-            @Override
-            public void run() {
-                listener.onConfigChange(GoConfigMother.defaultCruiseConfig());
-            }
-        };
+        return new Thread(() -> listener.onConfigChange(GoConfigMother.defaultCruiseConfig()));
     }
 
     private class StubCcTrayJobStatusChangeHandler extends CcTrayJobStatusChangeHandler {

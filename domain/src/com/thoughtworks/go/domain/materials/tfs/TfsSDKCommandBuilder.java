@@ -100,12 +100,7 @@ class TfsSDKCommandBuilder {
         FileUtils.deleteQuietly(tempFolder);
         tempFolder.mkdirs();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                FileUtils.deleteQuietly(tempFolder);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempFolder)));
 
         explodeNatives();
         setNativePath(tempFolder);

@@ -46,12 +46,7 @@ public class NestedJarClassLoader extends ClassLoader {
     private static final File TEMP_DIR = new File("data/njcl");
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                FileUtils.deleteQuietly(TEMP_DIR);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(TEMP_DIR)));
     }
 
     public NestedJarClassLoader(URL jarURL, String... excludes) {
@@ -64,12 +59,7 @@ public class NestedJarClassLoader extends ClassLoader {
         this.parentClassLoader = parentClassLoader;
         this.jarClassLoader = createLoaderForJar(jarURL);
         this.excludes = excludes;
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                FileUtils.deleteQuietly(jarDir);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(jarDir)));
     }
 
     private ClassLoader createLoaderForJar(URL jarURL) {

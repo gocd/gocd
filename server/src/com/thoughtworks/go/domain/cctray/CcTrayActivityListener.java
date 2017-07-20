@@ -127,18 +127,15 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
             throw new RuntimeException("Cannot start queue processor multiple times.");
         }
 
-        queueProcessor = new Thread() {
-            @Override
-            public void run() {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        queue.take().call();
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed to handle action in CCTray queue", e);
-                    }
+        queueProcessor = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    queue.take().call();
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to handle action in CCTray queue", e);
                 }
             }
-        };
+        });
         queueProcessor.setName("CCTray-Queue-Processor");
         queueProcessor.setDaemon(true);
         queueProcessor.start();

@@ -129,33 +129,27 @@ public class CachedCommandSnippetsTest {
     public void shouldWorkWhenThereAreThreadsTryingToAccessAndReloadCommandSnippets() throws Exception {
         when(systemEnvironment.get(SystemEnvironment.COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS)).thenReturn(1);
 
-        Thread threadWhichAccessesSnippets = new Thread() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 200; i++) {
-                    commandSnippetsCache.snippets();
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        Thread threadWhichAccessesSnippets = new Thread(() -> {
+            for (int i = 0; i < 200; i++) {
+                commandSnippetsCache.snippets();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        };
+        });
 
-        Thread threadWhichReloadsSnippets = new Thread() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 200; i++) {
-                    commandSnippetsCache.reload();
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        Thread threadWhichReloadsSnippets = new Thread(() -> {
+            for (int i = 0; i < 200; i++) {
+                commandSnippetsCache.reload();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        };
+        });
 
         List<Throwable> exceptionsInTheThreads = new ArrayList<>();
         threadWhichAccessesSnippets.setUncaughtExceptionHandler(uncaughtExceptionHandler(exceptionsInTheThreads));

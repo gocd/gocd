@@ -103,11 +103,6 @@ public class TestSuite {
     }
 
     public void removeTest(String testName) {
-        Iterator<TestInformation> tests = this.tests.iterator();
-        while (tests.hasNext()) {
-            if (tests.next().getName().equals(testName)) {
-                tests.remove();
-            }
-        }
+        this.tests.removeIf(testInformation -> testInformation.getName().equals(testName));
     }
 }

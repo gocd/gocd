@@ -128,12 +128,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         Reflections reflections = new Reflections("com.thoughtworks");
         List<Class> reflectionsSubTypesOf = new ArrayList<>(reflections.getSubTypesOf(MaterialConfig.class));
 
-        Iterator<Class> iterator = reflectionsSubTypesOf.iterator();
-        while (iterator.hasNext()) {
-            if (isNotAConcrete_NonTest_MaterialConfigImplementation(iterator.next())) {
-                iterator.remove();
-            }
-        }
+        reflectionsSubTypesOf.removeIf(this::isNotAConcrete_NonTest_MaterialConfigImplementation);
 
         List<Class> allExpectedMaterialConfigImplementations = allMaterialConfigsWhichAreDataPointsInThisTest();
 

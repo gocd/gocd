@@ -146,13 +146,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     private void removeClearedWeakReferences() {
-        Iterator<WeakReference<PluginJarChangeListener>> iterator = pluginJarChangeListener.iterator();
-        while (iterator.hasNext()) {
-            WeakReference<PluginJarChangeListener> next = iterator.next();
-            if (next.get() == null) {
-                iterator.remove();
-            }
-        }
+        pluginJarChangeListener.removeIf(next -> next.get() == null);
     }
 
     private static class PluginLocationMonitorThread extends Thread {

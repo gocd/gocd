@@ -323,8 +323,8 @@ public final class SelectorUtils {
         char ch;
 
         boolean containsStar = false;
-        for (int i = 0; i < patArr.length; i++) {
-            if (patArr[i] == '*') {
+        for (char c : patArr) {
+            if (c == '*') {
                 containsStar = true;
                 break;
             }

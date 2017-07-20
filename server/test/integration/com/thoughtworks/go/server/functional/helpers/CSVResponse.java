@@ -48,9 +48,9 @@ public class CSVResponse {
 
     private void initTable() {
         String[] rows = tableContent.split("\n");
-        for (int i = 0; i < rows.length; i++) {
-            this.allRows.add(rows[i]);
-            String[] columns = rows[i].split(",");
+        for (String row : rows) {
+            this.allRows.add(row);
+            String[] columns = row.split(",");
             for (int j = 0; j < columns.length; j++) {
                 if (allColumns.size() <= j) {
                     allColumns.add(new ArrayList());

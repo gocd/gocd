@@ -457,12 +457,12 @@ public class FelixGoPluginOSGiFrameworkTest {
 
     private void registerServicesWithSameSymbolicName(String symbolicName, SomeInterface... someInterfaces) throws InvalidSyntaxException {
         ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        for (int i = 0; i < someInterfaces.length; ++i) {
+        for (SomeInterface someInterface : someInterfaces) {
             ServiceReference reference = mock(ServiceReference.class);
             Bundle bundle = mock(Bundle.class);
             when(reference.getBundle()).thenReturn(bundle);
             when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
-            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
+            when(bundleContext.getService(reference)).thenReturn(someInterface);
             references.add(reference);
         }
         String propertyFormat = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, symbolicName);
@@ -546,13 +546,13 @@ public class FelixGoPluginOSGiFrameworkTest {
 
     private void registerServices(SomeInterface... someInterfaces) throws InvalidSyntaxException {
         ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        for (int i = 0; i < someInterfaces.length; ++i) {
+        for (SomeInterface someInterface : someInterfaces) {
             ServiceReference reference = mock(ServiceReference.class);
             when(reference.getBundle()).thenReturn(bundle);
             when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
 
-            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
-            setExpectationForFilterBasedServiceReferenceCall(someInterfaces[i], reference);
+            when(bundleContext.getService(reference)).thenReturn(someInterface);
+            setExpectationForFilterBasedServiceReferenceCall(someInterface, reference);
             references.add(reference);
         }
         when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(references);

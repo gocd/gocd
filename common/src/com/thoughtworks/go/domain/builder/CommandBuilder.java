@@ -51,8 +51,7 @@ public class CommandBuilder extends BaseCommandBuilder {
             command = CommandLine.createCommandLine(this.command).withWorkingDir(workingDir);
         }
         String[] argsArray = CommandLine.translateCommandLine(args);
-        for (int i = 0; i < argsArray.length; i++) {
-            String arg = argsArray[i];
+        for (String arg : argsArray) {
             command.withArg(arg);
         }
         return command;

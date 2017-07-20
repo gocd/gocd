@@ -1382,8 +1382,7 @@ public class MaterialRepositoryIntegrationTest {
         String label = pipeline.getLabel();
 
         ArrayList<Modification> mods = new ArrayList<>();
-        for (int i = 0; i < dmrStageCounters.length; i++) {
-            int dmrStageCounter = dmrStageCounters[i];
+        for (int dmrStageCounter : dmrStageCounters) {
             StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getIdentifier(), CaseInsensitiveString.str(stageName), String.valueOf(dmrStageCounter));
             mods.add(new Modification(d, stageIdentifier.getStageLocator(), label, pipeline.getId()));
         }

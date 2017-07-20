@@ -31,6 +31,7 @@ import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.ExceptionUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -61,8 +62,8 @@ public class HgModificationSplitter {
 
         Element rootElement = document.getRootElement();
         List logEntries = rootElement.getChildren("changeset");
-        for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
-            Element changeset = (Element) iterator.next();
+        for (Object logEntry : logEntries) {
+            Element changeset = (Element) logEntry;
             modifications.add(parseChangeset(changeset));
         }
 
@@ -93,9 +94,9 @@ public class HgModificationSplitter {
     private List<File> parseFiles(Element filesElement, String fileType) {
         List files = filesElement.getChild(fileType).getChildren("file");
         List<File> modifiedFiles = new ArrayList<>();
-        for (Iterator iterator = files.iterator(); iterator.hasNext();) {
-            Element node = (Element) iterator.next();
-            modifiedFiles.add(new File(org.apache.commons.lang.StringEscapeUtils.unescapeXml(node.getText())));
+        for (Object file : files) {
+            Element node = (Element) file;
+            modifiedFiles.add(new File(StringEscapeUtils.unescapeXml(node.getText())));
         }
         return modifiedFiles;
     }

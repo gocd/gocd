@@ -158,8 +158,7 @@ public class CommandLine {
         if (executable != null) {
             args.add(executable);
         }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
+        for (CommandArgument argument : arguments) {
             args.add(argument.forCommandline());
         }
         return args.toArray(new String[args.size()]);
@@ -170,8 +169,7 @@ public class CommandLine {
         if (executable != null) {
             args.add(executable);
         }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
+        for (CommandArgument argument : arguments) {
             args.add(argument.forDisplay());
         }
         return args.toArray(new String[args.size()]);

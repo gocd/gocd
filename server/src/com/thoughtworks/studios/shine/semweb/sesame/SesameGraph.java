@@ -504,8 +504,8 @@ public class SesameGraph implements Graph {
                 }
                 dumpTriplesNotInContext(writer);
             } else {
-                for (int i = 0; i < contextResource.length; i++) {
-                    writer.append("Dumping context:" + contextResource[i].stringValue() + "\n");
+                for (org.openrdf.model.Resource aContextResource : contextResource) {
+                    writer.append("Dumping context:" + aContextResource.stringValue() + "\n");
                     conn.export(new RDFXMLWriter(writer), contextResource);
                 }
             }

@@ -71,7 +71,6 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
     }
 
     public void validate(ValidationContext validationContext) {
-        return;
     }
 
     public ConfigErrors errors() {

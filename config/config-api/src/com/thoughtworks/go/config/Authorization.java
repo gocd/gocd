@@ -213,7 +213,6 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public void validate(ValidationContext validationContext) {
-        return;
     }
 
     public ConfigErrors errors() {

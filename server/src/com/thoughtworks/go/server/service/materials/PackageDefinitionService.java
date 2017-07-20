@@ -137,7 +137,6 @@ public class PackageDefinitionService {
                 return;
             }
             result.setMessage(LocalizedMessage.string("PACKAGE_CHECK_OK", messages));
-            return;
         } catch (Exception e) {
             result.internalServerError(LocalizedMessage.string("PACKAGE_CHECK_FAILED", e.getMessage()));
         }

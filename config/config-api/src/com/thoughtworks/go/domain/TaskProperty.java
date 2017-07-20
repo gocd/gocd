@@ -30,13 +30,7 @@ public final class TaskProperty {
     }
 
     @Override public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("TaskProperty");
-        sb.append("{name='").append(name).append('\'');
-        sb.append(", value='").append(value).append('\'');
-        sb.append(", cssClass='").append(cssClass).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return String.format("TaskProperty{name='%s', value='%s', cssClass='%s'}", name, value, cssClass);
     }
 
     public TaskProperty(String name, String value, String cssClass) {

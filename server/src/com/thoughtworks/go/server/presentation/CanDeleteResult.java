@@ -67,11 +67,6 @@ public class CanDeleteResult {
     }
 
     @Override public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CanDeleteResult");
-        sb.append("{canDelete=").append(canDelete);
-        sb.append(", message=").append(message);
-        sb.append('}');
-        return sb.toString();
+        return String.format("CanDeleteResult{canDelete=%s, message=%s}", canDelete, message);
     }
 }

@@ -96,12 +96,9 @@ public class StageNotificationService {
         }
         for (User user : users) {
             if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
-                StringBuilder emailWithSignature = new StringBuilder(emailBody)
-                        .append("\n\n")
-                        .append("Sent by Go on behalf of ")
-                        .append(user.getName());
+                String emailWithSignature = String.format("%s\n\nSent by Go on behalf of %s", emailBody, user.getName());
                 SendEmailMessage sendEmailMessage
-                        = new SendEmailMessage(subject, emailWithSignature.toString(), user.getEmail());
+                        = new SendEmailMessage(subject, emailWithSignature, user.getEmail());
                 emailNotificationTopic.post(sendEmailMessage);
             }
         }

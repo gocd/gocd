@@ -91,7 +91,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     private String generateFingerprintFromCriteria(Map<String, Object> sqlCriteria) {
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
-            list.add(new StringBuilder().append(criteria.getKey()).append("=").append(criteria.getValue()).toString());
+            list.add(String.format("%s=%s", criteria.getKey(), criteria.getValue()));
         }
         String fingerprint = ListUtil.join(list, FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
@@ -101,11 +101,9 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public String getTruncatedDisplayName() {
         String displayName = getDisplayName();
         if (displayName.length() > TRUNCATED_NAME_MAX_LENGTH) {
-            StringBuilder buffer = new StringBuilder();
-            buffer.append(displayName.substring(0, TRUNCATED_NAME_MAX_LENGTH / 2));
-            buffer.append("...");
-            buffer.append(displayName.substring(displayName.length() - TRUNCATED_NAME_MAX_LENGTH / 2));
-            displayName = buffer.toString();
+            displayName = String.format("%s...%s",
+                    displayName.substring(0, TRUNCATED_NAME_MAX_LENGTH / 2),
+                    displayName.substring(displayName.length() - TRUNCATED_NAME_MAX_LENGTH / 2));
         }
         return displayName;
     }

@@ -87,11 +87,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
         catch (Exception ex)
         {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Unexpected error when handling plugin response").append('\n');
-            builder.append(ex);
+            String builder = String.format("Unexpected error when handling plugin response\n%s", ex);
             // "location" of error is runtime. This is what user will see in config repo errors list.
-            errors.addError("runtime",builder.toString());
+            errors.addError("runtime", builder);
             return new CRParseResult(errors);
         }
     }

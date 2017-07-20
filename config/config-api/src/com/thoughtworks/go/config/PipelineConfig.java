@@ -764,15 +764,19 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private void setIntegrationType(Map attributeMap) {
         String integrationType = (String) attributeMap.get(INTEGRATION_TYPE);
-        if (integrationType.equals(INTEGRATION_TYPE_NONE)) {
-            mingleConfig = new MingleConfig();
-            trackingTool = null;
-        } else if (integrationType.equals(INTEGRATION_TYPE_MINGLE)) {
-            mingleConfig = MingleConfig.create(attributeMap.get(MINGLE_CONFIG));
-            trackingTool = null;
-        } else if (integrationType.equals(INTEGRATION_TYPE_TRACKING_TOOL)) {
-            mingleConfig = new MingleConfig();
-            trackingTool = TrackingTool.createTrackingTool((Map) attributeMap.get(TRACKING_TOOL));
+        switch (integrationType) {
+            case INTEGRATION_TYPE_NONE:
+                mingleConfig = new MingleConfig();
+                trackingTool = null;
+                break;
+            case INTEGRATION_TYPE_MINGLE:
+                mingleConfig = MingleConfig.create(attributeMap.get(MINGLE_CONFIG));
+                trackingTool = null;
+                break;
+            case INTEGRATION_TYPE_TRACKING_TOOL:
+                mingleConfig = new MingleConfig();
+                trackingTool = TrackingTool.createTrackingTool((Map) attributeMap.get(TRACKING_TOOL));
+                break;
         }
     }
 

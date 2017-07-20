@@ -124,7 +124,6 @@ public class DirectoryScannerTest {
         ds.scan();
         compareFiles(ds, expectedFiles, expectedDirectories);
         // redo the test, but the 2 include patterns are inverted
-        ds = this.ds;
         ds.setBasedir(getBaseDir());
         ds.setIncludes(new String[]{"alpha/beta/gamma/", "alpha/be?a/**"});
         ds.scan();

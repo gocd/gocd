@@ -409,14 +409,6 @@ public class FetchTask extends AbstractTask implements Serializable {
         return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
-    public boolean isFetchPipeline(final CaseInsensitiveString caseInsensitiveString) {
-        return caseInsensitiveString.equals(this.pipelineName);
-    }
-
-    public boolean isFetchStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
-        return pipelineName.equals(this.pipelineName) && stageName.equals(this.stage);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

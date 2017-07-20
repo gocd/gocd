@@ -579,7 +579,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Boolean isShineEnabled() {
         String shineEnabled = getEnvironmentVariable("SHINE_ENABLED");
-        return shineEnabled == null ? false : !"false".equalsIgnoreCase(shineEnabled); //should return true for shine_enabled set to anything but false.
+        return !"false".equalsIgnoreCase(shineEnabled);
     }
 
 

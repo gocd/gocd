@@ -210,11 +210,11 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
     private void printPipelineTimelineEntry(PipelineTimelineEntry entry, ReportingFanInGraphContext context) {
         context.out.println(
                 "Pipeline-Timeline-Entry: Id: " + entry.getId() + ", Pipeline-Name: " + entry.getPipelineName() + ", Counter: " + entry.getCounter() + ", Natural-Order: " + entry.naturalOrder());
-        Iterator it = entry.revisions().entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, List<PipelineTimelineEntry.Revision>> pairs = (Map.Entry) it.next();
+
+        for (Map.Entry<String, List<PipelineTimelineEntry.Revision>> pairs  : entry.revisions().entrySet()) {
             context.out.println("Flyweight: " + pairs.getKey() + " - " + pairs.getValue());
         }
+
         context.out.println("***");
     }
 

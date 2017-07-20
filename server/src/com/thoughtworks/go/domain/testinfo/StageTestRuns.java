@@ -71,9 +71,7 @@ public class StageTestRuns {
     }
 
     private void removeTestsThatWereFixedInInterimPipelines() {
-        Iterator<FailingTestsInPipeline> pipelineIterator = failingTestsInPipelines.iterator();
-        while (pipelineIterator.hasNext()) {
-            FailingTestsInPipeline failingTestsInPipeline = pipelineIterator.next();
+        for (FailingTestsInPipeline failingTestsInPipeline : failingTestsInPipelines) {
             FailingTestsInPipeline previousPipeline = previousPipeline(failingTestsInPipeline);
             if (previousPipeline != null) {
                 for (TestSuite failingSuite : failingTestsInPipeline.failingSuites()) {
@@ -96,12 +94,10 @@ public class StageTestRuns {
     }
 
     private void removeTestsThatStartedFailingInPreviousPipelines() {
-        Iterator<FailingTestsInPipeline> pipelineIterator = failingTestsInPipelines.iterator();
-        while (pipelineIterator.hasNext()) {
-            FailingTestsInPipeline failingTestsInPipeline = pipelineIterator.next();
+        for (FailingTestsInPipeline failingTestsInPipeline : failingTestsInPipelines) {
             FailingTestsInPipeline previousPipeline = previousPipeline(failingTestsInPipeline);
             if (previousPipeline != null) {
-              failingTestsInPipeline.removeDuplicateTestEntries(previousPipeline);
+                failingTestsInPipeline.removeDuplicateTestEntries(previousPipeline);
             }
         }
     }

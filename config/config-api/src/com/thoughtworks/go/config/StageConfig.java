@@ -305,13 +305,13 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
             name = new CaseInsensitiveString((String) attributeMap.get(NAME));
         }
         if (attributeMap.containsKey(ARTIFACT_CLEANUP_PROHIBITED)) {
-            artifactCleanupProhibited = attributeMap.get(ARTIFACT_CLEANUP_PROHIBITED).equals("1") ? true : false;
+            artifactCleanupProhibited = attributeMap.get(ARTIFACT_CLEANUP_PROHIBITED).equals("1");
         }
         if (attributeMap.containsKey(FETCH_MATERIALS)) {
-            fetchMaterials = attributeMap.get(FETCH_MATERIALS).equals("1") ? true : false;
+            fetchMaterials = attributeMap.get(FETCH_MATERIALS).equals("1");
         }
         if (attributeMap.containsKey(CLEAN_WORKING_DIR)) {
-            cleanWorkingDir = attributeMap.get(CLEAN_WORKING_DIR).equals("1") ? true : false;
+            cleanWorkingDir = attributeMap.get(CLEAN_WORKING_DIR).equals("1");
         }
         if (attributeMap.containsKey(APPROVAL)) {
             approval.setConfigAttributes(attributeMap.get(APPROVAL));

@@ -68,7 +68,7 @@ public class CommandUtils {
     private static StringBuilder dump(BufferedReader reader, StringBuilder builder) throws IOException {
         String line;
         while ((line = reader.readLine()) != null) {
-            builder.append(line + "\n");
+            builder.append(line).append("\n");
         }
         reader.close();
         return builder;

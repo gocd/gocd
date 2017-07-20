@@ -125,7 +125,7 @@ public class CcTrayServiceTest {
     private void assertCcTrayXmlFor(String actualXml, final String siteUrlPrefix, final String... projects) {
         StringBuilder expectedXml = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Projects>\n");
         for (String project : projects) {
-            expectedXml.append("  <Project name=\"").append(project).append("\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"" + siteUrlPrefix + "/web-url\" />\n");
+            expectedXml.append("  <Project name=\"").append(project).append("\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"").append(siteUrlPrefix).append("/web-url\" />\n");
         }
         expectedXml.append("</Projects>");
 

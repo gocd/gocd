@@ -62,7 +62,7 @@ public class AcegiSecurityConfigTest {
             if (securityConfig.getAttribute().equals(role))
                 return;
             else
-                allowedAccess.append(securityConfig.getAttribute() + ",");
+                allowedAccess.append(securityConfig.getAttribute()).append(",");
         }
         fail(String.format("Expected access to url %s only by %s but found %s", urlPattern, role, allowedAccess.toString()));
     }

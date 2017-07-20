@@ -124,7 +124,7 @@ public abstract class AbstractTask implements Task  {
                 for (Argument arg : (Arguments) field.getValue()) {
                     builder.append(String.format("<arg>%s</arg>", arg.getValue())).append("\n");
                 }
-                builder.append("</" + configTag.value() + ">");
+                builder.append("</").append(configTag.value()).append(">");
             }
         }
     }

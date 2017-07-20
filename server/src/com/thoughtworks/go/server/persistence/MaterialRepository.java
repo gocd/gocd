@@ -495,7 +495,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     private String buildMaterialInstanceQuery(List<Long> materialIds) {
         StringBuilder queryBuilder = new StringBuilder("FROM MaterialInstance WHERE id IN (");
         for (Long materialId : materialIds) {
-            queryBuilder.append(materialId + ",");
+            queryBuilder.append(materialId).append(",");
         }
         queryBuilder.append(")");
         return queryBuilder.toString().replace(",)", ")"); //hack to remove the last comma

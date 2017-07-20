@@ -149,11 +149,11 @@ public class StageNotificationService {
             emailBody.append(String.format("The following tests failed in pipeline '%s' (instance '%s'):", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineLabel()));
             for (TestSuite failedTestSuite : failedTestSuites) {
                 sectionSeperator();
-                emailBody.append(SUITE_NAME_PREFIX + failedTestSuite.fullName() + "\n");
+                emailBody.append(SUITE_NAME_PREFIX).append(failedTestSuite.fullName()).append("\n");
                 for (TestInformation testInformation : failedTestSuite.tests()) {
-                    emailBody.append("   " + testInformation.getName() + "\n");
+                    emailBody.append("   ").append(testInformation.getName()).append("\n");
                     for (String jobName : testInformation.getJobNames()) {
-                        emailBody.append("     " + testStatusString(testInformation) + " on '" + jobName + "' (" + jobDetailLink(jobName) + ")\n");
+                        emailBody.append("     ").append(testStatusString(testInformation)).append(" on '").append(jobName).append("' (").append(jobDetailLink(jobName)).append(")\n");
                     }
                 }
             }

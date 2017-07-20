@@ -136,7 +136,7 @@ public class PackageMaterial extends AbstractMaterial {
 
     @Override
     public void emailContent(StringBuilder content, Modification modification) {
-        content.append(getTypeForDisplay() + " : " + getDisplayName()).append('\n').append(
+        content.append(getTypeForDisplay()).append(" : ").append(getDisplayName()).append('\n').append(
                 format("revision: %s, completed on %s", modification.getRevision(),
                         modification.getModifiedTime()));
     }

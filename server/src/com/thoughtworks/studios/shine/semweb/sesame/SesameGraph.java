@@ -499,7 +499,7 @@ public class SesameGraph implements Graph {
                 RepositoryResult<org.openrdf.model.Resource> results = conn.getContextIDs();
                 while (results.hasNext()) {
                     org.openrdf.model.Resource context = results.next();
-                    writer.append("Dumping context:" + context + "\n");
+                    writer.append("Dumping context:").append(String.valueOf(context)).append("\n");
                     conn.export(new RDFXMLWriter(writer), context);
                 }
                 dumpTriplesNotInContext(writer);

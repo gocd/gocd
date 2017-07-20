@@ -131,11 +131,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
         for (Class anInterface : interfaces) {
             if (isGoExtensionPointInterface(anInterface)) {
-                List<Object> implementations = interfaceAndItsImplementations.get(anInterface);
-                if (implementations == null) {
-                    implementations = new ArrayList<>();
-                    interfaceAndItsImplementations.put(anInterface, implementations);
-                }
+                List<Object> implementations = interfaceAndItsImplementations.computeIfAbsent(anInterface, k -> new ArrayList<>());
                 implementations.add(implementation);
             }
         }

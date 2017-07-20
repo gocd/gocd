@@ -77,11 +77,7 @@ public class AgentRemoteHandler {
                     this.agentSessions.put(info.getUUId(), agent);
                 }
                 if (info.getCookie() == null) {
-                    String cookie = agentCookie.get(agent);
-                    if (cookie == null) {
-                        cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
-                        agentCookie.put(agent, cookie);
-                    }
+                    String cookie = agentCookie.computeIfAbsent(agent, k -> buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation()));
                     info.setCookie(cookie);
                     agent.send(new Message(Action.setCookie, MessageEncoding.encodeData(cookie)));
                 }

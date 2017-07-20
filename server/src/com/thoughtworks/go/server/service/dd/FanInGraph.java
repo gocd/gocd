@@ -121,11 +121,7 @@ public class FanInGraph {
     }
 
     private FanInNode createNode(MaterialConfig material) {
-        FanInNode node = nodes.get(material.getFingerprint());
-        if (node == null) {
-            node = FanInNodeFactory.create(material);
-            nodes.put(material.getFingerprint(), node);
-        }
+        FanInNode node = nodes.computeIfAbsent(material.getFingerprint(), k -> FanInNodeFactory.create(material));
         return node;
     }
 

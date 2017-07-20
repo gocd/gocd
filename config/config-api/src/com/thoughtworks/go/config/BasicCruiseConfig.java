@@ -278,9 +278,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             Map<CaseInsensitiveString, List<EnvironmentConfig>> map = new LinkedHashMap<>();
             for (EnvironmentConfig env : allEnvConfigs) {
                 CaseInsensitiveString key = env.name();
-                if (map.get(key) == null) {
-                    map.put(key, new ArrayList<>());
-                }
+                map.computeIfAbsent(key, k -> new ArrayList<>());
                 map.get(key).add(env);
             }
             for (List<EnvironmentConfig> oneEnv : map.values()) {
@@ -340,9 +338,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             Map<String, List<PipelineConfigs>> map = new LinkedHashMap<>();
             for (PipelineConfigs pipes : allPipelineConfigs) {
                 String key = pipes.getGroup();
-                if (map.get(key) == null) {
-                    map.put(key, new ArrayList<>());
-                }
+                map.computeIfAbsent(key, k -> new ArrayList<>());
                 map.get(key).add(pipes);
             }
 

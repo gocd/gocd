@@ -31,19 +31,19 @@ import java.util.UUID;
 public class ServerConfig implements Validatable {
     public static final String SERVER_BACKUPS = "serverBackups";
     @ConfigAttribute(value = "artifactsdir", alwaysWrite = true) private String artifactsDir = "artifacts";
-    @ConfigAttribute(value = "siteUrl", optional = true) private ServerSiteUrlConfig siteUrl = new ServerSiteUrlConfig();
-    @ConfigAttribute(value = "secureSiteUrl", optional = true) private ServerSiteUrlConfig secureSiteUrl = new ServerSiteUrlConfig();
-    @ConfigAttribute(value = "purgeStart", optional = true, allowNull = true) private Double purgeStart;
-    @ConfigAttribute(value = "purgeUpto", optional = true, allowNull = true) private Double purgeUpto;
-    @ConfigAttribute(value = "jobTimeout", optional = true) private String jobTimeout = "0";
-    @ConfigAttribute(value="agentAutoRegisterKey", optional = true, allowNull = true) private String agentAutoRegisterKey;
-    @ConfigAttribute(value="webhookSecret", optional = true, allowNull = true) private String webhookSecret;
+    @ConfigAttribute(value = "siteUrl") private ServerSiteUrlConfig siteUrl = new ServerSiteUrlConfig();
+    @ConfigAttribute(value = "secureSiteUrl") private ServerSiteUrlConfig secureSiteUrl = new ServerSiteUrlConfig();
+    @ConfigAttribute(value = "purgeStart", allowNull = true) private Double purgeStart;
+    @ConfigAttribute(value = "purgeUpto", allowNull = true) private Double purgeUpto;
+    @ConfigAttribute(value = "jobTimeout") private String jobTimeout = "0";
+    @ConfigAttribute(value="agentAutoRegisterKey", allowNull = true) private String agentAutoRegisterKey;
+    @ConfigAttribute(value="webhookSecret", allowNull = true) private String webhookSecret;
     @ConfigAttribute(value="commandRepositoryLocation", alwaysWrite = true) private String commandRepositoryLocation = "default";
 
     @ConfigSubtag private ElasticConfig elasticConfig = new ElasticConfig();
 
     @SkipParameterResolution
-    @ConfigAttribute(value = "serverId", optional = true, allowNull = true)
+    @ConfigAttribute(value = "serverId", allowNull = true)
     private String serverId;
 
     @ConfigSubtag private SecurityConfig securityConfig = new SecurityConfig();

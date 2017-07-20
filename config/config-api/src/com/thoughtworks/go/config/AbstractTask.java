@@ -31,7 +31,7 @@ public abstract class AbstractTask implements Task  {
     @ConfigSubtag(label = "RunIfs")
     protected RunIfConfigs runIfConfigs = new RunIfConfigs();
 
-    @ConfigSubtag(label = "OnCancel", optional = true) public OnCancelConfig onCancelConfig = OnCancelConfig.killAllChildProcess();
+    @ConfigSubtag(label = "OnCancel") public OnCancelConfig onCancelConfig = OnCancelConfig.killAllChildProcess();
 
     public static final String RUN_IF_CONFIGS_PASSED = "runIfConfigsPassed";
     public static final String RUN_IF_CONFIGS_FAILED = "runIfConfigsFailed";

@@ -36,9 +36,9 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 public class MailHost implements Validatable, PasswordEncrypter {
     @ConfigAttribute(value = "hostname", optional = false) private String hostName;
     @ConfigAttribute(value = "port", optional = false) private int port;
-    @ConfigAttribute(value = "username", optional = true, allowNull = true) private String username = "";
-    @ConfigAttribute(value = "password", optional = true, allowNull = true) private String password = "";//should never be used, will be converted to encrypted password on load, is used by magical-loader
-    @ConfigAttribute(value = "encryptedPassword", optional = true, allowNull = true) private String encryptedPassword = null;
+    @ConfigAttribute(value = "username", allowNull = true) private String username = "";
+    @ConfigAttribute(value = "password", allowNull = true) private String password = "";//should never be used, will be converted to encrypted password on load, is used by magical-loader
+    @ConfigAttribute(value = "encryptedPassword", allowNull = true) private String encryptedPassword = null;
     @ConfigAttribute(value = "tls", optional = false) private Boolean tls;
     @ConfigAttribute(value = "from", optional = false) private String from;
     @ConfigAttribute(value = "admin", optional = false) private String adminMail;

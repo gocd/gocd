@@ -37,7 +37,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     @ConfigAttribute(value = "fetchMaterials") private boolean fetchMaterials = DEFAULT_FETCH_MATERIALS;
     @ConfigAttribute(value = "artifactCleanupProhibited") private boolean artifactCleanupProhibited = false;
     @ConfigAttribute(value = "cleanWorkingDir") private boolean cleanWorkingDir = DEFAULT_CLEAN_WORKING_DIR;
-    @ConfigSubtag(optional = true) private Approval approval = Approval.automaticApproval();
+    @ConfigSubtag() private Approval approval = Approval.automaticApproval();
     @ConfigSubtag private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
     @ConfigSubtag(optional = false) private JobConfigs jobConfigs;
 

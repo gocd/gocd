@@ -42,13 +42,13 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     @ConfigSubtag
     private Filter filter;
 
-    @ConfigAttribute(value = "invertFilter", optional = true)
+    @ConfigAttribute(value = "invertFilter")
     private boolean invertFilter = false;
 
     @ConfigAttribute(value = "dest", allowNull = true)
     protected String folder;
 
-    @ConfigAttribute(value = "autoUpdate", optional = true)
+    @ConfigAttribute(value = "autoUpdate")
     private boolean autoUpdate = true;
 
     public static final String PASSWORD = "password";

@@ -88,7 +88,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigAttribute(value = "name", optional = false)
     private CaseInsensitiveString name;
 
-    @ConfigAttribute(value = "labeltemplate", optional = true)
+    @ConfigAttribute(value = "labeltemplate")
     private String labelTemplate = PipelineLabel.COUNT_TEMPLATE;
 
     @ConfigSubtag
@@ -101,7 +101,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigSubtag
     private MingleConfig mingleConfig = new MingleConfig();
 
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private TimerConfig timer;
 
     @ConfigSubtag
@@ -110,11 +110,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigSubtag(optional = false)
     private MaterialConfigs materialConfigs = new MaterialConfigs();
 
-    @ConfigAttribute(value = "isLocked", optional = true, allowNull = true)
+    @ConfigAttribute(value = "isLocked", allowNull = true)
     private String lock;
 
     @SkipParameterResolution
-    @ConfigAttribute(value = "template", optional = true, allowNull = true)
+    @ConfigAttribute(value = "template", allowNull = true)
     private CaseInsensitiveString templateName;
 
     private ConfigOrigin origin;

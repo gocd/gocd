@@ -53,10 +53,10 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @ConfigSubtag
     private ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators();
 
-    @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
-    @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
-    @ConfigAttribute(value = "timeout", optional = true, allowNull = true) private String timeout;
-    @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true) private String elasticProfileId;
+    @ConfigAttribute(value = "runOnAllAgents") private boolean runOnAllAgents = false;
+    @ConfigAttribute(value = "runInstanceCount", allowNull = true) private String runInstanceCount;
+    @ConfigAttribute(value = "timeout", allowNull = true) private String timeout;
+    @ConfigAttribute(value = "elasticProfileId", allowNull = true) private String elasticProfileId;
 
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";

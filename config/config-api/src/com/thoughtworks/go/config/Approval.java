@@ -28,7 +28,7 @@ import com.thoughtworks.go.util.StringUtil;
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
 public class Approval implements Validatable, ParamsAttributeAware {
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private AuthConfig authConfig = new AuthConfig();
 
     @ConfigAttribute(value = "type", optional = false, alwaysWrite = true)

@@ -32,11 +32,11 @@ public class PluginConfiguration implements Serializable, Validatable {
 
     @Expose
     @SerializedName("id")
-    @ConfigAttribute(value = "id", allowNull = false)
+    @ConfigAttribute(value = "id")
     private String id;
     @Expose
     @SerializedName("version")
-    @ConfigAttribute(value = "version", allowNull = false)
+    @ConfigAttribute(value = "version")
     private String version;
 
     public static final String ID = "id";

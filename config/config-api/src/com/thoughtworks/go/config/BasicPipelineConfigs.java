@@ -37,7 +37,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs, Serializable {
 
 
-    @ConfigAttribute(value = "group", optional = true) @SkipParameterResolution
+    @ConfigAttribute(value = "group") @SkipParameterResolution
     private String group;
 
 

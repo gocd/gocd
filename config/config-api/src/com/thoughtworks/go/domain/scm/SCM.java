@@ -61,10 +61,10 @@ public class SCM implements Serializable, Validatable {
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
 
-    @ConfigAttribute(value = "name", allowNull = false)
+    @ConfigAttribute(value = "name")
     private String name;
 
-    @ConfigAttribute(value = "autoUpdate", optional = true)
+    @ConfigAttribute(value = "autoUpdate")
     private boolean autoUpdate = true;
 
     @Expose

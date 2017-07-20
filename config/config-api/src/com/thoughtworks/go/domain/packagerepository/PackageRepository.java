@@ -57,7 +57,7 @@ public class PackageRepository implements Serializable, Validatable {
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
 
-    @ConfigAttribute(value = "name", allowNull = false)
+    @ConfigAttribute(value = "name")
     private String name;
 
 

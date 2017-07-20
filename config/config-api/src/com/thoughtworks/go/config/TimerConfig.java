@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @ConfigTag("timer")
 public class TimerConfig implements Validatable {
-    @ConfigAttribute(value = "onlyOnChanges", optional = true, allowNull = true) private Boolean onlyOnChanges = false;
+    @ConfigAttribute(value = "onlyOnChanges", allowNull = true) private Boolean onlyOnChanges = false;
     @ConfigValue private String timerSpec;
 
     public static final String TIMER_SPEC = "timerSpec";

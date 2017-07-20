@@ -35,7 +35,7 @@ public abstract class PluginProfile extends Configuration implements Validatable
 
     @ConfigAttribute(value = "id", optional = false)
     protected String id;
-    @ConfigAttribute(value = "pluginId", allowNull = false)
+    @ConfigAttribute(value = "pluginId")
     protected String pluginId;
 
     public PluginProfile(String id, String pluginId, ConfigurationProperty... props) {

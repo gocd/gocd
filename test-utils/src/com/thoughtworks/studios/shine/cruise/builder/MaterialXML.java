@@ -55,10 +55,10 @@ public class MaterialXML {
   }
 
   private String changeSetXML() {
-    String changeSetsAsString = "";
+    StringBuilder out = new StringBuilder();
     for (ChangeSetXML cs: changeSets) {
-      changeSetsAsString += cs.toString();
+      out.append(cs.toString());
     }
-    return changeSetsAsString;
+    return out.toString();
   }
 }

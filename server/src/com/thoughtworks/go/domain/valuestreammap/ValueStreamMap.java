@@ -189,10 +189,10 @@ public class ValueStreamMap {
 
     @Override
 	public String toString() {
-		String s = "graph:\n";
+		StringBuilder out = new StringBuilder("graph:\n");
 		for (Node currentNode : allNodes()) {
-			s += currentNode + "\n";
+			out.append(currentNode).append("\n");
 		}
-		return s;
+		return out.toString();
 	}
 }

@@ -60,23 +60,23 @@ public class JunitXML {
   }
 
   private String generateTestCase() {
-    String testCase = "";
+    StringBuilder out = new StringBuilder();
 
     for (int i = 0; i < testCaseCount; i++) {
       if (!erroredTests.contains(i + 1) && !failedTests.contains(i + 1)) {
-        testCase += "  <testcase classname='" + suiteName + "' name='test" + (i + 1) + "' time='1.049' />";
+        out.append("  <testcase classname='").append(suiteName).append("' name='test").append(i + 1).append("' time='1.049' />");
       }
       if (erroredTests.contains(i + 1)) {
-        testCase += "  <testcase classname='" + suiteName + "' name='test" + (i + 1) + "' time='1.049'>";
-        testCase += "    <error message='Something went wrong' type='com.foo.MyException'>com.foo.MyException: Something went wrong...</error>";
-        testCase += "  </testcase>";
+        out.append("  <testcase classname='").append(suiteName).append("' name='test").append(i + 1).append("' time='1.049'>");
+        out.append("    <error message='Something went wrong' type='com.foo.MyException'>com.foo.MyException: Something went wrong...</error>");
+        out.append("  </testcase>");
       } else if (failedTests.contains(i + 1)) {
-        testCase += "  <testcase classname='" + suiteName + "' name='test" + (i + 1) + "' time='1.049'>";
-        testCase += "    <failure message='Something assert failed...' type='junit.framework.AssertionFailedError'>junit.framework.AssertionFailedError: Something assert failed...</failure>";
-        testCase += "  </testcase>";
+        out.append("  <testcase classname='").append(suiteName).append("' name='test").append(i + 1).append("' time='1.049'>");
+        out.append("    <failure message='Something assert failed...' type='junit.framework.AssertionFailedError'>junit.framework.AssertionFailedError: Something assert failed...</failure>");
+        out.append("  </testcase>");
       }
     }
-    return testCase;
+    return out.toString();
   }
 
   public JunitXML errored(Integer... erroredTests) {

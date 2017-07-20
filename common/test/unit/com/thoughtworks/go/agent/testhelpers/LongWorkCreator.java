@@ -133,7 +133,6 @@ public class LongWorkCreator implements WorkCreator {
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
-            } finally {
             }
         }
     }

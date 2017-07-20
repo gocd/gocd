@@ -178,7 +178,7 @@ public class AgentConfig implements Validatable {
         if (cachedIsFromLocalHost == null) {
             cachedIsFromLocalHost = SystemUtil.isLocalhost(ipAddress);
         }
-        return cachedIsFromLocalHost.booleanValue();
+        return cachedIsFromLocalHost;
     }
 
     public String getIpAddress() {

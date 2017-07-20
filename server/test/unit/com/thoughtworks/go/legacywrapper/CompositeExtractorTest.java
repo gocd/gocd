@@ -91,7 +91,7 @@ public class CompositeExtractorTest extends MockObjectTestCase {
         Map result = new HashMap();
         extractor.report(result);
 
-        assertTrue(((Boolean) result.get("allCallbackWereCalled")).booleanValue());
+        assertTrue((Boolean) result.get("allCallbackWereCalled"));
     }
 
     private List extractors(final Mock handler1, final Mock handler2) {

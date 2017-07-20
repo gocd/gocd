@@ -477,9 +477,7 @@ public class StageService implements StageRunFinder, StageFinder {
         if (failedStages.isEmpty() || !failedStages.get(0).equals(stageIdentifier)) {
             return finalIds;
         }
-        for (StageIdentifier identifier : failedStages) {
-            finalIds.add(identifier);
-        }
+        finalIds.addAll(failedStages);
         return finalIds;
     }
 

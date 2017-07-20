@@ -31,9 +31,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
     }
 
     public Stages(Collection<Stage> stages) {
-        for (Stage stage : stages) {
-            add(stage);
-        }
+        this.addAll(stages);
     }
 
     public Stages(Stage... stage) {

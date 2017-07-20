@@ -36,9 +36,7 @@ public class Users extends BaseCollection<RoleUser> implements Validatable {
 
     static Users users(Collection<RoleUser> users) {
         Users usersList = new Users();
-        for (RoleUser user : users) {
-            usersList.add(user);
-        }
+        usersList.addAll(users);
         return usersList;
     }
 

@@ -17,10 +17,7 @@
 package com.thoughtworks.go.config.registry;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -53,12 +50,12 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
     }
 
     public <T> List<Class<? extends T>> implementersOf(Class<T> type) {
-        List<Class<? extends T>> toReturn = new ArrayList<>();
-        //noinspection unchecked
-        for (Class<? extends T> impl : registry.get(type)) {
-            toReturn.add(impl);
+        List<Class<? extends T>> out = new ArrayList<>();
+        for (Class k : registry.get(type)) {
+            //noinspection UseBulkOperation
+            out.add(k);
         }
-        return toReturn;
+        return out;
     }
 
     public String xsds() {
@@ -100,7 +97,7 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
         }
     }
 
-    public <T> void registerImplementer(Class<T> configInterface, Class<? extends T> ...implementation) {
+    public <T> void registerImplementer(Class<T> configInterface, Class<? extends T>... implementation) {
         List<Class> set;
         if (registry.containsKey(configInterface)) {
             set = registry.get(configInterface);

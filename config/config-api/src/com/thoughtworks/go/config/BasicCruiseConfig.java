@@ -262,14 +262,10 @@ public class BasicCruiseConfig implements CruiseConfig {
 
             //first add environment configs from main
             List<EnvironmentConfig> allEnvConfigs = new ArrayList<>();
-            for (EnvironmentConfig envConfig : BasicCruiseConfig.this.getEnvironments()) {
-                allEnvConfigs.add(envConfig);
-            }
+            allEnvConfigs.addAll(BasicCruiseConfig.this.getEnvironments());
             // then add from each part
             for (PartialConfig part : this.parts) {
-                for (EnvironmentConfig partPipesConf : part.getEnvironments()) {
-                    allEnvConfigs.add(partPipesConf);
-                }
+                allEnvConfigs.addAll(part.getEnvironments());
             }
 
             // lets group them by environment name
@@ -321,14 +317,10 @@ public class BasicCruiseConfig implements CruiseConfig {
 
             // first add pipeline configs from main part
             List<PipelineConfigs> allPipelineConfigs = new ArrayList<>();
-            for (PipelineConfigs partPipesConf : BasicCruiseConfig.this.getGroups()) {
-                allPipelineConfigs.add(partPipesConf);
-            }
+            allPipelineConfigs.addAll(BasicCruiseConfig.this.getGroups());
             // then add from each part
             for (PartialConfig part : this.parts) {
-                for (PipelineConfigs partPipesConf : part.getGroups()) {
-                    allPipelineConfigs.add(partPipesConf);
-                }
+                allPipelineConfigs.addAll(part.getGroups());
             }
             //there may be duplicated names and conflicts in general in the PipelineConfigs
 

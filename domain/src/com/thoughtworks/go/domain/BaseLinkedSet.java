@@ -28,9 +28,7 @@ public class BaseLinkedSet<T> extends LinkedHashSet<T> {
     }
 
     public BaseLinkedSet(List<T> list) {
-        for (T object : list) {
-            this.add(object);
-        }
+        this.addAll(list);
     }
 
     public T first() {

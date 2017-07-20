@@ -157,9 +157,7 @@ public class Modifications extends BaseCollection<Modification> {
     private Set<ModifiedFile> getAllFiles(List<Modification> modifications) {
         Set<ModifiedFile> allFiles = new HashSet<>();
         for (Modification modification : modifications) {
-            for (ModifiedFile modifiedFile : modification.getModifiedFiles()) {
-                allFiles.add(modifiedFile);
-            }
+            allFiles.addAll(modification.getModifiedFiles());
         }
         return allFiles;
     }

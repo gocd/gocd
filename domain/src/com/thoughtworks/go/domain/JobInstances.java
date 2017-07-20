@@ -36,9 +36,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public JobInstances(Collection<? extends JobInstance> jobInstances) {
-        for (JobInstance instance : jobInstances) {
-            add(instance);
-        }
+        this.addAll(jobInstances);
     }
 
     public JobInstances(JobInstance... jobInstance) {

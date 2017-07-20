@@ -136,7 +136,7 @@ public class StageNotificationDTO {
 
         public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result, Timestamp createTime, Timestamp lastTransitionTime, List<JobDTO> jobs) {
             this.name = name;
-            this.counter = new Integer(counter).toString();
+            this.counter = Integer.toString(counter);
             this.approvalType = approvalType;
             this.approvedBy = approvedBy;
             this.state = state.toString();

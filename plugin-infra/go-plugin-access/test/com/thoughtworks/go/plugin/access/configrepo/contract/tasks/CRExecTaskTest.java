@@ -63,7 +63,7 @@ public class CRExecTaskTest extends CRBaseTest<CRExecTask> {
         String json = gson.toJson(value);
 
         CRExecTask deserializedValue = (CRExecTask)gson.fromJson(json,CRTask.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 }

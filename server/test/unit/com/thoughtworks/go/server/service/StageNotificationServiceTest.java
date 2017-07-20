@@ -94,7 +94,7 @@ public class StageNotificationServiceTest {
 
     @Test
     public void shouldSendEmailWithFailureDetails() throws Exception {
-        final String expectedBaseUrl = String.format("http://test.host:8153");
+        final String expectedBaseUrl = "http://test.host:8153";
         String jezMail = prepareOneMatchedUser();
         final Date date = new Date();
         stubPipelineAndStage(date);

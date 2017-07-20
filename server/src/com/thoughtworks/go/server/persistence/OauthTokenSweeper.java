@@ -53,7 +53,7 @@ public class OauthTokenSweeper implements ConfigChangedListener {
         }
         if (securityChanged(newConfig)) {
             oauthRepo.deleteAllOauthGrants();
-            LOGGER.info(String.format("[Configuration Changed] Deleting all OAuth grants."));
+            LOGGER.info("[Configuration Changed] Deleting all OAuth grants.");
         }
         this.currentConfig = newConfig;
     }

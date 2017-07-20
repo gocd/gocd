@@ -39,7 +39,7 @@ public class LdapConfigChangedListener implements ConfigChangedListener {
         if (!currentLdapConfig.equals(newLdapConfig)) {
             ldapContextFactory.initializeDelegator();
             currentLdapConfig = newLdapConfig;
-            LOGGER.info(String.format("[Configuration Changed] LDAP configuration changed."));
+            LOGGER.info("[Configuration Changed] LDAP configuration changed.");
         }
     }
 }

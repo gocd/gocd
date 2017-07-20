@@ -64,7 +64,7 @@ public class CRSvnMaterialTest extends CRBaseTest<CRSvnMaterial> {
         String json = gson.toJson(value);
 
         CRSvnMaterial deserializedValue = (CRSvnMaterial)gson.fromJson(json,CRMaterial.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 }

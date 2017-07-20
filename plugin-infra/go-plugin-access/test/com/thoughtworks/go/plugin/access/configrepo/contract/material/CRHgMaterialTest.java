@@ -54,7 +54,7 @@ public class CRHgMaterialTest extends CRBaseTest<CRHgMaterial> {
         String json = gson.toJson(value);
 
         CRHgMaterial deserializedValue = (CRHgMaterial)gson.fromJson(json,CRMaterial.class);
-        assertThat(String.format("Deserialized value should equal to value before serialization"),
+        assertThat("Deserialized value should equal to value before serialization",
                 deserializedValue,is(value));
     }
 }

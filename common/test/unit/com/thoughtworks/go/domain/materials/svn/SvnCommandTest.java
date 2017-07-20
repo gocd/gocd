@@ -454,7 +454,7 @@ public class SvnCommandTest {
     @Test
     public void shouldNotAddEmptyPasswordWhenUsernameIsProvidedWithNoPassword() throws IOException {
         SvnCommand command = new SvnCommand(null, "url", "shilpaIsGreat", null, false);
-        CommandArgument argument = new StringArgument(String.format("--password="));
+        CommandArgument argument = new StringArgument("--password=");
         assertThat(command.buildSvnLogCommandForLatestOne().getArguments(), not(hasItem(argument)));
     }
 

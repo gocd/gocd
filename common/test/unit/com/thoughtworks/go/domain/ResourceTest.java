@@ -65,7 +65,7 @@ public class ResourceTest {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resource.validate(context);
         assertThat(resource.errors().isEmpty(), is(false));
-        assertThat(resource.errors().on(JobConfig.RESOURCES), is(String.format("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes")));
+        assertThat(resource.errors().on(JobConfig.RESOURCES), is("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes"));
     }
 
     @Test

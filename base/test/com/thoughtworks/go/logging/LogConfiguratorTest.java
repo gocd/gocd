@@ -89,7 +89,7 @@ public class LogConfiguratorTest {
 
         assertThat(initializeFromPropertyResource[0], equalTo(getClass().getClassLoader().getResource("config/logging-test-log4j.properties")));
 
-        assertThat(stderr.toString(), containsString(String.format("Using classpath resource `config/logging-test-log4j.properties'")));
+        assertThat(stderr.toString(), containsString("Using classpath resource `config/logging-test-log4j.properties'"));
         assertThat(stdout.toString(), is(""));
     }
 

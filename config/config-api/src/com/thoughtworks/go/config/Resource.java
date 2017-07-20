@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 @ConfigTag("resource")
 public class Resource extends PersistentObject implements Serializable, Comparable<Resource>, Validatable {
-    @ConfigValue @ValidationErrorKey(value = JobConfig.RESOURCES) private String name=new String();
+    @ConfigValue @ValidationErrorKey(value = JobConfig.RESOURCES) private String name= "";
     private static final String VALID_CHARACTER_CLASS = "[-\\w\\s|.]";
     public static final String VALID_REGEX = "^" + VALID_CHARACTER_CLASS + "*$";
     public static final String VALID_REGEX_WHEN_IN_TEMPLATES = "^" + "[-\\w\\s|.#{}]" + "*$";

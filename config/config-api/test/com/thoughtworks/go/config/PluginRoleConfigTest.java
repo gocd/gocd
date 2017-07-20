@@ -28,52 +28,27 @@ import static org.junit.Assert.*;
 public class PluginRoleConfigTest {
     @Test
     public void validate_shouldValidatePresenceOfRoleName(){
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validatePresenceOfRoleName(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_shouldValidateNullRoleName(){
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validateNullRoleName(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_presenceAuthConfigId(){
-        validatePresenceAuthConfigId(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validatePresenceAuthConfigId(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_presenceOfAuthConfigIdInSecurityConfig() throws Exception {
-        validatePresenceOfAuthConfigIdInSecurityConfig(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validatePresenceOfAuthConfigIdInSecurityConfig(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validateUniquenessOfRoleName(PluginRoleConfig::validate);
     }
 
     @Test
@@ -88,12 +63,7 @@ public class PluginRoleConfigTest {
 
     @Test
     public void validateTree_shouldValidateNullRoleName(){
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validateTree(context);
-            }
-        });
+        validateNullRoleName(Role::validateTree);
     }
 
     @Test

@@ -290,11 +290,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldFailIfJobsWithSameNameButDifferentCasesExistInConfig() throws IOException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERNT_CASE);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
@@ -469,11 +465,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldEncryptPasswordsOnUpgradeIfNecessary() throws IOException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         String configContent = ConfigFileFixture.configWithPipeline(String.format(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
@@ -544,11 +536,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldAllowParamsInP4ServerAndPortField() throws IOException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
         );
         String configContent = ConfigFileFixture.configWithPipeline(String.format(
                 "<pipeline name='pipeline1'>"
@@ -582,11 +570,7 @@ public class GoConfigMigrationIntegrationTest {
 
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
 
         String content = "<cruise schemaVersion='" + 47 + "'>\n"
                 + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"

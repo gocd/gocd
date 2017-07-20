@@ -433,12 +433,7 @@ public class GoFileConfigDataSource {
         if (lastKnownPartials.size() != lastValidPartials.size()) {
             return false;
         }
-        final ArrayList<ConfigOrigin> validConfigOrigins = ListUtil.map(lastValidPartials, new ListUtil.Transformer<PartialConfig, ConfigOrigin>() {
-            @Override
-            public ConfigOrigin transform(PartialConfig partialConfig) {
-                return partialConfig.getOrigin();
-            }
-        });
+        final ArrayList<ConfigOrigin> validConfigOrigins = ListUtil.map(lastValidPartials, PartialConfig::getOrigin);
         PartialConfig invalidKnownPartial = ListUtil.find(lastKnownPartials, new ListUtil.Condition() {
             @Override
             public <T> boolean isMet(T item) {

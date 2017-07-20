@@ -249,11 +249,7 @@ public class ChangesetService {
         PipelineConfigDependencyGraph graph = goConfigService.upstreamDependencyGraphOf(pipelineName);
         Set<String> allMaterialFingerprints = graph.allMaterialFingerprints();
         Set<String> reachableMaterialfingerprints = populateReachableFingerprints(graph, username, true, true);
-        FingerprintLoader<ModificationForPipeline> loader = new FingerprintLoader<ModificationForPipeline>() {
-            public String getFingerprint(ModificationForPipeline modificationForPipeline) {
-                return modificationForPipeline.getMaterialFingerprint();
-            }
-        };
+        FingerprintLoader<ModificationForPipeline> loader = ModificationForPipeline::getMaterialFingerprint;
 
         for (Map.Entry<Long, List<ModificationForPipeline>> pipelineIdAndModifications : modificationsForPipelineIds.entrySet()) {
             List<ModificationForPipeline> visibleModifications = filterFingerprintHolders(pipelineIdAndModifications.getValue(), reachableMaterialfingerprints, allMaterialFingerprints, loader);

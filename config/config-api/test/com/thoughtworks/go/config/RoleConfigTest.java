@@ -27,32 +27,17 @@ public class RoleConfigTest {
 
     @Test
     public void validate_presenceOfRoleName(){
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validate(context);
-            }
-        });
+        validatePresenceOfRoleName(Role::validate);
     }
 
     @Test
     public void validate_nullNameInRole(){
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validate(context);
-            }
-        });
+        validateNullRoleName(Role::validate);
     }
 
     @Test
     public void validate_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validate(context);
-            }
-        });
+        validateUniquenessOfRoleName(Role::validate);
     }
 
     @Test
@@ -67,12 +52,7 @@ public class RoleConfigTest {
 
     @Test
     public void validateTree_nullNameInRole(){
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validateTree(context);
-            }
-        });
+        validateNullRoleName(Role::validateTree);
     }
 
     @Test

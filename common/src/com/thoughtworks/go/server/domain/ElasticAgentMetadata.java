@@ -63,12 +63,7 @@ public class ElasticAgentMetadata {
     }
 
     public static Collection<ElasticAgentMetadata> from(Collection<AgentInstance> agents) {
-        return ListUtil.map(agents, new ListUtil.Transformer<AgentInstance, ElasticAgentMetadata>() {
-            @Override
-            public ElasticAgentMetadata transform(AgentInstance obj) {
-                return obj.elasticAgentMetadata();
-            }
-        });
+        return ListUtil.map(agents, AgentInstance::elasticAgentMetadata);
     }
 
     @Override

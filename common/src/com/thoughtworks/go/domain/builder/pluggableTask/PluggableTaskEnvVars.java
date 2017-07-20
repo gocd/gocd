@@ -29,12 +29,7 @@ public class PluggableTaskEnvVars implements EnvironmentVariables {
 
     public PluggableTaskEnvVars(final EnvironmentVariableContext variableContext) {
         envVarMap = Collections.unmodifiableMap(variableContext.getProperties());
-        secureEnvVarSpecifier = new Console.SecureEnvVarSpecifier() {
-            @Override
-            public boolean isSecure(String variableName) {
-                return variableContext.isPropertySecure(variableName);
-            }
-        };
+        secureEnvVarSpecifier = variableContext::isPropertySecure;
     }
 
     @Override

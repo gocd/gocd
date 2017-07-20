@@ -136,12 +136,7 @@ public abstract class Node implements Comparable<Node>{
 
     @Override
     public String toString() {
-        List<String> childIds = CollectionUtil.map(children, new CollectionUtil.MapFn<Node, String>() {
-            @Override
-            public String map(Node node) {
-                return node.getId();
-            }
-        });
+        List<String> childIds = CollectionUtil.map(children, Node::getId);
         return String.format("id='%s' name='%s' level='%d' depth='%d' revisions='%s' children='%s'", id, nodeName, level, depth, revisions(), StringUtils.join(childIds, ','));
     }
 

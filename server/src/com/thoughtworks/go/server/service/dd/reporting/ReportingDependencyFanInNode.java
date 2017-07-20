@@ -169,12 +169,7 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
         }
         List<ReportingFaninScmMaterial> scmMaterialList = pIdScmPair.last();
         for (final ReportingFaninScmMaterial scmMaterial : scmMaterialList) {
-            Collection<ReportingFaninScmMaterial> scmMaterialOfSameFingerprint = CollectionUtils.select(scmMaterialList, new Predicate() {
-                @Override
-                public boolean evaluate(Object o) {
-                    return scmMaterial.equals(o);
-                }
-            });
+            Collection<ReportingFaninScmMaterial> scmMaterialOfSameFingerprint = CollectionUtils.select(scmMaterialList, scmMaterial::equals);
 
             for (ReportingFaninScmMaterial faninScmMaterial : scmMaterialOfSameFingerprint) {
                 if (!faninScmMaterial.revision.equals(scmMaterial.revision)) {

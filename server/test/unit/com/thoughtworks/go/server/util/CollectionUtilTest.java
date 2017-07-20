@@ -48,11 +48,7 @@ public class CollectionUtilTest {
     @Test
     public void shouldPopulateMapWithInitialization() {
         Map<String, List<Integer>> mapWithCollection = new HashMap<>();
-        CollectionUtil.CollectionValueMap<String, Integer> cVM = CollectionUtil.collectionValMap(mapWithCollection, new CollectionUtil.CollectionCreator<Integer>() {
-            public Collection<Integer> create() {
-                return new ArrayList<>();
-            }
-        });
+        CollectionUtil.CollectionValueMap<String, Integer> cVM = CollectionUtil.collectionValMap(mapWithCollection, ArrayList::new);
         cVM.put("foo", 10);
         cVM.put("bar", 20);
         cVM.put("foo", 30);

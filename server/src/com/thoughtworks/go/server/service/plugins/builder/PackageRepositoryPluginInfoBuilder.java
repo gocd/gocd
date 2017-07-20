@@ -60,12 +60,7 @@ public class PackageRepositoryPluginInfoBuilder implements NewPluginInfoBuilder<
 
     @Override
     public Collection<PackageRepositoryPluginInfo> allPluginInfos() {
-        return packageMetadataStore.getPlugins().stream().map(new Function<String, PackageRepositoryPluginInfo>() {
-            @Override
-            public PackageRepositoryPluginInfo apply(String pluginId) {
-                return PackageRepositoryPluginInfoBuilder.this.pluginInfoFor(pluginId);
-            }
-        }).collect(Collectors.toList());
+        return packageMetadataStore.getPlugins().stream().map(PackageRepositoryPluginInfoBuilder.this::pluginInfoFor).collect(Collectors.toList());
     }
 
     static List<PluginConfiguration> configurations(PackageConfigurations packageConfigurations) {

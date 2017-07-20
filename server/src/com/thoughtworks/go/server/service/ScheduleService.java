@@ -337,12 +337,7 @@ public class ScheduleService {
     public Stage rerunFailedJobs(final Stage stage, final OperationResult result) {
         final StageIdentifier identifier = stage.getIdentifier();
         JobInstances jobInstances = stage.jobsWithResult(JobResult.Cancelled, JobResult.Failed);
-        List<String> jobNames = jobInstances.stream().map(new Function<JobInstance, String>() {
-            @Override
-            public String apply(JobInstance jobInstance) {
-                return jobInstance.getName();
-            }
-        }).collect(Collectors.toList());
+        List<String> jobNames = jobInstances.stream().map(JobInstance::getName).collect(Collectors.toList());
 
         if (jobNames.isEmpty()) {
             String message = "There are no failed jobs in the stage that could be re-run";

@@ -77,12 +77,7 @@ public class GoConfigGraphWalkerTest {
     {
         PipelineConfig pipe = mockPipelineConfig();
         BasicPipelineConfigs basicPipelines = new BasicPipelineConfigs(pipe);
-        new GoConfigGraphWalker(basicPipelines).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
-            }
-        });
+        new GoConfigGraphWalker(basicPipelines).walk(Validatable::validate);
         verify(pipe, atLeastOnce()).validate(any(ValidationContext.class));
     }
 
@@ -91,12 +86,7 @@ public class GoConfigGraphWalkerTest {
     {
         PipelineConfig pipe = mockPipelineConfig();
         MergePipelineConfigs mergePipelines = new MergePipelineConfigs(new BasicPipelineConfigs(pipe));
-        new GoConfigGraphWalker(mergePipelines).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
-            }
-        });
+        new GoConfigGraphWalker(mergePipelines).walk(Validatable::validate);
         verify(pipe, atLeastOnce()).validate(any(ValidationContext.class));
     }
 
@@ -105,12 +95,7 @@ public class GoConfigGraphWalkerTest {
         PackageRepository repository = mock(PackageRepository.class);
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setRepository(repository);
-        new GoConfigGraphWalker(packageDefinition).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
-            }
-        });
+        new GoConfigGraphWalker(packageDefinition).walk(Validatable::validate);
         verify(repository, never()).validate(any(ValidationContext.class));
     }
 

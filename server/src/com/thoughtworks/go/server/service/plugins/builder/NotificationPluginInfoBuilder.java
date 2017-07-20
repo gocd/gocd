@@ -47,11 +47,6 @@ public class NotificationPluginInfoBuilder implements NewPluginInfoBuilder<Notif
 
     @Override
     public Collection<NotificationPluginInfo> allPluginInfos() {
-        return registry.getNotificationPlugins().stream().map(new Function<String, NotificationPluginInfo>() {
-            @Override
-            public NotificationPluginInfo apply(String pluginId) {
-                return NotificationPluginInfoBuilder.this.pluginInfoFor(pluginId);
-            }
-        }).collect(Collectors.toList());
+        return registry.getNotificationPlugins().stream().map(NotificationPluginInfoBuilder.this::pluginInfoFor).collect(Collectors.toList());
     }
 }

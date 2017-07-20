@@ -57,12 +57,7 @@ public class PluggableTaskPluginInfoBuilder implements NewPluginInfoBuilder<Plug
 
     @Override
     public Collection<PluggableTaskPluginInfo> allPluginInfos() {
-        return store.pluginIds().stream().map(new Function<String, PluggableTaskPluginInfo>() {
-            @Override
-            public PluggableTaskPluginInfo apply(String pluginId) {
-                return PluggableTaskPluginInfoBuilder.this.pluginInfoFor(pluginId);
-            }
-        }).collect(Collectors.toList());
+        return store.pluginIds().stream().map(PluggableTaskPluginInfoBuilder.this::pluginInfoFor).collect(Collectors.toList());
     }
 
     static List<PluginConfiguration> configurations(TaskConfig config) {

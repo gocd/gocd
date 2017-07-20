@@ -341,12 +341,7 @@ public class FanInGraph {
 
     private Collection<StageIdFaninScmMaterialPair> findScmRevisionsThatDiffer(List<StageIdFaninScmMaterialPair> pIdScmMaterialList) {
         for (final StageIdFaninScmMaterialPair pIdScmPair : pIdScmMaterialList) {
-            final Collection<StageIdFaninScmMaterialPair> matWithSameFingerprint = CollectionUtils.select(pIdScmMaterialList, new Predicate() {
-                @Override
-                public boolean evaluate(Object o) {
-                    return pIdScmPair.equals(o);
-                }
-            });
+            final Collection<StageIdFaninScmMaterialPair> matWithSameFingerprint = CollectionUtils.select(pIdScmMaterialList, pIdScmPair::equals);
 
             boolean diffRevFound = false;
             for (StageIdFaninScmMaterialPair pair : matWithSameFingerprint) {

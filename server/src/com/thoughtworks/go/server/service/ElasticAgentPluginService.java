@@ -93,12 +93,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
         if (!elasticAgentsOfMissingPlugins.isEmpty()) {
             for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
-                Collection<String> uuids = ListUtil.map(elasticAgentsOfMissingPlugins.get(pluginId), new ListUtil.Transformer<ElasticAgentMetadata, String>() {
-                    @Override
-                    public String transform(ElasticAgentMetadata input) {
-                        return input.uuid();
-                    }
-                });
+                Collection<String> uuids = ListUtil.map(elasticAgentsOfMissingPlugins.get(pluginId), ElasticAgentMetadata::uuid);
                 String description = String.format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
                 serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, HealthStateType.general(scope(pluginId))));
                 LOGGER.warn(description);
@@ -153,12 +148,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     }
 
     private Filter<JobPlan> isElasticAgent() {
-        return new Filter<JobPlan>() {
-            @Override
-            public boolean matches(JobPlan input) {
-                return input.requiresElasticAgent();
-            }
-        };
+        return JobPlan::requiresElasticAgent;
     }
 
     public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile) {

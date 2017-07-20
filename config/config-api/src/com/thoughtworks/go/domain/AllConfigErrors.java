@@ -30,11 +30,6 @@ public class AllConfigErrors extends ArrayList<ConfigErrors> {
     }
 
     public String asString() {
-        return ListUtil.join(ListUtil.map(this, new ListUtil.Transformer<ConfigErrors, String>() {
-            @Override
-            public String transform(ConfigErrors errors) {
-                return errors.asString();
-            }
-        }));
+        return ListUtil.join(ListUtil.map(this, ConfigErrors::asString));
     }
 }

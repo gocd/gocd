@@ -1285,7 +1285,7 @@ public class MaterialRepositoryIntegrationTest {
             }
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count)));
+        assertThat(repo.getTotalModificationsFor(materialInstance), is((long) count));
 
         final ArrayList<Modification> secondSetOfModifications = getModifications(count + 1);
         transactionTemplate.execute(new TransactionCallback() {
@@ -1295,7 +1295,7 @@ public class MaterialRepositoryIntegrationTest {
             }
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count+1)));
+        assertThat(repo.getTotalModificationsFor(materialInstance), is((long) (count + 1)));
     }
 
     private ArrayList<Modification> getModifications(int count) {

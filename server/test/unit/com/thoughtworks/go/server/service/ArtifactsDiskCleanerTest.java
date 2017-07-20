@@ -82,7 +82,7 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldTriggerOnConfiguredPurgeStartLimit() {
         serverConfig.setPurgeLimits(null, null);
-        assertThat(artifactsDiskCleaner.limitInMb(), is(Long.valueOf(Integer.MAX_VALUE)));
+        assertThat(artifactsDiskCleaner.limitInMb(), is((long) Integer.MAX_VALUE));
         serverConfig.setPurgeLimits(20.0, 30.0);
         assertThat(artifactsDiskCleaner.limitInMb(), is(20 * GoConstants.MEGABYTES_IN_GIGABYTE));
         serverConfig.setPurgeLimits(15.0, 30.0);

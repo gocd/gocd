@@ -434,6 +434,6 @@ public class ConfigRepository {
                 return count;
             }
         }
-        return Long.valueOf(-1);
+        return (long) -1;
     }
 }

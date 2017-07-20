@@ -311,7 +311,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         }
         Long elapsed = completedDate.getTime() - buildingDate.getTime();
         int elapsedSeconds = Math.round(elapsed / 1000);
-        return Long.valueOf(elapsedSeconds);
+        return (long) elapsedSeconds;
     }
 
     public String getCurrentBuildDuration() {

@@ -109,8 +109,8 @@ public class CompositeExtractorTest extends MockObjectTestCase {
         private boolean endElementCalled;
 
         public void report(Map resultSet) {
-            resultSet.put("allCallbackWereCalled", Boolean.valueOf(charCalled && startElementCalled
-                    && endElementCalled));
+            resultSet.put("allCallbackWereCalled", charCalled && startElementCalled
+                    && endElementCalled);
         }
 
         public void characters(char[] arg0, int arg1, int arg2) throws SAXException {

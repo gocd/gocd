@@ -128,8 +128,6 @@ public class XpathUtilsTest {
             if (content != null) {
                 bw.write(content);
             }
-        } catch (IOException ex) {
-            throw ex;
         } finally {
             try {
                 bw.close();

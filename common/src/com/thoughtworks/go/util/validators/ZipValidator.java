@@ -60,8 +60,6 @@ public abstract class ZipValidator implements Validator {
             while ((bytes = entryInputStream.read(fileBuffer)) > 0) {
                 os.write(fileBuffer, 0, bytes);
             }
-        } catch (IOException e) {
-            throw e;
         } finally {
             IOUtils.closeQuietly(os);
         }

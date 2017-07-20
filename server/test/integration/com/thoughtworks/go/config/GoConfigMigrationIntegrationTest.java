@@ -555,7 +555,7 @@ public class GoConfigMigrationIntegrationTest {
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
-                        + "</pipeline>", "hello"), 32);
+                        + "</pipeline>"), 32);
         FileUtils.writeStringToFile(configFile, configContent);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);

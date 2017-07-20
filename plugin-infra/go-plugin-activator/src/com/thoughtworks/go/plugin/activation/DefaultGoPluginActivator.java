@@ -229,7 +229,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
         if (!hasOneArgOfPluginContextType(method)) {
             reportWarningToHealthService(
-                    String.format("Ignoring method [%s] tagged with @%s since it does not have one argument of type PluginContext. Argument Type: []",
+                    String.format("Ignoring method [%s] tagged with @%s since it does not have one argument of type PluginContext. Argument Type: %s",
                             method, annotation.getSimpleName(), Arrays.toString(method.getParameterTypes())));
         }
     }

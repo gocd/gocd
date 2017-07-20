@@ -167,7 +167,7 @@ public class ConfigRepoConfig implements Validatable {
 
     public void validateIdUniqueness(ArrayList<String> allIds) {
         if(StringUtil.isBlank(this.id)) {
-            this.errors.add("id",String.format( "Invalid config-repo id", id));
+            this.errors.add("id", "Invalid config-repo id");
         }
         if(allIds.contains(this.id)) {
             this.errors.add("unique_id",String.format( "You have defined multiple configuration repositories with the same id - %s", id));

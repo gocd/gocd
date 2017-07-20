@@ -143,7 +143,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
                 boolean approverIsNotAGroupOperator = !groupOperators.has(approver, roles.memberRoles(approver));
 
                 if (approverIsNotAnAdmin && approverIsNotAGroupOperator) {
-                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", approver.describe(), approver, group.getGroup()));
+                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", approver.describe(), approver));
                 }
             }
         }

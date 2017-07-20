@@ -480,7 +480,7 @@ public class AgentServiceIntegrationTest {
 
     private void assertAgentDisablingSucceeded(HttpOperationResult operationResult, String uuid) {
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is(String.format("Disabled 1 agent(s)", uuid)));
+        assertThat(operationResult.message(), is("Disabled 1 agent(s)"));
     }
 
     @Test

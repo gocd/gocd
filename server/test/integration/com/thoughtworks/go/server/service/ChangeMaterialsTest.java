@@ -137,7 +137,7 @@ public class ChangeMaterialsTest {
 
     //TODO: CS&DY Revisit this test to use materials properly
     @Test
-    public void shouldManualScheduleWithLatestModificationFromNewMaterialAfterChangedMaterial() throws Exception, StageAlreadyBuildingException {
+    public void shouldManualScheduleWithLatestModificationFromNewMaterialAfterChangedMaterial() throws Exception {
         cruiseConfig.replaceMaterialWithHgRepoForPipeline(PIPELINE_NAME, hgTestRepo.projectRepositoryUrl());
 
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(PIPELINE_NAME, username);

@@ -319,7 +319,7 @@ public class ConfigRepositoryTest {
     }
 
     @Test
-    public void shouldSwitchToMasterAndDeleteTempBranches() throws Exception, GitAPIException {
+    public void shouldSwitchToMasterAndDeleteTempBranches() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         configRepo.createBranch(ConfigRepository.BRANCH_AT_HEAD, configRepo.getCurrentRevCommit());
         configRepo.createBranch(ConfigRepository.BRANCH_AT_REVISION, configRepo.getCurrentRevCommit());

@@ -80,7 +80,7 @@ public class BackupService implements BackupStatusProvider {
     final String CONFIG_BACKUP_ZIP = "config-dir.zip";
     private static final String CONFIG_REPOSITORY_BACKUP_ZIP = "config-repo.zip";
     private static final String VERSION_BACKUP_FILE = "version.txt";
-    private static final String BACKUP_MUTEX = "GO-SERVER-BACKUP-IN-PROGRESS".intern();
+    private static final String BACKUP_MUTEX = "GO-SERVER-BACKUP-IN-PROGRESS";
 
     @Autowired
     public BackupService(DataSource dataSource, ArtifactsDirHolder artifactsDirHolder, GoConfigService goConfigService, TimeProvider timeProvider,

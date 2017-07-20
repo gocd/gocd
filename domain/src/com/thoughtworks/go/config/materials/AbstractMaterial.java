@@ -101,7 +101,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public String getTruncatedDisplayName() {
         String displayName = getDisplayName();
         if (displayName.length() > TRUNCATED_NAME_MAX_LENGTH) {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             buffer.append(displayName.substring(0, TRUNCATED_NAME_MAX_LENGTH / 2));
             buffer.append("...");
             buffer.append(displayName.substring(displayName.length() - TRUNCATED_NAME_MAX_LENGTH / 2));

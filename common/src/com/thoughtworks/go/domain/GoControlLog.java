@@ -112,7 +112,7 @@ public class GoControlLog implements Serializable {
     }
 
     public static String formatLogFileName(Date date, String label) {
-        StringBuffer logFileName = new StringBuffer();
+        StringBuilder logFileName = new StringBuilder();
         logFileName.append("log");
         logFileName.append(DateUtils.getFormattedTime(date));
         if (label != null) {

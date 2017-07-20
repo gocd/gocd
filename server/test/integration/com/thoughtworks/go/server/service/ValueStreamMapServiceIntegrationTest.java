@@ -531,9 +531,7 @@ public class ValueStreamMapServiceIntegrationTest {
         valueStreamMapService.getValueStreamMap("p1", 2, username, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
-        assertThat(result.message(localizer), is(String.format(
-                "Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.",
-                "p1", 2)));
+        assertThat(result.message(localizer), is("Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently."));
     }
 
     private String pipelineName(ScheduleTestUtil.AddedPipeline c5) {

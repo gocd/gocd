@@ -272,18 +272,17 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldEncryptTfsPasswordWhenConfigIsChangedViaFileSystem() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <tfs url='http://some.repo.local' username='username@domain' password='password' projectPath='$/project_path' />"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
+        String configContent = ConfigFileFixture.configWithPipeline("<pipeline name='pipeline1'>"
+                + "    <materials>"
+                + "      <tfs url='http://some.repo.local' username='username@domain' password='password' projectPath='$/project_path' />"
+                + "    </materials>"
+                + "  <stage name='mingle'>"
+                + "    <jobs>"
+                + "      <job name='do-something'>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "</pipeline>", GoConstants.CONFIG_SCHEMA_VERSION);
         FileUtils.writeStringToFile(dataSource.fileLocation(), configContent);
 
         GoConfigHolder configHolder = dataSource.load();

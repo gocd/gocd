@@ -132,7 +132,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
     }
 
     public String toString() {
-        return format("MailHost[%s, %s, %s, %s, %s, %s, %s]", hostName, port, username, password, encryptedPassword, tls, getFrom(), getAdminMail());
+        return format("MailHost[%s, %s, %s, %s, %s, %s, %s, %s]", hostName, port, username, password, encryptedPassword, tls, getFrom(), getAdminMail());
     }
 
     public Map json() {

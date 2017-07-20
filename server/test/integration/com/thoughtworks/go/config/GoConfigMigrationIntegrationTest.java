@@ -536,26 +536,25 @@ public class GoConfigMigrationIntegrationTest {
         GoConfigMigration upgrader = new GoConfigMigration(
                 exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
         );
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "<params>"
-                        + "        <param name='param_foo'>a:3</param>"
-                        + "      </params>"
-                        + "    <materials>"
-                        + "<p4 port='#{param_foo}' username='' dest='blah' materialName='boo'>"
-                        + "<view><![CDATA[blah]]></view>"
-                        + "<filter>"
-                        + "<ignore pattern='' />"
-                        + "</filter>"
-                        + "</p4>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>"), 32);
+        String configContent = ConfigFileFixture.configWithPipeline("<pipeline name='pipeline1'>"
+                + "<params>"
+                + "        <param name='param_foo'>a:3</param>"
+                + "      </params>"
+                + "    <materials>"
+                + "<p4 port='#{param_foo}' username='' dest='blah' materialName='boo'>"
+                + "<view><![CDATA[blah]]></view>"
+                + "<filter>"
+                + "<ignore pattern='' />"
+                + "</filter>"
+                + "</p4>"
+                + "    </materials>"
+                + "  <stage name='mingle'>"
+                + "    <jobs>"
+                + "      <job name='do-something'>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "</pipeline>", 32);
         FileUtils.writeStringToFile(configFile, configContent);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);

@@ -35,10 +35,6 @@ public class DbMetadataSqlMapDao extends HibernateDaoSupport implements DbMetada
 
     public int getSchemaVersion() throws DataAccessException {
 
-        return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) {
-                return session.createSQLQuery("select max(change_number) from changelog").uniqueResult();
-            }
-        });
+        return (Integer) getHibernateTemplate().execute(session -> session.createSQLQuery("select max(change_number) from changelog").uniqueResult());
     }
 }

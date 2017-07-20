@@ -299,11 +299,7 @@ public class BackupServiceIntegrationTest {
         };
         waitForAssertionToCompleteWhileBackupIsOn.acquire();
         waitForBackupToStart.acquire();
-        Thread backupThd = new Thread(new Runnable() {
-            public void run() {
-                backupService.startBackup(admin, result);
-            }
-        });
+        Thread backupThd = new Thread(() -> backupService.startBackup(admin, result));
 
         backupThd.start();
         waitForBackupToStart.acquire();
@@ -335,11 +331,7 @@ public class BackupServiceIntegrationTest {
         };
         waitForAssertionToCompleteWhileBackupIsOn.acquire();
         waitForBackupToStart.acquire();
-        Thread backupThd = new Thread(new Runnable() {
-            public void run() {
-                backupService.startBackup(admin, result);
-            }
-        });
+        Thread backupThd = new Thread(() -> backupService.startBackup(admin, result));
 
         backupThd.start();
         waitForBackupToStart.acquire();
@@ -394,13 +386,10 @@ public class BackupServiceIntegrationTest {
         final Semaphore waitForAssertion_whichHasToHappen_whileBackupIsRunning = new Semaphore(1);
 
         Database databaseStrategyMock = mock(Database.class);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                waitForBackupToBegin.release();
-                waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            waitForBackupToBegin.release();
+            waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
+            return null;
         }).when(databaseStrategyMock).backup(any(File.class));
 
 
@@ -408,11 +397,7 @@ public class BackupServiceIntegrationTest {
                 serverVersion, configRepository, databaseStrategyMock);
 
         waitForBackupToBegin.acquire();
-        Thread thd = new Thread(new Runnable() {
-            public void run() {
-                backupService.startBackup(admin, new HttpLocalizedOperationResult());
-            }
-        });
+        Thread thd = new Thread(() -> backupService.startBackup(admin, new HttpLocalizedOperationResult()));
         thd.start();
 
         waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();

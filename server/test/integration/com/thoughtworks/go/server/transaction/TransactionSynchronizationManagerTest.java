@@ -95,11 +95,9 @@ public class TransactionSynchronizationManagerTest {
         final boolean[] inBody = new boolean[] {false};
         final TransactionSynchronizationManager synchronizationManager = new TransactionSynchronizationManager();
 
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                inBody[0] = synchronizationManager.isTransactionBodyExecuting();
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            inBody[0] = synchronizationManager.isTransactionBodyExecuting();
+            return null;
         });
         assertThat(inBody[0], is(true));
         assertThat(synchronizationManager.isTransactionBodyExecuting(), is(false));

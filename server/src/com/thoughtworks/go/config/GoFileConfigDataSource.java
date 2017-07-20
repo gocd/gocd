@@ -553,12 +553,7 @@ public class GoFileConfigDataSource {
     }
 
     private GoConfigHolder internalLoad(final String content, final ConfigModifyingUser configModifyingUser, final List<PartialConfig> partials) throws Exception {
-        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, new MagicalGoConfigXmlLoader.Callback() {
-            @Override
-            public void call(CruiseConfig cruiseConfig) {
-                cruiseConfig.setPartials(partials);
-            }
-        });
+        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, cruiseConfig -> cruiseConfig.setPartials(partials));
         CruiseConfig config = configHolder.config;
         checkinConfigToGitRepo(partials, config, content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName());
         return configHolder;

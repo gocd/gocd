@@ -58,11 +58,7 @@ public class CollectionUtilTest {
 
     @Test
     public void shouldMapWithGivenMappingFn() {
-        List<String> firstChar = CollectionUtil.map(Arrays.asList("foo", "bar", "quux"), new CollectionUtil.MapFn<String, String>() {
-            public String map(String s) {
-                return s.substring(0, 1);
-            }
-        });
+        List<String> firstChar = CollectionUtil.map(Arrays.asList("foo", "bar", "quux"), s -> s.substring(0, 1));
 
         assertThat(firstChar, is(Arrays.asList("f", "b", "q")));
     }

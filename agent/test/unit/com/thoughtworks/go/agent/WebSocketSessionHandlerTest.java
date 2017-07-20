@@ -49,19 +49,9 @@ public class WebSocketSessionHandlerTest {
     public void shouldWaitForAcknowledgementWhileSendingMessages() throws Exception {
         final Message message = new Message(Action.reportCurrentStatus);
 
-        when(session.getRemote()).thenReturn(new FakeWebSocketEndpoint(new Runnable() {
-            @Override
-            public void run() {
-                handler.acknowledge(new Message(Action.acknowledge, message.getAcknowledgementId()));
-            }
-        }));
+        when(session.getRemote()).thenReturn(new FakeWebSocketEndpoint(() -> handler.acknowledge(new Message(Action.acknowledge, message.getAcknowledgementId()))));
 
-        Thread sendThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                handler.sendAndWaitForAcknowledgement(message);
-            }
-        });
+        Thread sendThread = new Thread(() -> handler.sendAndWaitForAcknowledgement(message));
         sendThread.start();
         assertThat(sendThread.isAlive(), is(true));
 

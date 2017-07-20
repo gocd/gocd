@@ -189,11 +189,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
     @Override
     public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-        doOnAllWithExceptionHandling(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches, new ExceptionHandler<T>() {
-            @Override
-            public void handleException(T obj, Throwable t) {
-                throw new RuntimeException(t.getMessage(), t);
-            }
+        doOnAllWithExceptionHandling(serviceReferenceClass, actionToDoOnEachRegisteredServiceWhichMatches, (obj, t) -> {
+            throw new RuntimeException(t.getMessage(), t);
         });
     }
 
@@ -346,22 +343,16 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private Closure notifyPluginLoadedEvent(final GoPluginDescriptor pluginDescriptor) {
-        return new Closure() {
-            @Override
-            public void execute(Object o) {
-                PluginChangeListener pluginChangeListener = (PluginChangeListener) o;
-                pluginChangeListener.pluginLoaded(pluginDescriptor);
-            }
+        return o -> {
+            PluginChangeListener pluginChangeListener = (PluginChangeListener) o;
+            pluginChangeListener.pluginLoaded(pluginDescriptor);
         };
     }
 
     private Closure notifyPluginUnLoadedEvent(final GoPluginDescriptor pluginDescriptor) {
-        return new Closure() {
-            @Override
-            public void execute(Object o) {
-                PluginChangeListener pluginChangeListener = (PluginChangeListener) o;
-                pluginChangeListener.pluginUnLoaded(pluginDescriptor);
-            }
+        return o -> {
+            PluginChangeListener pluginChangeListener = (PluginChangeListener) o;
+            pluginChangeListener.pluginUnLoaded(pluginDescriptor);
         };
     }
 

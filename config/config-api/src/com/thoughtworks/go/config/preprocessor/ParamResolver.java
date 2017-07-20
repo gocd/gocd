@@ -153,11 +153,7 @@ public class ParamResolver {
     }
 
     private NodeSelectorPredicate nodeSelectorPredicate() {
-        return new NodeSelectorPredicate() {
-            public boolean shouldSelect(Field declaredField) {
-                return isConfigSubtag(declaredField) && notSkippable(declaredField);
-            }
-        };
+        return declaredField -> isConfigSubtag(declaredField) && notSkippable(declaredField);
     }
 
     private boolean isConfigSubtag(Field declaredField) {

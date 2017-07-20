@@ -29,18 +29,8 @@ public class XSLTTransformerRegistryTest {
     @Test
     public void getTransformerShouldNeverReturnTheSameTransformerTwice() throws Exception {
         XSLTTransformerRegistry registry = new XSLTTransformerRegistry();
-        Transformer transformer1 = registry.transformWithCorrectClassLoader("xunit/ant-junit-grddl.xsl", new XSLTTransformerExecutor<Transformer>() {
-            @Override
-            public Transformer execute(Transformer transformer) throws TransformerException, GrddlTransformException {
-                return transformer;
-            }
-        });
-        Transformer transformer2 = registry.transformWithCorrectClassLoader("xunit/ant-junit-grddl.xsl", new XSLTTransformerExecutor<Transformer>() {
-            @Override
-            public Transformer execute(Transformer transformer) throws TransformerException, GrddlTransformException {
-                return transformer;
-            }
-        });
+        Transformer transformer1 = registry.transformWithCorrectClassLoader("xunit/ant-junit-grddl.xsl", transformer -> transformer);
+        Transformer transformer2 = registry.transformWithCorrectClassLoader("xunit/ant-junit-grddl.xsl", transformer -> transformer);
         assertNotSame(transformer1, transformer2);
     }
 }

@@ -45,11 +45,7 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
     public void onMessage(final JobStatusMessage message) {
         if (message.getJobState().isCompleted()) {
             final Stage stage = stageService.findStageWithIdentifier(message.getStageIdentifier());
-            stage.statusHandling(new StageStatusHandler() {
-                public void onNormalCompletion(StageState stageState, StageResult stageResult) {
-                    stageStatusTopic.post(new StageStatusMessage(message.getStageIdentifier(), stageState, stageResult));
-                }
-            });
+            stage.statusHandling((stageState, stageResult) -> stageStatusTopic.post(new StageStatusMessage(message.getStageIdentifier(), stageState, stageResult)));
         }
     }
 

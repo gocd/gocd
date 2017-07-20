@@ -38,11 +38,9 @@ public class DynamicReadWriteLockTest {
     @Test public void shouldEnforceMutualExclutionOfWriteLockForGivenName() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(new Runnable() {
-            public void run() {
-                readWriteLock.acquireWriteLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireWriteLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -53,11 +51,9 @@ public class DynamicReadWriteLockTest {
     @Test public void shouldNotEnforceMutualExclutionOfReadLockForGivenName() throws InterruptedException {
         readWriteLock.acquireReadLock("foo");
 
-        new Thread(new Runnable() {
-            public void run() {
-                readWriteLock.acquireReadLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireReadLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -68,11 +64,9 @@ public class DynamicReadWriteLockTest {
     @Test public void shouldEnforceMutualExclutionOfReadAndWriteLockForGivenName() throws InterruptedException {
         readWriteLock.acquireReadLock("foo");
 
-        new Thread(new Runnable() {
-            public void run() {
-                readWriteLock.acquireWriteLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireWriteLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -83,11 +77,9 @@ public class DynamicReadWriteLockTest {
     @Test public void shouldEnforceMutualExclutionOfWriteAndReadLockForGivenName() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(new Runnable() {
-            public void run() {
-                readWriteLock.acquireReadLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireReadLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -99,11 +91,9 @@ public class DynamicReadWriteLockTest {
     @Test public void shouldNotEnforceMutualExclutionOfWriteLockForDifferentNames() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(new Runnable() {
-            public void run() {
-                readWriteLock.acquireWriteLock("bar");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireWriteLock("bar");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);

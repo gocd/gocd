@@ -129,13 +129,10 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.addPipeline(pipelineConfig, groupName);
         repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
         repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(repoConfig1);
-                cruiseConfig.getConfigRepos().add(repoConfig2);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(repoConfig1);
+            cruiseConfig.getConfigRepos().add(repoConfig2);
+            return cruiseConfig;
         });
         GoCipher goCipher = new GoCipher();
         new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
@@ -430,12 +427,9 @@ public class PipelineConfigServiceIntegrationTest {
         jobConfigs.add(new JobConfig(new CaseInsensitiveString("Job")));
         StageConfig stage = new StageConfig(new CaseInsensitiveString("Stage-1"), jobConfigs);
         final PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), stage);
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addTemplate(templateConfig);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.addTemplate(templateConfig);
+            return cruiseConfig;
         });
 
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig();
@@ -727,15 +721,12 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     private void setupPipelineWithTemplate(final String pipelineName, final String templateName) {
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
-                PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
-                cruiseConfig.addTemplate(template);
-                cruiseConfig.addPipeline("group", pipeline);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
+            PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
+            cruiseConfig.addTemplate(template);
+            cruiseConfig.addPipeline("group", pipeline);
+            return cruiseConfig;
         });
     }
 

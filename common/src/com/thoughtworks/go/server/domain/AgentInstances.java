@@ -291,16 +291,14 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
-        Collection<AgentInstance> values = MapUtil.filterValues(agentInstances, new MapUtil.Predicate<AgentInstance>() {
-            public boolean apply(AgentInstance agentInstance) {
-                if (!agentInstance.isElastic()) {
-                    return false;
-                }
-
-                ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
-                return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
-
+        Collection<AgentInstance> values = MapUtil.filterValues(agentInstances, agentInstance -> {
+            if (!agentInstance.isElastic()) {
+                return false;
             }
+
+            ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
+            return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
+
         });
 
 

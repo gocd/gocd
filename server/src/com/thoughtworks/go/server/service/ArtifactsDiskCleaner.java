@@ -41,19 +41,17 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         this.artifactService = artifactService;
         this.stageService = stageService;
         this.configDbStateRepository = configDbStateRepository;
-        cleaner = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    while (true) {
-                        synchronized (triggerCleanup) {
-                            triggerCleanup.wait();
-                        }
-                        deleteOldArtifacts();
+        cleaner = new Thread(() -> {
+            try {
+                while (true) {
+                    synchronized (triggerCleanup) {
+                        triggerCleanup.wait();
                     }
-                } catch (Exception e) {
-                    LOGGER.error(String.format("Artifact disk cleanup task aborted. Error encountered: '%s'", e.getMessage()));//logging not tested
-                    throw new RuntimeException(e);
+                    deleteOldArtifacts();
                 }
+            } catch (Exception e) {
+                LOGGER.error(String.format("Artifact disk cleanup task aborted. Error encountered: '%s'", e.getMessage()));//logging not tested
+                throw new RuntimeException(e);
             }
         });
         cleaner.start();

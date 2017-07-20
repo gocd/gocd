@@ -186,11 +186,9 @@ public class BuildCauseProducerServiceTest {
         Username user = Username.ANONYMOUS;
         final HttpOperationResult result = new HttpOperationResult();
 
-        when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer(new Answer<Boolean>() {
-            public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
-                result.accepted("junk", "junk", healthStateType);
-                return true;
-            }
+        when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer(invocationOnMock -> {
+            result.accepted("junk", "junk", healthStateType);
+            return true;
         });
 
         buildCauseProducerService.markPipelineAsAlreadyTriggered(pipelineConfig);

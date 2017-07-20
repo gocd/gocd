@@ -136,11 +136,7 @@ public class LdapUserSearch implements org.springframework.security.ldap.LdapUse
     }
 
     AttributesMapperCallbackHandler getAttributesMapperCallbackHandler() {
-        AttributesMapper attributes = new AttributesMapper() {
-            public Object mapFromAttributes(Attributes attributes) throws NamingException {
-                return attributes;
-            }
-        };
+        AttributesMapper attributes = attributes1 -> attributes1;
         return new AttributesMapperCallbackHandler(attributes);
     }
 

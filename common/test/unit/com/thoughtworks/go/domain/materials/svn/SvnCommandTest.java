@@ -508,12 +508,10 @@ public class SvnCommandTest {
         final HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial);
         final SvnCommand spy = spy(subversion);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
-                assertThat(commandLine.toString(), containsString("svn info --xml --username user --password ****** http://localhost/svn/project1"));
-                return consoleResult;
-            }
+        doAnswer(invocation -> {
+            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            assertThat(commandLine.toString(), containsString("svn info --xml --username user --password ****** http://localhost/svn/project1"));
+            return consoleResult;
         }).when(spy).executeCommand(any(CommandLine.class));
         final HashMap<String,String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
         assertThat(urlToRemoteUUIDMap.size(), is(1));
@@ -530,16 +528,14 @@ public class SvnCommandTest {
         svnMaterials.add(svnMaterial1);
         svnMaterials.add(svnMaterial2);
         final SvnCommand spy = spy(subversion);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                final ConsoleResult consoleResult = mock(ConsoleResult.class);
-                when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
-                final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
-                if (commandLine.toString().contains("http://localhost/svn/project1")) {
-                    return consoleResult;
-                } else {
-                    throw new RuntimeException("Some thing crapped out");
-                }
+        doAnswer(invocation -> {
+            final ConsoleResult consoleResult = mock(ConsoleResult.class);
+            when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
+            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            if (commandLine.toString().contains("http://localhost/svn/project1")) {
+                return consoleResult;
+            } else {
+                throw new RuntimeException("Some thing crapped out");
             }
         }).when(spy).executeCommand(any(CommandLine.class));
 

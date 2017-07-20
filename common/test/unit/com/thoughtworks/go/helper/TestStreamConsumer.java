@@ -43,12 +43,7 @@ public class TestStreamConsumer implements TaggedStreamConsumer {
     }
 
     public void waitForContain(final String content, Timeout timeout) throws InterruptedException {
-        Assertions.waitUntil(timeout, new Assertions.Predicate() {
-            @Override
-            public boolean call() throws Exception {
-                return output().contains(content);
-            }
-        }, 250);
+        Assertions.waitUntil(timeout, () -> output().contains(content), 250);
     }
 
     public void clear() {

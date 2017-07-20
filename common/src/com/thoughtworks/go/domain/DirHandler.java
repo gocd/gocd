@@ -55,11 +55,9 @@ public class DirHandler implements FetchHandler {
         LOG.info(format("[Agent Fetch Artifact] Downloading from '%s' to '%s'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath()));
 
         long before = System.currentTimeMillis();
-        new ZipUtil(new ZipUtil.ZipEntryHandler() {
-            public void handleEntry(ZipEntry entry, InputStream stream) throws IOException {
-                LOG.info(format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Handling the entry: '%s'", srcFile, destOnAgent.getAbsolutePath(), entry.getName()));
-                new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream), checksumValidationPublisher);
-            }
+        new ZipUtil((entry, stream1) -> {
+            LOG.info(format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Handling the entry: '%s'", srcFile, destOnAgent.getAbsolutePath(), entry.getName()));
+            new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream1), checksumValidationPublisher);
         }).unzip(zipInputStream, destOnAgent);
         LOG.info(format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Took: %sms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before));
     }

@@ -91,11 +91,9 @@ public class AgentRuntimeInfoTest {
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
         assertThat(oldAndNewStatus[OLD_IDX], is(nullValue()));
-        agentRuntimeInfo.setRuntimeStatus(AgentRuntimeStatus.Building, new AgentRuntimeStatus.ChangeListener() {
-            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
-                oldAndNewStatus[OLD_IDX] = runtimeInfo.getRuntimeStatus();
-                oldAndNewStatus[NEW_IDX] = newStatus;
-            }
+        agentRuntimeInfo.setRuntimeStatus(AgentRuntimeStatus.Building, (runtimeInfo, newStatus) -> {
+            oldAndNewStatus[OLD_IDX] = runtimeInfo.getRuntimeStatus();
+            oldAndNewStatus[NEW_IDX] = newStatus;
         });
         assertThat(oldAndNewStatus[OLD_IDX], is(AgentRuntimeStatus.Idle));
         assertThat(oldAndNewStatus[NEW_IDX], is(AgentRuntimeStatus.Building));

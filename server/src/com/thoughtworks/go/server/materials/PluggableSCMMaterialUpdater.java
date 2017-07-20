@@ -48,14 +48,11 @@ public class PluggableSCMMaterialUpdater implements MaterialUpdater {
 
         final PluggableSCMMaterialInstance latestMaterialInstance = (PluggableSCMMaterialInstance) material.createMaterialInstance();
         if (currentMaterialInstance.shouldUpgradeTo(latestMaterialInstance)) {
-            transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    PluggableSCMMaterialInstance materialInstance = (PluggableSCMMaterialInstance) materialRepository.find(currentMaterialInstance.getId());
-                    materialInstance.upgradeTo(latestMaterialInstance);
-                    materialRepository.saveOrUpdate(materialInstance);
-                    return materialInstance;
-                }
+            transactionTemplate.execute(transactionStatus -> {
+                PluggableSCMMaterialInstance materialInstance1 = (PluggableSCMMaterialInstance) materialRepository.find(currentMaterialInstance.getId());
+                materialInstance1.upgradeTo(latestMaterialInstance);
+                materialRepository.saveOrUpdate(materialInstance1);
+                return materialInstance1;
             });
         }
         scmMaterialUpdater.insertLatestOrNewModifications(material, currentMaterialInstance, folder, list);

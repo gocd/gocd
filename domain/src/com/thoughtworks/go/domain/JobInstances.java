@@ -29,11 +29,7 @@ import static com.thoughtworks.go.domain.TestReportGenerator.TEST_RESULTS_FILE;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class JobInstances extends BaseCollection<JobInstance> {
-    private static final Comparator<JobInstance> JOB_INSTANCE_NAME_COMPARATOR = new Comparator<JobInstance>() {
-        public int compare(JobInstance o1, JobInstance o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    };
+    private static final Comparator<JobInstance> JOB_INSTANCE_NAME_COMPARATOR = (o1, o2) -> o1.getName().compareTo(o2.getName());
 
     public JobInstances() {
         super();

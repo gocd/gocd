@@ -42,12 +42,7 @@ public class RoleConfigTest {
 
     @Test
     public void validateTree_presenceOfRoleName(){
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                assertFalse(roleConfig.validateTree(context));
-            }
-        });
+        validatePresenceOfRoleName((roleConfig, context) -> assertFalse(roleConfig.validateTree(context)));
     }
 
     @Test
@@ -57,12 +52,7 @@ public class RoleConfigTest {
 
     @Test
     public void validateTree_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                assertFalse(roleConfig.validateTree(context));
-            }
-        });
+        validateUniquenessOfRoleName((roleConfig, context) -> assertFalse(roleConfig.validateTree(context)));
     }
 
     private void validatePresenceOfRoleName(Validator v) {

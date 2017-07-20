@@ -58,16 +58,14 @@ public class ConsoleOutputTransmitterPerformanceTest {
     private int transmitData(final ConsoleOutputTransmitter transmitter, final int numberOfSeconds)
             throws InterruptedException {
         final int[] count = {0};
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                long startTime = System.currentTimeMillis();
-                count[0] = 0;
-                while (System.currentTimeMillis() < startTime + numberOfSeconds * SECOND) {
-                    String line = "This is line " + count[0];
-                    transmitter.consumeLine(line);
-                    sleepFor(SECOND);
-                    count[0]++;
-                }
+        Thread thread = new Thread(() -> {
+            long startTime = System.currentTimeMillis();
+            count[0] = 0;
+            while (System.currentTimeMillis() < startTime + numberOfSeconds * SECOND) {
+                String line = "This is line " + count[0];
+                transmitter.consumeLine(line);
+                sleepFor(SECOND);
+                count[0]++;
             }
         });
         thread.start();

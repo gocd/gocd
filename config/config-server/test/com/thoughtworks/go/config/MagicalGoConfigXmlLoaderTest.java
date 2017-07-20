@@ -271,12 +271,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
-        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG, new MagicalGoConfigXmlLoader.Callback() {
-            @Override
-            public void call(CruiseConfig cruiseConfig) {
-                cruiseConfig.setPartials(asList(new PartialConfig()));
-            }
-        });
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG, cruiseConfig -> cruiseConfig.setPartials(asList(new PartialConfig())));
         assertThat(goConfigHolder.config.getOrigin(), Is.<ConfigOrigin>is(new MergeConfigOrigin()));
         assertThat(goConfigHolder.configForEdit.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
@@ -2939,12 +2934,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldRegisterAllGoConfigValidators() {
-        List<String> list = (List<String>) collect(MagicalGoConfigXmlLoader.VALIDATORS, new Transformer() {
-            @Override
-            public Object transform(Object o) {
-                return o.getClass().getCanonicalName();
-            }
-        });
+        List<String> list = (List<String>) collect(MagicalGoConfigXmlLoader.VALIDATORS, o -> o.getClass().getCanonicalName());
 
         assertThat(list, hasItem(ArtifactDirValidator.class.getCanonicalName()));
         assertThat(list, hasItem(EnvironmentAgentValidator.class.getCanonicalName()));
@@ -3522,12 +3512,9 @@ public class MagicalGoConfigXmlLoaderTest {
         final Configuration configuration = task.getConfiguration();
         assertThat(configuration.listOfConfigKeys().size(), is(3));
         assertThat(configuration.listOfConfigKeys(), is(asList("url", "username", "password")));
-        Collection values = CollectionUtils.collect(configuration.listOfConfigKeys(), new Transformer() {
-            @Override
-            public Object transform(Object o) {
-                ConfigurationProperty property = configuration.getProperty((String) o);
-                return property.getConfigurationValue().getValue();
-            }
+        Collection values = CollectionUtils.collect(configuration.listOfConfigKeys(), o -> {
+            ConfigurationProperty property = configuration.getProperty((String) o);
+            return property.getConfigurationValue().getValue();
         });
         assertThat(new ArrayList<>(values), is(asList("http://fake-go-server", "godev", "password")));
     }

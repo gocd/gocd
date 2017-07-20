@@ -134,12 +134,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
     private Collection<AgentInstance> getAgentInstances(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
 
-        return ListUtil.map(agents, new ListUtil.Transformer<AgentMetadata, AgentInstance>() {
-            @Override
-            public AgentInstance transform(AgentMetadata input) {
-                return agentService.findElasticAgent(input.elasticAgentId(), pluginDescriptor.id());
-            }
-        });
+        return ListUtil.map(agents, input -> agentService.findElasticAgent(input.elasticAgentId(), pluginDescriptor.id()));
     }
 
 }

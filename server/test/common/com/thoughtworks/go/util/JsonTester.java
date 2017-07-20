@@ -39,12 +39,7 @@ import static org.junit.Assert.assertThat;
  */
 public class JsonTester {
     private final Object json;
-    private static final Gson GSON = new GsonBuilder().registerTypeAdapter(TimeConverter.ConvertedTime.class, new JsonSerializer<TimeConverter.ConvertedTime>() {
-        @Override
-        public JsonElement serialize(TimeConverter.ConvertedTime src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src.toString());
-        }
-    }).setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().registerTypeAdapter(TimeConverter.ConvertedTime.class, (JsonSerializer<TimeConverter.ConvertedTime>) (src, typeOfSrc, context) -> new JsonPrimitive(src.toString())).setPrettyPrinting().create();
 
     public JsonTester(Map json) {
         this.json = json;

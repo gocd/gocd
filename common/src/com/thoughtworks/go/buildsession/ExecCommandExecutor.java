@@ -88,34 +88,28 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
     private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
         final AtomicInteger exitCode = new AtomicInteger(-1);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
-        buildSession.submitRunnable(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null));
-                } catch (CommandLineException e) {
-                    LOG.error("Command failed", e);
-                    String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", commandLine.toStringForDisplay(), commandLine.getExecutable());
-                    String path = System.getenv("PATH");
-                    buildSession.println(message);
-                    buildSession.println(format("[Debug Information] Environment variable PATH: %s", path));
-                    LOG.error(format("[Command Line] %s. Path: %s", message, path));
-                } finally {
-                    canceledOrDone.countDown();
-                }
+        buildSession.submitRunnable(() -> {
+            try {
+                exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null));
+            } catch (CommandLineException e) {
+                LOG.error("Command failed", e);
+                String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", commandLine.toStringForDisplay(), commandLine.getExecutable());
+                String path = System.getenv("PATH");
+                buildSession.println(message);
+                buildSession.println(format("[Debug Information] Environment variable PATH: %s", path));
+                LOG.error(format("[Command Line] %s. Path: %s", message, path));
+            } finally {
+                canceledOrDone.countDown();
             }
         });
 
-        Future<?> cancelMonitor = buildSession.submitRunnable(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    buildSession.waitUntilCanceled();
-                } catch (InterruptedException e) {
-                    // ignore
-                } finally {
-                    canceledOrDone.countDown();
-                }
+        Future<?> cancelMonitor = buildSession.submitRunnable(() -> {
+            try {
+                buildSession.waitUntilCanceled();
+            } catch (InterruptedException e) {
+                // ignore
+            } finally {
+                canceledOrDone.countDown();
             }
         });
 

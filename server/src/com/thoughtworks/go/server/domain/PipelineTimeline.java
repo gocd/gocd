@@ -105,36 +105,34 @@ public class PipelineTimeline {
         acquireAllWriteLocks();
         try {
             final long maximumIdBeforeUpdate = maximumId;
-            transactionTemplate.execute(new TransactionCallback() {
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
-                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                        @Override public void afterCompletion(int status) {
-                            if (STATUS_ROLLED_BACK == status) {
-                                rollbackTempEntries();
-                            } else if (STATUS_COMMITTED == status) {
-                                notifyListeners(newlyAddedEntries);
-                            }
+            transactionTemplate.execute(transactionStatus -> {
+                final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
+                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                    @Override public void afterCompletion(int status) {
+                        if (STATUS_ROLLED_BACK == status) {
+                            rollbackTempEntries();
+                        } else if (STATUS_COMMITTED == status) {
+                            notifyListeners(newlyAddedEntries);
                         }
+                    }
 
-                        private void rollbackTempEntries() {
-                            for (PipelineTimelineEntry entry : newlyAddedEntries) {
-                                rollbackNewEntryFor(entry);
-                            }
-                            maximumId = maximumIdBeforeUpdate;
+                    private void rollbackTempEntries() {
+                        for (PipelineTimelineEntry entry : newlyAddedEntries) {
+                            rollbackNewEntryFor(entry);
                         }
+                        maximumId = maximumIdBeforeUpdate;
+                    }
 
-                        private void rollbackNewEntryFor(PipelineTimelineEntry entry) {
-                            CaseInsensitiveString pipelineName = new CaseInsensitiveString(entry.getPipelineName());
-                            initializedNaturalOrderCollection(pipelineName).remove(entry);
-                            initializedScheduleOrderCollection(pipelineName).remove(entry);
-                        }
+                    private void rollbackNewEntryFor(PipelineTimelineEntry entry) {
+                        CaseInsensitiveString pipelineName = new CaseInsensitiveString(entry.getPipelineName());
+                        initializedNaturalOrderCollection(pipelineName).remove(entry);
+                        initializedScheduleOrderCollection(pipelineName).remove(entry);
+                    }
 
 
-                    });
-                    pipelineRepository.updatePipelineTimeline(PipelineTimeline.this, newlyAddedEntries);
-                    return null;
-                }
+                });
+                pipelineRepository.updatePipelineTimeline(PipelineTimeline.this, newlyAddedEntries);
+                return null;
             });
         } finally {
             releaseAllWriteLocks();

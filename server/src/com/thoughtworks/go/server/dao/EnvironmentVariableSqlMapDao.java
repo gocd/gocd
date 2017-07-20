@@ -56,14 +56,11 @@ public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
     }
 
     public EnvironmentVariablesConfig load(final Long entityId, final EnvironmentVariableType type) {
-        List<EnvironmentVariableConfig> result = (List<EnvironmentVariableConfig>) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(EnvironmentVariableConfig.class).add(Restrictions.eq("entityId", entityId)).add(
-                        Restrictions.eq("entityType", type.toString())).addOrder(Order.asc("id"));
-                criteria.setCacheable(true);
-                return criteria.list();
-            }
+        List<EnvironmentVariableConfig> result = (List<EnvironmentVariableConfig>) transactionTemplate.execute(transactionStatus -> {
+            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(EnvironmentVariableConfig.class).add(Restrictions.eq("entityId", entityId)).add(
+                    Restrictions.eq("entityType", type.toString())).addOrder(Order.asc("id"));
+            criteria.setCacheable(true);
+            return criteria.list();
         });
         for (EnvironmentVariableConfig var : result) {
             var.ensureEncrypted();

@@ -122,18 +122,15 @@ public class RailsAssetsServiceTest {
     public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo(){
         List<Field> fields = ArrayUtil.asList(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields());
         ArrayList<Field> fieldsAnnotatedWithSerializedNameAsAssets = new ArrayList<>();
-        ListUtil.filterInto(fieldsAnnotatedWithSerializedNameAsAssets, fields, new Filter<Field>() {
-            @Override
-            public boolean matches(Field field) {
-                if (field.isAnnotationPresent(SerializedName.class)) {
-                    SerializedName annotation = field.getAnnotation(SerializedName.class);
-                    if (annotation.value().equals("assets")) {
-                        return true;
-                    }
-                    return false;
+        ListUtil.filterInto(fieldsAnnotatedWithSerializedNameAsAssets, fields, field -> {
+            if (field.isAnnotationPresent(SerializedName.class)) {
+                SerializedName annotation = field.getAnnotation(SerializedName.class);
+                if (annotation.value().equals("assets")) {
+                    return true;
                 }
                 return false;
             }
+            return false;
         });
         assertThat("Expected a field annotated with SerializedName 'assets'", fieldsAnnotatedWithSerializedNameAsAssets.isEmpty(), is(false));
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size(), is(1));

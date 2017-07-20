@@ -72,12 +72,9 @@ public class CommandSnippets {
     }
 
     public CommandSnippet findByRelativePath(final String snippetRelativePath) {
-        return (CommandSnippet) find(snippets, new Predicate() {
-            @Override
-            public boolean evaluate(Object o) {
-                CommandSnippet commandSnippet = (CommandSnippet) o;
-                return commandSnippet.getRelativePath().equals(snippetRelativePath);
-            }
+        return (CommandSnippet) find(snippets, o -> {
+            CommandSnippet commandSnippet = (CommandSnippet) o;
+            return commandSnippet.getRelativePath().equals(snippetRelativePath);
         });
     }
 
@@ -106,12 +103,7 @@ public class CommandSnippets {
 
     private List<CommandSnippet> sortByName(List<CommandSnippet> snippets) {
         List<CommandSnippet> snippetsSortedByName = new ArrayList<>(snippets);
-        snippetsSortedByName.sort(new Comparator<CommandSnippet>() {
-            @Override
-            public int compare(CommandSnippet snippet1, CommandSnippet snippet2) {
-                return snippet1.getName().compareTo(snippet2.getName());
-            }
-        });
+        snippetsSortedByName.sort((snippet1, snippet2) -> snippet1.getName().compareTo(snippet2.getName()));
         return snippetsSortedByName;
     }
 

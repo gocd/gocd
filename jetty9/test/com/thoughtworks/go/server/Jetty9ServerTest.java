@@ -65,13 +65,10 @@ public class Jetty9ServerTest {
     public void setUp() throws Exception {
         server = mock(Server.class);
 
-        Answer<Void> setHandlerMock = new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Handler handler = (Handler) invocation.getArguments()[0];
-                handler.setServer((Server) invocation.getMock());
-                return null;
-            }
+        Answer<Void> setHandlerMock = invocation -> {
+            Handler handler = (Handler) invocation.getArguments()[0];
+            handler.setServer((Server) invocation.getMock());
+            return null;
         };
         Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
 

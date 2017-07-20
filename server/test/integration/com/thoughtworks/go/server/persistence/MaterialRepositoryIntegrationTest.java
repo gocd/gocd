@@ -237,19 +237,11 @@ public class MaterialRepositoryIntegrationTest {
             }
         }, 200, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
 
-        Thread thread1 = new Thread(new Runnable() {
-            public void run() {
-                repo.findModificationsSince(svn, first);
-            }
-        });
+        Thread thread1 = new Thread(() -> repo.findModificationsSince(svn, first));
         thread1.start();
         TestUtils.sleepQuietly(50);
 
-        Thread thread2 = new Thread(new Runnable() {
-            public void run() {
-                repo.findModificationsSince(svn, second);
-            }
-        });
+        Thread thread2 = new Thread(() -> repo.findModificationsSince(svn, second));
         thread2.start();
 
         thread1.join();
@@ -365,11 +357,7 @@ public class MaterialRepositoryIntegrationTest {
         repo.setHibernateTemplate(mockTemplate);
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    repo.findOrCreateFrom(svn);
-                }
-            }, "thread-" + i);
+            Thread thread = new Thread(() -> repo.findOrCreateFrom(svn), "thread-" + i);
             threads.add(thread);
             thread.start();
         }
@@ -483,11 +471,7 @@ public class MaterialRepositoryIntegrationTest {
         modification.createModifiedFile("file2", "folder2", ModifiedAction.deleted);
 
         final MaterialRevision materialRevision = new MaterialRevision(svnMaterial, modification);
-        MaterialInstance materialInstance = (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return repo.saveMaterialRevision(materialRevision);
-            }
-        });
+        MaterialInstance materialInstance = (MaterialInstance) transactionTemplate.execute(status -> repo.saveMaterialRevision(materialRevision));
 
         List<Modification> mods = repo.findMaterialRevisionsForMaterial(materialInstance.getId());
 
@@ -1165,11 +1149,9 @@ public class MaterialRepositoryIntegrationTest {
     public void shouldRemoveDuplicatesBeforeInsertingModifications() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, firstSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, firstSetOfModifications);
+            return null;
         });
 
         Modifications firstSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
@@ -1180,11 +1162,9 @@ public class MaterialRepositoryIntegrationTest {
 
         final ArrayList<Modification> secondSetOfModificationsContainingDuplicateRevisions = getModifications(4);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, secondSetOfModificationsContainingDuplicateRevisions);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, secondSetOfModificationsContainingDuplicateRevisions);
+            return null;
         });
         Modifications secondSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
         assertThat(secondSetOfModificationsFromDb.size(), is(4));
@@ -1207,11 +1187,9 @@ public class MaterialRepositoryIntegrationTest {
     public void shouldNotBlowUpReportErrorIfAnAttemptIsMadeToInsertOnlyDuplicateModificationsForAGivenMaterial() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, firstSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, firstSetOfModifications);
+            return null;
         });
         Modifications firstSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
         assertThat(firstSetOfModificationsFromDb.size(), is(3));
@@ -1220,11 +1198,9 @@ public class MaterialRepositoryIntegrationTest {
         }
 
         final ArrayList<Modification> secondSetOfModificationsContainingAllDuplicateRevisions = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, secondSetOfModificationsContainingAllDuplicateRevisions);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, secondSetOfModificationsContainingAllDuplicateRevisions);
+            return null;
         });
     }
 
@@ -1233,22 +1209,18 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance1 = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final MaterialInstance materialInstance2 = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> modificationsForFirstMaterial = getModifications(3);
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance1, modificationsForFirstMaterial);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance1, modificationsForFirstMaterial);
+            return null;
         });
 
         assertThat(repo.getModificationsFor(materialInstance1, Pagination.pageByNumber(1, 10, 10)).size(), is(3));
 
         final ArrayList<Modification> modificationsForSecondMaterial = getModifications(3);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance2, modificationsForSecondMaterial);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance2, modificationsForSecondMaterial);
+            return null;
         });
         Modifications modificationsFromDb = repo.getModificationsFor(materialInstance2, Pagination.pageByNumber(1, 10, 10));
         assertThat(modificationsFromDb.size(), is(3));
@@ -1263,11 +1235,9 @@ public class MaterialRepositoryIntegrationTest {
         String key = repo.materialModificationsWithPaginationKey(materialInstance);
         String subKey = repo.materialModificationsWithPaginationSubKey(Pagination.ONE_ITEM);
         goCache.put(key, subKey, new Modifications(new Modification()));
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, new ArrayList<>());
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, new ArrayList<>());
+            return null;
         });
         assertThat(goCache.get(key, subKey), is(notNullValue()));
     }
@@ -1278,21 +1248,17 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         int count = 10000;
         final ArrayList<Modification> firstSetOfModifications = getModifications(count);
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, firstSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, firstSetOfModifications);
+            return null;
         });
 
         assertThat(repo.getTotalModificationsFor(materialInstance), is((long) count));
 
         final ArrayList<Modification> secondSetOfModifications = getModifications(count + 1);
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, secondSetOfModifications);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveModifications(materialInstance, secondSetOfModifications);
+            return null;
         });
 
         assertThat(repo.getTotalModificationsFor(materialInstance), is((long) (count + 1)));
@@ -1311,22 +1277,16 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private MaterialRevision saveOneDependencyModification(final DependencyMaterial dependencyMaterial, final String revision, final String label) {
-        return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification(new Date(), revision, label, null);
-                MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
-                repo.save(new MaterialRevisions(originalRevision));
-                return originalRevision;
-            }
+        return (MaterialRevision) transactionTemplate.execute(status -> {
+            Modification modification = new Modification(new Date(), revision, label, null);
+            MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
+            repo.save(new MaterialRevisions(originalRevision));
+            return originalRevision;
         });
     }
 
     private MaterialInstance saveMaterialRev(final MaterialRevision rev) {
-        return (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return repo.saveMaterialRevision(rev);
-            }
-        });
+        return (MaterialInstance) transactionTemplate.execute(status -> repo.saveMaterialRevision(rev));
     }
 
     private Pipeline createPipeline() {
@@ -1359,13 +1319,11 @@ public class MaterialRepositoryIntegrationTest {
     private Material saveMaterialRevisions(final MaterialRevisions revs) {
         Material hg = revs.getMaterialRevision(0).getMaterial();
 
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                for (MaterialRevision revision : revs) {
-                    repo.saveMaterialRevision(revision);
-                }
-                return null;
+        transactionTemplate.execute(status -> {
+            for (MaterialRevision revision : revs) {
+                repo.saveMaterialRevision(revision);
             }
+            return null;
         });
         return hg;
     }
@@ -1388,11 +1346,9 @@ public class MaterialRepositoryIntegrationTest {
         }
         final MaterialRevision materialRevision = new MaterialRevision(material, mods);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveMaterialRevision(materialRevision);
-                return null;
-            }
+        transactionTemplate.execute(status -> {
+            repo.saveMaterialRevision(materialRevision);
+            return null;
         });
         return material;
     }
@@ -1438,16 +1394,14 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private MaterialRevision saveOneScmModification(final String revision, final Material original, final String user, final String filename, final String comment) {
-        return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification(user, comment, "email", new Date(), revision);
-                modification.createModifiedFile(filename, "folder1", ModifiedAction.added);
+        return (MaterialRevision) transactionTemplate.execute(status -> {
+            Modification modification = new Modification(user, comment, "email", new Date(), revision);
+            modification.createModifiedFile(filename, "folder1", ModifiedAction.added);
 
-                MaterialRevision originalRevision = new MaterialRevision(original, modification);
+            MaterialRevision originalRevision = new MaterialRevision(original, modification);
 
-                repo.save(new MaterialRevisions(originalRevision));
-                return originalRevision;
-            }
+            repo.save(new MaterialRevisions(originalRevision));
+            return originalRevision;
         });
     }
 

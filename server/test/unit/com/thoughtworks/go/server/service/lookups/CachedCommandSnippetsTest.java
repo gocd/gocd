@@ -165,12 +165,9 @@ public class CachedCommandSnippetsTest {
     }
 
     private Thread.UncaughtExceptionHandler uncaughtExceptionHandler(final List<Throwable> exceptionsInTheThreads) {
-        return new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                e.printStackTrace();
-                exceptionsInTheThreads.add(e);
-            }
+        return (t, e) -> {
+            e.printStackTrace();
+            exceptionsInTheThreads.add(e);
         };
     }
 

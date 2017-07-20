@@ -65,32 +65,29 @@ public enum JobResult implements ViewableStatus {
         }
     }
 
-    public static final Comparator<JobResult> JOB_RESULT_COMPARATOR = new Comparator<JobResult>() {
-        public int compare(JobResult o1, JobResult o2) {
+    public static final Comparator<JobResult> JOB_RESULT_COMPARATOR = (o1, o2) -> {
 
-            if (o1._isFailed() && o2._isFailed()) {
-                return 0;
-            }
-
-            if (o1._isFailed()) {
-                return -1;
-            }
-
-            if (o2._isFailed()) {
-                return 1;
-            }
-
-            if (o1.isUnknown() && !o2.isUnknown()) {
-                return -1;
-            }
-
-            if (o2.isUnknown() && !o1.isUnknown()) {
-                return 1;
-            }
-
-            return o1.compareTo(o2);
+        if (o1._isFailed() && o2._isFailed()) {
+            return 0;
         }
 
+        if (o1._isFailed()) {
+            return -1;
+        }
+
+        if (o2._isFailed()) {
+            return 1;
+        }
+
+        if (o1.isUnknown() && !o2.isUnknown()) {
+            return -1;
+        }
+
+        if (o2.isUnknown() && !o1.isUnknown()) {
+            return 1;
+        }
+
+        return o1.compareTo(o2);
     };
 
     private boolean _isFailed() {

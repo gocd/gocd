@@ -120,16 +120,13 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
 
         final List<ReportingFaninScmMaterial> setOfRevisions = new ArrayList<>();
         for (final ReportingFaninScmMaterial scmMaterial : scmMaterials) {
-            ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) CollectionUtils.find(setOfRevisions, new Predicate() {
-                @Override
-                public boolean evaluate(Object obj) {
-                    if (obj == null) {
-                        return false;
-                    }
-                    ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) obj;
-                    return scmMaterial.fingerprint.equals(mat.fingerprint)
-                            && scmMaterial.revision.equals(mat.revision);
+            ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) CollectionUtils.find(setOfRevisions, obj -> {
+                if (obj == null) {
+                    return false;
                 }
+                ReportingFaninScmMaterial mat1 = (ReportingFaninScmMaterial) obj;
+                return scmMaterial.fingerprint.equals(mat1.fingerprint)
+                        && scmMaterial.revision.equals(mat1.revision);
             });
             if (mat == null) {
                 setOfRevisions.add(scmMaterial);

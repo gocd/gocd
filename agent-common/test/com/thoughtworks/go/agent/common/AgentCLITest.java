@@ -36,11 +36,8 @@ public class AgentCLITest {
     @Before
     public void setUp() throws Exception {
         errorStream = new ByteArrayOutputStream();
-        exitter = new AgentCLI.SystemExitter() {
-            @Override
-            public void exit(int status) {
-                throw new ExitException(status);
-            }
+        exitter = status -> {
+            throw new ExitException(status);
         };
         agentCLI = new AgentCLI(new PrintStream(errorStream), exitter);
     }

@@ -508,11 +508,9 @@ public class GoConfigServiceIntegrationTest {
     public void shouldLoadConfigFileOnlyWhenModifiedOnDisk() throws InterruptedException {
         cachedGoConfig.forceReload();
         Thread.sleep(1000);
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.server().setArtifactsDir("foo");
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.server().setArtifactsDir("foo");
+            return cruiseConfig;
         });
         CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
         cachedGoConfig.forceReload();

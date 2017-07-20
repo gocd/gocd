@@ -119,23 +119,17 @@ public class PipelineStateDaoCachingTest {
     @Test
     public void lockPipeline_ShouldSavePipelineStateAndInvalidateCache() throws Exception {
         final TransactionSynchronizationAdapter[] transactionSynchronizationAdapter = {null};
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                transactionSynchronizationAdapter[0].afterCommit();
-                return null;
-            }
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            transactionSynchronizationAdapter[0].afterCommit();
+            return null;
         });
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
-                transactionSynchronizationAdapter[0] = adapter;
-                return null;
-            }
+        doAnswer(invocation -> {
+            TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
+            transactionSynchronizationAdapter[0] = adapter;
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
@@ -164,22 +158,16 @@ public class PipelineStateDaoCachingTest {
     @Test
     public void unlockPipeline_shouldSavePipelineStateAndInvalidateCache() throws Exception {
         final TransactionSynchronizationAdapter[] transactionSynchronizationAdapter = {null};
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                transactionSynchronizationAdapter[0].afterCommit();
-                return null;
-            }
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            transactionSynchronizationAdapter[0].afterCommit();
+            return null;
         });
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
-                transactionSynchronizationAdapter[0] = adapter;
-                return null;
-            }
+        doAnswer(invocation -> {
+            TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
+            transactionSynchronizationAdapter[0] = adapter;
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");

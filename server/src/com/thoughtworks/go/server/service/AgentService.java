@@ -72,9 +72,7 @@ public class AgentService {
                         SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
                         final EmailSender emailSender) {
         this(agentConfigService, systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService);
-        this.agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
-            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
-            }
+        this.agentInstances = new AgentInstances((runtimeInfo, newStatus) -> {
         });
     }
 

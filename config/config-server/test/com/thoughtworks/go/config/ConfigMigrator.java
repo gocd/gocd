@@ -29,15 +29,13 @@ public class ConfigMigrator {
     public static GoConfigMigration migrate(final File configFile) {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        GoConfigMigration upgrader = new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                String content = "";
-                try {
-                    content = FileUtil.readContentFromFile(configFile);
-                } catch (IOException e1) {
-                }
-                throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
+        GoConfigMigration upgrader = new GoConfigMigration(e -> {
+            String content = "";
+            try {
+                content = FileUtil.readContentFromFile(configFile);
+            } catch (IOException e1) {
             }
+            throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
         }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry, new SystemEnvironment()
         );
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file

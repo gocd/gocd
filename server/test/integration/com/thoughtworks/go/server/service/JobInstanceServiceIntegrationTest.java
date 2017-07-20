@@ -316,11 +316,7 @@ public class JobInstanceServiceIntegrationTest {
 
         final JobInstance[] changedJobPassed = new JobInstance[1];
 
-        jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
-            public void jobStatusChanged(JobInstance job) {
-                changedJobPassed[0] = job;
-            }
-        });
+        jobInstanceService.registerJobStateChangeListener(job -> changedJobPassed[0] = job);
 
         JobInstance jobInstance1 = jobInstanceService.buildByIdWithTransitions(jobInstance.getId());
         jobInstanceService.failJob(jobInstance1);
@@ -439,12 +435,7 @@ public class JobInstanceServiceIntegrationTest {
     @Test
     public void shouldNotNotifyListenersWhenTransactionRollsback() {
         final boolean[] isListenerCalled = {false};
-        JobStatusListener jobStatusListener = new JobStatusListener() {
-            @Override
-            public void jobStatusChanged(JobInstance job) {
-                isListenerCalled[0] = true;
-            }
-        };
+        JobStatusListener jobStatusListener = job -> isListenerCalled[0] = true;
         jobInstanceService.registerJobStateChangeListener(jobStatusListener);
         StageConfig ftStage = pipelineFixture.ftStage();
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();

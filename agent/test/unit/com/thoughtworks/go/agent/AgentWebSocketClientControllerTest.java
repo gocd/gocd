@@ -305,14 +305,11 @@ public class AgentWebSocketClientControllerTest {
                 BuildCommand.reportCurrentStatus(JobState.Building)));
 
 
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        Thread buildingThread = new Thread(() -> {
+            try {
+                agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
         buildingThread.start();
@@ -342,14 +339,11 @@ public class AgentWebSocketClientControllerTest {
         agentController.init();
         final SleepWork sleep1secWork = new SleepWork("work1", MAX_WAIT_IN_TEST);
 
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(sleep1secWork)));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        Thread buildingThread = new Thread(() -> {
+            try {
+                agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(sleep1secWork)));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
         buildingThread.start();
@@ -392,14 +386,11 @@ public class AgentWebSocketClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         final SleepWork work1 = new SleepWork("work1", MAX_WAIT_IN_TEST);
-        Thread work1Thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(work1)));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        Thread work1Thread = new Thread(() -> {
+            try {
+                agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(work1)));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
         work1Thread.start();

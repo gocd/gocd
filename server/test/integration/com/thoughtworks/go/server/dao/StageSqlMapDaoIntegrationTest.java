@@ -1579,12 +1579,7 @@ public class StageSqlMapDaoIntegrationTest {
         for (int i = 0; i < 11; i++) {
             scheduleUtil.runAndPass(p1, "h1");
         }
-        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
-            @Override
-            public Pagination call(Object... args) {
-                return Pagination.pageByNumber(2, 2, 10);
-            }
-        });
+        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, args -> Pagination.pageByNumber(2, 2, 10));
         StageHistoryEntry topOfSecondPage = historyPage.getStages().get(0);
         StageHistoryEntry bottomOfFirstPage = stageDao.findImmediateChronologicallyForwardStageHistoryEntry(topOfSecondPage);
         assertThat(bottomOfFirstPage.getId(), is(topOfSecondPage.getId() + 1));
@@ -1604,12 +1599,7 @@ public class StageSqlMapDaoIntegrationTest {
         for (int i = 0; i < 10; i++) {
             scheduleUtil.runAndPass(p1, "h1");
         }
-        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
-            @Override
-            public Pagination call(Object... args) {
-                return Pagination.pageByNumber(1, 1, 10);
-            }
-        });
+        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, args -> Pagination.pageByNumber(1, 1, 10));
         StageHistoryEntry topOfSecondPage = historyPage.getStages().get(0);
         StageHistoryEntry bottomOfFirstPage = stageDao.findImmediateChronologicallyForwardStageHistoryEntry(topOfSecondPage);
         assertThat(bottomOfFirstPage, is(Matchers.nullValue()));
@@ -1630,12 +1620,7 @@ public class StageSqlMapDaoIntegrationTest {
             scheduleUtil.runAndPass(p1, "h1");
             scheduleUtil.runAndPass(p2, "h1");
         }
-        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
-            @Override
-            public Pagination call(Object... args) {
-                return Pagination.pageByNumber(2, 2, 10);
-            }
-        });
+        StageHistoryPage historyPage = stageDao.findStageHistoryPage(pipelineName, stageName, args -> Pagination.pageByNumber(2, 2, 10));
         StageHistoryEntry topOfSecondPage = historyPage.getStages().get(0);
         StageHistoryEntry bottomOfFirstPage = stageDao.findImmediateChronologicallyForwardStageHistoryEntry(topOfSecondPage);
         assertThat(bottomOfFirstPage.getId(), is(topOfSecondPage.getId() + 2));

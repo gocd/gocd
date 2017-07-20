@@ -69,14 +69,12 @@ public class TestFailureSetup {
     }
 
     public SavedStage setupPipelineInstance(final boolean failStage, final String overriddenLabel, final StubGoURLRepository goURLRepository) {
-        TestResultsStubbing resultStubbing = new TestResultsStubbing() {
-            public void stub(Stage stage) {
-                JunitXML junit1 = junitXML("testSuite1", 2).errored(2).failed(1);
-                junit1.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(0).getIdentifier().artifactLocator("junit") + "/junit/");
+        TestResultsStubbing resultStubbing = stage -> {
+            JunitXML junit1 = junitXML("testSuite1", 2).errored(2).failed(1);
+            junit1.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(0).getIdentifier().artifactLocator("junit") + "/junit/");
 
-                JunitXML junit2 = junitXML("testSuite1", 1).failed(1);
-                junit2.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(1).getIdentifier().artifactLocator("junit") + "/junit/");
-            }
+            JunitXML junit2 = junitXML("testSuite1", 1).failed(1);
+            junit2.registerStubContent(goURLRepository, "pipelines/" + stage.getJobInstances().get(1).getIdentifier().artifactLocator("junit") + "/junit/");
         };
         return setupPipelineInstance(failStage, overriddenLabel, resultStubbing, new Date());
     }
@@ -87,9 +85,7 @@ public class TestFailureSetup {
     }
 
     public SavedStage setupPipelineInstanceWithoutTestXmlStubbing(boolean failStage, String overriddenLabel, final Date latestTransitionDate) {
-        return setupPipelineInstance(failStage, overriddenLabel, new TestResultsStubbing() {
-            public void stub(Stage stage) {}
-        }, latestTransitionDate);
+        return setupPipelineInstance(failStage, overriddenLabel, stage -> {}, latestTransitionDate);
     }
 
     public SavedStage setupPipelineInstance(boolean failStage, String overriddenLabel, List<Modification> modifications, TestResultsStubbing test, final Date latestTransitionDate) {
@@ -98,39 +94,37 @@ public class TestFailureSetup {
 
     private SavedStage setupPipelineInstnace(final boolean failStage, final String overriddenLabel, final List<Modification> modifications, final TestResultsStubbing test,
                                              final Date latestTransitionDate) {
-        return (SavedStage) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                MaterialInstance materialInstance = materialRepository.findOrCreateFrom(hgMaterial);
+        return (SavedStage) transactionTemplate.execute(status -> {
+            MaterialInstance materialInstance = materialRepository.findOrCreateFrom(hgMaterial);
 
-                for (Modification mod : modifications) {
-                    mod.setMaterialInstance(materialInstance);
-                }
-                MaterialRevision rev = new MaterialRevision(hgMaterial, modifications);
-                materialRepository.saveMaterialRevision(rev);
-                Pipeline pipeline = PipelineMother.schedule(pipelineConfig, BuildCause.createManualForced(new MaterialRevisions(rev), new Username(new CaseInsensitiveString("loser"))));
-                if (overriddenLabel != null) {
-                    pipeline.setLabel(overriddenLabel);
-                }
-
-
-                for (JobInstance instance : pipeline.getStages().get(0).getJobInstances()) {
-                    for (JobStateTransition jobStateTransition : instance.getTransitions()) {
-                        jobStateTransition.setStateChangeTime(latestTransitionDate);
-                    }
-                }
-
-                dbHelper.save(pipeline);
-                Stage barStage = pipeline.getFirstStage();
-                if (failStage) {
-                    dbHelper.failStage(barStage, latestTransitionDate);
-                }
-
-                test.stub(barStage);
-
-                pipelineTimeline.update();
-
-                return new SavedStage(pipeline);
+            for (Modification mod : modifications) {
+                mod.setMaterialInstance(materialInstance);
             }
+            MaterialRevision rev = new MaterialRevision(hgMaterial, modifications);
+            materialRepository.saveMaterialRevision(rev);
+            Pipeline pipeline = PipelineMother.schedule(pipelineConfig, BuildCause.createManualForced(new MaterialRevisions(rev), new Username(new CaseInsensitiveString("loser"))));
+            if (overriddenLabel != null) {
+                pipeline.setLabel(overriddenLabel);
+            }
+
+
+            for (JobInstance instance : pipeline.getStages().get(0).getJobInstances()) {
+                for (JobStateTransition jobStateTransition : instance.getTransitions()) {
+                    jobStateTransition.setStateChangeTime(latestTransitionDate);
+                }
+            }
+
+            dbHelper.save(pipeline);
+            Stage barStage = pipeline.getFirstStage();
+            if (failStage) {
+                dbHelper.failStage(barStage, latestTransitionDate);
+            }
+
+            test.stub(barStage);
+
+            pipelineTimeline.update();
+
+            return new SavedStage(pipeline);
         });
     }
 

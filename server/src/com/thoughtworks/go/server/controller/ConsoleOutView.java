@@ -43,12 +43,7 @@ public class ConsoleOutView implements View {
         try (final PrintWriter writer = response.getWriter()) {
             response.setContentType(getContentType());
             try {
-                consumer.stream(new Consumer<String>() {
-                    @Override
-                    public void accept(String line) {
-                        writer.write(line + "\n");
-                    }
-                });
+                consumer.stream(line -> writer.write(line + "\n"));
             } catch (IOException e) {
                 if (e instanceof FileNotFoundException) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);

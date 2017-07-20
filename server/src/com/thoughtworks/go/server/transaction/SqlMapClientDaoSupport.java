@@ -65,46 +65,32 @@ public class SqlMapClientDaoSupport extends org.springframework.orm.ibatis.suppo
         }
 
         @Override public Object insert(final String statementName, final Object parameterObject) throws DataAccessException {
-            return executeInternal(new Operation<Object>() {
-                public Object execute() {
-                    stopServingForTransaction();
-                    return SqlMapClientTemplate.super.insert(translateStatementName(statementName), parameterObject);
-                }
+            return executeInternal(() -> {
+                stopServingForTransaction();
+                return SqlMapClientTemplate.super.insert(translateStatementName(statementName), parameterObject);
             });
         }
 
         @Override public int update(final String statementName, final Object parameterObject) throws DataAccessException {
-            return executeInternal(new Operation<Integer>() {
-                public Integer execute() {
-                    stopServingForTransaction();
-                    return SqlMapClientTemplate.super.update(statementName, parameterObject);
-                }
+            return executeInternal(() -> {
+                stopServingForTransaction();
+                return SqlMapClientTemplate.super.update(statementName, parameterObject);
             });
         }
 
         @Override public int delete(final String statementName, final Object parameterObject) throws DataAccessException {
-            return executeInternal(new Operation<Integer>() {
-                public Integer execute() {
-                    stopServingForTransaction();
-                    return SqlMapClientTemplate.super.delete(statementName, parameterObject);
-                }
+            return executeInternal(() -> {
+                stopServingForTransaction();
+                return SqlMapClientTemplate.super.delete(statementName, parameterObject);
             });
         }
 
         @Override public Object queryForObject(final String statementName, final Object parameterObject) throws DataAccessException {
-            return executeInternal(new Operation<Object>() {
-                public Object execute() {
-                    return SqlMapClientTemplate.super.queryForObject(translateStatementName(statementName), parameterObject);
-                }
-            });
+            return executeInternal(() -> SqlMapClientTemplate.super.queryForObject(translateStatementName(statementName), parameterObject));
         }
 
         @Override public List queryForList(final String statementName, final Object parameterObject) throws DataAccessException {
-            return executeInternal(new Operation<List>() {
-                public List execute() {
-                    return SqlMapClientTemplate.super.queryForList(translateStatementName(statementName), parameterObject);
-                }
-            });
+            return executeInternal(() -> SqlMapClientTemplate.super.queryForList(translateStatementName(statementName), parameterObject));
         }
 
         @Override public Object execute(SqlMapClientCallback action) throws DataAccessException {

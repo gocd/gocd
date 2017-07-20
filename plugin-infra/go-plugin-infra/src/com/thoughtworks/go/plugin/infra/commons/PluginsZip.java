@@ -68,15 +68,9 @@ public class PluginsZip implements PluginChangeListener {
         externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
         this.pluginManager = pluginManager;
         this.pluginManager.addPluginChangeListener(this, GoPlugin.class);
-        predicate = new Predicate<GoPluginDescriptor>() {
-            @Override
-            public boolean test(GoPluginDescriptor goPluginDescriptor) {
-                return PluginsZip.this.pluginManager.isPluginOfType("task", goPluginDescriptor.id()) ||
-                        PluginsZip.this.pluginManager.isPluginOfType("scm", goPluginDescriptor.id()) ||
-                        PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id())
-                        ;
-            }
-        };
+        predicate = goPluginDescriptor -> PluginsZip.this.pluginManager.isPluginOfType("task", goPluginDescriptor.id()) ||
+                PluginsZip.this.pluginManager.isPluginOfType("scm", goPluginDescriptor.id()) ||
+                PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id());
     }
 
     public void create() {

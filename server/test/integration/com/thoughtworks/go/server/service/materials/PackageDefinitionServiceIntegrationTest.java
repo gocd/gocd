@@ -89,12 +89,9 @@ public class PackageDefinitionServiceIntegrationTest {
         Configuration configuration = new Configuration();
         configuration.add(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
         npmRepo.setConfiguration(configuration);
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.setPackageRepositories(new PackageRepositories(npmRepo));
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.setPackageRepositories(new PackageRepositories(npmRepo));
+            return cruiseConfig;
         });
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);

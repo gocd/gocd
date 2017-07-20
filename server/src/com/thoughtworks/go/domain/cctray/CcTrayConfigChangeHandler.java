@@ -57,16 +57,12 @@ public class CcTrayConfigChangeHandler {
         final List<ProjectStatus> projectStatuses = new ArrayList<>();
         final Map<String, Viewers> groupsAndTheirViewers = ccTrayViewAuthority.groupsAndTheirViewers();
 
-        config.accept(new PipelineGroupVisitor() {
-            @Override
-            public void visit(PipelineConfigs pipelineConfigs) {
-                Viewers usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
+        config.accept((PipelineGroupVisitor) pipelineConfigs -> {
+            Viewers usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
 
-                for (PipelineConfig pipelineConfig : pipelineConfigs) {
-                    updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
-                }
+            for (PipelineConfig pipelineConfig : pipelineConfigs) {
+                updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
             }
-
         });
 
         return projectStatuses;

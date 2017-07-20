@@ -28,28 +28,24 @@ public class TransactionTemplate {
     }
 
     public Object execute(final org.springframework.transaction.support.TransactionCallback action) {
-        return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                txnCtx().transactionPushed();
-                try {
-                    return action.doInTransaction(status);
-                } finally {
-                    txnCtx().transactionPopped();
-                }
+        return transactionTemplate.execute(status -> {
+            txnCtx().transactionPushed();
+            try {
+                return action.doInTransaction(status);
+            } finally {
+                txnCtx().transactionPopped();
             }
         });
     }
 
     public Object executeWithExceptionHandling(final TransactionCallback action) throws Exception {
         try {
-            return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-                public Object doInTransaction(TransactionStatus status) {
-                    txnCtx().transactionPushed();
-                    try {
-                        return action.doWithExceptionHandling(status);
-                    } finally {
-                        txnCtx().transactionPopped();
-                    }
+            return transactionTemplate.execute(status -> {
+                txnCtx().transactionPushed();
+                try {
+                    return action.doWithExceptionHandling(status);
+                } finally {
+                    txnCtx().transactionPopped();
                 }
             });
         } catch (TransactionCallbackExecutionException e) {

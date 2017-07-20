@@ -63,41 +63,35 @@ public class BuildRepositoryRemoteImpl {
     }
 
     public void reportCurrentStatus(final AgentRuntimeInfo agentRuntimeInfo, final JobIdentifier jobIdentifier, final JobState state) {
-        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "status", state.toString(), new ReportingAction() {
-            @Override public void call() throws Exception {
-                //TODO: may be i don't belong here, ping already updates agent runtime info
-                agentService.updateRuntimeInfo(agentRuntimeInfo);
-                buildRepositoryService.updateStatusFromAgent(jobIdentifier, state, agentRuntimeInfo.getUUId());
-                jobStatusTopic.post(new JobStatusMessage(jobIdentifier, state, agentRuntimeInfo.getUUId()));
-            }
+        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "status", state.toString(), () -> {
+            //TODO: may be i don't belong here, ping already updates agent runtime info
+            agentService.updateRuntimeInfo(agentRuntimeInfo);
+            buildRepositoryService.updateStatusFromAgent(jobIdentifier, state, agentRuntimeInfo.getUUId());
+            jobStatusTopic.post(new JobStatusMessage(jobIdentifier, state, agentRuntimeInfo.getUUId()));
         });
     }
 
 
     public void reportCompleting(final AgentRuntimeInfo agentRuntimeInfo, final JobIdentifier jobIdentifier, final JobResult result) {
-        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "result", result.toString(), new ReportingAction() {
-            @Override public void call() throws Exception {
-                //TODO: may be i don't belong here, ping already updates agent runtime info
-                agentService.updateRuntimeInfo(agentRuntimeInfo);
-                buildRepositoryService.completing(jobIdentifier, result, agentRuntimeInfo.getUUId());
-            }
+        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "result", result.toString(), () -> {
+            //TODO: may be i don't belong here, ping already updates agent runtime info
+            agentService.updateRuntimeInfo(agentRuntimeInfo);
+            buildRepositoryService.completing(jobIdentifier, result, agentRuntimeInfo.getUUId());
         });
     }
 
     public void reportCompleted(final AgentRuntimeInfo agentRuntimeInfo, final JobIdentifier jobIdentifier, final JobResult result) {
         final JobState state = JobState.Completed;
 
-        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "status and result", String.format("%s, %s",state, result), new ReportingAction() {
-            @Override public void call() throws Exception {
+        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "status and result", String.format("%s, %s",state, result), () -> {
 
-                //TODO: may be i don't belong here, ping already updates agent runtime info
-                agentService.updateRuntimeInfo(agentRuntimeInfo);
+            //TODO: may be i don't belong here, ping already updates agent runtime info
+            agentService.updateRuntimeInfo(agentRuntimeInfo);
 
-                buildRepositoryService.completing(jobIdentifier, result, agentRuntimeInfo.getUUId());
+            buildRepositoryService.completing(jobIdentifier, result, agentRuntimeInfo.getUUId());
 
-                buildRepositoryService.updateStatusFromAgent(jobIdentifier, state, agentRuntimeInfo.getUUId());
-                jobStatusTopic.post(new JobStatusMessage(jobIdentifier, state, agentRuntimeInfo.getUUId()));
-            }
+            buildRepositoryService.updateStatusFromAgent(jobIdentifier, state, agentRuntimeInfo.getUUId());
+            jobStatusTopic.post(new JobStatusMessage(jobIdentifier, state, agentRuntimeInfo.getUUId()));
         });
     }
 

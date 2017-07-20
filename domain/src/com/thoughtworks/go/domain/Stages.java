@@ -24,11 +24,7 @@ import java.util.Comparator;
 
 public class Stages extends BaseCollection<Stage> implements StageContainer {
 
-    public static final Comparator<Stage> STAGE_COMPARATOR = new Comparator<Stage>() {
-        public int compare(Stage stage1, Stage stage2) {
-            return stage1.getOrderId() - stage2.getOrderId();
-        }
-    };
+    public static final Comparator<Stage> STAGE_COMPARATOR = (stage1, stage2) -> stage1.getOrderId() - stage2.getOrderId();
     
     public Stages() {
         super();
@@ -108,12 +104,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
                 latestRunStages.add(stage);
             }
         }
-        latestRunStages.sort(new Comparator<Stage>() {
-            @Override
-            public int compare(Stage s1, Stage s2) {
-                return new Integer(s1.getOrderId()).compareTo(s2.getOrderId());
-            }
-        });
+        latestRunStages.sort((s1, s2) -> new Integer(s1.getOrderId()).compareTo(s2.getOrderId()));
         return latestRunStages;
     }
 }

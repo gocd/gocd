@@ -334,12 +334,7 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(subscribedUsers.size(), is(3));
         assertThat(subscribedUsers.containsAll(Arrays.asList(user1, user2, user3)), is(true));
 
-        subscribedUsers.sort(new Comparator<User>() {
-            @Override
-            public int compare(User user1, User user2) {
-                return user1.getName().compareTo(user2.getName());
-            }
-        });
+        subscribedUsers.sort((user11, user21) -> user11.getName().compareTo(user21.getName()));
 
         assertThat(subscribedUsers.get(0).getNotificationFilters().size(), is(1));
         assertThat(subscribedUsers.get(1).getNotificationFilters().size(), is(3));

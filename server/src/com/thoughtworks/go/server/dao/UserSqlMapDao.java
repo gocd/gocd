@@ -82,38 +82,29 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
     }
 
     public User findUser(final String userName) {
-        return (User) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                User user = (User) sessionFactory.getCurrentSession()
-                        .createCriteria(User.class)
-                        .add(Restrictions.eq("name", userName))
-                        .setCacheable(true).uniqueResult();
-                return user == null ? new NullUser() : user;
-            }
+        return (User) transactionTemplate.execute(transactionStatus -> {
+            User user = (User) sessionFactory.getCurrentSession()
+                    .createCriteria(User.class)
+                    .add(Restrictions.eq("name", userName))
+                    .setCacheable(true).uniqueResult();
+            return user == null ? new NullUser() : user;
         });
     }
 
     public Users findNotificationSubscribingUsers() {
-        return (Users) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
-                criteria.setCacheable(true);
-                criteria.add(Restrictions.isNotEmpty("notificationFilters"));
-                return new Users(criteria.list());
-            }
+        return (Users) transactionTemplate.execute(transactionStatus -> {
+            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
+            criteria.setCacheable(true);
+            criteria.add(Restrictions.isNotEmpty("notificationFilters"));
+            return new Users(criteria.list());
         });
     }
 
     public Users allUsers() {
-        return new Users((List<User>) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
-                query.setCacheable(true);
-                return query.list();
-            }
+        return new Users((List<User>) transactionTemplate.execute(transactionStatus -> {
+            Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
+            query.setCacheable(true);
+            return query.list();
         }));
     }
 
@@ -126,12 +117,7 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
         synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
             value = (Integer) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
             if (value == null) {
-                value = (Integer) hibernateTemplate().execute(new HibernateCallback<Object>() {
-                    @Override
-                    public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                        return session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
-                    }
-                });
+                value = (Integer) hibernateTemplate().execute(session -> session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult());
 
                 goCache.put(ENABLED_USER_COUNT_CACHE_KEY, value);
             }
@@ -186,29 +172,21 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
     }
 
     public User load(final long id) {
-        return (User) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                return sessionFactory.getCurrentSession().load(User.class, id);
-            }
-        });
+        return (User) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession().load(User.class, id));
     }
 
     @Override
     public boolean deleteUser(final String username) {
-        return (Boolean) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                User user = findUser(username);
-                if (user instanceof NullUser) {
-                    throw new UserNotFoundException();
-                }
-                if (user.isEnabled()) {
-                    throw new UserEnabledException();
-                }
-                sessionFactory.getCurrentSession().delete(user);
-                return Boolean.TRUE;
+        return (Boolean) transactionTemplate.execute(status -> {
+            User user = findUser(username);
+            if (user instanceof NullUser) {
+                throw new UserNotFoundException();
             }
+            if (user.isEnabled()) {
+                throw new UserEnabledException();
+            }
+            sessionFactory.getCurrentSession().delete(user);
+            return Boolean.TRUE;
         });
     }
 

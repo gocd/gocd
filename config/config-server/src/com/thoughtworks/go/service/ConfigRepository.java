@@ -138,11 +138,7 @@ public class ConfigRepository {
     }
 
     private GoConfigRevision findRevisionByMd5(final String md5) throws GitAPIException {
-        return doLocked(new ThrowingFn<GoConfigRevision, GitAPIException>() {
-            public GoConfigRevision call() throws GitAPIException {
-                return getGoConfigRevision(getRevCommitForMd5(md5));
-            }
-        });
+        return doLocked(() -> getGoConfigRevision(getRevCommitForMd5(md5)));
     }
 
     public RevCommit getRevCommitForMd5(String md5) throws GitAPIException {
@@ -169,17 +165,15 @@ public class ConfigRepository {
     }
 
     public GoConfigRevision getCurrentRevision() {
-        return doLocked(new ThrowingFn<GoConfigRevision, RuntimeException>() {
-            public GoConfigRevision call() {
-                RevCommit revision;
-                try {
-                    revision = getCurrentRevCommit();
-                } catch (GitAPIException e) {
-                    LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
-                    return null;
-                }
-                return getGoConfigRevision(revision);
+        return doLocked(() -> {
+            RevCommit revision;
+            try {
+                revision = getCurrentRevCommit();
+            } catch (GitAPIException e) {
+                LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
+                return null;
             }
+            return getGoConfigRevision(revision);
         });
 
     }
@@ -194,22 +188,20 @@ public class ConfigRepository {
     }
 
     public GoConfigRevisions getCommits(final int pageSize, final int offset) throws Exception {
-        return doLocked(new ThrowingFn<GoConfigRevisions, RuntimeException>() {
-            public GoConfigRevisions call() {
-                GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
-                try {
-                    LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
-                    Iterable<RevCommit> revisions = command.call();
-                    for (RevCommit revision : revisions) {
-                        GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
-                        goConfigRevision.setCommitSHA(revision.name());
-                        goConfigRevisions.add(goConfigRevision);
-                    }
-                } catch (Exception e) {
-                    // ignore
+        return doLocked(() -> {
+            GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
+            try {
+                LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
+                Iterable<RevCommit> revisions = command.call();
+                for (RevCommit revision : revisions) {
+                    GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
+                    goConfigRevision.setCommitSHA(revision.name());
+                    goConfigRevisions.add(goConfigRevision);
                 }
-                return goConfigRevisions;
+            } catch (Exception e) {
+                // ignore
             }
+            return goConfigRevisions;
         });
     }
 
@@ -247,33 +239,29 @@ public class ConfigRepository {
     }
 
     public String configChangesFor(final String laterMD5, final String earlierMD5) throws GitAPIException {
-        return doLocked(new ThrowingFn<String, GitAPIException>() {
-            public String call() throws GitAPIException {
-                RevCommit laterCommit = null;
-                RevCommit earlierCommit = null;
-                if (!StringUtil.isBlank(laterMD5)) {
-                    laterCommit = getRevCommitForMd5(laterMD5);
-                }
-                if (!StringUtil.isBlank(earlierMD5))
-                    earlierCommit = getRevCommitForMd5(earlierMD5);
-                return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
+        return doLocked(() -> {
+            RevCommit laterCommit = null;
+            RevCommit earlierCommit = null;
+            if (!StringUtil.isBlank(laterMD5)) {
+                laterCommit = getRevCommitForMd5(laterMD5);
             }
+            if (!StringUtil.isBlank(earlierMD5))
+                earlierCommit = getRevCommitForMd5(earlierMD5);
+            return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
     }
 
     public String configChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
-        return doLocked(new ThrowingFn<String, GitAPIException>() {
-            public String call() throws GitAPIException {
-                RevCommit laterCommit = null;
-                RevCommit earlierCommit = null;
-                if (!StringUtil.isBlank(fromRevision)) {
-                    laterCommit = getRevCommitForCommitSHA(fromRevision);
-                }
-                if (!StringUtil.isBlank(toRevision)) {
-                    earlierCommit = getRevCommitForCommitSHA(toRevision);
-                }
-                return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
+        return doLocked(() -> {
+            RevCommit laterCommit = null;
+            RevCommit earlierCommit = null;
+            if (!StringUtil.isBlank(fromRevision)) {
+                laterCommit = getRevCommitForCommitSHA(fromRevision);
             }
+            if (!StringUtil.isBlank(toRevision)) {
+                earlierCommit = getRevCommitForCommitSHA(toRevision);
+            }
+            return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
     }
 
@@ -407,11 +395,7 @@ public class ConfigRepository {
     }
 
     public long getLooseObjectCount() throws Exception {
-        return doLocked(new ThrowingFn<Long, GitAPIException>() {
-            public Long call() throws GitAPIException {
-                return (Long) getStatistics().get("numberOfLooseObjects");
-            }
-        });
+        return doLocked(() -> (Long) getStatistics().get("numberOfLooseObjects"));
     }
 
     public Properties getStatistics() throws GitAPIException {

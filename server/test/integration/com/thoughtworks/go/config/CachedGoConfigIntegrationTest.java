@@ -246,12 +246,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.registerListener(listener);
         assertThat(listener.invocationCount, is(1));
 
-        cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                return cruiseConfig;
-            }
-        });
+        cachedGoConfig.writeWithLock(cruiseConfig -> cruiseConfig);
         assertThat(listener.invocationCount, is(2));
     }
 
@@ -302,12 +297,9 @@ public class CachedGoConfigIntegrationTest {
         final PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
                 "www.spring.com");
         try {
-            goConfigDao.updateConfig(new UpdateConfigCommand() {
-                @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    cruiseConfig.getGroups().first().add(dupPipelineConfig);
-                    return cruiseConfig;
-                }
+            goConfigDao.updateConfig(cruiseConfig -> {
+                cruiseConfig.getGroups().first().add(dupPipelineConfig);
+                return cruiseConfig;
             });
             fail("Should have thrown");
         } catch (RuntimeException ex) {
@@ -336,12 +328,9 @@ public class CachedGoConfigIntegrationTest {
     }
 
     private ArrayList<ServerHealthState> findMessageFor(final HealthStateType type) {
-        return ListUtil.filterInto(new ArrayList<>(), serverHealthService.getAllLogs(), new Filter<ServerHealthState>() {
-            @Override
-            public boolean matches(ServerHealthState element) {
-                boolean b = element.getType().equals(type);
-                return b;
-            }
+        return ListUtil.filterInto(new ArrayList<>(), serverHealthService.getAllLogs(), element -> {
+            boolean b = element.getType().equals(type);
+            return b;
         });
     }
 
@@ -685,11 +674,9 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldLoadConfigForReadAndEditWhenConfigIsUpdatedThoughACommand() throws Exception {
-        cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                addPipelineWithParams(cruiseConfig);
-                return cruiseConfig;
-            }
+        cachedGoConfig.writeWithLock(cruiseConfig -> {
+            addPipelineWithParams(cruiseConfig);
+            return cruiseConfig;
         });
         PipelineConfig reloadedPipelineConfig = cachedGoConfig.currentConfig().pipelineConfigByName(new CaseInsensitiveString("mingle"));
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
@@ -886,12 +873,9 @@ public class CachedGoConfigIntegrationTest {
         PartialConfig partialConfigWithInvalidEnvironment = PartialConfigMother.withEnvironment("env", new RepoConfigOrigin(configRepo, "revision1"));
 
         goPartialConfig.onSuccessPartialConfig(configRepo, partialConfigWithInvalidEnvironment);
-        ConfigSaveState state = cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.server().setCommandRepositoryLocation("newlocation");
-                return cruiseConfig;
-            }
+        ConfigSaveState state = cachedGoConfig.writeWithLock(cruiseConfig -> {
+            cruiseConfig.server().setCommandRepositoryLocation("newlocation");
+            return cruiseConfig;
         });
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(goConfigService.getCurrentConfig().server().getCommandRepositoryLocation(), is("newlocation"));
@@ -901,13 +885,10 @@ public class CachedGoConfigIntegrationTest {
     public void shouldRemoveCorrespondingRemotePipelinesFromCachedGoConfigIfTheConfigRepoIsDeleted() {
         final ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), XmlPartialConfigProvider.providerName);
         final ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(repoConfig1);
-                cruiseConfig.getConfigRepos().add(repoConfig2);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(repoConfig1);
+            cruiseConfig.getConfigRepos().add(repoConfig2);
+            return cruiseConfig;
         });
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
@@ -923,12 +904,9 @@ public class CachedGoConfigIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         int countBeforeDeletion = cachedGoConfig.currentConfig().getConfigRepos().size();
-        ConfigSaveState configSaveState = cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().remove(repoConfig1);
-                return cruiseConfig;
-            }
+        ConfigSaveState configSaveState = cachedGoConfig.writeWithLock(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().remove(repoConfig1);
+            return cruiseConfig;
         });
         assertThat(configSaveState, is(ConfigSaveState.UPDATED));
         assertThat(cachedGoConfig.currentConfig().getConfigRepos().size(), is(countBeforeDeletion - 1));
@@ -1150,12 +1128,10 @@ public class CachedGoConfigIntegrationTest {
     }
 
     private UpdateConfigCommand updateFirstAgentResources(final String resources) {
-        return new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                AgentConfig agentConfig = cruiseConfig.agents().get(0);
-                agentConfig.setResources(new Resources(resources));
-                return cruiseConfig;
-            }
+        return cruiseConfig -> {
+            AgentConfig agentConfig = cruiseConfig.agents().get(0);
+            agentConfig.setResources(new Resources(resources));
+            return cruiseConfig;
         };
     }
 

@@ -52,15 +52,10 @@ public class VersionInfoSqlMapDao extends HibernateDaoSupport implements Version
 
     @Override
     public VersionInfo findByComponentName(final String name) {
-        return (VersionInfo) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                return sessionFactory.getCurrentSession()
-                        .createCriteria(VersionInfo.class)
-                        .add(Restrictions.eq("componentName", name))
-                        .setCacheable(true).uniqueResult();
-            }
-        });
+        return (VersionInfo) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
+                .createCriteria(VersionInfo.class)
+                .add(Restrictions.eq("componentName", name))
+                .setCacheable(true).uniqueResult());
     }
 
     // used only in tests

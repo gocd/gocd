@@ -49,14 +49,9 @@ public class JobAgentMetadataSqlMapDao implements JobAgentMetadataDao {
 
     @Override
     public JobAgentMetadata load(final Long jobId) {
-        return (JobAgentMetadata) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                return sessionFactory.getCurrentSession()
-                        .createCriteria(JobAgentMetadata.class)
-                        .add(Restrictions.eq("jobId", jobId))
-                        .setCacheable(true).uniqueResult();
-            }
-        });
+        return (JobAgentMetadata) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
+                .createCriteria(JobAgentMetadata.class)
+                .add(Restrictions.eq("jobId", jobId))
+                .setCacheable(true).uniqueResult());
     }
 }

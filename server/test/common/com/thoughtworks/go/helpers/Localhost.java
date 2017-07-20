@@ -105,13 +105,11 @@ public class Localhost {
     }
 
     private static void startGoServer(final Localhost localhost) {
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    localhost.server.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        new Thread(() -> {
+            try {
+                localhost.server.start();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }).start();
     }
@@ -127,12 +125,10 @@ public class Localhost {
         final DatabaseAccessHelper dbHelper = new DatabaseAccessHelper(dataSource);
         dbHelper.onTearDown();
         dbHelper.onSetUp();
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            public void run() {
-                try {
-                    dbHelper.onTearDown();
-                } catch (Exception e) {
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                dbHelper.onTearDown();
+            } catch (Exception e) {
             }
         }));
 

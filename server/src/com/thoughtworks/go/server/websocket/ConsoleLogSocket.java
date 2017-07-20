@@ -118,12 +118,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
     private long parseStartLine(UpgradeRequest request) {
         Optional<NameValuePair> startLine = URLEncodedUtils.parse(request.getRequestURI(), "UTF-8").
                 stream().
-                filter(new Predicate<NameValuePair>() {
-                    @Override
-                    public boolean test(NameValuePair pair) {
-                        return "startLine".equals(pair.getName());
-                    }
-                }).findFirst();
+                filter(pair -> "startLine".equals(pair.getName())).findFirst();
 
         return startLine.isPresent() ? Long.valueOf(startLine.get().getValue()) : 0L;
     }

@@ -104,10 +104,8 @@ public class GoFileConfigDataSourceTest {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         ServerHealthService serverHealthService = new ServerHealthService();
         cachedGoPartials = new CachedGoPartials(serverHealthService);
-        dataSource = new GoFileConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                throw new RuntimeException(e);
-            }
+        dataSource = new GoFileConfigDataSource(new GoConfigMigration(e -> {
+            throw new RuntimeException(e);
         }, configRepository, new TimeProvider(), configCache, registry, systemEnvironment),
                 configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class),
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
@@ -332,28 +330,24 @@ public class GoFileConfigDataSourceTest {
         final String xml = FileUtil.readContentFromFile(helper.getConfigFile());
 
         final List<Exception> errors = new Vector<>();
-        Thread thread1 = new Thread(new Runnable() {
-            public void run() {
-                for (int i = 0; i < 5; i++) {
-                    try {
-                        goConfigDao.updateMailHost(new MailHost("hostname", 9999, "user", "password", false, false, "from@local", "admin@local"));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        errors.add(e);
-                    }
+        Thread thread1 = new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                try {
+                    goConfigDao.updateMailHost(new MailHost("hostname", 9999, "user", "password", false, false, "from@local", "admin@local"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    errors.add(e);
                 }
             }
         }, "Update-license");
 
-        Thread thread2 = new Thread(new Runnable() {
-            public void run() {
-                for (int i = 0; i < 5; i++) {
-                    try {
-                        dataSource.write(xml, false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        errors.add(e);
-                    }
+        Thread thread2 = new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                try {
+                    dataSource.write(xml, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    errors.add(e);
                 }
             }
         }, "Modify-config");
@@ -463,12 +457,9 @@ public class GoFileConfigDataSourceTest {
         cachedGoPartials.addOrUpdate(repoConfig.getMaterialConfig().getFingerprint(), partialConfig);
         assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
 
-        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
-                return cruiseConfig;
-            }
+        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(cruiseConfig -> {
+            cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
+            return cruiseConfig;
         }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineFromConfigRepo)), is(true));
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain)), is(true));
@@ -491,12 +482,9 @@ public class GoFileConfigDataSourceTest {
         cachedGoPartials.markAllKnownAsValid();
         cachedGoPartials.addOrUpdate(repoConfig.getMaterialConfig().getFingerprint(), invalidPartialConfig);
 
-        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
-                return cruiseConfig;
-            }
+        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(cruiseConfig -> {
+            cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
+            return cruiseConfig;
         }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPartial)), is(false));
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineOneFromConfigRepo)), is(true));
@@ -523,14 +511,11 @@ public class GoFileConfigDataSourceTest {
         thrown.expect(RuntimeException.class);
         thrown.expectCause(any(GoConfigInvalidException.class));
         thrown.expectMessage(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
-        dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(upstream.name());
-                pipelineConfig.clear();
-                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("new_stage"), new JobConfigs(new JobConfig("job"))));
-                return cruiseConfig;
-            }
+        dataSource.writeWithLock(cruiseConfig -> {
+            PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(upstream.name());
+            pipelineConfig.clear();
+            pipelineConfig.add(new StageConfig(new CaseInsensitiveString("new_stage"), new JobConfigs(new JobConfig("job"))));
+            return cruiseConfig;
         }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
     }
 
@@ -551,12 +536,9 @@ public class GoFileConfigDataSourceTest {
         when(loader.loadConfigHolder(Matchers.any(String.class))).thenThrow(new GoConfigInvalidException(cruiseConfig, configErrors.firstError()));
 
         try {
-            dataSource.writeWithLock(new UpdateConfigCommand() {
-                @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(pipelineName)).clear();
-                    return cruiseConfig;
-                }
+            dataSource.writeWithLock(cruiseConfig1 -> {
+                cruiseConfig1.getPipelineConfigByName(new CaseInsensitiveString(pipelineName)).clear();
+                return cruiseConfig1;
             }, new GoConfigHolder(cruiseConfig, cruiseConfig));
             fail("expected the test to fail");
         } catch (Exception e) {

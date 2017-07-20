@@ -271,23 +271,19 @@ public class JobRerunScheduleServiceTest {
             }
         };
 
-        Thread firstReq = new Thread(new Runnable() {
-            public void run() {
-                requestNumber.set(0);
-                service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
-            }
+        Thread firstReq = new Thread(() -> {
+            requestNumber.set(0);
+            service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
         });
 
-        Thread secondReq = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    requestNumber.set(1);
-                    sem.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
+        Thread secondReq = new Thread(() -> {
+            try {
+                requestNumber.set(1);
+                sem.acquire();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
         });
 
         firstReq.start();

@@ -88,12 +88,7 @@ public class CachedGoConfigTest {
         cachedGoConfig.registerListener(listener);
         cachedGoConfig.forceReload();
 
-        cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                return cruiseConfig;
-            }
-        });
+        cachedGoConfig.writeWithLock(cruiseConfig -> cruiseConfig);
 
         verify(listener, times(2)).onConfigChange(any(BasicCruiseConfig.class));
     }

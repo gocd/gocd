@@ -330,13 +330,11 @@ public class ScheduleStageTest {
     }
 
     private Runnable rerunStage(final List<Exception> exceptions, final String ftStage) {
-        return new Runnable() {
-            public void run() {
-                try {
-                    scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineLabel(), ftStage);
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+        return () -> {
+            try {
+                scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineLabel(), ftStage);
+            } catch (Exception e) {
+                exceptions.add(e);
             }
         };
     }

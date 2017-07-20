@@ -281,12 +281,7 @@ public class User extends PersistentObject {
 
     public void removeNotificationFilter(final long filterId) {
         ArrayList<NotificationFilter> toBeDeleted = new ArrayList<>();
-        ListUtil.filterInto(toBeDeleted, notificationFilters, new Filter<NotificationFilter>() {
-            @Override
-            public boolean matches(NotificationFilter filter) {
-                return filter.getId() == filterId;
-            }
-        });
+        ListUtil.filterInto(toBeDeleted, notificationFilters, filter -> filter.getId() == filterId);
         notificationFilters.removeAll(toBeDeleted);
     }
 

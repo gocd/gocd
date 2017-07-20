@@ -120,12 +120,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                             }
                         }
                     }
-                    forAllDo(jobsToRemove, new Closure() {
-                        @Override
-                        public void execute(Object o) {
-                            removeJob((JobPlan) o);
-                        }
-                    });
+                    forAllDo(jobsToRemove, o -> removeJob((JobPlan) o));
                 }
             }
         };
@@ -260,12 +255,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     jobsToRemove.add(jobPlan);
                 }
             }
-            forAllDo(jobsToRemove, new Closure() {
-                @Override
-                public void execute(Object o) {
-                    removeJob((JobPlan) o);
-                }
-            });
+            forAllDo(jobsToRemove, o -> removeJob((JobPlan) o));
         }
     }
 
@@ -292,33 +282,29 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     private Work createWork(final AgentInstance agent, final JobPlan job) {
         try {
-            return (Work) transactionTemplate.transactionSurrounding(new TransactionTemplate.TransactionSurrounding<RuntimeException>() {
-                public Object surrounding() {
-                    final String agentUuid = agent.getUuid();
+            return (Work) transactionTemplate.transactionSurrounding(() -> {
+                final String agentUuid = agent.getUuid();
 
-                    //TODO: Use fullPipeline and get the Stage from it?
-                    final Pipeline pipeline;
-                    try {
-                        pipeline = scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(job.getJobId());
-                    } catch (StaleMaterialsOnBuildCause e) {
+                //TODO: Use fullPipeline and get the Stage from it?
+                final Pipeline pipeline;
+                try {
+                    pipeline = scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(job.getJobId());
+                } catch (StaleMaterialsOnBuildCause e) {
+                    return NO_WORK;
+                }
+
+                List<Task> tasks = goConfigService.tasksForJob(pipeline.getName(), job.getIdentifier().getStageName(), job.getName());
+                final List<Builder> builders = builderFactory.buildersForTasks(pipeline, tasks, resolver);
+
+                return transactionTemplate.execute(status -> {
+                    if (scheduleService.updateAssignedInfo(agentUuid, job)) {
                         return NO_WORK;
                     }
 
-                    List<Task> tasks = goConfigService.tasksForJob(pipeline.getName(), job.getIdentifier().getStageName(), job.getName());
-                    final List<Builder> builders = builderFactory.buildersForTasks(pipeline, tasks, resolver);
-
-                    return transactionTemplate.execute(new TransactionCallback() {
-                        public Object doInTransaction(TransactionStatus status) {
-                            if (scheduleService.updateAssignedInfo(agentUuid, job)) {
-                                return NO_WORK;
-                            }
-
-                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder());
-                            environmentConfigService.enhanceEnvironmentVariables(buildAssignment);
-                            return new BuildWork(buildAssignment);
-                        }
-                    });
-                }
+                    BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder());
+                    environmentConfigService.enhanceEnvironmentVariables(buildAssignment);
+                    return new BuildWork(buildAssignment);
+                });
             });
 
         } catch (PipelineNotFoundException e) {

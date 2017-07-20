@@ -73,17 +73,14 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
             return;
         }
 
-        CollectionUtils.filter(this, new Predicate() {
-            public boolean evaluate(Object o) {
-                boolean finalResult = false;
-                AgentViewModel agent = (AgentViewModel) o;
-                for (Map.Entry<String, String> entry : filters.entrySet()) {
-                    AgentFilters filter = AgentFilters.valueOf(entry.getKey().toUpperCase());
-                    finalResult = finalResult || filter.matches(agent, entry.getValue());
-                }
-                return finalResult;
+        CollectionUtils.filter(this, o -> {
+            boolean finalResult = false;
+            AgentViewModel agent = (AgentViewModel) o;
+            for (Map.Entry<String, String> entry : filters.entrySet()) {
+                AgentFilters filter = AgentFilters.valueOf(entry.getKey().toUpperCase());
+                finalResult = finalResult || filter.matches(agent, entry.getValue());
             }
-
+            return finalResult;
         });
     }
 
@@ -100,11 +97,9 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     private boolean agentFiltersHas(final String enumKey) {
-        return CollectionUtils.exists(Arrays.asList(AgentFilters.values()), new Predicate() {
-            public boolean evaluate(Object o) {
-                AgentFilters filter = (AgentFilters) o;
-                return filter.name().equals(enumKey.toUpperCase());
-            }
+        return CollectionUtils.exists(Arrays.asList(AgentFilters.values()), o -> {
+            AgentFilters filter = (AgentFilters) o;
+            return filter.name().equals(enumKey.toUpperCase());
         });
     }
 
@@ -154,11 +149,7 @@ enum AgentFilters {
 
     static boolean matchesFilter(Collection collection, final String searchCriteria) {
         final SearchCriteria criteria = new SearchCriteria(searchCriteria);
-        return CollectionUtils.exists(collection, new Predicate() {
-            public boolean evaluate(Object o) {
-                return criteria.matches((String) o);
-            }
-        });
+        return CollectionUtils.exists(collection, o -> criteria.matches((String) o));
     }
 
     static boolean matchesFilter(String agentValue, String searchCriteria) {

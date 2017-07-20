@@ -73,12 +73,7 @@ public class DefaultPluginInfoFinder {
     }
 
     public PluginInfo pluginInfoFor(String pluginId) {
-        return builders.values().stream().map(new Function<MetadataStore, PluginInfo>() {
-            @Override
-            public PluginInfo apply(MetadataStore metadataStore) {
-                return metadataStore.getPluginInfo(pluginId);
-            }
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        return builders.values().stream().map(metadataStore -> metadataStore.getPluginInfo(pluginId)).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     public Collection allPluginInfos(String type) {

@@ -43,20 +43,17 @@ public class SocketHealthService {
 
     @Scheduled(fixedDelay = 10000)
     public void keepalive() {
-        connections.forEachValue(25, new Consumer<SocketEndpoint>() {
-            @Override
-            public void accept(SocketEndpoint socket) {
-                try {
-                    if (socket.isOpen()) {
-                        socket.ping();
-                    }
-                } catch (IOException e) {
-                    if ("Connection output is closed".equals(e.getMessage())) {
-                        deregister(socket);
-                        socket.close();
-                    }
-                    LOGGER.error("Failed to ping socket %s", socket.key(), e);
+        connections.forEachValue(25, socket -> {
+            try {
+                if (socket.isOpen()) {
+                    socket.ping();
                 }
+            } catch (IOException e) {
+                if ("Connection output is closed".equals(e.getMessage())) {
+                    deregister(socket);
+                    socket.close();
+                }
+                LOGGER.error("Failed to ping socket %s", socket.key(), e);
             }
         });
     }

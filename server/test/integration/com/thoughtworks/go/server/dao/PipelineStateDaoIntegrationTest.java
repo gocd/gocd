@@ -175,13 +175,11 @@ public class PipelineStateDaoIntegrationTest {
             Stage stage = new Stage("stage-1", jobInstances, "shilpa", "auto", new TimeProvider());
             final Pipeline pipeline = PipelineMother.pipeline("mingle", stage);
             pipeline.setCounter(i + 1);
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        pipelineStateDao.lockPipeline(pipeline);
-                    } catch (Exception e) {
-                        errors[0]++;
-                    }
+            Thread thread = new Thread(() -> {
+                try {
+                    pipelineStateDao.lockPipeline(pipeline);
+                } catch (Exception e) {
+                    errors[0]++;
                 }
             }, "thread-" + i);
             threads.add(thread);

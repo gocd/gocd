@@ -420,11 +420,8 @@ public class ScheduleServiceIntegrationTest {
         String secondStage = "secondStage";
         PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages(pipelineName, firstStage, secondStage));
         Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), new TimeProvider());
-        stageService.addStageStatusListener(new StageStatusListener() {
-            @Override
-            public void stageStatusChanged(Stage stage) {
-                throw new LinkageError("some nasty linkage error");
-            }
+        stageService.addStageStatusListener(stage -> {
+            throw new LinkageError("some nasty linkage error");
         });
         JobInstance job = pipeline.getFirstStage().getFirstJob();
         JobIdentifier jobIdentifier = job.getIdentifier();

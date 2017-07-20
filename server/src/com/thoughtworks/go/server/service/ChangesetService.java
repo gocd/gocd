@@ -109,11 +109,7 @@ public class ChangesetService {
         }
 
         List<MaterialRevision> allMaterialRevisions = modificationsPerMaterialBetween(pipelineName, fromCounter, toCounter);
-        return filterReachableFingerprintHolders(allMaterialRevisions, new FingerprintLoader<MaterialRevision>() {
-            public String getFingerprint(MaterialRevision materialRevision) {
-                return materialRevision.getMaterial().getFingerprint();
-            }
-        }, pipelineName, username, skipCheckForMingle, false);
+        return filterReachableFingerprintHolders(allMaterialRevisions, materialRevision -> materialRevision.getMaterial().getFingerprint(), pipelineName, username, skipCheckForMingle, false);
     }
 
     private <T> List<T> filterReachableFingerprintHolders(List<T> allFingerprintHolders, final FingerprintLoader<T> fingerprintLoader, String pipelineName, Username username,

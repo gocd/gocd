@@ -48,14 +48,11 @@ public class PackageMaterialUpdater implements MaterialUpdater {
         final PackageMaterialInstance packageMaterialInstance = (PackageMaterialInstance) materialInstance;
 
         if(packageMaterialInstance.shouldUpgradeTo((PackageMaterialInstance) material.createMaterialInstance())) {
-            transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    PackageMaterialInstance materialInstance = (PackageMaterialInstance) materialRepository.find(packageMaterialInstance.getId());
-                    materialInstance.upgradeTo((PackageMaterialInstance) material.createMaterialInstance());
-                    materialRepository.saveOrUpdate(materialInstance);
-                    return materialInstance;
-                }
+            transactionTemplate.execute(transactionStatus -> {
+                PackageMaterialInstance materialInstance1 = (PackageMaterialInstance) materialRepository.find(packageMaterialInstance.getId());
+                materialInstance1.upgradeTo((PackageMaterialInstance) material.createMaterialInstance());
+                materialRepository.saveOrUpdate(materialInstance1);
+                return materialInstance1;
             });
         }
         scmMaterialUpdater.insertLatestOrNewModifications(material,packageMaterialInstance,folder,list);

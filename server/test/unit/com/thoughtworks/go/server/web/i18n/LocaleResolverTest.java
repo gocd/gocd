@@ -54,11 +54,7 @@ public class LocaleResolverTest {
     public void shouldSetLocaleStringToCurrentThread() throws IOException, ServletException {
         when(req.getLocale()).thenReturn(new Locale("ja"));
         CurrentLocale.setLocaleString("en");
-        localeResolver.doFilter(req, res, new FilterChain() {
-            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-                localeInside = CurrentLocale.getLocaleString();
-            }
-        });
+        localeResolver.doFilter(req, res, (servletRequest, servletResponse) -> localeInside = CurrentLocale.getLocaleString());
         assertThat(CurrentLocale.getLocaleString(), is("en"));
         assertThat(localeInside, is("ja"));
     }
@@ -69,10 +65,8 @@ public class LocaleResolverTest {
         CurrentLocale.setLocaleString("en");
         final RuntimeException exception = new RuntimeException("Oh no!");
         try {
-            localeResolver.doFilter(req, res, new FilterChain() {
-                public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-                    throw exception;
-                }
+            localeResolver.doFilter(req, res, (servletRequest, servletResponse) -> {
+                throw exception;
             });
             fail("exception should have been bubbled up");
         } catch (RuntimeException e) {

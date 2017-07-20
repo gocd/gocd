@@ -53,12 +53,7 @@ public class PluginRoleConfigTest {
 
     @Test
     public void validateTree_shouldValidatePresenceOfRoleName(){
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validatePresenceOfRoleName((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
@@ -68,32 +63,17 @@ public class PluginRoleConfigTest {
 
     @Test
     public void validateTree_presenceAuthConfigId(){
-        validatePresenceAuthConfigId(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validatePresenceAuthConfigId((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
     public void validateTree_presenceOfAuthConfigIdInSecurityConfig() throws Exception {
-        validatePresenceOfAuthConfigIdInSecurityConfig(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validatePresenceOfAuthConfigIdInSecurityConfig((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
     public void validateTree_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validateUniquenessOfRoleName((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test

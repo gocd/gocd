@@ -70,18 +70,8 @@ public class TimeReportingTest {
     public void shouldSaveAndLoad2000pipelines() throws Exception {
         final CruiseConfig oldConfig = goConfigDao.load();
         final int numberOfNewPipelines = 2000;
-        TimeReportingUtil.report(TimeReportingUtil.Key.CONFIG_WRITE_2000, new TimeReportingUtil.TestAction() {
-            @Override
-            public void perform() throws Exception {
-                write(numberOfNewPipelines, oldConfig.getMd5());
-            }
-        });
-        TimeReportingUtil.report(TimeReportingUtil.Key.CONFIG_READ_2000, new TimeReportingUtil.TestAction() {
-            @Override
-            public void perform() throws Exception {
-                read(numberOfNewPipelines);
-            }
-        });
+        TimeReportingUtil.report(TimeReportingUtil.Key.CONFIG_WRITE_2000, () -> write(numberOfNewPipelines, oldConfig.getMd5()));
+        TimeReportingUtil.report(TimeReportingUtil.Key.CONFIG_READ_2000, () -> read(numberOfNewPipelines));
     }
 
     private CruiseConfig read(int numberOfPipelines) {

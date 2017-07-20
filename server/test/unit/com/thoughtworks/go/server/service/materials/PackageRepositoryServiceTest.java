@@ -91,12 +91,7 @@ public class PackageRepositoryServiceTest {
         doNothing().when(service).performPluginValidationsFor(packageRepository);
         doReturn(updateConfigFromUI).when(service).getPackageRepositoryUpdateCommand(packageRepository, username);
 
-        when(goConfigService.updateConfigFromUI(eq(updateConfigFromUI), eq("md5"), eq(username), any(LocalizedOperationResult.class))).then(new Answer<ConfigUpdateResponse>() {
-            @Override
-            public ConfigUpdateResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ConfigUpdateResponse(null, null, null, mock(ConfigAwareUpdate.class), ConfigSaveState.UPDATED);
-            }
-        });
+        when(goConfigService.updateConfigFromUI(eq(updateConfigFromUI), eq("md5"), eq(username), any(LocalizedOperationResult.class))).then(invocationOnMock -> new ConfigUpdateResponse(null, null, null, mock(ConfigAwareUpdate.class), ConfigSaveState.UPDATED));
 
         when(localizer.localize("SAVED_CONFIGURATION_SUCCESSFULLY")).thenReturn("SAVED_CONFIGURATION_SUCCESSFULLY");
 
@@ -128,14 +123,11 @@ public class PackageRepositoryServiceTest {
         doReturn(updateConfigFromUI).when(service).getPackageRepositoryUpdateCommand(packageRepository, username);
 
         when(configAwareUpdate.configAfter()).thenReturn(cruiseConfig);
-        when(goConfigService.updateConfigFromUI(eq(updateConfigFromUI), eq("md5"), eq(username), any(LocalizedOperationResult.class))).then(new Answer<ConfigUpdateResponse>() {
-            @Override
-            public ConfigUpdateResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
-                LocalizedOperationResult result = (LocalizedOperationResult) invocationOnMock.getArguments()[3];
-                result.badRequest(LocalizedMessage.string("BAD_REQUEST"));
+        when(goConfigService.updateConfigFromUI(eq(updateConfigFromUI), eq("md5"), eq(username), any(LocalizedOperationResult.class))).then(invocationOnMock -> {
+            LocalizedOperationResult result = (LocalizedOperationResult) invocationOnMock.getArguments()[3];
+            result.badRequest(LocalizedMessage.string("BAD_REQUEST"));
 
-                return new ConfigUpdateResponse(cruiseConfig, cruiseConfig, packageRepository, configAwareUpdate, ConfigSaveState.UPDATED);
-            }
+            return new ConfigUpdateResponse(cruiseConfig, cruiseConfig, packageRepository, configAwareUpdate, ConfigSaveState.UPDATED);
         });
         when(localizer.localize("BAD_REQUEST", new Object[]{})).thenReturn("Save Failed");
 

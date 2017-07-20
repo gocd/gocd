@@ -115,12 +115,7 @@ public class GoConfigGraphWalkerTest {
 
         final ConfigSaveValidationContext context = new ConfigSaveValidationContext(config);
 
-        new GoConfigGraphWalker(packageMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(context);
-            }
-        });
+        new GoConfigGraphWalker(packageMaterialConfig).walk((validatable, ctx) -> validatable.validate(context));
         verify(packageDefinition, never()).validate(any(ValidationContext.class));
     }
 
@@ -134,12 +129,7 @@ public class GoConfigGraphWalkerTest {
         BasicCruiseConfig config = new BasicCruiseConfig();
         config.getSCMs().add(scmConfig);
         final ConfigSaveValidationContext context = new ConfigSaveValidationContext(config);
-        new GoConfigGraphWalker(pluggableSCMMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(context);
-            }
-        });
+        new GoConfigGraphWalker(pluggableSCMMaterialConfig).walk((validatable, ctx) -> validatable.validate(context));
         verify(scmConfig, never()).validate(any(ValidationContext.class));
     }
 }

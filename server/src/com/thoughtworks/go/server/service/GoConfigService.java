@@ -376,29 +376,25 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private UpdateConfigCommand serverConfigUpdater(final String artifactsDir, final Double purgeStart, final Double purgeUpto, final String jobTimeout, final String siteUrl,
                                                     final String secureSiteUrl, final String taskRepositoryLocation) {
-        return new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                ServerConfig server = cruiseConfig.server();
-                server.setArtifactsDir(artifactsDir);
-                server.setPurgeLimits(purgeStart, purgeUpto);
-                server.setJobTimeout(jobTimeout);
-                server.setSiteUrl(siteUrl);
-                server.setSecureSiteUrl(secureSiteUrl);
-                server.setCommandRepositoryLocation(taskRepositoryLocation);
-                return cruiseConfig;
-            }
+        return cruiseConfig -> {
+            ServerConfig server = cruiseConfig.server();
+            server.setArtifactsDir(artifactsDir);
+            server.setPurgeLimits(purgeStart, purgeUpto);
+            server.setJobTimeout(jobTimeout);
+            server.setSiteUrl(siteUrl);
+            server.setSecureSiteUrl(secureSiteUrl);
+            server.setCommandRepositoryLocation(taskRepositoryLocation);
+            return cruiseConfig;
         };
     }
 
     private UpdateConfigCommand securityUpdater(final LdapConfig ldapConfig, final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin) {
-        return new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                SecurityConfig securityConfig = cruiseConfig.server().security();
-                securityConfig.modifyLdap(ldapConfig);
-                securityConfig.modifyPasswordFile(passwordFileConfig);
-                securityConfig.modifyAllowOnlyKnownUsers(!shouldAllowAutoLogin);
-                return cruiseConfig;
-            }
+        return cruiseConfig -> {
+            SecurityConfig securityConfig = cruiseConfig.server().security();
+            securityConfig.modifyLdap(ldapConfig);
+            securityConfig.modifyPasswordFile(passwordFileConfig);
+            securityConfig.modifyAllowOnlyKnownUsers(!shouldAllowAutoLogin);
+            return cruiseConfig;
         };
     }
 

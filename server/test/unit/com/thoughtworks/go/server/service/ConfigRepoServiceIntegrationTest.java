@@ -113,12 +113,9 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldDeleteSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(configRepo);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(configRepo);
+            return cruiseConfig;
         });
 
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));
@@ -143,12 +140,9 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldUpdateSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(configRepo);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(configRepo);
+            return cruiseConfig;
         });
         String newRepoId = "repo-2";
         ConfigRepoConfig toUpdateWith = new ConfigRepoConfig(new GitMaterialConfig("http://bar.git", "master"), "yaml-plugin", newRepoId);

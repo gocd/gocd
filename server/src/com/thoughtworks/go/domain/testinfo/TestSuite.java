@@ -34,11 +34,7 @@ public class TestSuite {
 
     public TestSuite(String name) {
         this.name = name;
-        this.tests = new TreeSet<>(new Comparator<TestInformation>() {
-            public int compare(TestInformation testInformation1, TestInformation testInformation2) {
-                return testInformation1.getName().compareTo(testInformation2.getName());
-            }
-        });
+        this.tests = new TreeSet<>((testInformation1, testInformation2) -> testInformation1.getName().compareTo(testInformation2.getName()));
     }
 
     public List<TestInformation> tests() {

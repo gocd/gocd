@@ -89,11 +89,7 @@ public class AutoBuildTriangleDependencyTest {
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker, serverHealthService);
         AutoBuild spyAutoBuild = spy(autoBuild);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return true;
-            }
-        }).when(spyAutoBuild).hasAnyUnsharedMaterialChanged(dependencyGraph, originalRevisions);
+        doAnswer(invocation -> true).when(spyAutoBuild).hasAnyUnsharedMaterialChanged(dependencyGraph, originalRevisions);
         BuildCause buildCause = spyAutoBuild.onModifications(originalRevisions, false, null);
 
         verify(pipelineService).getRevisionsBasedOnDependencies(dependencyGraph, originalRevisions);

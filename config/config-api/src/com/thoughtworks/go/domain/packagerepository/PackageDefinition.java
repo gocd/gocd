@@ -297,12 +297,9 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         if (metadata == null) {
             return null;
         }
-        return new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                PackageConfiguration packageConfiguration = metadata.get(key);
-                return packageConfiguration.getOption(PackageConfiguration.SECURE);
-            }
+        return key -> {
+            PackageConfiguration packageConfiguration = metadata.get(key);
+            return packageConfiguration.getOption(PackageConfiguration.SECURE);
         };
     }
 

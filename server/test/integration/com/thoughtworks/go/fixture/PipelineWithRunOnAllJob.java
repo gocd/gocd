@@ -148,11 +148,9 @@ public class PipelineWithRunOnAllJob implements PreCondition {
     }
 
     public Pipeline schedulePipeline(final BuildCause buildCause) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                materialRepository.save(buildCause.getMaterialRevisions());
-                return PipelineMother.schedule(pipelineConfig(), buildCause);
-            }
+        return (Pipeline) transactionTemplate.execute(status -> {
+            materialRepository.save(buildCause.getMaterialRevisions());
+            return PipelineMother.schedule(pipelineConfig(), buildCause);
         });
     }
 

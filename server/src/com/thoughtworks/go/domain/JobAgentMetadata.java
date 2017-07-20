@@ -50,12 +50,7 @@ public class JobAgentMetadata extends PersistentObject {
         String id = (String) map.get("id");
         Map<String, String> properties = (Map<String, String>) map.get("properties");
 
-        Collection<ConfigurationProperty> configProperties = MapUtil.collect(properties, new ListUtil.Transformer<Map.Entry<String, String>, ConfigurationProperty>() {
-            @Override
-            public ConfigurationProperty transform(Map.Entry<String, String> entry) {
-                return new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()));
-            }
-        });
+        Collection<ConfigurationProperty> configProperties = MapUtil.collect(properties, entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue())));
 
         return new ElasticProfile(id, pluginId, configProperties);
     }

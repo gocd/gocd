@@ -176,20 +176,14 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(99L));
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
-                return null;
-            }
+        doAnswer(invocation -> {
+            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
+            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
 
         pipelineDao.save(PipelineMother.pipeline("pipelineName"));
@@ -214,11 +208,7 @@ public class PipelineSqlMapDaoCachingTest {
         final StageIdentifier newerIdentifer = new StageIdentifier("pipeline-name", 1, "stage", "999999");
         newerStage.setIdentifier(newerIdentifer);
 
-        new Thread(new Runnable() {
-            public void run() {
-                pipelineDao.stageStatusChanged(newerStage);
-            }
-        }).start();
+        new Thread(() -> pipelineDao.stageStatusChanged(newerStage)).start();
         TestUtils.sleepQuietly(200);
 
         List<Thread> threads = new ArrayList<>();
@@ -226,11 +216,7 @@ public class PipelineSqlMapDaoCachingTest {
             final Pipeline pipeline = PipelineMother.pipeline("mingle");
             pipeline.setCounter(i + 1);
 
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    assertEquals(newerIdentifer, pipelineDao.findLastSuccessfulStageIdentifier("pipeline-name", "stage"));
-                }
-            }, "thread-" + i);
+            Thread thread = new Thread(() -> assertEquals(newerIdentifer, pipelineDao.findLastSuccessfulStageIdentifier("pipeline-name", "stage")), "thread-" + i);
             threads.add(thread);
             thread.start();
         }
@@ -602,20 +588,14 @@ public class PipelineSqlMapDaoCachingTest {
                 new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
-                return null;
-            }
+        doAnswer(invocation -> {
+            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
+            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
 
         pipelineDao.save(pipeline);
@@ -683,20 +663,14 @@ public class PipelineSqlMapDaoCachingTest {
 
 		MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
 		Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
-                return null;
-            }
+        doAnswer(invocation -> {
+            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
+            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
 
 		pipelineDao.save(pipeline);

@@ -28,38 +28,22 @@ import org.junit.Test;
 public class DateUtilsConcurrencyTest {
     @Test
     public void shouldFormatISO8601() throws Exception {
-        runInThreads(new DoAction() {
-            public void doAction() throws ParseException {
-                DateUtils.parseISO8601("2009-09-11 11:11:21 +0800");
-            }
-        });
+        runInThreads(() -> DateUtils.parseISO8601("2009-09-11 11:11:21 +0800"));
     }
 
     @Test
     public void shouldFormatIntoISO8601String() throws Exception {
-        runInThreads(new DoAction() {
-            public void doAction() throws ParseException {
-                DateUtils.formatISO8601(new Date());
-            }
-        });
+        runInThreads(() -> DateUtils.formatISO8601(new Date()));
     }
 
     @Test
     public void shouldFormatRFC822() throws Exception {
-        runInThreads(new DoAction() {
-            public void doAction() throws ParseException {
-                DateUtils.parseRFC822("Wed, 4 Jul 2001 12:08:56 -0700");
-            }
-        });
+        runInThreads(() -> DateUtils.parseRFC822("Wed, 4 Jul 2001 12:08:56 -0700"));
     }
 
     @Test
     public void shouldParseYYYYMMDD() throws Exception {
-        runInThreads(new DoAction() {
-            public void doAction() throws ParseException {
-                DateUtils.parseYYYYMMDD("2018-12-31");
-            }
-        });
+        runInThreads(() -> DateUtils.parseYYYYMMDD("2018-12-31"));
     }
 
     private void runInThreads(final DoAction action) throws InterruptedException {
@@ -67,14 +51,12 @@ public class DateUtilsConcurrencyTest {
         Thread[] threads = new Thread[threadCount];
         final List<Throwable> iHateMyLife = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
-            threads[i] = new Thread(new Runnable() {
-                public void run() {
-                    for (int j = 0; j < 1000; j++) {
-                        try {
-                            action.doAction();
-                        } catch (Throwable e) {
-                            iHateMyLife.add(e);
-                        }
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < 1000; j++) {
+                    try {
+                        action.doAction();
+                    } catch (Throwable e) {
+                        iHateMyLife.add(e);
                     }
                 }
             });

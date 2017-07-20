@@ -67,12 +67,10 @@ public class MaterialUpdateListenerTest {
     }
 
     private void setupTransactionTemplateStub() throws Exception {
-        when(transactionTemplate.executeWithExceptionHandling(Mockito.any(TransactionCallback.class))).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
-                callback.doInTransaction(null);
-                return null;
-            }
+        when(transactionTemplate.executeWithExceptionHandling(Mockito.any(TransactionCallback.class))).thenAnswer(invocationOnMock -> {
+            TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
+            callback.doInTransaction(null);
+            return null;
         });
     }
 

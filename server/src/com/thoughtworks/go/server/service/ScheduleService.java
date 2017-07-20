@@ -223,28 +223,26 @@ public class ScheduleService {
     }
 
     public Stage scheduleStage(final Pipeline pipeline, final String stageName, final String username, final StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
-        return (Stage) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                String pipelineName = pipeline.getName();
-                PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-                StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
-                if (stageConfig == null) {
-                    throw new StageNotFoundException(pipelineName, stageName);
-                }
-                SchedulingContext context = schedulingContext(username, pipelineConfig, stageConfig);
-                pipelineLockService.lockIfNeeded(pipeline);
-                Stage instance = null;
-                try {
-                    instance = creator.create(pipelineName, stageName, context);
-                    LOGGER.info(String.format("[Stage Schedule] Scheduling stage %s for pipeline %s", stageName, pipeline.getName()));
-                } catch (CannotScheduleException e) {
-                    serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
-                    errorHandler.cantSchedule(e, pipelineName);
-                }
-                serverHealthService.update(stageSchedulingSuccessfulState(pipelineName, stageName));
-                stageService.save(pipeline, instance);
-                return instance;
+        return (Stage) transactionTemplate.execute(status -> {
+            String pipelineName = pipeline.getName();
+            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+            StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+            if (stageConfig == null) {
+                throw new StageNotFoundException(pipelineName, stageName);
             }
+            SchedulingContext context = schedulingContext(username, pipelineConfig, stageConfig);
+            pipelineLockService.lockIfNeeded(pipeline);
+            Stage instance = null;
+            try {
+                instance = creator.create(pipelineName, stageName, context);
+                LOGGER.info(String.format("[Stage Schedule] Scheduling stage %s for pipeline %s", stageName, pipeline.getName()));
+            } catch (CannotScheduleException e) {
+                serverHealthService.update(stageSchedulingFailedState(pipelineName, e));
+                errorHandler.cantSchedule(e, pipelineName);
+            }
+            serverHealthService.update(stageSchedulingSuccessfulState(pipelineName, stageName));
+            stageService.save(pipeline, instance);
+            return instance;
         });
     }
 
@@ -307,16 +305,14 @@ public class ScheduleService {
             return null;
         }
         try {
-            return lockAndRerunStage(identifier.getPipelineName(), String.valueOf(identifier.getPipelineCounter()), identifier.getStageName(), new StageInstanceCreator() {
-                public Stage create(String pipelineName, String stageName, SchedulingContext context) {
-                    StageConfig stageConfig = goConfigService.stageConfigNamed(identifier.getPipelineName(), identifier.getStageName());
-                    String latestMd5 = goConfigService.getCurrentConfig().getMd5();
-                    try {
-                        return instanceFactory.createStageForRerunOfJobs(stage, jobNames, context, stageConfig, timeProvider, latestMd5);
-                    } catch (CannotRerunJobException e) {
-                        result.notFound(e.getMessage(), e.getMessage(), HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
-                        throw e;
-                    }
+            return lockAndRerunStage(identifier.getPipelineName(), String.valueOf(identifier.getPipelineCounter()), identifier.getStageName(), (pipelineName, stageName, context) -> {
+                StageConfig stageConfig = goConfigService.stageConfigNamed(identifier.getPipelineName(), identifier.getStageName());
+                String latestMd5 = goConfigService.getCurrentConfig().getMd5();
+                try {
+                    return instanceFactory.createStageForRerunOfJobs(stage, jobNames, context, stageConfig, timeProvider, latestMd5);
+                } catch (CannotRerunJobException e) {
+                    result.notFound(e.getMessage(), e.getMessage(), HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
+                    throw e;
                 }
             }, new ResultUpdatingErrorHandler(result));
         } catch (RuntimeException e) {

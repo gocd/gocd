@@ -227,12 +227,10 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     public void deleteUsersOauthGrants(final List<String> userIds) {
         txnTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                getHibernateTemplate().execute(new HibernateCallback() {
-                    public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                        deleteEntitiesByUserIds(OauthAuthorization.class, session, userIds);
-                        deleteEntitiesByUserIds(OauthToken.class, session, userIds);
-                        return true;
-                    }
+                getHibernateTemplate().execute((HibernateCallback) session -> {
+                    deleteEntitiesByUserIds(OauthAuthorization.class, session, userIds);
+                    deleteEntitiesByUserIds(OauthToken.class, session, userIds);
+                    return true;
                 });
             }
         });

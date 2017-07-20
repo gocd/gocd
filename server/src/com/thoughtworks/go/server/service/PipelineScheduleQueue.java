@@ -126,33 +126,31 @@ public class PipelineScheduleQueue {
     }
 
     public Pipeline createPipeline(final BuildCause buildCause, final PipelineConfig pipelineConfig, final SchedulingContext context, final String md5, final Clock clock) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
-                Pipeline pipeline = null;
+        return (Pipeline) transactionTemplate.execute(status -> {
+            String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
+            Pipeline pipeline = null;
 
-                if (shouldCancel(buildCause, pipelineName)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(String.format("[Pipeline Schedule] Cancelling scheduling as build cause %s is the same as the most recent schedule", buildCause));
-                    }
-                    cancelSchedule(pipelineName);
-                } else {
-                    try {
-                        Pipeline newPipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, md5, clock);
-                        pipeline = pipelineService.save(newPipeline);
-                        finishSchedule(pipelineName, buildCause, pipeline.getBuildCause());
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug(String.format("[Pipeline Schedule] Successfully scheduled pipeline %s, buildCause:%s, configOrigin: %s",
-                                    pipelineName, buildCause,pipelineConfig.getOrigin()));
-                        }
-                    } catch (BuildCauseOutOfDateException e) {
-                        cancelSchedule(pipelineName);
-                        LOGGER.info(String.format("[Pipeline Schedule] Build cause %s is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: %s",
-                                buildCause, pipelineConfig.getOrigin()));
-                    }
+            if (shouldCancel(buildCause, pipelineName)) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(String.format("[Pipeline Schedule] Cancelling scheduling as build cause %s is the same as the most recent schedule", buildCause));
                 }
-                return pipeline;
+                cancelSchedule(pipelineName);
+            } else {
+                try {
+                    Pipeline newPipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, md5, clock);
+                    pipeline = pipelineService.save(newPipeline);
+                    finishSchedule(pipelineName, buildCause, pipeline.getBuildCause());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(String.format("[Pipeline Schedule] Successfully scheduled pipeline %s, buildCause:%s, configOrigin: %s",
+                                pipelineName, buildCause,pipelineConfig.getOrigin()));
+                    }
+                } catch (BuildCauseOutOfDateException e) {
+                    cancelSchedule(pipelineName);
+                    LOGGER.info(String.format("[Pipeline Schedule] Build cause %s is out of date. Scheduling is cancelled. Go will reschedule this pipeline. configOrigin: %s",
+                            buildCause, pipelineConfig.getOrigin()));
+                }
             }
+            return pipeline;
         });
     }
 

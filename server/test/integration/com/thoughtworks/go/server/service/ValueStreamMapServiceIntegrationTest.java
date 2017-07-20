@@ -488,12 +488,9 @@ public class ValueStreamMapServiceIntegrationTest {
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap("p3", 1, username, result);
         Node nodeForGit = graph.getNodesAtEachLevel().get(0).get(0);
         assertThat(nodeForGit.revisions().size(), is(2));
-        Collection<String> revisionStrings = collect(nodeForGit.revisions(), new Transformer() {
-            @Override
-            public String transform(Object o) {
-                Revision revision = (Revision) o;
-                return revision.getRevisionString();
-            }
+        Collection<String> revisionStrings = collect(nodeForGit.revisions(), o -> {
+            Revision revision = (Revision) o;
+            return revision.getRevisionString();
         });
         assertThat(revisionStrings, IsCollectionContaining.hasItems("g1-1", "g1-2"));
     }

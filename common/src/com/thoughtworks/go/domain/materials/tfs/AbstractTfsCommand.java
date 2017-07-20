@@ -245,9 +245,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     protected URI getUri() {
         try {
             return new URL(url.toString()).toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(String.format("[TFS] Failed when converting the url string to a uri: %s, Project Path: %s, Username: %s, Domain: %s", url, projectPath, userName, domain), e);
-        } catch (MalformedURLException e) {
+        } catch (URISyntaxException | MalformedURLException e) {
             throw new RuntimeException(String.format("[TFS] Failed when converting the url string to a uri: %s, Project Path: %s, Username: %s, Domain: %s", url, projectPath, userName, domain), e);
         }
     }

@@ -168,10 +168,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         } catch (InvocationTargetException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be registered. Reason: %s.",
                     candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
-        } catch (IllegalAccessException e) {
-            errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
-                    candidateGoExtensionClass.getSimpleName(), e.toString()));
-        } catch (RuntimeException e) {
+        } catch (IllegalAccessException | RuntimeException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
                     candidateGoExtensionClass.getSimpleName(), e.toString()));
         } catch (Throwable e) {

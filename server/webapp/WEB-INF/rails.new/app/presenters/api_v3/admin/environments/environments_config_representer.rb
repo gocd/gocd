@@ -23,6 +23,10 @@ module ApiV3
           opts[:url_builder].apiv3_admin_environments_url
         end
 
+        link :self_with_config_repo do |opts|
+          opts[:url_builder].apiv3_admin_environments_url << '?withconfigrepo=true'
+        end
+
         link :doc do
           'https://api.gocd.io/#environment-config'
         end

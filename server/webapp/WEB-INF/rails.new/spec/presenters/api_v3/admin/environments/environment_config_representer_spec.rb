@@ -23,9 +23,11 @@ describe ApiV3::Admin::Environments::EnvironmentConfigRepresenter do
       presenter = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(get_environment_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
-      expect(actual_json).to have_links(:self, :find, :doc)
+      expect(actual_json).to have_links(:self, :find, :doc, :find_with_config_repo, :self_with_config_repo)
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/environments/:environment_name')
+      expect(actual_json).to have_link(:find_with_config_repo).with_url('http://test.host/api/admin/environments/:environment_name?withconfigrepo=true')
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/environments/dev')
+      expect(actual_json).to have_link(:self_with_config_repo).with_url('http://test.host/api/admin/environments/dev?withconfigrepo=true')
       expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#environment-config')
 
       actual_json.delete(:_links)

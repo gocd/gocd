@@ -93,7 +93,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
+        service.createEnvironment(env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
         assertThat(result.message(localizer), is("Failed to add environment. User 'evil_hacker' does not have permission to add environments"));
     }
 
@@ -101,7 +101,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldReturnTheCorrectLocalizedMessageForDuplicateEnvironment() {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
+        service.createEnvironment(env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
         assertThat(result.message(localizer), is("Failed to add environment. The environment 'foo-env' already exists."));
     }
 
@@ -115,17 +115,17 @@ public class EnvironmentConfigServiceIntegrationTest {
         ArrayList<String> pipelines = new ArrayList<>();
         pipelines.add("foo");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.createEnvironment(env("foo-env", pipelines, new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
+        service.createEnvironment(env("foo-env", pipelines, new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
 
         result = new HttpLocalizedOperationResult();
-        service.createEnvironment(env("env", pipelines, new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
+        service.createEnvironment(env("env", pipelines, new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
         assertThat(result.message(localizer), is("Failed to add environment. Associating pipeline(s) which is already part of uat environment"));
     }
 
     @Test
     public void shouldReturnBadRequestForInvalidEnvName() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.createEnvironment(env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
+        service.createEnvironment(env("foo env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to add environment."));
     }
@@ -174,7 +174,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo"));
-        service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
+        service.updateEnvironment("foo", env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
         assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
     }
 
@@ -184,7 +184,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("bar-env"));
-        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.message(localizer), is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"."));
     }
 
@@ -194,7 +194,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "invalid-md5";
-        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.message(localizer), is("Someone has modified the configuration for Environment 'bar-env'. Please update your copy of the config with the changes."));
     }
 
@@ -203,7 +203,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo-env"));
-        service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        service.updateEnvironment("foo-env", env("foo env", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
     }

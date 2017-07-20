@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 public class RetryableTest {
     @Test
     public void retryThrowsExceptionWhen() throws Exception {
-        final List<Integer> attempts = new ArrayList<Integer>();
+        final List<Integer> attempts = new ArrayList<>();
         boolean raised = false;
 
         try {
@@ -52,7 +52,7 @@ public class RetryableTest {
 
     @Test
     public void retryStopsWhenSuccessful() throws Exception {
-        final List<Integer> attempts = new ArrayList<Integer>();
+        final List<Integer> attempts = new ArrayList<>();
         boolean raised = false;
 
         try {

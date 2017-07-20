@@ -114,11 +114,11 @@ public class UserSearchServiceTest {
         String searchTerm = "foo";
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
-        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<String>(pluginIds));
+        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(pluginIds));
         when(authenticationExtension.canHandlePlugin(anyString())).thenReturn(true);
         when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
         when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
-        when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.models.User>());
+        when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<>());
         when(authenticationExtension.searchUser("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());

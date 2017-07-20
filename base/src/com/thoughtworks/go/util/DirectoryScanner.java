@@ -18,14 +18,7 @@ package com.thoughtworks.go.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 
 /**
@@ -541,9 +534,7 @@ public class DirectoryScanner {
      */
     public static void resetDefaultExcludes() {
         defaultExcludes = new Vector();
-        for (String defaultExclude : DEFAULTEXCLUDES) {
-            defaultExcludes.add(defaultExclude);
-        }
+        Collections.addAll(defaultExcludes, DEFAULTEXCLUDES);
     }
 
     /**

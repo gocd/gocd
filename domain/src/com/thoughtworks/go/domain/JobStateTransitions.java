@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,9 +25,7 @@ public class JobStateTransitions extends BaseLinkedSet<JobStateTransition> {
 
 
     public JobStateTransitions(JobStateTransition... list) {
-        for (JobStateTransition jobStateTransition : list) {
-            this.add(jobStateTransition);
-        }
+        Collections.addAll(this, list);
     }
 
     public JobStateTransitions() {

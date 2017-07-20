@@ -16,14 +16,7 @@
 
 package com.thoughtworks.go.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class DataStructureUtils {
     public static <K, V> Map<K, V> m(K firstKey, V firstValue, Object... alternateKeyValues) {
@@ -65,9 +58,7 @@ public final class DataStructureUtils {
 
     public static <T> Set<T> s(T... items) {
         HashSet<T> set = new HashSet<>();
-        for (T item : items) {
-            set.add(item);
-        }
+        Collections.addAll(set, items);
         return set;
     }
 

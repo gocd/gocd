@@ -163,9 +163,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     // for tests
     public BasicCruiseConfig(PipelineConfigs... groups) {
-        for (PipelineConfigs pipelineConfigs : groups) {
-            this.groups.add(pipelineConfigs);
-        }
+        Collections.addAll(this.groups, groups);
         strategy = new BasicStrategy();
     }
 

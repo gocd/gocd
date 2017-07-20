@@ -18,6 +18,8 @@ package com.thoughtworks.go.config.merge;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 
+import java.util.Collections;
+
 /**
  * @understands configuration has multiple origins
  */
@@ -25,10 +27,7 @@ public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements C
 
     public MergeConfigOrigin(ConfigOrigin... origins)
     {
-        for(ConfigOrigin part : origins)
-        {
-            this.add(part);
-        }
+        Collections.addAll(this, origins);
     }
 
     @Override

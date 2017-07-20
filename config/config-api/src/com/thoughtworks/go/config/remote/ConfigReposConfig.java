@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,9 +41,7 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
     }
 
     public ConfigReposConfig(ConfigRepoConfig... configRepos) {
-        for (ConfigRepoConfig repo : configRepos) {
-            this.add(repo);
-        }
+        Collections.addAll(this, configRepos);
     }
 
     public boolean hasMaterial(MaterialConfig materialConfig) {

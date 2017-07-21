@@ -181,11 +181,11 @@ SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT" "-Dcruise.server.ss
 RUN_CMD=("$(autoDetectJavaExecutable)" "${SERVER_STARTUP_ARGS[@]}" "-jar" "$SERVER_DIR/go.jar")
 
 echo "[$(date)] Starting Go Server with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
-echo "[$(date)] Starting Go Server in directory: $SERVER_WORK_DIR" >> $STDOUT_LOG_FILE
+echo "[$(date)] Starting Go Server in directory: $SERVER_WORK_DIR" >>"$STDOUT_LOG_FILE"
 cd "$SERVER_WORK_DIR"
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup "${RUN_CMD[@]}" >> "$STDOUT_LOG_FILE" 2>&1 &
+    exec nohup "${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE" 2>&1 &
     disown $!
     echo $! >"$PID_FILE"
 else

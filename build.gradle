@@ -26,7 +26,6 @@ buildscript {
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:1.4.5.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
-    classpath 'com.netflix.nebula:gradle-lint-plugin:7.9.3'
   }
 }
 
@@ -125,12 +124,10 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println("============================")
 }
 
-apply plugin: 'nebula.lint'
 
 allprojects {
   apply plugin: 'java'
   apply plugin: 'idea'
-  apply plugin: 'nebula.lint'
 
   rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
   rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
@@ -189,11 +186,6 @@ allprojects {
     }
   }
 
-  gradleLint {
-    rules = ['all-dependency']
-    alwaysRun = false
-  }
-
   tasks.withType(Jar) { jarTask ->
     manifest {
       attributes(
@@ -210,9 +202,6 @@ allprojects {
     includeEmptyDirs false
     duplicatesStrategy 'exclude'
 
-    preserveFileTimestamps = false
-    reproducibleFileOrder = true
-
     if (jarTask.name == 'testJar') {
       project.artifacts.add 'testOutput', jarTask
     } else {
@@ -220,7 +209,7 @@ allprojects {
     }
   }
 
-  tasks.withType(Zip) {
+  tasks.withType(AbstractArchiveTask) {
     includeEmptyDirs false
     duplicatesStrategy 'exclude'
 

@@ -177,7 +177,7 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should deserialize plugin settings from given object' do
         @entity_hashing_service.stub(:md5ForEntity).and_return("some-md5")
-        hash = {plugin_id: 'plugin.id.2',plugin_settings_properties: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.2',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
         @plugin_service.should_receive(:createPluginSettings).with(anything, anything, an_instance_of(PluginSettings))
 
         post_with_api_header :create, plugin_setting: hash
@@ -282,7 +282,7 @@ describe ApiV1::Admin::PluginSettingsController do
         controller.stub(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
         @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.stub(:check_for_stale_request)
-        hash = {plugin_id: 'plugin.id.1',plugin_settings_properties: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
 
         result = double('HttpLocalizedOperationResult')
         HttpLocalizedOperationResult.stub(:new).and_return(result)
@@ -301,7 +301,7 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should fail update if etag does not match' do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
-        hash = {plugin_id: 'plugin.id.1',plugin_settings_properties: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
         @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('another-etag')
         @plugin_service.should_receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
@@ -315,7 +315,7 @@ describe ApiV1::Admin::PluginSettingsController do
         controller.stub(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
         @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
-        hash = {plugin_id: 'plugin.id.1',plugin_settings_properties: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
 
         @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginSettings)).exactly(3).times.and_return('md5')
         @plugin_service.should_receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)

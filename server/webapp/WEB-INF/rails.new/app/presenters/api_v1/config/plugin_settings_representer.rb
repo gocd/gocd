@@ -35,18 +35,18 @@ module ApiV1
       property :plugin_id,
                exec_context: :decorator
 
-      collection :plugin_settings_properties,
+      collection :configuration,
                  exec_context: :decorator,
                  decorator: ApiV1::Config::PluginConfigurationPropertyRepresenter,
                  class: com.thoughtworks.go.domain.config.ConfigurationProperty
 
       delegate :plugin_id, :plugin_id=, to: :plugin_settings
 
-      def plugin_settings_properties=(plugin_settings_properties)
+      def configuration=(plugin_settings_properties)
         plugin_settings.addConfigurations(represented[:plugin_info], plugin_settings_properties)
       end
 
-      def plugin_settings_properties
+      def configuration
         plugin_settings.getSecurePluginSettingsProperties(represented[:plugin_info])
       end
 

@@ -51,7 +51,7 @@ describe ApiV1::Config::PluginSettingsRepresenter do
   def plugin_settings_json
     {
       plugin_id: "foo.bar",
-      plugin_settings_properties: [
+      configuration: [
         {
           key: 'username',
           value: 'admin'

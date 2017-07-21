@@ -44,7 +44,10 @@ class VerifyJarTask extends DefaultTask {
     def expectedMessages = []
 
     expectedJars.each { directoryInJar, expectedJarsInDir ->
-      FileTree tree = project.zipTree(jarTask.archivePath).matching { include "${directoryInJar}/*.jar" }
+      FileTree tree = project.zipTree(jarTask.archivePath).matching {
+        include "${directoryInJar}/*.jar"
+        include "${directoryInJar}/*.zip"
+      }
       def allJars = tree.files.collect { it.name }.sort()
 
       if (!allJars.equals(expectedJarsInDir.sort())) {

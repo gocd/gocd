@@ -21,6 +21,8 @@ description = 'GoCD Server Launcher'
 configurations {
   packagingInLibDir.extendsFrom packagingOnly
   packagingInDefaultFilesDir.extendsFrom packagingOnly
+
+  pluginsZip.extendsFrom packagingOnly
 }
 
 dependencies {
@@ -46,6 +48,8 @@ dependencies {
   packagingInLibDir group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   packagingInLibDir group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
+
+  pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
   extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
 }
@@ -160,41 +164,6 @@ task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCom
   from("${commandRepoCheckoutDir}/.git") { into '/.git' }
 }
 
-task createVersionFile {
-  def file = file("${project.buildDir}/version.txt")
-  inputs.property('version', rootProject.version)
-  inputs.property('gitRevision', rootProject.gitRevision)
-
-  outputs.file file
-
-  doLast {
-    file.getParentFile().mkdirs()
-    file.withWriter { out ->
-      out.write("${rootProject.version} (${rootProject.gitRevision})")
-    }
-  }
-}
-
-task pluginsZip(type: Zip, dependsOn: ':server-launcher:createVersionFile') {
-  baseName = 'plugins'
-  finalizedBy 'verifyPluginZip'
-
-  destinationDir = project.libsDir
-  from("${rootProject.rootDir}/tw-go-plugins/dist") { into '/' }
-  from(createVersionFile) { into '/' }
-}
-
-task verifyPluginZip(type: VerifyJarTask) {
-  jarTask = pluginsZip
-  expectedJars = [
-    '/': [
-      'yum-repo-exec-poller.jar',
-      'gocd-ldap-authentication-plugin.jar',
-      'filebased-authentication-plugin.jar'
-    ]
-  ]
-}
-
 clean {
   delete 'defaultFiles'
 }
@@ -203,7 +172,7 @@ task fatJar(type: Jar,
   dependsOn: [
     ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl-14:fatJar', ':server-launcher:mainJar',
     ':agent-launcher:fatJar', ':agent-bootstrapper:fatJar', ':agent:fatJar',
-    ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':server-launcher:pluginsZip'
+    ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':tw-go-plugins:pluginsZip'
   ]) {
   finalizedBy 'verifyFatJar'
   manifest {
@@ -225,7 +194,7 @@ task fatJar(type: Jar,
   from(h2dbZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(h2deltasZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(defaultCommandSnippetsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-  from(pluginsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(configurations.pluginsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
   from({ project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile }) {
     into 'lib/'
@@ -264,6 +233,10 @@ task verifyFatJar(type: VerifyJarTask) {
       "agent-launcher.jar",
       "agent.jar",
       "tfs-impl-14.jar",
+      "plugins.zip",
+      "h2deltas.zip",
+      "h2db.zip",
+      "defaultCommandSnippets.zip"
     ],
     "main"        : [
       "main.jar"

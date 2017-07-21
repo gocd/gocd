@@ -146,7 +146,7 @@ tools/node_modules/
 tools/npm-debug.log
 plugin-infra/go-plugin-access/config/cipher
 
-build/
+/build/
 out/
 config/config-server/warnings.log
 server/dev

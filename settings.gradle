@@ -50,6 +50,7 @@ include ':development-server'
 include ':installers'
 include ':release'
 include ':tools'
+include ':tw-go-plugins'
 
 project(':base').projectDir = "$rootDir/base" as File
 project(':util').projectDir = "$rootDir/util" as File
@@ -85,6 +86,7 @@ project(':development-server').projectDir = "$rootDir/development-utility/develo
 project(':installers').projectDir = "$rootDir/installers" as File
 project(':release').projectDir = "$rootDir/release" as File
 project(':tools').projectDir = "$rootDir/tools" as File
+project(':tw-go-plugins').projectDir = "$rootDir/tw-go-plugins" as File
 include 'domain'
 include 'commandline'
 

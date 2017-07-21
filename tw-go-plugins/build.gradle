@@ -25,13 +25,6 @@ configurations {
 
 def dependencies = [
   new GithubArtifact(
-    user: 'gocd-contrib',
-    repo: 'docker-swarm-elastic-agents',
-    release: 'v1.1.4',
-    asset: 'docker-swarm-elastic-agents-1.1.4.jar',
-    checksum: '4558c7e0579bd90d4db98645b488890a3da8e01b6d0362ac897a64fe7eb9c55b'
-  ),
-  new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
     release: '1.0.1',

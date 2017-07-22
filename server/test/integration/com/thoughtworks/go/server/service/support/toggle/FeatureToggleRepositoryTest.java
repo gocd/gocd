@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
 import com.google.gson.Gson;
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.ListUtil;
@@ -26,7 +25,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -40,7 +38,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JunitExtRunner.class)
 public class FeatureToggleRepositoryTest {
     public static final String TEST_AVAILABLE_TOGGLES_PATH = "/available.test.toggles";
 

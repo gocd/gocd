@@ -1198,6 +1198,7 @@ public class CachedGoConfigIntegrationTest {
         ClassPathResource resource = new ClassPathResource(configRepoTestResource);
         FileUtils.copyDirectory(resource.getFile(), configRepo);
         CommandLine.createCommandLine("git").withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb("");
+        CommandLine.createCommandLine("git").withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb("");
         gitAddDotAndCommit(configRepo);
         ConsoleResult consoleResult = CommandLine.createCommandLine("git").withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb("");
 

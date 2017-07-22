@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.InitializationError;
+import org.junit.rules.ExternalResource;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -37,10 +34,10 @@ import java.io.*;
 import java.util.EnumSet;
 import java.util.Properties;
 
-import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
+import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
-public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
+public class FakeGoServer extends ExternalResource {
     public enum TestResource {
         TEST_AGENT(Resource.newClassPathResource("testdata/gen/test-agent.jar")),
         TEST_AGENT_LAUNCHER(Resource.newClassPathResource("testdata/gen/agent-launcher.jar")),
@@ -74,34 +71,39 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
     }
 
     private Server server;
+    private int port;
+    private int securePort;
 
-    public FakeBootstrapperServer(Class<?> testClass) throws InitializationError {
-        super(testClass);
+    public int getPort() {
+        return port;
     }
 
-    public void run(RunNotifier runNotifier) {
+    public int getSecurePort() {
+        return securePort;
+    }
+
+    @Override
+    protected void before() throws Throwable {
+        start();
+    }
+
+    @Override
+    protected void after() {
         try {
-            // could be smarter if this is too slow, start only if not started already
-            // shut down on JVM shut down instead
-            start();
+            stop();
         } catch (Exception e) {
-            runNotifier.fireTestFailure(new Failure(getDescription(), e));
-        }
-        try {
-            super.run(runNotifier);
-        } finally {
-            try {
-                stop();
-            } catch (Exception e) {
-                runNotifier.fireTestFailure(new Failure(getDescription(), e));
-            }
+            throw new RuntimeException(e);
         }
     }
 
-    public void start() throws Exception {
+    private void stop() throws Exception {
+        server.stop();
+        server.join();
+    }
+
+    private void start() throws Exception {
         server = new Server();
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(9090);
         server.addConnector(connector);
 
         SslContextFactory sslContextFactory = new SslContextFactory();
@@ -113,7 +115,6 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
                 new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
                 new HttpConnectionFactory(new HttpConfiguration())
         );
-        secureConnnector.setPort(9091);
         server.addConnector(secureConnnector);
 
         WebAppContext wac = new WebAppContext(".", "/go");
@@ -125,15 +126,18 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
             }
         });
         wac.addServlet(holder, "/hello");
-        addFakeAgentBinaryServlet(wac, "/admin/agent", TEST_AGENT);
-        addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", TEST_AGENT_LAUNCHER);
-        addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", TEST_AGENT_PLUGINS);
-        addFakeAgentBinaryServlet(wac, "/admin/tfs-impl.jar", TEST_TFS_IMPL);
+        addFakeAgentBinaryServlet(wac, "/admin/agent", TEST_AGENT, this);
+        addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", TEST_AGENT_LAUNCHER, this);
+        addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", TEST_AGENT_PLUGINS, this);
+        addFakeAgentBinaryServlet(wac, "/admin/tfs-impl.jar", TEST_TFS_IMPL, this);
         addlatestAgentStatusCall(wac);
         addDefaultServlet(wac);
         server.setHandler(wac);
         server.setStopAtShutdown(true);
         server.start();
+
+        port = connector.getLocalPort();
+        securePort = secureConnnector.getLocalPort();
     }
 
     public static final class AgentStatusApi extends HttpServlet {
@@ -175,15 +179,10 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
         wac.addFilter(BreakpointFriendlyFilter.class, "*", EnumSet.of(DispatcherType.REQUEST));
     }
 
-    private static void addFakeAgentBinaryServlet(WebAppContext wac, final String pathSpec, final TestResource resource) {
+    private static void addFakeAgentBinaryServlet(WebAppContext wac, final String pathSpec, final TestResource resource, FakeGoServer fakeGoServer) {
         ServletHolder holder = new ServletHolder();
-        holder.setServlet(new AgentBinariesServlet(resource));
+        holder.setServlet(new AgentBinariesServlet(resource, fakeGoServer));
         wac.addServlet(holder, pathSpec);
-    }
-
-    public void stop() throws Exception {
-        server.stop();
-        server.join();
     }
 
 }

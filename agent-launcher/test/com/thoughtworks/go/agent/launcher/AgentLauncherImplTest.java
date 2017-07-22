@@ -22,12 +22,12 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
+import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,15 +38,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
-import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
+import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(FakeBootstrapperServer.class)
 public class AgentLauncherImplTest {
+
+    @Rule
+    public FakeGoServer server = new FakeGoServer();
 
     public static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
 
@@ -98,7 +100,7 @@ public class AgentLauncherImplTest {
     private AgentLaunchDescriptor launchDescriptor() {
         AgentLaunchDescriptor launchDescriptor = mock(AgentLaunchDescriptor.class);
         Map contextMap = new ConcurrentHashMap();
-        contextMap.put(AgentBootstrapperArgs.SERVER_URL, "http://localhost:9090/go");
+        contextMap.put(AgentBootstrapperArgs.SERVER_URL, "http://localhost:" + server.getPort() + "/go");
         contextMap.put(AgentBootstrapperArgs.SSL_VERIFICATION_MODE, "NONE");
         when(launchDescriptor.context()).thenReturn(contextMap);
         return launchDescriptor;

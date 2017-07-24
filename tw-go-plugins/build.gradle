@@ -79,13 +79,8 @@ task createVersionFile {
 task downloadPlugins {
 }
 
-task copyPlugins(type: Delete) {
-  dependsOn downloadPlugins
-}
-
 task pluginsZip(type: Zip) {
   finalizedBy 'verifyPluginZip'
-  dependsOn copyPlugins
 
   baseName = 'plugins'
   dependsOn createVersionFile
@@ -106,15 +101,18 @@ artifacts {
 }
 
 dependencies.each { dep ->
-  def destFile = new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
   task "download-${dep.repo}"(type: DownloadFile) { downloadTask ->
     downloadPlugins.dependsOn downloadTask
-    src dep.downloadUrl
-    dest destFile
-    checksum dep.checksum
+    downloadTask.src dep.downloadUrl
+    downloadTask.dest destFile(dep)
+    downloadTask.checksum dep.checksum
   }
 
-  pluginsZip.from(destFile)
+  pluginsZip.from(destFile(dep))
+}
+
+private File destFile(GithubArtifact dep) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
 }
 
 task prepare(dependsOn: pluginsZip)

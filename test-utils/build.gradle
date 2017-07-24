@@ -15,6 +15,13 @@
  */
 
 description = 'GoCD Test Utilities'
+
+configurations {
+  copyOnly {
+    transitive = false
+  }
+}
+
 dependencies {
   compile project(':util')
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
@@ -45,18 +52,29 @@ dependencies {
   compile(group: 'org.dbunit', name: 'dbunit', version: '2.5.1')
 
   compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.0'
+  copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
+  copyOnly project(path: ':test-agent')
+  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 }
 
-processResources {
-  dependsOn ':agent-launcher:fatJar', ':test-agent:jar', ':tfs-impl-14:fatJar'
-  from({
-    [
-      project(':agent-launcher').fatJar.archivePath,
-      project(':tfs-impl-14').fatJar.archivePath,
-      project(':test-agent').jar.archivePath
-    ]
-  }) {
-    into "testdata/gen"
-    rename "(.*)-${project.version}.jar", '$1.jar'
+def generatedResourcesOutput = file("resources-generated")
+
+sourceSets {
+  main {
+    resources {
+      output.dir generatedResourcesOutput, builtBy: 'generateResources'
+      srcDirs += generatedResourcesOutput
+    }
+  }
+}
+
+clean {
+  delete(generatedResourcesOutput)
+}
+
+task generateResources(type: Copy) {
+  into "$generatedResourcesOutput/testdata/gen"
+  from(project.configurations.copyOnly) {
+    rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }

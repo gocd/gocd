@@ -76,3 +76,7 @@ task generateResources {
     }
   }
 }
+
+task prepare {
+  dependsOn generateResources
+}

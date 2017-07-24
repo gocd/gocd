@@ -78,3 +78,8 @@ task generateResources(type: Copy) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }
+
+task prepare {
+  dependsOn generateResources
+}
+

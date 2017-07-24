@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,14 +45,13 @@ public class GoRepoConfigDataSourceTest {
 
     private GoRepoConfigDataSource repoConfigDataSource;
 
-    private BasicCruiseConfig cruiseConfig ;
+    private BasicCruiseConfig cruiseConfig;
     private ServerHealthService serverHealthService;
 
     File folder = new File("dir");
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         serverHealthService = new ServerHealthService();
         configPluginService = mock(GoConfigPluginService.class);
         plugin = mock(PartialConfigProvider.class);
@@ -61,25 +63,23 @@ public class GoRepoConfigDataSourceTest {
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService,serverHealthService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService);
     }
 
 
     @Test
-    public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList()
-    {
+    public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList() {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
-        verify(plugin,times(1)).load(eq(folder), any(PartialConfigLoadContext.class));
+        verify(plugin, times(1)).load(eq(folder), any(PartialConfigLoadContext.class));
     }
 
     @Test
-    public void shouldAssignConfigOrigin() throws Exception
-    {
+    public void shouldAssignConfigOrigin() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
@@ -89,12 +89,12 @@ public class GoRepoConfigDataSourceTest {
 
         PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
         assertNotNull(partialConfig.getOrigin());
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo,"7a8f");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo, "7a8f");
         assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
     }
+
     @Test
-    public void shouldAssignConfigOriginInPipelines() throws Exception
-    {
+    public void shouldAssignConfigOriginInPipelines() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
@@ -106,7 +106,7 @@ public class GoRepoConfigDataSourceTest {
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo,"7a8f");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo, "7a8f");
 
         assertNotNull(partialConfig.getOrigin());
         assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
@@ -116,8 +116,7 @@ public class GoRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldAssignConfigOriginInEnvironments() throws Exception
-    {
+    public void shouldAssignConfigOriginInEnvironments() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
@@ -129,7 +128,7 @@ public class GoRepoConfigDataSourceTest {
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo,"7a8f");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo, "7a8f");
 
         assertNotNull(partialConfig.getOrigin());
         assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
@@ -140,8 +139,7 @@ public class GoRepoConfigDataSourceTest {
 
 
     @Test
-    public void shouldProvideParseContextWhenCallingPlugin() throws Exception
-    {
+    public void shouldProvideParseContextWhenCallingPlugin() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
@@ -149,29 +147,64 @@ public class GoRepoConfigDataSourceTest {
 
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
-        verify(plugin,times(1)).load(eq(folder), notNull(PartialConfigLoadContext.class));
+        verify(plugin, times(1)).load(eq(folder), notNull(PartialConfigLoadContext.class));
     }
 
     @Test
-    public void shouldProvideConfigurationInParseContextWhenCallingPlugin() throws Exception
-    {
+    public void shouldProvideConfigurationInParseContextWhenCallingPlugin() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfig.getConfiguration().addNewConfigurationWithValue("key","value",false);
+        repoConfig.getConfiguration().addNewConfigurationWithValue("key", "value", false);
 
         plugin = new AssertingConfigPlugin(repoConfig.getConfiguration());
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
     }
 
-    private class AssertingConfigPlugin implements PartialConfigProvider
-    {
+    @Test
+    public void shouldShowConfigRepoIdOnConfigRepoValididationError() throws Exception {
+        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
+        configWatchList.onConfigChange(cruiseConfig);
+
+        repoConfig.getConfiguration().addNewConfigurationWithValue("key", "value", false);
+
+        when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
+        when(plugin.load(any(), any())).thenThrow(Exception.class);
+
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+
+        String message = String.format("Parsing configuration repository with id '%s' using 'null' failed for material: URL: http://my.git, Branch: master", repoConfig.getId());
+        assertThat(serverHealthService.getAllLogs().first().getMessage(), is(message));
+    }
+
+
+    @Test
+    public void shouldShowConfigRepoIdOnConfigRepoValididationErrorWithMaskedCreds() throws Exception {
+        ScmMaterialConfig material = new GitMaterialConfig("http://user:pass@my.git");
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
+        configWatchList.onConfigChange(cruiseConfig);
+
+        repoConfig.getConfiguration().addNewConfigurationWithValue("key", "value", false);
+
+        when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
+        when(plugin.load(any(), any())).thenThrow(Exception.class);
+
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+
+        String message = String.format("Parsing configuration repository with id '%s' using 'null' failed for material: URL: http://user:******@my.git, Branch: master", repoConfig.getId());
+        assertThat(serverHealthService.getAllLogs().first().getMessage(), is(message));
+    }
+
+    private class AssertingConfigPlugin implements PartialConfigProvider {
         private Configuration configuration;
 
         public AssertingConfigPlugin(Configuration configuration) {
@@ -181,8 +214,8 @@ public class GoRepoConfigDataSourceTest {
 
         @Override
         public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
-            Assert.assertThat(context.configuration(),is(configuration));
-            Assert.assertThat(context.configuration().getProperty("key").getValue(),is("value"));
+            Assert.assertThat(context.configuration(), is(configuration));
+            Assert.assertThat(context.configuration().getProperty("key").getValue(), is("value"));
             return mock(PartialConfig.class);
         }
 
@@ -193,56 +226,49 @@ public class GoRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList() throws Exception
-    {
+    public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
-        verify(plugin,times(0)).load(eq(folder), any(PartialConfigLoadContext.class));
+        verify(plugin, times(0)).load(eq(folder), any(PartialConfigLoadContext.class));
     }
 
     @Test
-    public void shouldReturnLatestPartialConfigForMaterial_WhenPartialExists() throws  Exception
-    {
+    public void shouldReturnLatestPartialConfigForMaterial_WhenPartialExists() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         assertNotNull(repoConfigDataSource.latestPartialConfigForMaterial(material));
     }
 
     @Test
-    public void shouldThrowWhenGettingLatestPartialConfig_WhenPluginHasFailed() throws  Exception
-    {
+    public void shouldThrowWhenGettingLatestPartialConfig_WhenPluginHasFailed() throws Exception {
         // use broken plugin now
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenReturn(new BrokenConfigPlugin());
 
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         assertTrue(repoConfigDataSource.latestParseHasFailedForMaterial(material));
 
-        try
-        {
+        try {
             repoConfigDataSource.latestPartialConfigForMaterial(material);
-        }
-        catch (BrokenConfigPluginException ex)
-        {
+        } catch (BrokenConfigPluginException ex) {
             return;
         }
         fail("should have thrown BrokenConfigPluginException");
     }
 
     @Test
-    public void shouldSetErrorHealthState_AtConfigRepoScope_WhenPluginHasThrown()
-    {
+    public void shouldSetErrorHealthState_AtConfigRepoScope_WhenPluginHasThrown() {
         // use broken plugin now
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenReturn(new BrokenConfigPlugin());
@@ -252,15 +278,15 @@ public class GoRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         assertTrue(repoConfigDataSource.latestParseHasFailedForMaterial(material));
 
         assertFalse(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepoConfig)).isEmpty());
     }
+
     @Test
-    public void shouldSetOKHealthState_AtConfigRepoScope_WhenPluginHasParsed()
-    {
+    public void shouldSetOKHealthState_AtConfigRepoScope_WhenPluginHasParsed() {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
@@ -273,13 +299,12 @@ public class GoRepoConfigDataSourceTest {
         assertFalse(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepoConfig)).isEmpty());
 
         // now this should fix health
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepoConfig)).isEmpty());
     }
 
-    private class BrokenConfigPlugin implements PartialConfigProvider
-    {
+    private class BrokenConfigPlugin implements PartialConfigProvider {
         @Override
         public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
             throw new BrokenConfigPluginException();
@@ -295,50 +320,44 @@ public class GoRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldThrowWhenGettingLatestPartialConfig_WhenInitializingPluginHasFailed() throws  Exception
-    {
+    public void shouldThrowWhenGettingLatestPartialConfig_WhenInitializingPluginHasFailed() throws Exception {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenThrow(new RuntimeException("Failed to initialize plugin"));
 
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
 
         assertTrue(repoConfigDataSource.latestParseHasFailedForMaterial(material));
 
-        try
-        {
+        try {
             repoConfigDataSource.latestPartialConfigForMaterial(material);
-        }
-        catch (RuntimeException ex)
-        {
-            assertThat(ex.getMessage(),is("Failed to initialize plugin"));
+        } catch (RuntimeException ex) {
+            assertThat(ex.getMessage(), is("Failed to initialize plugin"));
         }
     }
 
     @Test
-    public void shouldRemovePartialsWhenRemovedFromWatchList() throws Exception
-    {
+    public void shouldRemovePartialsWhenRemovedFromWatchList() throws Exception {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
         assertNotNull(repoConfigDataSource.latestPartialConfigForMaterial(material));
 
         // we change current configuration
         ScmMaterialConfig othermaterial = new GitMaterialConfig("http://myother.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial,"myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
         assertNull(repoConfigDataSource.latestPartialConfigForMaterial(material));
     }
 
     @Test
-    public void shouldListenForConfigRepoListChanged()
-    {
+    public void shouldListenForConfigRepoListChanged() {
         assertTrue(configWatchList.hasListener(repoConfigDataSource));
     }
 

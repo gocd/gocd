@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,10 @@ public class RepoConfigOrigin implements ConfigOrigin {
     private ConfigRepoConfig configRepo;
     private String revision;
 
-    public RepoConfigOrigin()
-    {
+    public RepoConfigOrigin() {
     }
-    public RepoConfigOrigin(ConfigRepoConfig configRepo,String revision)
-    {
+
+    public RepoConfigOrigin(ConfigRepoConfig configRepo, String revision) {
         this.configRepo = configRepo;
         this.revision = revision;
     }
@@ -77,16 +76,18 @@ public class RepoConfigOrigin implements ConfigOrigin {
 
     @Override
     public String displayName() {
-        MaterialConfig materialConfig = configRepo != null ?
-                configRepo.getMaterialConfig() : null;
-        String materialName = materialConfig != null ?
-                    materialConfig.getDisplayName() : "NULL material";
-        return String.format("%s at %s", materialName, revision);
+        if (configRepo != null) {
+            String configRepoId = configRepo.getId();
+            MaterialConfig materialConfig = configRepo.getMaterialConfig();
+            String materialName = materialConfig.getDisplayName();
+            return String.format("config repo '%s' with material '%s' at '%s'", configRepoId, materialName, revision);
+        }
+        return "NULL material";
     }
 
     public MaterialConfig getMaterial() {
-        if(configRepo == null)
-            return  null;
+        if (configRepo == null)
+            return null;
         return configRepo.getMaterialConfig();
     }
 

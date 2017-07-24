@@ -84,10 +84,9 @@ task pluginsZip(type: Zip) {
 
   baseName = 'plugins'
   dependsOn createVersionFile
-
   from(createVersionFile)
 
-  from(dependencies.collect {dep -> destFile(dep)})
+  from(dependencies.collect { dep -> destFile(dep) })
 }
 
 task verifyPluginZip(type: VerifyJarTask) {
@@ -104,6 +103,7 @@ artifacts {
 
 dependencies.each { dep ->
   task "download-${dep.repo}"(type: DownloadFile) { downloadTask ->
+    pluginsZip.dependsOn downloadTask
     downloadPlugins.dependsOn downloadTask
     downloadTask.src dep.downloadUrl
     downloadTask.dest destFile(dep)

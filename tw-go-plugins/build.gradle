@@ -86,6 +86,8 @@ task pluginsZip(type: Zip) {
   dependsOn createVersionFile
 
   from(createVersionFile)
+
+  from(dependencies.collect {dep -> destFile(dep)})
 }
 
 task verifyPluginZip(type: VerifyJarTask) {

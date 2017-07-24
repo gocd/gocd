@@ -46,6 +46,20 @@ module ApiV3
 
         property :name, case_insensitive_string: true
 
+        collection :origin, as: :origins,
+                   skip_parse: true,
+                   getter: lambda {|options|
+                     origin = self.getOrigin
+                     (origin.instance_of? FileConfigOrigin) ? [origin] : origin
+                   },
+                   decorator: lambda {|origin, *|
+                     if origin.instance_of? FileConfigOrigin
+                       Shared::ConfigOrigin::ConfigXmlOriginRepresenter
+                     else
+                       Shared::ConfigOrigin::ConfigRepoOriginRepresenter
+                     end
+                   }
+
         collection :pipelines,
                    exec_context: :decorator,
                    decorator: ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter,

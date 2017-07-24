@@ -33,6 +33,7 @@ describe ApiV3::Admin::Environments::EnvironmentConfigRepresenter do
       actual_json.delete(:_links)
       expect(actual_json).to eq({
                                   name: 'dev',
+                                  origins: [ApiV3::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(com.thoughtworks.go.config.remote.FileConfigOrigin.new).to_hash(url_builder: UrlBuilder.new)],
                                   pipelines: [ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter.new(com.thoughtworks.go.config.EnvironmentPipelineConfig.new('dev-pipeline')).to_hash(url_builder: UrlBuilder.new)],
                                   agents: [ApiV3::Shared::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('dev-agent')).to_hash(url_builder: UrlBuilder.new),
                                            ApiV3::Shared::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('omnipresent-agent')).to_hash(url_builder: UrlBuilder.new)],
@@ -44,7 +45,9 @@ describe ApiV3::Admin::Environments::EnvironmentConfigRepresenter do
 
 
     def get_environment_config
-      EnvironmentConfigMother.environment('dev').tap { |c| c.addEnvironmentVariable('username', 'admin') }
+      env = EnvironmentConfigMother.environment('dev').tap { |c| c.addEnvironmentVariable('username', 'admin') }
+      env.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
+      env
     end
 
   end

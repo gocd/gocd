@@ -18,7 +18,9 @@
   <main class="main-container"></main>
 
 </div>
-<%= render :partial => 'new_navigation_elements/footer' %>
+<div id='footer-new-foundation'>
+  <%= render :partial => 'navigation_elements/footer' %>
+</div>
 <script type="application/javascript">
   jQuery(".main-container").html('<%= escape_javascript(yield) %>');
   angular.bootstrap('#<%= controller_name %>-page');

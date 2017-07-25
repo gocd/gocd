@@ -20,7 +20,8 @@ describe ApiV3::Admin::Environments::EnvironmentConfigRepresenter do
 
   describe :serialize do
     it 'renders an environment with hal representation' do
-      presenter = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(get_environment_config)
+      environment = get_environment_config
+      presenter = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(environment)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_links(:self, :find, :doc, :find_with_config_repo, :self_with_config_repo)
@@ -34,11 +35,11 @@ describe ApiV3::Admin::Environments::EnvironmentConfigRepresenter do
       expect(actual_json).to eq({
                                   name: 'dev',
                                   origins: [ApiV3::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(com.thoughtworks.go.config.remote.FileConfigOrigin.new).to_hash(url_builder: UrlBuilder.new)],
-                                  pipelines: [ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter.new(com.thoughtworks.go.config.EnvironmentPipelineConfig.new('dev-pipeline')).to_hash(url_builder: UrlBuilder.new)],
-                                  agents: [ApiV3::Shared::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('dev-agent')).to_hash(url_builder: UrlBuilder.new),
-                                           ApiV3::Shared::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('omnipresent-agent')).to_hash(url_builder: UrlBuilder.new)],
+                                  pipelines: [ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter.new({pipeline: com.thoughtworks.go.config.EnvironmentPipelineConfig.new('dev-pipeline'), environment: environment}).to_hash(url_builder: UrlBuilder.new)],
+                                  agents: [ApiV3::Admin::Environments::AgentSummaryRepresenter.new({agent: EnvironmentAgentConfig.new('dev-agent'), environment: environment}).to_hash(url_builder: UrlBuilder.new),
+                                           ApiV3::Admin::Environments::AgentSummaryRepresenter.new({agent: EnvironmentAgentConfig.new('omnipresent-agent'), environment: environment}).to_hash(url_builder: UrlBuilder.new)],
                                   environment_variables: [
-                                    ApiV3::Shared::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new('username', 'admin')).to_hash(url_builder: UrlBuilder.new)
+                                    ApiV3::Admin::Environments::EnvironmentVariableRepresenter.new({env_var: EnvironmentVariableConfig.new('username', 'admin'), environment: environment}).to_hash(url_builder: UrlBuilder.new)
                                   ]
                                 })
     end

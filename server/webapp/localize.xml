@@ -193,6 +193,7 @@
     <entry key="ROLE_DELETION_FAILED">Failed to delete role. Reason - ''{0}''</entry>
     <entry key="CANNOT_DISABLE_LAST_ADMIN">Did not disable any of the selected users. Ensure that all configured admins are not being disabled.</entry>
     <entry key="NO_USERS_SELECTED">No users selected.</entry>
+    <entry key="NO_DISABLED_USERS">There are no disabled users.</entry>
     <entry key="NAME">Name</entry>
     <entry key="TYPE">Type</entry>
     <entry key="URL">URL</entry>
@@ -524,6 +525,7 @@
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>
     <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete the template ''{0}'' as it is used by pipeline(s): ''{1}''</entry>
     <entry key="RESOURCE_DELETE_SUCCESSFUL">The {0} ''{1}'' was deleted successfully.</entry>
+    <entry key="RESOURCES_DELETE_SUCCESSFUL">The {0} ''{1}'' were deleted successfully.</entry>
     <entry key="RESOURCE_UPDATE_SUCCESSFUL">The {0} ''{1}'' was updated successfully.</entry>
     <entry key="RESOURCE_ADD_FAILED">Failed to add {0}. {1}</entry>
     <entry key="RESOURCE_UPDATE_FAILED">Failed to update {0}. {1}</entry>

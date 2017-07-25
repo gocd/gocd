@@ -9,6 +9,8 @@
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, :css_class => "form_error") %>
 </div>
 
+<%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}}%>
+
 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
 
 <div class="form_item_block checkbox_row material_options">
@@ -16,6 +18,8 @@
   <%= scope[:form].label(com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE, l.string('SHALLOW_CLONE')) %>
   <%= error_message_on(scope[:form].object, com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE, :css_class => "form_error") %>
 </div>
+
+<%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => scope[:form]}} %>
 
 <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".git_url", :type => "git", :branch => ".branch"}} %>
 <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

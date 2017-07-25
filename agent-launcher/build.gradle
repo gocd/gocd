@@ -27,8 +27,9 @@ jar {
   classifier 'classes'
 }
 
-task fatJar(type: Jar, dependsOn: [':agent-launcher:jar', ':agent-common:jar']) {
+task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
+  dependsOn jar
   manifest {
     attributes 'Go-Agent-Launcher-Class': 'com.thoughtworks.go.agent.launcher.AgentLauncherImpl'
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'

@@ -22,6 +22,22 @@ configurations {
   packagingInLibDir.extendsFrom packagingOnly
   packagingInDefaultFilesDir.extendsFrom packagingOnly
 
+  packagingInMainJarTopLevel {
+    transitive = false
+  }
+
+  packagingInMainJarCommonJar {
+    transitive = false
+  }
+
+  packagingInMainJarBaseJar {
+    transitive = false
+  }
+
+  packagingInMainJarServerJar {
+    transitive = false
+  }
+
   pluginsZip.extendsFrom packagingOnly
 }
 
@@ -32,10 +48,9 @@ dependencies {
   packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
+  packagingInDefaultFilesDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
-
-  packagingInDefaultFilesDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir(project(path: ':go-plugin-activator')) {
     transitive = false
@@ -52,29 +67,27 @@ dependencies {
   pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
   extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
+
+  packagingInMainJarTopLevel project(':jetty9')
+  packagingInMainJarTopLevel project(':app-server')
+  packagingInMainJarCommonJar project(':common')
+  packagingInMainJarBaseJar project(':base')
+  packagingInMainJarServerJar project(':server')
 }
 
 jar {
   classifier 'classes'
 }
 
-task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app-server:jar', ':common:jar', ':base:jar']) {
+task mainJar(type: Jar) {
+  dependsOn jar, project.configurations.packagingInMainJarBaseJar, project.configurations.packagingInMainJarCommonJar, project.configurations.packagingInMainJarTopLevel
   classifier = 'main'
 
-  with(copySpec {
-    from {
-      def topLevelJars = [
-        project(':jetty9').jar.archivePath,
-        project(':app-server').jar.archivePath
-      ]
-
-      topLevelJars.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+  from(project.configurations.packagingInMainJarTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
     into('/')
-  })
+  }
 
-  with(copySpec {
-    from { zipTree(project(':common').jar.archivePath) }
+  from(project.configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) }) {
     include "**/SubprocessLogger*.class"
     include "**/validators/*.class"
     include "**/Environment*.class"
@@ -90,11 +103,9 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
     exclude "**/remote/*.class"
     exclude "**/remote/work/*.class"
     into('/')
-  })
+  }
 
-  with(copySpec {
-    from { zipTree(project(':base').jar.archivePath) }
-
+  from(project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) }) {
     include "**/AssertJava8.class"
     include "**/LogConfigurator.class"
     include "**/OperatingSystem.class"
@@ -113,18 +124,16 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
     include "**/StringUtil.class"
 
     into('/')
-  })
+  }
 
-  with(copySpec {
-    from { zipTree(project(':server').jar.archivePath) }
-
+  from(project.configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) }) {
     include "**/GoServer*.class"
     include "**/DeploymentContextWriter*.class"
     include "**/BaseUrlProvider*.class"
     include "**/GoLauncher*.class"
 
     into('/')
-  })
+  }
 
   from("${project(':server').projectDir}/properties/src/config/log4j.properties") { into 'config' }
 }
@@ -168,19 +177,15 @@ clean {
   delete 'defaultFiles'
 }
 
-task fatJar(type: Jar,
-  dependsOn: [
-    ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl-14:fatJar', ':server-launcher:mainJar',
-    ':agent-launcher:fatJar', ':agent-bootstrapper:fatJar', ':agent:fatJar',
-    ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':tw-go-plugins:pluginsZip'
-  ]) {
+task fatJar(type: Jar) {
   finalizedBy 'verifyFatJar'
+  dependsOn jar, mainJar, configurations.pluginsZip, (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile)
   manifest {
     attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.server.util.GoLauncher'
   }
 
-  from({ configurations.packagingInDefaultFilesDir }) {
+  from(configurations.packagingInDefaultFilesDir) {
     into "defaultFiles/"
     rename "(.*)-${project.version}.(.*)", '$1.$2'
   }
@@ -191,16 +196,16 @@ task fatJar(type: Jar,
   from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
   from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
-  from(h2dbZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-  from(h2deltasZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-  from(defaultCommandSnippetsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(h2dbZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(h2deltasZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(defaultCommandSnippetsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(configurations.pluginsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
-  from({ project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile }) {
+  from(project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile) {
     into 'lib/'
   }
 
-  from({ configurations.packagingInLibDir + configurations.compileOnly }) {
+  from(configurations.packagingInLibDir + configurations.compileOnly) {
     into 'lib/'
     rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
@@ -211,13 +216,13 @@ task fatJar(type: Jar,
     rename "(.*)-${project.version}-${mainJar.classifier}.jar", 'main.jar'
   }
 
-  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+  from(configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
     include '**/*.class'
     exclude 'OneJar.class'
     into("/")
   }
 
-  from({ zipTree(jar.archivePath) }) {
+  from(zipTree(jar.archivePath)) {
     into('/')
   }
 
@@ -236,8 +241,8 @@ task verifyFatJar(type: VerifyJarTask) {
       "plugins.zip",
       "h2deltas.zip",
       "h2db.zip",
-      "defaultCommandSnippets.zip"
-    ],
+      project.hasProperty('fastBuild') ? null : "defaultCommandSnippets.zip"
+    ].findAll { it != null },
     "main"        : [
       "main.jar"
     ],

@@ -19,8 +19,12 @@ import groovy.json.JsonOutput
 description = 'GoCD Installers'
 
 configurations {
-  agentBootstrapperJar
-  serverJar
+  agentBootstrapperJar {
+    transitive = false
+  }
+  serverJar {
+    transitive = false
+  }
 }
 
 dependencies {

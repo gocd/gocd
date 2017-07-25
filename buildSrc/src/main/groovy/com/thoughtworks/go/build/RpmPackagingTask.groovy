@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.build
 
+import org.gradle.api.tasks.OutputFile
+
 class RpmPackagingTask extends LinuxPackagingTask {
 
-  public File getOutputFile() {
+  @OutputFile
+  File getOutputFile() {
     project.file("${project.convention.plugins.get("base").distsDir}/rpm/${packageName}-${version}-${distVersion}.noarch.rpm")
   }
 

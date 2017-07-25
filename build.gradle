@@ -160,7 +160,7 @@ allprojects {
 
     testOutput {
       extendsFrom testRuntime
-      transitive true
+      transitive = true
     }
   }
 
@@ -231,7 +231,7 @@ allprojects {
     options.encoding = "UTF-8"
   }
 
-  task testJar(type: Jar, dependsOn: 'jar', description: "Assembles a jar archive containing the test classes.") {
+  task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
     classifier = 'tests'
     from sourceSets.test.output
   }
@@ -312,8 +312,6 @@ subprojects {
 
   buildDir = "${projectDir}/target"
 }
-
-task all(dependsOn: [':server-launcher:fatJar', ':server:prepareDb'])
 
 task allDependencies {
   dependsOn allprojects.collect { "$it.path:dependencies" }

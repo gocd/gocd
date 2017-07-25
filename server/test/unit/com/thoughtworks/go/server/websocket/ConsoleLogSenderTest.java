@@ -79,6 +79,23 @@ public class ConsoleLogSenderTest {
     }
 
     @Test
+    public void shouldSendfooConsoleLog() throws Exception {
+        when(jobInstance.isCompleted()).thenReturn(true);
+
+        File fakeFile = mock(File.class);
+        when(fakeFile.exists()).thenReturn(false);
+        when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(fakeFile);
+        String build = "build p1/s1/j1";
+        when(jobIdentifier.toFullString()).thenReturn(build);
+
+        consoleLogSender.process(socket, jobIdentifier, 0L);
+
+        int expectedCode = 1011;
+        String expectedReason = String.format("Console log for %s is unavailable as it may have been purged by Go or deleted externally.", build);
+        verify(socket).close(expectedCode, expectedReason);
+    }
+
+    @Test
     public void shouldSendConsoleLogInMultipleMessagesIfBuildInProgress() throws Exception {
         when(jobInstance.isCompleted()).
                 thenReturn(false).

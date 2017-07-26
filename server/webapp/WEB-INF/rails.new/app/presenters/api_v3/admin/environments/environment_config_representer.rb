@@ -68,20 +68,30 @@ module ApiV3
         collection :agents,
                    exec_context: :decorator,
                    class: EnvironmentAgentConfig,
-                   decorator: ApiV3::Shared::AgentSummaryRepresenter
+                   decorator: ApiV3::Admin::Environments::AgentSummaryRepresenter
 
         collection :environment_variables,
                    exec_context: :decorator,
-                   decorator: ApiV3::Shared::EnvironmentVariableRepresenter,
+                   decorator: ApiV3::Admin::Environments::EnvironmentVariableRepresenter,
                    expect_hash: true,
                    class: EnvironmentVariableConfig
 
         def environment_variables
-          environment.getVariables()
+          environment.getVariables().map do |env_var|
+            {env_var: env_var, environment: environment}
+          end
         end
 
         def agents
-          environment.getAgents.to_a
+          environment.getAgents.map do |agent|
+            {agent: agent, environment: environment}
+          end
+        end
+
+        def pipelines
+          environment.getPipelines.map do |pipeline|
+            {pipeline: pipeline, environment: environment}
+          end
         end
 
         def agents=(agents)
@@ -90,10 +100,6 @@ module ApiV3
 
         def environment_variables=(array_of_variables)
           environment.setVariables(EnvironmentVariablesConfig.new(array_of_variables))
-        end
-
-        def pipelines
-          environment.getPipelines.to_a
         end
 
         def pipelines=(pipelines)

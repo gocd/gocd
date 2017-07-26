@@ -17,20 +17,20 @@
 
 require 'spec_helper'
 
-describe ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter do
+describe ApiV3::Admin::Environments::AgentSummaryRepresenter do
 
-  it 'renders pipeline summary' do
-    presenter = ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter.new({pipeline: com.thoughtworks.go.config.EnvironmentPipelineConfig.new('pipeline1'), environment: get_environment_config})
+  it 'renders an agent summary' do
+    presenter = ApiV3::Admin::Environments::AgentSummaryRepresenter.new({agent: EnvironmentAgentConfig.new('agent-uuid'), environment: get_environment_config})
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :find, :doc)
 
-    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/pipelines/pipeline1')
-    expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/pipelines/:pipeline_name')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#pipeline-config')
+    expect(actual_json).to have_link(:self).with_url('http://test.host/api/agents/agent-uuid')
+    expect(actual_json).to have_link(:find).with_url('http://test.host/api/agents/:uuid')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#agents')
 
     actual_json.delete(:_links)
-    expect(actual_json).to eq(get_pipeline_config_summary)
+    expect(actual_json).to eq(get_agent_summary)
   end
 
   def get_environment_config
@@ -39,9 +39,9 @@ describe ApiV3::Admin::Environments::PipelineConfigSummaryRepresenter do
     env
   end
 
-  def get_pipeline_config_summary
+  def get_agent_summary
     {
-      name: 'pipeline1',
+      uuid: 'agent-uuid',
       origin: {
         type: 'local',
         file: {

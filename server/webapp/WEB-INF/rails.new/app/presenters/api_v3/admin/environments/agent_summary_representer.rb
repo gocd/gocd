@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,32 +17,17 @@
 module ApiV3
   module Admin
     module Environments
-      class PipelineConfigSummaryRepresenter < ApiV3::BaseRepresenter
+      class AgentSummaryRepresenter < Shared::AgentSummaryRepresenter
         def initialize(options)
           if options.instance_of?(::Hash)
             @environment = options[:environment]
-            @pipeline = options[:pipeline]
+            @agent = options[:agent]
           else
-            @pipeline = options
+            @agent = options
           end
 
-          super(@pipeline)
+          super(@agent)
         end
-
-        link :self do |opts|
-          opts[:url_builder].apiv3_admin_pipeline_url(@pipeline.getName())
-        end
-
-        link :doc do |opts|
-          'https://api.gocd.org/#pipeline-config'
-        end
-
-        link :find do |opts|
-          opts[:url_builder].apiv3_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
-        end
-
-        property :name,
-                 exec_context: :decorator
 
         property :origin,
                  skip_parse: true,
@@ -54,17 +39,11 @@ module ApiV3
                  }
 
         def origin
-          @environment.isLocal ? FileConfigOrigin.new : @environment.getOriginForPipeline(@pipeline.name)
-        end
-
-        def name
-          @pipeline.getName.to_s
-        end
-
-        def name=(value)
-          @pipeline.setName(value)
+          @environment.isLocal ? FileConfigOrigin.new : @environment.getOriginForAgent(@agent.getUuid)
         end
       end
     end
   end
 end
+
+

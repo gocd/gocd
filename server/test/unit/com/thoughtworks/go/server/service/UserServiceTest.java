@@ -43,6 +43,7 @@ import java.util.Set;
 
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
 import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
@@ -469,6 +470,25 @@ public class UserServiceTest {
         userService.deleteUser(username, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.hasMessage(), is(true));
+    }
+
+    @Test
+    public void shouldDeleteDisabledUsersSuccessfully() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        List<User> disabledUsers = new ArrayList<>();
+        User foo = new User("foo");
+        foo.disable();
+        User bar = new User("bar");
+        bar.disable();
+
+        disabledUsers.add(foo);
+        disabledUsers.add(bar);
+        when(userDao.allUsers()).thenReturn(new Users(disabledUsers));
+        when(userDao.deleteUser(anyString())).thenReturn(true);
+
+        userService.deleteAllDisabledUsers(result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.toString(), containsString("RESOURCES_DELETE_SUCCESSFUL"));
     }
 
     @Test

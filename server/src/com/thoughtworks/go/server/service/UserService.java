@@ -258,6 +258,33 @@ public class UserService {
         }
     }
 
+    private List<String> getAllDisabledUsers() {
+        ArrayList<String> disabledUsers = new ArrayList<>();
+        Collection<User> allUsers = allUsers();
+        for (User user : allUsers) {
+            if (!user.isEnabled()) {
+                disabledUsers.add(user.getName());
+            }
+        }
+        return disabledUsers;
+    }
+
+    public void deleteAllDisabledUsers(HttpLocalizedOperationResult result) {
+        List<String> allDisabledUsers = getAllDisabledUsers();
+        if (allDisabledUsers.isEmpty()) {
+            result.unprocessableEntity(LocalizedMessage.string("NO_DISABLED_USERS"));
+            return;
+        }
+        for (String allDisabledUser : allDisabledUsers) {
+            deleteUser(allDisabledUser, result);
+            if (!result.isSuccessful()) {
+                return;
+            }
+        }
+        result.setMessage(LocalizedMessage.string("RESOURCES_DELETE_SUCCESSFUL", "user(s)", allDisabledUsers));
+    }
+
+
     public enum SortableColumn {
         EMAIL {
             protected String get(UserModel model) {

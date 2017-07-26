@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -121,6 +122,7 @@ public class JobController {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);
+        data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
         data.put("l", localizer);
         data.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));

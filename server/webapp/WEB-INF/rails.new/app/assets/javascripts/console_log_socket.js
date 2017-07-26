@@ -21,6 +21,13 @@
     var startLine = 0, socket;
 
     var details = $(".job_details_content"), contentArea = $(".buildoutput_pre");
+
+    if (details.data('websocket') == 'disabled') {
+      fallbackObserver.enable();
+      fallbackObserver.notify();
+      return;
+    }
+
     var fatal = false;
 
     if (!details.length) return;

@@ -10,6 +10,11 @@
          "key": "pipeline_config_single_page_app_key",
          "description": "Enables the pipeline config single page application. Default: enabled.",
          "value": true
+      },
+      {
+         "key": "browser_console_log_ws_key",
+         "description": "Enables rendering console logs via websockets. Default: disabled.",
+         "value": false
       }
   ]
 }

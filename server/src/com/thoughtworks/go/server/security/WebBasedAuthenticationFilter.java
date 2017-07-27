@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.web.SiteUrlProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 
@@ -39,6 +40,7 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
     private AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
     private SiteUrlProvider siteUrlProvider;
+    private String DEFAULT_TARGET_URL = "/";
 
     @Autowired
     public WebBasedAuthenticationFilter(AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
@@ -51,7 +53,8 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
     @Override
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
         if(isWebBasedPluginLoginRequest(httpRequest)) {
-            httpResponse.sendRedirect(authorizationServerUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest)));
+            String redirectUrl = isAuthenticated() ? DEFAULT_TARGET_URL : authorizationServerUrl(pluginId(httpRequest), siteUrlProvider.siteUrl(httpRequest));
+            httpResponse.sendRedirect(redirectUrl);
             return;
         }
 
@@ -72,6 +75,10 @@ public class WebBasedAuthenticationFilter extends SpringSecurityFilter {
 
     private boolean isWebBasedPluginLoginRequest(HttpServletRequest request) {
         return LOGIN_REQUEST_PATTERN.matcher(request.getRequestURI()).matches();
+    }
+
+    private boolean isAuthenticated() {
+        return SecurityContextHolder.getContext().getAuthentication() != null;
     }
 
     @Override

@@ -20,10 +20,13 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.server.security.tokens.PreAuthenticatedAuthenticationToken;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.web.SiteUrlProvider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.context.SecurityContextHolder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +64,11 @@ public class WebBasedAuthenticationFilterTest {
         filter = new WebBasedAuthenticationFilter(authorizationExtension, goConfigService, siteUrlProvider);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
     @Test
     public void shouldHandleOnlyWebBasedPluginAuthenticationRequests() throws Exception {
         when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/login");
@@ -92,5 +100,17 @@ public class WebBasedAuthenticationFilterTest {
 
         verifyZeroInteractions(authorizationExtension);
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldRedirectToHomePageIfAuthenticatedUserTriesToReauthenticate() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(new PreAuthenticatedAuthenticationToken(null, null, null));
+        when(request.getRequestURI()).thenReturn("/go/plugin/github.oauth/login");
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(response).sendRedirect("/");
+        verifyZeroInteractions(authorizationExtension);
+        verifyNoMoreInteractions(filterChain);
     }
 }

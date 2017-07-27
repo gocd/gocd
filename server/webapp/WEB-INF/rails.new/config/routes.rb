@@ -242,6 +242,9 @@ Go::Application.routes.draw do
 
         resources :config_repos, param: :id, only: [:create, :update, :show, :index, :destroy], constraints: {id: CONFIG_REPO_ID_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+
+        get 'environments/:name/merged' => 'merged_environments#show', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show
+        get 'environments/merged' => 'merged_environments#index', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_index
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
         resources :plugin_settings, param: :plugin_id, only: [:show, :create, :update], constraints: {plugin_id: ALLOW_DOTS}
 

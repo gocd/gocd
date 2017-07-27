@@ -21,15 +21,15 @@ module ApiV1
         alias_method :environment, :represented
 
         link :self do |opts|
-          opts[:url_builder].apiv1_admin_merged_environment_show_url(name: environment.name)
+          opts[:url_builder].apiv1_admin_merged_environment_show_url(environment_name: environment.name)
         end
 
         link :doc do |opts|
-          'https://api.gocd.io/#merged-environment-config'
+          'https://api.gocd.org/#merged-environment-config'
         end
 
         link :find do |opts|
-          opts[:url_builder].apiv1_admin_merged_environment_show_url(name: '__environment_name__').gsub(/__environment_name__/, ':environment_name')
+          opts[:url_builder].apiv1_admin_merged_environment_show_url(environment_name: '__environment_name__').gsub(/__environment_name__/, ':environment_name')
         end
 
         property :name, case_insensitive_string: true

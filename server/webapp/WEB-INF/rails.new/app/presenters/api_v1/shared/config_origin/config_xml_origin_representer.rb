@@ -21,7 +21,7 @@ module ApiV1
         alias_method :config_xml_config, :represented
 
         property :type, exec_context: :decorator
-        property :displayName, as: :file
+
         property :file,
                  exec_context: :decorator,
                  decorator: ApiV1::Shared::ConfigOrigin::ConfigXmlSummaryRepresenter

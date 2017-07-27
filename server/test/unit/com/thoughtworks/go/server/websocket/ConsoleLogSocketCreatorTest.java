@@ -34,7 +34,7 @@ public class ConsoleLogSocketCreatorTest {
         restfulService = mock(RestfulService.class);
 
         request = mock(ServletUpgradeRequest.class);
-        creator = new ConsoleLogSocketCreator(mock(ConsoleLogSender.class), restfulService);
+        creator = new ConsoleLogSocketCreator(mock(ConsoleLogSender.class), restfulService, new SocketHealthService());
     }
 
     @Test

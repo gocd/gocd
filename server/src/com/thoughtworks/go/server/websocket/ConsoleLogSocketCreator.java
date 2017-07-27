@@ -32,16 +32,18 @@ public class ConsoleLogSocketCreator implements WebSocketCreator {
 
     @Autowired
     private final RestfulService restfulService;
+    private SocketHealthService socketHealthService;
 
     @Autowired
-    public ConsoleLogSocketCreator(ConsoleLogSender handler, RestfulService restfulService) {
+    public ConsoleLogSocketCreator(ConsoleLogSender handler, RestfulService restfulService, SocketHealthService socketHealthService) {
         this.handler = handler;
         this.restfulService = restfulService;
+        this.socketHealthService = socketHealthService;
     }
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        return new ConsoleLogSocket(handler, getJobIdentifier(req.getRequestPath()));
+        return new ConsoleLogSocket(handler, getJobIdentifier(req.getRequestPath()), socketHealthService);
     }
 
     private JobIdentifier getJobIdentifier(String requestPath) {

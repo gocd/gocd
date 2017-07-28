@@ -16,67 +16,64 @@
 
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.common.util.LoggingHelper;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.NDC;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC;
-
 public class AgentConsoleLogThread extends Thread {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AgentConsoleLogThread.class);
-    private volatile InputStream consoleError;
-    private volatile CONSOLE_NDC ndc;
+    private final InputStream inputStream;
+    private final AgentOutputAppender agentOutputAppender;
+
     private volatile boolean keepRunning;
     private volatile boolean flushedAfterStop;
-    private String consoleFileName;
 
-    public AgentConsoleLogThread(InputStream consoleError, CONSOLE_NDC ndc, String consoleFileName) {
-        this.setName(ndc + ": Logger" + this.getName());
-        this.consoleError = consoleError;
-        this.ndc = ndc;
-        this.consoleFileName = consoleFileName;
+    public AgentConsoleLogThread(InputStream inputStream, AgentOutputAppender agentOutputAppender) {
+        this.inputStream = inputStream;
+        this.agentOutputAppender = agentOutputAppender;
+
         setDaemon(true);
         keepRunning = true;
         flushedAfterStop = false;
     }
 
     public void run() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(consoleError));
-        Appender consoleFileAppender = LoggingHelper.createConsoleFileAppender(ndc, consoleFileName);
-        Logger.getRootLogger().addAppender(consoleFileAppender);
-        NDC.push(ndc.toString());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        try {
+            pipeLogs(reader);
+        } finally {
+            agentOutputAppender.close();
+        }
+    }
+
+    private void pipeLogs(BufferedReader reader) {
         while (true) {
             if (!keepRunning && flushedAfterStop) {
                 break;
             }
             try {
                 logConsoleError(reader);
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (Exception e) {
-                LOG.error("Error occured while capturing console output from agent process: ", e);
+                System.err.println("Error occured while capturing console output from agent process: ");
+                e.printStackTrace();
                 break;
             }
         }
-        NDC.pop();
-        Logger.getRootLogger().removeAppender(consoleFileAppender);
     }
 
-    private void logConsoleError(final BufferedReader reader) throws IOException {
+    private void logConsoleError(final BufferedReader reader) {
         flushedAfterStop = !keepRunning;
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            LOG.error(line);
+        try {
+            reader.lines().forEach(agentOutputAppender::write);
+        } catch (Exception ignore) {
+            // we failed to log, mostly because we're shutting down
         }
     }
 
     void stopAndJoin() throws InterruptedException {
         keepRunning = false;
+        Thread.sleep(1000); // give some time to allow any logs to be flushed out.
+        agentOutputAppender.close();
         join();
     }
 }

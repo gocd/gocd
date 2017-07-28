@@ -209,6 +209,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> INBUILT_LDAP_PASSWORD_AUTH_ENABLED = new GoBooleanSystemProperty("go.security.inbuilt.auth.enabled", false);
+    public static GoSystemProperty<Boolean> AGENT_CONSOLE_OUT_TO_STDOUT = new GoBooleanSystemProperty("go.agent.console.stdout", false);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -314,6 +315,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             return diskSpaceCacheRefresherInterval;
         }
         return diskSpaceCacheRefresherInterval = Long.parseLong(getPropertyImpl(DISK_SPACE_CACHE_REFRESHER_INTERVAL, "5000"));
+    }
+
+    public boolean agentConsoleOutToStdout() {
+        return get(AGENT_CONSOLE_OUT_TO_STDOUT);
     }
 
     //Used in Tests

@@ -19,7 +19,6 @@ package com.thoughtworks.go.agent;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.agent.common.util.LoggingHelper;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.LogFixture;
@@ -56,7 +55,6 @@ public class AgentProcessParentImplTest {
 
     @BeforeClass
     public static void setup() {
-        System.setProperty(LoggingHelper.LOG_DIR, ".");
         System.setProperty("sleep.for.download", "10");
     }
 

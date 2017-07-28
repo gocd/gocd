@@ -122,7 +122,7 @@ public abstract class LinuxPackagingTask extends DefaultTask {
       project.copy {
         from permissions.source
         into project.file("${buildRoot()}/${new File(fileName).parentFile}")
-        rename new File(permissions.source).name, new File(fileName).name
+        rename project.file(permissions.source).name, new File(fileName).name
       }
     }
 

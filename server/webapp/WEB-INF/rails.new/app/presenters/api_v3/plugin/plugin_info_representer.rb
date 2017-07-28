@@ -19,13 +19,15 @@ module ApiV3
     class PluginInfoRepresenter < BaseRepresenter
 
       REPRESENTER_FOR_PLUGIN_INFO_TYPE = {
-        com.thoughtworks.go.server.ui.plugins.AuthenticationPluginInfo => AuthenticationPluginInfoRepresenter,
-        com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
-        com.thoughtworks.go.server.ui.plugins.NotificationPluginInfo => NotificationPluginInfoRepresenter,
-        com.thoughtworks.go.server.ui.plugins.PackageRepositoryPluginInfo => PackageRepositoryPluginInfoRepresenter,
-        com.thoughtworks.go.server.ui.plugins.PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
-        com.thoughtworks.go.server.ui.plugins.SCMPluginInfo => SCMPluginInfoRepresenter,
-        com.thoughtworks.go.server.ui.plugins.ElasticPluginInfo => ElasticPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo => AuthenticationPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo => NotificationPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo => SCMPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.common.BadPluginInfo => BadPluginInfoRepresenter,
       }
 
       class <<self

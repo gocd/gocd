@@ -69,7 +69,7 @@ public class SecurityAuthConfigTest {
     @Test
     public void addConfiguration_shouldEncryptASecureVariable() throws Exception {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
@@ -81,7 +81,7 @@ public class SecurityAuthConfigTest {
 
     @Test
     public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() throws Exception {
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
@@ -95,7 +95,7 @@ public class SecurityAuthConfigTest {
     @Test
     public void postConstruct_shouldEncryptSecureConfigurations() throws Exception {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
-        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));

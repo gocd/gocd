@@ -42,6 +42,10 @@ public class PluginStatus {
         return messages;
     }
 
+    public State getState() {
+        return state;
+    }
+
     protected PluginStatus setMessages(List<String> messages, Exception rootCause) {
         this.messages = messages;
         this.rootCauseIfInvalid = rootCause;

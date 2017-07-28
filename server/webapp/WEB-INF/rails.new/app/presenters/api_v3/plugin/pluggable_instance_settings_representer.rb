@@ -22,14 +22,14 @@ module ApiV3
                  skip_nil: true,
                  expect_hash: true,
                  inherit: false,
-                 class: com.thoughtworks.go.server.ui.plugins.PluginConfiguration,
+                 class: com.thoughtworks.go.plugin.domain.common.PluginConfiguration,
                  decorator: PluginConfigurationRepresenter
 
       property :view,
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: com.thoughtworks.go.server.ui.plugins.PluginView,
+               class: com.thoughtworks.go.plugin.domain.common.PluginView,
                decorator: PluginViewRepresenter
     end
   end

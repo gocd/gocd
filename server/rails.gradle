@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+
 import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.NpmInstallTask
 import com.thoughtworks.go.build.PrepareRailsCommandHelper
 
 task pathingJar(type: Jar) {
@@ -51,22 +53,12 @@ private boolean isWindows() {
   org.gradle.internal.os.OperatingSystem.current().isWindows()
 }
 
-task npmInstall() {
-  inputs.file project.file("${project.railsRoot}/package.json")
-  outputs.dir project.file("${project.railsRoot}/node_modules")
-
-  doFirst {
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-      workingDir = project.railsRoot
-
-      commandLine = [isWindows() ? "yarn.cmd" : "yarn", "install"]
-    }
-  }
+task npmInstall(type: NpmInstallTask) {
+  workingDir = project.railsRoot
 }
 
-prepare.dependsOn npmInstall
+prepare.dependsOn
+
 
 task dependencyClassPath {
   outputs.upToDateWhen { false }
@@ -88,21 +80,19 @@ task dependencyClassPath {
   }
 }
 
-task cleanRails {
-  outputs.upToDateWhen { false }
-  doLast {
-    delete "${buildDir}/railsTests"
-    delete "${project.railsRoot}/config/cipher"
-    delete "${project.railsRoot}/db/config.git"
-    delete "${project.railsRoot}/db/h2db"
-    delete "${project.railsRoot}/db/shine"
-    delete "${project.railsRoot}/logs"
-    delete "${project.railsRoot}/historical_jars"
-    delete "${project.railsRoot}/public/assets"
-    delete "${project.railsRoot}/tmp"
-    delete "${project.railsRoot}/webpack/gen"
-  }
+task cleanRails(type: Delete) {
+  delete "${buildDir}/railsTests"
+  delete "${project.railsRoot}/config/cipher"
+  delete "${project.railsRoot}/db/config.git"
+  delete "${project.railsRoot}/db/h2db"
+  delete "${project.railsRoot}/db/shine"
+  delete "${project.railsRoot}/logs"
+  delete "${project.railsRoot}/historical_jars"
+  delete "${project.railsRoot}/public/assets"
+  delete "${project.railsRoot}/tmp"
+  delete "${project.railsRoot}/webpack/gen"
 }
+clean.dependsOn cleanRails
 
 task compileAssetsDev(type: Exec) {
   dependsOn npmInstall
@@ -185,23 +175,24 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
 
   description = "Run specs in parallel (pass '-Popts=...' to pass options)"
 
-  def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
-
-  FileTree tree = fileTree(dir: "${project.railsRoot}/spec").include('**/*_spec.rb')
-
-  def files = project.partitionFiles(tree.files)
-
-  // relativize paths, because windows does not support very long command lines :(
-  rspecCommand += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }
-
-  if (project.hasProperty('opts')) {
-    rspecCommand += [project.property('opts')]
-  }
-
   environment += [
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
-  railsCommand = rspecCommand.join(' ')
+  railsCommand = {
+    def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
+
+    FileTree tree = fileTree(dir: "${project.railsRoot}/spec").include('**/*_spec.rb')
+
+    def files = project.partitionFiles(tree.files)
+
+    // relativize paths, because windows does not support very long command lines :(
+    rspecCommand += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }
+
+    if (project.hasProperty('opts')) {
+      rspecCommand += [project.property('opts')]
+    }
+    rspecCommand.join(' ')
+  }
 }
 
 task railsExec(type: ExecuteUnderRailsTask) {

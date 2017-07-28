@@ -34,7 +34,9 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.builder.PluginInfoBuilder;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -44,8 +46,10 @@ import org.mockito.Mock;
 
 import java.util.*;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -67,6 +71,10 @@ public class PluginServiceTest {
     private PluginSqlMapDao pluginDao;
     @Mock
     private PluginInfoBuilder builder;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private EntityHashingService entityHashingService;
 
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
@@ -100,7 +108,7 @@ public class PluginServiceTest {
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
         extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension, authenticationExtension);
-        pluginService = new PluginService(extensions, pluginDao, builder);
+        pluginService = new PluginService(extensions, pluginDao, builder, securityService, entityHashingService);
     }
 
     @After
@@ -127,6 +135,109 @@ public class PluginServiceTest {
         assertThat(pluginSettings.getValueFor("p2-k2"), is(""));
         assertThat(pluginSettings.getValueFor("p2-k3"), is(""));
 
+    }
+
+    @Test
+    public void shouldReturnPluginSettingsFromDbIfItExists() {
+        PluginSettings pluginSettings = pluginService.getPluginSettings("plugin-id-1");
+
+        assertThat(pluginSettings.getPluginSettingsKeys().size(), is(3));
+        assertThat(pluginSettings.getValueFor("p1-k1"), is("v1"));
+        assertThat(pluginSettings.getValueFor("p1-k2"), is(""));
+        assertThat(pluginSettings.getValueFor("p1-k3"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnNullIfPluginSettingsDoesNotExistInDb() {
+        PluginSettings pluginSettings = pluginService.getPluginSettings("plugin-id-2");
+
+        assertNull(pluginSettings);
+    }
+
+    @Test
+    public void shouldNotSavePluginSettingsIfUserIsNotAnAdmin() {
+        PluginSettings pluginSettings = new PluginSettings("some-plugin");
+        Username currentUser = new Username("non-admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(securityService.isUserAdmin(currentUser)).thenReturn(false);
+
+        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+
+        assertThat(result.httpCode(), is(401));
+        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+    }
+
+    @Test
+    public void shouldNotSavePluginSettingsIfPluginDoesNotExist() {
+        PluginSettings pluginSettings = new PluginSettings("non-existent-plugin");
+        Username currentUser = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+        for (GoPluginExtension extension : extensions) {
+            when(extension.canHandlePlugin("non-existent-plugin")).thenReturn(false);
+        }
+
+        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.toString(), containsString("Plugin 'non-existent-plugin' is not supported by any extension point"));
+
+    }
+
+    @Test
+    public void shouldNotSavePluginSettingsIfPluginReturnsValidationErrors() {
+        PluginSettings pluginSettings = new PluginSettings("some-plugin");
+        Username currentUser = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+
+        when(configRepoExtension.canHandlePlugin("some-plugin")).thenReturn(true);
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("foo", "foo is a required field"));
+        when(configRepoExtension.validatePluginSettings(eq("some-plugin"), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
+
+        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+
+        assertThat(result.httpCode(), is(422));
+        assertThat(pluginSettings.errors().size(), is(1));
+        assertThat(pluginSettings.getErrorFor("foo"), is(Arrays.asList("foo is a required field")));
+    }
+
+    @Test
+    public void shouldSavePluginSettingsToDbIfPluginSettingsAreValidated() {
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("p2-k1", "v1");
+
+        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
+        pluginSettings.populateSettingsMap(parameterMap);
+
+        Username currentUser = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+
+        when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
+        when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+
+        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+
+        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
+        verify(pluginDao).saveOrUpdate(plugin);
+
+    }
+
+    @Test
+    public void shouldCheckForStaleRequestBeforeUpdatingPluginSettings() {
+        PluginSettings pluginSettings = new PluginSettings("plugin-id-1");
+        Username currentUser = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        String md5 = "md5";
+
+        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn("foo");
+
+        pluginService.updatePluginSettings(currentUser, result, pluginSettings, md5);
+
+        assertThat(result.httpCode(), is(412));
+        assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
     }
 
     @Test
@@ -181,14 +292,15 @@ public class PluginServiceTest {
         Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("p4-k1", "v1");
         parameterMap.put("p4-k2", "v2");
+        parameterMap.put("p4-k3", "v3");
+
         PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
         pluginSettings.populateSettingsMap(parameterMap);
         pluginService.validatePluginSettingsFor(pluginSettings);
 
         assertThat(pluginSettings.hasErrors(), is(true));
-        assertThat(pluginSettings.getErrorFor("p4-k1"), is("m1"));
-        assertThat(pluginSettings.getErrorFor("p4-k2"), is(nullValue()));
-        assertThat(pluginSettings.getErrorFor("p4-k3"), is("m3"));
+        assertThat(pluginSettings.getErrorFor("p4-k1"), is(Arrays.asList("m1")));
+        assertThat(pluginSettings.getErrorFor("p4-k3"), is(Arrays.asList("m3")));
     }
 
     @Test

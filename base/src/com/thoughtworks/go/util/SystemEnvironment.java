@@ -154,7 +154,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY9));
-    public static GoSystemProperty<Boolean> TFS_SDK_10 = new CachedProperty<>(new GoBooleanSystemProperty("tfs.sdk.old", false));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
@@ -183,7 +182,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
 
     public static GoSystemProperty<Boolean> WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.websocket.enabled", false);
-    public static GoSystemProperty<Boolean> CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.console.logs.websocket.enabled", true);
+    public static GoSystemProperty<Boolean> CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.console.logs.websocket.enabled", false);
 
     public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
     public static GoSystemProperty<Long> GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT = new GoLongSystemProperty("go.websocket.ack.message.timeout", 300 * 1000L);

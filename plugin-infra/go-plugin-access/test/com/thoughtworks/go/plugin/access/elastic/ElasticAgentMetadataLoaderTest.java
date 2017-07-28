@@ -20,13 +20,9 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -56,7 +52,7 @@ public class ElasticAgentMetadataLoaderTest {
     public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null, false);
 
         when(extension.canHandlePlugin(descriptor.id())).thenReturn(true);
         when(infoBuilder.pluginInfoFor(descriptor)).thenReturn(pluginInfo);
@@ -83,7 +79,7 @@ public class ElasticAgentMetadataLoaderTest {
     public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         ElasticAgentMetadataLoader metadataLoader = new ElasticAgentMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(descriptor, null, null, null, false);
 
         metadataStore.setPluginInfo(pluginInfo);
 

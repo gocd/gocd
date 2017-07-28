@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,15 @@
  */
 
 description = 'GoCD Test Utilities'
+
+configurations {
+  copyOnly {
+    transitive = false
+  }
+}
+
 dependencies {
   compile project(':util')
-  compile group: 'org.apache.ant', name: 'ant', version: '1.9.7'
-  compile group: 'org.antlr', name: 'antlr', version: '3.1.1'
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
@@ -41,28 +46,40 @@ dependencies {
   compile(group: 'org.jmock', name: 'jmock-legacy', version: '2.4.0') {
     exclude(module: 'cglib-nodep')
   }
-  compile group: 'net.sf.opencsv', name: 'opencsv', version: '1.8'
-  compile group: 'ognl', name: 'ognl', version: '2.6.9'
-  compile group: 'dnsjava', name: 'dnsjava', version: '1.2.3'
   compile group: 'org.mozilla', name: 'rhino', version: '1.7.7'
   compile group: 'com.springsource', name: 'org.objenesis', version: '1.0.0'
   compile group: 'com.bea', name: 'stax.impl', version: '1.2.0'
   compile(group: 'org.dbunit', name: 'dbunit', version: '2.5.1')
-  
-  compile group: 'org.eclipse.birt.runtime.3_7_1', name: 'org.mozilla.javascript', version: '1.7.2'
+
   compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.0'
+  copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
+  copyOnly project(path: ':test-agent')
+  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 }
 
-processResources {
-  dependsOn ':agent-launcher:fatJar', ':test-agent:jar', ':tfs-impl-14:fatJar'
-  from({
-    [
-      project(':agent-launcher').fatJar.archivePath,
-      project(':tfs-impl-14').fatJar.archivePath,
-      project(':test-agent').jar.archivePath
-    ]
-  }) {
-    into "testdata/gen"
-    rename "(.*)-${project.version}.jar", '$1.jar'
+def generatedResourcesOutput = file("resources-generated")
+
+sourceSets {
+  main {
+    resources {
+      output.dir generatedResourcesOutput, builtBy: 'generateResources'
+      srcDirs += generatedResourcesOutput
+    }
   }
 }
+
+clean {
+  delete(generatedResourcesOutput)
+}
+
+task generateResources(type: Copy) {
+  into "$generatedResourcesOutput/testdata/gen"
+  from(project.configurations.copyOnly) {
+    rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
+  }
+}
+
+task prepare {
+  dependsOn generateResources
+}
+

@@ -35,7 +35,6 @@ public class EntityHashingServiceTest {
         this.configCache = new ConfigCache();
         this.registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         this.entityHashingService = new EntityHashingService(this.goConfigService, this.goCache, configCache, registry);
-
     }
 
     @Test

@@ -520,6 +520,30 @@ describe('PluginInfos', () => {
     });
   });
 
+  describe("ConfigRepo", () => {
+    it("should deserialize", () => {
+      const json = {
+        "id":                   "json.config.plugin",
+        "version":              "1",
+        "type":                 "configrepo",
+        "about":                {
+          "name":                     "JSON Configuration Plugin",
+          "version":                  "0.2",
+          "target_go_version":        "16.1.0",
+          "description":              "Configuration plugin that supports Go configuration in JSON",
+          "target_operating_systems": [],
+          "vendor":                   {
+            "name": "Tomasz Setkowski",
+            "url":  "https://github.com/tomzo/gocd-json-config-plugin"
+          }
+        },
+      };
+
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      verifyBasicProperties(pluginInfo, json);
+    });
+  });
+
   describe("Reading images", () => {
     const json = {
       "_links":  {

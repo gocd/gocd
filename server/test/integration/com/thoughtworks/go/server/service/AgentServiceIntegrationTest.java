@@ -103,7 +103,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentService getAgentService(AgentInstances agentInstances) {
-        return new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, environmentConfigService, goConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService);
+        return new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService);
     }
 
     @Test
@@ -338,7 +338,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, goConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -357,7 +357,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, goConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -390,7 +390,7 @@ public class AgentServiceIntegrationTest {
         EmailSender mailSender = mock(EmailSender.class);
 
         agentDao.associateCookie(instance.getAgentIdentifier(), "rotten-cookie");
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, goConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 

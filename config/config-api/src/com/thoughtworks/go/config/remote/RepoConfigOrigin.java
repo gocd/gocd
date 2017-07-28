@@ -98,6 +98,10 @@ public class RepoConfigOrigin implements ConfigOrigin {
         this.configRepo = configRepo;
     }
 
+    public ConfigRepoConfig getConfigRepo() {
+        return configRepo;
+    }
+
     public String getRevision() {
         return revision;
     }

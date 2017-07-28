@@ -21,13 +21,10 @@ import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class AuthorizationPluginInfoBuilder implements PluginInfoBuilder<AuthorizationPluginInfo> {
@@ -42,8 +39,12 @@ public class AuthorizationPluginInfoBuilder implements PluginInfoBuilder<Authori
     public AuthorizationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         Capabilities capabilities = capabilities(descriptor.id());
 
-        return new AuthorizationPluginInfo(descriptor, authConfigSettings(descriptor.id()), roleSettings(descriptor.id(), capabilities),
-                image(descriptor.id()), capabilities);
+        PluggableInstanceSettings authConfigSettings = authConfigSettings(descriptor.id());
+        PluggableInstanceSettings roleSettings = roleSettings(descriptor.id(), capabilities);
+        PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, extension);
+        Image image = image(descriptor.id());
+
+        return new AuthorizationPluginInfo(descriptor, authConfigSettings, roleSettings, image, capabilities, pluginSettingsAndView);
     }
 
     private Capabilities capabilities(String pluginId) {

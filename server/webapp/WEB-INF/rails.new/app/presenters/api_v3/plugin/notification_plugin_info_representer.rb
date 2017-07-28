@@ -17,6 +17,7 @@ module ApiV3
   module Plugin
     class NotificationPluginInfoRepresenter < BasePluginInfoRepresenter
 
+
     end
   end
 end

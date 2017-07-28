@@ -22,7 +22,11 @@ describe ApiV3::Plugin::NotificationPluginInfoRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.NotificationPluginInfo.new(descriptor)
+    notification_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
+    metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], notification_view)
+
+    plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, plugin_settings)
     actual_json = ApiV3::Plugin::NotificationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)
@@ -35,6 +39,11 @@ describe ApiV3::Plugin::NotificationPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'notification',
+                                status: {
+                                  state: 'active'
+                                },
+                                plugin_file_location: nil,
+                                bundled_plugin: false,
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',
@@ -44,7 +53,8 @@ describe ApiV3::Plugin::NotificationPluginInfoRepresenter do
                                   vendor: {
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
-                                }
+                                },
+                                plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new)
                               })
 
   end

@@ -16,6 +16,11 @@
 module ApiV3
   module Plugin
     class AuthenticationPluginInfoRepresenter < BasePluginInfoRepresenter
+      property :display_name
+      property :display_image_url
+
+      property :supports_password_based_authentication
+      property :supports_web_based_authentication
 
     end
   end

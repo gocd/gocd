@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.config.materials.tfs;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.config.PasswordEncrypter;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
@@ -41,22 +35,19 @@ import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
 public class TfsMaterialTest {
     private TempFiles tempFiles;
     private TfsMaterial tfsMaterialFirstCollectionFirstProject;

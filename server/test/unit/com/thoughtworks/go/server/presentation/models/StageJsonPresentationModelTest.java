@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.TrackingTool;
@@ -27,7 +26,9 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.dto.DurationBeans;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Before;
@@ -41,16 +42,21 @@ import static com.thoughtworks.go.helper.ModificationsMother.multipleModificatio
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StageJsonPresentationModelTest {
     private Pipeline pipeline;
     private static final int PIPELINE_ID = 1111;
     private Stage stage;
     private BuildCause modifications;
+    private AgentService agentService;
 
     @Before
     public void setUp() {
         MaterialRevisions materialRevisions = multipleModifications();
+
         stage = StageMother.withOneScheduledBuild("stage", "job-that-will-fail", "job-that-will-pass", 1);
         modifications = BuildCause.createWithModifications(materialRevisions, "");
         pipeline = new Pipeline("pipeline", PipelineLabel.COUNT_TEMPLATE, modifications,
@@ -61,11 +67,13 @@ public class StageJsonPresentationModelTest {
         }
         pipeline.setId(PIPELINE_ID);
         pipeline.updateCounter(9);
+        agentService = mock(AgentService.class);
+        when(agentService.findAgentObjectByUuid(any(String.class))).thenReturn(Agent.blankAgent("mocked"));
     }
 
     @Test
     public void shouldGetAPresenterWithLabelAndRelevantBuildPlansAndPipelineNameAndId() throws Exception {
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain(
@@ -86,12 +94,13 @@ public class StageJsonPresentationModelTest {
                 json.toString().contains("last_successful_label"));
     }
 
-    @Test public void shouldGetAPresenterWithLabelAndRelevantBuildPlans() throws Exception {
+    @Test
+    public void shouldGetAPresenterWithLabelAndRelevantBuildPlans() throws Exception {
         DurationBeans durations = new DurationBeans(
                 new DurationBean(stage.getJobInstances().getByName("job-that-will-fail").getId(), 12L));
 
         StageJsonPresentationModel presenter =
-                new StageJsonPresentationModel(pipeline, stage, null, new Agents(), durations, new TrackingTool());
+                new StageJsonPresentationModel(pipeline, stage, null, agentService, durations, new TrackingTool());
         Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain(
@@ -109,8 +118,9 @@ public class StageJsonPresentationModelTest {
                 json.toString().contains("last_successful_label"));
     }
 
-    @Test public void shouldReturnBuildingStatusIfAnyBuildsAreScheduled() throws Exception {
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
+    @Test
+    public void shouldReturnBuildingStatusIfAnyBuildsAreScheduled() throws Exception {
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         Map json = presenter.toJson();
 
 
@@ -119,8 +129,9 @@ public class StageJsonPresentationModelTest {
         );
     }
 
-    @Test public void shouldReturnJsonWithModifications() throws Exception {
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
+    @Test
+    public void shouldReturnJsonWithModifications() throws Exception {
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         Map json = presenter.toJson();
 
         JsonValue jsonValue = JsonUtils.from(json);
@@ -135,21 +146,23 @@ public class StageJsonPresentationModelTest {
         assertThat(revision.getString("date"), is(DateUtils.formatISO8601(ModificationsMother.TODAY_CHECKIN)));
     }
 
-    @Test public void shouldReturnJsonForNullStage() throws Exception {
+    @Test
+    public void shouldReturnJsonForNullStage() throws Exception {
         final StageConfig config = StageConfigMother.oneBuildPlanWithResourcesAndMaterials("newStage");
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(
-                pipeline, NullStage.createNullStage(config), null, new Agents());
+                pipeline, NullStage.createNullStage(config), null, agentService);
         Map json = presenter.toJson();
 
-        new JsonTester((List)json.get("builds")).shouldContain(
+        new JsonTester((List) json.get("builds")).shouldContain(
                 "[{ 'current_status' : 'unknown' }]"
         );
     }
 
-    @Test public void shouldReturnLastSuccesfulLabel() throws Exception {
+    @Test
+    public void shouldReturnLastSuccesfulLabel() throws Exception {
         StageIdentifier successfulStage = new StageIdentifier(pipeline.getName(), 1, "LABEL:1", stage.getName(), "1");
         StageJsonPresentationModel presenter =
-                new StageJsonPresentationModel(pipeline, stage, successfulStage, new Agents());
+                new StageJsonPresentationModel(pipeline, stage, successfulStage, agentService);
         Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain(
@@ -161,7 +174,7 @@ public class StageJsonPresentationModelTest {
 
     @Test
     public void shouldGetAPresenterWithCanRunStatus() throws Exception {
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         presenter.setCanRun(true);
         Map json = presenter.toJson();
 
@@ -170,17 +183,18 @@ public class StageJsonPresentationModelTest {
 
     @Test
     public void shouldGetAPresenterWithCanCancelStatus() throws Exception {
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         presenter.setCanCancel(true);
         Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain("{ 'getCanCancel' : 'true' }");
     }
 
-    @Test public void shouldSetCanRunToFalseForANullStage() throws Exception {
+    @Test
+    public void shouldSetCanRunToFalseForANullStage() throws Exception {
         Stage unscheduled = new NullStage("unscheduled");
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, unscheduled, null,
-                new Agents());
+                agentService);
 
         Map json = presenter.toJson();
         new JsonTester(json).shouldContain("{ 'getCanRun' : 'false' }");
@@ -190,7 +204,7 @@ public class StageJsonPresentationModelTest {
     public void shouldEscapeBuildCauseMessage() throws Exception {
         String userWithHtmlCharacters = "<user>";
         pipeline.setBuildCause(BuildCause.createManualForced(materialRevisions(userWithHtmlCharacters), new Username(new CaseInsensitiveString(userWithHtmlCharacters))));
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
 
         JsonTester jsonTester = new JsonTester(presenter.toJson());
         String expected = StringEscapeUtils.escapeHtml(userWithHtmlCharacters);
@@ -201,7 +215,7 @@ public class StageJsonPresentationModelTest {
     public void shouldEncodeStageLocator() throws Exception {
         Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, agentService);
         Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("stageLocator"), is("pipeline-a%25b/1/stage-c%25d/1"));
     }
@@ -210,10 +224,11 @@ public class StageJsonPresentationModelTest {
     public void shouldIncludeStageLocatorForDisplay() throws Exception {
         Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, agentService);
         Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("stageLocatorForDisplay"), is("pipeline-a%b/label-1/stage-c%d/1"));
     }
+
 
     @Test
     public void shouldEncodeBuildLocator() throws Exception {
@@ -221,7 +236,7 @@ public class StageJsonPresentationModelTest {
         Stage stage1 = new Stage("stage-c%d", new JobInstances(job), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         job.setIdentifier(new JobIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1", "job-%", 0L));
-        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, new Agents());
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, agentService);
         Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("builds", 0, "buildLocator"),
                 is("pipeline-a%25b/1/stage-c%25d/1/job-%25"));

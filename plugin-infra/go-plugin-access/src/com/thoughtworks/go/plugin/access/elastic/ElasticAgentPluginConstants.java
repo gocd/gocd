@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConverterV1;
+import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
+
 import java.util.Arrays;
 import java.util.List;
 
 public interface ElasticAgentPluginConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION, ElasticAgentExtensionConverterV2.VERSION);
 
     String EXTENSION_NAME = "elastic-agent";
 
@@ -39,5 +42,6 @@ public interface ElasticAgentPluginConstants {
     String PROCESS_DISABLE_AGENTS = PROCESSOR_PREFIX + ".disable-agents";
     String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";
     String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list-agents";
+    String REQUEST_STATUS_REPORT = REQUEST_PREFIX + ".status-report";
 
 }

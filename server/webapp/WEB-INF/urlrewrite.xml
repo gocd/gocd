@@ -60,6 +60,13 @@
         <to last="true">/rails/admin/elastic_profiles</to>
         <set name="rails_bound">true</set>
     </rule>
+    
+    <rule>
+        <name>Rails Status Reports show call</name>
+        <from>^/admin/status_reports/(.*)$</from>
+        <to last="true">/rails/admin/status_reports/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
 
     <rule>
         <name>Rails Security Auth Config UI</name>
@@ -133,6 +140,20 @@
         <name>Rails Security Auth Configs API</name>
         <from>^/api/admin/security/auth_configs/(.*)$</from>
         <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Config Repo API Index API</name>
+        <from>^/api/admin/config_repos</from>
+        <to last="true">/rails/api/admin/config_repos</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Config Repo API</name>
+        <from>^/api/admin/config_repos/(.*)$</from>
+        <to last="true">/rails/api/admin/config_repos/${escape:$1}</to>
         <set name="rails_bound">true</set>
     </rule>
 

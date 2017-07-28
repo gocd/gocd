@@ -22,15 +22,17 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 
 public class ConfigReposConfigTest {
     private  ConfigReposConfig repos;
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         repos = new ConfigReposConfig();
     }
+
     @Test
     public void shouldReturnFalseThatHasMaterialWhenEmpty(){
         assertThat(repos.isEmpty(),is(true));
@@ -44,10 +46,24 @@ public class ConfigReposConfigTest {
     }
 
     @Test
-    public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo(){
-        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin"));
-        assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin")),is(true));
+    public void shouldFindConfigRepoWithSpecifiedId(){
+        String id = "repo1";
+        ConfigRepoConfig configRepo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin", id);
+        repos.add(configRepo1);
+        assertThat(repos.getConfigRepo(id),is(configRepo1));
     }
+
+    @Test
+    public void shouldFindReturnNullWhenConfigRepoWithSpecifiedIdIsNotPresent(){
+        assertNull(repos.getConfigRepo("repo1"));
+    }
+
+    @Test
+    public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo(){
+        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin", "repo-id"));
+        assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin", "repo-id")),is(true));
+    }
+
     @Test
     public void shouldReturnFalseThatHasConfigRepoWhenEmpty(){
         assertThat(repos.isEmpty(),is(true));
@@ -70,10 +86,31 @@ public class ConfigReposConfigTest {
                 is("You have defined multiple configuration repositories with the same repository - http://git"));
 
     }
+
+    @Test
+    public void shouldErrorWhenDuplicateIdsExist(){
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "id");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("http://git2"), "myotherplugin", "id");
+        repos.add(repo1);
+        repos.add(repo2);
+        repos.validate(null);
+        assertThat(repo2.errors().on("unique_id"),
+                is("You have defined multiple configuration repositories with the same id - id"));
+    }
+
+    @Test
+    public void shouldErrorWhenEmptyIdIsProvided(){
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "  ");
+        repos.add(repo1);
+        repos.validate(null);
+        assertThat(repo1.errors().on("id"),
+                is("Invalid config-repo id"));
+    }
+
     @Test
     public void shouldNotErrorWhenReposFingerprintDiffer(){
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("http://git","develop"), "myotherplugin");
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin", "id1");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("https://git","develop"), "myotherplugin", "id2");
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);

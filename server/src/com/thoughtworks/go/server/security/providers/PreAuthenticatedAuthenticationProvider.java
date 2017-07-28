@@ -34,6 +34,7 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -72,10 +73,9 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private Authentication doAuthenticate(PreAuthenticatedAuthenticationToken preAuthToken) {
         String pluginId = preAuthToken.getPluginId();
 
-        AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, preAuthToken.getCredentials(),
-                authConfigs(pluginId), pluginRoleConfigs(pluginId));
+        AuthenticationResponse response = authenticateUser(preAuthToken);
 
-        if(authenticationFailed(response)) {
+        if (!isAuthenticated(response)) {
             return null;
         }
 
@@ -93,17 +93,30 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
         return result;
     }
 
+    private AuthenticationResponse authenticateUser(PreAuthenticatedAuthenticationToken preAuthToken) {
+        AuthenticationResponse response = null;
+        for(SecurityAuthConfig authConfig : authConfigs(preAuthToken.getPluginId())) {
+            response = authorizationExtension.authenticateUser(preAuthToken.getPluginId(), preAuthToken.getCredentials(),
+                    Collections.singletonList(authConfig), pluginRoleConfigsForAuthConfig(authConfig.getId()));
+
+            if(isAuthenticated(response)) {
+                break;
+            }
+        }
+        return response;
+    }
+
     @Override
     public boolean supports(Class authentication) {
         return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    private boolean authenticationFailed(AuthenticationResponse response) {
-        return response.getUser() == null;
+    private boolean isAuthenticated(AuthenticationResponse response) {
+        return (response != null && response.getUser() != null);
     }
 
-    private List<PluginRoleConfig> pluginRoleConfigs(String pluginId) {
-        return configService.security().getPluginRoles(pluginId);
+    private List<PluginRoleConfig> pluginRoleConfigsForAuthConfig(String authConfigId) {
+        return configService.security().getRoles().pluginRoleConfigsFor(authConfigId);
     }
 
     private List<SecurityAuthConfig> authConfigs(String pluginId) {

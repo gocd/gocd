@@ -1,42 +1,44 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.crud;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.GoConfigHolder;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.IgnoredFiles;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.XsdValidationException;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@RunWith(JunitExtRunner.class)
 public class SCMConfigXmlLoaderTest extends BaseConfigXmlLoaderTest {
     final static String VALID_SCM = " <scm id='scm-id' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration></scm>";
     final static String VALID_SCM_WITH_ID_NAME = " <scm id='%s' name='%s'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration></scm>";

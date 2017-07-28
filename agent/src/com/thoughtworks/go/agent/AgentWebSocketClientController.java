@@ -182,6 +182,7 @@ public class AgentWebSocketClientController extends AgentController {
         BuildVariables buildVariables = new BuildVariables(getAgentRuntimeInfo(), clock);
         BuildSession build = new BuildSession(
                 buildSettings.getBuildId(),
+                getAgentRuntimeInfo().getIdentifier(),
                 buildStateReporter,
                 buildConsole,
                 buildVariables,

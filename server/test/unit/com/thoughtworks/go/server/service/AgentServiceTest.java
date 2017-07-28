@@ -17,10 +17,12 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
@@ -47,6 +49,7 @@ import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -59,17 +62,20 @@ public class AgentServiceTest {
     private AgentIdentifier agentIdentifier;
     private UuidGenerator uuidGenerator;
     private ServerHealthService serverHealthService;
+    private AgentConfigService agentConfigService;
+    AgentConfig agentConfig;
 
     @Before
     public void setUp() {
         agentInstances = mock(AgentInstances.class);
-        AgentConfig config = new AgentConfig("uuid", "host", "192.168.1.1");
-        when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(config, new SystemEnvironment()));
+        agentConfig = new AgentConfig("uuid", "host", "192.168.1.1");
+        when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(agentConfig, new SystemEnvironment()));
         agentDao = mock(AgentDao.class);
         uuidGenerator = mock(UuidGenerator.class);
-        agentService = new AgentService(mock(AgentConfigService.class), new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
-                mock(GoConfigService.class), mock(SecurityService.class), agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class));
-        agentIdentifier = config.getAgentIdentifier();
+        agentConfigService = mock(AgentConfigService.class);
+        agentService = new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
+                mock(SecurityService.class), agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class));
+        agentIdentifier = agentConfig.getAgentIdentifier();
         when(agentDao.cookieFor(agentIdentifier)).thenReturn("cookie");
     }
 
@@ -159,7 +165,7 @@ public class AgentServiceTest {
         when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(agentInstance);
 
         AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
-                mock(GoConfigService.class), securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class));
+                securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class));
 
         agentService.deleteAgents(username, operationResult, Arrays.asList(uuid));
 

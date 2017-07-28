@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.JsonValue;
 import org.junit.Before;
@@ -42,6 +41,7 @@ public class JobControllerTest {
     private JobInstanceService jobInstanceService;
     private JobDetailService jobDetailService;
     private GoConfigService jobConfigService;
+    private AgentService agentService;
     private StageService stageService;
     private MockHttpServletResponse response;
 
@@ -50,9 +50,10 @@ public class JobControllerTest {
         jobInstanceService = mock(JobInstanceService.class);
         jobDetailService = mock(JobDetailService.class);
         jobConfigService = mock(GoConfigService.class);
+        agentService = mock(AgentService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, jobDetailService, jobConfigService, null, null, null, null, stageService, null);
+        jobController = new JobController(jobInstanceService, agentService, jobDetailService, jobConfigService, null, null, null, null, stageService, null, null);
     }
 
     @Test
@@ -71,11 +72,13 @@ public class JobControllerTest {
 
         when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
         when(jobDetailService.findMostRecentBuild(job.getIdentifier())).thenReturn(newJob);
+        when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
         when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5l));
 
         ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
 
         verify(jobInstanceService).buildByIdWithTransitions(job.getId());
+        verify(agentService).findAgentObjectByUuid(newJob.getAgentUuid());
         verify(jobDetailService).findMostRecentBuild(job.getIdentifier());
         verify(stageService).getBuildDuration(pipelineName, stageName, newJob);
 
@@ -86,5 +89,4 @@ public class JobControllerTest {
         assertThat(buildingInfo.getString("id"), is("2"));
         assertThat(buildingInfo.getString("last_build_duration"), is("5"));
     }
-
 }

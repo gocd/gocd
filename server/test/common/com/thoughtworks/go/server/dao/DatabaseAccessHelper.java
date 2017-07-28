@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
@@ -95,6 +96,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private PipelineService pipelineService;
     private String md5 = "md5-test";
     private InstanceFactory instanceFactory;
+    private JobAgentMetadataDao jobAgentMetadataDao;
 
     @Deprecated // Should not be creating a new spring context for every test
     public DatabaseAccessHelper() throws AmbiguousTableNameException {
@@ -112,6 +114,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.materialRepository = (MaterialRepository) context.getBean("materialRepository");
         this.goCache = (GoCache) context.getBean("goCache");
         this.instanceFactory = (InstanceFactory) context.getBean("instanceFactory");
+        this.jobAgentMetadataDao = (JobAgentMetadataDao) context.getBean("jobAgentMetadataDao");
         setSessionFactory((SessionFactory) context.getBean("sessionFactory"));
         return context;
     }
@@ -135,7 +138,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                                 TransactionTemplate transactionTemplate,
                                 TransactionSynchronizationManager transactionSynchronizationManager,
                                 GoCache goCache,
-                                PipelineService pipelineService, InstanceFactory instanceFactory) throws AmbiguousTableNameException {
+                                PipelineService pipelineService, InstanceFactory instanceFactory,
+                                JobAgentMetadataDao jobAgentMetadataDao) throws AmbiguousTableNameException {
         this.dataSource = dataSource;
         this.sqlMapClient = sqlMapClient;
         this.stageDao = stageDao;
@@ -147,6 +151,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.goCache = goCache;
         this.pipelineService = pipelineService;
         this.instanceFactory = instanceFactory;
+        this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.pipelineDao = (PipelineSqlMapDao) pipelineDao;
         this.materialRepository = materialRepository;
         setSessionFactory(sessionFactory);
@@ -185,6 +190,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
         dataSet.addTable(new DefaultTable("stageArtifactCleanupProhibited"));
         dataSet.addTable(new DefaultTable("serverBackups"));
+        dataSet.addTable(new DefaultTable("jobAgentMetadata"));
 
         databaseTester.setDataSet(dataSet);
     }
@@ -643,5 +649,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         MaterialRevision depRev = addRevisionsWithModifications(dependencyMaterial, modifications.toArray(new Modification[0]));
         materialRevisions.add(depRev);
         return Arrays.asList(depRev);
+    }
+
+    public void addJobAgentMetadata(JobAgentMetadata jobAgentMetadata) {
+        jobAgentMetadataDao.save(jobAgentMetadata);
     }
 }

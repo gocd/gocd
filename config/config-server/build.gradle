@@ -40,6 +40,6 @@ test {
   systemProperty('go.enforce.serverId.immutability', 'N')
 }
 
-clean.doFirst {
+clean {
   delete 'config'
 }

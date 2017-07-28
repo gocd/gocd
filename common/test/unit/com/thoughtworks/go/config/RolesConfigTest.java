@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
@@ -92,6 +93,21 @@ public class RolesConfigTest {
 
         assertThat(roles, hasSize(2));
         assertThat(roles, contains(blackbird, spacetiger));
+    }
+
+    @Test
+    public void shouldBeAbleToFetchPluginRolesForAAuthConfig() throws Exception {
+        PluginRoleConfig admin = new PluginRoleConfig("admin", "corporate_ldap");
+        PluginRoleConfig view = new PluginRoleConfig("view", "corporate_ldap");
+        PluginRoleConfig operator = new PluginRoleConfig("operator", "internal_ldap");
+
+        RolesConfig rolesConfig = new RolesConfig(admin, view, operator, new RoleConfig(new CaseInsensitiveString("committer")));
+
+        assertThat(rolesConfig.pluginRoleConfigsFor("corporate_ldap"), hasSize(2));
+        assertThat(rolesConfig.pluginRoleConfigsFor("corporate_ldap"), containsInAnyOrder(admin, view));
+
+        assertThat(rolesConfig.pluginRoleConfigsFor("internal_ldap"), hasSize(1));
+        assertThat(rolesConfig.pluginRoleConfigsFor("internal_ldap"), containsInAnyOrder(operator));
     }
 
     @Test

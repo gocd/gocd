@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -37,20 +37,19 @@
             <value>
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
-                /api/config-repository.git/**=modeAwareFilter,httpSessionContextIntegrationFilter,apiSessionFilter,removeAdminPermissionFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor
+                /api/config-repository.git/**=modeAwareFilter,httpSessionContextIntegrationFilter,apiSessionFilter,removeAdminPermissionFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor
 
-                /rails/cas_errors/**=modeAwareFilter,i18nlocaleResolver,anonymousProcessingFilter,flashLoader,urlRewriter
                 /remoting/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor,flashLoader,urlRewriter
                 /agent-websocket/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor
-                /api/feeds/**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /api/pipelines.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /api/*/*.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /api/pipelines/*/*.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /api/feeds/**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /api/pipelines.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /api/*/*.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /api/pipelines/*/*.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
 
-                /cctray.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /api/**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /files/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,webBasedAuthFilter,preAuthenticationFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /cctray.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /api/**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /files/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,webBasedAuthFilter,preAuthenticationFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
             </value>
         </property>
     </bean>
@@ -86,10 +85,8 @@
         p:authenticationManager-ref="preAuthenticationManager"
         p:authenticationFailureUrl="/auth/login?login_error=1"
         p:defaultTargetUrl="/"
-        p:alwaysUseDefaultTargetUrl="true"
         p:filterProcessesUrl="/go/plugin/([\w\-.]+)/authenticate$"
         p:invalidateSessionOnSuccessfulAuthentication="true"/>
-
 
     <bean id="webBasedAuthFilter" class="com.thoughtworks.go.server.security.WebBasedAuthenticationFilter"/>
 
@@ -166,20 +163,8 @@
         </constructor-arg>
     </bean>
 
-    <!-- Begin CAS Stuff -->
-    <bean id="casAuthProcessingFilter" class="com.thoughtworks.go.server.security.CasProcessingFilter">
-        <property name="defaultTargetUrl" value="/"/>
-        <property name="filterProcessesUrl" value="/j_spring_cas_security_check" />
-        <property name="authenticationManager" ref="goAuthenticationManager"/>
-    </bean>
-
-    <bean id="serviceProperties" class="com.thoughtworks.go.server.security.GoCasServiceProperties">
-        <constructor-arg ref="securityService" />
-        <constructor-arg value="/j_spring_cas_security_check"/>
-    </bean>
-    <!-- End CAS Stuff -->
-
     <bean id="removeAdminPermissionFilter" class="com.thoughtworks.go.server.security.RemoveAdminPermissionFilter" autowire="autodetect"/>
+    <bean id="denyGoCDAccessForArtifactsFilter" class="com.thoughtworks.go.server.security.DenyGoCDAccessForArtifactsFilter" autowire="autodetect"/>
 
     <bean id="reAuthenticationFilter" class="com.thoughtworks.go.server.security.ReAuthenticationFilter" autowire="autodetect"/>
 
@@ -303,7 +288,9 @@
                 /api/admin/repositories/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/packages/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/plugin_info/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
+                /api/admin/plugin_settings/**=ROLE_SUPERVISOR
                 /api/admin/agents=ROLE_SUPERVISOR
+                /api/admin/config_repos=ROLE_SUPERVISOR
                 /api/elastic/profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /admin/elastic_profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/templates/**=ROLE_USER

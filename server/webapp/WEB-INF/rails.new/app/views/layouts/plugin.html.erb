@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <title><%= @view_title %> - Go</title>
+  <%= render :partial => "shared/head" %>
+  <%= csrf_meta_tags %>
+</head>
+
+<body data-controller-name="<%= controller_name %>" data-action-name="<%= action_name %>" id="<%= controller_name %>-page">
+<div class="page-wrap">
+  <div id="header">
+    <%= render :partial => "shared/header" %>
+  </div>
+
+  <main class="main-container"></main>
+
+</div>
+<div id='footer-new-foundation'>
+  <%= render :partial => 'navigation_elements/footer' %>
+</div>
+<script type="application/javascript">
+  jQuery(".main-container").html('<%= escape_javascript(yield) %>');
+  angular.bootstrap('#<%= controller_name %>-page');
+</script>
+</body>
+</html>

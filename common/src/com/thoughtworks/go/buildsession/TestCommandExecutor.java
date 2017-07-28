@@ -37,6 +37,14 @@ public class TestCommandExecutor implements BuildCommandExecutor {
             return !left.equals(captureSubCommandOutput(command, buildSession));
         }
 
+        if ("-in".equals(flag)) {
+           return captureSubCommandOutput(command, buildSession).contains(left);
+        }
+
+        if ("-nin".equals(flag)) {
+            return !captureSubCommandOutput(command, buildSession).contains(left);
+        }
+
         File target = buildSession.resolveRelativeDir(command.getWorkingDirectory(), left);
         if ("-d".equals(flag)) {
             return target.isDirectory();

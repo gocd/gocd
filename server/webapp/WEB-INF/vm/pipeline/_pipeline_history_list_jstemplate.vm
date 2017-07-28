@@ -36,6 +36,7 @@
                            class="link_as_button" title="Resume scheduling">
                             <span>Unpause</span>
                         </a>
+                            <span class="pause-message">${%pipelineHistoryPage.pauseStatusText(data)%}</span>
                     {else}
                         <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
                            onclick="pipelineActions.pausePipeline('${%data.pipelineName%}', this);"

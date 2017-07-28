@@ -18,7 +18,7 @@ Go::Application.routes.draw do
   mount JasmineRails::Engine => '/jasmine-specs', as: :jasmine_old if defined?(JasmineRails)
 
   unless defined?(CONSTANTS)
-    ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
+    CONFIG_REPO_ID_FORMAT = ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     JOB_NAME_FORMAT = /[\w\-.]+/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     NON_NEGATIVE_INTEGER = /\d+/
@@ -240,12 +240,10 @@ Go::Application.routes.draw do
         end
         post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection', as: :internal_verify_connection
 
+        resources :config_repos, param: :id, only: [:create, :update, :show, :index, :destroy], constraints: {id: CONFIG_REPO_ID_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
-        resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
-          patch on: :member, action: :patch
-          put on: :member, action: :put
-        end
+        resources :plugin_settings, param: :plugin_id, only: [:show, :create, :update], constraints: {plugin_id: ALLOW_DOTS}
 
         post 'encrypt', controller: :encryption, action: :encrypt_value
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
@@ -285,7 +283,6 @@ Go::Application.routes.draw do
           patch on: :member, action: :patch
           put on: :member, action: :put
         end
-        get 'environments/:name/withremote' => 'environments_with_remote#show', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
       end
 
       match '*url', via: :all, to: 'errors#not_found'
@@ -297,6 +294,10 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :environments, param: :name, only: [:show, :destroy, :create, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
+          patch on: :member, action: :patch
+          put on: :member, action: :put
+        end
         resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
 
@@ -328,6 +329,8 @@ Go::Application.routes.draw do
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
     resources :elastic_profiles, only: [:index], controller: :elastic_profiles, as: :elastic_profiles
+    resources :status_reports, only: [:show], controller: :status_reports, param: :plugin_id, as: :status_reports, constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false
+
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
       resources :roles, only: [:index], controller: :roles, as: :roles
@@ -463,8 +466,6 @@ Go::Application.routes.draw do
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail, constraints: {uuid: ALLOW_DOTS}
   get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent, constraints: {uuid: ALLOW_DOTS}
 
-  get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
-  get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
   get "errors/inactive" => 'go_errors#inactive'
 
   get "cctray.xml" => "cctray#index", :format => "xml", as: :cctray

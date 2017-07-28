@@ -80,6 +80,7 @@ public class GitSubmoduleRepos extends TestRepo {
         git(withSubmodules).init();
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, "git_config");
         String fileName = "file-" + System.currentTimeMillis();
         addAndCommitNewFile(withSubmodules, fileName, "Added " + fileName);
         return withSubmodules;

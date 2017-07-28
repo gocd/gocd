@@ -22,10 +22,11 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    task_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('role_config_view_template')
-    scm_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('memberOf', {required: true, secure: false, display_name: 'Member Of', display_order: '1'}, nil)], task_view)
+    task_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
+    metadata = com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity.new(true, false, true)
+    scm_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], task_view)
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.SCMPluginInfo.new(descriptor, 'Foo task', scm_settings)
+    plugin_info = com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, 'Foo task', scm_settings, nil)
     actual_json = ApiV3::Plugin::SCMPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find)
@@ -38,6 +39,11 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'scm',
+                                status: {
+                                  state: 'active'
+                                },
+                                plugin_file_location: nil,
+                                bundled_plugin: false,
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

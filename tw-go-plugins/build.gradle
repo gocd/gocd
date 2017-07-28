@@ -1,0 +1,120 @@
+import com.thoughtworks.go.build.DownloadFile
+import com.thoughtworks.go.build.GithubArtifact
+import com.thoughtworks.go.build.VerifyJarTask
+import org.apache.commons.codec.digest.DigestUtils
+
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+configurations {
+  pluginsZipConfig
+}
+
+def dependencies = [
+  new GithubArtifact(
+    user: 'gocd',
+    repo: 'gocd-ldap-authentication-plugin',
+    release: '1.0.1',
+    asset: 'gocd-ldap-authentication-plugin-1.0.1-49.jar',
+    checksum: '33cfbcebbdeb2ffcbca28cc658766b6aa0ac1340ebae03ee191f93a2df95bb23'
+  ),
+  new GithubArtifact(
+    user: 'gocd',
+    repo: 'gocd-filebased-authentication-plugin',
+    release: '1.0.1',
+    asset: 'gocd-filebased-authentication-plugin-1.0.1-48.jar',
+    checksum: 'bda872113243d2919f7c04c1b9a6401481bbd2a9e4a04cc382e9c9343c04b7fa'
+  ),
+  new GithubArtifact(
+    user: 'gocd',
+    repo: 'gocd-yum-repository-poller-plugin',
+    release: '2.0.3',
+    asset: 'gocd-yum-repo-plugin-2.0.3-3.jar',
+    checksum: 'cdf48ebb2cda67fafd2684b79c6d6e7580156876ea6084539c9d8a117f1f8883'
+  ),
+  new GithubArtifact(
+    user: 'tomzo',
+    repo: 'gocd-yaml-config-plugin',
+    release: '0.4.0',
+    asset: 'yaml-config-plugin-0.4.0.jar',
+    checksum: 'a08b11acbf1ebbb934ac9ad3d174873c860ea058248fbba9b31fe9edbd2e4d14'
+  ),
+  new GithubArtifact(
+    user: 'tomzo',
+    repo: 'gocd-json-config-plugin',
+    release: '0.2.0',
+    asset: 'json-config-plugin-0.2.jar',
+    checksum: '0f01c5a172e771fe350ce4c8c44967dd3a7b1274a275d9cbc65d52fb30bcaaa8'
+  )
+]
+
+task createVersionFile {
+  def file = file("${project.buildDir}/version.txt")
+  inputs.property('version', rootProject.version)
+  inputs.property('gitRevision', rootProject.gitRevision)
+
+  outputs.file file
+
+  doLast {
+    file.getParentFile().mkdirs()
+    file.withWriter { out ->
+      out.write("${rootProject.version} (${rootProject.gitRevision})")
+    }
+  }
+}
+
+task downloadPlugins {
+}
+
+task pluginsZip(type: Zip) {
+  finalizedBy 'verifyPluginZip'
+
+  baseName = 'plugins'
+  dependsOn createVersionFile
+  from(createVersionFile)
+
+  from(dependencies.collect { dep -> destFile(dep) })
+}
+
+task verifyPluginZip(type: VerifyJarTask) {
+  jarTask = pluginsZip
+
+  expectedJars = [
+    '/': dependencies.collect { dep -> "${dep.repo}.jar" }
+  ]
+}
+
+artifacts {
+  pluginsZipConfig pluginsZip
+}
+
+dependencies.each { dep ->
+  task "download-${dep.repo}"(type: DownloadFile) { downloadTask ->
+    pluginsZip.dependsOn downloadTask
+    downloadPlugins.dependsOn downloadTask
+    downloadTask.src dep.downloadUrl
+    downloadTask.dest destFile(dep)
+    downloadTask.checksum dep.checksum
+  }
+
+  pluginsZip.from(destFile(dep))
+}
+
+private File destFile(GithubArtifact dep) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(dep.downloadUrl)}/${dep.repo}.jar")
+}
+
+task prepare(dependsOn: pluginsZip)

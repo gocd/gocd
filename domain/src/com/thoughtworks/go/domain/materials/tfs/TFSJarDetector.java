@@ -63,11 +63,7 @@ public abstract class TFSJarDetector {
 
         @Override
         public URL getJarURL() throws IOException {
-            if (systemEnvironment.get(SystemEnvironment.TFS_SDK_10)) {
-                return TFSJarDetector.class.getClassLoader().getResource("defaultFiles/tfs-impl-10.jar");
-            } else {
-                return TFSJarDetector.class.getClassLoader().getResource("defaultFiles/tfs-impl-14.jar");
-            }
+            return TFSJarDetector.class.getClassLoader().getResource("defaultFiles/tfs-impl-14.jar");
         }
     }
 
@@ -82,11 +78,7 @@ public abstract class TFSJarDetector {
 
         @Override
         public URL getJarURL() throws IOException {
-            if (systemEnvironment.get(SystemEnvironment.TFS_SDK_10)) {
-                return new File("tfs-impl-10.jar").toURI().toURL();
-            } else {
-                return new File("tfs-impl-14.jar").toURI().toURL();
-            }
+            return new File("tfs-impl-14.jar").toURI().toURL();
         }
     }
 }

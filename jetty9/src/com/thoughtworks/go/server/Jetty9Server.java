@@ -194,7 +194,7 @@ public class Jetty9Server extends AppServer {
     private void replaceFileWithPackagedOne(File jettyConfig) {
         InputStream inputStream = null;
         try {
-            inputStream  = getClass().getResourceAsStream(JETTY_XML_LOCATION_IN_JAR + "/" + jettyConfig.getName());
+            inputStream = getClass().getResourceAsStream(JETTY_XML_LOCATION_IN_JAR + "/" + jettyConfig.getName());
             if (inputStream == null) {
                 throw new RuntimeException(format("Resource {0}/{1} does not exist in the classpath", JETTY_XML_LOCATION_IN_JAR, jettyConfig.getName()));
             }

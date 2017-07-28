@@ -69,4 +69,29 @@ public class MapBuilderTest {
         assertThat(MapBuilder.map("foo", 23, "s", 42, "t", 42, "x", 43, "y", 44), is(expected));
     }
 
+    @Test
+    public void testLengthSix() {
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("foo", 23);
+        expected.put("s", 42);
+        expected.put("t", 42);
+        expected.put("x", 43);
+        expected.put("y", 44);
+        expected.put("z", 45);
+        assertThat(MapBuilder.map("foo", 23, "s", 42, "t", 42, "x", 43, "y", 44, "z", 45), is(expected));
+    }
+
+    @Test
+    public void testLengthSeven() {
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("foo", 23);
+        expected.put("s", 42);
+        expected.put("t", 42);
+        expected.put("x", 43);
+        expected.put("y", 44);
+        expected.put("z", 45);
+        expected.put("q", 46);
+        assertThat(MapBuilder.map("foo", 23, "s", 42, "t", 42, "x", 43, "y", 44, "z", 45, "q", 46), is(expected));
+    }
+
 }

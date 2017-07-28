@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,8 +122,9 @@ public class PluginInfoBuilderTest {
         when(manager.getPluginDescriptorFor("yum.poller")).thenReturn(yumPoller);
         when(manager.getPluginDescriptorFor("xunit.convertor")).thenReturn(xunitConvertor);
         when(manager.getPluginDescriptorFor("github.pr")).thenReturn(githubPR);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(dockerElasticAgentPlugin, null, null));
-        AuthorizationMetadataStore.instance().setPluginInfo(new AuthorizationPluginInfo(ldapAuthPlugin, null, null, null, null));
+
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(dockerElasticAgentPlugin, null, null, null, false));
+        AuthorizationMetadataStore.instance().setPluginInfo(new AuthorizationPluginInfo(ldapAuthPlugin, null, null, null, null, null));
 
         MetadataStoreHelper.clear();
 

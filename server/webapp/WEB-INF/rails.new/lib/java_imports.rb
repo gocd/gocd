@@ -258,6 +258,7 @@ module JavaImports
   java_import com.thoughtworks.go.server.ui.TemplatesViewModel unless defined? TemplatesViewModel
   java_import com.thoughtworks.go.config.remote.RepoConfigOrigin unless defined? RepoConfigOrigin
   java_import com.thoughtworks.go.config.remote.FileConfigOrigin unless defined? FileConfigOrigin
+  java_import com.thoughtworks.go.config.remote.ConfigRepoConfig unless defined? ConfigRepoConfig
   java_import com.thoughtworks.go.config.PluginRoleConfig unless defined? PluginRoleConfig
   java_import com.thoughtworks.go.config.RoleConfig unless defined? RoleConfig
   java_import com.thoughtworks.go.config.RoleUser unless defined? RoleUser
@@ -268,4 +269,6 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.domain.common.ValidationResult unless defined? ValidationResult
   java_import com.thoughtworks.go.plugin.domain.common.ValidationError unless defined? ValidationError
   java_import com.thoughtworks.go.config.AdminUser unless defined? AdminUser
+  java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension unless defined? ElasticAgentExtension
+  java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore unless defined? ElasticAgentMetadataStore
 end

@@ -2752,6 +2752,7 @@ ul.plugins .plugin {
   padding:       20px;
   border-top:    0;
   border-bottom: 1px dotted #ccc;
+  position: relative;
   .plugin-details {
     margin-bottom: 10px;
   }
@@ -3743,4 +3744,34 @@ body#login-page {
 
 .config-materials .action_icon.delete_icon_disabled {
   padding-left: 3px;
+}
+
+.btn-primary {
+  display:       inline-block;
+  padding:       10px;
+  border-radius: 3px;
+  color:         #fff;
+  font-size:     14px;
+  font-weight:   600;
+  background:    #b66fc2 !important;
+  &:hover, &:visited {
+    text-decoration: none;
+    color:           #fff;
+  }
+}
+
+.status-report-btn {
+  right:    20px;
+  position: absolute;
+}
+
+.btn-small {
+  padding:   4px 9px;
+  font-size: 12px;
+}
+
+.status-report-btn-small {
+  margin-left: 10px;
+  position:    absolute;
+  top:         8px;
 }

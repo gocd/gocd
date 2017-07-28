@@ -163,7 +163,7 @@ let SettingsWidget = {
                 <f.checkbox model={stage}
                             attrName='fetchMaterials'
                             label={[
-                              "Fetcb materials",
+                              "Fetch materials",
                               <f.tooltip tooltip={{content: tt.stage.fetchMaterials, size: 'small'}} />
                             ]} />
               </f.column>
@@ -173,7 +173,7 @@ let SettingsWidget = {
                 <f.checkbox model={stage}
                             attrName='neverCleanupArtifacts'
                             label={[
-                              "Naver clean up artifacts",
+                              "Never clean up artifacts",
                               <f.tooltip tooltip={{content: tt.stage.neverCleanupArtifacts, size: 'small'}} />
                             ]} />
               </f.column>

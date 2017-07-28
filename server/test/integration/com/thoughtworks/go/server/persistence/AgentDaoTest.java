@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.AgentCookie;
+import com.thoughtworks.go.server.domain.Agent;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.junit.After;
@@ -76,20 +76,26 @@ public class AgentDaoTest {
     }
 
     @Test
-    public void shouldAssociateCookieForAGivenAgent() throws Exception {
+    public void shouldAssociateInformationForAGivenAgent() throws Exception {
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
-        assertThat(cookieForUuid(), is("cookie"));
+        Agent agent = getAgentByUuid(agentIdentifier);
+        assertThat(agent.getCookie(), is("cookie"));
+        assertThat(agent.getHostname(), is(agentIdentifier.getHostName()));
+        assertThat(agent.getIpaddress(), is(agentIdentifier.getIpAddress()));
     }
 
     @Test
-    public void shouldUpdateExistingAgentCookieMappingIfOneExists() throws Exception {
+    public void shouldUpdateExistingAgentMappingIfOneExists() throws Exception {
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
         agentDao.associateCookie(agentIdentifier, "cookie_updated");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie_updated"));
-        assertThat(cookieForUuid(), is("cookie_updated"));
+        Agent agent = getAgentByUuid(agentIdentifier);
+        assertThat(agent.getCookie(), is("cookie_updated"));
+        assertThat(agent.getHostname(), is(agentIdentifier.getHostName()));
+        assertThat(agent.getIpaddress(), is(agentIdentifier.getIpAddress()));
     }
 
     @Test
@@ -99,13 +105,14 @@ public class AgentDaoTest {
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                AgentCookie agentCookie = (AgentCookie) session.createQuery("from AgentCookie where uuid = 'uuid'").uniqueResult();
-                agentCookie.updateCookie("updated_cookie");
-                session.update(agentCookie);
+                Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
+                agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+                session.update(agent);
                 return null;
             }
         });
-        assertThat(cookieForUuid(), is("updated_cookie"));
+        Agent agent = getAgentByUuid(agentIdentifier);
+        assertThat(agent.getCookie(), is("updated_cookie"));
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         goCache.clear();
         assertThat(agentDao.cookieFor(agentIdentifier), is("updated_cookie"));
@@ -113,20 +120,23 @@ public class AgentDaoTest {
 
     @Test
     public void shouldNotClearCacheIfTransactionFails() throws Exception {
+        HibernateTemplate originalTemplate = agentDao.getHibernateTemplate();
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                AgentCookie agentCookie = (AgentCookie) session.createQuery("from AgentCookie where uuid = 'uuid'").uniqueResult();
-                agentCookie.updateCookie("updated_cookie");
-                session.update(agentCookie);
+                Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
+                agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+                session.update(agent);
                 return null;
             }
         });
-        assertThat(cookieForUuid(), is("updated_cookie"));
+        Agent agent = getAgentByUuid(agentIdentifier);
+        assertThat(agent.getCookie(), is("updated_cookie"));
+
         agentDao.setHibernateTemplate(mockHibernateTemplate);
-        doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any(AgentCookie.class));
+        doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any(Agent.class));
         try {
             agentDao.associateCookie(agentIdentifier, "cookie");
             fail("should have propagated saveOrUpdate exception");
@@ -134,12 +144,13 @@ public class AgentDaoTest {
             assertThat(e.getMessage(), is("holy smoke"));
         }
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+        agentDao.setHibernateTemplate(originalTemplate);
     }
 
-    private String cookieForUuid() {
-        return (String) hibernateTemplate.execute(new HibernateCallback() {
+    private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
+        return (Agent) hibernateTemplate.execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return session.createSQLQuery("SELECT cookie from agents where uuid = 'uuid'").uniqueResult();
+                return session.createSQLQuery("SELECT * from agents where uuid = '" + agentIdentifier.getUuid() + "'").addEntity(Agent.class).uniqueResult();
             }
         });
     }

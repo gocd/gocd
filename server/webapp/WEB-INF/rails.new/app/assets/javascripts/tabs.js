@@ -78,9 +78,9 @@ var SubTabs = Class.create({
         this.container.hideAllSubTabs();
         this.element.addClassName('current_tab');
         if (this.before_open_callback) {
-            this.before_open_callback();
+            this.before_open_callback(this.tab_name);
         }
-        if(this.content){
+        if (this.content) {
             this.content.show();
             var init_method_name = this.content.id+ "_callback";
             if(window[init_method_name]){

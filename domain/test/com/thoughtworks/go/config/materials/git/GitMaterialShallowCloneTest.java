@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.materials.git;
 
 
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
@@ -32,7 +31,6 @@ import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +44,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-@RunWith(JunitExtRunner.class)
 
 public class GitMaterialShallowCloneTest {
     private GitTestRepo repo;

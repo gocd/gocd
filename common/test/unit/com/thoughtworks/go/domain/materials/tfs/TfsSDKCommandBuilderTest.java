@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain.materials.tfs;
 
 import com.thoughtworks.go.util.NestedJarClassLoader;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,8 +90,7 @@ public class TfsSDKCommandBuilderTest {
     private URL getLog4jJarFromClasspath() throws URISyntaxException {
         URLClassLoader classLoader = (URLClassLoader) this.getClass().getClassLoader();
         for (URL u : classLoader.getURLs()) {
-            String jarPath = u.getPath();
-            if (jarPath.endsWith(".jar") && jarPath.contains("log4j")) {
+            if (FilenameUtils.getExtension(u.getPath()).equals("jar") && FilenameUtils.getName(u.getPath()).startsWith("log4j-")) {
                 return u;
             }
         }

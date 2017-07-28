@@ -24,24 +24,22 @@ task agentGenericZip(type: Zip, dependsOn: [':agent-bootstrapper:fatJar']) { zip
   // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
   from("${rootProject.projectDir}/LICENSE")
 
-  doFirst {
-    from("${project.projectDir}/go-agent/release") {
-      exclude "*.sh"
-    }
-
-    from("${project.projectDir}/go-agent/release") {
-      include "*.sh"
-      fileMode = 0755
-    }
-
-    from(configurations.agentBootstrapperJar) {
-      rename "(.*)-${project.version}.(.*)", '$1.$2'
-    }
-
-    from("${project(':agent-bootstrapper').projectDir}/resources/config/agent-bootstrapper-log4j.properties") { into "config" }
-    from("${project(':agent-launcher').projectDir}/resources/config/agent-launcher-log4j.properties") { into "config" }
-    from("${project(':agent').projectDir}/resources/config/agent-log4j.properties") { into "config" }
+  from("${project.projectDir}/go-agent/release") {
+    exclude "*.sh"
   }
+
+  from("${project.projectDir}/go-agent/release") {
+    include "*.sh"
+    fileMode = 0755
+  }
+
+  from({configurations.agentBootstrapperJar}) {
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
+
+  from("${project(':agent-bootstrapper').projectDir}/resources/config/agent-bootstrapper-log4j.properties") { into "config" }
+  from("${project(':agent-launcher').projectDir}/resources/config/agent-launcher-log4j.properties") { into "config" }
+  from("${project(':agent').projectDir}/resources/config/agent-log4j.properties") { into "config" }
 }
 
 task serverGenericZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask ->
@@ -55,19 +53,17 @@ task serverGenericZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTa
   zipTask.from("${rootProject.projectDir}/LICENSE")
   zipTask.from("${project(':server').projectDir}/properties/src/config/log4j.properties") { into "config" }
 
-  doFirst {
-    zipTask.from("${project.projectDir}/go-server/release") {
-      include "*.sh"
-      fileMode = 0755
-    }
+  zipTask.from("${project.projectDir}/go-server/release") {
+    include "*.sh"
+    fileMode = 0755
+  }
 
-    zipTask.from("${project.projectDir}/go-server/release") {
-      exclude "cruise-config.xml"
-    }
+  zipTask.from("${project.projectDir}/go-server/release") {
+    exclude "cruise-config.xml"
+  }
 
-    zipTask.from(configurations.serverJar) {
-      rename "(.*)-${project.version}.(.*)", 'go.jar'
-    }
+  zipTask.from({configurations.serverJar}) {
+    rename "(.*)-${project.version}.(.*)", 'go.jar'
   }
 }
 

@@ -18,11 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.ProcessRunner;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 
 /**
@@ -37,25 +33,14 @@ public class DevelopmentAgent {
     public static void main(String[] args) throws Exception {
         new ProcessRunner().command("curl", "http://localhost:8153/go/admin/agent-plugins.zip", "--fail", "--silent", "--output", "agent-plugins.zip").failOnError(false).run();
         new ProcessRunner().command("curl", "http://localhost:8153/go/admin/tfs-impl.jar", "--fail", "--silent", "--output", "tfs-impl.jar").failOnError(false).run();
-        copyActivatorJarToClassPath();
+        new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
+        assertActivationJarPresent();
         AgentMain.main("-serverUrl", "https://localhost:8154/go");
     }
 
-    private static void copyActivatorJarToClassPath() throws IOException {
-        File activatorJar = new File("../plugin-infra/go-plugin-activator/target/libs/").listFiles((FileFilter) new WildcardFileFilter("go-plugin-activator-*.jar"))[0];
-        new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, activatorJar.getName());
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
-        systemEnvironment.set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
-        systemEnvironment.set(SystemEnvironment.PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS, 5);
-
-        if (activatorJar.exists()) {
-            FileUtils.copyFile(activatorJar, new File(classpath(), "go-plugin-activator.jar"));
-        } else {
-            System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded.");
+    private static void assertActivationJarPresent() throws IOException {
+        if (DevelopmentAgent.class.getResource("/go-plugin-activator.jar") == null) {
+            System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded. Hint: Did you run `./gradlew prepare`?");
         }
-    }
-
-    private static File classpath() {
-        return new File("target/classes/main");
     }
 }

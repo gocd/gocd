@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.ui.plugins;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
+@Deprecated
 public class PackageRepositoryPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings packageSettings;
     private final PluggableInstanceSettings repositorySettings;

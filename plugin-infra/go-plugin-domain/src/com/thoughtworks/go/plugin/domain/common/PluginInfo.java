@@ -21,10 +21,12 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 public class PluginInfo {
     protected final PluginDescriptor descriptor;
     protected final String extensionName;
+    public PluggableInstanceSettings pluginSettings;
 
-    public PluginInfo(PluginDescriptor descriptor, String extensionName) {
+    public PluginInfo(PluginDescriptor descriptor, String extensionName, PluggableInstanceSettings pluginSettings) {
         this.descriptor = descriptor;
         this.extensionName = extensionName;
+        this.pluginSettings = pluginSettings;
     }
 
     public PluginDescriptor getDescriptor() {
@@ -33,5 +35,30 @@ public class PluginInfo {
 
     public String getExtensionName() {
         return extensionName;
+    }
+
+    public PluggableInstanceSettings getPluginSettings() {
+        return pluginSettings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PluginInfo that = (PluginInfo) o;
+
+        if (descriptor != null ? !descriptor.equals(that.descriptor) : that.descriptor != null) return false;
+        if (extensionName != null ? !extensionName.equals(that.extensionName) : that.extensionName != null)
+            return false;
+        return pluginSettings != null ? pluginSettings.equals(that.pluginSettings) : that.pluginSettings == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = descriptor != null ? descriptor.hashCode() : 0;
+        result = 31 * result + (extensionName != null ? extensionName.hashCode() : 0);
+        result = 31 * result + (pluginSettings != null ? pluginSettings.hashCode() : 0);
+        return result;
     }
 }

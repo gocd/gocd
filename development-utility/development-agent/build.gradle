@@ -21,7 +21,7 @@ dependencies {
   compile project(':util')
 }
 
-clean.doLast {
+clean {
   delete 'config'
   delete 'felix-cache'
   delete 'pipelines'

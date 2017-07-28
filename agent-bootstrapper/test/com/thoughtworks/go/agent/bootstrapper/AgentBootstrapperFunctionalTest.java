@@ -18,26 +18,28 @@ package com.thoughtworks.go.agent.bootstrapper;
 
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
+import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.net.URL;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
-import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.TEST_AGENT_LAUNCHER;
+import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
 
-@RunWith(FakeBootstrapperServer.class)
 public class AgentBootstrapperFunctionalTest {
+
+    @Rule
+    public FakeGoServer server = new FakeGoServer();
 
     public static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
 
@@ -80,7 +82,7 @@ public class AgentBootstrapperFunctionalTest {
                 new AgentBootstrapper(){
                             @Override void jvmExit(int returnValue) {
                             }
-                        }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+                        }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
                 agentJar.delete();
                 assertThat(new String(os.toByteArray()), containsString("Hello World Fellas!"));
             } finally {
@@ -97,7 +99,7 @@ public class AgentBootstrapperFunctionalTest {
             new AgentBootstrapper(){
                         @Override void jvmExit(int returnValue) {
                         }
-                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertTrue("No agent downloaded", agentJar.exists());
             agentJar.delete();
         }
@@ -113,7 +115,7 @@ public class AgentBootstrapperFunctionalTest {
             new AgentBootstrapper(){
                         @Override void jvmExit(int returnValue) {
                         }
-                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertThat(agentJar.length(), not(original));
             agentJar.delete();
         }

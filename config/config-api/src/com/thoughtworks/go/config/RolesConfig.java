@@ -142,6 +142,19 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return filterRolesBy(PluginRoleConfig.class);
     }
 
+    public List<PluginRoleConfig> pluginRoleConfigsFor(String authConfigId) {
+        List<PluginRoleConfig> rolesConfig = new ArrayList<>();
+        for (Role role : this) {
+            if (role instanceof PluginRoleConfig) {
+                if (((PluginRoleConfig) role).getAuthConfigId().equals(authConfigId)) {
+                    rolesConfig.add((PluginRoleConfig) role);
+                }
+            }
+        }
+
+        return rolesConfig;
+    }
+
     public List<RoleConfig> getRoleConfigs() {
         return filterRolesBy(RoleConfig.class);
     }

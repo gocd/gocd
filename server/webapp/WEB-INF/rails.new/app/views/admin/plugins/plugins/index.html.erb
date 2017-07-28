@@ -39,14 +39,9 @@
                         <span class="name"><%= about.name() %></span>
                         <span class="smaller version"><%= about.version() %></span>
                         <span class=" smaller descriptor-id">[<%= descriptor.id() %>]</span>
-                        <span class="plugin-author smaller">
-                            <span class="key">Author</span>
-                            <% if vendor.url().nil? %>
-                                <span class="value"><%= vendor.name() %></span>
-                            <% else %>
-                                <span class="value"><a href="<%= vendor.url() %>" target="_blank"><%= vendor.name() %></a></span>
-                            <% end %>
-                        </span>
+                      <% if plugin_supports_status_report?(descriptor.id()) %>
+                          <%= link_to 'Status Report', admin_status_report_path(descriptor.id()), :class => 'btn-primary status-report-btn' -%>
+                      <% end %>
                     </div>
 
                     <div class="description"><%= about.description() %></div>
@@ -66,6 +61,14 @@
                             <span class="key">Bundled:</span><span class="value"><%= descriptor.isBundledPlugin() ? l.string("YES") : l.string("NO") %></span>
                         </li>
                     </ul>
+                    <span class="plugin-author">
+                        <span class="key">Author</span>
+                        <% if vendor.url().nil? %>
+                        <span class="value"><%= vendor.name() %></span>
+                        <% else %>
+                            <span class="value"><a href="<%= vendor.url() %>" target="_blank"><%= vendor.name() %></a></span>
+                        <% end %>
+                    </span>
 
                     <% plugin_messages = descriptor.getStatus().getMessages() %>
                     <% unless plugin_messages.empty? %>

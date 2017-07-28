@@ -20,10 +20,14 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.StringUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -46,9 +50,13 @@ public class ConfigRepoConfig implements Validatable {
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
 
+    @ConfigAttribute(value = "id", allowNull = false)
+    private String id = UUID.randomUUID().toString();
+
     public static final String AUTO_UPDATE = "autoUpdate";
     public static final String UNIQUE_REPO = "unique_repo";
     public static final String REPO = "repo";
+    public static final String ID = "id";
 
     private ConfigErrors errors = new ConfigErrors();
 
@@ -57,6 +65,11 @@ public class ConfigRepoConfig implements Validatable {
     public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName){
         this.repo = repo;
         this.configProviderPluginName = configProviderPluginName;
+    }
+
+    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName, String id){
+        this(repo, configProviderPluginName);
+        this.id = id;
     }
 
     public MaterialConfig getMaterialConfig() {
@@ -69,6 +82,16 @@ public class ConfigRepoConfig implements Validatable {
 
     public String getConfigProviderPluginName() {
         return configProviderPluginName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        if(StringUtil.isBlank(id))
+            id = null;
+        this.id = id;
     }
 
     public void setConfigProviderPluginName(String configProviderPluginName) {
@@ -91,6 +114,11 @@ public class ConfigRepoConfig implements Validatable {
         if (repo != null ? !repo.equals(that.repo) : that.repo != null) {
             return false;
         }
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+
         if (configProviderPluginName != null ? !configProviderPluginName.equals(that.configProviderPluginName) : that.configProviderPluginName != null) {
             return false;
         }
@@ -107,6 +135,7 @@ public class ConfigRepoConfig implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
+        this.validatePresenceOfId();
         this.validateRepoIsSet();
         this.validateAutoUpdateEnabled();
         this.validateAutoUpdateState(validationContext);
@@ -136,6 +165,15 @@ public class ConfigRepoConfig implements Validatable {
         map.put(materialFingerprint, this);
     }
 
+    public void validateIdUniqueness(ArrayList<String> allIds) {
+        if(StringUtil.isBlank(this.id)) {
+            this.errors.add("id",String.format( "Invalid config-repo id", id));
+        }
+        if(allIds.contains(this.id)) {
+            this.errors.add("unique_id",String.format( "You have defined multiple configuration repositories with the same id - %s", id));
+        }
+    }
+
     private void validateAutoUpdateEnabled() {
         if(!this.getMaterialConfig().isAutoUpdate())
             this.errors.add(AUTO_UPDATE,String.format(
@@ -155,6 +193,11 @@ public class ConfigRepoConfig implements Validatable {
         }
     }
 
+    private void validatePresenceOfId() {
+        if (this.getId() == null) {
+            this.errors.add(ID,"Configuration repository id not specified");
+        }
+    }
 
     public boolean hasSameMaterial(MaterialConfig config) {
         return this.getMaterialConfig().getFingerprint().equals(config.getFingerprint());
@@ -187,5 +230,9 @@ public class ConfigRepoConfig implements Validatable {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configuration) {
+        this.configuration.addAll(configuration);
     }
 }

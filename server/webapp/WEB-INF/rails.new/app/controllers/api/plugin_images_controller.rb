@@ -16,9 +16,8 @@
 
 module Api
   class PluginImagesController < ::ApplicationController
-    Rails.logger.fatal('reached here')
     def show
-      image = default_plugin_info_builder.getImage(params[:plugin_id], params[:hash])
+      image = default_plugin_info_finder.getImage(params[:plugin_id], params[:hash])
       if image
         response.content_type = image.getContentType
         response.charset = false

@@ -34,7 +34,6 @@ include ':config-server'
 include ':common'
 include ':agent-common'
 include ':test-agent'
-include ':tfs-impl-10'
 include ':tfs-impl-14'
 include ':agent'
 include ':agent-process-launcher'
@@ -51,6 +50,7 @@ include ':development-server'
 include ':installers'
 include ':release'
 include ':tools'
+include ':tw-go-plugins'
 
 project(':base').projectDir = "$rootDir/base" as File
 project(':util').projectDir = "$rootDir/util" as File
@@ -71,7 +71,6 @@ project(':config-server').projectDir = "$rootDir/config/config-server" as File
 project(':common').projectDir = "$rootDir/common" as File
 project(':agent-common').projectDir = "$rootDir/agent-common" as File
 project(':test-agent').projectDir = "$rootDir/test-agent" as File
-project(':tfs-impl-10').projectDir = "$rootDir/tfs-impl/tfs-impl-10" as File
 project(':tfs-impl-14').projectDir = "$rootDir/tfs-impl/tfs-impl-14" as File
 project(':agent').projectDir = "$rootDir/agent" as File
 project(':agent-launcher').projectDir = "$rootDir/agent-launcher" as File
@@ -87,6 +86,7 @@ project(':development-server').projectDir = "$rootDir/development-utility/develo
 project(':installers').projectDir = "$rootDir/installers" as File
 project(':release').projectDir = "$rootDir/release" as File
 project(':tools').projectDir = "$rootDir/tools" as File
+project(':tw-go-plugins').projectDir = "$rootDir/tw-go-plugins" as File
 include 'domain'
 include 'commandline'
 

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.domain.JobResult;
@@ -37,7 +36,6 @@ import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,8 +56,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
-@RunWith(JunitExtRunner.class)
-
 public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     private static final String SUBMODULE = "submodule-1";
 
@@ -69,7 +65,6 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     public void setup() throws Exception {
         workingDir = new File(sandbox, "working");
     }
-
 
     @After
     public void teardown() throws Exception {
@@ -92,7 +87,6 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
                 containsString("Start updating files at revision " + REVISION_2.getRevision()));
         assertThat(newFile.exists(), is(true));
     }
-
 
     @Test
     public void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {

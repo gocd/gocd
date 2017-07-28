@@ -24,12 +24,15 @@
         <td class="duration">
             <%= render :partial => "elapsed_time.html", :locals=> {:scope => {:job => job , :show_elapsed => false}} %>
         </td>
-        <td class="agent"
+        <td class="agent">
             <%- if job.hasAgentInfo() -%>
-                title="<%=job.getAgentLocation()-%>">
-                <% agent_that_job_ran_on = "#{job.getHostname()}(#{job.getIpAddress()})".html_safe %>
-                <%=link_to(agent_that_job_ran_on, agent_detail_path(:uuid => job.getUuid()), :class => 'wrapped_word') %>
-            <%- else -%>>
+                <% agent_that_job_ran_on = "#{job.getHostname()} (#{job.getIpAddress()})".html_safe %>
+                <%- if job.hasLiveAgent() -%>
+                    <%=link_to(agent_that_job_ran_on, agent_detail_path(:uuid => job.getUuid()), :class => 'wrapped_word') %>
+                  <%- else -%>
+                    <%=agent_that_job_ran_on%>
+                  <%- end -%>
+            <%- else -%>
                 <%=l.string('Not yet assigned')%>
             <%- end -%>
         </td>

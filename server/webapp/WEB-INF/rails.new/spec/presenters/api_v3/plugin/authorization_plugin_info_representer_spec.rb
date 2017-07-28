@@ -22,15 +22,15 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    image = com.thoughtworks.go.plugin.access.common.models.Image.new('foo', Base64.strict_encode64('bar'))
-    auth_config_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('auth_config_view_template')
-    auth_config_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('url', {required: true, secure: false, display_name: 'Url', display_order: '1'}, nil)], auth_config_view)
+    image = com.thoughtworks.go.plugin.domain.common.Image.new('foo', Base64.strict_encode64('bar'), "945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756")
+    auth_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('auth_config_view_template')
+    auth_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], auth_config_view)
 
-    role_config_view = com.thoughtworks.go.server.ui.plugins.PluginView.new('role_config_view_template')
-    role_config_settings = PluggableInstanceSettings.new([com.thoughtworks.go.server.ui.plugins.PluginConfiguration.new('memberOf', {required: true, secure: false, display_name: 'Member Of', display_order: '1'}, nil)], role_config_view)
-    capabilities = Capabilities.new(SupportedAuthType::Password, true, true);
+    role_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
+    role_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], role_config_view)
+    capabilities = com.thoughtworks.go.plugin.domain.authorization.Capabilities.new(com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType::Password, true, true)
 
-    plugin_info = com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities)
+    plugin_info = com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities, nil)
     actual_json = ApiV3::Plugin::AuthorizationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc, :find, :image)
@@ -44,6 +44,11 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
                                 id: 'foo.example',
                                 version: '1.0',
                                 type: 'authorization',
+                                status: {
+                                  state: 'active'
+                                },
+                                plugin_file_location: nil,
+                                bundled_plugin: false,
                                 about: {
                                   name: 'Foo plugin',
                                   version: '1.2.3',

@@ -17,28 +17,41 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
+import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
+
 @Component
 public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticAgentPluginInfo> {
+
     private ElasticAgentExtension extension;
+    private final PluginManager pluginManager;
 
     @Autowired
-    public ElasticAgentPluginInfoBuilder(ElasticAgentExtension extension) {
+    public ElasticAgentPluginInfoBuilder(ElasticAgentExtension extension, PluginManager pluginManager) {
         this.extension = extension;
+        this.pluginManager = pluginManager;
     }
 
     @Override
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
-        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()));
+        PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
+
+        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()), pluggableInstanceSettings, supportsStatusReport(descriptor.id()));
+    }
+
+    private boolean supportsStatusReport(String pluginId) {
+        return pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS).equals(ElasticAgentExtensionConverterV2.VERSION);
     }
 
     private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {

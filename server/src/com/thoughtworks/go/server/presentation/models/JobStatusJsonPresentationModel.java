@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.dto.DurationBean;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.TimeConverter;
 import org.joda.time.DateTime;
@@ -35,18 +35,23 @@ import static java.lang.String.valueOf;
 
 
 public class JobStatusJsonPresentationModel {
-    private AgentConfig agentConfig;
+    private Agent agent;
     private final JobInstance instance;
     private DurationBean durationBean;
 
-    public JobStatusJsonPresentationModel(JobInstance instance, AgentConfig agentConfig, DurationBean durationBean) {
+    public JobStatusJsonPresentationModel(JobInstance instance, Agent agent, DurationBean durationBean) {
         this.instance = instance;
-        this.agentConfig = agentConfig == null ? NullAgent.createNullAgent() : agentConfig;
-        this.durationBean = durationBean;
-    }
 
-    public JobStatusJsonPresentationModel(JobInstance instance, AgentConfig agentConfig) {
-        this(instance, agentConfig, new DurationBean(instance.getId()));
+        if (null == instance.getAgentUuid()) {
+            agent = Agent.fromConfig(NullAgent.createNullAgent());
+        }
+
+        if (null == agent) {
+            agent = Agent.blankAgent(instance.getAgentUuid());
+        }
+
+        this.agent = agent;
+        this.durationBean = durationBean;
     }
 
     public JobStatusJsonPresentationModel(JobInstance instance) {
@@ -55,9 +60,9 @@ public class JobStatusJsonPresentationModel {
 
     public Map toJsonHash() {
         Map<String, Object> jsonParams = new LinkedHashMap<>();
-        jsonParams.put("agent", agentConfig.getHostNameForDispaly());
-        jsonParams.put("agent_ip", agentConfig.getIpAddress());
-        jsonParams.put("agent_uuid", agentConfig.getUuid());
+        jsonParams.put("agent", agent.getHostname());
+        jsonParams.put("agent_ip", agent.getIpaddress());
+        jsonParams.put("agent_uuid", agent.getUuid());
         jsonParams.put("build_scheduled_date", getScheduledTime());
         jsonParams.put("build_assigned_date", getPreciseDateFor(Assigned));
         jsonParams.put("build_preparing_date", getPreciseDateFor(Preparing));

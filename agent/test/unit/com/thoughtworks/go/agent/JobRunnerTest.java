@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.agent;
 
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
@@ -37,7 +36,6 @@ import com.thoughtworks.go.work.FakeWork;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +47,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(JunitExtRunner.class)
 public class JobRunnerTest {
     private static final String SERVER_URL = "somewhere-does-not-matter";
     private static final String JOB_PLAN_NAME = "run-ant";

@@ -34,7 +34,6 @@ public class BuildCommandTest {
         assertThat(new BuildCommand("foo", map("foo", "bar")).getStringArg("foo"), is("bar"));
     }
 
-
     @Test
     public void defaultSubCommandsShouldBeEmpty() {
         assertThat(new BuildCommand("foo").getSubCommands().size(), is(0));

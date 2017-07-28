@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
@@ -96,6 +97,48 @@ public class EnvironmentConfigServiceTest {
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
         assertThat(environmentConfigService.getEnvironmentForEdit(uat), is(expectedToEdit));
+    }
+
+    @Test
+    public void shouldReturnAllTheLocalEnvironments() throws Exception {
+        String uat = "uat";
+
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        local.addEnvironmentVariable("user", "admin");
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        remote.addEnvironmentVariable("foo", "bar");
+        MergeEnvironmentConfig merged = new MergeEnvironmentConfig(local, remote);
+
+        EnvironmentsConfig environments = new EnvironmentsConfig();
+        environments.add(merged);
+
+        environmentConfigService.sync(environments);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.named(uat).getLocal();
+        cruiseConfig.addEnvironment(env);
+        List<BasicEnvironmentConfig> expectedToEdit = Arrays.asList(new Cloner().deepClone(env));
+
+        when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
+
+        assertThat(environmentConfigService.getAllLocalEnvironments(), is(expectedToEdit));
+    }
+
+    @Test
+    public void shouldReturnAllTheMergedEnvironments() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        CruiseConfig config = new BasicCruiseConfig();
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
+        env.addPipeline(new CaseInsensitiveString("bar"));
+        env.addAgent("baz");
+        env.addEnvironmentVariable("quux", "bang");
+        EnvironmentsConfig environments = config.getEnvironments();
+        environments.add(env);
+        environmentConfigService.sync(environments);
+        when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
+
+        assertThat(environmentConfigService.getAllMergedEnvironments(), Is.is(Arrays.asList(env)));
+        assertThat(result.isSuccessful(), is(true));
     }
 
     @Test

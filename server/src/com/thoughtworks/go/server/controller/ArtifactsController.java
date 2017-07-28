@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.ConsoleOut;
+import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
@@ -47,7 +47,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -60,15 +59,14 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Controller
 public class ArtifactsController {
-    private ArtifactsService artifactsService;
-    private RestfulService restfulService;
-
     private static final Logger LOGGER = Logger.getLogger(ArtifactsController.class);
     private final ConsoleActivityMonitor consoleActivityMonitor;
-    private ConsoleService consoleService;
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
+    private ArtifactsService artifactsService;
+    private RestfulService restfulService;
+    private ConsoleService consoleService;
     private HeaderConstraint headerConstraint;
 
     @Autowired
@@ -139,7 +137,7 @@ public class ArtifactsController {
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
         JobIdentifier jobIdentifier;
-        if(!headerConstraint.isSatisfied(request)) {
+        if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
         try {
@@ -245,17 +243,13 @@ public class ArtifactsController {
                                    @RequestParam("stageName") String stageName,
                                    @RequestParam("buildName") String buildName,
                                    @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                   @RequestParam(value = "startLineNumber", required = false) Integer start
+                                   @RequestParam(value = "startLineNumber", required = false) Long start
     ) throws Exception {
+        start = start == null ? 0L : start;
 
-        int startLine = start == null ? 0 : start;
-        try {
-            JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
-                    buildName);
-            ConsoleOut consoleOut = consoleService.getConsoleOut(identifier, startLine);
-            return new ModelAndView(new ConsoleOutView(consoleOut.calculateNextStart(), consoleOut.output()));
-        } catch (FileNotFoundException e) {
-            return new ModelAndView(new ConsoleOutView(0, ""));
+        try (ConsoleConsumer streamer = consoleService.getStreamer(start, restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
+                buildName))) {
+            return new ModelAndView(new ConsoleOutView(streamer));
         } catch (Exception e) {
             return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         }

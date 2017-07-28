@@ -61,12 +61,16 @@ describe Api::GitHubController do
         controller.stub(:allow_only_push_event)
         all_matching_repos = %w(
                             https://github.com/org/repo
+                            https://github.com/org/repo/
                             https://github.com/org/repo.git
                             http://github.com/org/repo
+                            http://github.com/org/repo/
                             http://github.com/org/repo.git
                             git://github.com/org/repo
+                            git://github.com/org/repo/
                             git://github.com/org/repo.git
                             git@github.com:org/repo
+                            git@github.com:org/repo/
                             git@github.com:org/repo.git)
 
         @material_update_service
@@ -150,12 +154,16 @@ describe Api::GitHubController do
         controller.stub(:allow_only_push_event)
         all_matching_repos = %w(
                             https://github.com/org/repo
+                            https://github.com/org/repo/
                             https://github.com/org/repo.git
                             http://github.com/org/repo
+                            http://github.com/org/repo/
                             http://github.com/org/repo.git
                             git://github.com/org/repo
+                            git://github.com/org/repo/
                             git://github.com/org/repo.git
                             git@github.com:org/repo
+                            git@github.com:org/repo/
                             git@github.com:org/repo.git)
 
         @material_update_service

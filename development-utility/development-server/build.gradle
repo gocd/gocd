@@ -16,6 +16,12 @@
 
 description = 'GoCD Server used for development'
 
+configurations {
+  copyOnly {
+    transitive = false
+  }
+}
+
 dependencies {
   compile project(':server')
   compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
@@ -24,6 +30,7 @@ dependencies {
   compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
@@ -32,4 +39,35 @@ dependencies {
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
+
+  copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
+  copyOnly project(':go-plugin-activator')
+}
+
+def generatedResourcesOutput = file("resources-generated")
+
+sourceSets {
+  main {
+    resources {
+      output.dir generatedResourcesOutput, builtBy: 'generateResources'
+      srcDirs += generatedResourcesOutput
+    }
+  }
+}
+
+clean {
+  delete(generatedResourcesOutput)
+}
+
+task generateResources(type: Copy) {
+  outputs.dir(generatedResourcesOutput)
+
+  into generatedResourcesOutput
+  from(project.configurations.copyOnly) {
+    rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
+  }
+}
+
+task prepare {
+  dependsOn generateResources
 }

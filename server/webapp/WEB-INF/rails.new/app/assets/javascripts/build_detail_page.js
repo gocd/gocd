@@ -52,9 +52,8 @@
 
     var build = $("[data-console-url]");
 
-    function triggerLogDequeue() {
-      var subTab = this;
-      jobDetails.trigger("dequeue", subTab.tab_name);
+    function triggerLogDequeue(tabName) {
+      jobDetails.trigger("dequeue", tabName);
     }
 
     var uid = [jobDetails.data("pipeline"), jobDetails.data("stage"), jobDetails.data("job"), jobDetails.data("build")].join("-");
@@ -119,15 +118,21 @@
       });
 
       var multiTransformer = new MultiplexingTransformer(transformers);
-
-      executor.register(new ConsoleLogObserver(consoleUrl, multiTransformer, {
+      var lifecycleOptions = {
         onUpdate:   function () {
           containers.trigger("consoleUpdated");
         },
         onComplete: function () {
           containers.trigger("consoleCompleted");
         }
-      }));
+      };
+
+      // fallback to AJAX polling log tailer
+      var legacyConsolePoller = new ConsoleLogObserver(consoleUrl, multiTransformer, lifecycleOptions);
+      executor.register(legacyConsolePoller);
+
+      // websocket log tailer
+      new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
 
       jobDetails.on("dequeue", function (e, name) {
         multiTransformer.dequeue(name);

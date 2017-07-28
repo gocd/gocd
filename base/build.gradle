@@ -46,13 +46,23 @@ sourceSets {
   }
 }
 
-clean.doLast {
-  project.delete(generatedResourcesOutput)
+clean {
+  delete(generatedResourcesOutput)
 }
 
 task generateResources {
   inputs.dir(generatedResourcesInput)
   outputs.dir(generatedResourcesOutput)
+
+  def props = [
+    'goVersion': rootProject.goVersion,
+    'distVersion': rootProject.distVersion,
+    'fullVersion': rootProject.fullVersion,
+    'gitRevision': rootProject.gitRevision,
+    'copyrightYear': rootProject.copyrightYear,
+  ]
+
+  inputs.properties(props)
 
   doFirst {
     project.delete(generatedResourcesOutput)
@@ -61,8 +71,12 @@ task generateResources {
     project.copy {
       into generatedResourcesOutput
       from(generatedResourcesInput) {
-        expand(rootProject.properties)
+        expand(props)
       }
     }
   }
+}
+
+task prepare {
+  dependsOn generateResources
 }

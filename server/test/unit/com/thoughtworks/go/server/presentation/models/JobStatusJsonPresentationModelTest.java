@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.util.JsonTester;
 import com.thoughtworks.go.util.JsonUtils;
 import org.joda.time.DateTime;
@@ -32,6 +31,7 @@ import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class JobStatusJsonPresentationModelTest {
 
@@ -40,10 +40,10 @@ public class JobStatusJsonPresentationModelTest {
         instance.setId(12);
         instance.setAgentUuid("1234");
 
-        final Agents agents = new Agents(new AgentConfig("1234", "localhost", "1234"));
+        final Agent agent = new Agent("1234", "cookie", "localhost", "1234");
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
-                agents.getAgentByUuid(instance.getAgentUuid()));
+                agent, mock(DurationBean.class));
         Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
@@ -58,7 +58,7 @@ public class JobStatusJsonPresentationModelTest {
     @Test public void shouldShowBuildStatusForCompleted() throws Exception {
         JobInstance instance = JobInstanceMother.completed("test", JobResult.Passed);
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
@@ -71,7 +71,7 @@ public class JobStatusJsonPresentationModelTest {
     @Test public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() throws Exception {
         JobInstance instance = JobInstanceMother.building("test", new DateTime().minusSeconds(5).toDate());
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null,
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
                 new DurationBean(instance.getId(), 10L));
         Map json = presenter.toJsonHash();
 
@@ -88,7 +88,10 @@ public class JobStatusJsonPresentationModelTest {
     public void shouldReturnNotYetAssignedIfAgentUuidIsNull() throws Exception {
         JobInstance instance = JobInstanceMother.building("Plan1");
         instance.setAgentUuid(null);
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
+
+        // "Not assigned" should depend on whether or not the JobInstance has an agentUuid, regardless of
+        // the Agent object passed to the presenter, as this is the canonical definition of job assignment
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
 
         JsonTester tester = new JsonTester(presenter.toJsonHash());
         tester.shouldContain(" { 'agent' : 'Not yet assigned' } ");
@@ -99,29 +102,28 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = JobInstanceMother.building("Plan1");
         instance.setAgentUuid("1234");
 
-
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
-                        new AgentConfig("1234", "localhost", null));
+                        new Agent("1234", "cookie","localhost", "address"), mock(DurationBean.class));
         JsonTester tester = new JsonTester(presenter.toJsonHash());
         tester.shouldContain(" { 'agent' : 'localhost' } ");
     }
 
     @Test public void shouldShowArtifactTabwhenBuildPassed() throws Exception {
         JobInstance instance = JobInstanceMother.passed("plan1");
-        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance, null);
+        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance);
         assertThat(buildStatusJson.getTabToShow(), is("#tab-artifacts"));
     }
 
     @Test public void shouldShowFailuresTabwhenBuildFailed() throws Exception {
         JobInstance instance = JobInstanceMother.failed("plan1");
-        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance, null);
+        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance);
         assertThat(buildStatusJson.getTabToShow(), is("#tab-failures"));
     }
 
     @Test public void shouldShowDefaultTabwhenBuildIsNeitherFailedNorPassed() throws Exception {
         JobInstance instance = JobInstanceMother.cancelled("plan1");
-        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance, null);
+        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance);
         assertThat(buildStatusJson.getTabToShow(), is(""));
     }
 
@@ -129,7 +131,7 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = JobInstanceMother.completed("job-%", JobResult.Passed);
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map json = presenter.toJsonHash();
 
         assertThat(JsonUtils.from(json).getString("buildLocator"), is("cruise-%25/1/dev-%25/1/job-%25"));
@@ -139,7 +141,7 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = JobInstanceMother.completed("job-%", JobResult.Passed);
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map json = presenter.toJsonHash();
 
         assertThat(JsonUtils.from(json).getString("buildLocatorForDisplay"), is("cruise-%/label-1/dev-%/1/job-%"));

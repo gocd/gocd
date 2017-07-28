@@ -16,7 +16,22 @@
 
 <textarea id="build-summary-template" style="display:none;">
 <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">${% build.build_scheduled_date %}</span></li>
-<li><span class="header">Agent: </span><span><a id="agent_name" href="$req.getContextPath()/agents/${% build.agent_uuid %}">${% build.agent.escapeHTML() %} (ip:${% build.agent_ip %})</a></span></li>
+<li><span class="header">Agent: </span>
+  {if build.agent_uuid != null }
+    <span>
+      {if $isAgentAlive }
+            <a id="agent_name" href="$req.getContextPath()/agents/${% build.agent_uuid %}">${% build.agent.escapeHTML() %} (${% build.agent_ip %})</a>
+      {else}
+        <span id="agent_name">${% build.agent.escapeHTML() %} (${% build.agent_ip %})</span>
+      {/if}
+    </span>
+  {else}
+    <span>Not yet assigned</span>
+  {/if}
+  #if ( $elasticProfilePluginId && $userHasAdministratorRights )
+    <a href="$req.getContextPath()/admin/status_reports/$elasticProfilePluginId" class="btn-primary btn-small status-report-btn-small">Check Plugin Status</a>
+  #end
+</li>
   <li><span class="header">Completed on: </span><span id="build_completed_date">${% build.build_completed_date %}</span><a  href="#tab-properties" class ="more" target="_blank" onclick="new TabsManager('properties')">more...</a></li>
 <li><span class="header">Build cause: </span><span id="stage-${% build.id %}-buildCause">$esc.html($esc.html($presenter.buildCauseMessage))</span></li>
   {if build.current_status.toLowerCase() == 'passed' ||  build.current_status.toLowerCase() == 'failed'}

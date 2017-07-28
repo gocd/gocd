@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.Base64;
 
+@Deprecated
 public class Image {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
@@ -77,10 +78,6 @@ public class Image {
 
     public static Image fromJSON(String responseData) {
         return GSON.fromJson(responseData, Image.class);
-    }
-
-    public com.thoughtworks.go.plugin.domain.common.Image toDomainImage() {
-        return new com.thoughtworks.go.plugin.domain.common.Image(this.contentType, this.data, getHash());
     }
 
     @Override

@@ -22,11 +22,10 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
@@ -39,7 +38,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -49,17 +49,11 @@ import static org.junit.Assert.*;
 })
 public class PackageDefinitionServiceIntegrationTest {
     @Autowired
-    private SecurityService securityService;
-    @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
-    private EntityHashingService entityHashingService;
-    @Autowired
     private PackageDefinitionService service;
-    @Autowired
-    private Localizer localizer;
     @Autowired
     private CachedGoPartials cachedGoPartials;
     @Autowired

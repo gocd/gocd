@@ -91,7 +91,6 @@ import static org.junit.Assert.assertThat;
 public class PipelineHistoryServiceIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineHistoryService pipelineHistoryService;
-    @Autowired private CachedCurrentActivityService currentActivityService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private GoConfigService goConfigService;

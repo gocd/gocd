@@ -17,11 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -34,8 +30,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -48,11 +42,7 @@ public class RoleConfigServiceIntegrationTest {
     @Autowired
     RoleConfigService roleConfigService;
     @Autowired
-    AuthorizationExtension authorizationExtension;
-    @Autowired
     GoConfigService goConfigService;
-    @Autowired
-    EntityHashingService hashingService;
     @Autowired
     GoConfigDao goConfigDao;
 

@@ -35,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
@@ -53,17 +52,13 @@ public class EnvironmentConfigServiceTest {
     public EnvironmentConfigService environmentConfigService;
     private BuildAssignment mockBuildAssignment;
     private SecurityService securityService;
-    private AgentService agentService;
-    private GoConfigDao goConfigDao;
     private EntityHashingService entityHashingService;
 
     @Before
     public void setUp() throws Exception {
         mockGoConfigService = mock(GoConfigService.class);
         mockBuildAssignment = mock(BuildAssignment.class);
-        goConfigDao = mock(GoConfigDao.class);
         securityService = mock(SecurityService.class);
-        agentService = mock(AgentService.class);
         entityHashingService = mock(EntityHashingService.class);
         environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService);
     }

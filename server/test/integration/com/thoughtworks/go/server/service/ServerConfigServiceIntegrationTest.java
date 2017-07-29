@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.security.InMemoryLdapServerForTests;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.unboundid.ldif.LDIFRecord;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +62,6 @@ public class ServerConfigServiceIntegrationTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private InMemoryLdapServerForTests ldapServer;
-    private LDIFRecord employeesOrgUnit;
 
     private static final int PORT = 12389;
     private static final String LDAP_URL = "ldap://localhost:" + PORT;
@@ -83,7 +81,6 @@ public class ServerConfigServiceIntegrationTest {
         ldapServer = new InMemoryLdapServerForTests(BASE_DN, MANAGER_DN, MANAGER_PASSWORD).start(PORT);
         ldapServer.addOrganizationalUnit("Principal", "ou=Principal," + BASE_DN);
         ldapServer.addOrganizationalUnit("Company", "ou=Company,ou=Principal," + BASE_DN);
-        employeesOrgUnit = ldapServer.addOrganizationalUnit("Employees", "ou=Employees,ou=Company,ou=Principal," + BASE_DN);
         new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
 
     }

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.messaging;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.BeforeClass;
@@ -27,6 +24,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
 import static org.hamcrest.core.Is.is;
@@ -40,12 +40,11 @@ import static org.hamcrest.core.Is.is;
 })
 public class GoTopicTest {
     @Autowired private MessagingService messageService;
-    private static GoConfigFileHelper configFileHelper;
 
 
     @BeforeClass
     public static void beforeClass() {
-        configFileHelper = new GoConfigFileHelper();
+        GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
     }
 
     @Test

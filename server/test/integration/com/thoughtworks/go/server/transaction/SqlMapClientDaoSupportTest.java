@@ -53,7 +53,6 @@ public class SqlMapClientDaoSupportTest {
     @Autowired private GoCache goCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private TransactionSynchronizationManager synchronizationManager;
     @Autowired private SqlMapClient sqlMapClient;
     @Autowired private UserDao userDao;
     @Autowired private SystemEnvironment systemEnvironment;

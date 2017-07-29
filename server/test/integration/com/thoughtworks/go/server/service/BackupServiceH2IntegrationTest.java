@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import javax.sql.DataSource;
-
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -55,6 +49,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
+import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -77,7 +77,6 @@ public class BackupServiceH2IntegrationTest {
     GoConfigDao goConfigDao;
     @Autowired
     ServerBackupRepository backupInfoRepository;
-    @Autowired TimeProvider timeProvider;
     @Autowired Localizer localizer;
     @Autowired SystemEnvironment systemEnvironment;
     @Autowired ServerVersion serverVersion;

@@ -1,36 +1,24 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.LdapConfig;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PasswordFileConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.ViewConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -59,7 +47,6 @@ public class MingleConfigServiceIntegrationTest {
     @Autowired private Localizer localizer;
 
     private GoConfigFileHelper configHelper;
-    private PipelineConfig pipelineConfig;
 
     @Before
     public void setUp() throws Exception {
@@ -68,7 +55,7 @@ public class MingleConfigServiceIntegrationTest {
         configHelper.onSetUp();
         configHelper.addPipeline("bar", "stage", MaterialConfigsMother.defaultMaterialConfigs(), "build");
 
-        pipelineConfig = configHelper.addPipeline("foo", "stage", MaterialConfigsMother.defaultMaterialConfigs(), "build");
+        PipelineConfig pipelineConfig = configHelper.addPipeline("foo", "stage", MaterialConfigsMother.defaultMaterialConfigs(), "build");
         configHelper.addMingleConfigToPipeline("foo", new MingleConfig("https://some-tracking-tool:8443", "project-super-secret", "hello=world"));
 
         CruiseConfig cruiseConfig = configHelper.load();
@@ -98,7 +85,7 @@ public class MingleConfigServiceIntegrationTest {
         assertThat(mingleConfig, is(new MingleConfig("https://some-tracking-tool:8443", "project-super-secret", "hello=world")));
         assertThat(result.isSuccessful(), is(true));
     }
-    
+
     @Test
     public void shouldNotAllowUnauthorizedUserToGetMingleConfig() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

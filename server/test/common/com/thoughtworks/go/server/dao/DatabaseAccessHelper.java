@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
@@ -43,7 +42,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.log4j.Logger;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.AmbiguousTableNameException;
@@ -76,8 +74,6 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 
 @Component
 public class DatabaseAccessHelper extends HibernateDaoSupport {
-    private static final Logger LOG = Logger.getLogger(DatabaseAccessHelper.class);
-
     private IDatabaseTester databaseTester;
     private StageDao stageDao;
     private PipelineSqlMapDao pipelineDao;
@@ -89,7 +85,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public static final String AGENT_UUID = "123456789-123";
     private DataSource dataSource;
-    private UserDao userDao;
     private SqlMapClient sqlMapClient;
     private MaterialRepository materialRepository;
     private GoCache goCache;

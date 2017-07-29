@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.messaging;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.mina.util.ConcurrentHashSet;
@@ -29,6 +25,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
 import static org.hamcrest.core.Is.is;
@@ -42,11 +42,10 @@ import static org.hamcrest.core.Is.is;
 public class GoQueueTest {
     @Autowired private MessagingService messageService;
     Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<String>());
-    private static GoConfigFileHelper configFileHelper;
 
     @BeforeClass
     public static void beforeClass() {
-        configFileHelper = new GoConfigFileHelper();
+        GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
     }
 
     @Test

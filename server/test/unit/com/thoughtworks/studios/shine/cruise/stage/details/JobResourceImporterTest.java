@@ -16,9 +16,7 @@
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
-import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.xml.JobXmlViewModel;
 import com.thoughtworks.go.server.service.XmlApiService;
@@ -55,15 +53,12 @@ import static org.mockito.Mockito.when;
 public class JobResourceImporterTest {
     private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     private XSLTTransformerRegistry transformerRegistry;
-    private XmlWriterContext xmlWriterContext;
-    private DefaultJobPlan jobPlan;
     private String baseUri;
     private XmlApiService xmlApiService;
 
     @Before
     public void setup() {
         transformerRegistry = new XSLTTransformerRegistry();
-        xmlWriterContext = mock(XmlWriterContext.class);
         baseUri = "https://localhost:8154/go";
         xmlApiService = mock(XmlApiService.class);
     }
@@ -166,22 +161,6 @@ public class JobResourceImporterTest {
             "</job>";
 
 
-    String jobMoreThanMonthOldXML = "" +
-            "<job name='test'>" +
-            " <link rel='self' href='http://job/4'/>" +
-            " <result>Passed</result>" +
-            " <properties>" +
-            " <property name='cruise_timestamp_06_completed'>2009-01-15T16:36:19-08:00</property>" +
-            "  <property name='cruise_job_id'><![CDATA[110]]></property>" +
-            "  <property name='os'><![CDATA[OpenBSD]]></property>" +
-            " </properties>" +
-            " <artifacts baseUrl='http://cruise/' pathFromArtifactRoot='job4'>" +
-            "  <artifact src='' dest='junit-reports' type='unit' />" +
-            "  <artifact src='' dest='' />" +
-            " </artifacts>" +
-            "</job>";
-
-
     String happyJobResourceXML = "" +
             "<job name='test'>" +
             " <link rel='self' href='http://job/4'/>" +
@@ -195,51 +174,6 @@ public class JobResourceImporterTest {
             " <artifacts baseUrl='http://cruise/' pathFromArtifactRoot='job4'>" +
             "  <artifact dest='junit-reports' src='some/**/path' type='unit' />" +
             "  <artifact dest='' src='simple/path' />" +
-            " </artifacts>" +
-            "</job>";
-
-    String jobWithOldTimestampFormatXML = "" +
-            "<job name='test'>" +
-            " <link rel='self' href='http://job/4'/>" +
-            " <result>Passed</result>" +
-            " <properties>" +
-            "  <property name='cruise_job_id'><![CDATA[110]]></property>" +
-            "  <property name='cruise_timestamp_06_completed'>2008-09-19 02:18:39 +0800</property>" +
-            "  <property name='os'><![CDATA[OpenBSD]]></property>" +
-            " </properties>" +
-            " <artifacts baseUrl='http://cruise/' pathFromArtifactRoot='job4'>" +
-            "  <artifact dest='junit-reports' type='unit' />" +
-            "  <artifact dest='' />" +
-            " </artifacts>" +
-            "</job>";
-
-    String jobUnparseableCompletedTimestampXML = "" +
-            "<job name='test'>" +
-            " <link rel='self' href='http://job/4'/>" +
-            " <result>Passed</result>" +
-            " <properties>" +
-            " <property name='cruise_timestamp_06_completed'>I_AM_NOT_A_TIMESTAMP</property>" +
-            "  <property name='cruise_job_id'><![CDATA[110]]></property>" +
-            "  <property name='os'><![CDATA[OpenBSD]]></property>" +
-            " </properties>" +
-            " <artifacts baseUrl='http://cruise/' pathFromArtifactRoot='job4'>" +
-            "  <artifact dest='junit-reports' type='unit' />" +
-            "  <artifact dest='' />" +
-            " </artifacts>" +
-            "</job>";
-
-
-    String jobMissingCompletedTimestampXML = "" +
-            "<job name='test'>" +
-            " <link rel='self' href='http://job/4'/>" +
-            " <result>Passed</result>" +
-            " <properties>" +
-            "  <property name='cruise_job_id'><![CDATA[110]]></property>" +
-            "  <property name='os'><![CDATA[OpenBSD]]></property>" +
-            " </properties>" +
-            " <artifacts baseUrl='http://cruise/' pathFromArtifactRoot='job4'>" +
-            "  <artifact dest='junit-reports' type='unit' />" +
-            "  <artifact dest='' />" +
             " </artifacts>" +
             "</job>";
 

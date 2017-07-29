@@ -1,41 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.activity;
 
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.messaging.MessagingService;
-import com.thoughtworks.go.server.messaging.StageResultMessage;
-import com.thoughtworks.go.server.messaging.StageResultTopic;
-import com.thoughtworks.go.server.messaging.StageStatusMessage;
-import com.thoughtworks.go.server.messaging.StageStatusTopic;
+import com.thoughtworks.go.server.messaging.*;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -57,10 +44,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class StageResultCacheTest {
-    @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private DataSource dataSource;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusTopic stageStatusTopic;
     @Autowired private MessagingService messagingService;

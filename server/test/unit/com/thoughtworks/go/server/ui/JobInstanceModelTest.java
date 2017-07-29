@@ -23,21 +23,12 @@ import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.util.TestingClock;
 import org.joda.time.Duration;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class JobInstanceModelTest {
-
-    private Agent agent;
-
-    @Before
-    public void setUp() throws Exception {
-        agent = mock(Agent.class);
-    }
 
     @Test
     public void job_status_should_be_passed_for_passed_job() {

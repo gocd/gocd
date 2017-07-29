@@ -40,14 +40,12 @@ import static org.mockito.Mockito.when;
 public class StageAtomFeedsReaderTest {
     private StubStageFeedHandler stageFeedHandler;
     private StageDao stageDao;
-    private StageFinder stageFinder;
     private PipelineInstanceLoader pipelineInstanceLoader;
 
     @Before
     public void setup() {
         this.stageFeedHandler = new StubStageFeedHandler();
         this.stageDao = mock(StageDao.class);
-        stageFinder = mock(StageFinder.class);
         pipelineInstanceLoader = mock(PipelineInstanceLoader.class);
     }
 

@@ -47,7 +47,6 @@ public class FullConfigSaveMergeFlowTest {
     private ConfigElementImplementationRegistry configElementImplementationRegistry;
     private FullConfigSaveMergeFlow flow;
     private FullConfigUpdateCommand updateConfigCommand;
-    private SystemEnvironment systemEnvironment;
     private CruiseConfig configForEdit;
     private Document document;
     private GoConfigFileWriter fileWriter;
@@ -64,7 +63,6 @@ public class FullConfigSaveMergeFlowTest {
         loader = mock(MagicalGoConfigXmlLoader.class);
         writer = mock(MagicalGoConfigXmlWriter.class);
         document = mock(Document.class);
-        systemEnvironment = mock(SystemEnvironment.class);
         fileWriter = mock(GoConfigFileWriter.class);
         serverVersion = mock(ServerVersion.class);
         timeProvider = mock(TimeProvider.class);

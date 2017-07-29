@@ -39,13 +39,11 @@ public class JobPresentationServiceTest {
 
     private JobDurationStrategy jobDurationStrategy;
     private AgentService agentService;
-    private Agent agent;
 
     @Before
     public void setUp() throws Exception {
         jobDurationStrategy = mock(JobDurationStrategy.class);
         agentService = mock(AgentService.class);
-        agent = mock(Agent.class);
     }
 
     @Test

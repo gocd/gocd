@@ -30,7 +30,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
@@ -52,7 +51,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.util.ReflectionUtils;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
@@ -84,10 +82,8 @@ public class StageSqlMapDaoIntegrationTest {
     @Autowired private StageSqlMapDao stageDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private PipelineDao pipelineDao;
-    @Autowired private DataSource dataSource;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private ScheduleService scheduleService;
-    @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private MaterialRepository materialRepository;
@@ -96,8 +92,6 @@ public class StageSqlMapDaoIntegrationTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String STAGE_DEV = "dev";
     private PipelineConfig mingleConfig;
-    private static final String STAGE_FT = "ft";
-    private List<String> pipelineNames;
     private static final String PIPELINE_NAME = "mingle";
     private SqlMapClientTemplate origTemplate;
     private String md5 = "md5";
@@ -108,7 +102,6 @@ public class StageSqlMapDaoIntegrationTest {
         goCache.clear();
         dbHelper.onSetUp();
         mingleConfig = twoBuildPlansWithResourcesAndMaterials(PIPELINE_NAME, STAGE_DEV);
-        pipelineNames = asList(PIPELINE_NAME);
         origTemplate = stageDao.getSqlMapClientTemplate();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();

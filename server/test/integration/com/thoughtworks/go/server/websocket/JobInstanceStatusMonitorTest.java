@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.JobInstance;
@@ -32,8 +31,6 @@ import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -65,7 +62,6 @@ import static org.junit.Assert.assertThat;
 public class JobInstanceStatusMonitorTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineDao pipelineDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private GoCache goCache;
@@ -73,19 +69,14 @@ public class JobInstanceStatusMonitorTest {
     @Autowired private AgentRemoteHandler agentRemoteHandler;
     @Autowired private JobInstanceService jobInstanceService;
     @Autowired private ScheduleService scheduleService;
-    @Autowired private JobInstanceStatusMonitor jobMonitor;
     @Autowired private BuildAssignmentService buildAssignmentService;
 
-    private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
     private GoConfigFileHelper configHelper;
-    private ScheduleTestUtil u;
 
     public Subversion repository;
     public static TestRepo testRepo;
     private PipelineWithTwoStages fixture;
-    private String md5 = "md5-test";
-    private Username loserUser = new Username(new CaseInsensitiveString("loser"));
     private AgentStub agent;
 
     @BeforeClass
@@ -108,12 +99,11 @@ public class JobInstanceStatusMonitorTest {
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
-        evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, "unit");
+        PipelineConfig evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, "unit");
         configHelper.addPipeline("anotherPipeline", STAGE_NAME, repository, "anotherTest");
         configHelper.addPipeline("thirdPipeline", STAGE_NAME, repository, "yetAnotherTest");
         goConfigService.forceNotifyListeners();
         goCache.clear();
-        u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
 
         agent = new AgentStub();
     }

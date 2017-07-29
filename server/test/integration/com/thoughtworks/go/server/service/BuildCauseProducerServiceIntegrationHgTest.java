@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
@@ -34,10 +29,9 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -48,6 +42,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
@@ -64,16 +63,13 @@ public class BuildCauseProducerServiceIntegrationHgTest {
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineDao pipelineDao;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private ScheduleHelper scheduleHelper;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
 
-    @Autowired PipelineService pipelineService;
     @Autowired private DatabaseAccessHelper dbHelper;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
-    public static SvnTestRepo svnRepository;
     private Pipeline latestPipeline;
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
     private HgTestRepo hgTestRepo;

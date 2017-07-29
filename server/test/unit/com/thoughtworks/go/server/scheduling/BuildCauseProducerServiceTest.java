@@ -113,7 +113,6 @@ public class BuildCauseProducerServiceTest {
     @Mock private MaterialRepository materialRepository;
     @Mock private SpecificMaterialRevisionFactory specificMaterialRevisionFactory;
     @Mock private PipelineService pipelineService;
-    @Mock private PipelineTimeline pipelineTimeline;
     @Mock private GoConfigService goConfigService;
     @Mock private MaterialConfigConverter materialConfigConverter;
     @Mock private MaterialExpansionService materialExpansionService;

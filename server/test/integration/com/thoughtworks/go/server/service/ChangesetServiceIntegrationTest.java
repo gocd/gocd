@@ -73,8 +73,6 @@ public class ChangesetServiceIntegrationTest {
     @Autowired
     MaterialRepository materialRepository;
     @Autowired
-    PipelineService pipelineService;
-    @Autowired
     ChangesetService changesetService;
     @Autowired
     private GoConfigDao goConfigDao;

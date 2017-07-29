@@ -23,8 +23,10 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.serverhealth.HealthStateLevel;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
@@ -39,7 +41,7 @@ import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -52,10 +54,6 @@ public class GoPartialConfigIntegrationTest {
     private ServerHealthService serverHealthService;
     @Autowired
     private CachedGoPartials cachedGoPartials;
-    @Autowired
-    private CachedGoConfig cachedGoConfig;
-    @Autowired
-    private GoConfigService configService;
     @Autowired
     private GoPartialConfig goPartialConfig;
     @Autowired

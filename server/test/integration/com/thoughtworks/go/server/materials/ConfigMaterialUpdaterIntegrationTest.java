@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.ConfigTestRepo;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -65,26 +64,17 @@ import static org.mockito.Mockito.mock;
 public class ConfigMaterialUpdaterIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private PipelineDao pipelineDao;
     @Autowired private ServerHealthService serverHealthService;
-    @Autowired PipelineService pipelineService;
-    @Autowired private ScheduleHelper scheduleHelper;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private MaterialUpdateService materialUpdateService;
-    @Autowired private SubprocessExecutionContext subprocessExecutionContext;
-    @Autowired private ConfigMaterialUpdater materialUpdater;
     @Autowired private GoRepoConfigDataSource goRepoConfigDataSource;
     @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private MaterialConfigConverter materialConfigConverter;
     @Autowired private ConfigCache configCache;
     @Autowired private CachedGoConfig cachedGoConfig;
 
-    @Autowired private MaterialUpdateCompletedTopic topic;
     @Autowired private ConfigMaterialUpdateCompletedTopic configTopic;
-
-    @Autowired private TransactionTemplate transactionTemplate;
 
     private MDUPerformanceLogger logger;
 

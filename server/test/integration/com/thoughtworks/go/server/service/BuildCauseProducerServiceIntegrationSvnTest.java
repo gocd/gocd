@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.sql.SQLException;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -29,17 +26,13 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -49,6 +42,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.sql.SQLException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -69,8 +65,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
 
-    @Autowired PipelineService pipelineService;
-	@Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired private DatabaseAccessHelper dbHelper;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
     public SvnMaterial svnMaterial;

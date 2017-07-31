@@ -31,8 +31,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class PipelineLabelTest {
@@ -56,6 +56,29 @@ public class PipelineLabelTest {
         PipelineLabel label = PipelineLabel.create(testingTemplate);
         label.updateLabel(getNamedRevision(2));
         assertThat(label.toString(), is("testing.2.label"));
+    }
+
+    @Test
+    public void setLabelDoesNotHaveSubstitutions() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.setLabel("release-${svnMaterial}");
+        assertThat(label.toString(), is("release-${svnMaterial}"));
+    }
+
+    @Test
+    public void substitutionIsOnlyAppliedOnFirstUpdate() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        String revisionWhenUpdated = ModificationsMother.currentRevision();
+
+        MaterialRevisions materialRevisions2 = ModificationsMother.oneUserOneFile();
+        label.updateLabel(materialRevisions2.getNamedRevisions());
+
+        assertThat(label.toString(), is("release-" + revisionWhenUpdated));
+        assertThat(revisionWhenUpdated, is(not(ModificationsMother.currentRevision())));
     }
 
     @Test
@@ -91,13 +114,7 @@ public class PipelineLabelTest {
     @Test
     public void shouldReplaceTheTemplateWithGitMaterialRevision() throws Exception {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git}");
-        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
-        ScmMaterial material = MaterialsMother.gitMaterial("");
-        material.setName(new CaseInsensitiveString("git"));
-        Modification modification = new Modification();
-        modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
-
-        materialRevisions.addRevision(material, modification);
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
         label.updateLabel(materialRevisions.getNamedRevisions());
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a273e12a45e57fed5ce978d830eb482f6f666"));
     }
@@ -105,15 +122,108 @@ public class PipelineLabelTest {
     @Test
     public void shouldTruncateMaterialRevision() throws Exception {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:6]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a27"));
+    }
+
+    @Test
+    public void shouldSubstringMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[4:6]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-27"));
+    }
+
+    @Test
+    public void shouldLeftTrimMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[4:]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-273e12a45e57fed5ce978d830eb482f6f666"));
+    }
+
+    @Test
+    public void shouldPickCharacterFromMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[4]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-2"));
+    }
+
+    @Test
+    public void shouldTruncateWithNegativeIndexMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:-6]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a273e12a45e57fed5ce978d830eb482"));
+    }
+
+    @Test
+    public void shouldSubstringWithNegativeLastIndexMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[4:-6]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-273e12a45e57fed5ce978d830eb482"));
+    }
+
+    @Test
+    public void shouldSubstringWithNegativeFirstAndLastIndexMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-10:-6]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-b482"));
+    }
+
+    @Test
+    public void shouldLeftTrimWithNegativeIndexMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-4:]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-f666"));
+    }
+
+    @Test
+    public void shouldPickCharacterWithNegativeIndexFromMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-7]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-2"));
+    }
+
+    @Test
+    public void shouldReturnEmptyStringForNegativeIndexOutsideOfString() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-100]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-"));
+    }
+
+    @Test
+    public void shouldReturnEmptyStringForPositiveIndexOutsideOfString() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[100]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-"));
+    }
+
+    @Test
+    public void shouldTruncateNegativeSliceRangeToWithinStringBounds() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-100:-1]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a273e12a45e57fed5ce978d830eb482f6f66"));
+    }
+
+    private MaterialRevisions createMaterialRevisionsForSlicing(String revision) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
         material.setName(new CaseInsensitiveString("git"));
         Modification modification = new Modification();
-        modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        modification.setRevision(revision);
 
         materialRevisions.addRevision(material, modification);
-        label.updateLabel(materialRevisions.getNamedRevisions());
-        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a27"));
+        return materialRevisions;
     }
 
     @Test
@@ -163,79 +273,74 @@ public class PipelineLabelTest {
 
     @Test
     public void canMatchMaterialName() throws Exception {
-        final String[][] expectedGroups = { { "git" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git}");
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
     public void canMatchMaterialNameWithTrial() throws Exception {
-        final String[][] expectedGroups = { { "git" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git}.alpha.0", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git}.alpha.0");
         assertThat(res, is("release-" + GIT_REVISION + ".alpha.0"));
     }
 
     @Test
     public void canHandleWrongMaterialName() throws Exception {
-        final String[][] expectedGroups = { { "gitUnused" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${gitUnused}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${gitUnused}");
         assertThat(res, is("release-${gitUnused}"));
     }
 
     @Test
     public void canMatchWithoutTruncation() throws Exception {
-        final String[][] expectedGroups = { { "svnRepo.verynice" }, { "git" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${svnRepo.verynice}-${git}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${svnRepo.verynice}-${git}");
         assertThat(res, is("release-" + SVN_REVISION + "-" + GIT_REVISION));
     }
 
     @Test
     public void canMatchWithOneGitTruncation() throws Exception {
-        final String[][] expectedGroups = { { "git", "7" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git[:7]}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[:7]}");
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 7)));
     }
 
     @Test
     public void canMatchWithOneGitTruncationTooLongToTruncate() throws Exception {
-        final String[][] expectedGroups = { { "git", "9999" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git[:9999]}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[:9999]}");
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
+    public void gitTruncationWithStartIndexOverLength() throws Exception {
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[9999:]}");
+        assertThat(res, is("release-"));
+    }
+
+    @Test
     public void canMatchWithOneGitTruncationAlmostTruncated() throws Exception {
-        final String[][] expectedGroups = { { "git", GIT_REV_LENGTH + "" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + GIT_REV_LENGTH + "]}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + GIT_REV_LENGTH + "]}");
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
     public void canMatchWithOneGitTruncationByOneChar() throws Exception {
         final int size = GIT_REV_LENGTH - 1;
-        final String[][] expectedGroups = { { "git", size + "" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + size + "]}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + size + "]}");
         assertThat(res, is("release-" + GIT_REVISION.substring(0, GIT_REV_LENGTH - 1)));
     }
 
     @Test
     public void canMatchWithOneTruncationAsFirstRevision() throws Exception {
-        final String[][] expectedGroups = { {"git", "4"}, { "svn" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git[:4]}-${svn}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[:4]}-${svn}");
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 4) + "-" + SVN_REVISION));
     }
 
     @Test
     public void canMatchWithTwoTruncation() throws Exception {
-        final String[][] expectedGroups = { { "git", "5" }, {"svn", "3"}};
-        String res = assertLabelGroupsMatchingAndReplace("release-${git[:5]}-${svn[:3]}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git[:5]}-${svn[:3]}");
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 5) + "-" + SVN_REVISION.substring(0, 3)));
     }
 
     @Test
     public void canNotMatchWithTruncationWhenMaterialNameHasAColon() throws Exception {
-        final String[][] expectedGroups = { { "git:one", "7" } };
-        String res = assertLabelGroupsMatchingAndReplace("release-${git:one[:7]}", expectedGroups);
+        String res = assertLabelGroupsMatchingAndReplace("release-${git:one[:7]}");
         assertThat(res, is("release-${git:one[:7]}"));
     }
 
@@ -275,30 +380,10 @@ public class PipelineLabelTest {
     public static final String GIT_REVISION = "c42c0bfa57d00a25496ba899b1f476e6ec8872bd";
     public static final int GIT_REV_LENGTH = GIT_REVISION.length();
 
-    private String assertLabelGroupsMatchingAndReplace(String labelTemplate, String[][] expectedGroups) throws Exception {
-        assertLabelGroupsMatching(labelTemplate, expectedGroups);
-
+    private String assertLabelGroupsMatchingAndReplace(String labelTemplate) throws Exception {
         PipelineLabel label = new PipelineLabel(labelTemplate);
         label.updateLabel(MATERIAL_REVISIONS);
         return label.toString();
-    }
-
-    private void assertLabelGroupsMatching(String labelTemplate, String[][] expectedGroups) {
-        java.util.regex.Matcher matcher = PipelineLabel.PATTERN.matcher(labelTemplate);
-
-        for (String[] groups : expectedGroups) {
-            assertThat(matcher.find(), is(true));
-
-            final String truncationLengthLiteral = matcher.group(3);
-            if (groups.length != 2) {
-                assertNull(truncationLengthLiteral);
-            } else {
-                assertThat(truncationLengthLiteral, is(groups[1]));
-            }
-        }
-
-        final boolean actual = matcher.find();
-        assertThat(actual, is(false));
     }
 
     private HashMap<CaseInsensitiveString, String> getNamedRevision(final Integer counter) {

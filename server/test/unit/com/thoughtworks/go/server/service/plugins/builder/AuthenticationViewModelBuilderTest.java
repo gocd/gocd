@@ -50,7 +50,7 @@ public class AuthenticationViewModelBuilderTest {
         initMocks(this);
         builder = new AuthenticationViewModelBuilder(manager, registry);
         githubDescriptor = new GoPluginDescriptor("github.oauth", "version1",
-                new GoPluginDescriptor.About("Github OAuth Plugin", "1.0", null, null, null,null),
+                new GoPluginDescriptor.About("GitHub OAuth Plugin", "1.0", null, null, null,null),
                 null, null, false);
 
         googleDescriptor = new GoPluginDescriptor("google.oauth", "version1",

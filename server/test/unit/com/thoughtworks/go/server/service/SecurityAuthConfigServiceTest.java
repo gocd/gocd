@@ -122,7 +122,7 @@ public class SecurityAuthConfigServiceTest {
     public void shouldGetAListOfAllConfiguredWebBasedAuthorizationPlugins() {
         Set<AuthorizationPluginInfo> installedWebBasedPlugins = new HashSet<>();
         String githubPluginId = "cd.go.github";
-        AuthorizationPluginInfo githubPluginInfo = pluginInfo(githubPluginId, "Github Auth Plugin", SupportedAuthType.Web);
+        AuthorizationPluginInfo githubPluginInfo = pluginInfo(githubPluginId, "GitHub Auth Plugin", SupportedAuthType.Web);
         installedWebBasedPlugins.add(githubPluginInfo);
         installedWebBasedPlugins.add(pluginInfo(githubPluginId, "Google Auth Plugin", SupportedAuthType.Web));
         when(authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication()).thenReturn(installedWebBasedPlugins);
@@ -140,7 +140,7 @@ public class SecurityAuthConfigServiceTest {
         assertThat(allWebBasedAuthorizationConfigs.size(), is(1));
         AuthPluginInfoViewModel pluginInfoViewModel = allWebBasedAuthorizationConfigs.get(0);
         assertThat(pluginInfoViewModel.pluginId(), is(githubPluginId));
-        assertThat(pluginInfoViewModel.name(), is("Github Auth Plugin"));
+        assertThat(pluginInfoViewModel.name(), is("GitHub Auth Plugin"));
         assertThat(pluginInfoViewModel.imageUrl(), is("/go/api/plugin_images/cd.go.github/hash"));
     }
 

@@ -848,7 +848,7 @@ describe("Material Model", () => {
       const github = new SCMs.SCM({
         /* eslint-disable camelcase */
         id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-        name:            'Github PR',
+        name:            'GitHub PR',
         auto_update:     true,
         plugin_metadata: {id: 'github.pr', version: '1.1'},
         configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]

@@ -19,5 +19,7 @@ package com.thoughtworks.go.server.messaging;
 public interface MessageSender {
     void sendMessage(GoMessage goMessage);
 
+    void sendMessage(GoMessage goMessage, long timeToLive);
+
     void sendText(String message);
 }

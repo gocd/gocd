@@ -65,11 +65,11 @@ public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> im
         }
     }
 
-    public void post(T message) {
+    public void post(T message, long timeToLive) {
         String pluginId = message.pluginId();
         try {
             if (queues.containsKey(pluginId)) {
-                queues.get(pluginId).post(message);
+                queues.get(pluginId).post(message, timeToLive);
             } else {
                 LOGGER.error("Could not find a queue for {}", pluginId);
             }

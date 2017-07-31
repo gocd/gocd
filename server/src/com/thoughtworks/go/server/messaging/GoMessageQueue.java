@@ -43,6 +43,10 @@ public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> 
         sender().sendMessage(message);
     }
 
+    public void post(T message, long timeToLive) {
+        sender().sendMessage(message, timeToLive);
+    }
+
     public void stop() {
         messaging.removeQueue(queueName);
     }

@@ -40,6 +40,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -64,12 +65,19 @@ public class ElasticAgentPluginService implements JobStatusListener {
     private final ServerHealthService serverHealthService;
     private final ConcurrentHashMap<Long, Long> map = new ConcurrentHashMap<>();
 
+    @Value("${go.elasticplugin.heartbeat.interval}")
+    private long elasticPluginHeartBeatInterval;
+
+//    for test only
+    public void setElasticPluginHeartBeatInterval(long elasticPluginHeartBeatInterval) {
+        this.elasticPluginHeartBeatInterval = elasticPluginHeartBeatInterval;
+    }
+
     @Autowired
     public ElasticAgentPluginService(
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
-            CreateAgentQueueHandler createAgentQueue,
-            ServerPingQueueHandler serverPingQueue,
+            CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             ServerConfigService serverConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
@@ -84,9 +92,11 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
     public void heartbeat() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgentsOfMissingPlugins = agentService.allElasticAgents();
+//      pingMessage TTL is set lesser than elasticPluginHeartBeatInterval to ensure there aren't multiple ping request for the same plugin
+        long pingMessageTimeToLive = elasticPluginHeartBeatInterval - 10000L;
 
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
-            serverPingQueue.post(new ServerPingMessage(descriptor.id()));
+            serverPingQueue.post(new ServerPingMessage(descriptor.id()), pingMessageTimeToLive);
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
             serverHealthService.removeByScope(scope(descriptor.id()));
         }
@@ -133,12 +143,14 @@ public class ElasticAgentPluginService implements JobStatusListener {
         jobsThatRequireAgent.addAll(starvingJobs);
 
         ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<>(), jobsThatRequireAgent, isElasticAgent());
+//      messageTimeToLive is lesser than the starvation threshold to ensure there are no duplicate create agent message
+        long messageTimeToLive = serverConfigService.elasticJobStarvationThreshold() - 10000;
 
         for (JobPlan plan : plansThatRequireElasticAgent) {
             map.put(plan.getJobId(), timeProvider.currentTimeMillis());
             if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()));
+                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();

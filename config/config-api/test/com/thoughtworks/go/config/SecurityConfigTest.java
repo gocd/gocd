@@ -173,6 +173,16 @@ public class SecurityConfigTest {
         assertTrue(new SecurityConfig().hasSecurityMethodChanged(ldapSecurity));
     }
 
+    @Test
+    public void hasSecurityMethodChanged_shouldReturnTrueIfSecurityAuthConfigIsChanged() {
+        final SecurityConfig oldSecurityConfig = new SecurityConfig();
+
+        final SecurityConfig newSecurityConfig = new SecurityConfig();
+        newSecurityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.authorization.ldap"));
+
+        assertTrue(oldSecurityConfig.hasSecurityMethodChanged(newSecurityConfig));
+    }
+
     private void assertUserRoles(SecurityConfig securityConfig, String username, Role... roles) {
         assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username)), is(Arrays.asList(roles)));
     }

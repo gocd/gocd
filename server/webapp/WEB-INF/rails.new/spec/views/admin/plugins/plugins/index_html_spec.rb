@@ -217,6 +217,38 @@ describe "admin/plugins/plugins/index.html.erb" do
     end
   end
 
+  it "should display status report link if user is an admin" do
+    view.should_receive(:plugin_supports_status_report?).and_return(true)
+    view.should_receive(:is_user_an_admin?).and_return(true)
+    assign(:plugin_descriptors, [valid_descriptor("1")])
+
+    render
+
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      plugins_listing.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
+        li.find("div.plugin-details").tap do |plugin_details|
+          expect(plugin_details.find('a.btn-primary.status-report-btn')).to have_content('Status Report')
+        end
+      end
+    end
+  end
+
+  it "should not display status report link if user is not an admin" do
+    view.should_receive(:plugin_supports_status_report?).and_return(true)
+    view.should_receive(:is_user_an_admin?).and_return(false)
+    assign(:plugin_descriptors, [valid_descriptor("1")])
+
+    render
+
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      plugins_listing.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
+        li.find("div.plugin-details").tap do |plugin_details|
+          expect(plugin_details).not_to have_selector('a.btn-primary.status-report-btn')
+        end
+      end
+    end
+  end
+
   def invalid_descriptor name, messages
     descriptor = GoPluginDescriptor.usingId("plugin#{name}.id", "/path/to/plugin#{name}.jar", java.io.File.new('some_random_location_' + name), false)
     descriptor.markAsInvalid(messages, nil)

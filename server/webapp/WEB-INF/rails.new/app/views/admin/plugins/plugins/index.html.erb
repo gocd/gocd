@@ -39,7 +39,7 @@
                         <span class="name"><%= about.name() %></span>
                         <span class="smaller version"><%= about.version() %></span>
                         <span class=" smaller descriptor-id">[<%= descriptor.id() %>]</span>
-                      <% if plugin_supports_status_report?(descriptor.id()) %>
+                      <% if plugin_supports_status_report?(descriptor.id()) && is_user_an_admin?  %>
                           <%= link_to 'Status Report', admin_status_report_path(descriptor.id()), :class => 'btn-primary status-report-btn' -%>
                       <% end %>
                     </div>

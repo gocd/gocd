@@ -63,15 +63,19 @@ describe Api::GitHubController do
                             https://github.com/org/repo
                             https://github.com/org/repo/
                             https://github.com/org/repo.git
+                            https://github.com/org/repo.git/
                             http://github.com/org/repo
                             http://github.com/org/repo/
                             http://github.com/org/repo.git
+                            http://github.com/org/repo.git/
                             git://github.com/org/repo
                             git://github.com/org/repo/
                             git://github.com/org/repo.git
+                            git://github.com/org/repo.git/
                             git@github.com:org/repo
                             git@github.com:org/repo/
-                            git@github.com:org/repo.git)
+                            git@github.com:org/repo.git
+                            git@github.com:org/repo.git/)
 
         @material_update_service
           .should_receive(:updateGitMaterial)
@@ -156,15 +160,19 @@ describe Api::GitHubController do
                             https://github.com/org/repo
                             https://github.com/org/repo/
                             https://github.com/org/repo.git
+                            https://github.com/org/repo.git/
                             http://github.com/org/repo
                             http://github.com/org/repo/
                             http://github.com/org/repo.git
+                            http://github.com/org/repo.git/
                             git://github.com/org/repo
                             git://github.com/org/repo/
                             git://github.com/org/repo.git
+                            git://github.com/org/repo.git/
                             git@github.com:org/repo
                             git@github.com:org/repo/
-                            git@github.com:org/repo.git)
+                            git@github.com:org/repo.git
+                            git@github.com:org/repo.git/)
 
         @material_update_service
           .should_receive(:updateGitMaterial)

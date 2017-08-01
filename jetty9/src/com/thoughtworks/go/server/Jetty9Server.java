@@ -24,13 +24,16 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
+import org.eclipse.jetty.deploy.App;
+import org.eclipse.jetty.deploy.DeploymentManager;
+import org.eclipse.jetty.deploy.providers.WebAppProvider;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -59,16 +62,19 @@ public class Jetty9Server extends AppServer {
     private WebAppContext webAppContext;
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
     private GoSSLConfig goSSLConfig;
+    private final DeploymentManager deploymentManager;
 
     public Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
-        this(systemEnvironment, password, sslSocketFactory, new Server());
+        this(systemEnvironment, password, sslSocketFactory, new Server(), new DeploymentManager());
     }
 
-    Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server) {
+    Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server, DeploymentManager deploymentManager) {
         super(systemEnvironment, password, sslSocketFactory);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
-        this.server = server;
         goSSLConfig = new GoSSLConfig(sslSocketFactory, systemEnvironment);
+
+        this.server = server;
+        this.deploymentManager = deploymentManager;
     }
 
     @Override
@@ -76,15 +82,17 @@ public class Jetty9Server extends AppServer {
         server.addEventListener(mbeans());
         server.addConnector(plainConnector());
         server.addConnector(sslConnector());
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.addHandler(welcomeFileHandler());
+        ContextHandlerCollection handlers = new ContextHandlerCollection();
+        deploymentManager.setContexts(handlers);
+
         createWebAppContext();
-        addResourceHandler(handlers, webAppContext);
-        handlers.addHandler(webAppContext);
+
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
-        server.addBean(errorHandler);
+
+        server.addBean(deploymentManager);
         server.setHandler(handlers);
+
         performCustomConfiguration();
         server.setStopAtShutdown(true);
     }
@@ -92,6 +100,8 @@ public class Jetty9Server extends AppServer {
     @Override
     public void start() throws Exception {
         server.start();
+
+        startHandlers();
     }
 
     @Override
@@ -122,10 +132,23 @@ public class Jetty9Server extends AppServer {
         return webAppContext.getUnavailableException();
     }
 
+    protected void startHandlers() throws IOException {
+        WebAppProvider webAppProvider = new WebAppProvider();
+
+        deploymentManager.addApp(new App(deploymentManager, webAppProvider, "welcomeHandler", welcomeFileHandler()));
+
+        if (systemEnvironment.useCompressedJs()) {
+            AssetsContextHandler assetsContextHandler = new AssetsContextHandler(systemEnvironment);
+            deploymentManager.addApp(new App(deploymentManager, webAppProvider, "assetsHandler", assetsContextHandler));
+            webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));
+        }
+
+        deploymentManager.addApp(new App(deploymentManager, webAppProvider, "realApp", webAppContext));
+    }
+
     private MBeanContainer mbeans() {
         MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        MBeanContainer mbeans = new MBeanContainer(platformMBeanServer);
-        return mbeans;
+        return new MBeanContainer(platformMBeanServer);
     }
 
     ContextHandler welcomeFileHandler() {
@@ -206,15 +229,6 @@ public class Jetty9Server extends AppServer {
             IOUtils.closeQuietly(inputStream);
         }
     }
-
-
-    private void addResourceHandler(HandlerCollection handlers, WebAppContext webAppContext) throws IOException {
-        if (!systemEnvironment.useCompressedJs()) return;
-        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
-        handlers.addHandler(handler);
-        webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
-    }
-
 
     private String getWarFile() {
         return systemEnvironment.getCruiseWar();

@@ -19,13 +19,14 @@ module ApiV3
 
       property :display_name
 
-      property :task_settings,
+      property :extension_settings,
+               exec_context: :decorator,
                skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
+               decorator: ExtensionRepresenter
 
+      def extension_settings
+        {task_settings: plugin.getTaskSettings}
+      end
     end
   end
 end

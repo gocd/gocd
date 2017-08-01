@@ -37,7 +37,6 @@ describe ApiV3::Plugin::ConfigRepoPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'configrepo',
                                 status: {
                                   state: 'active'

@@ -35,7 +35,6 @@ describe ApiV3::Plugin::BadPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'bad.plugin',
-                                version: '1.0',
                                 type: nil,
                                 status: {
                                   state: 'invalid',

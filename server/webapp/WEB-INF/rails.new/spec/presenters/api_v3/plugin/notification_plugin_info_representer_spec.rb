@@ -37,7 +37,6 @@ describe ApiV3::Plugin::NotificationPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'notification',
                                 status: {
                                   state: 'active'

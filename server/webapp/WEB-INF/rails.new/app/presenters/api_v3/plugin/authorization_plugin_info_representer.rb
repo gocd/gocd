@@ -20,20 +20,6 @@ module ApiV3
         opts[:url_builder].plugin_images_url(plugin_id: id, hash: plugin.getImage.getHash()) if plugin.image
       end
 
-      property :auth_config_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
-
-      property :role_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
-
       property :capabilities,
                skip_nil: true,
                expect_hash: true,
@@ -41,6 +27,15 @@ module ApiV3
                class: Capabilities,
                decorator: CapabilitiesRepresenter
 
+      property :extension_settings, # getter in the sub-classes
+               exec_context: :decorator,
+               skip_nil: true,
+               decorator: ExtensionRepresenter
+
+
+      def extension_settings
+        {auth_config_settings: plugin.getAuthConfigSettings, role_settings: plugin.getRoleSettings}
+      end
     end
   end
 end

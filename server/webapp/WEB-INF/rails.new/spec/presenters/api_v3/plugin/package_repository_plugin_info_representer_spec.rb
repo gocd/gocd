@@ -41,7 +41,6 @@ describe ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'package-repository',
                                 status: {
                                   state: 'active'
@@ -58,8 +57,9 @@ describe ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter do
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
                                 },
-                                package_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(package_settings).to_hash(url_builder: UrlBuilder.new),
-                                repository_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(repo_settings).to_hash(url_builder: UrlBuilder.new),
+                                extension_settings: {
+                                  package_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(package_settings).to_hash(url_builder: UrlBuilder.new),
+                                repository_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(repo_settings).to_hash(url_builder: UrlBuilder.new)},
                               })
 
   end

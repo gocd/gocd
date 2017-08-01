@@ -37,7 +37,6 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'scm',
                                 status: {
                                   state: 'active'
@@ -55,7 +54,7 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
                                     url: 'https://bob.example.com'}
                                 },
                                 display_name: 'Foo task',
-                                scm_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(scm_settings).to_hash(url_builder: UrlBuilder.new),
+                                extension_settings: {scm_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(scm_settings).to_hash(url_builder: UrlBuilder.new)},
                               })
 
   end

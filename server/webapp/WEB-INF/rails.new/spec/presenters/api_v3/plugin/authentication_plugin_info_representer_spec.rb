@@ -37,7 +37,6 @@ describe ApiV3::Plugin::AuthenticationPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'authentication',
                                 status: {
                                   state: 'active'

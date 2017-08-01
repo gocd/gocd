@@ -31,7 +31,6 @@ module ApiV3
       end
 
       property :id, exec_context: :decorator
-      property :version, exec_context: :decorator
       property :getExtensionName, as: :type
       property :status, exec_context: :decorator do
         property :state, getter: lambda {|*| state.to_s.downcase}

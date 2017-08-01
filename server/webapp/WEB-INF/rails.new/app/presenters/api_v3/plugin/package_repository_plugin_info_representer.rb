@@ -17,20 +17,15 @@ module ApiV3
   module Plugin
     class PackageRepositoryPluginInfoRepresenter < BasePluginInfoRepresenter
 
-      property :package_settings,
+      property :extension_settings,
+               exec_context: :decorator,
                skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
+               decorator: ExtensionRepresenter
 
+      def extension_settings
+        {package_settings: plugin.getPackageSettings, repository_settings: plugin.getRepositorySettings}
+      end
 
-      property :repository_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
     end
   end
 end

@@ -20,12 +20,15 @@ module ApiV3
         opts[:url_builder].plugin_images_url(plugin_id: id, hash: plugin.image.getHash) if plugin.image
       end
 
-      property :profile_settings,
+      property :extension_settings,
+               exec_context: :decorator,
                skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
+               decorator: ExtensionRepresenter
+
+
+      def extension_settings
+        {profile_settings: plugin.getProfileSettings}
+      end
 
     end
   end

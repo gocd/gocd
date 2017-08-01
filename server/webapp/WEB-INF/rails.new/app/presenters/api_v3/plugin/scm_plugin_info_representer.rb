@@ -18,12 +18,14 @@ module ApiV3
     class SCMPluginInfoRepresenter < BasePluginInfoRepresenter
       property :display_name
 
-      property :scm_settings,
+      property :extension_settings,
+               exec_context: :decorator,
                skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
+               decorator: ExtensionRepresenter
+
+      def extension_settings
+        {scm_settings: plugin.getScmSettings}
+      end
 
     end
   end

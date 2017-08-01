@@ -44,7 +44,6 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'elastic-agent',
                                 status: {
                                   state: 'active'
@@ -61,7 +60,7 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
                                 },
-                                profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new),
+                                extension_settings: {profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new)},
                                 plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new)
                               })
   end

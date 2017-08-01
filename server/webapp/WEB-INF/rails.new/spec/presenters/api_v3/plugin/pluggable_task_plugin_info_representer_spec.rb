@@ -37,7 +37,6 @@ describe ApiV3::Plugin::PluggableTaskPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'task',
                                 status: {
                                   state: 'active'
@@ -55,7 +54,7 @@ describe ApiV3::Plugin::PluggableTaskPluginInfoRepresenter do
                                     url: 'https://bob.example.com'}
                                 },
                                 display_name: 'Foo task',
-                                task_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(task_settings).to_hash(url_builder: UrlBuilder.new),
+                                extension_settings: {task_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(task_settings).to_hash(url_builder: UrlBuilder.new)},
                               })
 
   end

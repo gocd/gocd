@@ -42,7 +42,6 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'authorization',
                                 status: {
                                   state: 'active'
@@ -59,8 +58,8 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
                                 },
-                                auth_config_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(auth_config_settings).to_hash(url_builder: UrlBuilder.new),
-                                role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                extension_settings: {auth_config_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(auth_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new)},
                                 capabilities: ApiV3::Plugin::CapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
                               })
 

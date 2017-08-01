@@ -39,7 +39,6 @@ describe ApiV3::Plugin::BasePluginInfoRepresenter do
 
     expect(actual_json).to eq({
                                 id: 'foo.example',
-                                version: '1.0',
                                 type: 'plugin-type',
                                 plugin_file_location: '/path/to/foo.jar',
                                 bundled_plugin: false,

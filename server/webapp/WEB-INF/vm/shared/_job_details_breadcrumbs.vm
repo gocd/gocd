@@ -29,8 +29,14 @@
       <li class='last'><h1>$presenter.buildName</h1></li>
     </ul>
     #if($isEditableViaUI && ($userHasAdministratorRights || $userHasGroupAdministratorRights))
-      <div class="job_detail_setting"><a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/general"
-                                         class="icon16 setting"></a></div>
+      <div class="job_detail_setting">
+        #if($quick_edit_page_toggle_key)
+          <a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/edit" class="icon16 setting"></a>
+        #else
+          <a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/general" class="icon16 setting"></a>
+        #end
+
+      </div>
     #end
     <div id="build_status" class="build-status"></div>
   </div>

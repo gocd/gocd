@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_PLUGINS_ZIP;

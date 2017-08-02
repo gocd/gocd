@@ -17,11 +17,17 @@
 package com.thoughtworks.go.server.service.dd;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.util.Pair;
@@ -42,6 +48,7 @@ public class DependencyFanInNode extends FanInNode {
     StageIdentifier currentRevision;
     private Map<StageIdentifier, Set<FaninScmMaterial>> stageIdentifierScmMaterial = new LinkedHashMap<>();
     public Set<FanInNode> children = new HashSet<>();
+    private MaterialConfigs pipelineMaterials;
 
     public Set<? extends FaninScmMaterial> stageIdentifierScmMaterialForCurrentRevision() {
         return stageIdentifierScmMaterial.get(currentRevision);
@@ -51,8 +58,9 @@ public class DependencyFanInNode extends FanInNode {
         NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED, NEED_MORE_REVISIONS
     }
 
-    DependencyFanInNode(MaterialConfig material) {
+    DependencyFanInNode(MaterialConfig material, MaterialConfigs pipelineMaterials) {
         super(material);
+        this.pipelineMaterials = pipelineMaterials;
     }
 
     public void populateRevisions(CaseInsensitiveString pipelineName, FanInGraphContext context) {
@@ -141,8 +149,12 @@ public class DependencyFanInNode extends FanInNode {
         Set<CaseInsensitiveString> visitedNodes = new HashSet<>();
 
         StageIdentifier dependentStageIdentifier = dependentStageIdentifier(context, entry, CaseInsensitiveString.str(dependencyMaterial.getStageName()));
+        Map<String, Modifications> modificationsMap = new HashMap<>();
         if (!StageIdentifier.NULL.equals(dependentStageIdentifier)) {
-            addToRevisionQueue(entry, revisionQueue, scmMaterials, context, visitedNodes);
+            for (String scmFingerprint: context.fingerprintScmMaterialMap.keySet()) {
+                modificationsMap.put(scmFingerprint, modificationsForFingerprint(scmFingerprint, dependentStageIdentifier, context.pipelineDao));
+            }
+            addToRevisionQueue(entry, revisionQueue, scmMaterials, context, visitedNodes, modificationsMap);
         } else {
             return null;
         }
@@ -150,7 +162,7 @@ public class DependencyFanInNode extends FanInNode {
             PipelineTimelineEntry.Revision revision = revisionQueue.poll();
             DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision, null);
             PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(new CaseInsensitiveString(dmr.getPipelineName()), dmr.getPipelineCounter());
-            addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes);
+            addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes, modificationsMap);
         }
 
         return new Pair<>(dependentStageIdentifier, scmMaterials);
@@ -204,12 +216,17 @@ public class DependencyFanInNode extends FanInNode {
     }
 
     private void addToRevisionQueue(PipelineTimelineEntry entry, Queue<PipelineTimelineEntry.Revision> revisionQueue, List<FaninScmMaterial> scmMaterials,
-                                    FanInGraphContext context, Set<CaseInsensitiveString> visitedNodes) {
+                                    FanInGraphContext context, Set<CaseInsensitiveString> visitedNodes, Map<String, Modifications> modificationsMap) {
         for (Map.Entry<String, List<PipelineTimelineEntry.Revision>> revisionList : entry.revisions().entrySet()) {
             String fingerprint = revisionList.getKey();
             PipelineTimelineEntry.Revision revision = revisionList.getValue().get(0);
             if (isScmMaterial(fingerprint, context)) {
-                scmMaterials.add(new FaninScmMaterial(fingerprint, revision));
+                Modifications modifications = modificationsMap.get(fingerprint);
+                DependencyFanInNode node = childByPipelineName(this, new CaseInsensitiveString(entry.getPipelineName()));
+                FaninScmMaterial scmMaterial = new FaninScmMaterial(fingerprint, revision);
+                if (!scmMaterials.contains(scmMaterial) || node.changeExistsInNodeOrChildren(modifications, fingerprint)) {
+                    scmMaterials.add(scmMaterial);
+                }
                 continue;
             }
 
@@ -276,5 +293,73 @@ public class DependencyFanInNode extends FanInNode {
             stageIdScmPairs.add(pIdScmPair);
         }
         return stageIdScmPairs;
+    }
+
+    public boolean changeExistsInNodeOrChildren(Modifications modifications, String scmFingerprint) {
+        MaterialConfig materialConfig = pipelineMaterials.getByNonUniqueFingerPrint(scmFingerprint);
+        boolean changeExistsForNode = materialConfig != null && !modifications.shouldBeIgnoredByFilterIn(materialConfig);
+        return changeExistsForNode || changeExistsInAnyOfChildren(modifications, scmFingerprint);
+    }
+
+    public boolean changeExistsInAnyOfChildren(Modifications modifications, String scmFingerprint) {
+        for (FanInNode child: children) {
+            if (child instanceof DependencyFanInNode &&
+                    ((DependencyFanInNode)child).changeExistsInNodeOrChildren(modifications, scmFingerprint)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Modifications modificationsForFingerprint(String fingerprint, StageIdentifier stageId, PipelineDao pipelineDao) {
+        return modificationsForFingerprint(fingerprint, stageId, pipelineDao, new ArrayList<>());
+    }
+
+    private Modifications modificationsForFingerprint(String fingerprint, StageIdentifier stageId,
+                                                     PipelineDao pipelineDao, List<DependencyFanInNode> visitedNodes) {
+        PipelineInstanceModel pipeline = pipelineDao.findPipelineHistoryByNameAndCounter(stageId.getPipelineName(), stageId.getPipelineCounter());
+        MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
+        MaterialRevision scmRevision = materialRevisions.findRevisionForFingerPrint(fingerprint);
+        if (scmRevision != null) {
+            return scmRevision.getModifications();
+        }
+        for (FanInNode child: children) {
+            if (child instanceof DependencyFanInNode && !visitedNodes.contains(child)) {
+                DependencyFanInNode dependencyNode = (DependencyFanInNode) child;
+                visitedNodes.add(dependencyNode);
+                MaterialRevision revision = materialRevisions.findRevisionFor(child.materialConfig);
+                if (revision != null) {
+                    DependencyMaterialRevision nodeRevision = (DependencyMaterialRevision) revision.getRevision();
+                    StageIdentifier stageIdentifier = new StageIdentifier(nodeRevision.getPipelineName(), nodeRevision.getPipelineCounter(),
+                            nodeRevision.getStageName(), String.valueOf(nodeRevision.getStageCounter()));
+                    Modifications modifications = dependencyNode.modificationsForFingerprint(fingerprint, stageIdentifier, pipelineDao, visitedNodes);
+                    if (modifications != null) {
+                        return modifications;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public DependencyFanInNode childByPipelineName(DependencyFanInNode node, CaseInsensitiveString pipelineName) {
+        return childByPipelineName(node, pipelineName, new ArrayList<>());
+    }
+
+    private DependencyFanInNode childByPipelineName(DependencyFanInNode node, CaseInsensitiveString pipelineName, List<DependencyFanInNode> visitedNodes) {
+        if (((DependencyMaterialConfig) node.materialConfig).getPipelineName().equals(pipelineName)) {
+            return node;
+        }
+        for (FanInNode child: node.children) {
+            if (child instanceof DependencyFanInNode && !visitedNodes.contains(child)) {
+                visitedNodes.add(node);
+                DependencyFanInNode childMatchingPipelineName = childByPipelineName((DependencyFanInNode) child, pipelineName, visitedNodes);
+                if (childMatchingPipelineName != null) {
+                    return childMatchingPipelineName;
+                }
+            }
+        }
+        return null;
     }
 }

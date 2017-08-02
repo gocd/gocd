@@ -20,9 +20,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -31,6 +29,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -50,6 +49,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
 import static org.hamcrest.core.Is.is;
@@ -857,6 +860,304 @@ public class FaninDependencyResolutionTest {
         assertThat(revisionsBasedOnDependencies, is(given));
     }
 
+    @Test
+    public void shouldIgnoreUpstreamIfChangeHasFileBlacklistedInUpstream() throws Exception {
+        /*
+            +---> P1 ---+
+            |           v
+           git-------> P2
+        */
+        GitMaterial gitMaterial = new GitMaterial("git");
+        gitMaterial.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        GitMaterial gitP1 = u.wf(gitMaterial, "f");
+        GitMaterial gitP2 = u.wf(new GitMaterial("git"), "f");
+        int i = 0;
+        u.checkinInOrder(gitP1, u.d(i++), "g1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1), u.m(gitP2));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, p1_1, "g1");
+
+        checkInFiles(gitMaterial, new String[]{"g2"}, new String[]{"Folder1File1.md"}, i++);
+
+        MaterialRevisions given = u.mrs(
+                u.mr(gitP2, true, "g2"),
+                u.mr(p1, true, p1_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p2, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
+    @Test
+    public void shouldIgnoreTransitiveUpstreamIfChangeHasFileBlacklistedInUpstream() throws Exception {
+        /*
+            P1----------P2--------> P3
+            ^           ^
+            |           |
+           git----------*
+        */
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        int i = 0;
+        u.checkinInOrder(gitP1, u.d(i++), "g1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1), u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p2));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, p1_1, "g1");
+        String p3_1 = u.runAndPass(p3, p2_1);
+
+        checkInFiles(gitMaterialP1, new String[]{"g2"}, new String[]{"Folder1File1.md"}, i++);
+
+        String p2_2 = u.runAndPass(p2, p1_1, "g2");
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p2, true, p2_2));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
+    @Test
+    public void shouldIgnoreThatUpstreamHavingBlacklistInCaseOf2Upstreams() throws Exception {
+        /*
+               +---> P1 ---+
+               |           v
+              git-------> P3
+               |           ^
+               +--> P2 ----+
+        */
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        GitMaterial gitP3 = u.wf(new GitMaterial("git"), "f");
+        int i = 0;
+        u.checkinInOrder(gitP1, u.d(i++), "g1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(p2), u.m(gitP3));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, "g1");
+        String p3_1 = u.runAndPass(p3, p1_1, p2_1, "g1");
+
+        checkInFiles(gitMaterialP1, new String[]{"g2"}, new String[]{"Folder2File1.md"}, i++);
+
+        String p1_2 = u.runAndPass(p1, "g2");
+
+        MaterialRevisions given = u.mrs(
+                u.mr(gitP3, true, "g2"),
+                u.mr(p1, true, p1_2),
+                u.mr(p2, true, p2_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
+    @Test
+    public void shouldIgnoreThatUpstreamHavingBlacklistInCaseOf2UpstreamsNotHavingDirectSCMMaterialCase1() throws Exception {
+        /*
+               +---> P1* --> P3 ----+
+               |                    v
+              git                  P5
+               |                    ^
+               +---> P2 ---> P4 ----+
+        */
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        int i = 0;
+        u.checkinInOrder(gitP1, u.d(i++), "g1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2));
+        ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p3), u.m(p4));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, "g1");
+        String p3_1 = u.runAndPass(p3, p1_1);
+        String p4_1 = u.runAndPass(p4, p2_1);
+        String p5_1 = u.runAndPass(p5, p3_1, p4_1);
+
+        checkInFiles(gitMaterialP1, new String[]{"g2"}, new String[]{"Folder2File1.md"}, i++);
+
+        String p1_2 = u.runAndPass(p1, "g2");
+        String p3_2 = u.runAndPass(p3, p1_2);
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p3, true, p3_2),
+                u.mr(p4, true, p4_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
+    @Test
+    public void shouldIgnoreThatUpstreamHavingBlacklistInCaseOf2UpstreamsNotHavingDirectSCMMaterialCase2() throws Exception {
+        /*
+             -----> P1 ----+
+             |             v
+            Git           Package(P3) ---> Deploy(P4)
+             |             ^
+             -----> P2 ----+
+        */
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        int i = 0;
+        u.checkinInOrder(gitP1, u.d(i++), "g1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("package", u.m(p1), u.m(p2));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("deploy", u.m(p3));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, "g1");
+        String p3_1 = u.runAndPass(p3, p1_1, p2_1);
+        String p4_1 = u.runAndPass(p4, p3_1);
+
+        checkInFiles(gitMaterialP1, new String[]{"g2"}, new String[]{"Folder2File1.md"}, i++);
+
+        String p1_2 = u.runAndPass(p1, "g2");
+        String p3_2 = u.runAndPass(p3, p1_2, p2_1);
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p3, true, p3_2));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p4, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
+    @Test
+    public void shouldWaitForAllTheUpstreamPipelinesToGoGreenBeforeTriggeringDownstreamPipelineInCaseOfWhiteListBlackListCase1() {
+         /*
+               +-----------> P2 ----+
+               |      |             v
+              git---> P1            P4
+               |      |             ^
+               +-----------> P3 ----+
+        */
+
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        gitMaterialP1.setInvertFilter(true);
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        gitMaterialP2.setInvertFilter(true);
+        GitMaterial gitMaterialP3 = new GitMaterial("git");
+        gitMaterialP3.setFilter(new Filter(new IgnoredFiles("Folder3File*")));
+        gitMaterialP3.setInvertFilter(true);
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        GitMaterial gitP3 = u.wf(gitMaterialP3, "f");
+
+        int i = 0;
+        checkInFiles(gitMaterialP1, new String[]{"g1"}, new String[]{"Folder1File1.md"}, i++);
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1), u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(gitP3));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2), u.m(p3));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, p1_1, "g1");
+        String p3_1 = u.runAndPass(p3, p1_1, "g1");
+        String p4_1 = u.runAndPass(p4, p2_1, p3_1);
+
+        checkInFiles(gitMaterialP1, new String[]{"g3"}, new String[]{"Folder1File1.md"}, i++);
+        String p1_2 = u.runAndPass(p1, "g3");
+        String p2_2 = u.runAndPass(p2, p1_2, "g3");
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p2, true, p2_2),
+                u.mr(p3, true, p3_1));
+
+        MaterialRevisions expected = u.mrs(
+                u.mr(p2, true, p2_1),
+                u.mr(p3, true, p3_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p4, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(expected));
+    }
+
+    @Test
+    public void shouldWaitForAllTheUpstreamPipelinesToGoGreenBeforeTriggeringDownstreamPipelineInCaseOfWhiteListBlackListCase2() {
+         /*
+               +-----------> P2 ----+
+               |      |             v
+              git---> P1            P4
+               |      |             ^
+               +-----------> P3 ----+
+        */
+
+        GitMaterial gitMaterialP1 = new GitMaterial("git");
+        gitMaterialP1.setFilter(new Filter(new IgnoredFiles("Folder1File*")));
+        gitMaterialP1.setInvertFilter(true);
+        GitMaterial gitMaterialP2 = new GitMaterial("git");
+        gitMaterialP2.setFilter(new Filter(new IgnoredFiles("Folder2File*")));
+        gitMaterialP2.setInvertFilter(true);
+        GitMaterial gitMaterialP3 = new GitMaterial("git");
+        gitMaterialP3.setFilter(new Filter(new IgnoredFiles("Folder3File*")));
+        gitMaterialP3.setInvertFilter(true);
+        GitMaterial gitP1 = u.wf(gitMaterialP1, "f");
+        GitMaterial gitP2 = u.wf(gitMaterialP2, "f");
+        GitMaterial gitP3 = u.wf(gitMaterialP3, "f");
+
+        int i = 0;
+        checkInFiles(gitMaterialP1, new String[]{"g1"}, new String[]{"Folder1File1.md"}, i++);
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(gitP1));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1), u.m(gitP2));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(gitP3));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2), u.m(p3));
+
+        String p1_1 = u.runAndPass(p1, "g1");
+        String p2_1 = u.runAndPass(p2, p1_1, "g1");
+        String p3_1 = u.runAndPass(p3, p1_1, "g1");
+        String p4_1 = u.runAndPass(p4, p2_1, p3_1);
+
+        checkInFiles(gitMaterialP2, new String[]{"g2"}, new String[]{"Folder2File1.md"}, i++);
+
+        String p2_2 = u.runAndPass(p2, p1_1, "g2");
+        String p4_2 = u.runAndPass(p4, p2_2, p3_1);
+
+        checkInFiles(gitMaterialP1, new String[]{"g3"}, new String[]{"Folder1File1.md"}, i++);
+        String p1_2 = u.runAndPass(p1, "g3");
+        String p3_2 = u.runAndPass(p3, p1_2, "g3");
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p2, true, p2_2),
+                u.mr(p3, true, p3_2));
+
+        MaterialRevisions expected = u.mrs(
+                u.mr(p2, true, p2_2),
+                u.mr(p3, true, p3_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p4, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(expected));
+    }
+
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, staging.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
         pipelineTimeline.update();
@@ -866,6 +1167,16 @@ public class FaninDependencyResolutionTest {
     private MaterialRevisions getRevisionsBasedOnDependencies(ScheduleTestUtil.AddedPipeline pipeline, CruiseConfig cruiseConfig, MaterialRevisions given) {
         pipelineTimeline.update();
         return pipelineService.getRevisionsBasedOnDependencies(given, cruiseConfig, pipeline.config.name());
+    }
+
+    private void checkInFiles(GitMaterial git, String[] git_revs, String[] files, int startCount) {
+        List<File> fileList = new ArrayList<>();
+        for (String file : files) {
+            fileList.add(new File("ParentFolder/"+file));
+        }
+        for (String git_rev : git_revs) {
+            u.checkinFiles(git, git_rev, fileList, ModifiedAction.modified, u.d(startCount++));
+        }
     }
 
 }

@@ -15,17 +15,20 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class SCMPluginInfoRepresenter < BasePluginInfoRepresenter
+    class SCMPluginInfoRepresenter < BaseRepresenter
+
+      link :scm_settings_doc do |opts|
+        'https://api.gocd.org/#scms'
+      end
+
       property :display_name
 
-      property :extension_settings,
-               exec_context: :decorator,
+      property :scm_settings,
                skip_nil: true,
-               decorator: ExtensionRepresenter
-
-      def extension_settings
-        {scm_settings: plugin.getScmSettings}
-      end
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
 
     end
   end

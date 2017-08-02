@@ -29,32 +29,9 @@ describe ApiV3::Plugin::PluggableTaskPluginInfoRepresenter do
     plugin_info = com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo.new(descriptor, 'Foo task', task_settings)
     actual_json = ApiV3::Plugin::PluggableTaskPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc, :find)
-    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-info')
-    expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_info/:plugin_id')
-    actual_json.delete(:_links)
-
     expect(actual_json).to eq({
-                                id: 'foo.example',
-                                type: 'task',
-                                status: {
-                                  state: 'active'
-                                },
-                                plugin_file_location: nil,
-                                bundled_plugin: false,
-                                about: {
-                                  name: 'Foo plugin',
-                                  version: '1.2.3',
-                                  target_go_version: '17.2.0',
-                                  description: 'Does foo',
-                                  target_operating_systems: ['Linux'],
-                                  vendor: {
-                                    name: 'bob',
-                                    url: 'https://bob.example.com'}
-                                },
                                 display_name: 'Foo task',
-                                extension_settings: {task_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(task_settings).to_hash(url_builder: UrlBuilder.new)},
+                                task_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(task_settings).to_hash(url_builder: UrlBuilder.new),
                               })
 
   end

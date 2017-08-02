@@ -15,20 +15,23 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class ElasticPluginInfoRepresenter < BasePluginInfoRepresenter
+    class ElasticPluginInfoRepresenter < BaseRepresenter
+      alias_method :plugin, :represented
+
       link :image do |opts|
-        opts[:url_builder].plugin_images_url(plugin_id: id, hash: plugin.image.getHash) if plugin.image
+        opts[:url_builder].plugin_images_url(plugin_id: plugin.getDescriptor.id, hash: plugin.image.getHash) if plugin.image
       end
 
-      property :extension_settings,
-               exec_context: :decorator,
+      link :profile_doc do |opts|
+        'https://api.gocd.org/#elastic-agent-profiles'
+      end
+
+      property :profile_settings,
                skip_nil: true,
-               decorator: ExtensionRepresenter
-
-
-      def extension_settings
-        {profile_settings: plugin.getProfileSettings}
-      end
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
 
     end
   end

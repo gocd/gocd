@@ -15,16 +15,30 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class PackageRepositoryPluginInfoRepresenter < BasePluginInfoRepresenter
+    class PackageRepositoryPluginInfoRepresenter < BaseRepresenter
 
-      property :extension_settings,
-               exec_context: :decorator,
-               skip_nil: true,
-               decorator: ExtensionRepresenter
-
-      def extension_settings
-        {package_settings: plugin.getPackageSettings, repository_settings: plugin.getRepositorySettings}
+      link :repository_settings_doc do |opts|
+        'https://api.gocd.org/#package-repositories'
       end
+
+      link :package_settings_doc do |opts|
+        'https://api.gocd.org/#packages'
+      end
+
+      property :package_settings,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
+
+
+      property :repository_settings,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
 
     end
   end

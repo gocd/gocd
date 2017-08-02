@@ -33,34 +33,16 @@ describe ApiV3::Plugin::AuthorizationPluginInfoRepresenter do
     plugin_info = com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities, nil)
     actual_json = ApiV3::Plugin::AuthorizationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc, :find, :image)
-    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-info')
-    expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_info/:plugin_id')
+    expect(actual_json).to have_links(:auth_config_doc, :role_config_doc, :image)
+    expect(actual_json).to have_link(:auth_config_doc).with_url('https://api.gocd.org/#authorization-configuration')
+    expect(actual_json).to have_link(:role_config_doc).with_url('https://api.gocd.org/#roles')
     expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq({
-                                id: 'foo.example',
-                                type: 'authorization',
-                                status: {
-                                  state: 'active'
-                                },
-                                plugin_file_location: nil,
-                                bundled_plugin: false,
-                                about: {
-                                  name: 'Foo plugin',
-                                  version: '1.2.3',
-                                  target_go_version: '17.2.0',
-                                  description: 'Does foo',
-                                  target_operating_systems: ['Linux'],
-                                  vendor: {
-                                    name: 'bob',
-                                    url: 'https://bob.example.com'}
-                                },
-                                extension_settings: {auth_config_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(auth_config_settings).to_hash(url_builder: UrlBuilder.new),
-                                role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new)},
-                                capabilities: ApiV3::Plugin::CapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
+                                auth_config_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(auth_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                capabilities: ApiV3::Plugin::AuthorizationCapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
                               })
 
   end

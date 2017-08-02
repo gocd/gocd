@@ -33,33 +33,14 @@ describe ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter do
     plugin_info = com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, repo_settings, package_settings, nil)
     actual_json = ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc, :find)
-    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-info')
-    expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_info/:plugin_id')
+    expect(actual_json).to have_links(:repository_settings_doc, :package_settings_doc)
+    expect(actual_json).to have_link(:repository_settings_doc).with_url('https://api.gocd.org/#package-repositories')
+    expect(actual_json).to have_link(:package_settings_doc).with_url('https://api.gocd.org/#packages')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq({
-                                id: 'foo.example',
-                                type: 'package-repository',
-                                status: {
-                                  state: 'active'
-                                },
-                                plugin_file_location: nil,
-                                bundled_plugin: false,
-                                about: {
-                                  name: 'Foo plugin',
-                                  version: '1.2.3',
-                                  target_go_version: '17.2.0',
-                                  description: 'Does foo',
-                                  target_operating_systems: ['Linux'],
-                                  vendor: {
-                                    name: 'bob',
-                                    url: 'https://bob.example.com'}
-                                },
-                                extension_settings: {
-                                  package_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(package_settings).to_hash(url_builder: UrlBuilder.new),
-                                repository_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(repo_settings).to_hash(url_builder: UrlBuilder.new)},
+                                package_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(package_settings).to_hash(url_builder: UrlBuilder.new),
+                                repository_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(repo_settings).to_hash(url_builder: UrlBuilder.new),
                               })
 
   end

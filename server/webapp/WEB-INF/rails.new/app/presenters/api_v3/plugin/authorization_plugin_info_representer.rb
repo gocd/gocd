@@ -15,27 +15,42 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class AuthorizationPluginInfoRepresenter < BasePluginInfoRepresenter
+    class AuthorizationPluginInfoRepresenter < BaseRepresenter
+      alias_method :plugin, :represented
+
       link :image do |opts|
-        opts[:url_builder].plugin_images_url(plugin_id: id, hash: plugin.getImage.getHash()) if plugin.image
+        opts[:url_builder].plugin_images_url(plugin_id: plugin.getDescriptor.id, hash: plugin.getImage.getHash()) if plugin.image
       end
+
+      link :auth_config_doc do |opts|
+        'https://api.gocd.org/#authorization-configuration'
+      end
+
+      link :role_config_doc do |opts|
+        'https://api.gocd.org/#roles'
+      end
+
+      property :auth_config_settings,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
+
+      property :role_settings,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
+               decorator: PluggableInstanceSettingsRepresenter
 
       property :capabilities,
                skip_nil: true,
                expect_hash: true,
                inherit: false,
                class: Capabilities,
-               decorator: CapabilitiesRepresenter
+               decorator: AuthorizationCapabilitiesRepresenter
 
-      property :extension_settings, # getter in the sub-classes
-               exec_context: :decorator,
-               skip_nil: true,
-               decorator: ExtensionRepresenter
-
-
-      def extension_settings
-        {auth_config_settings: plugin.getAuthConfigSettings, role_settings: plugin.getRoleSettings}
-      end
     end
   end
 end

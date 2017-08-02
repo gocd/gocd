@@ -15,7 +15,7 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class AuthenticationPluginInfoRepresenter < BasePluginInfoRepresenter
+    class AuthenticationPluginInfoRepresenter < BaseRepresenter
       property :display_name
       property :display_image_url
 

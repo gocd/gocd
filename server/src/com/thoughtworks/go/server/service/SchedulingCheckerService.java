@@ -122,7 +122,6 @@ public class SchedulingCheckerService {
                 new PipelineLockChecker(pipelineName, pipelineLockService),
                 new ManualPipelineChecker(pipelineConfig),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
-                new PipelineLockChecker(pipelineName, pipelineLockService),
                 new StageActiveChecker(pipelineName, CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name()), activityService)));
         checker.check(operationResult);
     }

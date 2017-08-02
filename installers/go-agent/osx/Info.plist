@@ -54,7 +54,7 @@
             <key>ClassPath</key>
             <string>$APP_PACKAGE/agent-bootstrapper.jar</string>
             <key>MainClass</key>
-            <string>com.simontuffs.onejar.Boot</string>
+            <string>com.thoughtworks.gocd.Boot</string>
             <key>Arguments</key>
             <string>127.0.0.1 8153</string>
             <key>Properties</key>

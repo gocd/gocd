@@ -36,8 +36,7 @@ task fatJar(type: Jar) {
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
   }
 
-  from(configurations.compile) { into "libs/" }
-  from(jar.archivePath) { into('libs/') }
+  from(configurations.compile + jar.archivePath) { into "libs/" }
 }
 
 task verifyJar(type: VerifyJarTask) {

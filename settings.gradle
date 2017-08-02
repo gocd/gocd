@@ -15,6 +15,7 @@
  */
 
 rootProject.name = 'gocd'
+include ':jar-class-loader'
 include ':base'
 include ':util'
 include ':test-utils'

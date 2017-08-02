@@ -66,13 +66,13 @@ dependencies {
 
   pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
-  extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
-
   packagingInMainJarTopLevel project(':jetty9')
   packagingInMainJarTopLevel project(':app-server')
   packagingInMainJarCommonJar project(':common')
   packagingInMainJarBaseJar project(':base')
   packagingInMainJarServerJar project(':server')
+
+  extractedAtTopLevel project(':jar-class-loader')
 }
 
 jar {
@@ -179,10 +179,13 @@ clean {
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyFatJar'
-  dependsOn jar, mainJar, configurations.pluginsZip, (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile)
+  dependsOn configurations.packagingInDefaultFilesDir, h2dbZip, h2deltasZip, defaultCommandSnippetsZip, configurations.pluginsZip,
+    (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile),
+    configurations.packagingInLibDir, configurations.compileOnly, mainJar, configurations.extractedAtTopLevel, jar
+
   manifest {
-    attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
-    attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.server.util.GoLauncher'
+    attributes 'Main-Class': 'com.thoughtworks.gocd.Boot'
+    attributes 'GoCD-Main-Class': 'com.thoughtworks.go.server.util.GoLauncher'
   }
 
   from(configurations.packagingInDefaultFilesDir) {
@@ -212,13 +215,10 @@ task fatJar(type: Jar) {
   }
 
   from(mainJar.archivePath) {
-    into('main/')
-    rename "(.*)-${project.version}-${mainJar.classifier}.jar", 'main.jar'
+    into('lib/')
   }
 
   from(configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
-    include '**/*.class'
-    exclude 'OneJar.class'
     into("/")
   }
 
@@ -243,10 +243,8 @@ task verifyFatJar(type: VerifyJarTask) {
       "h2db.zip",
       project.hasProperty('fastBuild') ? null : "defaultCommandSnippets.zip"
     ].findAll { it != null },
-    "main"        : [
-      "main.jar"
-    ],
     "lib"         : [
+      "server-launcher-${project.version}-main.jar",
       "bcprov-jdk15on-1.47.jar",
       "commons-io-2.5.jar",
       "go-plugin-activator.jar",

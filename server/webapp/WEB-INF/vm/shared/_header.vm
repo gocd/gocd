@@ -66,45 +66,46 @@
                 <a href="$req.getContextPath()/pipelines" id="application_logo"></a>
                   #if ($l)
                     <div class="application_nav">
-                          #if ($principal)
-                            <ul class="user">
-                              <li class="help">
-                                <a href="https://gocd.org/help" target="_blank">$l.localize("HELP_SMALL")</a>
-                              </li>
-                              <li class="current_user icon">
-                                <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
-                                <ul class="enhanced_dropdown hidden">
-                                  <li>
-                                    <a href="$req.getContextPath()/preferences/notifications">$l.localize(
-                                        "PREFERENCES_LOWER")</a>
-                                  </li>
-                                  <li class="logout">
-                                    <a id="nav-logout" class="sign_out" href="$req.getContextPath()/auth/logout">$l.localize(
-                                        "SIGN_OUT")</a>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
-                          #else
-                            <ul class="user">
-                              <li class="help">
-                                <a href="https://gocd.org/help" target="_blank">$l.localize("HELP_SMALL")</a>
-                              </li>
-                            </ul>
-                          #end
+                        #if ($principal)
+                          <ul class="user">
+                            <li class="help">
+                              <a href="https://gocd.org/help" target="_blank">$l.localize("HELP_SMALL")</a>
+                            </li>
+                            <li class="current_user icon">
+                              <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
+                              <ul class="enhanced_dropdown hidden">
+                                <li>
+                                  <a href="$req.getContextPath()/preferences/notifications">$l.localize(
+                                      "PREFERENCES_LOWER")</a>
+                                </li>
+                                <li class="logout">
+                                  <a id="nav-logout" class="sign_out"
+                                     href="$req.getContextPath()/auth/logout">$l.localize(
+                                      "SIGN_OUT")</a>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        #else
+                          <ul class="user">
+                            <li class="help">
+                              <a href="https://gocd.org/help" target="_blank">$l.localize("HELP_SMALL")</a>
+                            </li>
+                          </ul>
+                        #end
 
-                          #if( $goUpdateCheckEnabled && $goUpdate)
-                            <div class="notifications">
-                              <span class="bell"></span>
+                        #if( $goUpdateCheckEnabled && $goUpdate)
+                          <div class="notifications">
+                            <span class="bell"></span>
 
-                              <div class="hover-container">
-                                <div class="hover">
+                            <div class="hover-container">
+                              <div class="hover">
                                 <span>A new release of GoCD - <a href="https://www.gocd.org/download/"
                                                                  target="_blank">$goUpdate</a> is available.</span>
-                                </div>
                               </div>
                             </div>
-                          #end
+                          </div>
+                        #end
                       <ul class="tabs">
                         <li id="cruise-header-tab-recent-activity"
                             class="#if($current_tab == 'pipeline' || $current_tab == 'Current Activity') current #end">
@@ -126,11 +127,13 @@
                               <a class="dropdown-arrow-icon" href="#" data-toggle="dropdown">$l.localize("ADMIN")</a>
                               <ul class="dropdown-menu" role="menu">
                                   #if($userHasAdministratorRights)
-                                        #parse("shared/_dropdown_admin.vm")
-                                    #elseif($userHasGroupAdministratorRights)
+                                      #parse("shared/_dropdown_admin.vm")
+                                  #elseif($userHasGroupAdministratorRights)
                                       #parse("shared/_dropdown_pipeline_group_admin.vm")
                                   #elseif($userHasTemplateViewUserRights)
-                                      #parse("shared/_dropdown_template_admin.vm")
+                                    <li role="presentation">
+                                      <a href="$req.getContextPath()/admin/templates">$l.localize("TEMPLATES")</a>
+                                    </li>
                                   #end
                               </ul>
                             #end

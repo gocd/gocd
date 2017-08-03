@@ -110,7 +110,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> H2_DB_TRACE_LEVEL = new GoIntSystemProperty("h2.trace.level", 1);
     public static GoSystemProperty<Integer> H2_DB_TRACE_FILE_SIZE_MB = new GoIntSystemProperty("h2.trace.file.size.mb", 16);
     private static GoSystemProperty<String> CRUISE_DATABASE_DIR = new GoStringSystemProperty("cruise.database.dir", DB_DEFAULT_PATH);
-    public static GoSystemProperty<String> H2_DB_STORE = new GoStringSystemProperty("go.h2.db.store", H2DbStore.h2default.name());
+    public static GoSystemProperty<String> H2_DB_STORE = new GoStringSystemProperty("go.h2.db.store", H2DbStore.mvstore.name());
 
     public static final String MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY = "material.update.idle.interval";
     private static GoSystemProperty<Long> MATERIAL_UPDATE_IDLE_INTERVAL = new GoLongSystemProperty(MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, 60000L);

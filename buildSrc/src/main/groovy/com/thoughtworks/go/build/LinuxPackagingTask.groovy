@@ -35,12 +35,18 @@ public abstract class LinuxPackagingTask extends DefaultTask {
   @Input
   String distVersion
 
+  @Input
+  void setFiles(files) {
+    this.files = files
+    files.each { fileName, permissions ->
+      inputs.files(permissions.source)
+    }
+  }
 
   @OutputFile
   abstract public File getOutputFile()
 
   LinuxPackagingTask() {
-    outputs.upToDateWhen { false }
   }
 
   @TaskAction

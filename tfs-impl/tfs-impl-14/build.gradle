@@ -33,8 +33,9 @@ jar {
   classifier 'classes'
 }
 
-task fatJar(type: Jar, dependsOn: [jar]) {
+task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
+  dependsOn jar
   from(jar.archivePath) { into('lib/') }
 
   from({

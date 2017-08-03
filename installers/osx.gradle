@@ -16,27 +16,25 @@ import org.apache.tools.ant.filters.ReplaceTokens
  * limitations under the License.
  */
 
-task agentOSXZip(type: Zip, dependsOn: [':agent-bootstrapper:fatJar']) { zipTask ->
-  outputs.upToDateWhen { false }
+task agentOSXZip(type: Zip) { zipTask ->
   def packageName = 'go-agent'
   into 'Go Agent.app'
 
   configureOsxZip(zipTask, packageName)
 
-  from({configurations.agentBootstrapperJar}) {
+  from(configurations.agentBootstrapperJar) {
     into "Contents/Resources"
     rename "(.*)-${project.version}.(.*)", '$1.$2'
   }
 }
 
-task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask ->
-  outputs.upToDateWhen { false }
+task serverOSXZip(type: Zip) { zipTask ->
   def packageName = 'go-server'
   into 'Go Server.app'
 
   configureOsxZip(zipTask, packageName)
 
-  from({configurations.serverJar}) {
+  from(configurations.serverJar) {
     into "Contents/Resources"
     rename "(.*)-${project.version}.(.*)", 'go.$2'
   }
@@ -64,9 +62,9 @@ private void configureOsxZip(Zip zipTask, String packageName) {
 
     from("${packageName}/osx/Info.plist") {
       filter ReplaceTokens, tokens: [
-          'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
-          'version'    : rootProject.version.toString(),
-          'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
+        'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
+        'version'    : rootProject.version.toString(),
+        'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
       ]
       into "Contents"
     }

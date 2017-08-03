@@ -32,6 +32,7 @@ task pathingJar(type: Jar) {
 }
 
 task generateJSRoutes(type: ExecuteUnderRailsTask) {
+  onlyIf { !project.hasProperty('fastBuild') }
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
   inputs.dir(file("${project.railsRoot}/config"))
@@ -95,6 +96,7 @@ task cleanRails(type: Delete) {
 clean.dependsOn cleanRails
 
 task compileAssetsDev(type: Exec) {
+  onlyIf { !project.hasProperty('fastBuild') }
   dependsOn npmInstall
   dependsOn generateJSRoutes
 

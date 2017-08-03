@@ -252,47 +252,33 @@ task cleanDb(type: Delete) {
 
 clean.dependsOn cleanDb
 
-task prepareDb(dependsOn: [':server:cleanDb']) {
-  outputs.upToDateWhen { false }
-
-  doFirst {
-    copy {
-      from 'db/dbtemplate/h2db'
-      into 'db/h2db'
-    }
-    copy {
-      from 'db/migrate/h2deltas'
-      into 'db/h2deltas'
-    }
-  }
+task copyH2Db(type: Copy, dependsOn: [':server:cleanDb']) {
+  from('db/dbtemplate/h2db')
+  into('db/h2db')
 }
 
-task copyAgentJarsToServerDir {
-  inputs.files(project.configurations.copyOnly)
-  inputs.files(project.configurations.copyOnlyTestData)
-
-  outputs.files(project.configurations.copyOnly.files.collect {
-    it.name.replace("-${project.version}", "")
-  })
-
-  outputs.files(project.configurations.copyOnlyTestData.files.collect {
-    "testData/${it.name.replace("-${project.version}", "")}"
-  })
-
-  doFirst {
-    project.copy {
-      from project.configurations.copyOnlyTestData
-      into 'testdata'
-      rename "(.*)-${project.version}.jar", '$1.jar'
-    }
-
-    project.copy {
-      from project.configurations.copyOnly
-      into '.'
-      rename "(.*)-${project.version}.jar", '$1.jar'
-    }
-  }
+task copyH2Deltas(type: Copy, dependsOn: [':server:cleanDb']) {
+  from('db/migrate/h2deltas')
+  into('db/h2deltas')
 }
+
+task prepareDb {
+  dependsOn copyH2Db, copyH2Deltas
+}
+
+task copyTestDataJarsToServerDir(type: Copy) {
+  from(project.configurations.copyOnlyTestData)
+  into 'testdata'
+  rename "(.*)-${project.version}.jar", '$1.jar'
+}
+
+task copyAgentJarsToServerDir(type: Copy) {
+  from(project.configurations.copyOnly)
+  into '.'
+  rename "(.*)-${project.version}.jar", '$1.jar'
+}
+
+task copyAgentSideJarsToServerDir(dependsOn: [copyAgentJarsToServerDir, copyTestDataJarsToServerDir])
 
 task prepareNoRails {
   dependsOn = [cleanDb, prepareDb, ':go-plugin-activator:jar', copyAgentJarsToServerDir]
@@ -336,7 +322,7 @@ test {
     }
 
     if (event.destination == TestOutputEvent.Destination.StdOut) {
-      logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  OUT: ")));
+      logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  OUT: ")))
     } else if (event.destination == TestOutputEvent.Destination.StdErr) {
       logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  ERR: ")))
     }
@@ -416,13 +402,13 @@ task war(type: Jar) {
 
   // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
 
-  def classpath = { project.configurations.compile.minus(project(':app-server').jar.archivePath) }
+  def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
 
-  from({ classpath }) {
+  from(classpath) {
     into 'WEB-INF/lib'
   }
 
-  from { zipTree(jar.archivePath) } {
+  from(zipTree(jar.archivePath)) {
     into('WEB-INF/classes')
   }
 

@@ -39,14 +39,14 @@ public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
         logConfigurator.initialize();
-        copyDbFiles();
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        copyDbFiles(systemEnvironment);
         File webApp = new File("webapp");
         if (!webApp.exists()) {
             throw new RuntimeException("No webapp found in " + webApp.getAbsolutePath());
         }
 
         assertActivationJarPresent();
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(GENERATE_STATISTICS, "true");
 
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
@@ -91,10 +91,10 @@ public class DevelopmentServer {
         systemEnvironment.setProperty("go.config.repo.gc.check.interval", "10000");
     }
 
-    private static void copyDbFiles() throws IOException {
+    private static void copyDbFiles(SystemEnvironment systemEnvironment) throws IOException {
         FileUtils.copyDirectoryToDirectory(new File("db/migrate/h2deltas"), new File("db/"));
-        if (!new File("db/h2db/cruise.h2.db").exists()) {
-            FileUtils.copyDirectoryToDirectory(new File("db/dbtemplate/h2db"), new File("db/"));
+        if (!new File("db/h2db/" + systemEnvironment.getDbFileName()).exists()) {
+            FileUtils.copyFileToDirectory(new File("db/dbtemplate/h2db/" + systemEnvironment.getDbFileName()), new File("db/"));
         }
     }
 

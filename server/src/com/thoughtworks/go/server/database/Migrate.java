@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -106,7 +107,7 @@ public class Migrate {
                 "-user", user
         });
         file.renameTo(new File(file.getAbsoluteFile() + ".backup"));
-        RunScript.execute(url, user, password, TEMP_SCRIPT, "UTF-8", true);
+        RunScript.execute(url, user, password, TEMP_SCRIPT, Charset.forName("UTF-8"), true);
         new File(TEMP_SCRIPT).delete();
         LOGGER.info("Migrating the h2db to the new format is complete.");
     }

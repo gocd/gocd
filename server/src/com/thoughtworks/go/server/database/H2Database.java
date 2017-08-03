@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.database;
 
@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.server.util.H2EventListener;
+import com.thoughtworks.go.util.H2DbStore;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
@@ -139,10 +140,10 @@ public class H2Database implements Database {
     }
 
     private String dburl(Boolean mvccEnabled) {
-        return "jdbc:h2:" + systemEnvironment.getDbPath() + "/" + configuration.getName()
+        return "jdbc:h2:./" + systemEnvironment.getDbPath() + "/" + configuration.getName()
                 + ";DB_CLOSE_DELAY=-1"
                 + ";DB_CLOSE_ON_EXIT=FALSE"
-                + ";MVCC=" + mvccEnabled.toString().toUpperCase()
+//                + ";MVCC=" + mvccEnabled.toString().toUpperCase()
                 + ";CACHE_SIZE=" + systemEnvironment.getCruiseDbCacheSize()
                 + ";TRACE_LEVEL_FILE=" + systemEnvironment.getCruiseDbTraceLevel()
                 + ";TRACE_MAX_FILE_SIZE=" + systemEnvironment.getCruiseDbTraceFileSize()
@@ -159,6 +160,10 @@ public class H2Database implements Database {
         } else {
             Migration upgradeToH2 = new MigrateHsqldbToH2(source, systemEnvironment);
             upgradeToH2.migrate();
+
+            if (systemEnvironment.get(SystemEnvironment.H2_DB_STORE).equalsIgnoreCase(H2DbStore.mvstore.name())){
+                new CreateChangeLogTableForBlankDb(source, systemEnvironment).createChangeLog();
+            }
 
             Migration migrateSchema = new DbDeployMigration(source, systemEnvironment);
             migrateSchema.migrate();

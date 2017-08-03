@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
-
-import static com.thoughtworks.go.domain.TestReportGenerator.TEST_RESULTS_FILE;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class JobInstances extends BaseCollection<JobInstance> {
@@ -113,37 +105,6 @@ public class JobInstances extends BaseCollection<JobInstance> {
             transitions.addAll(job.getTransitions());
         }
         return transitions;
-    }
-
-    public JobInstances withNonEmptyStacktrace() {
-        JobInstances jobInstances = new JobInstances();
-        for (JobInstance instance : this) {
-            if (StringUtils.isNotBlank(instance.getStacktrace())) {
-                jobInstances.add(instance);
-            }
-        }
-        return jobInstances;
-    }
-
-    public JobInstances withNonEmptyBuildErrors() {
-        JobInstances jobInstances = new JobInstances();
-        for (JobInstance instance : this) {
-            if (StringUtils.isNotBlank(instance.getBuildError())) {
-                jobInstances.add(instance);
-            }
-        }
-        return jobInstances;
-    }
-
-    public JobInstances withNonEmptyIndexPages() {
-        JobInstances jobInstances = new JobInstances();
-        for (JobInstance key : this) {
-            File indexPage = key.getTestIndexPage();
-            if (indexPage != null && TEST_RESULTS_FILE.equals(indexPage.getName())) {
-                jobInstances.add(key);
-            }
-        }
-        return jobInstances;
     }
 
     public JobInstances sortByName() {

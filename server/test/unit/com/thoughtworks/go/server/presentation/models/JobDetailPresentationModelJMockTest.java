@@ -16,18 +16,11 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Properties;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -35,6 +28,8 @@ import org.jmock.Expectations;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -77,119 +72,6 @@ public class JobDetailPresentationModelJMockTest {
     @After
     public void tearDown() throws Exception {
         FileUtil.deleteFolder(testFolder);
-    }
-
-    @Test
-    public void hasBuildErrorShouldBeFalseWhenEmptyContent() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getBuildError();
-                will(returnValue(""));
-            }
-        });
-        assertThat(jobDetailPresenter.hasBuildError(), is(false));
-
-    }
-
-    @Test
-    public void hasFailedTestsShouldBeFalseWhenIndexPageURLIsNull() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getTestIndexPage();
-                will(returnValue(null));
-            }
-        });
-        assertThat(jobDetailPresenter.hasFailedTests(), is(false));
-
-    }
-
-    @Test
-    public void hasBuildErrorShouldBeTrueWhenNonEmptyContent() throws Exception {
-
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getBuildError();
-                will(returnValue("build cause"));
-            }
-        });
-        assertThat(jobDetailPresenter.hasBuildError(), is(true));
-    }
-
-    @Test
-    public void hasStackTraceShouldBeFalseWhenEmptyContent() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getStacktrace();
-                will(returnValue(""));
-
-            }
-        });
-        assertThat(jobDetailPresenter.hasStacktrace(), is(false));
-    }
-
-    @Test
-    public void hasStackTraceShouldBeTrueWhenNonEmptyContent() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getStacktrace();
-                will(returnValue("trace"));
-
-            }
-        });
-        assertThat(jobDetailPresenter.hasStacktrace(), is(true));
-    }
-
-    @Test
-    public void shouldIndexPage() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getTestIndexPage();
-                will(returnValue(new File("home/user/testoutput/result/index.html")));
-            }
-        });
-        String path = jobDetailPresenter.getIndexPageURL();
-        assertThat(path, is("files/pipeline/1/stageName/0/build/testoutput/result/index.html"));
-    }
-
-    @Test
-    public void shouldReturnEmptyStringForIndexPage() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getTestIndexPage();
-                will(returnValue(null));
-            }
-        });
-        String path = jobDetailPresenter.getIndexPageURL();
-        assertThat(path, is(""));
-    }
-
-
-    @Test
-    public void shouldGetServerFailurePage() throws Exception {
-        final File file = new File(
-                "home" + File.separator + "user" + File.separator + ArtifactLogUtil.CRUISE_OUTPUT_FOLDER
-                        + File.separator + ArtifactLogUtil.SERVER_FAILURE_PAGE);
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getServerFailurePage();
-                will(returnValue(file));
-            }
-        });
-        String path = jobDetailPresenter.getServerFailurePageURL();
-        assertThat(path, is("files/pipeline/1/stageName/0/build/" + ArtifactLogUtil.CRUISE_OUTPUT_FOLDER + "/" + ArtifactLogUtil.SERVER_FAILURE_PAGE));
-    }
-
-
-    @Test
-    public void shouldReturnEmptyStringForServerFailurePage() throws Exception {
-        context.checking(new Expectations() {
-            {
-                allowing(stubJobInstance).getServerFailurePage();
-                will(returnValue(null));
-            }
-        });
-        String path = jobDetailPresenter.getServerFailurePageURL();
-        assertThat(path, is(""));
     }
 
     @Test

@@ -352,8 +352,8 @@ public class BuildWorkArtifactUploadingTest {
             this.files = files;
         }
 
-        public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                             EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+        public void build(DefaultGoPublisher publisher,
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
             try {
                 FileUtil.createFilesByPath(buildWorkingDirectory, files);
             } catch (IOException e) {

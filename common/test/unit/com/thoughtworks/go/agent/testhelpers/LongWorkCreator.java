@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
@@ -128,7 +127,7 @@ public class LongWorkCreator implements WorkCreator {
             super(new RunIfConfigs(), new NullBuilder(), "");
         }
 
-        public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
+        public void build(DefaultGoPublisher publisher,
                           EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
             try {
                 Thread.sleep(10000);

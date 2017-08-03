@@ -26,7 +26,6 @@ import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.NantTask;
 import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.NullTask;
@@ -137,7 +136,7 @@ public class BuilderFactoryTest {
     private Builder myFakeBuilder() {
         return new Builder(null, null, null) {
             @Override
-            public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+            public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
             }
 
             public String toString() {

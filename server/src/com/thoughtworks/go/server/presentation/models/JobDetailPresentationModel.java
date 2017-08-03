@@ -22,21 +22,22 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.DirectoryReader;
 import com.thoughtworks.go.util.TimeConverter;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.thoughtworks.go.config.TestArtifactPlan.TEST_OUTPUT_FOLDER;
-import static com.thoughtworks.go.domain.TestReportGenerator.TEST_RESULTS_FILE;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.math.NumberUtils.toInt;
 
 public class JobDetailPresentationModel {
@@ -161,42 +162,12 @@ public class JobDetailPresentationModel {
         return recent25StatusJson;
     }
 
-    public String getStacktrace() {
-        return job.getStacktrace();
-    }
-
-    public String getBuildError() {
-        return job.getBuildError();
-    }
-
-    public boolean hasBuildError() {
-        return !isEmpty(getBuildError());
-    }
-
     public boolean hasFailedTests() {
         return hasTests() && toInt(getProperties().getValue(TestReportGenerator.FAILED_TEST_COUNT)) > 0;
     }
 
-    public boolean hasServerFailure() {
-        return job.getServerFailurePage() != null;
-    }
-
-    public boolean hasStacktrace() {
-        return !isEmpty(getStacktrace());
-    }
-
     public boolean hasTests() {
         return StringUtils.isNotEmpty(getIndexPageURL());
-    }
-
-    //TODO: Fix the places where we return empty strings or nulls
-    public String getServerFailurePageURL() {
-        File serverFailurePage = job.getServerFailurePage();
-        if (serverFailurePage != null) {
-            String fullPath = serverFailurePage.getPath();
-            return getRestfulUrl(fullPath.substring(fullPath.indexOf(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER)));
-        }
-        return "";
     }
 
     public String getRestfulUrl(String path) {
@@ -204,13 +175,22 @@ public class JobDetailPresentationModel {
     }
 
 
-    public String getIndexPageURL() {
-        File testIndexPage = job.getTestIndexPage();
-        if (testIndexPage != null && testIndexPage.getName().equals(TEST_RESULTS_FILE)) {
-            return getRestfulUrl(
-                    testIndexPage.getPath().substring(testIndexPage.getPath().indexOf(TEST_OUTPUT_FOLDER)));
+    public String getIndexPageURL()  {
+        try {
+            File testOutputFolder = artifactsService.findArtifact(job.getIdentifier(), TEST_OUTPUT_FOLDER);
+
+            if (testOutputFolder.exists()) {
+                Collection<File> files = FileUtils.listFiles(testOutputFolder, new NameFileFilter("index.html"), TrueFileFilter.TRUE);
+                if (files.isEmpty()) {
+                    return null;
+                }
+                File testIndexPage = files.iterator().next();
+                return getRestfulUrl(testIndexPage.getPath().substring(testIndexPage.getPath().indexOf(TEST_OUTPUT_FOLDER)));
+            }
+        } catch (Exception ignore) {
+
         }
-        return "";
+        return null;
     }
 
     public boolean isCompleted() {

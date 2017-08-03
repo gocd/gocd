@@ -1,41 +1,36 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
+
+import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.util.ClassMockery;
+import com.thoughtworks.go.util.FileUtil;
+import org.hamcrest.core.Is;
+import org.junit.After;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
-import com.thoughtworks.go.helper.JobInstanceMother;
-import static com.thoughtworks.go.helper.JobInstanceMother.building;
-import static com.thoughtworks.go.helper.JobInstanceMother.completed;
-import static com.thoughtworks.go.helper.JobInstanceMother.failed;
-import static com.thoughtworks.go.helper.JobInstanceMother.passed;
-import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
-import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.FileUtil;
+import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.hamcrest.Matchers.is;
-import org.hamcrest.core.Is;
-import org.jmock.Expectations;
 import static org.jmock.Expectations.equal;
-import org.junit.After;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
 public class JobInstancesTest {
     private ClassMockery context = new ClassMockery();
@@ -131,52 +126,6 @@ public class JobInstancesTest {
         builds.add(completed("visas", JobResult.Passed));
         builds.add(scheduled("flights"));
         assertThat(builds.stageState(), Is.is(StageState.Failing));
-    }
-
-    @Test public void shouldReturnAggregatestacktraces() throws Exception {
-        JobInstances builds = new JobInstances();
-        final JobInstance withStackTrace = context.mock(JobInstance.class, "withStackTrace");
-        final JobInstance withoutStackTrace = context.mock(JobInstance.class, "withoutStackTrace");
-        builds.add(withStackTrace);
-        builds.add(withoutStackTrace);
-        context.checking(new Expectations() {
-            {
-                one(withStackTrace).getStacktrace();
-                will(returnValue("stacktrace"));
-                one(withStackTrace).getName();
-                will(returnValue("name"));
-                one(withoutStackTrace).getStacktrace();
-                will(returnValue(""));
-                one(withoutStackTrace).getName();
-                will(returnValue("name1"));
-            }
-
-        });
-        List<JobInstance> stacktraces = builds.withNonEmptyStacktrace();
-        assertThat(stacktraces.size(), is(1));
-    }
-
-    @Test public void shouldReturnAggregateBuildError() throws Exception {
-        JobInstances builds = new JobInstances();
-        final JobInstance withError = context.mock(JobInstance.class, "withError");
-        final JobInstance withoutErrors = context.mock(JobInstance.class, "withoutErrors");
-        builds.add(withError);
-        builds.add(withoutErrors);
-        context.checking(new Expectations() {
-            {
-                one(withError).getBuildError();
-                will(returnValue("errors"));
-                one(withError).getName();
-                will(returnValue("name"));
-                one(withoutErrors).getBuildError();
-                will(returnValue(""));
-                one(withoutErrors).getName();
-                will(returnValue("name1"));
-            }
-
-        });
-        List<JobInstance> jobErrors = builds.withNonEmptyBuildErrors();
-        assertThat(jobErrors.size(), is(1));
     }
 
     @Test

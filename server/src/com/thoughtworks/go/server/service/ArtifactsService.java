@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -21,9 +21,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.legacywrapper.LogParser;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
@@ -36,8 +34,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
@@ -49,8 +45,6 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final JobResolverService jobResolverService;
     private final StageDao stageDao;
     private SystemService systemService;
-    @Autowired
-    private LogParser logParser;
     public static final Logger LOGGER = Logger.getLogger(ArtifactsService.class);
     public static final String LOG_XML_NAME = "log.xml";
     private ArtifactDirectoryChooser chooser;
@@ -124,36 +118,6 @@ public class ArtifactsService implements ArtifactUrlReader {
             LOGGER.error("Failed to save the file to : [" + destPath + "]", e);
             return false;
         }
-    }
-
-    public LogFile getInstanceLogFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
-        File outputFolder = findArtifact(jobIdentifier, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER);
-        return new LogFile(new File(outputFolder, LOG_XML_NAME));
-    }
-
-    public Map parseLogFile(LogFile logFile, boolean buildPassed) throws ArtifactsParseException {
-        try {
-            Map properties;
-            File cacheFile = serializedPropertiesFile(logFile.getFile());
-            if (cacheFile.exists()) {
-                properties = (Map) ObjectUtil.readObject(cacheFile);
-            } else if (logFile.getFile().exists()) {
-                properties = logParser.parseLogFile(logFile, buildPassed);
-                ObjectUtil.writeObject(properties, cacheFile);
-            } else {
-                properties = new HashMap();
-            }
-            return properties;
-        } catch (Exception e) {
-            LOGGER.error("Error parsing log file: ", e);
-            String filePath = logFile == null ? "null log file" : logFile.getFile().getPath();
-            throw new ArtifactsParseException("Error parsing log file: " + filePath, e);
-        }
-
-    }
-
-    public File serializedPropertiesFile(File logFile) {
-        return new File(logFile.getParent(), "." + logFile.getName() + ".ser");
     }
 
     public File findArtifact(JobIdentifier identifier, String path) throws IllegalArtifactLocationException {

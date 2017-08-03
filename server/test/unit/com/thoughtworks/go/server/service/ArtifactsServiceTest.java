@@ -26,7 +26,6 @@ import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
@@ -51,10 +50,9 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
@@ -82,25 +80,6 @@ public class ArtifactsServiceTest {
     public void tearDown() {
         for (File resource : resourcesToBeCleanedOnTeardown) {
             FileUtils.deleteQuietly(resource);
-        }
-    }
-
-    @Test
-    public void shouldThrowArtifactsParseExceptionWhenCannotParse() throws IOException {
-        final File tempFolder = TestFileUtil.createTempFolder("tempFolder");
-        resourcesToBeCleanedOnTeardown.add(tempFolder);
-        final LogFile logFile = new LogFile(tempFolder, "logFile");
-        String invalidXml = "<xml></wrongClosingTag>";
-        FileUtils.writeStringToFile(logFile.getFile(), invalidXml);
-
-        assumeArtifactsRoot(new File("logs"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        try {
-            artifactsService.parseLogFile(logFile, true);
-            fail();
-        } catch (ArtifactsParseException e) {
-            assertThat(e.getMessage(), containsString("Error parsing log file:"));
-            assertThat(e.getMessage(), containsString(logFile.getPath()));
         }
     }
 

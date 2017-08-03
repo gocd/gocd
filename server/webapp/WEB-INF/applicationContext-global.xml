@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -105,8 +105,6 @@
     <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
     <bean class="com.thoughtworks.go.server.web.AnnotatedExceptionResolver"/>
     <!--END OVERIDE THE SPRING ADAPTERS-->
-
-    <bean id="logParser" class="com.thoughtworks.go.legacywrapper.LogParser"/>
 
     <bean id="configRepositoryValidatorService" class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect" lazy-init="false" />
 

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -44,7 +43,7 @@ public class BuildersTest {
                 new com.thoughtworks.go.domain.builder.StubBuilder(),
                 "");
 
-        Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null, null);
+        Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null);
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext);
 
@@ -56,12 +55,12 @@ public class BuildersTest {
     public void shouldNotSetAsCurrentBuilderIfNotRun() throws Exception {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), null, "");
-        Builders builders = new Builders(Collections.singletonList(builder), null, null, null);
+        Builders builders = new Builders(Collections.singletonList(builder), null, null);
 
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext);
 
-        Builders expected = new Builders(Collections.singletonList(builder), null, null, null);
+        Builders expected = new Builders(Collections.singletonList(builder), null, null);
         expected.setIsCancelled(true);
 
         assertThat(builders, is(expected));
@@ -71,7 +70,7 @@ public class BuildersTest {
     public void shouldNotCancelAnythingIfAllBuildersHaveRun() throws Exception {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new StubBuilder(new RunIfConfigs(ANY));
-        Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), new GoControlLog(), null);
+        Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), null);
         builders.build(environmentVariableContext);
         builders.cancel(environmentVariableContext);
     }

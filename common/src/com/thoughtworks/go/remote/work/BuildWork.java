@@ -37,13 +37,11 @@ import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -62,7 +60,6 @@ public class BuildWork implements Work {
     private transient JobPlan plan;
     private transient File workingDirectory;
     private transient MaterialRevisions materialRevisions;
-    private transient GoControlLog buildLog;
     private transient Builders builders;
 
     public BuildWork(BuildAssignment assignment) {
@@ -77,11 +74,10 @@ public class BuildWork implements Work {
                 plan.getIdentifier().buildLocator()));
         workingDirectory = assignment.getWorkingDirectory();
         materialRevisions = assignment.materialRevisions();
-        buildLog = new GoControlLog(this.workingDirectory + "/cruise-output");
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),
                 remoteBuildRepository, agentRuntimeInfo);
 
-        builders = new Builders(assignment.getBuilders(), goPublisher, buildLog, taskExtension);
+        builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension);
     }
 
     public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
@@ -232,23 +228,8 @@ public class BuildWork implements Work {
     }
 
     private JobResult execute(EnvironmentVariableContext environmentVariableContext) {
-        Date now = new Date();
-
-        // collect project information
-        // TODO - #2409
-        buildLog.addContent(new Element("info"));
-
         JobResult result = builders.build(environmentVariableContext);
-
         goPublisher.reportCompleting(result);
-
-        try {
-            buildLog.writeLogFile(now);
-        } catch (IOException e) {
-            throw bomb("Failed to write log file", e);
-        }
-
-        buildLog.reset();
         return result;
     }
 

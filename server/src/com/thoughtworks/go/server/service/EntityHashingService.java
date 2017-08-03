@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 public class EntityHashingService implements ConfigChangedListener, Initializer {
     private GoConfigService goConfigService;
     private GoCache goCache;
-    private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE".intern();
+    private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE";
     private ConfigCache configCache;
     private ConfigElementImplementationRegistry registry;
 

@@ -75,11 +75,9 @@ public class ConsoleActivityMonitorTest {
         when(systemEnvironment.getUnresponsiveJobWarningThreshold()).thenReturn(UNRESPONSIVE_JOB_WARNING_THRESHOLD);//2 mins
         when(goConfigService.canCancelJobIfHung(any(JobIdentifier.class))).thenReturn(true);
 
-        doAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                listener = (ConsoleActivityMonitor.ActiveJobListener) invocation.getArguments()[0];
-                return null;
-            }
+        doAnswer(invocation -> {
+            listener = (ConsoleActivityMonitor.ActiveJobListener) invocation.getArguments()[0];
+            return null;
         }).when(jobInstanceService).registerJobStateChangeListener(Mockito.any(JobStatusListener.class));
         consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, consoleService);
         consoleActivityMonitor.populateActivityMap();

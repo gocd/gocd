@@ -85,7 +85,7 @@ public class ChecksumFileHandlerTest {
     public void shouldHandleResultIfHttpCodeSaysFileNotFound() {
         StubGoPublisher goPublisher = new StubGoPublisher();
         assertThat(checksumFileHandler.handleResult(HttpServletResponse.SC_NOT_FOUND, goPublisher), is(true));
-        assertThat(goPublisher.getMessage(), containsString(String.format("[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.", file)));
+        assertThat(goPublisher.getMessage(), containsString("[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts."));
     }
 
     @Test

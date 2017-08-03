@@ -82,11 +82,6 @@ public class XMLArtifactImporter {
 
     private EntityResolver getCustomEntityResolver() {
 
-        return new EntityResolver() {
-            @Override
-            public InputSource resolveEntity(String s, String s2) throws SAXException, IOException {
-                return new InputSource(new StringReader(""));
-            }
-        };
+        return (s, s2) -> new InputSource(new StringReader(""));
     }
 }

@@ -108,8 +108,7 @@ public final class IO {
 
     private static void deleteDir(File dir) {
         File[] children = dir.listFiles();
-        for (int i = 0; i < children.length; i++) {
-            File child = children[i];
+        for (File child : children) {
             delete(child);
         }
         dir.delete();

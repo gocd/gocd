@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,12 +94,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
-                @Override
-                public AgentMetadata transform(ElasticAgentMetadata obj) {
-                    return toAgentMetadata(obj);
-                }
-            });
+            metadata = ListUtil.map(elasticAgents, ElasticAgentPluginService::toAgentMetadata);
         }
 
         String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(metadata);
@@ -138,12 +134,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
     private Collection<AgentInstance> getAgentInstances(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
 
-        return ListUtil.map(agents, new ListUtil.Transformer<AgentMetadata, AgentInstance>() {
-            @Override
-            public AgentInstance transform(AgentMetadata input) {
-                return agentService.findElasticAgent(input.elasticAgentId(), pluginDescriptor.id());
-            }
-        });
+        return ListUtil.map(agents, input -> agentService.findElasticAgent(input.elasticAgentId(), pluginDescriptor.id()));
     }
 
 }

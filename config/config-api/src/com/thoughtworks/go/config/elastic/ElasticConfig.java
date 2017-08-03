@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.ConfigTag;
 
 @ConfigTag("elastic")
 public class ElasticConfig {
-    @ConfigAttribute(value = "jobStarvationTimeout", optional = true, allowNull = false)
+    @ConfigAttribute(value = "jobStarvationTimeout")
     private int jobStarvationTimeout = 2;
 
     @ConfigSubtag

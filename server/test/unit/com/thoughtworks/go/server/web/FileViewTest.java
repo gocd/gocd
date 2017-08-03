@@ -124,6 +124,6 @@ public class FileViewTest extends MockObjectTestCase {
     }
 
     private long getContentLength(MockHttpServletResponse mockResponse) {
-        return Long.parseLong(mockResponse.getHeader("Content-Length").toString());
+        return Long.parseLong(mockResponse.getHeader("Content-Length"));
     }
 }

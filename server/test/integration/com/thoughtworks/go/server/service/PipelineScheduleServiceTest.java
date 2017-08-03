@@ -406,7 +406,7 @@ public class PipelineScheduleServiceTest {
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
     }
 
-    private Pipeline manualSchedule(String pipelineName) throws Exception, StageAlreadyBuildingException {
+    private Pipeline manualSchedule(String pipelineName) throws Exception {
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(pipelineName, new Username(new CaseInsensitiveString("some user name")));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineName);

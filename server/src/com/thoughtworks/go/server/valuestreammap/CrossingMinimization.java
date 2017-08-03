@@ -109,7 +109,7 @@ public class CrossingMinimization {
 
     private NodeBaryCentre getNodeBaryCentre(Node node, List<Node> relatedNodes) {
         if (relatedNodes.isEmpty()) {
-            return new NodeBaryCentre(node, Float.valueOf(node.getDepth()));
+            return new NodeBaryCentre(node, (float) node.getDepth());
         }
         float sum = 0f;
         for (Node relatedNode : relatedNodes) {

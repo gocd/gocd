@@ -80,11 +80,7 @@ public class SqlMapClientDaoSupportTest {
 
     @Test
     public void shouldOptOutOfCacheServing_forInsert() {
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            public void invoke() {
-                userDao.saveOrUpdate(new User("loser", "Massive Loser", "boozer@loser.com"));
-            }
-        });
+        assertionUtil.assertCacheBehaviourInTxn(() -> userDao.saveOrUpdate(new User("loser", "Massive Loser", "boozer@loser.com")));
         assertThat(userDao.findUser("loser").getEmail(), is("boozer@loser.com"));
     }
 
@@ -94,11 +90,7 @@ public class SqlMapClientDaoSupportTest {
         userDao.saveOrUpdate(loser);
         final User[] loadedUser = new User[1];
 
-        assertThat(assertionUtil.doInTxnWithCachePut(new TransactionCacheAssertionUtil.DoInTxn() {
-            public void invoke() {
-                loadedUser[0] = userDao.findUser(loser.getName());
-            }
-        }), is("boozer"));
+        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.findUser(loser.getName())), is("boozer"));
 
         assertThat(loadedUser[0].getName(), is("loser"));
     }
@@ -110,11 +102,7 @@ public class SqlMapClientDaoSupportTest {
 
         final User[] loadedUser = new User[1];
 
-        assertThat(assertionUtil.doInTxnWithCachePut(new TransactionCacheAssertionUtil.DoInTxn() {
-            public void invoke() {
-                loadedUser[0] = userDao.allUsers().get(0);
-            }
-        }), is("boozer"));
+        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.allUsers().get(0)), is("boozer"));
 
         assertThat(loadedUser[0].getName(), is("loser"));
     }
@@ -127,16 +115,10 @@ public class SqlMapClientDaoSupportTest {
         final User[] loadedUser = new User[1];
 
         try {
-            assertionUtil.doInTxnWithCachePut(new TransactionCacheAssertionUtil.DoInTxn() {
-                    public void invoke() {
-                        daoSupport.getSqlMapClientTemplate().execute(new SqlMapClientCallback() {
-                            public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
-                                loadedUser[0] = userDao.allUsers().get(0);
-                                return null;
-                            }
-                        });
-                    }
-                });
+            assertionUtil.doInTxnWithCachePut(() -> daoSupport.getSqlMapClientTemplate().execute(executor -> {
+                loadedUser[0] = userDao.allUsers().get(0);
+                return null;
+            }));
             fail("should not have allowed direct execute invocation");
         } catch (Exception e) {
             assertThat(e, is(instanceOf(UnsupportedOperationException.class)));

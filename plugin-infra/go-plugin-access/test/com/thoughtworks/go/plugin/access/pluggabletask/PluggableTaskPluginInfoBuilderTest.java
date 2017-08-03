@@ -75,13 +75,10 @@ public class PluggableTaskPluginInfoBuilderTest {
         String pluginId = "plugin1";
         when(descriptor.id()).thenReturn(pluginId);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
+            action.execute(task, descriptor);
+            return null;
         }).when(extension).doOnTask(eq("plugin1"), any(Action.class));
     }
 

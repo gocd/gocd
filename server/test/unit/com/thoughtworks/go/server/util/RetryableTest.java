@@ -27,16 +27,13 @@ import static org.junit.Assert.*;
 public class RetryableTest {
     @Test
     public void retryThrowsExceptionWhen() throws Exception {
-        final List<Integer> attempts = new ArrayList<Integer>();
+        final List<Integer> attempts = new ArrayList<>();
         boolean raised = false;
 
         try {
-            Retryable.retry(new Predicate<Integer>() {
-                @Override
-                public boolean test(Integer integer) {
-                    attempts.add(integer);
-                    return false;
-                }
+            Retryable.retry(integer -> {
+                attempts.add(integer);
+                return false;
             }, "testing retries", 3, 1L);
         } catch (Retryable.TooManyRetriesException e) {
             raised = true;
@@ -52,16 +49,13 @@ public class RetryableTest {
 
     @Test
     public void retryStopsWhenSuccessful() throws Exception {
-        final List<Integer> attempts = new ArrayList<Integer>();
+        final List<Integer> attempts = new ArrayList<>();
         boolean raised = false;
 
         try {
-            Retryable.retry(new Predicate<Integer>() {
-                @Override
-                public boolean test(Integer integer) {
-                    attempts.add(integer);
-                    return 1 == integer;
-                }
+            Retryable.retry(integer -> {
+                attempts.add(integer);
+                return 1 == integer;
             }, "testing retries", 3, 1L);
         } catch (Retryable.TooManyRetriesException e) {
             raised = true;

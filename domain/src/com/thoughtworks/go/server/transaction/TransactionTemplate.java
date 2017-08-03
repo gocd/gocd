@@ -21,39 +21,31 @@ import org.springframework.transaction.TransactionStatus;
 public class TransactionTemplate {
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
-    private static final ThreadLocal<TransactionContext> txnCtx = new ThreadLocal<TransactionContext>() {
-        @Override protected TransactionContext initialValue() {
-            return new TransactionContext();
-        }
-    };
+    private static final ThreadLocal<TransactionContext> txnCtx = ThreadLocal.withInitial(() -> new TransactionContext());
 
     public TransactionTemplate(org.springframework.transaction.support.TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
     }
 
     public Object execute(final org.springframework.transaction.support.TransactionCallback action) {
-        return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                txnCtx().transactionPushed();
-                try {
-                    return action.doInTransaction(status);
-                } finally {
-                    txnCtx().transactionPopped();
-                }
+        return transactionTemplate.execute(status -> {
+            txnCtx().transactionPushed();
+            try {
+                return action.doInTransaction(status);
+            } finally {
+                txnCtx().transactionPopped();
             }
         });
     }
 
     public Object executeWithExceptionHandling(final TransactionCallback action) throws Exception {
         try {
-            return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-                public Object doInTransaction(TransactionStatus status) {
-                    txnCtx().transactionPushed();
-                    try {
-                        return action.doWithExceptionHandling(status);
-                    } finally {
-                        txnCtx().transactionPopped();
-                    }
+            return transactionTemplate.execute(status -> {
+                txnCtx().transactionPushed();
+                try {
+                    return action.doWithExceptionHandling(status);
+                } finally {
+                    txnCtx().transactionPopped();
                 }
             });
         } catch (TransactionCallbackExecutionException e) {

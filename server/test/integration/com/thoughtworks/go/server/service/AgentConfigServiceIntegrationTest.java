@@ -61,10 +61,7 @@ public class AgentConfigServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
-            @Override
-            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
-            }
+        agentInstances = new AgentInstances((runtimeInfo, newStatus) -> {
         });
 
         configHelper = new GoConfigFileHelper();

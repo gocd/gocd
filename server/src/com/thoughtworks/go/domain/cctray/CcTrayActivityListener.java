@@ -73,12 +73,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
         return new EntityConfigChangedListener<PipelineConfig>() {
             @Override
             public void onEntityConfigChange(final PipelineConfig pipelineConfig) {
-                queue.add(new Action() {
-                    @Override
-                    public void call() {
-                        configChangeHandler.call(pipelineConfig, goConfigService.findGroupNameByPipeline(pipelineConfig.name()));
-                    }
-                });
+                queue.add(() -> configChangeHandler.call(pipelineConfig, goConfigService.findGroupNameByPipeline(pipelineConfig.name())));
             }
         };
     }
@@ -87,12 +82,9 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     public void jobStatusChanged(final JobInstance job) {
         LOGGER.debug("Adding CCTray activity for job into queue: " + job);
 
-        queue.add(new Action() {
-            @Override
-            public void call() {
-                LOGGER.debug("Handling CCTray activity for job: " + job);
-                jobStatusChangeHandler.call(job);
-            }
+        queue.add(() -> {
+            LOGGER.debug("Handling CCTray activity for job: " + job);
+            jobStatusChangeHandler.call(job);
         });
     }
 
@@ -100,12 +92,9 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     public void stageStatusChanged(final Stage stage) {
         LOGGER.debug("Adding CCTray activity for stage into queue: " + stage);
 
-        queue.add(new Action() {
-            @Override
-            public void call() {
-                LOGGER.debug("Handling CCTray activity for stage: " + stage);
-                stageStatusChangeHandler.call(stage);
-            }
+        queue.add(() -> {
+            LOGGER.debug("Handling CCTray activity for stage: " + stage);
+            stageStatusChangeHandler.call(stage);
         });
     }
 
@@ -113,12 +102,9 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     public void onConfigChange(final CruiseConfig newConfig) {
         LOGGER.debug("Adding CCTray activity for config change into queue.");
 
-        queue.add(new Action() {
-            @Override
-            public void call() {
-                LOGGER.debug("Handling CCTray activity for config change.");
-                configChangeHandler.call(newConfig);
-            }
+        queue.add(() -> {
+            LOGGER.debug("Handling CCTray activity for config change.");
+            configChangeHandler.call(newConfig);
         });
     }
 
@@ -127,18 +113,15 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
             throw new RuntimeException("Cannot start queue processor multiple times.");
         }
 
-        queueProcessor = new Thread() {
-            @Override
-            public void run() {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        queue.take().call();
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed to handle action in CCTray queue", e);
-                    }
+        queueProcessor = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    queue.take().call();
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to handle action in CCTray queue", e);
                 }
             }
-        };
+        });
         queueProcessor.setName("CCTray-Queue-Processor");
         queueProcessor.setDaemon(true);
         queueProcessor.start();

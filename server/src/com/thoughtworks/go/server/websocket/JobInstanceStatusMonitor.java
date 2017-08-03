@@ -28,12 +28,9 @@ public class JobInstanceStatusMonitor {
 
     @Autowired
     public JobInstanceStatusMonitor(final AgentRemoteHandler agentRemoteHandler, JobInstanceService jobInstanceService) {
-        jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
-            @Override
-            public void jobStatusChanged(JobInstance job) {
-                if (job.isRescheduled() || JobResult.Cancelled.equals(job.getResult())) {
-                    agentRemoteHandler.sendCancelMessage(job.getAgentUuid());
-                }
+        jobInstanceService.registerJobStateChangeListener(job -> {
+            if (job.isRescheduled() || JobResult.Cancelled.equals(job.getResult())) {
+                agentRemoteHandler.sendCancelMessage(job.getAgentUuid());
             }
         });
     }

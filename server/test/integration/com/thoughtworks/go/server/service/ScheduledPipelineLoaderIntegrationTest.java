@@ -149,11 +149,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
 
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(status -> loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId));
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         assertThat(((SvnMaterial) revisions.findRevisionFor(onDirOne).getMaterial()).getPassword(), is("boozer"));
@@ -165,21 +161,14 @@ public class ScheduledPipelineLoaderIntegrationTest {
         String jobName = "job-one";
         PipelineConfig pipelineConfig = setupPipelineWithScmMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderScmConfig = simulateSuccessfulPipelineRun(pipelineConfig);
-        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), new GoConfigFileHelper.Updater<PipelineConfig>() {
-            @Override
-            public void update(PipelineConfig config) {
-                PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().first();
-                materialConfig.getSCMConfig().getConfiguration().getProperty("password").setConfigurationValue(new ConfigurationValue("new_value"));
-            }
+        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), config -> {
+            PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().first();
+            materialConfig.getSCMConfig().getConfiguration().getProperty("password").setConfigurationValue(new ConfigurationValue("new_value"));
         });
 
         final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderScmConfig);
 
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(status -> loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId));
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         Configuration updatedConfiguration = ((PluggableSCMMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial()).getScmConfig().getConfiguration();
@@ -192,20 +181,13 @@ public class ScheduledPipelineLoaderIntegrationTest {
         String jobName = "job-one";
         PipelineConfig pipelineConfig = setupPipelineWithPackageMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderPackageConfig = simulateSuccessfulPipelineRun(pipelineConfig);
-        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), new GoConfigFileHelper.Updater<PipelineConfig>() {
-            @Override
-            public void update(PipelineConfig config) {
-                PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().first();
-                materialConfig.getPackageDefinition().getConfiguration().getProperty("package-key2").setConfigurationValue(new ConfigurationValue("package-updated-value"));
-                materialConfig.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").setConfigurationValue(new ConfigurationValue("repo-updated-value"));
-            }
+        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), config -> {
+            PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().first();
+            materialConfig.getPackageDefinition().getConfiguration().getProperty("package-key2").setConfigurationValue(new ConfigurationValue("package-updated-value"));
+            materialConfig.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").setConfigurationValue(new ConfigurationValue("repo-updated-value"));
         });
         final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderPackageConfig);
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(status -> loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId));
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         PackageMaterial updatedMaterial = (PackageMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial();
@@ -287,18 +269,16 @@ public class ScheduledPipelineLoaderIntegrationTest {
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
 
         Date currentTime = new Date(System.currentTimeMillis() - 1);
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Pipeline loadedPipeline = null;
-                try {
-                    loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-                    fail("should not have loaded pipeline with build-cause as one of the necessary materials was not found");
-                } catch (Exception e) {
-                    assertThat(e, is(instanceOf(StaleMaterialsOnBuildCause.class)));
-                    assertThat(e.getMessage(), is("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
-                }
-                return loadedPipeline;
+        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(status -> {
+            Pipeline loadedPipeline1 = null;
+            try {
+                loadedPipeline1 = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
+                fail("should not have loaded pipeline with build-cause as one of the necessary materials was not found");
+            } catch (Exception e) {
+                assertThat(e, is(instanceOf(StaleMaterialsOnBuildCause.class)));
+                assertThat(e.getMessage(), is("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
             }
+            return loadedPipeline1;
         });
 
         assertThat(loadedPipeline, is(nullValue()));
@@ -366,10 +346,6 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
         Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        return (Pipeline) transactionTemplate.execute(status -> loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId));
     }
 }

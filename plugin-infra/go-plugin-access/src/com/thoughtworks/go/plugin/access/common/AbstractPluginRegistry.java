@@ -59,11 +59,6 @@ public abstract class AbstractPluginRegistry<Extension extends AbstractExtension
     }
 
     public PluginDescriptor findPlugin(final String pluginId) {
-        return ListUtil.find(plugins, new Predicate<PluginDescriptor>() {
-            @Override
-            public boolean test(PluginDescriptor descriptor) {
-                return descriptor.id().equals(pluginId);
-            }
-        });
+        return ListUtil.find(plugins, (Predicate<PluginDescriptor>) descriptor -> descriptor.id().equals(pluginId));
     }
 }

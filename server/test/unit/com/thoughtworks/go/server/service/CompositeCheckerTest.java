@@ -71,35 +71,19 @@ public class CompositeCheckerTest {
                HEALTH_STATE_TYPE_IDENTIFIER);
 
        public static SchedulingChecker successful() {
-            return new SchedulingChecker() {
-                public void check(OperationResult result) {
-                    result.success(HEALTH_STATE_TYPE_IDENTIFIER);
-                }
-            };
+            return result -> result.success(HEALTH_STATE_TYPE_IDENTIFIER);
         }
 
         public static SchedulingChecker warning() {
-            return new SchedulingChecker() {
-                public void check(OperationResult result) {
-                    result.warning("warning", "warning", HEALTH_STATE_TYPE_IDENTIFIER);
-                }
-            };
+            return result -> result.warning("warning", "warning", HEALTH_STATE_TYPE_IDENTIFIER);
         }
 
         public static SchedulingChecker error() {
-            return new SchedulingChecker() {
-                public void check(OperationResult result) {
-                    result.error("error", "royally screwed", HEALTH_STATE_TYPE_IDENTIFIER);
-                }
-            };
+            return result -> result.error("error", "royally screwed", HEALTH_STATE_TYPE_IDENTIFIER);
         }
 
         public static SchedulingChecker anotherError() {
-            return new SchedulingChecker() {
-                public void check(OperationResult result) {
-                    result.error("Second", "Hi World", HEALTH_STATE_TYPE_IDENTIFIER);
-                }
-            };
+            return result -> result.error("Second", "Hi World", HEALTH_STATE_TYPE_IDENTIFIER);
         }
    }
 }

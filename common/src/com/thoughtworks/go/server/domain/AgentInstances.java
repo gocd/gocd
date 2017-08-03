@@ -291,16 +291,14 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
-        Collection<AgentInstance> values = MapUtil.filterValues(agentInstances, new MapUtil.Predicate<AgentInstance>() {
-            public boolean apply(AgentInstance agentInstance) {
-                if (!agentInstance.isElastic()) {
-                    return false;
-                }
-
-                ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
-                return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
-
+        Collection<AgentInstance> values = MapUtil.filterValues(agentInstances, agentInstance -> {
+            if (!agentInstance.isElastic()) {
+                return false;
             }
+
+            ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
+            return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
+
         });
 
 
@@ -308,12 +306,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             return null;
         }
         if (values.size() > 1) {
-            Collection<String> uuids = ListUtil.map(values, new ListUtil.Transformer<AgentInstance, String>() {
-                @Override
-                public String transform(AgentInstance input) {
-                    return input.getUuid();
-                }
-            });
+            Collection<String> uuids = ListUtil.map(values, AgentInstance::getUuid);
             throw new IllegalStateException(String.format("Found multiple agents with the same elastic agent id [%s]", join(uuids)));
         }
 

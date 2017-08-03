@@ -46,13 +46,10 @@ public class GRDDLTransformer {
     public Graph transform(final Document inputDoc, TempGraphFactory graphFactory) throws GrddlTransformException {
         final DocumentResult result = new DocumentResult();
         try {
-            xsltTransformerRegistry.transformWithCorrectClassLoader(key, new XSLTTransformerExecutor<Void>() {
-                @Override
-                public Void execute(Transformer transformer) throws TransformerException {
-                    DocumentSource source = new DocumentSource(inputDoc);
-                    transformer.transform(source, result);
-                    return null;
-                }
+            xsltTransformerRegistry.transformWithCorrectClassLoader(key, (XSLTTransformerExecutor<Void>) transformer -> {
+                DocumentSource source = new DocumentSource(inputDoc);
+                transformer.transform(source, result);
+                return null;
             });
 
             // TODO: likely need to optimize with some sort of streaming document reader here

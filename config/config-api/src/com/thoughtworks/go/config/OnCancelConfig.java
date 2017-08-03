@@ -32,7 +32,7 @@ public class OnCancelConfig implements Validatable {
     public static final String RAKE_ON_CANCEL = "rakeOnCancel";
     public static final String NANT_ON_CANCEL = "nantOnCancel";
 
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private Task task;
 
     private final boolean shouldKillAll;

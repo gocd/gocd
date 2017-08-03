@@ -81,7 +81,7 @@ public class FileDigester {
             if (file.isDirectory())
                 md5.append(md5DigestOfFolderContent(file));
             else
-                md5.append(file.getName() + md5DigestOfFile(file));
+                md5.append(file.getName()).append(md5DigestOfFile(file));
         }
         return md5DigestOfStream(new ByteArrayInputStream(md5.toString().getBytes(CharEncoding.UTF_8)));
     }

@@ -1619,10 +1619,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", "s1", u.m(g1));
         Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
         dbHelper.pass(p1_1);
-        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1); //prime cache
+        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1); //prime cache
         scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter().toString(), p1_1.getStages().get(0).getName());
 
-        PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1);
+        PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1);
 
         assertThat(pim2, is(not(pim1)));
         assertThat(pim2.getStageHistory().get(0).getIdentifier().getStageCounter(), is("2"));

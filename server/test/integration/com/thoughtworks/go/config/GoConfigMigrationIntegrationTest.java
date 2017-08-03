@@ -290,11 +290,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldFailIfJobsWithSameNameButDifferentCasesExistInConfig() throws IOException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERNT_CASE);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
@@ -305,10 +301,8 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldVersionControlAnUpgradedConfigIfItIsValid() throws Exception {
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        throw new AssertionError("upgrade failed!!!!!");
-                    }
+                e -> {
+                    throw new AssertionError("upgrade failed!!!!!");
                 }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         FileUtils.writeStringToFile(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
         configRepository.checkin(new GoConfigRevision("dummy-content", "some-md5", "loser", "100.3.1", new TimeProvider()));
@@ -469,11 +463,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldEncryptPasswordsOnUpgradeIfNecessary() throws IOException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
         String configContent = ConfigFileFixture.configWithPipeline(String.format(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
@@ -544,32 +534,27 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldAllowParamsInP4ServerAndPortField() throws IOException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
         );
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "<params>"
-                        + "        <param name='param_foo'>a:3</param>"
-                        + "      </params>"
-                        + "    <materials>"
-                        + "<p4 port='#{param_foo}' username='' dest='blah' materialName='boo'>"
-                        + "<view><![CDATA[blah]]></view>"
-                        + "<filter>"
-                        + "<ignore pattern='' />"
-                        + "</filter>"
-                        + "</p4>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", "hello"), 32);
+        String configContent = ConfigFileFixture.configWithPipeline("<pipeline name='pipeline1'>"
+                + "<params>"
+                + "        <param name='param_foo'>a:3</param>"
+                + "      </params>"
+                + "    <materials>"
+                + "<p4 port='#{param_foo}' username='' dest='blah' materialName='boo'>"
+                + "<view><![CDATA[blah]]></view>"
+                + "<filter>"
+                + "<ignore pattern='' />"
+                + "</filter>"
+                + "</p4>"
+                + "    </materials>"
+                + "  <stage name='mingle'>"
+                + "    <jobs>"
+                + "      <job name='do-something'>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "</pipeline>", 32);
         FileUtils.writeStringToFile(configFile, configContent);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
@@ -582,11 +567,7 @@ public class GoConfigMigrationIntegrationTest {
 
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        exs.add(e);
-                    }
-                }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
+                exs::add, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment());
 
         String content = "<cruise schemaVersion='" + 47 + "'>\n"
                 + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"
@@ -1802,12 +1783,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private File[] configFiles() {
-        return configFile.getParentFile().listFiles(new FilenameFilter() {
-
-            public boolean accept(File file, String name) {
-                return name.startsWith("cruise-config.xml.");
-            }
-        }
+        return configFile.getParentFile().listFiles((file, name) -> name.startsWith("cruise-config.xml.")
         );
     }
 
@@ -1826,11 +1802,9 @@ public class GoConfigMigrationIntegrationTest {
     private String migrateXmlString(String content, int fromVersion, int toVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
-                new GoConfigMigration.UpgradeFailedHandler() {
-                    public void handle(Exception e) {
-                        e.printStackTrace();
-                        exs.add(e);
-                    }
+                e -> {
+                    e.printStackTrace();
+                    exs.add(e);
                 }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), new SystemEnvironment()
         );
         Method upgrade = upgrader.getClass().getDeclaredMethod("upgrade", String.class, Integer.TYPE, Integer.TYPE);
@@ -1844,15 +1818,13 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private GoConfigHolder loadWithMigration(final File configFile) throws Exception {
-        GoConfigMigration migration = new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                String content = "";
-                try {
-                    content = FileUtil.readContentFromFile(configFile);
-                } catch (IOException e1) {
-                }
-                throw bomb(e.getMessage() + ": content=\n" + content, e);
+        GoConfigMigration migration = new GoConfigMigration(e -> {
+            String content = "";
+            try {
+                content = FileUtil.readContentFromFile(configFile);
+            } catch (IOException e1) {
             }
+            throw bomb(e.getMessage() + ": content=\n" + content, e);
         }, configRepository, new TimeProvider(), configCache, registry, new SystemEnvironment()
         );
         SystemEnvironment sysEnv = new SystemEnvironment();

@@ -252,12 +252,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private List<SecretString> secrets() {
-        SecretString secretSubstitution = new SecretString() {
-            @Override
-            public String replaceSecretInfo(String line) {
-                return line.replace(url.forCommandline(), url.forDisplay());
-            }
-        };
+        SecretString secretSubstitution = line -> line.replace(url.forCommandline(), url.forDisplay());
 
         return Arrays.asList(secretSubstitution);
     }

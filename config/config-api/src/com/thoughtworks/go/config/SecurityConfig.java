@@ -26,15 +26,15 @@ import java.util.List;
 
 @ConfigTag("security")
 public class SecurityConfig implements Validatable {
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private LdapConfig ldapConfig = new LdapConfig(new GoCipher());
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private PasswordFileConfig passwordFileConfig = new PasswordFileConfig();
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private SecurityAuthConfigs securityAuthConfigs = new SecurityAuthConfigs();
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private RolesConfig rolesConfig = new RolesConfig();
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private AdminsConfig adminsConfig = new AdminsConfig();
     @ConfigAttribute(value = "anonymous")
     private boolean anonymous = true;

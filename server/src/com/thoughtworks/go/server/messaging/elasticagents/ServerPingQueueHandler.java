@@ -38,12 +38,7 @@ public class ServerPingQueueHandler extends PluginMessageQueueHandler<ServerPing
             }
 
             public ListenerFactory listener() {
-                return new ListenerFactory() {
-                    @Override
-                    public GoMessageListener create() {
-                        return new ServerPingListener(elasticAgentPluginRegistry);
-                    }
-                };
+                return () -> new ServerPingListener(elasticAgentPluginRegistry);
             }
         });
     }

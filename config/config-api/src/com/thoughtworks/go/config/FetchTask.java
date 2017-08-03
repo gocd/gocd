@@ -41,13 +41,13 @@ public class FetchTask extends AbstractTask implements Serializable {
     private CaseInsensitiveString stage;
     @ConfigAttribute(value = "job")
     private CaseInsensitiveString job;
-    @ConfigAttribute(value = "srcfile", optional = true, allowNull = true)
+    @ConfigAttribute(value = "srcfile", allowNull = true)
     @ValidationErrorKey(value = "src")
     private String srcfile;
-    @ConfigAttribute(value = "srcdir", optional = true, allowNull = true)
+    @ConfigAttribute(value = "srcdir", allowNull = true)
     @ValidationErrorKey(value = "src")
     private String srcdir;
-    @ConfigAttribute(value = "dest", optional = true, allowNull = true)
+    @ConfigAttribute(value = "dest", allowNull = true)
     private String dest;
 
     public static final String PIPELINE_NAME = "pipelineName";
@@ -407,14 +407,6 @@ public class FetchTask extends AbstractTask implements Serializable {
 
     private String displayNameFor(ConfigOrigin origin) {
         return origin != null ? origin.displayName() : "cruise-config.xml";
-    }
-
-    public boolean isFetchPipeline(final CaseInsensitiveString caseInsensitiveString) {
-        return caseInsensitiveString.equals(this.pipelineName);
-    }
-
-    public boolean isFetchStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
-        return pipelineName.equals(this.pipelineName) && stageName.equals(this.stage);
     }
 
     @Override

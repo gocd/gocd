@@ -196,11 +196,7 @@ public class AgentProcessParentImplTest {
         when(subProcess.getErrorStream()).thenReturn(new ByteArrayInputStream(stdErrMsg.getBytes()));
         String stdOutMsg = "Mr. Agent writes to stdout!";
         when(subProcess.getInputStream()).thenReturn(new ByteArrayInputStream(stdOutMsg.getBytes()));
-        when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return 42;
-            }
-        });
+        when(subProcess.waitFor()).thenAnswer(invocation -> 42);
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
         int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode, is(42));
@@ -231,11 +227,9 @@ public class AgentProcessParentImplTest {
         final List<String> cmd = new ArrayList<>();
         final OutputStream stdin = mock(OutputStream.class);
         Process subProcess = mockProcess(new ByteArrayInputStream(new byte[0]), new ByteArrayInputStream(new byte[0]), stdin);
-        when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                verify(stdin).close();
-                return 21;
-            }
+        when(subProcess.waitFor()).thenAnswer(invocation -> {
+            verify(stdin).close();
+            return 21;
         });
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
         int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());

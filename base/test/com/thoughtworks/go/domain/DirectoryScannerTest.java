@@ -124,7 +124,6 @@ public class DirectoryScannerTest {
         ds.scan();
         compareFiles(ds, expectedFiles, expectedDirectories);
         // redo the test, but the 2 include patterns are inverted
-        ds = this.ds;
         ds.setBasedir(getBaseDir());
         ds.setIncludes(new String[]{"alpha/beta/gamma/", "alpha/be?a/**"});
         ds.scan();
@@ -322,13 +321,13 @@ public class DirectoryScannerTest {
         assertThat("directories present: ", includedDirectories.length, is(expectedDirectories.length));
 
         TreeSet files = new TreeSet();
-        for (int counter = 0; counter < includedFiles.length; counter++) {
-            files.add(includedFiles[counter].replace(File.separatorChar, '/'));
+        for (String includedFile : includedFiles) {
+            files.add(includedFile.replace(File.separatorChar, '/'));
         }
 
         TreeSet directories = new TreeSet();
-        for (int counter = 0; counter < includedDirectories.length; counter++) {
-            directories.add(includedDirectories[counter]
+        for (String includedDirectory : includedDirectories) {
+            directories.add(includedDirectory
                     .replace(File.separatorChar, '/'));
         }
 

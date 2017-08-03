@@ -356,18 +356,14 @@ public class BuildAssignmentServiceIntegrationTest {
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
 
-        Thread assigner = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
+        Thread assigner = new Thread(() -> {
+            try {
+                final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
 
-                    buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    fromThread[0] = e;
-                } finally {
-
-                }
+                buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
+            } catch (Throwable e) {
+                e.printStackTrace();
+                fromThread[0] = e;
             }
         }, "assignmentThread");
         assigner.start();

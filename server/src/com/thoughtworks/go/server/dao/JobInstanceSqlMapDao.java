@@ -283,39 +283,35 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     public JobInstance updateAssignedInfo(final JobInstance jobInstance) {
-        return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
-                updateStateAndResult(jobInstance);
-                return jobInstance;
-            }
+        return (JobInstance) transactionTemplate.execute(status -> {
+            getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
+            updateStateAndResult(jobInstance);
+            return jobInstance;
         });
     }
 
     public JobInstance updateStateAndResult(final JobInstance jobInstance) {
-        return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
-                        // Methods not extracted in order to make synchronization visible.
-                        synchronized (cacheKeyForJobPlan(jobInstance.getId())) {
-                            removeCachedJobPlan(jobInstance);
-                        }
-                        synchronized (cacheKeyForActiveJobIds()) {
-                            goCache.remove(cacheKeyForActiveJobIds());
-                        }
-                        String activeJobKey = cacheKeyForActiveJob(jobInstance.getId());
-                        synchronized (activeJobKey) {
-                            goCache.remove(activeJobKey);
-                        }
-                        removeCachedJobInstance(jobInstance);
+        return (JobInstance) transactionTemplate.execute(status -> {
+            transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override public void afterCommit() {
+                    // Methods not extracted in order to make synchronization visible.
+                    synchronized (cacheKeyForJobPlan(jobInstance.getId())) {
+                        removeCachedJobPlan(jobInstance);
                     }
-                });
-                logIfJobIsCompleted(jobInstance);
-                updateStatus(jobInstance);
-                updateResult(jobInstance);
-                return jobInstance;
-            }
+                    synchronized (cacheKeyForActiveJobIds()) {
+                        goCache.remove(cacheKeyForActiveJobIds());
+                    }
+                    String activeJobKey = cacheKeyForActiveJob(jobInstance.getId());
+                    synchronized (activeJobKey) {
+                        goCache.remove(activeJobKey);
+                    }
+                    removeCachedJobInstance(jobInstance);
+                }
+            });
+            logIfJobIsCompleted(jobInstance);
+            updateStatus(jobInstance);
+            updateResult(jobInstance);
+            return jobInstance;
         });
 
     }

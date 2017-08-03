@@ -154,9 +154,7 @@ public class ModificationsMother {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         Materials expandedMaterials = new Materials();
 
-        for (Material material : materials) {
-            expandedMaterials.add(material);
-        }
+        expandedMaterials.addAll(materials);
 
         for (Material material : expandedMaterials) {
             Modification modification;
@@ -266,11 +264,7 @@ public class ModificationsMother {
     }
 
     public static List<Modification> multipleModificationList() {
-        return multipleModificationList(new RevisionToUse() {
-            public String next() {
-                return nextRevision();
-            }
-        });
+        return multipleModificationList(ModificationsMother::nextRevision);
     }
 
     public static List<Modification> multipleModificationList(final int initialRevision) {

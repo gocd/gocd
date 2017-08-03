@@ -187,13 +187,10 @@ public class GoPartialConfigTest {
 
     @Test
     public void shouldMergeRemoteGroupToMain() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
-                command.update(cruiseConfig);
-                return cruiseConfig;
-            }
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(invocationOnMock -> {
+            UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+            command.update(cruiseConfig);
+            return cruiseConfig;
         });
         partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("p1"));
         assertThat(cruiseConfig.getPartials().size(), is(1));
@@ -202,13 +199,10 @@ public class GoPartialConfigTest {
 
     @Test
     public void shouldMergeRemoteEnvironmentToMain() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
-                command.update(cruiseConfig);
-                return cruiseConfig;
-            }
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(invocationOnMock -> {
+            UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+            command.update(cruiseConfig);
+            return cruiseConfig;
         });
         partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withEnvironment("env1"));
         assertThat(cruiseConfig.getPartials().size(), is(1));

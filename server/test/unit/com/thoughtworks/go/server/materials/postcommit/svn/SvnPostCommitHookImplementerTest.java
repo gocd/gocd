@@ -68,16 +68,8 @@ public class SvnPostCommitHookImplementerTest {
         final Material dependencyMaterial = mock(DependencyMaterial.class);
         final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3, gitMaterial, hgMaterial, p4Material, tfsMaterial, dependencyMaterial));
         final SvnPostCommitHookImplementer spy = spy(implementer);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return Boolean.TRUE;
-            }
-        }).when(spy).isQualified(anyString(), any(SvnMaterial.class), any(HashMap.class));
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return new HashMap();
-            }
-        }).when(spy).createUrlToRemoteUUIDMap(allMaterials);
+        doAnswer(invocation -> Boolean.TRUE).when(spy).isQualified(anyString(), any(SvnMaterial.class), any(HashMap.class));
+        doAnswer(invocation -> new HashMap()).when(spy).createUrlToRemoteUUIDMap(allMaterials);
         final HashMap params = new HashMap();
         params.put(SvnPostCommitHookImplementer.UUID, "some uuid");
         final Set<Material> prunedList = spy.prune(allMaterials, params);
@@ -98,28 +90,14 @@ public class SvnPostCommitHookImplementerTest {
 
         final SvnPostCommitHookImplementer spy = spy(implementer);
         final HashMap<String, String> map = new HashMap<>();
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                map.put("url1", "12345");
-                map.put("url2", "54321");
-                return map;
-            }
+        doAnswer(invocation -> {
+            map.put("url1", "12345");
+            map.put("url2", "54321");
+            return map;
         }).when(spy).createUrlToRemoteUUIDMap(allMaterials);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return Boolean.FALSE;
-            }
-        }).when(spy).isQualified(uuid, svnMaterial1, map);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return Boolean.TRUE;
-            }
-        }).when(spy).isQualified(uuid, svnMaterial2, map);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return Boolean.FALSE;
-            }
-        }).when(spy).isQualified(uuid, svnMaterial3, map);
+        doAnswer(invocation -> Boolean.FALSE).when(spy).isQualified(uuid, svnMaterial1, map);
+        doAnswer(invocation -> Boolean.TRUE).when(spy).isQualified(uuid, svnMaterial2, map);
+        doAnswer(invocation -> Boolean.FALSE).when(spy).isQualified(uuid, svnMaterial3, map);
 
         final Set<Material> prunedList = spy.prune(allMaterials, params);
 
@@ -161,11 +139,7 @@ public class SvnPostCommitHookImplementerTest {
         final Material svnMaterial1 = mock(SvnMaterial.class);
         final Material hgMaterial1 = mock(HgMaterial.class);
         final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, hgMaterial1));
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return svnCommand;
-            }
-        }).when(spy).getEmptySvnCommand();
+        doAnswer(invocation -> svnCommand).when(spy).getEmptySvnCommand();
         spy.createUrlToRemoteUUIDMap(allMaterials);
         verify(svnCommand).createUrlToRemoteUUIDMap(new HashSet<>(Arrays.asList((SvnMaterial) svnMaterial1)));
     }

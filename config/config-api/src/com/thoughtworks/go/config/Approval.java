@@ -28,7 +28,7 @@ import com.thoughtworks.go.util.StringUtil;
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
 public class Approval implements Validatable, ParamsAttributeAware {
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private AuthConfig authConfig = new AuthConfig();
 
     @ConfigAttribute(value = "type", optional = false, alwaysWrite = true)
@@ -143,7 +143,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
                 boolean approverIsNotAGroupOperator = !groupOperators.has(approver, roles.memberRoles(approver));
 
                 if (approverIsNotAnAdmin && approverIsNotAGroupOperator) {
-                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", approver.describe(), approver, group.getGroup()));
+                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", approver.describe(), approver));
                 }
             }
         }

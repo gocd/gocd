@@ -107,13 +107,10 @@ public class JsonBasedTaskExecutorTest {
         when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
 
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
-                executionRequest[0] = request;
-                return response;
-            }
+        doAnswer(invocationOnMock -> {
+            GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+            executionRequest[0] = request;
+            return response;
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
         handler = new JsonBasedTaskExtensionHandler_V1();
         handlerHashMap.put("1.0", handler);

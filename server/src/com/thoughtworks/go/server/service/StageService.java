@@ -212,14 +212,12 @@ public class StageService implements StageRunFinder, StageFinder {
     }
 
     public Stage save(final Pipeline pipeline, final Stage stage) {
-        return (Stage) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                stage.building();
-                final Stage savedStage = persistStage(pipeline, stage);
-                persistJobs(savedStage);
-                notifyStageStatusChangeListeners(savedStage);
-                return savedStage;
-            }
+        return (Stage) transactionTemplate.execute(status -> {
+            stage.building();
+            final Stage savedStage = persistStage(pipeline, stage);
+            persistJobs(savedStage);
+            notifyStageStatusChangeListeners(savedStage);
+            return savedStage;
         });
     }
 
@@ -445,22 +443,14 @@ public class StageService implements StageRunFinder, StageFinder {
      * @deprecated don't call this directly, go through ScheduleService.cancelJob so that stageLevel synchronization is done
      */
     public void cancelJob(final JobInstance jobInstance) {
-        changeJob(new JobOperation() {
-            public void invoke() {
-                jobInstanceService.cancelJob(jobInstance);
-            }
-        }, jobInstance.getIdentifier());
+        changeJob(() -> jobInstanceService.cancelJob(jobInstance), jobInstance.getIdentifier());
     }
 
     /**
      * @deprecated don't call this directly, go through ScheduleService.failJob so that stageLevel synchronization is done
      */
     public void failJob(final JobInstance jobInstance) {
-        changeJob(new JobOperation() {
-            public void invoke() {
-                jobInstanceService.failJob(jobInstance);
-            }
-        }, jobInstance.getIdentifier());
+        changeJob(() -> jobInstanceService.failJob(jobInstance), jobInstance.getIdentifier());
     }
 
     private void changeJob(final JobOperation jobOperation, final JobIdentifier identifier) {
@@ -487,9 +477,7 @@ public class StageService implements StageRunFinder, StageFinder {
         if (failedStages.isEmpty() || !failedStages.get(0).equals(stageIdentifier)) {
             return finalIds;
         }
-        for (StageIdentifier identifier : failedStages) {
-            finalIds.add(identifier);
-        }
+        finalIds.addAll(failedStages);
         return finalIds;
     }
 

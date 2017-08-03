@@ -98,11 +98,7 @@ public class ConfigSaveValidationContext implements ValidationContext{
     }
 
     private <T> T getFirstOfType(Class<T> klass) {
-        Object o = objectOfType.get(klass);
-        if (o == null) {
-            o = _getFirstOfType(klass);
-            objectOfType.put(klass, o);
-        }
+        Object o = objectOfType.computeIfAbsent(klass, this::_getFirstOfType);
         return (T) o;
     }
 

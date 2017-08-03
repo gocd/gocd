@@ -127,13 +127,10 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.addPipeline(pipelineConfig, groupName);
         repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
         repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(repoConfig1);
-                cruiseConfig.getConfigRepos().add(repoConfig2);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(repoConfig1);
+            cruiseConfig.getConfigRepos().add(repoConfig2);
+            return cruiseConfig;
         });
         GoCipher goCipher = new GoCipher();
         new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
@@ -333,9 +330,9 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(pipeline.getVariables().get(0).errors().firstError(), is(String.format("Environment Variable cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name())));
-        assertThat(stageVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for stage 'stage'.", pipeline.name())));
-        assertThat(jobVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for job 'job'.", pipeline.name())));
+        assertThat(pipeline.getVariables().get(0).errors().firstError(), is(String.format("Environment Variable cannot have an empty name for pipeline '%s'.", pipeline.name())));
+        assertThat(stageVar.errors().firstError(), is("Environment Variable cannot have an empty name for stage 'stage'."));
+        assertThat(jobVar.errors().firstError(), is("Environment Variable cannot have an empty name for job 'job'."));
     }
 
     @Test
@@ -361,7 +358,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(trackingTool.errors().firstError(), is(String.format("Regex should be populated", pipeline.name())));
+        assertThat(trackingTool.errors().firstError(), is("Regex should be populated"));
     }
 
     @Test
@@ -377,7 +374,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(artifactPlan.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
+        assertThat(artifactPlan.errors().firstError(), is("Job 'job' has an artifact with an empty source"));
     }
 
     @Test
@@ -406,7 +403,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(artifactPropertiesGenerator.errors().firstError(), is(String.format("Invalid property name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", pipeline.name())));
+        assertThat(artifactPropertiesGenerator.errors().firstError(), is("Invalid property name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
@@ -419,7 +416,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(jobConfig.getTabs().first().errors().firstError(), is(String.format("Tab name '' is invalid. This must be alphanumeric and can contain underscores and periods.", pipeline.name())));
+        assertThat(jobConfig.getTabs().first().errors().firstError(), is("Tab name '' is invalid. This must be alphanumeric and can contain underscores and periods."));
     }
 
     @Test
@@ -428,12 +425,9 @@ public class PipelineConfigServiceIntegrationTest {
         jobConfigs.add(new JobConfig(new CaseInsensitiveString("Job")));
         StageConfig stage = new StageConfig(new CaseInsensitiveString("Stage-1"), jobConfigs);
         final PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), stage);
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addTemplate(templateConfig);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.addTemplate(templateConfig);
+            return cruiseConfig;
         });
 
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig();
@@ -444,7 +438,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(material.errors().firstError(), is(String.format("Pipeline with name 'Invalid-pipeline' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)", pipeline.name())));
+        assertThat(material.errors().firstError(), is("Pipeline with name 'Invalid-pipeline' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)"));
     }
 
     @Test
@@ -725,15 +719,12 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     private void setupPipelineWithTemplate(final String pipelineName, final String templateName) {
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
-                PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
-                cruiseConfig.addTemplate(template);
-                cruiseConfig.addPipeline("group", pipeline);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
+            PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
+            cruiseConfig.addTemplate(template);
+            cruiseConfig.addPipeline("group", pipeline);
+            return cruiseConfig;
         });
     }
 

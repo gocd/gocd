@@ -100,12 +100,9 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
         final GoPluginApiRequest[] generatedRequest = {null};
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
-                return response;
-            }
+        doAnswer(invocationOnMock -> {
+            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+            return response;
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
 
 
@@ -127,12 +124,9 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
         final GoPluginApiRequest[] generatedRequest = {null};
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
-                return response;
-            }
+        doAnswer(invocationOnMock -> {
+            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+            return response;
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
 
 

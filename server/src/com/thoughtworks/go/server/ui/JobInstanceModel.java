@@ -28,15 +28,13 @@ public class JobInstanceModel {
     private final JobDurationStrategy jobDurationStrategy;
     private final AgentInfo agentInfo;
 
-    public static final Comparator<JobInstanceModel> JOB_MODEL_COMPARATOR = new Comparator<JobInstanceModel>() {
-        public int compare(JobInstanceModel o1, JobInstanceModel o2) {
-            int result = JobResult.JOB_RESULT_COMPARATOR.compare(o1.result(), o2.result());
-            if (result != 0) {
-                return result;
-            }
-            result = o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+    public static final Comparator<JobInstanceModel> JOB_MODEL_COMPARATOR = (o1, o2) -> {
+        int result = JobResult.JOB_RESULT_COMPARATOR.compare(o1.result(), o2.result());
+        if (result != 0) {
             return result;
         }
+        result = o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+        return result;
     };
 
     public JobInstanceModel(JobInstance instance, JobDurationStrategy jobDurationStrategy, Agent agent) {

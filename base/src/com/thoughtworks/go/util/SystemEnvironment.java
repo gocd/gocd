@@ -579,7 +579,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Boolean isShineEnabled() {
         String shineEnabled = getEnvironmentVariable("SHINE_ENABLED");
-        return shineEnabled == null ? false : !"false".equalsIgnoreCase(shineEnabled); //should return true for shine_enabled set to anything but false.
+        return !"false".equalsIgnoreCase(shineEnabled);
     }
 
 
@@ -645,12 +645,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(INBUILT_LDAP_PASSWORD_AUTH_ENABLED);
     }
 
-    public static final ThreadLocal<Boolean> enforceServerIdImmutability = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
+    public static final ThreadLocal<Boolean> enforceServerIdImmutability = ThreadLocal.withInitial(() -> false);
 
     public int getMaxEncryptionAPIRequestsPerMinute() {
         return GO_ENCRYPTION_API_MAX_REQUESTS.getValue();

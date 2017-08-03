@@ -22,11 +22,7 @@ import com.thoughtworks.go.server.util.CollectionUtil;
  * @understands identifying a pipeline uniquely in both config and db
  */
 public class PipelineId {
-    public static final CollectionUtil.MapFn<PipelineId,Long> MAP_ID = new CollectionUtil.MapFn<PipelineId, Long>() {
-        public Long map(PipelineId o) {
-            return o.getPipelineId();
-        }
-    };
+    public static final CollectionUtil.MapFn<PipelineId,Long> MAP_ID = PipelineId::getPipelineId;
     private final String pipelineName;
     private final Long pipelineId;
 

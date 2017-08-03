@@ -488,12 +488,9 @@ public class ValueStreamMapServiceIntegrationTest {
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap("p3", 1, username, result);
         Node nodeForGit = graph.getNodesAtEachLevel().get(0).get(0);
         assertThat(nodeForGit.revisions().size(), is(2));
-        Collection<String> revisionStrings = collect(nodeForGit.revisions(), new Transformer() {
-            @Override
-            public String transform(Object o) {
-                Revision revision = (Revision) o;
-                return revision.getRevisionString();
-            }
+        Collection<String> revisionStrings = collect(nodeForGit.revisions(), o -> {
+            Revision revision = (Revision) o;
+            return revision.getRevisionString();
         });
         assertThat(revisionStrings, IsCollectionContaining.hasItems("g1-1", "g1-2"));
     }
@@ -534,9 +531,7 @@ public class ValueStreamMapServiceIntegrationTest {
         valueStreamMapService.getValueStreamMap("p1", 2, username, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
-        assertThat(result.message(localizer), is(String.format(
-                "Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.",
-                "p1", 2)));
+        assertThat(result.message(localizer), is("Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently."));
     }
 
     private String pipelineName(ScheduleTestUtil.AddedPipeline c5) {

@@ -69,13 +69,10 @@ public class PipelineStateDaoTest {
         PipelineState pipelineState = new PipelineState(pipelineName);
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
         doThrow(new RuntimeException("could not save!")).when(session).saveOrUpdate(any(PipelineState.class));
 
@@ -98,13 +95,10 @@ public class PipelineStateDaoTest {
         pipelineState.lock(lockedByPipelineId);
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
         doThrow(new RuntimeException("could not save!")).when(session).saveOrUpdate(any(PipelineState.class));
 

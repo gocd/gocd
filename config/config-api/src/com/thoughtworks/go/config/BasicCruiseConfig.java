@@ -163,9 +163,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     // for tests
     public BasicCruiseConfig(PipelineConfigs... groups) {
-        for (PipelineConfigs pipelineConfigs : groups) {
-            this.groups.add(pipelineConfigs);
-        }
+        Collections.addAll(this.groups, groups);
         strategy = new BasicStrategy();
     }
 
@@ -264,23 +262,17 @@ public class BasicCruiseConfig implements CruiseConfig {
 
             //first add environment configs from main
             List<EnvironmentConfig> allEnvConfigs = new ArrayList<>();
-            for (EnvironmentConfig envConfig : BasicCruiseConfig.this.getEnvironments()) {
-                allEnvConfigs.add(envConfig);
-            }
+            allEnvConfigs.addAll(BasicCruiseConfig.this.getEnvironments());
             // then add from each part
             for (PartialConfig part : this.parts) {
-                for (EnvironmentConfig partPipesConf : part.getEnvironments()) {
-                    allEnvConfigs.add(partPipesConf);
-                }
+                allEnvConfigs.addAll(part.getEnvironments());
             }
 
             // lets group them by environment name
             Map<CaseInsensitiveString, List<EnvironmentConfig>> map = new LinkedHashMap<>();
             for (EnvironmentConfig env : allEnvConfigs) {
                 CaseInsensitiveString key = env.name();
-                if (map.get(key) == null) {
-                    map.put(key, new ArrayList<>());
-                }
+                map.computeIfAbsent(key, k -> new ArrayList<>());
                 map.get(key).add(env);
             }
             for (List<EnvironmentConfig> oneEnv : map.values()) {
@@ -325,14 +317,10 @@ public class BasicCruiseConfig implements CruiseConfig {
 
             // first add pipeline configs from main part
             List<PipelineConfigs> allPipelineConfigs = new ArrayList<>();
-            for (PipelineConfigs partPipesConf : BasicCruiseConfig.this.getGroups()) {
-                allPipelineConfigs.add(partPipesConf);
-            }
+            allPipelineConfigs.addAll(BasicCruiseConfig.this.getGroups());
             // then add from each part
             for (PartialConfig part : this.parts) {
-                for (PipelineConfigs partPipesConf : part.getGroups()) {
-                    allPipelineConfigs.add(partPipesConf);
-                }
+                allPipelineConfigs.addAll(part.getGroups());
             }
             //there may be duplicated names and conflicts in general in the PipelineConfigs
 
@@ -340,9 +328,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             Map<String, List<PipelineConfigs>> map = new LinkedHashMap<>();
             for (PipelineConfigs pipes : allPipelineConfigs) {
                 String key = pipes.getGroup();
-                if (map.get(key) == null) {
-                    map.put(key, new ArrayList<>());
-                }
+                map.computeIfAbsent(key, k -> new ArrayList<>());
                 map.get(key).add(pipes);
             }
 
@@ -524,11 +510,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public Hashtable<CaseInsensitiveString, Node> getDependencyTable() {
         final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<>();
-        this.accept(new PiplineConfigVisitor() {
-            public void visit(PipelineConfig pipelineConfig) {
-                hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode());
-            }
-        });
+        this.accept((PiplineConfigVisitor) pipelineConfig -> hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode()));
         return hashtable;
     }
 
@@ -809,11 +791,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void accept(final PiplineConfigVisitor visitor) {
-        accept(new PipelineGroupVisitor() {
-            public void visit(PipelineConfigs group) {
-                group.accept(visitor);
-            }
-        });
+        accept((PipelineGroupVisitor) group -> group.accept(visitor));
     }
 
     @Override
@@ -1141,11 +1119,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public Set<Resource> getAllResources() {
         final HashSet<Resource> resources = new HashSet<>();
-        accept(new JobConfigVisitor() {
-            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
-                resources.addAll(jobConfig.resources());
-            }
-        });
+        accept((pipelineConfig, stageConfig, jobConfig) -> resources.addAll(jobConfig.resources()));
         for (AgentConfig agent : agents) {
             resources.addAll(agent.getResources());
         }
@@ -1266,21 +1240,12 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     public static <T> void copyErrors(T from, T to) {
         GoConfigParallelGraphWalker walker = new GoConfigParallelGraphWalker(from, to);
-        walker.walk(new GoConfigParallelGraphWalker.Handler() {
-            public void handle(Validatable rawObject, Validatable objectWithErrors) {
-                rawObject.errors().addAll(objectWithErrors.errors());
-            }
-        });
+        walker.walk((rawObject, objectWithErrors) -> rawObject.errors().addAll(objectWithErrors.errors()));
     }
 
     public static void clearErrors(Validatable obj) {
         GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
-        walker.walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.errors().clear();
-            }
-        });
+        walker.walk((validatable, ctx) -> validatable.errors().clear());
     }
 
     @Override

@@ -72,7 +72,7 @@ public class DFSCycleDetector {
 
     private void validateRootExists(CaseInsensitiveString root, PipelineDependencyState pipelineDependencyState, Stack<CaseInsensitiveString> visiting) throws Exception {
         if (!pipelineDependencyState.hasPipeline(root)) {
-            StringBuffer sb = new StringBuffer("Pipeline \"");
+            StringBuilder sb = new StringBuilder("Pipeline \"");
             sb.append(root);
             sb.append("\" does not exist.");
             visiting.pop();

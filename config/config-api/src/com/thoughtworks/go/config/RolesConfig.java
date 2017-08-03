@@ -20,10 +20,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -37,9 +34,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     }
 
     public RolesConfig(Role... roles) {
-        for (Role role : roles) {
-            add(role);
-        }
+        this.addAll(Arrays.asList(roles));
     }
 
     public void validate(ValidationContext validationContext) {

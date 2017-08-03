@@ -31,7 +31,7 @@ public abstract class AbstractTask implements Task  {
     @ConfigSubtag(label = "RunIfs")
     protected RunIfConfigs runIfConfigs = new RunIfConfigs();
 
-    @ConfigSubtag(label = "OnCancel", optional = true) public OnCancelConfig onCancelConfig = OnCancelConfig.killAllChildProcess();
+    @ConfigSubtag(label = "OnCancel") public OnCancelConfig onCancelConfig = OnCancelConfig.killAllChildProcess();
 
     public static final String RUN_IF_CONFIGS_PASSED = "runIfConfigsPassed";
     public static final String RUN_IF_CONFIGS_FAILED = "runIfConfigsFailed";
@@ -124,7 +124,7 @@ public abstract class AbstractTask implements Task  {
                 for (Argument arg : (Arguments) field.getValue()) {
                     builder.append(String.format("<arg>%s</arg>", arg.getValue())).append("\n");
                 }
-                builder.append("</" + configTag.value() + ">");
+                builder.append("</").append(configTag.value()).append(">");
             }
         }
     }

@@ -84,11 +84,9 @@ public class GoConfigMigrationTest {
         FileUtil.writeContentToFile(OLDER_VERSION_XML, file);
 
         final GoConfigRevision[] commitMade = new GoConfigRevision[1];
-        doAnswer(new Answer<Void>() {
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                commitMade[0] = (GoConfigRevision) invocation.getArguments()[0];
-                return null;
-            }
+        doAnswer(invocation -> {
+            commitMade[0] = (GoConfigRevision) invocation.getArguments()[0];
+            return null;
         }).when(configRepo).checkin(any(GoConfigRevision.class));
         goConfigMigration.upgradeIfNecessary(file, null);
         assertThat(commitMade[0].getUsername(), is(GoConfigMigration.UPGRADE));

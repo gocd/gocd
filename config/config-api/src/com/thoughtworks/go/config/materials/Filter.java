@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -34,9 +35,7 @@ public class Filter extends LinkedHashSet<IgnoredFiles> implements Validatable {
     }
 
     public Filter(IgnoredFiles... ignores) {
-        for (IgnoredFiles ignore : ignores) {
-            this.add(ignore);
-        }
+        Collections.addAll(this, ignores);
     }
 
     public Filter(List<IgnoredFiles> ignores) {

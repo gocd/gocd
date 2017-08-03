@@ -211,12 +211,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
     private List<SecretString> secrets() {
-        SecretString secretSubstitution = new SecretString() {
-            @Override
-            public String replaceSecretInfo(String line) {
-                return line.replace(url.forCommandline(), url.forDisplay());
-            }
-        };
+        SecretString secretSubstitution = line -> line.replace(url.forCommandline(), url.forDisplay());
 
         return Arrays.asList(secretSubstitution);
     }
@@ -333,7 +328,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
     private String getBranchFromUrl(String url) {
-        String[] componentsOfUrl = StringUtils.split(url.toString(), HgUrlArgument.DOUBLE_HASH);
+        String[] componentsOfUrl = StringUtils.split(url, HgUrlArgument.DOUBLE_HASH);
         if (componentsOfUrl.length > 1) {
             return componentsOfUrl[1];
         }

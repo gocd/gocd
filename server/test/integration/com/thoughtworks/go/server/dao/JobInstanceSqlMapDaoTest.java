@@ -333,17 +333,15 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
-        return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
-                jobInstance.setRunOnAllAgents(runOnAllAgents);
-                jobInstance.setRunMultipleInstance(runMultipleInstance);
-                jobInstanceService.save(savedStage.getIdentifier(), stageId, jobInstance);
-                jobInstance.changeState(JobState.Building);
-                jobInstance.setAgentUuid(uuid);
-                jobInstanceDao.updateStateAndResult(jobInstance);
-                return jobInstance;
-            }
+        return (JobInstance) transactionTemplate.execute(status -> {
+            JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
+            jobInstance.setRunOnAllAgents(runOnAllAgents);
+            jobInstance.setRunMultipleInstance(runMultipleInstance);
+            jobInstanceService.save(savedStage.getIdentifier(), stageId, jobInstance);
+            jobInstance.changeState(JobState.Building);
+            jobInstance.setAgentUuid(uuid);
+            jobInstanceDao.updateStateAndResult(jobInstance);
+            return jobInstance;
         });
     }
 

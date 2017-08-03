@@ -40,13 +40,11 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public ServerBackup lastBackup() {
-        List results = (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Criteria criteria = session.createCriteria(ServerBackup.class);
-                criteria.setMaxResults(1);
-                criteria.addOrder(Order.desc("id"));
-                return criteria.list();
-            }
+        List results = (List) getHibernateTemplate().execute((HibernateCallback) session -> {
+            Criteria criteria = session.createCriteria(ServerBackup.class);
+            criteria.setMaxResults(1);
+            criteria.addOrder(Order.desc("id"));
+            return criteria.list();
         });
 
         return results.isEmpty() ? null : (ServerBackup) results.get(0);
@@ -57,10 +55,6 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public void deleteAll() {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate();
-            }
-        });
+        getHibernateTemplate().execute((HibernateCallback) session -> session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate());
     }
 }

@@ -121,7 +121,7 @@ public final class DataUtils {
 
     public static String readFileContent(File file) throws Exception {
         BufferedReader reader = null;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         try {
             reader = new BufferedReader(new FileReader(file));
             String line;

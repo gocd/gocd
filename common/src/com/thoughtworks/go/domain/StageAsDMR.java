@@ -86,12 +86,6 @@ public class StageAsDMR {
     }
 
     @Override public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("StageAsDMR");
-        sb.append("{identifier=").append(identifier);
-        sb.append(", completedDate=").append(completedDate);
-        sb.append(", pipelineId=").append(pipelineId);
-        sb.append('}');
-        return sb.toString();
+        return String.format("StageAsDMR{identifier=%s, completedDate=%s, pipelineId=%d}", identifier, completedDate, pipelineId);
     }
 }

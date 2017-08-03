@@ -139,17 +139,14 @@ public class LdapAuthenticationTest {
         for (int i = 0; i < 100; i++) {
             final boolean even = i % 2 == 0;
 
-            allCallables.add(new Callable<String>() {
-                @Override
-                public String call() throws Exception {
-                    if (even) {
-                        assertAuthenticationOfValidAdminUser("foleys", "some-password");
-                    } else {
-                        assertFailedAuthentication("invalid_user", "");
-                    }
-
-                    return "";
+            allCallables.add(() -> {
+                if (even) {
+                    assertAuthenticationOfValidAdminUser("foleys", "some-password");
+                } else {
+                    assertFailedAuthentication("invalid_user", "");
                 }
+
+                return "";
             });
         }
 

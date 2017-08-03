@@ -17,6 +17,7 @@
 package com.thoughtworks.studios.shine.cruise.builder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MaterialXML {
@@ -34,9 +35,7 @@ public class MaterialXML {
   }
 
   private void initChangeSets(ChangeSetXML... newChangeSets) {
-    for (ChangeSetXML newChangeSet : newChangeSets) {
-      changeSets.add(newChangeSet);
-    }
+      Collections.addAll(changeSets, newChangeSets);
   }
 
   public String toString(){
@@ -56,10 +55,10 @@ public class MaterialXML {
   }
 
   private String changeSetXML() {
-    String changeSetsAsString = "";
+    StringBuilder out = new StringBuilder();
     for (ChangeSetXML cs: changeSets) {
-      changeSetsAsString += cs.toString();
+      out.append(cs.toString());
     }
-    return changeSetsAsString;
+    return out.toString();
   }
 }

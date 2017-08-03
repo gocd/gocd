@@ -93,13 +93,10 @@ public class GarageServiceTest {
         commands.add(secondCommand);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         GarageService spy = spy(garageService);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                CommandLine remove = commands.get(0);
-                commands.remove(remove);
-                return remove;
-            }
+        doAnswer(invocationOnMock -> {
+            CommandLine remove = commands.get(0);
+            commands.remove(remove);
+            return remove;
         }).when(spy).getGit();
 
         spy.gc(result);
@@ -127,13 +124,10 @@ public class GarageServiceTest {
         commands.add(secondCommand);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         GarageService spy = spy(garageService);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                CommandLine remove = commands.get(0);
-                commands.remove(remove);
-                return remove;
-            }
+        doAnswer(invocationOnMock -> {
+            CommandLine remove = commands.get(0);
+            commands.remove(remove);
+            return remove;
         }).when(spy).getGit();
 
         spy.gc(result);

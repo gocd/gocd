@@ -95,11 +95,7 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                    AgentIdentifier agentIdentifier) {
-        return new ConsoleOutputTransmitter(new ConsoleAppender() {
-            public void append(String content) throws IOException {
-                    consoleOuts.add(content);
-            }
-        });
+        return new ConsoleOutputTransmitter(consoleOuts::add);
     }
 
     public List<UploadEntry> uploadEntries() {

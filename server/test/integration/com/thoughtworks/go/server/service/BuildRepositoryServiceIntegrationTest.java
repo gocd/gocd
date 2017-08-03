@@ -396,31 +396,27 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     private Pipeline schedulePipeline(final PipelineConfig pipeline) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                MaterialRevisions materialRevisions = new MaterialRevisions();
-                for (Material material : new MaterialConfigConverter().toMaterials(pipeline.materialConfigs())) {
-                    materialRevisions.addRevision(material, new Modification("user", "comment", null, new Date(), ModificationsMother.nextRevision()));
-                }
-                materialRepository.save(materialRevisions);
-                Pipeline scheduledPipeline = instanceFactory.createPipelineInstance(pipeline, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                        new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
-                pipelineService.save(scheduledPipeline);
-                return scheduledPipeline;
+        return (Pipeline) transactionTemplate.execute(status -> {
+            MaterialRevisions materialRevisions = new MaterialRevisions();
+            for (Material material : new MaterialConfigConverter().toMaterials(pipeline.materialConfigs())) {
+                materialRevisions.addRevision(material, new Modification("user", "comment", null, new Date(), ModificationsMother.nextRevision()));
             }
+            materialRepository.save(materialRevisions);
+            Pipeline scheduledPipeline = instanceFactory.createPipelineInstance(pipeline, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
+                    new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            pipelineService.save(scheduledPipeline);
+            return scheduledPipeline;
         });
     }
 
     private Stage createNewPipelineWithFirstStageFailed() throws Exception {
-        return (Stage) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
-                materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());
-                pipelineService.save(forcedPipeline);
-                Stage stage = forcedPipeline.getFirstStage();
-                dbHelper.failStage(stage);
-                return stage;
-            }
+        return (Stage) transactionTemplate.execute(status -> {
+            Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());
+            pipelineService.save(forcedPipeline);
+            Stage stage = forcedPipeline.getFirstStage();
+            dbHelper.failStage(stage);
+            return stage;
         });
     }
 

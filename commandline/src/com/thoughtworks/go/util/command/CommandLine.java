@@ -158,8 +158,7 @@ public class CommandLine {
         if (executable != null) {
             args.add(executable);
         }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
+        for (CommandArgument argument : arguments) {
             args.add(argument.forCommandline());
         }
         return args.toArray(new String[args.size()]);
@@ -170,8 +169,7 @@ public class CommandLine {
         if (executable != null) {
             args.add(executable);
         }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
+        for (CommandArgument argument : arguments) {
             args.add(argument.forDisplay());
         }
         return args.toArray(new String[args.size()]);
@@ -200,7 +198,7 @@ public class CommandLine {
         }
 
         // path containing one or more elements
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         for (int i = 0; i < line.length; i++) {
             if (i > 0) {
                 result.append(separator);
@@ -227,7 +225,7 @@ public class CommandLine {
         int state = normal;
         StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
         Vector v = new Vector();
-        StringBuffer current = new StringBuffer();
+        StringBuilder current = new StringBuilder();
 
         while (tok.hasMoreTokens()) {
             String nextTok = tok.nextToken();

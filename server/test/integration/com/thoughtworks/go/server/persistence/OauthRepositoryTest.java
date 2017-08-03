@@ -69,11 +69,9 @@ public class OauthRepositoryTest {
     public void shouldHonorTransaction() throws Exception{
         final OauthClient client = new OauthClient("mingle", "client_id", "client_secret", "http://something");
         try {
-            repo.transaction(new Runnable() {
-                public void run() {
-                    template.save(client);
-                    throw new RuntimeException("ouch! it failed.");
-                }
+            repo.transaction(() -> {
+                template.save(client);
+                throw new RuntimeException("ouch! it failed.");
             });
             fail("should have bubbled up transaction failing exception");
         } catch (Exception e) {
@@ -165,10 +163,7 @@ public class OauthRepositoryTest {
         map.put("name", "a different name");
         map.put("id", mingle09.getId());
         repo.transaction(
-        new Runnable() {
-            public void run() {
-                repo.saveOauthClient(map);
-            }});
+                () -> repo.saveOauthClient(map));
         OauthClient client = template.load(OauthClient.class, mingle09.getId());
         assertThat(client.getDTO().getName(), is("a different name"));
     }

@@ -51,14 +51,9 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     @Test
     public void cancelLongRunningBuild() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        execSleepScript(50),
-                        echo("build done")));
-            }
-        });
+        Thread buildingThread = new Thread(() -> buildSession.build(compose(
+                execSleepScript(50),
+                echo("build done"))));
         buildingThread.start();
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
         assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
@@ -72,13 +67,8 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     @Test
     public void cancelLongRunningTestCommand() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        echo("after sleep").setTest(execSleepScript(50))));
-            }
-        });
+        Thread buildingThread = new Thread(() -> buildSession.build(compose(
+                echo("after sleep").setTest(execSleepScript(50)))));
         buildingThread.start();
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
 
@@ -93,20 +83,12 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     @Test
     public void doubleCancelDoNothing() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(execSleepScript(50));
-            }
-        });
-        Runnable cancel = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    buildSession.cancel(30, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    throw bomb(e);
-                }
+        Thread buildingThread = new Thread(() -> buildSession.build(execSleepScript(50)));
+        Runnable cancel = () -> {
+            try {
+                buildSession.cancel(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw bomb(e);
             }
         };
         Thread cancelThread1 = new Thread(cancel);
@@ -127,17 +109,12 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     @Test
     public void cancelShouldProcessOnCancelCommandOfCommandThatIsRunning() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        compose(
-                                execSleepScript(50).setOnCancel(echo("exec canceled")),
-                                echo("after sleep"))
-                                .setOnCancel(echo("inner oncancel"))
-                ).setOnCancel(echo("outter oncancel")));
-            }
-        });
+        Thread buildingThread = new Thread(() -> buildSession.build(compose(
+                compose(
+                        execSleepScript(50).setOnCancel(echo("exec canceled")),
+                        echo("after sleep"))
+                        .setOnCancel(echo("inner oncancel"))
+        ).setOnCancel(echo("outter oncancel"))));
 
         buildingThread.start();
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
@@ -145,15 +122,12 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
         JavaSysMon javaSysMon = new JavaSysMon();
         final boolean[] exists = {false};
-        javaSysMon.visitProcessTree(javaSysMon.currentPid(), new ProcessVisitor() {
-            @Override
-            public boolean visit(OsProcess osProcess, int i) {
-                String command = osProcess.processInfo().getName();
-                if (execSleepScriptProcessCommand().equals(command)) {
-                    exists[0] = true;
-                }
-                return false;
+        javaSysMon.visitProcessTree(javaSysMon.currentPid(), (osProcess, i) -> {
+            String command = osProcess.processInfo().getName();
+            if (execSleepScriptProcessCommand().equals(command)) {
+                exists[0] = true;
             }
+            return false;
         });
         assertThat(exists[0], is(false));
 
@@ -171,15 +145,10 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     public void cancelTaskShouldBeProcessedBeforeKillChildProcess() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
         final BuildCommand printSubProcessCount = exec("/bin/bash", "-c", "pgrep -P " + new JavaSysMon().currentPid() + " | wc -l");
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        compose(execSleepScript(50),
-                                echo("after sleep"))
-                                .setOnCancel(printSubProcessCount)));
-            }
-        });
+        Thread buildingThread = new Thread(() -> buildSession.build(compose(
+                compose(execSleepScript(50),
+                        echo("after sleep"))
+                        .setOnCancel(printSubProcessCount))));
 
         buildingThread.start();
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
@@ -192,12 +161,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
 
     private void waitUntilSubProcessExists(final String processName, final boolean expectExist) {
         try {
-            waitUntil(Timeout.FIVE_SECONDS, new Assertions.Predicate() {
-                @Override
-                public boolean call() throws Exception {
-                    return subProcessNames().contains(processName) == expectExist;
-                }
-            }, 250);
+            waitUntil(Timeout.FIVE_SECONDS, () -> subProcessNames().contains(processName) == expectExist, 250);
         } catch (RuntimeException e) {
             throw new RuntimeException("timeout waiting for subprocess " + (expectExist ? "exists" : "not exists") + ", current sub processes are: " + subProcessNames());
         }
@@ -207,14 +171,11 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         JavaSysMon javaSysMon = new JavaSysMon();
         final List<String> names = new ArrayList<>();
         final int currentPid = javaSysMon.currentPid();
-        javaSysMon.visitProcessTree(currentPid, new ProcessVisitor() {
-            @Override
-            public boolean visit(OsProcess osProcess, int i) {
-                if(osProcess.processInfo().getPid() != currentPid) {
-                    names.add(osProcess.processInfo().getName());
-                }
-                return false;
+        javaSysMon.visitProcessTree(currentPid, (osProcess, i) -> {
+            if(osProcess.processInfo().getPid() != currentPid) {
+                names.add(osProcess.processInfo().getName());
             }
+            return false;
         });
         return names;
     }

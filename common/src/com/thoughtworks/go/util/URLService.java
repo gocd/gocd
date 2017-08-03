@@ -103,7 +103,7 @@ public class URLService implements ServerUrlGenerator{
     public String getWebSocketBaseUrl() {
         try {
             URI uri = new URI(baseRemotingURL);
-            StringBuffer ret = new StringBuffer("wss://");
+            StringBuilder ret = new StringBuilder("wss://");
             ret.append(uri.getHost()).append(":").append(uri.getPort());
             if (uri.getPath() != null) {
                 ret.append(uri.getPath());

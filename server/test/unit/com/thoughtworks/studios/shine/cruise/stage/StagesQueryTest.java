@@ -73,11 +73,7 @@ public class StagesQueryTest {
 
         StageIdentifier stageIdentifierOne = new StageIdentifier("p", 1, "s", "2");
         StageIdentifier stageIdentifierTwo = new StageIdentifier("p", 2, "s", "2");
-        List<TestModel> bvs = stagesQuery.select(sparql, Arrays.asList(stageIdentifierOne, stageIdentifierTwo), new RdfResultMapper<TestModel>() {
-            public TestModel map(BoundVariables aRow) {
-                return new TestModel(aRow.getAsString("job"));
-            }
-        });
+        List<TestModel> bvs = stagesQuery.select(sparql, Arrays.asList(stageIdentifierOne, stageIdentifierTwo), aRow -> new TestModel(aRow.getAsString("job")));
 
         assertEquals(2, bvs.size());
         assertEquals(new TestModel("http://job/1"), bvs.get(0));
@@ -132,11 +128,7 @@ public class StagesQueryTest {
         cache.put(Arrays.<BoundVariables>asList(new BoundVariablesStub("job", "http://job/1")), new StagesQueryCache.CacheKey(sparql, stageIdentifier));
 
 
-        List<BoundVariables> bvs = stagesQuery.select(sparql, Arrays.asList(stageIdentifier), new RdfResultMapper<BoundVariables>() {
-            public BoundVariables map(BoundVariables aRow) {
-                return aRow;
-            }
-        });
+        List<BoundVariables> bvs = stagesQuery.select(sparql, Arrays.asList(stageIdentifier), aRow -> aRow);
         assertEquals(1, bvs.size());
         assertEquals("http://job/1", bvs.get(0).getAsString("job"));
     }

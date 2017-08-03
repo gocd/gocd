@@ -53,8 +53,8 @@ public class SvnLogXmlParser {
 
         Element rootElement = document.getRootElement();
         List logEntries = rootElement.getChildren("logentry");
-        for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
-            Element logEntry = (Element) iterator.next();
+        for (Object logEntry1 : logEntries) {
+            Element logEntry = (Element) logEntry1;
 
             Modification modification = parseLogEntry(logEntry, path);
             if (modification != null) {
@@ -81,8 +81,8 @@ public class SvnLogXmlParser {
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
 
         List paths = logEntryPaths.getChildren("path");
-        for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
-            Element node = (Element) iterator.next();
+        for (Object path1 : paths) {
+            Element node = (Element) path1;
             if (underPath(path, node.getText())) {
                 ModifiedAction action = convertAction(node.getAttributeValue("action"));
                 modification.createModifiedFile(node.getText(), null, action);

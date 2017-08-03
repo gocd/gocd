@@ -38,13 +38,7 @@ public class CreateAgentQueueHandler extends PluginMessageQueueHandler<CreateAge
             }
 
             public ListenerFactory listener() {
-                return new ListenerFactory() {
-                    @Override
-
-                    public GoMessageListener create() {
-                        return new CreateAgentListener(elasticAgentPluginRegistry);
-                    }
-                };
+                return () -> new CreateAgentListener(elasticAgentPluginRegistry);
             }
         });
     }

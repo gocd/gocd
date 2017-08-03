@@ -82,9 +82,7 @@ public class ConfigConverter {
         Map<String, List<CRPipeline>> map = new HashMap<>();
         for (CRPipeline pipe : pipelines) {
             String key = pipe.getGroupName();
-            if (map.get(key) == null) {
-                map.put(key, new ArrayList<>());
-            }
+            map.computeIfAbsent(key, k -> new ArrayList<>());
             map.get(key).add(pipe);
         }
         return map;

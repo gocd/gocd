@@ -92,7 +92,7 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
         if (this.securityConfig != null && !this.securityConfig.equals(newSecurityConfig)) {
-            LOGGER.info(String.format("[Configuration Changed] Security Configuration is changed. Updating the last changed time."));
+            LOGGER.info("[Configuration Changed] Security Configuration is changed. Updating the last changed time.");
             this.lastChangedTime = timeProvider.currentTimeMillis();
         }
         this.securityConfig = newSecurityConfig;

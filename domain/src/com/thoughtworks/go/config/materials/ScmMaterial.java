@@ -109,7 +109,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
     }
 
     public void emailContent(StringBuilder content, Modification modification) {
-        content.append(getTypeForDisplay() + ": " + getLocation()).append('\n').append(
+        content.append(getTypeForDisplay()).append(": ").append(getLocation()).append('\n').append(
                 String.format("revision: %s, modified by %s on %s", modification.getRevision(),
                         modification.getUserName(), modification.getModifiedTime()))
                 .append('\n')

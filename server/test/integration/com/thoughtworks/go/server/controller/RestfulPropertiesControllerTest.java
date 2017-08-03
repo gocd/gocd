@@ -136,7 +136,7 @@ public class RestfulPropertiesControllerTest {
     }
 
     @Test public void shouldNotAllowCreatingPropertyWithKeyOrValueLargerThat255Characters() throws Exception {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 200; i++) {
             sb.append("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         }

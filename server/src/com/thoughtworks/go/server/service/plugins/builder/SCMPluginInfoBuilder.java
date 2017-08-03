@@ -53,12 +53,7 @@ public class SCMPluginInfoBuilder implements NewPluginInfoBuilder<SCMPluginInfo>
 
     @Override
     public Collection<SCMPluginInfo> allPluginInfos() {
-        return store.getPlugins().stream().map(new Function<String, SCMPluginInfo>() {
-            @Override
-            public SCMPluginInfo apply(String pluginId) {
-                return SCMPluginInfoBuilder.this.pluginInfoFor(pluginId);
-            }
-        }).collect(Collectors.toList());
+        return store.getPlugins().stream().map(SCMPluginInfoBuilder.this::pluginInfoFor).collect(Collectors.toList());
     }
 
     static List<PluginConfiguration> configurations(SCMConfigurations scmConfigurations) {

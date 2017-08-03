@@ -260,16 +260,14 @@ public class ScheduleTestUtil {
 
 
     private List<Modification> modForRev(final RevisionsForMaterial revision) {
-        return (List<Modification>) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
-                q.setParameterList("in", revision.revs);
-                List list = q.list();
-                if (list.isEmpty()) {
-                    throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
-                }
-                return list;
+        return (List<Modification>) materialRepository.getHibernateTemplate().execute((HibernateCallback) session -> {
+            Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
+            q.setParameterList("in", revision.revs);
+            List list = q.list();
+            if (list.isEmpty()) {
+                throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }
+            return list;
         });
     }
 
@@ -286,16 +284,14 @@ public class ScheduleTestUtil {
     }
 
     private Modification modForRev(final String revision) {
-        return (Modification) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from Modification where revision = ?");
-                q.setParameter(0, revision);
-                List list = q.list();
-                if (list.isEmpty()) {
-                    throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
-                }
-                return list.get(0);
+        return (Modification) materialRepository.getHibernateTemplate().execute(session -> {
+            Query q = session.createQuery("from Modification where revision = ?");
+            q.setParameter(0, revision);
+            List list = q.list();
+            if (list.isEmpty()) {
+                throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }
+            return list.get(0);
         });
     }
 
@@ -424,15 +420,13 @@ public class ScheduleTestUtil {
     }
 
     public void checkinInOrder(final Material material, final Date dateOfCheckin, final String... revisions) {
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                for (int i = 0; i < revisions.length; i++) {
-                    String revision = revisions[i];
-                    materialRepository.saveMaterialRevision(new MaterialRevision(material,
-                            new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision)));
-                }
-                return null;
+        transactionTemplate.execute(status -> {
+            for (int i = 0; i < revisions.length; i++) {
+                String revision = revisions[i];
+                materialRepository.saveMaterialRevision(new MaterialRevision(material,
+                        new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision)));
             }
+            return null;
         });
     }
 
@@ -441,28 +435,24 @@ public class ScheduleTestUtil {
     }
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction) {
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
-                for (File file : files) {
-                    modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
-                }
-                materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
-                return null;
+        transactionTemplate.execute(status -> {
+            Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
+            for (File file : files) {
+                modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
             }
+            materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
+            return null;
         });
     }
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction,final Date date) {
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
-                for (File file : files) {
-                    modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
-                }
-                materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
-                return null;
+        transactionTemplate.execute(status -> {
+            Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
+            for (File file : files) {
+                modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
             }
+            materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
+            return null;
         });
     }
 }

@@ -162,17 +162,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
             return;
         }
         goPluginOSGiFramework.doOnAllWithExceptionHandlingForPlugin(
-                PluginDescriptorAware.class, descriptor.id(), new Action<PluginDescriptorAware>() {
-                    @Override
-                    public void execute(PluginDescriptorAware descriptorAwarePlugin, GoPluginDescriptor pluginDescriptor) {
-                        descriptorAwarePlugin.setPluginDescriptor(pluginDescriptor);
-                    }
-                }, new ExceptionHandler<PluginDescriptorAware>() {
-                    @Override
-                    public void handleException(PluginDescriptorAware obj, Throwable t) {
-                        LOGGER.warn("Set Plugin Descriptor Call failed for plugin: " + descriptor.id(),t);
-                    }
-                }
+                PluginDescriptorAware.class, descriptor.id(), PluginDescriptorAware::setPluginDescriptor, (obj, t) -> LOGGER.warn("Set Plugin Descriptor Call failed for plugin: " + descriptor.id(),t)
         );
     }
 

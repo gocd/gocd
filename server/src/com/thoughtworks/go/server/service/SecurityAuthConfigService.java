@@ -118,12 +118,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         Set<AuthorizationPluginInfo> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
         SecurityAuthConfigs configuredAuthPluginProfiles = getPluginProfiles();
         for (SecurityAuthConfig authConfig : configuredAuthPluginProfiles) {
-            AuthorizationPluginInfo authorizationPluginInfo = ListUtil.find(loadedWebBasedAuthPlugins, new Predicate<AuthorizationPluginInfo>() {
-                @Override
-                public boolean test(AuthorizationPluginInfo authorizationPluginInfo) {
-                    return authorizationPluginInfo.getDescriptor().id().equals(authConfig.getPluginId());
-                }
-            });
+            AuthorizationPluginInfo authorizationPluginInfo = ListUtil.find(loadedWebBasedAuthPlugins, (Predicate<AuthorizationPluginInfo>) authorizationPluginInfo1 -> authorizationPluginInfo1.getDescriptor().id().equals(authConfig.getPluginId()));
             if (authorizationPluginInfo != null) {
                 result.add(new AuthPluginInfoViewModel(authorizationPluginInfo));
             }

@@ -198,11 +198,9 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() throws Exception {
         try {
-            goConfigDao.updateConfig(new UpdateConfigCommand() {
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
-                    return cruiseConfig;
-                }
+            goConfigDao.updateConfig(cruiseConfig -> {
+                cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
+                return cruiseConfig;
             });
         } catch (RuntimeException e) {
             fail("should not have failed for edit when overwrite allowed.");
@@ -408,16 +406,10 @@ public abstract class GoConfigDaoTestBase {
         String oldServerId = goConfigDao.load().server().getServerId();
         Exception ex = null;
         try {
-            GoConfigFileHelper.withServerIdImmutability(new Procedure() {
-                public void call() {
-                    goConfigDao.updateConfig(new UpdateConfigCommand() {
-                        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                            ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
-                            return cruiseConfig;
-                        }
-                    });
-                }
-            });
+            GoConfigFileHelper.withServerIdImmutability(() -> goConfigDao.updateConfig(cruiseConfig -> {
+                ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
+                return cruiseConfig;
+            }));
             fail("should not save with modified serverId");
         } catch (Exception e) {
             ex = e;

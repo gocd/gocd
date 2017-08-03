@@ -363,11 +363,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     }
 
     private void removePipelinesThatAreNotInConfig(final Username username, PipelineDependencyGraphOld graph) {
-        graph.filterDependencies(new PipelineDependencyGraphOld.Filterer() {
-            public boolean filterPipeline(String pipelineName) {
-                return goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName)) && securityService.hasViewPermissionForPipeline(username, pipelineName);
-            }
-        });
+        graph.filterDependencies(pipelineName -> goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName)) && securityService.hasViewPermissionForPipeline(username, pipelineName));
     }
 
     private void addConfiguredPipelinesThatAreNotRunYet(Username username, PipelineDependencyGraphOld graph, List<PipelineConfig> dependents) {

@@ -58,8 +58,8 @@ public class JobInstanceLog implements Serializable {
         int totalNumberOfTests = 0;
 
         List testSuites = getTestSuites();
-        for (int i = 0; i < testSuites.size(); i++) {
-            BuildTestSuite suite = (BuildTestSuite) testSuites.get(i);
+        for (Object testSuite : testSuites) {
+            BuildTestSuite suite = (BuildTestSuite) testSuite;
             totalNumberOfTests += suite.getNumberOfTests();
         }
 
@@ -70,8 +70,8 @@ public class JobInstanceLog implements Serializable {
         int numberOfFailures = 0;
 
         List testSuites = getTestSuites();
-        for (int i = 0; i < testSuites.size(); i++) {
-            BuildTestSuite suite = (BuildTestSuite) testSuites.get(i);
+        for (Object testSuite : testSuites) {
+            BuildTestSuite suite = (BuildTestSuite) testSuite;
             numberOfFailures += suite.getNumberOfFailures();
         }
 
@@ -82,8 +82,8 @@ public class JobInstanceLog implements Serializable {
         int numberOfErrors = 0;
 
         List testSuites = getTestSuites();
-        for (int i = 0; i < testSuites.size(); i++) {
-            BuildTestSuite suite = (BuildTestSuite) testSuites.get(i);
+        for (Object testSuite : testSuites) {
+            BuildTestSuite suite = (BuildTestSuite) testSuite;
             numberOfErrors += suite.getNumberOfErrors();
         }
 

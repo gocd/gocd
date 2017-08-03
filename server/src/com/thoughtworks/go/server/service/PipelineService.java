@@ -98,22 +98,20 @@ public class PipelineService implements UpstreamPipelineResolver {
     public Pipeline save(final Pipeline pipeline) {
         String mutexPipelineName = PipelinePauseService.mutexForPausePipeline(pipeline.getName());
         synchronized (mutexPipelineName) {
-            return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-                public Object doInTransaction(TransactionStatus status) {
-                    if (pipeline instanceof NullPipeline) {
-                        return pipeline;
-                    }
-                    updateCounter(pipeline);
-
-                    Pipeline pipelineWithId = pipelineDao.save(pipeline);
-                    pipelineLockService.lockIfNeeded(pipelineWithId);
-                    for (Stage stage : pipeline.getStages()) {
-                        stageService.save(pipelineWithId, stage);
-                    }
-
-                    pipelineTimeline.update();
-                    return pipelineWithId;
+            return (Pipeline) transactionTemplate.execute(status -> {
+                if (pipeline instanceof NullPipeline) {
+                    return pipeline;
                 }
+                updateCounter(pipeline);
+
+                Pipeline pipelineWithId = pipelineDao.save(pipeline);
+                pipelineLockService.lockIfNeeded(pipelineWithId);
+                for (Stage stage : pipeline.getStages()) {
+                    stageService.save(pipelineWithId, stage);
+                }
+
+                pipelineTimeline.update();
+                return pipelineWithId;
             });
         }
     }
@@ -242,12 +240,9 @@ public class PipelineService implements UpstreamPipelineResolver {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
         FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
         final String[] iterationData = {null};
-        fanInGraph.setFanInEventListener(new FanInEventListener() {
-            @Override
-            public void iterationComplete(int iterationCount, List<DependencyFanInNode> dependencyFanInNodes) {
-                if (iterationCount == targetIterationCount) {
-                    iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(dependencyFanInNodes);
-                }
+        fanInGraph.setFanInEventListener((iterationCount, dependencyFanInNodes) -> {
+            if (iterationCount == targetIterationCount) {
+                iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(dependencyFanInNodes);
             }
         });
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);

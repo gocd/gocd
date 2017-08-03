@@ -36,10 +36,7 @@ public class TestTransactionTemplate extends TransactionTemplate {
                 o = action.doInTransaction(null);
                 synchronizationManager.executeAfterCompletion(TransactionSynchronization.STATUS_COMMITTED);
                 synchronizationManager.executeAfterCommit();
-            } catch (RuntimeException e) {
-                synchronizationManager.executeAfterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK);
-                throw e;
-            } catch (Error e) {
+            } catch (RuntimeException | Error e) {
                 synchronizationManager.executeAfterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK);
                 throw e;
             } finally {

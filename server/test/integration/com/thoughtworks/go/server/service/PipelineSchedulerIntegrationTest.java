@@ -142,11 +142,7 @@ public class PipelineSchedulerIntegrationTest {
         serverHealthService.update(ServerHealthState.failToScheduling(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, "should wait till cleared"));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.message(), operationResult.canContinue(),is(true));
-        Assertions.waitUntil(Timeout.ONE_MINUTE, new Assertions.Predicate() {
-            public boolean call() throws Exception {
-                return serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0;
-            }
-        });
+        Assertions.waitUntil(Timeout.ONE_MINUTE, () -> serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0);
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(PIPELINE_MINGLE);
 
         EnvironmentVariablesConfig overriddenVariables = buildCause.getVariables();

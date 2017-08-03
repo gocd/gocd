@@ -63,19 +63,15 @@ public class BasicAuthenticationFilterTest {
         BasicAuthenticationFilter filter = new BasicAuthenticationFilter(localizer);
         final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
 
-        filter.setAuthenticationManager(new AuthenticationManager() {
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                hadBasicMarkOnInsideAuthenticationManager[0] = BasicAuthenticationFilter.isProcessingBasicAuth();
-                return new UsernamePasswordAuthenticationToken("school-principal", "u can be principal if you know this!");
-            }
+        filter.setAuthenticationManager(authentication -> {
+            hadBasicMarkOnInsideAuthenticationManager[0] = BasicAuthenticationFilter.isProcessingBasicAuth();
+            return new UsernamePasswordAuthenticationToken("school-principal", "u can be principal if you know this!");
         });
         assertThat(BasicAuthenticationFilter.isProcessingBasicAuth(), is(false));
         MockHttpServletRequest httpRequest = new MockHttpServletRequest();
         httpRequest.addHeader("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("loser:boozer".getBytes()));
-        filter.doFilterHttp(httpRequest, new MockHttpServletResponse(), new FilterChain() {
-            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        filter.doFilterHttp(httpRequest, new MockHttpServletResponse(), (servletRequest, servletResponse) -> {
 
-            }
         });
         assertThat(BasicAuthenticationFilter.isProcessingBasicAuth(), is(false));
 

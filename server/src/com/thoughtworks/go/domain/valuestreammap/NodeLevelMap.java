@@ -28,9 +28,7 @@ public class NodeLevelMap {
 
     public void add(Node node) {
         int level = node.getLevel();
-        if (map.get(level) == null) {
-            map.put(level, new ArrayList<>());
-        }
+        map.computeIfAbsent(level, k -> new ArrayList<>());
         map.get(level).add(node);
     }
 

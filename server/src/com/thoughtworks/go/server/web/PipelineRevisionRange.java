@@ -40,13 +40,10 @@ public final class PipelineRevisionRange {
     }
 
     @Override public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("PipelineRevisionRange");
-        sb.append("{pipelineName='").append(pipelineName).append('\'');
-        sb.append(", fromRevision='").append(fromRevision).append('\'');
-        sb.append(", toRevision='").append(toRevision).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return String.format("PipelineRevisionRange{pipelineName='%s', fromRevision='%s', toRevision='%s'}",
+                pipelineName,
+                fromRevision,
+                toRevision);
     }
 
     @Override

@@ -23,21 +23,15 @@ public class DummyClassProvidingAnonymousClass {
 
     public static class DummyInnerClassProvidingAnonymousClass{
         public static PluginDescriptorAware getAnonymousClass() {
-            return new PluginDescriptorAware() {
-                @Override
-                public void setPluginDescriptor(PluginDescriptor descriptor) throws UnsupportedOperationException {
+            return descriptor -> {
 
-                }
             };
         }
     }
 
     public static PluginDescriptorAware getAnonymousClass() {
-        return new PluginDescriptorAware() {
-            @Override
-            public void setPluginDescriptor(PluginDescriptor descriptor) throws UnsupportedOperationException {
+        return descriptor -> {
 
-            }
         };
     }
 

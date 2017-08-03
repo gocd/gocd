@@ -56,7 +56,7 @@ public class ArtifactsDirHolder implements ConfigChangedListener {
         if (isArtifactsDirChanged(newCruiseConfig)) {
             serverHealthState = ServerHealthState.warning(ARTIFACTS_ROOT_CHANGED_MESSAGE, ARTIFACTS_ROOT_CHANGED_DESC,
                     ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE);
-            LOGGER.info(String.format("[Configuration Changed] Artifacts directory was changed."));
+            LOGGER.info("[Configuration Changed] Artifacts directory was changed.");
         } else {
             serverHealthState = ServerHealthState.success(ARTIFACTS_ROOT_CHANGE_HEALTH_STATE_TYPE);
         }

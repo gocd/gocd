@@ -44,13 +44,13 @@ public class ConfigRepoConfig implements Validatable {
 
     // TODO something must instantiate this name into proper implementation of ConfigProvider
     // which can be a plugin or embedded class
-    @ConfigAttribute(value = "plugin", allowNull = false)
+    @ConfigAttribute(value = "plugin")
     private String configProviderPluginName = "gocd-xml";
     // plugin-name which will process the repository tree to return configuration.
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
 
-    @ConfigAttribute(value = "id", allowNull = false)
+    @ConfigAttribute(value = "id")
     private String id = UUID.randomUUID().toString();
 
     public static final String AUTO_UPDATE = "autoUpdate";
@@ -167,7 +167,7 @@ public class ConfigRepoConfig implements Validatable {
 
     public void validateIdUniqueness(ArrayList<String> allIds) {
         if(StringUtil.isBlank(this.id)) {
-            this.errors.add("id",String.format( "Invalid config-repo id", id));
+            this.errors.add("id", "Invalid config-repo id");
         }
         if(allIds.contains(this.id)) {
             this.errors.add("unique_id",String.format( "You have defined multiple configuration repositories with the same id - %s", id));

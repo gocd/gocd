@@ -42,10 +42,10 @@ public class AgentConfig implements Validatable {
     @ConfigAttribute(value = "isDisabled")
     private Boolean isDisabled = false;
 
-    @ConfigAttribute(value = "elasticAgentId", allowNull = true, optional = true)
+    @ConfigAttribute(value = "elasticAgentId", allowNull = true)
     private String elasticAgentId;
 
-    @ConfigAttribute(value = "elasticPluginId", allowNull = true, optional = true)
+    @ConfigAttribute(value = "elasticPluginId", allowNull = true)
     private String elasticPluginId;
 
     @ConfigSubtag
@@ -178,7 +178,7 @@ public class AgentConfig implements Validatable {
         if (cachedIsFromLocalHost == null) {
             cachedIsFromLocalHost = SystemUtil.isLocalhost(ipAddress);
         }
-        return cachedIsFromLocalHost.booleanValue();
+        return cachedIsFromLocalHost;
     }
 
     public String getIpAddress() {

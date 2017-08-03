@@ -36,20 +36,20 @@ public class ResponseRedirector implements View {
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String contextpath = request.getContextPath();
-        String params = "";
+        StringBuilder params = new StringBuilder();
         Map queryString = (Map) model.get("params");
         if (queryString != null) {
             for (Object key : queryString.keySet()) {
                 String value = (String) queryString.get(key);
                 if (value != null) {
                     if (params.length() > 0) {
-                        params += "&";
+                        params.append("&");
                     }
-                    params += key + "=" + URLEncoder.encode(value, "UTF-8");
+                    params.append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 }
             }
         }
-        String paramString = params.isEmpty() ? "" : "?" + params;
+        String paramString = (params.length() == 0) ? "" : "?" + params;
         response.sendRedirect(contextpath + "/tab" + target + paramString);
     }
 

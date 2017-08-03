@@ -100,11 +100,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         registerServices(firstService, secondService);
         spy.start();
 
-        spy.doOnAll(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-                assertThat(pluginDescriptor, is(descriptor));
-            }
+        spy.doOnAll(SomeInterface.class, (obj, pluginDescriptor) -> {
+            obj.someMethod();
+            assertThat(pluginDescriptor, is(descriptor));
         });
 
         verify(firstService).someMethod();
@@ -125,11 +123,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         doThrow(exceptionToBeThrown).when(secondService).someMethod();
 
         try {
-            spy.doOnAll(SomeInterface.class, new Action<SomeInterface>() {
-                public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    obj.someMethod();
-                    assertThat(pluginDescriptor, is(descriptor));
-                }
+            spy.doOnAll(SomeInterface.class, (obj, pluginDescriptor) -> {
+                obj.someMethod();
+                assertThat(pluginDescriptor, is(descriptor));
             });
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("Ouch!"));
@@ -156,11 +152,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         ExceptionHandler<SomeInterface> exceptionHandler = mock(ExceptionHandler.class);
         doThrow(exceptionToBeThrown).when(secondService).someMethod();
 
-        spy.doOnAllWithExceptionHandling(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-                assertThat(pluginDescriptor, is(descriptor));
-            }
+        spy.doOnAllWithExceptionHandling(SomeInterface.class, (obj, pluginDescriptor) -> {
+            obj.someMethod();
+            assertThat(pluginDescriptor, is(descriptor));
         }, exceptionHandler);
 
         InOrder inOrder = inOrder(firstService, secondService, thirdService, exceptionHandler);
@@ -178,21 +172,15 @@ public class FelixGoPluginOSGiFrameworkTest {
 
         registerServices(firstService);
 
-        spy.doOnAll(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-                assertThat(pluginDescriptor, is(descriptor));
-            }
+        spy.doOnAll(SomeInterface.class, (obj, pluginDescriptor) -> {
+            obj.someMethod();
+            assertThat(pluginDescriptor, is(descriptor));
         });
 
         verifyZeroInteractions(firstService);
 
         ExceptionHandler exceptionHandler = mock(ExceptionHandler.class);
-        spy.doOnAllWithExceptionHandling(SomeInterface.class, new Action<SomeInterface>() {
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                obj.someMethod();
-            }
-        }, exceptionHandler);
+        spy.doOnAllWithExceptionHandling(SomeInterface.class, (obj, pluginDescriptor) -> obj.someMethod(), exceptionHandler);
 
         verifyZeroInteractions(firstService, exceptionHandler);
     }
@@ -206,31 +194,19 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy.start();
 
 
-        spy.doOn(SomeInterface.class, secondService.toString(), new ActionWithReturn<SomeInterface, Object>() {
-            @Override
-            public Object execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                return obj.someMethodWithReturn();
-            }
+        spy.doOn(SomeInterface.class, secondService.toString(), (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            return obj.someMethodWithReturn();
         });
-        spy.doOn(SomeInterface.class, secondService.toString(), new Action<SomeInterface>() {
-            @Override
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                obj.someMethod();
-            }
+        spy.doOn(SomeInterface.class, secondService.toString(), (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            obj.someMethod();
         });
 
-        spy.doOnWithExceptionHandling(SomeInterface.class, secondService.toString(), new Action<SomeInterface>() {
-                    @Override
-                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                        assertThat(pluginDescriptor, is(descriptor));
-                        obj.someMethod();
-                    }
-                }, new ExceptionHandler<SomeInterface>() {
-                    @Override
-                    public void handleException(SomeInterface obj, Throwable t) {
-                    }
+        spy.doOnWithExceptionHandling(SomeInterface.class, secondService.toString(), (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            obj.someMethod();
+        }, (obj, t) -> {
                 }
         );
 
@@ -249,19 +225,11 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy.start();
 
         final RuntimeException expectedException = new RuntimeException("Exception Thrown By Spy Method");
-        spy.doOnWithExceptionHandling(SomeInterface.class, secondService.toString(), new Action<SomeInterface>() {
-                    @Override
-                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                        assertThat(pluginDescriptor, is(descriptor));
-                        obj.someMethod();
-                        throw expectedException;
-                    }
-                }, new ExceptionHandler<SomeInterface>() {
-                    @Override
-                    public void handleException(SomeInterface obj, Throwable t) {
-                        assertThat(t, is(expectedException));
-                    }
-                }
+        spy.doOnWithExceptionHandling(SomeInterface.class, secondService.toString(), (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            obj.someMethod();
+            throw expectedException;
+        }, (obj, t) -> assertThat(t, is(expectedException))
         );
 
         verify(firstService, never()).someMethodWithReturn();
@@ -280,12 +248,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy.start();
 
         try {
-            spy.doOn(SomeInterface.class, symbolicName, new ActionWithReturn<SomeInterface, Object>() {
-                @Override
-                public Object execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(descriptor));
-                    return obj.someMethodWithReturn();
-                }
+            spy.doOn(SomeInterface.class, symbolicName, (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor, is(descriptor));
+                return obj.someMethodWithReturn();
             });
             fail("Should throw plugin framework exception");
 
@@ -296,12 +261,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         }
 
         try {
-            spy.doOn(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                @Override
-                public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(descriptor));
-                    obj.someMethod();
-                }
+            spy.doOn(SomeInterface.class, symbolicName, (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor, is(descriptor));
+                obj.someMethod();
             });
             fail("Should throw plugin framework exception");
 
@@ -312,17 +274,11 @@ public class FelixGoPluginOSGiFrameworkTest {
         }
 
         try {
-            spy.doOnWithExceptionHandling(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                        @Override
-                        public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                            assertThat(pluginDescriptor, is(descriptor));
-                            obj.someMethod();
-                        }
-                    }, new ExceptionHandler<SomeInterface>() {
-                        @Override
-                        public void handleException(SomeInterface obj, Throwable t) {
+            spy.doOnWithExceptionHandling(SomeInterface.class, symbolicName, (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor, is(descriptor));
+                obj.someMethod();
+            }, (obj, t) -> {
 
-                        }
                     }
             );
             fail("Should throw plugin framework exception");
@@ -349,12 +305,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy.start();
 
         try {
-            spy.doOn(SomeOtherInterface.class, symbolicName, new ActionWithReturn<SomeOtherInterface, Object>() {
-                @Override
-                public Object execute(SomeOtherInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(descriptor));
-                    throw new RuntimeException("Should Not Be invoked");
-                }
+            spy.doOn(SomeOtherInterface.class, symbolicName, (ActionWithReturn<SomeOtherInterface, Object>) (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor, is(descriptor));
+                throw new RuntimeException("Should Not Be invoked");
             });
             fail("Should throw plugin framework exception");
 
@@ -365,12 +318,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         }
 
         try {
-            spy.doOn(SomeOtherInterface.class, symbolicName, new Action<SomeOtherInterface>() {
-                @Override
-                public void execute(SomeOtherInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(descriptor));
-                    throw new RuntimeException("Should Not Be invoked");
-                }
+            spy.doOn(SomeOtherInterface.class, symbolicName, (Action<SomeOtherInterface>) (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor, is(descriptor));
+                throw new RuntimeException("Should Not Be invoked");
             });
             fail("Should throw plugin framework exception");
 
@@ -381,17 +331,11 @@ public class FelixGoPluginOSGiFrameworkTest {
         }
 
         try {
-            spy.doOnWithExceptionHandling(SomeOtherInterface.class, symbolicName, new Action<SomeOtherInterface>() {
-                        @Override
-                        public void execute(SomeOtherInterface obj, GoPluginDescriptor pluginDescriptor) {
-                            assertThat(pluginDescriptor, is(descriptor));
-                            throw new RuntimeException("Should Not Be invoked");
-                        }
-                    }, new ExceptionHandler<SomeOtherInterface>() {
-                        @Override
-                        public void handleException(SomeOtherInterface obj, Throwable t) {
+            spy.doOnWithExceptionHandling(SomeOtherInterface.class, symbolicName, (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor, is(descriptor));
+                throw new RuntimeException("Should Not Be invoked");
+            }, (obj, t) -> {
 
-                        }
                     }
             );
             fail("Should throw plugin framework exception");
@@ -416,12 +360,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         String symbolicName = "same_symbolic_name";
         registerServicesWithSameSymbolicName(symbolicName, firstService, secondService);
         spy.start();
-        spy.doOnAllForPlugin(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-            @Override
-            public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                obj.someMethod();
-            }
+        spy.doOnAllForPlugin(SomeInterface.class, symbolicName, (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            obj.someMethod();
         });
         verify(secondService).someMethod();
         verify(firstService).someMethod();
@@ -436,18 +377,12 @@ public class FelixGoPluginOSGiFrameworkTest {
         String symbolicName = "same_symbolic_name";
         registerServicesWithSameSymbolicName(symbolicName, firstService, secondService);
         spy.start();
-        spy.doOnAllWithExceptionHandlingForPlugin(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                    @Override
-                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                        assertThat(pluginDescriptor, is(descriptor));
-                        obj.someMethod();
-                        throw new RuntimeException("Dummy Exception");
-                    }
-                }, new ExceptionHandler<SomeInterface>() {
-                    @Override
-                    public void handleException(SomeInterface obj, Throwable t) {
+        spy.doOnAllWithExceptionHandlingForPlugin(SomeInterface.class, symbolicName, (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            obj.someMethod();
+            throw new RuntimeException("Dummy Exception");
+        }, (obj, t) -> {
 
-                    }
                 }
         );
         verify(secondService).someMethod();
@@ -457,12 +392,12 @@ public class FelixGoPluginOSGiFrameworkTest {
 
     private void registerServicesWithSameSymbolicName(String symbolicName, SomeInterface... someInterfaces) throws InvalidSyntaxException {
         ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        for (int i = 0; i < someInterfaces.length; ++i) {
+        for (SomeInterface someInterface : someInterfaces) {
             ServiceReference reference = mock(ServiceReference.class);
             Bundle bundle = mock(Bundle.class);
             when(reference.getBundle()).thenReturn(bundle);
             when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
-            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
+            when(bundleContext.getService(reference)).thenReturn(someInterface);
             references.add(reference);
         }
         String propertyFormat = String.format("(%s=%s)", Constants.BUNDLE_SYMBOLICNAME, symbolicName);
@@ -546,13 +481,13 @@ public class FelixGoPluginOSGiFrameworkTest {
 
     private void registerServices(SomeInterface... someInterfaces) throws InvalidSyntaxException {
         ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
-        for (int i = 0; i < someInterfaces.length; ++i) {
+        for (SomeInterface someInterface : someInterfaces) {
             ServiceReference reference = mock(ServiceReference.class);
             when(reference.getBundle()).thenReturn(bundle);
             when(bundle.getSymbolicName()).thenReturn(TEST_SYMBOLIC_NAME);
 
-            when(bundleContext.getService(reference)).thenReturn(someInterfaces[i]);
-            setExpectationForFilterBasedServiceReferenceCall(someInterfaces[i], reference);
+            when(bundleContext.getService(reference)).thenReturn(someInterface);
+            setExpectationForFilterBasedServiceReferenceCall(someInterface, reference);
             references.add(reference);
         }
         when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(references);

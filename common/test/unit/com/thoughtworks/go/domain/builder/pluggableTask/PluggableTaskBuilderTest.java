@@ -243,12 +243,9 @@ public class PluggableTaskBuilderTest {
                 throw new RuntimeException("err");
             }
         };
-        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(new Answer<ExecutionResult>() {
-            @Override
-            public ExecutionResult answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
-                return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
-            }
+        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(invocationOnMock -> {
+            ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
+            return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
         });
 
         try {
@@ -273,12 +270,9 @@ public class PluggableTaskBuilderTest {
                 return ExecutionResult.failure("err");
             }
         };
-        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(new Answer<ExecutionResult>() {
-            @Override
-            public ExecutionResult answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
-                return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
-            }
+        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(invocationOnMock -> {
+            ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
+            return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
         });
 
         try {

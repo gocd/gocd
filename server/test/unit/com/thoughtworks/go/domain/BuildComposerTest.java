@@ -492,15 +492,12 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldRunCancelTaskWhenBuildIsCanceled() throws Exception {
         final Exception[] err = {null};
-        Thread buildThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    build(SystemUtil.isWindows() ? SLEEP_TEN_SECONDS_ON_WINDOWS: SLEEP_TEN_SECONDS_ON_UNIX,
-                            PIPELINE_NAME, true, false);
-                } catch (Exception e) {
-                    err[0] = e;
-                }
+        Thread buildThread = new Thread(() -> {
+            try {
+                build(SystemUtil.isWindows() ? SLEEP_TEN_SECONDS_ON_WINDOWS: SLEEP_TEN_SECONDS_ON_UNIX,
+                        PIPELINE_NAME, true, false);
+            } catch (Exception e) {
+                err[0] = e;
             }
         });
 

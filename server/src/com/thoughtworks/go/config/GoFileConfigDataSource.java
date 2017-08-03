@@ -433,12 +433,7 @@ public class GoFileConfigDataSource {
         if (lastKnownPartials.size() != lastValidPartials.size()) {
             return false;
         }
-        final ArrayList<ConfigOrigin> validConfigOrigins = ListUtil.map(lastValidPartials, new ListUtil.Transformer<PartialConfig, ConfigOrigin>() {
-            @Override
-            public ConfigOrigin transform(PartialConfig partialConfig) {
-                return partialConfig.getOrigin();
-            }
-        });
+        final ArrayList<ConfigOrigin> validConfigOrigins = ListUtil.map(lastValidPartials, PartialConfig::getOrigin);
         PartialConfig invalidKnownPartial = ListUtil.find(lastKnownPartials, new ListUtil.Condition() {
             @Override
             public <T> boolean isMet(T item) {
@@ -558,12 +553,7 @@ public class GoFileConfigDataSource {
     }
 
     private GoConfigHolder internalLoad(final String content, final ConfigModifyingUser configModifyingUser, final List<PartialConfig> partials) throws Exception {
-        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, new MagicalGoConfigXmlLoader.Callback() {
-            @Override
-            public void call(CruiseConfig cruiseConfig) {
-                cruiseConfig.setPartials(partials);
-            }
-        });
+        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, cruiseConfig -> cruiseConfig.setPartials(partials));
         CruiseConfig config = configHolder.config;
         checkinConfigToGitRepo(partials, config, content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName());
         return configHolder;

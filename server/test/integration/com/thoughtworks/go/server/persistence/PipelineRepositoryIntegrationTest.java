@@ -289,16 +289,14 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     private long save(final PipelineConfig pipelineConfig, final int counter, final double naturalOrder, final MaterialRevision... materialRevisions) {
-        return (Long) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                MaterialRevisions revisions = new MaterialRevisions(materialRevisions);
-                materialRepository.save(revisions);
+        return (Long) transactionTemplate.execute(status -> {
+            MaterialRevisions revisions = new MaterialRevisions(materialRevisions);
+            materialRepository.save(revisions);
 
-                Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createWithModifications(revisions, "me"), new DefaultSchedulingContext(), "md5-test", new TimeProvider());
-                instance.setCounter(counter);
-                instance.setNaturalOrder(naturalOrder);
-                return pipelineSqlMapDao.save(instance).getId();
-            }
+            Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createWithModifications(revisions, "me"), new DefaultSchedulingContext(), "md5-test", new TimeProvider());
+            instance.setCounter(counter);
+            instance.setNaturalOrder(naturalOrder);
+            return pipelineSqlMapDao.save(instance).getId();
         });
     }
 

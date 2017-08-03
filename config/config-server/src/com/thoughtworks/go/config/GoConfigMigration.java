@@ -71,23 +71,17 @@ public class GoConfigMigration {
 
     @Autowired
     public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
-        this(new UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                e.printStackTrace();
-                System.err.println(
-                        "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
-                LOG.error(
-                        "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
-                // Send exit signal in a separate thread otherwise it will deadlock jetty
-                new Thread(new Runnable() {
-                    public void run() {
-                        System.exit(1);
-                    }
-                }).start();
+        this(e -> {
+            e.printStackTrace();
+            System.err.println(
+                    "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
+                            + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
+            LOG.error(
+                    "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
+                            + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
+            // Send exit signal in a separate thread otherwise it will deadlock jetty
+            new Thread(() -> System.exit(1)).start();
 
-            }
         }, configRepository, timeProvider, configCache, registry, systemEnvironment);
     }
 

@@ -194,12 +194,10 @@ public class PipelineTimelineTest {
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         final List<PipelineTimelineEntry>[] entries = new List[1];
         entries[0] = new ArrayList<>();
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
-            public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
-                assertThat(timeline.contains(newlyAddedEntry), is(true));
-                assertThat(timeline.containsAll(entries[0]), is(true));
-                entries[0].add(newlyAddedEntry);
-            }
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (TimelineUpdateListener) (newlyAddedEntry, timeline1) -> {
+            assertThat(timeline1.contains(newlyAddedEntry), is(true));
+            assertThat(timeline1.containsAll(entries[0]), is(true));
+            entries[0].add(newlyAddedEntry);
         });
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
 
@@ -213,10 +211,8 @@ public class PipelineTimelineTest {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         TimelineUpdateListener anotherListener = mock(TimelineUpdateListener.class);
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
-            public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
-                throw new RuntimeException();
-            }
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
+            throw new RuntimeException();
         }, anotherListener);
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
         try {
@@ -298,40 +294,34 @@ public class PipelineTimelineTest {
     private void stubPipelineRepository(final PipelineTimeline timeline, boolean restub, final PipelineTimelineEntry... entries) {
         repositoryEntries = entries;
         if (restub) {
-            doAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    for (PipelineTimelineEntry entry : repositoryEntries) {
-                        timeline.add(entry);
-                    }
-                    ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(Arrays.asList(repositoryEntries));
-                    return Arrays.asList(repositoryEntries);
+            doAnswer(invocationOnMock -> {
+                for (PipelineTimelineEntry entry : repositoryEntries) {
+                    timeline.add(entry);
                 }
+                ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(Arrays.asList(repositoryEntries));
+                return Arrays.asList(repositoryEntries);
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyListOf(PipelineTimelineEntry.class));
         }
     }
 
     private void stubTransactionSynchronization() {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
     }
 
     private void setupTransactionTemplateStub(final int status, final boolean restub) throws Exception {
         this.txnStatus = status;
         if (restub) {
-            when(transactionTemplate.execute(Mockito.any(TransactionCallback.class))).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
-                    callback.doInTransaction(null);
-                    if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
-                        transactionSynchronization.afterCommit();
-                    }
-                    transactionSynchronization.afterCompletion(txnStatus);
-                    return null;
+            when(transactionTemplate.execute(Mockito.any(TransactionCallback.class))).thenAnswer(invocationOnMock -> {
+                TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
+                callback.doInTransaction(null);
+                if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
+                    transactionSynchronization.afterCommit();
                 }
+                transactionSynchronization.afterCompletion(txnStatus);
+                return null;
             });
         }
     }

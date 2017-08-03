@@ -110,7 +110,6 @@ public class PackageRepositoryService {
                 return;
             }
             result.setMessage(LocalizedMessage.string("CONNECTION_OK", messages));
-            return;
         } catch (Exception e) {
             result.internalServerError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository", e.getMessage()));
         }

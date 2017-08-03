@@ -37,7 +37,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs, Serializable {
 
 
-    @ConfigAttribute(value = "group", optional = true) @SkipParameterResolution
+    @ConfigAttribute(value = "group") @SkipParameterResolution
     private String group;
 
 
@@ -91,8 +91,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
-        for (int i=0; i< this.size(); i++) {
-            PipelineConfig pipelineConfig = this.get(i);
+        for (PipelineConfig pipelineConfig : this) {
             if (pipelineConfig.name().equals(pipelineName)) {
                 return pipelineConfig;
             }

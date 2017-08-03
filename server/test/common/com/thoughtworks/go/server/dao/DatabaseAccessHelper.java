@@ -600,11 +600,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Integer updateNaturalOrder(final long pipelineId, final double naturalOrder) {
-        return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder);
-            }
-        });
+        return (Integer) getHibernateTemplate().execute((HibernateCallback) session -> PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder));
     }
 
     public MaterialRevision addRevisionsWithModifications(Material material, Modification... modifications) {

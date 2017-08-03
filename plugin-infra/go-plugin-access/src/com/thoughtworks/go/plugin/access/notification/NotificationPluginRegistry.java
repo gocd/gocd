@@ -38,9 +38,7 @@ public class NotificationPluginRegistry {
     }
 
     private void addToMap(String notificationName, String pluginId) {
-        if (notificationNameToPluginsInterestedMap.get(notificationName) == null) {
-            notificationNameToPluginsInterestedMap.put(notificationName, new HashSet<>());
-        }
+        notificationNameToPluginsInterestedMap.computeIfAbsent(notificationName, k -> new HashSet<>());
         notificationNameToPluginsInterestedMap.get(notificationName).add(pluginId);
     }
 

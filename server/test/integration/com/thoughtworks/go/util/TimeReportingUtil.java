@@ -31,11 +31,7 @@ public class TimeReportingUtil {
     public static void report(Key key, TestAction testAction) throws Exception {
         TimeReportingUtil t = new TimeReportingUtil(key.toString());
         t.begin();
-        try {
-            testAction.perform();
-        } catch (Exception e) {
-            throw e;
-        }
+        testAction.perform();
     }
 
     public static void print(TestAction testAction) throws Exception {

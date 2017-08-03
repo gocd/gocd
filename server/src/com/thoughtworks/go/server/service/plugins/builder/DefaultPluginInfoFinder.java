@@ -73,32 +73,12 @@ public class DefaultPluginInfoFinder {
     }
 
     public PluginInfo pluginInfoFor(String pluginId) {
-        return builders.values().stream().map(new Function<MetadataStore, PluginInfo>() {
-            @Override
-            public PluginInfo apply(MetadataStore metadataStore) {
-                return metadataStore.getPluginInfo(pluginId);
-            }
-        }).filter(new Predicate<PluginInfo>() {
-            @Override
-            public boolean test(PluginInfo obj) {
-                return Objects.nonNull(obj);
-            }
-        }).findFirst().orElse(null);
+        return builders.values().stream().map(metadataStore -> metadataStore.getPluginInfo(pluginId)).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     public Collection allPluginInfos(String type) {
         if (isBlank(type)) {
-            return builders.values().stream().map(new Function<MetadataStore, Collection>() {
-                @Override
-                public Collection apply(MetadataStore metadataStore) {
-                    return metadataStore.allPluginInfos();
-                }
-            }).flatMap(new Function<Collection, Stream<?>>() {
-                @Override
-                public Stream<?> apply(Collection pi) {
-                    return pi.stream();
-                }
-            }).collect(Collectors.toList());
+            return builders.values().stream().map(MetadataStore::allPluginInfos).flatMap(Collection::stream).collect(Collectors.toList());
         } else if (builders.containsKey(type)) {
             return builders.get(type).allPluginInfos();
         } else {

@@ -75,14 +75,14 @@ public class SesameBoundVariables implements BoundVariables, Serializable {
     }
 
     public String toString() {
-        String value = "\n{";
+        StringBuilder out = new StringBuilder("\n{");
         for (String boundName : getBoundVariableNames()) {
-            value += "\n\t" + boundName;
-            value += " => ";
-            value += getAsString(boundName);
+            out.append("\n\t").append(boundName);
+            out.append(" => ");
+            out.append(getAsString(boundName));
         }
-        value += "\n}";
+        out.append("\n}");
 
-        return value;
+        return out.toString();
     }
 }

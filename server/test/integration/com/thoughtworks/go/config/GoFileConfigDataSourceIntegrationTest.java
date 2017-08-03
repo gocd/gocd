@@ -115,19 +115,16 @@ public class GoFileConfigDataSourceIntegrationTest {
     @Test
     public void shouldConvertToUTF8BeforeSavingConfigToFileSystem() throws IOException {
         ReflectionUtil.setStaticField(Charset.class, DEFAULT_CHARSET, Charset.forName("windows-1252"));
-        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-                JobConfig job = new JobConfig("job");
-                ExecTask task = new ExecTask();
-                task.setCommand("powershell");
-                task.setArgs("Get-ChildItem -Path . â€“Recurse");
-                job.addTask(task);
-                pipelineConfig.first().getJobs().add(job);
-                cruiseConfig.addPipeline(UUID.randomUUID().toString(), pipelineConfig);
-                return cruiseConfig;
-            }
+        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(cruiseConfig -> {
+            PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+            JobConfig job = new JobConfig("job");
+            ExecTask task = new ExecTask();
+            task.setCommand("powershell");
+            task.setArgs("Get-ChildItem -Path . â€“Recurse");
+            job.addTask(task);
+            pipelineConfig.first().getJobs().add(job);
+            cruiseConfig.addPipeline(UUID.randomUUID().toString(), pipelineConfig);
+            return cruiseConfig;
         }, new GoConfigHolder(goConfigService.currentCruiseConfig(), goConfigService.getConfigForEditing()));
         assertThat(result.getConfigSaveState(), is(ConfigSaveState.UPDATED));
         FileInputStream inputStream = new FileInputStream(dataSource.fileLocation());
@@ -141,12 +138,9 @@ public class GoFileConfigDataSourceIntegrationTest {
     @Test
     public void shouldValidateMergedConfigForConfigChangesThroughFileSystem() throws Exception {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream)), is(true));
-        updateConfigOnFileSystem(new UpdateConfig() {
-            @Override
-            public void update(CruiseConfig cruiseConfig) {
-                PipelineConfig updatedUpstream = cruiseConfig.getPipelineConfigByName(upstreamPipeline.name());
-                updatedUpstream.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
-            }
+        updateConfigOnFileSystem(cruiseConfig -> {
+            PipelineConfig updatedUpstream = cruiseConfig.getPipelineConfigByName(upstreamPipeline.name());
+            updatedUpstream.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
         });
 
         thrown.expect(org.hamcrest.Matchers.any(GoConfigInvalidException.class));
@@ -164,12 +158,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
 
         final String newArtifactLocation = "some_random_change_to_config";
-        updateConfigOnFileSystem(new UpdateConfig() {
-            @Override
-            public void update(CruiseConfig cruiseConfig) {
-                cruiseConfig.server().setArtifactsDir(newArtifactLocation);
-            }
-        });
+        updateConfigOnFileSystem(cruiseConfig -> cruiseConfig.server().setArtifactsDir(newArtifactLocation));
 
         GoConfigHolder goConfigHolder = dataSource.forceLoad(new File(systemEnvironment.getCruiseConfigFile()));
         assertThat(goConfigHolder.config.server().artifactsDir(), is(newArtifactLocation));
@@ -190,12 +179,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("upstream_stage_original")));
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
-        updateConfigOnFileSystem(new UpdateConfig() {
-            @Override
-            public void update(CruiseConfig cruiseConfig) {
-                cruiseConfig.getPipelineConfigByName(upstreamPipeline.name()).first().setName(upstreamStageRenamed);
-            }
-        });
+        updateConfigOnFileSystem(cruiseConfig -> cruiseConfig.getPipelineConfigByName(upstreamPipeline.name()).first().setName(upstreamStageRenamed));
 
         GoConfigHolder goConfigHolder = dataSource.forceLoad(new File(systemEnvironment.getCruiseConfigFile()));
         assertThat(goConfigHolder.config.getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream)), is(true));

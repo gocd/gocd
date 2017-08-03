@@ -45,24 +45,21 @@ public class CcTrayViewAuthority {
         final Set<String> superAdmins = namesOf(security.adminsConfig(), rolesToUsers);
         final boolean noSuperAdminsAreDefined = superAdmins.size() == 0;
 
-        goConfigService.groups().accept(new PipelineGroupVisitor() {
-            @Override
-            public void visit(PipelineConfigs pipelineConfigs) {
-                if (noSuperAdminsAreDefined || !pipelineConfigs.hasAuthorizationDefined()) {
-                    pipelinesAndViewers.put(pipelineConfigs.getGroup(), Everyone.INSTANCE);
-                    return;
-                }
-
-                Set<String> pipelineGroupAdmins = namesOf(pipelineConfigs.getAuthorization().getAdminsConfig(), rolesToUsers);
-                Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
-
-                Set<String> viewers = new HashSet<>();
-                viewers.addAll(superAdmins);
-                viewers.addAll(pipelineGroupAdmins);
-                viewers.addAll(pipelineGroupViewers);
-
-                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedViewers(viewers));
+        goConfigService.groups().accept(pipelineConfigs -> {
+            if (noSuperAdminsAreDefined || !pipelineConfigs.hasAuthorizationDefined()) {
+                pipelinesAndViewers.put(pipelineConfigs.getGroup(), Everyone.INSTANCE);
+                return;
             }
+
+            Set<String> pipelineGroupAdmins = namesOf(pipelineConfigs.getAuthorization().getAdminsConfig(), rolesToUsers);
+            Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
+
+            Set<String> viewers = new HashSet<>();
+            viewers.addAll(superAdmins);
+            viewers.addAll(pipelineGroupAdmins);
+            viewers.addAll(pipelineGroupViewers);
+
+            pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedViewers(viewers));
         });
 
         return pipelinesAndViewers;

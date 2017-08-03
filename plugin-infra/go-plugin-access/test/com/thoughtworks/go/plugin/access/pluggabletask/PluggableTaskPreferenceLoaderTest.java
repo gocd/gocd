@@ -69,13 +69,10 @@ public class PluggableTaskPreferenceLoaderTest {
         final TaskExtension taskExtension = mock(TaskExtension.class);
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            action.execute(task, descriptor);
+            return null;
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(true);
@@ -121,13 +118,10 @@ public class PluggableTaskPreferenceLoaderTest {
         final TaskExtension taskExtension = mock(TaskExtension.class);
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(false);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            action.execute(task, descriptor);
+            return null;
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);

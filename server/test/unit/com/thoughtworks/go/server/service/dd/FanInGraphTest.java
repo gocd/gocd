@@ -52,7 +52,7 @@ public class FanInGraphTest {
         List<ScmMaterialConfig> scmMaterialNodes = faninGraph.getScmMaterials();
         List<String> scmMaterialUrls = new ArrayList<>();
         for (ScmMaterialConfig scmMaterialNode : scmMaterialNodes) {
-            scmMaterialUrls.add(scmMaterialNode.getUrl().toString());
+            scmMaterialUrls.add(scmMaterialNode.getUrl());
         }
         assertThat(scmMaterialUrls.contains("giturl"), is(true));
         assertThat(scmMaterialUrls.contains("hgurl"), is(true));

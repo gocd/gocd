@@ -88,7 +88,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigAttribute(value = "name", optional = false)
     private CaseInsensitiveString name;
 
-    @ConfigAttribute(value = "labeltemplate", optional = true)
+    @ConfigAttribute(value = "labeltemplate")
     private String labelTemplate = PipelineLabel.COUNT_TEMPLATE;
 
     @ConfigSubtag
@@ -101,7 +101,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigSubtag
     private MingleConfig mingleConfig = new MingleConfig();
 
-    @ConfigSubtag(optional = true)
+    @ConfigSubtag()
     private TimerConfig timer;
 
     @ConfigSubtag
@@ -110,11 +110,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigSubtag(optional = false)
     private MaterialConfigs materialConfigs = new MaterialConfigs();
 
-    @ConfigAttribute(value = "isLocked", optional = true, allowNull = true)
+    @ConfigAttribute(value = "isLocked", allowNull = true)
     private String lock;
 
     @SkipParameterResolution
-    @ConfigAttribute(value = "template", optional = true, allowNull = true)
+    @ConfigAttribute(value = "template", allowNull = true)
     private CaseInsensitiveString templateName;
 
     private ConfigOrigin origin;
@@ -231,11 +231,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private Predicate withNameSameAs(final String templateVariable) {
-        return new Predicate() {
-            public boolean evaluate(Object materialName) {
-                return StringUtils.equalsIgnoreCase(materialName.toString(), templateVariable);
-            }
-        };
+        return materialName -> StringUtils.equalsIgnoreCase(materialName.toString(), templateVariable);
     }
 
     public void addError(String fieldName, String msg) {
@@ -768,15 +764,19 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private void setIntegrationType(Map attributeMap) {
         String integrationType = (String) attributeMap.get(INTEGRATION_TYPE);
-        if (integrationType.equals(INTEGRATION_TYPE_NONE)) {
-            mingleConfig = new MingleConfig();
-            trackingTool = null;
-        } else if (integrationType.equals(INTEGRATION_TYPE_MINGLE)) {
-            mingleConfig = MingleConfig.create(attributeMap.get(MINGLE_CONFIG));
-            trackingTool = null;
-        } else if (integrationType.equals(INTEGRATION_TYPE_TRACKING_TOOL)) {
-            mingleConfig = new MingleConfig();
-            trackingTool = TrackingTool.createTrackingTool((Map) attributeMap.get(TRACKING_TOOL));
+        switch (integrationType) {
+            case INTEGRATION_TYPE_NONE:
+                mingleConfig = new MingleConfig();
+                trackingTool = null;
+                break;
+            case INTEGRATION_TYPE_MINGLE:
+                mingleConfig = MingleConfig.create(attributeMap.get(MINGLE_CONFIG));
+                trackingTool = null;
+                break;
+            case INTEGRATION_TYPE_TRACKING_TOOL:
+                mingleConfig = new MingleConfig();
+                trackingTool = TrackingTool.createTrackingTool((Map) attributeMap.get(TRACKING_TOOL));
+                break;
         }
     }
 
@@ -912,21 +912,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<PackageMaterialConfig> packageMaterialConfigs() {
-        return new ArrayList<>(select(materialConfigs(), new Predicate() {
-            @Override
-            public boolean evaluate(Object materialConfig) {
-                return materialConfig instanceof PackageMaterialConfig;
-            }
-        }));
+        return new ArrayList<>(select(materialConfigs(), materialConfig -> materialConfig instanceof PackageMaterialConfig));
     }
 
     public List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs() {
-        return new ArrayList<>(select(materialConfigs(), new Predicate() {
-            @Override
-            public boolean evaluate(Object materialConfig) {
-                return materialConfig instanceof PluggableSCMMaterialConfig;
-            }
-        }));
+        return new ArrayList<>(select(materialConfigs(), materialConfig -> materialConfig instanceof PluggableSCMMaterialConfig));
     }
 
     public ConfigOrigin getOrigin() {

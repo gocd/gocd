@@ -41,7 +41,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     @ConfigAttribute(value = "name", optional = false)
     private String name;
 
-    @ConfigAttribute(value = "secure", optional = true)
+    @ConfigAttribute(value = "secure")
     private boolean isSecure = false;
 
     @ConfigSubtag

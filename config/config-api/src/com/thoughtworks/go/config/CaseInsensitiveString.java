@@ -95,12 +95,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     }
 
     public static List<CaseInsensitiveString> caseInsensitiveStrings(List<String> roles) {
-        return ListUtil.map(roles, new ListUtil.Transformer<String, CaseInsensitiveString>() {
-            @Override
-            public CaseInsensitiveString transform(String obj) {
-                return new CaseInsensitiveString(obj);
-            }
-        });
+        return ListUtil.map(roles, CaseInsensitiveString::new);
     }
 
     public static List<CaseInsensitiveString> caseInsensitiveStrings(String... roles) {

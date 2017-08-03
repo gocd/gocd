@@ -88,15 +88,13 @@ public class AgentBootstrapperTest {
 
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
-        Thread stopLoopThd = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    waitForLauncherCreation.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                ReflectionUtil.setField(spyBootstrapper, "loop", false);
+        Thread stopLoopThd = new Thread(() -> {
+            try {
+                waitForLauncherCreation.acquire();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            ReflectionUtil.setField(spyBootstrapper, "loop", false);
         });
         stopLoopThd.start();
         try {
@@ -114,12 +112,7 @@ public class AgentBootstrapperTest {
         final boolean[] destroyCalled = new boolean[1];
         final AgentBootstrapper bootstrapper = new AgentBootstrapper(new AgentLauncherCreator() {
             public AgentLauncher createLauncher() {
-                return new AgentLauncher() {
-                    public int launch(AgentLaunchDescriptor descriptor) {
-                        return AgentLauncher.IRRECOVERABLE_ERROR;
-                    }
-
-                };
+                return descriptor -> AgentLauncher.IRRECOVERABLE_ERROR;
             }
 
             @Override
@@ -147,17 +140,14 @@ public class AgentBootstrapperTest {
             AgentLauncherCreator getLauncherCreator() {
                 return new AgentLauncherCreator() {
                     public AgentLauncher createLauncher() {
-                        return new AgentLauncher() {
-                            public int launch(AgentLaunchDescriptor descriptor) {
-                                try {
-                                    throw new RuntimeException("fail!!! i say.");
-                                } finally {
-                                    if (waitForLauncherInvocation.availablePermits() == 0) {
-                                        waitForLauncherInvocation.release();
-                                    }
+                        return descriptor -> {
+                            try {
+                                throw new RuntimeException("fail!!! i say.");
+                            } finally {
+                                if (waitForLauncherInvocation.availablePermits() == 0) {
+                                    waitForLauncherInvocation.release();
                                 }
                             }
-
                         };
                     }
 
@@ -170,15 +160,13 @@ public class AgentBootstrapperTest {
 
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
-        Thread stopLoopThd = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    waitForLauncherInvocation.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                ReflectionUtil.setField(spyBootstrapper, "loop", false);
+        Thread stopLoopThd = new Thread(() -> {
+            try {
+                waitForLauncherInvocation.acquire();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            ReflectionUtil.setField(spyBootstrapper, "loop", false);
         });
         stopLoopThd.start();
         try {

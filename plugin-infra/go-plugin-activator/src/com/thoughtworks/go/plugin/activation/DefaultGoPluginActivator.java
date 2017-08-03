@@ -131,11 +131,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
         for (Class anInterface : interfaces) {
             if (isGoExtensionPointInterface(anInterface)) {
-                List<Object> implementations = interfaceAndItsImplementations.get(anInterface);
-                if (implementations == null) {
-                    implementations = new ArrayList<>();
-                    interfaceAndItsImplementations.put(anInterface, implementations);
-                }
+                List<Object> implementations = interfaceAndItsImplementations.computeIfAbsent(anInterface, k -> new ArrayList<>());
                 implementations.add(implementation);
             }
         }
@@ -168,10 +164,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         } catch (InvocationTargetException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be registered. Reason: %s.",
                     candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
-        } catch (IllegalAccessException e) {
-            errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
-                    candidateGoExtensionClass.getSimpleName(), e.toString()));
-        } catch (RuntimeException e) {
+        } catch (IllegalAccessException | RuntimeException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
                     candidateGoExtensionClass.getSimpleName(), e.toString()));
         } catch (Throwable e) {
@@ -236,9 +229,8 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
         if (!hasOneArgOfPluginContextType(method)) {
             reportWarningToHealthService(
-                    String.format("Ignoring method [%s] tagged with @%s since it does not have one argument of type PluginContext. Argument Type: []",
+                    String.format("Ignoring method [%s] tagged with @%s since it does not have one argument of type PluginContext. Argument Type: %s",
                             method, annotation.getSimpleName(), Arrays.toString(method.getParameterTypes())));
-            return;
         }
     }
 

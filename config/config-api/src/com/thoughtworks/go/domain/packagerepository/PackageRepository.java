@@ -57,7 +57,7 @@ public class PackageRepository implements Serializable, Validatable {
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
 
-    @ConfigAttribute(value = "name", allowNull = false)
+    @ConfigAttribute(value = "name")
     private String name;
 
 
@@ -282,12 +282,9 @@ public class PackageRepository implements Serializable, Validatable {
         if(metadata==null){
             return null;
         }
-        return new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                PackageConfiguration packageConfiguration = metadata.get(key);
-                return packageConfiguration.getOption(PackageConfiguration.SECURE);
-            }
+        return key -> {
+            PackageConfiguration packageConfiguration = metadata.get(key);
+            return packageConfiguration.getOption(PackageConfiguration.SECURE);
         };
     }
 

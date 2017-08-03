@@ -69,11 +69,9 @@ public class DigestObjectPoolsTest {
 
     @Test
     public void shouldResetDigestForFutureUsage() {
-        DigestObjectPools.DigestOperation operation = new DigestObjectPools.DigestOperation() {
-            public String perform(MessageDigest digest) throws IOException {
-                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8("foo"));
-                return Hex.encodeHexString(digest.digest());
-            }
+        DigestObjectPools.DigestOperation operation = digest -> {
+            digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8("foo"));
+            return Hex.encodeHexString(digest.digest());
         };
         String shaFirst = pools.computeDigest(DigestObjectPools.SHA_256, operation);
         String shaSecond = pools.computeDigest(DigestObjectPools.SHA_256, operation);
@@ -109,11 +107,9 @@ public class DigestObjectPoolsTest {
             pools.computeDigest(DigestObjectPools.SHA_256, operation);
             pools.computeDigest(DigestObjectPools.SHA_256, operation);
 
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    pools.computeDigest(DigestObjectPools.SHA_256, operation);
-                    pools.computeDigest(DigestObjectPools.SHA_256, operation);
-                }
+            Thread thread = new Thread(() -> {
+                pools.computeDigest(DigestObjectPools.SHA_256, operation);
+                pools.computeDigest(DigestObjectPools.SHA_256, operation);
             });
             thread.start();
             thread.join();

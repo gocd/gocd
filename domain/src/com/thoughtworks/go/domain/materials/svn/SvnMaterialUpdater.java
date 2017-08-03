@@ -49,7 +49,7 @@ public class SvnMaterialUpdater {
               freshCheckout(workingDir, revision).setTest(isNotRepository(workingDir)),
               freshCheckout(workingDir, revision).setTest(test("-nd", workingDir)),
               freshCheckout(workingDir, revision).setTest(repoUrlChanged(workingDir)),
-              echoWithPrefix(format("Done.\n"))
+              echoWithPrefix("Done.\n")
       );
    }
 

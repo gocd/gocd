@@ -251,12 +251,7 @@ public abstract class CruiseConfigTestBase {
         setupJobWithTasks(config, task1, task2);
 
         final List<Task> tasksVisited = new ArrayList<>();
-        config.accept(new TaskConfigVisitor() {
-
-            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
-                tasksVisited.add(task);
-            }
-        });
+        config.accept((pipelineConfig, stageConfig, jobConfig, task) -> tasksVisited.add(task));
 
         assertThat(tasksVisited.size(), is(2));
         assertThat(tasksVisited.get(0), is(task1));
@@ -269,12 +264,7 @@ public abstract class CruiseConfigTestBase {
         setupJobWithTasks(config, new NullTask());
 
         final List<Task> tasksVisited = new ArrayList<>();
-        config.accept(new TaskConfigVisitor() {
-
-            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
-                tasksVisited.add(task);
-            }
-        });
+        config.accept((pipelineConfig, stageConfig, jobConfig, task) -> tasksVisited.add(task));
 
         assertThat(tasksVisited.size(), is(0));
     }

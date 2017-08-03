@@ -62,8 +62,8 @@ public class BuildTestSuite implements Serializable {
     private List findTestCases(BuildTestCaseResult filter) {
         if (checkTestCases()) {
             List cases = new ArrayList();
-            for (int i = 0; i < testCases.size(); i++) {
-                BuildTestCase testCase = (BuildTestCase) testCases.get(i);
+            for (Object testCase1 : testCases) {
+                BuildTestCase testCase = (BuildTestCase) testCase1;
                 BuildTestCaseResult result = testCase.getResult();
                 if (result.equals(filter)) {
                     cases.add(testCase);
@@ -99,8 +99,8 @@ public class BuildTestSuite implements Serializable {
 
     public boolean isFailed() {
         if (checkTestCases()) {
-            for (Iterator iterator = testCases.iterator(); iterator.hasNext();) {
-                BuildTestCase testCase = (BuildTestCase) iterator.next();
+            for (Object testCase1 : testCases) {
+                BuildTestCase testCase = (BuildTestCase) testCase1;
                 if (testCase.getResult().equals(BuildTestCaseResult.ERROR) || testCase.getResult()
                         .equals(BuildTestCaseResult.FAILED)) {
                     return true;

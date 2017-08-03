@@ -464,12 +464,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
         when(osgiFramework.hasReferenceFor(PluginDescriptorAware.class,descriptor.id())).thenReturn(true);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return null;
-            }
-        }).when(osgiFramework).doOnAllWithExceptionHandlingForPlugin(
+        doAnswer(invocationOnMock -> null).when(osgiFramework).doOnAllWithExceptionHandlingForPlugin(
                 eq(PluginDescriptorAware.class), eq(descriptor.id()), Matchers.<Action<PluginDescriptorAware>>anyObject(),
                 Matchers.<ExceptionHandler<PluginDescriptorAware>>anyObject());
 
@@ -495,12 +490,9 @@ public class DefaultPluginJarChangeListenerTest {
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
         when(osgiFramework.hasReferenceFor(PluginDescriptorAware.class,descriptor.id())).thenReturn(true);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                descriptor.markAsInvalid(Arrays.asList("Marking invalid for test"),new Exception("dummy test exception"));
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            descriptor.markAsInvalid(Arrays.asList("Marking invalid for test"),new Exception("dummy test exception"));
+            return null;
         }).when(osgiFramework).loadPlugin(descriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);

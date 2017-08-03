@@ -159,7 +159,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         StringBuilder builder = new StringBuilder();
         builder.append("MaterialRevision[\n");
         for (MaterialRevision revision : revisions) {
-            builder.append("\t" + revision);
+            builder.append("\t").append(revision);
             builder.append("\n");
         }
         builder.append("]");

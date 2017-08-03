@@ -158,12 +158,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         Predicate<Material> predicate = new MaterialPredicate(branchName, possibleUrls);
         Set<Material> allGitMaterials = allUniquePostCommitSchedulableMaterials.stream().filter(predicate).collect(Collectors.toSet());
 
-        allGitMaterials.forEach(new Consumer<Material>() {
-            @Override
-            public void accept(Material material) {
-                MaterialUpdateService.this.updateMaterial(material);
-            }
-        });
+        allGitMaterials.forEach(MaterialUpdateService.this::updateMaterial);
 
         return !allGitMaterials.isEmpty();
     }

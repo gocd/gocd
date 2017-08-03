@@ -44,13 +44,13 @@ public class ServerHealthMatcher {
                         entry = serverHealthState;
                     }
                 }
-                if (!(entry != null)) {
+                if (entry == null) {
                     return false;
-                } else {
-                    levelMatches = healthStateLevel == null || healthStateLevel.equals(entry.getLogLevel());
-                    messageMatches = message == null || message.equals(entry.getMessage());
-                    return levelMatches && messageMatches;
                 }
+
+                levelMatches = healthStateLevel == null || healthStateLevel.equals(entry.getLogLevel());
+                messageMatches = message == null || message.equals(entry.getMessage());
+                return levelMatches && messageMatches;
             }
 
             public void describeTo(Description description) {

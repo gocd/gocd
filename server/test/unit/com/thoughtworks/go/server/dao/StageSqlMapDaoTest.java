@@ -76,12 +76,7 @@ public class StageSqlMapDaoTest {
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
         cloner = mock(Cloner.class);
         ReflectionUtil.setField(stageSqlMapDao, "cloner", cloner);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArguments()[0];
-            }
-        }).when(cloner).deepClone(anyObject());
+        doAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]).when(cloner).deepClone(anyObject());
     }
 
     @Test

@@ -39,11 +39,7 @@ public class ConfigRepositoryValidatorService implements InitializingBean {
     }
 
     void shutDownServer() {
-        new Thread(new Runnable() {
-            public void run() {
-                System.exit(1);
-            }
-        }).start();
+        new Thread(() -> System.exit(1)).start();
     }
 
     public void destroy() throws Exception {

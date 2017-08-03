@@ -135,7 +135,7 @@ public class DependencyMaterial extends AbstractMaterial {
     }
 
     public void emailContent(StringBuilder content, Modification modification) {
-        content.append("Dependency: " + pipelineName + "/" + stageName).append('\n').append(
+        content.append("Dependency: ").append(pipelineName).append("/").append(stageName).append('\n').append(
                 format("revision: %s, completed on %s", modification.getRevision(),
                         modification.getModifiedTime()));
     }

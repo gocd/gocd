@@ -116,7 +116,7 @@ public class ActiveMqTest implements GoMessageListener {
         private boolean finish;
 
         public void onMessage(GoTextMessage message) {
-            while (finish == false) {
+            while (!finish) {
                 try {
                     Thread.sleep(20000L);
                 } catch (InterruptedException e) {

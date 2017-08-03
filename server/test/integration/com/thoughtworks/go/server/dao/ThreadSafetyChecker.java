@@ -40,12 +40,7 @@ public class ThreadSafetyChecker {
     }
 
     public void run(final int numberOfTimesToRunTheStuffInsideTheOperations) throws Exception {
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable throwable) {
-                exceptions.put(thread, throwable);
-            }
-        });
+        Thread.setDefaultUncaughtExceptionHandler(exceptions::put);
 
         List<Thread> threads = createThreads(numberOfTimesToRunTheStuffInsideTheOperations);
         startThreads(threads);
@@ -66,12 +61,9 @@ public class ThreadSafetyChecker {
         for (int i = 0; i < operations.size(); i++) {
             final Operation operation = operations.get(i);
 
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int runIndex = 0; runIndex < numberOfTimesToRunTheStuffInsideTheOperations; runIndex++) {
-                        operation.execute(runIndex);
-                    }
+            Thread thread = new Thread(() -> {
+                for (int runIndex = 0; runIndex < numberOfTimesToRunTheStuffInsideTheOperations; runIndex++) {
+                    operation.execute(runIndex);
                 }
             }, "ThreadSafetyChecker-" + i);
 

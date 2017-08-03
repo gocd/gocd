@@ -155,18 +155,16 @@ public class HttpTestUtil {
         if (blocker != null)
             throw new IllegalStateException("Aborting server start, it seems server is already running.");
 
-        blocker = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    server.start();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    Thread.sleep(Integer.MAX_VALUE);
-                } catch (InterruptedException e) {
-                    //ignore
-                }
+        blocker = new Thread(() -> {
+            try {
+                server.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                Thread.sleep(Integer.MAX_VALUE);
+            } catch (InterruptedException e) {
+                //ignore
             }
         });
         blocker.start();

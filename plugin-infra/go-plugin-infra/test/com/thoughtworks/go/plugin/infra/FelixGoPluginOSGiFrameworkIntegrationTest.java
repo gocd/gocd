@@ -164,12 +164,9 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(null, null, null, null, errorGeneratingDescriptorBundleDir, true));
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
-        ActionWithReturn<PluginDescriptorAware, Object> action = new ActionWithReturn<PluginDescriptorAware, Object>() {
-            @Override
-            public Object execute(PluginDescriptorAware descriptorAware, GoPluginDescriptor goPluginDescriptor) {
-                descriptorAware.setPluginDescriptor(null);
-                return null;
-            }
+        ActionWithReturn<PluginDescriptorAware, Object> action = (descriptorAware, goPluginDescriptor) -> {
+            descriptorAware.setPluginDescriptor(null);
+            return null;
         };
 
         try {
@@ -187,13 +184,10 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
-        ActionWithReturn<PluginDescriptorAware, Object> action = new ActionWithReturn<PluginDescriptorAware, Object>() {
-            @Override
-            public Object execute(PluginDescriptorAware descriptorAware, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                descriptorAware.setPluginDescriptor(pluginDescriptor);
-                return null;
-            }
+        ActionWithReturn<PluginDescriptorAware, Object> action = (descriptorAware, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            descriptorAware.setPluginDescriptor(pluginDescriptor);
+            return null;
         };
         pluginOSGiFramework.doOn(PluginDescriptorAware.class, "testplugin.descriptorValidator", action);
     }

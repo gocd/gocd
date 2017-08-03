@@ -124,11 +124,6 @@ public class GoSslSocketConnectorTest {
     }
 
     private ConnectionFactory getConnectionFactoryOfType(Collection<ConnectionFactory> connectionFactories, final Class<?> aClass) {
-        return ListUtil.find(connectionFactories, new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                return aClass.isInstance(item);
-            }
-        });
+        return ListUtil.find(connectionFactories, (ListUtil.Condition) aClass::isInstance);
     }
 }

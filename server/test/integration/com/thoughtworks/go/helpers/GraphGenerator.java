@@ -86,8 +86,8 @@ public class GraphGenerator {
             List<String> previousRevisions = new ArrayList<>();
             previousRevisions.add("svn_1");
             int instanceCount = previousNodes.size() == 1 ? 1 : k;
-            for (int x = 0; x < previousNodes.size(); x++) {
-                previousRevisions.add(String.format("%s/%d/stage/1", previousNodes.get(x).name().toString(), instanceCount));
+            for (PipelineConfig previousNode : previousNodes) {
+                previousRevisions.add(String.format("%s/%d/stage/1", previousNode.name().toString(), instanceCount));
             }
             scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), new CaseInsensitiveString("stage"))),
                     previousRevisions.toArray(new String[previousRevisions.size()]));

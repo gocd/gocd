@@ -41,22 +41,12 @@ public class ServerStatusService {
         this.securityService = securityService;
 
         providers.addAll(Arrays.asList(providerArray));
-        Collections.sort(providers, new Comparator<ServerInfoProvider>() {
-            @Override
-            public int compare(ServerInfoProvider oneProvider, ServerInfoProvider anotherProvider) {
-                return Double.compare(oneProvider.priority(), anotherProvider.priority());
-            }
-        });
+        providers.sort((oneProvider, anotherProvider) -> Double.compare(oneProvider.priority(), anotherProvider.priority()));
         Runtime.getRuntime().addShutdownHook(logServerInfo());
     }
 
     private Thread logServerInfo() {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LOGGER.info(new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(serverInfoAsJson()));
-            }
-        });
+        return new Thread(() -> LOGGER.info(new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(serverInfoAsJson())));
     }
 
     public Map<String, Object> asJson(Username username, LocalizedOperationResult result) {

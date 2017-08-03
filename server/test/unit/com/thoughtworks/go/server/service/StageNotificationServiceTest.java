@@ -78,7 +78,7 @@ public class StageNotificationServiceTest {
 
     @Test
     public void shouldSendEmailWithFailureDetails() throws Exception {
-        final String expectedBaseUrl = String.format("http://test.host:8153");
+        final String expectedBaseUrl = "http://test.host:8153";
         String jezMail = prepareOneMatchedUser();
         final Date date = new Date();
         stubPipelineAndStage(date);
@@ -91,11 +91,9 @@ public class StageNotificationServiceTest {
         suite2.addTest("shouldCompile", TestStatus.Error, new JobIdentifier(stageIdentifier, "test"));
         suite2.addTest("shouldTest", TestStatus.Failure, new JobIdentifier(stageIdentifier, "test"));
 
-        when(serverConfigService.siteUrlFor(anyString(), eq(false))).thenAnswer(new Answer<String>() {
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                return morphURl((String)args[0], expectedBaseUrl);
-            }
+        when(serverConfigService.siteUrlFor(anyString(), eq(false))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return morphURl((String)args[0], expectedBaseUrl);
         });
         when(systemEnvironment.isShineEnabled()).thenReturn(true);
         when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(Arrays.asList(suite1, suite2));

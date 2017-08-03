@@ -72,7 +72,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/GET/historical-xml", method = RequestMethod.GET)
-    public void getConfigRevision(@RequestParam(value = "version", required = true) String version, HttpServletResponse response) throws Exception {
+    public void getConfigRevision(@RequestParam(value = "version") String version, HttpServletResponse response) throws Exception {
         GoConfigRevision configRevision = goConfigService.getConfigAtVersion(version);
         String md5 = configRevision.getMd5();
         XmlAction.xmlFound(configRevision.getContent(), md5).respond(response);

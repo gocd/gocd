@@ -134,7 +134,7 @@ public class Tab implements Validatable {
 
     public void validateTabNameSize() {
         if (this.name.length() > NAME_MAX_LENGTH) {
-            addError(NAME, String.format("Tab name should not exceed 15 characters"));
+            addError(NAME, "Tab name should not exceed 15 characters");
         }
     }
 }

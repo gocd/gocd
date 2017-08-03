@@ -168,19 +168,15 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldPostAllMessagesAfterTheDatabaseIsUpdatedWhenCancellingAStage() {
-        jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
-            public void onMessage(JobResultMessage message) {
-                JobIdentifier jobIdentifier = message.getJobIdentifier();
-                JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
-                receivedState = instance.getState();
-                receivedResult = instance.getResult();
-            }
+        jobResultTopic.addListener(message -> {
+            JobIdentifier jobIdentifier = message.getJobIdentifier();
+            JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
+            receivedState = instance.getState();
+            receivedResult = instance.getResult();
         });
-        stageService.addStageStatusListener(new StageStatusListener() {
-            public void stageStatusChanged(Stage stage) {
-                Stage retrievedStage = stageDao.stageById(stage.getId());
-                receivedStageResult = retrievedStage.getResult();
-            }
+        stageService.addStageStatusListener(stage -> {
+            Stage retrievedStage = stageDao.stageById(stage.getId());
+            receivedStageResult = retrievedStage.getResult();
         });
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -188,11 +184,7 @@ public class StageServiceIntegrationTest {
             }
         });
 
-        Assertions.waitUntil(Timeout.TEN_SECONDS, new Assertions.Predicate() {
-            public boolean call() throws Exception {
-                return receivedResult != null && receivedState != null && receivedStageResult!=null;
-            }
-        });
+        Assertions.waitUntil(Timeout.TEN_SECONDS, () -> receivedResult != null && receivedState != null && receivedStageResult!=null);
         assertThat(receivedState, is(JobState.Completed));
         assertThat(receivedResult, is(JobResult.Cancelled));
         assertThat(receivedStageResult, is(StageResult.Cancelled));
@@ -395,13 +387,11 @@ public class StageServiceIntegrationTest {
     }
 
     @Test public void shouldNotCancelAlreadyCompletedBuild() throws SQLException {
-        jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
-            public void onMessage(JobResultMessage message) {
-                JobIdentifier jobIdentifier = message.getJobIdentifier();
-                JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
-                receivedState = instance.getState();
-                receivedResult = instance.getResult();
-            }
+        jobResultTopic.addListener(message -> {
+            JobIdentifier jobIdentifier = message.getJobIdentifier();
+            JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
+            receivedState = instance.getState();
+            receivedResult = instance.getResult();
         });
         JobInstanceMother.completed(job, Passed, new Date());
         jobInstanceDao.updateStateAndResult(job);

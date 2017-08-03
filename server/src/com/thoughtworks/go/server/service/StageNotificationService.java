@@ -96,12 +96,9 @@ public class StageNotificationService {
         }
         for (User user : users) {
             if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
-                StringBuilder emailWithSignature = new StringBuilder(emailBody)
-                        .append("\n\n")
-                        .append("Sent by Go on behalf of ")
-                        .append(user.getName());
+                String emailWithSignature = String.format("%s\n\nSent by Go on behalf of %s", emailBody, user.getName());
                 SendEmailMessage sendEmailMessage
-                        = new SendEmailMessage(subject, emailWithSignature.toString(), user.getEmail());
+                        = new SendEmailMessage(subject, emailWithSignature, user.getEmail());
                 emailNotificationTopic.post(sendEmailMessage);
             }
         }
@@ -149,11 +146,11 @@ public class StageNotificationService {
             emailBody.append(String.format("The following tests failed in pipeline '%s' (instance '%s'):", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineLabel()));
             for (TestSuite failedTestSuite : failedTestSuites) {
                 sectionSeperator();
-                emailBody.append(SUITE_NAME_PREFIX + failedTestSuite.fullName() + "\n");
+                emailBody.append(SUITE_NAME_PREFIX).append(failedTestSuite.fullName()).append("\n");
                 for (TestInformation testInformation : failedTestSuite.tests()) {
-                    emailBody.append("   " + testInformation.getName() + "\n");
+                    emailBody.append("   ").append(testInformation.getName()).append("\n");
                     for (String jobName : testInformation.getJobNames()) {
-                        emailBody.append("     " + testStatusString(testInformation) + " on '" + jobName + "' (" + jobDetailLink(jobName) + ")\n");
+                        emailBody.append("     ").append(testStatusString(testInformation)).append(" on '").append(jobName).append("' (").append(jobDetailLink(jobName)).append(")\n");
                     }
                 }
             }

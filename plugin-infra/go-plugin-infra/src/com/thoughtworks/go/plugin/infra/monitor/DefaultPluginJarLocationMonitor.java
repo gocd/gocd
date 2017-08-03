@@ -65,13 +65,10 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     @Override
     public void removePluginJarChangeListener(final PluginJarChangeListener listener) {
-        Object referenceOfListenerToBeRemoved = CollectionUtils.find(pluginJarChangeListener, new Predicate() {
-            @Override
-            public boolean evaluate(Object object) {
-                WeakReference<PluginJarChangeListener> listenerWeakReference = (WeakReference<PluginJarChangeListener>) object;
-                PluginJarChangeListener registeredListener = listenerWeakReference.get();
-                return registeredListener != null && registeredListener == listener;
-            }
+        Object referenceOfListenerToBeRemoved = CollectionUtils.find(pluginJarChangeListener, object -> {
+            WeakReference<PluginJarChangeListener> listenerWeakReference = (WeakReference<PluginJarChangeListener>) object;
+            PluginJarChangeListener registeredListener = listenerWeakReference.get();
+            return registeredListener != null && registeredListener == listener;
         });
         pluginJarChangeListener.remove(referenceOfListenerToBeRemoved);
         removeClearedWeakReferences();
@@ -146,13 +143,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     private void removeClearedWeakReferences() {
-        Iterator<WeakReference<PluginJarChangeListener>> iterator = pluginJarChangeListener.iterator();
-        while (iterator.hasNext()) {
-            WeakReference<PluginJarChangeListener> next = iterator.next();
-            if (next.get() == null) {
-                iterator.remove();
-            }
-        }
+        pluginJarChangeListener.removeIf(next -> next.get() == null);
     }
 
     private static class PluginLocationMonitorThread extends Thread {
@@ -246,17 +237,14 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             final ArrayList<PluginFileDetails> currentPlugins = new ArrayList<>(currentPluginFiles);
             final ArrayList<PluginFileDetails> knownPlugins = new ArrayList<>(knownPluginFileDetails);
 
-            CollectionUtils.filter(knownPlugins, new Predicate() {
-                @Override
-                public boolean evaluate(Object object) {
-                    PluginFileDetails knownPlugin = (PluginFileDetails) object;
-                    int i = currentPlugins.indexOf(knownPlugin);
-                    if (i == -1) {
-                        return false;
-                    }
-                    PluginFileDetails plugin = currentPlugins.get(i);
-                    return plugin.doesTimeStampDiffer(knownPlugin);
+            CollectionUtils.filter(knownPlugins, object -> {
+                PluginFileDetails knownPlugin = (PluginFileDetails) object;
+                int i = currentPlugins.indexOf(knownPlugin);
+                if (i == -1) {
+                    return false;
                 }
+                PluginFileDetails plugin = currentPlugins.get(i);
+                return plugin.doesTimeStampDiffer(knownPlugin);
             });
             return knownPlugins;
         }
@@ -270,29 +258,17 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
             @Override
             public void pluginJarAdded(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(new Closure() {
-                    public void execute(Object o) {
-                        ((PluginJarChangeListener) o).pluginJarAdded(pluginFileDetails);
-                    }
-                });
+                doOnAllPluginJarChangeListener(o -> ((PluginJarChangeListener) o).pluginJarAdded(pluginFileDetails));
             }
 
             @Override
             public void pluginJarUpdated(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(new Closure() {
-                    public void execute(Object o) {
-                        ((PluginJarChangeListener) o).pluginJarUpdated(pluginFileDetails);
-                    }
-                });
+                doOnAllPluginJarChangeListener(o -> ((PluginJarChangeListener) o).pluginJarUpdated(pluginFileDetails));
             }
 
             @Override
             public void pluginJarRemoved(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(new Closure() {
-                    public void execute(Object o) {
-                        ((PluginJarChangeListener) o).pluginJarRemoved(pluginFileDetails);
-                    }
-                });
+                doOnAllPluginJarChangeListener(o -> ((PluginJarChangeListener) o).pluginJarRemoved(pluginFileDetails));
             }
 
             private void doOnAllPluginJarChangeListener(Closure closure) {

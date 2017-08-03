@@ -47,11 +47,6 @@ public class AuthenticationPluginInfoBuilder implements NewPluginInfoBuilder<Aut
 
     @Override
     public Collection<AuthenticationPluginInfo> allPluginInfos() {
-        return registry.getAuthenticationPlugins().stream().map(new Function<String, AuthenticationPluginInfo>() {
-            @Override
-            public AuthenticationPluginInfo apply(String pluginId) {
-                return AuthenticationPluginInfoBuilder.this.pluginInfoFor(pluginId);
-            }
-        }).collect(Collectors.toList());
+        return registry.getAuthenticationPlugins().stream().map(AuthenticationPluginInfoBuilder.this::pluginInfoFor).collect(Collectors.toList());
     }
 }

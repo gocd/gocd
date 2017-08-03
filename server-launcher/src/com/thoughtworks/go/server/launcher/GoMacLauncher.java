@@ -112,15 +112,13 @@ public class GoMacLauncher extends JFrame {
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 
 
-            Thread progressThread = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        displayLaunchingProgress(server);
-                    } catch (InterruptedException e) {
-                        // Don't care
-                    } catch (IOException e) {
-                        LOG.severe("Exception while executing command: " + arguments + " - " + e.toString());
-                    }
+            Thread progressThread = new Thread(() -> {
+                try {
+                    displayLaunchingProgress(server);
+                } catch (InterruptedException e) {
+                    // Don't care
+                } catch (IOException e) {
+                    LOG.severe("Exception while executing command: " + arguments + " - " + e.toString());
                 }
             });
 

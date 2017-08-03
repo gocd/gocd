@@ -46,7 +46,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @ConfigAttribute(value = "username")
     private String userName;
 
-    @ConfigAttribute(value = "domain", optional = true)
+    @ConfigAttribute(value = "domain")
     private String domain = "";
 
     @SkipParameterResolution

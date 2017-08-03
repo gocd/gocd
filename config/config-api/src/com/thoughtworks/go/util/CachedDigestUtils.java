@@ -54,27 +54,22 @@ public class CachedDigestUtils {
     }
 
     public static String md5Hex(final InputStream data) throws IOException {
-        return objectPools.computeDigest(DigestObjectPools.MD_5, new DigestObjectPools.DigestOperation() {
-            public String perform(MessageDigest digest) throws IOException {
-                byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
-                int read = data.read(buffer, 0, STREAM_BUFFER_LENGTH);
+        return objectPools.computeDigest(DigestObjectPools.MD_5, digest -> {
+            byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
+            int read = data.read(buffer, 0, STREAM_BUFFER_LENGTH);
 
-                while (read > -1) {
-                    digest.update(buffer, 0, read);
-                    read = data.read(buffer, 0, STREAM_BUFFER_LENGTH);
-                }
-                return Hex.encodeHexString(digest.digest());
+            while (read > -1) {
+                digest.update(buffer, 0, read);
+                read = data.read(buffer, 0, STREAM_BUFFER_LENGTH);
             }
+            return Hex.encodeHexString(digest.digest());
         });
     }
 
     private static String compute(final String string, String algorithm) {
-        return objectPools.computeDigest(algorithm, new DigestObjectPools.DigestOperation() {
-
-            public String perform(MessageDigest digest) {
-                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(string));
-                return Hex.encodeHexString(digest.digest());
-            }
+        return objectPools.computeDigest(algorithm, digest -> {
+            digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(string));
+            return Hex.encodeHexString(digest.digest());
         });
     }
 }

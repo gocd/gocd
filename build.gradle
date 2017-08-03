@@ -137,7 +137,7 @@ allprojects {
   rootProject.ext.gitRevision = GIT_REVISION
   rootProject.ext.copyrightYear = COPYRIGHT_YEAR
 
-  rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
+  rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "https://github.com/gocd/go-command-repo"
 
   group = 'com.thoughtworks.go'
   version = project.fullVersion

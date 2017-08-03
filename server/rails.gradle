@@ -16,7 +16,6 @@
 
 
 import com.thoughtworks.go.build.ExecuteUnderRailsTask
-import com.thoughtworks.go.build.NpmInstallTask
 import com.thoughtworks.go.build.PrepareRailsCommandHelper
 
 task pathingJar(type: Jar) {
@@ -54,8 +53,16 @@ private boolean isWindows() {
   org.gradle.internal.os.OperatingSystem.current().isWindows()
 }
 
-task npmInstall(type: NpmInstallTask) {
+task npmInstall(type: Exec) {
+  standardOutput = System.out
+  errorOutput = System.err
+
+  commandLine = [isWindows() ? "yarn.cmd" : "yarn", "install"]
   workingDir = project.railsRoot
+
+  doFirst {
+    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
+  }
 }
 
 prepare.dependsOn

@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.FilterChainOrder;
@@ -35,6 +36,7 @@ public class ReAuthenticationFilter extends SpringSecurityFilter {
     private final TimeProvider timeProvider;
     protected static final String LAST_REAUTHENICATION_CHECK_TIME = "last_reauthentication_check_time";
 
+    @Autowired
     public ReAuthenticationFilter(SystemEnvironment systemEnvironment, TimeProvider timeProvider) {
         this.systemEnvironment = systemEnvironment;
         this.timeProvider = timeProvider;

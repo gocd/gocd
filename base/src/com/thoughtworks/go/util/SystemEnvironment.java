@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String PARENT_LOADER_PRIORITY = "parent.loader.priority";
     public static final String AGENT_CONTENT_MD5_HEADER = "Agent-Content-MD5";
+    public static final String GO_ARTIFACT_PAYLOAD_SIZE_HEADER = "X-GO-ARTIFACT-SIZE";
 
     public static final String AGENT_LAUNCHER_CONTENT_MD5_HEADER = "Agent-Launcher-Content-MD5";
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -33,24 +32,17 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Properties;
 
-@Component
 public class HttpService {
     private HttpClientFactory httpClientFactory;
     private static final Log LOGGER = LogFactory.getLog(HttpService.class);
-    public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
-    public HttpService() {
-        this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())));
-    }
-
-    @Autowired(required = false)
+    @Autowired
     public HttpService(GoAgentServerHttpClient httpClient) {
         this(new HttpClientFactory(httpClient));
     }
@@ -137,8 +129,8 @@ public class HttpService {
         return response;
     }
 
-    public static void setSizeHeader(HttpRequestBase method, long size) {
-        method.setHeader(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+    public void setSizeHeader(HttpRequestBase method, long size) {
+        method.setHeader(SystemEnvironment.GO_ARTIFACT_PAYLOAD_SIZE_HEADER, String.valueOf(size));
     }
 
     /**

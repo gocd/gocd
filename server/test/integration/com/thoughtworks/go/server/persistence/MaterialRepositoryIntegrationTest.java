@@ -117,14 +117,12 @@ public class MaterialRepositoryIntegrationTest {
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
-    private ScheduleTestUtil u;
 
     @Before
     public void setUp() throws Exception {
         originalTemplate = repo.getHibernateTemplate();
         dbHelper.onSetUp();
         goCache.clear();
-        u = new ScheduleTestUtil(transactionTemplate, repo, dbHelper, new GoConfigFileHelper());
     }
 
     @After

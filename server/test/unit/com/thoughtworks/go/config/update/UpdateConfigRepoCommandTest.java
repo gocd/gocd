@@ -17,16 +17,15 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
@@ -48,12 +47,6 @@ public class UpdateConfigRepoCommandTest {
     private HttpLocalizedOperationResult result;
     private Localizable.CurryableLocalizable actionFailed;
     private String md5;
-
-    @Mock
-    private ConfigRepoService configRepoService;
-
-    @Mock
-    private GoConfigService goConfigService;
 
     @Mock
     private SecurityService securityService;

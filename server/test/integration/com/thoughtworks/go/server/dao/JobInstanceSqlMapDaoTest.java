@@ -100,8 +100,6 @@ public class JobInstanceSqlMapDaoTest {
     private GoConfigDao goConfigDao;
     @Autowired
     private InstanceFactory instanceFactory;
-    @Autowired
-    private JobAgentMetadataDao jobAgentMetadataDao;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 

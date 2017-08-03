@@ -70,7 +70,6 @@ import java.util.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -98,7 +97,6 @@ public class GoConfigServiceTest {
     private GoCache goCache;
     private ConfigRepository configRepo;
     private UserDao userDao;
-    public PipelinePauseService pipelinePauseService;
     private InstanceFactory instanceFactory;
     private SystemEnvironment systemEnvironment;
 
@@ -109,7 +107,6 @@ public class GoConfigServiceTest {
         configRepo = mock(ConfigRepository.class);
         goConfigDao = mock(GoConfigDao.class);
         pipelineRepository = mock(PipelineRepository.class);
-        pipelinePauseService = mock(PipelinePauseService.class);
         systemEnvironment = mock(SystemEnvironment.class);
 
         cruiseConfig = unchangedConfig();

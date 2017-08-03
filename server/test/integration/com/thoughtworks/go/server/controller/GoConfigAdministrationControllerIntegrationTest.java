@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCache;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.GoFileConfigDataSource;
+import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +42,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.ByteArrayOutputStream;
 
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -53,62 +57,11 @@ import static org.junit.Assert.assertThat;
 public class GoConfigAdministrationControllerIntegrationTest {
     @Autowired private GoConfigAdministrationController controller;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
     @Autowired private GoFileConfigDataSource dataSource;
     @Autowired private ConfigElementImplementationRegistry registry;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
-    private static final String NEW_STAGE =
-            "<stage name=\"dev\">\n"
-                    + "  <jobs>\n"
-                    + "    <job name=\"build1\" />\n"
-                    + "    <job name=\"build2\" />\n"
-                    + "  </jobs>\n"
-                    + "</stage>";
-
-    private static final String NEW_PIPELINE =
-            "<pipeline name=\"cruise\">\n"
-                    + "  <materials>\n"
-                    + "    <svn url=\"file:///tmp/foo\" checkexternals=\"true\" />\n"
-                    + "  </materials>\n"
-                    + "  <stage name=\"dev\">\n"
-                    + "    <jobs>\n"
-                    + "      <job name=\"linux\" />\n"
-                    + "      <job name=\"windows\" />\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>";
-
-    private static final String NEW_GROUP =
-            "<pipelines group=\"group\">\n"
-                    + "  <pipeline name=\"pipeline\">\n"
-                    + "    <materials>\n"
-                    + "      <svn url=\"file:///tmp/foo\" />\n"
-                    + "    </materials>\n"
-                    + "    <stage name=\"dev\">\n"
-                    + "      <jobs>\n"
-                    + "        <job name=\"linux\" />\n"
-                    + "        <job name=\"windows\" />\n"
-                    + "      </jobs>\n"
-                    + "    </stage>\n"
-                    + "  </pipeline>\n"
-                    + "</pipelines>";
-
-    private static final String NEW_BUILD =
-            "        <job name=\"new_job\" />\n";
-
-    private static final String NEW_PIPELINE_TEMPLATE =
-            "<pipeline name=\"cruise\">\n"
-                    + "  <stage name=\"dev\">\n"
-                    + "    <jobs>\n"
-                    + "      <job name=\"linux\" />\n"
-                    + "      <job name=\"windows\" />\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>";
-
-    private String groupName;
     private SecurityContext originalSecurityContext;
 
     @Before public void setup() throws Exception {

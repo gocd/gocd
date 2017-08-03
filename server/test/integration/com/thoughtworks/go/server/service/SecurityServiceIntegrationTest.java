@@ -56,7 +56,6 @@ public class SecurityServiceIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private SecurityService securityService;
-    @Autowired private GoConfigService configService;
     @Autowired private DatabaseAccessHelper dbHelper;
     private GoConfigFileHelper configHelper;
 

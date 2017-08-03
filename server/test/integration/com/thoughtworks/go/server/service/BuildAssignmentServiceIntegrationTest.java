@@ -113,7 +113,6 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private AgentRemoteHandler agentRemoteHandler;
     @Autowired private PipelineConfigService pipelineConfigService;
-    @Autowired private EntityHashingService entityHashingService;
     @Autowired private ElasticAgentPluginService elasticAgentPluginService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 

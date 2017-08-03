@@ -58,7 +58,6 @@ public class PipelineRepositoryTest {
     private GoCache goCache;
     private HibernateTemplate hibernateTemplate;
     private PipelineRepository pipelineRepository;
-    private SystemEnvironment systemEnvironment;
     private DatabaseStrategy databaseStrategy;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private TransactionTemplate transactionTemplate;
@@ -72,7 +71,6 @@ public class PipelineRepositoryTest {
         sessionFactory = mock(SessionFactory.class);
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);
-        systemEnvironment = mock(SystemEnvironment.class);
         databaseStrategy = mock(DatabaseStrategy.class);
         when(databaseStrategy.getQueryExtensions()).thenReturn(mock(QueryExtensions.class));
         pipelineRepository = new PipelineRepository(sessionFactory, goCache, databaseStrategy);

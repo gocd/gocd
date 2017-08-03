@@ -16,6 +16,12 @@
 
 package com.thoughtworks.go.server.database;
 
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Assert;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,12 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.ZipUtil;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.junit.Assert;
-
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.hamcrest.core.Is.is;
@@ -43,7 +43,6 @@ public class DatabaseFixture {
 
     //This is what h2 reports for a text column
     static final String LONGVARCHAR = "VARCHAR(2147483647)";
-    public static final String TEXT = "CLOB(2147483647)";
     private File templatesDir;
 
     public DatabaseFixture() {

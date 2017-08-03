@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -78,15 +77,12 @@ public class StageServiceTest {
     private ChangesetService changesetService;
 	private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
-    private List<CaseInsensitiveString> pipelineNames;
-    private Username user;
     private TransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
     private PipelineDao pipelineDao;
 
 
     private static final Username ALWAYS_ALLOW_USER = new Username(new CaseInsensitiveString("always allowed"));
-    private LocalizedOperationResult operationResult;
     private GoCache goCache;
 
     @Before
@@ -95,10 +91,7 @@ public class StageServiceTest {
 		pipelineDao = mock(PipelineDao.class);
         jobInstanceService = mock(JobInstanceService.class);
         securityService = mock(SecurityService.class);
-        pipelineNames = asList(new CaseInsensitiveString("blah-pipeline"));
-        user = new Username(new CaseInsensitiveString("poovan"));
-        operationResult = new HttpLocalizedOperationResult();
-		cruiseConfig = mock(BasicCruiseConfig.class);
+        cruiseConfig = mock(BasicCruiseConfig.class);
         goConfigService = mock(GoConfigService.class);
         changesetService = mock(ChangesetService.class);
         goCache = mock(GoCache.class);

@@ -24,11 +24,9 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,12 +45,6 @@ public class CreateConfigRepoCommandTest {
     private String repoId = "repo-1";
 
     private HttpLocalizedOperationResult result;
-
-    @Mock
-    private ConfigRepoConfig configRepoService;
-
-    @Mock
-    private GoConfigService goConfigService;
 
     @Mock
     private SecurityService securityService;

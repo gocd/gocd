@@ -16,27 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.testinfo.TestStatus;
@@ -52,6 +34,13 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -59,9 +48,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class StageNotificationServiceTest {
     private PipelineService pipelineService;
@@ -69,11 +56,9 @@ public class StageNotificationServiceTest {
     private SystemEnvironment systemEnvironment;
     private StageService stageService;
     private StageNotificationService stageNotificationService;
-    private Pipeline pipeline;
     private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic;
     private StageIdentifier stageIdentifier;
     private ServerConfigService serverConfigService;
-    private GoConfigService goConfigService;
     private ShineDao shineDao;
     private InstanceFactory instanceFactory;
 
@@ -85,7 +70,6 @@ public class StageNotificationServiceTest {
         stageService = mock(StageService.class);
         inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
         serverConfigService = mock(ServerConfigService.class);
-        goConfigService = mock(GoConfigService.class);
         shineDao = mock(ShineDao.class);
         stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService, shineDao);
         stageIdentifier = new StageIdentifier("go", 1, "go-1", "dev", "2");

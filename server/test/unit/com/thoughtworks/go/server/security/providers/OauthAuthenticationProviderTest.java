@@ -35,13 +35,11 @@ import org.springframework.security.userdetails.UserDetails;
 
 public class OauthAuthenticationProviderTest {
     private OauthDataSource dataSource;
-    private AuthorityGranter granter;
 
     private OauthAuthenticationProvider provider;
 
     @Before public void setUp() throws Exception {
         dataSource = mock(OauthDataSource.class);
-        granter = mock(AuthorityGranter.class);
         provider = new OauthAuthenticationProvider(dataSource);
     }
 

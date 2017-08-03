@@ -38,7 +38,6 @@ public class GoConfigMigratorTest {
 
     @Mock private GoConfigMigration goConfigMigration;
     @Mock private SystemEnvironment systemEnvironment;
-    @Mock private ConfigCache configCache;
     @Mock private FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
     @Mock MagicalGoConfigXmlLoader loader;
     @Mock GoConfigFileReader reader;

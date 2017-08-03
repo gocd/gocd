@@ -99,8 +99,6 @@ public class PipelineConfigServiceIntegrationTest {
     @Autowired
     private Localizer localizer;
     @Autowired
-    private EntityHashingService entityHashingService;
-    @Autowired
     private ServerHealthService serverHealthService;
 
     private GoConfigFileHelper configHelper;

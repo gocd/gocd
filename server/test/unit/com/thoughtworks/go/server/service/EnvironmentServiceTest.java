@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -30,6 +26,10 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -42,13 +42,11 @@ public class EnvironmentServiceTest {
     private EnvironmentConfigService environmentConfigService;
     private EnvironmentService environmentService;
     private PipelineHistoryService pipelineHistoryService;
-    private SchedulingCheckerService schedulingCheckerService;
     private static final Username USER_FOO = new Username(new CaseInsensitiveString("Foo"));
 
     @Before public void setUp() throws Exception {
         environmentConfigService = mock(EnvironmentConfigService.class);
         pipelineHistoryService = mock(PipelineHistoryService.class);
-        schedulingCheckerService = mock(SchedulingCheckerService.class);
         environmentService = new EnvironmentService(environmentConfigService, pipelineHistoryService);
     }
 

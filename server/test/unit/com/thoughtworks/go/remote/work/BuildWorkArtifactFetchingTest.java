@@ -42,7 +42,6 @@ import static org.junit.Assert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {
     public static final String PIPELINE_NAME = "pipeline1";
-    public static final String PIPELINE_LABEL = "100";
     public static final String STAGE_NAME = "mingle";
     public static final String JOB_NAME = "run-ant";
     private static final String DEST = "lib";

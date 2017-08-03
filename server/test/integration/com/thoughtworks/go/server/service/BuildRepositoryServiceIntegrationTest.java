@@ -76,7 +76,6 @@ public class BuildRepositoryServiceIntegrationTest {
     @Autowired private PipelineService pipelineService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private ScheduleService scheduleService;
-    @Autowired private ServerHealthService serverHealthService;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private JobInstanceService jobInstanceService;

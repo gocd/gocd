@@ -56,8 +56,6 @@ import static org.junit.Assert.*;
 public class EnvironmentConfigServiceIntegrationTest {
 
     @Autowired
-    private SecurityService securityService;
-    @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
     private GoConfigService goConfigService;
@@ -69,8 +67,6 @@ public class EnvironmentConfigServiceIntegrationTest {
     private EnvironmentConfigService service;
     @Autowired
     private Localizer localizer;
-    @Autowired
-    private AgentService agentService;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 

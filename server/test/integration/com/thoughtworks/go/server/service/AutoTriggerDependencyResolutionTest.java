@@ -77,7 +77,6 @@ public class AutoTriggerDependencyResolutionTest {
     @Autowired private GoCache goCache;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
-    @Autowired private ScheduleService scheduleService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private GoConfigService goConfigService;

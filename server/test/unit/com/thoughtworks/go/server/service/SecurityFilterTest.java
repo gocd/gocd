@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(JMock.class)
 public class SecurityFilterTest {
-    Mockery context = new ClassMockery();
+    private Mockery context = new ClassMockery();
     private SecurityFilter securityFilter;
     private SecurityService securityService;
     private PipelineGroupVisitor pipelineGroupVisitor;
@@ -63,7 +63,7 @@ public class SecurityFilterTest {
         securityFilter.visit(group);
         verifyNoMoreInteractions(pipelineGroupVisitor);
     }
-    
+
     @Test
     public void shouldCallBackOnTheVisitorIfTheUserIsAPipelineGroupAdmin() throws Exception {
         final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));

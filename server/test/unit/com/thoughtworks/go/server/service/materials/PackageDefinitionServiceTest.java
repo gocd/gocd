@@ -54,8 +54,6 @@ public class PackageDefinitionServiceTest {
     @Mock
     private EntityHashingService entityHashingService;
     @Mock
-    private SecurityService securityService;
-    @Mock
     private Localizer localizer;
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;

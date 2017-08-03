@@ -96,8 +96,6 @@ public class ScheduledPipelineLoaderIntegrationTest {
     @Autowired
     private JobInstanceService jobInstanceService;
     @Autowired
-    private ArtifactsService artifactsService;
-    @Autowired
     private TransactionTemplate transactionTemplate;
     @Autowired
     private MaterialExpansionService materialExpansionService;

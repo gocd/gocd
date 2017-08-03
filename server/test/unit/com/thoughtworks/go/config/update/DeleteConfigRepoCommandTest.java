@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -43,9 +42,6 @@ public class DeleteConfigRepoCommandTest {
     private ConfigRepoConfig configRepo;
     private String repoId;
     private HttpLocalizedOperationResult result;
-
-    @Mock
-    private ConfigRepoService configRepoService;
 
     @Mock
     private GoConfigService goConfigService;

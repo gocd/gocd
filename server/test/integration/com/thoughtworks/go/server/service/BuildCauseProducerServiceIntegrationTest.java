@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -66,6 +63,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -88,7 +88,6 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Autowired private PipelineScheduler buildCauseProducer;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private ServerHealthService serverHealthService;
-    @Autowired PipelineService pipelineService;
     @Autowired private ScheduleHelper scheduleHelper;
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
@@ -110,7 +109,6 @@ public class BuildCauseProducerServiceIntegrationTest {
     private static final String GO_PIPELINE_UPSTREAM = "go-parent";
     public DiskSpaceSimulator diskSpaceSimulator;
     private PipelineConfig goPipelineConfig;
-    private PipelineConfig goParentPipelineConfig;
     private MaterialRevisions svnMaterialRevs;
     private PipelineConfig mingleConfig;
 
@@ -127,7 +125,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 
-        goParentPipelineConfig = configHelper.addPipeline(GO_PIPELINE_UPSTREAM, STAGE_NAME, new MaterialConfigs(new GitMaterialConfig("foo-bar")), "unit");
+        PipelineConfig goParentPipelineConfig = configHelper.addPipeline(GO_PIPELINE_UPSTREAM, STAGE_NAME, new MaterialConfigs(new GitMaterialConfig("foo-bar")), "unit");
 
         goPipelineConfig = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
 

@@ -64,8 +64,6 @@ public class GoFileConfigDataSourceIntegrationTest {
     @Autowired
     private GoFileConfigDataSource dataSource;
     @Autowired
-    private GoConfigService configService;
-    @Autowired
     private GoPartialConfig goPartialConfig;
     @Autowired
     private GoConfigDao goConfigDao;

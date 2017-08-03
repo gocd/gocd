@@ -16,23 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.PipelineDao;
-import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
@@ -53,6 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -65,10 +56,6 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class StageNotificationServiceIntegrationTest {
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private StageDao stageDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private DataSource dataSource;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private UserDao userDao;
     @Autowired private SystemEnvironment systemEnvironment;

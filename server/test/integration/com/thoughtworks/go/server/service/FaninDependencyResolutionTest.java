@@ -64,7 +64,6 @@ import static org.junit.Assert.fail;
 })
 public class FaninDependencyResolutionTest {
     public static final String STAGE_NAME = "s";
-    public static final Cloner CLONER = new Cloner();
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired

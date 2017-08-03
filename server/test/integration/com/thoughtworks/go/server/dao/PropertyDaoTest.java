@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Properties;
@@ -39,6 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.sql.SQLException;
+import java.util.*;
+
 import static com.thoughtworks.go.util.ListUtil.join;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -52,8 +47,6 @@ import static org.junit.Assert.fail;
 })
 public class PropertyDaoTest {
     @Autowired private PropertyDao propertyDao;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private DataSource dataSource;
     @Autowired private DatabaseAccessHelper dbHelper;
 
     private JobIdentifier pipeline1_1;
@@ -61,9 +54,6 @@ public class PropertyDaoTest {
     private static final String STAGE1 = "stage";
     private static final String PLAN1 = "plan";
     private Long buildId;
-    private static final String LABEL1 = "LABEL-1";
-    private static final JobIdentifier PIPELINE1_LABEL1
-            = new JobIdentifier(PIPELINE1, LABEL1, STAGE1, "LATEST", PLAN1, null);
 
     @Before
     public void setup() throws Exception {

@@ -59,8 +59,6 @@ public class PackageRepositoryServiceIntegrationTest {
     private PackageRepositoryService service;
     @Autowired
     private PluginSqlMapDao pluginSqlMapDao;
-    @Autowired
-    private EntityHashingService entityHashingService;
 
     @Mock
     private PluginManager pluginManager;

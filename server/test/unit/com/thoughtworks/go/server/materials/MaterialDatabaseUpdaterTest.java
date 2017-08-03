@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -42,7 +41,6 @@ public class MaterialDatabaseUpdaterTest {
     @Mock private MaterialRepository materialRepository;
     @Mock private ServerHealthService healthService;
     @Mock private TransactionTemplate transactionTemplate;
-    @Mock private GoCache goCache;
     @Mock private DependencyMaterialUpdater dependencyMaterialUpdater;
     @Mock private ScmMaterialUpdater scmMaterialUpdater;
     @Mock private PackageMaterialUpdater packageMaterialUpdater;

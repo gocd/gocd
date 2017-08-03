@@ -61,7 +61,6 @@ public class JobAssignmentTest {
     private PipelineWithTwoStages fixture;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private SystemEnvironment systemEnvironment;
-    private Set<EnvironmentPipelineMatcher> environmentPipelineMatchers;
 
     @Before
     public void setUp() throws Exception {
@@ -70,7 +69,6 @@ public class JobAssignmentTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).usingThreeJobs().onSetUp();
         systemEnvironment = new SystemEnvironment();
-        environmentPipelineMatchers = new HashSet<>();
     }
 
     @After

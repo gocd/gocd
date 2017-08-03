@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -48,11 +47,9 @@ public class BackupFilterTest {
     private static final String BACKUP_STARTED_BY = "admin";
     private FilterChain chain;
     private FilterConfig filterConfig;
-    private ByteArrayOutputStream output;
     private BackupService backupService;
     private PrintWriter writer;
     private InputStream inputStream;
-    private String content;
 
     @Before
     public void setUp() throws ServletException, IOException {
@@ -63,7 +60,6 @@ public class BackupFilterTest {
         chain = mock(FilterChain.class);
         filterConfig = mock(FilterConfig.class);
         inputStream = BackupFilter.class.getClassLoader().getResourceAsStream("backup_in_progress.html");
-        output = new ByteArrayOutputStream();
         writer = mock(PrintWriter.class);
         when(res.getWriter()).thenReturn(writer);
         this.backupFilter = new BackupFilter(backupService);

@@ -93,8 +93,6 @@ public class UserServiceIntegrationTest {
     private HibernateTemplate template;
 
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS);
-    private Username ROOT = new Username(new CaseInsensitiveString("root"));
-
 
     @Before
     public void setUp() throws Exception {

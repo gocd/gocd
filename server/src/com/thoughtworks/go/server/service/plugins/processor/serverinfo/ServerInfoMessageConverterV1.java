@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.plugins.processor.serverid;
+package com.thoughtworks.go.server.service.plugins.processor.serverinfo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

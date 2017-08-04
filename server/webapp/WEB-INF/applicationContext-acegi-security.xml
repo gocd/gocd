@@ -111,16 +111,10 @@
           p:filterProcessesUrl="/auth/security_check"
           p:invalidateSessionOnSuccessfulAuthentication="true"/>
 
-     <bean id="userEnabledCheckFilter" class="com.thoughtworks.go.server.security.UserEnabledCheckFilter">
-         <constructor-arg index="0">
-            <bean class="com.thoughtworks.go.server.service.UserService" autowire="autodetect"/>
-        </constructor-arg>
+     <bean id="userEnabledCheckFilter" class="com.thoughtworks.go.server.security.UserEnabledCheckFilter" autowire="autodetect">
      </bean>
 
-    <bean id="goAuthenticationProviderFactory" class="com.thoughtworks.go.server.security.providers.GoAuthenticationProviderFactory">
-        <constructor-arg index="0">
-            <bean class="com.thoughtworks.go.server.service.UserService" autowire="autodetect"/>
-        </constructor-arg>
+    <bean id="goAuthenticationProviderFactory" class="com.thoughtworks.go.server.security.providers.GoAuthenticationProviderFactory" autowire="autodetect">
     </bean>
 
     <bean id="goAuthenticationManager" class="org.springframework.security.providers.ProviderManager">

@@ -64,13 +64,9 @@
   <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient">
     <constructor-arg ref="httpClientBuilder"/>
   </bean>
-  <bean id="httpClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder">
-    <constructor-arg ref="systemEnvironment"/>
-  </bean>
+  <bean id="httpClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder" autowire="constructor" />
 
-  <bean id="webSocketClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder">
-    <constructor-arg ref="systemEnvironment"/>
-  </bean>
+  <bean id="webSocketClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder" autowire="constructor" />
 
   <bean id="webSocketClientHandler" class="com.thoughtworks.go.agent.WebSocketClientHandler"/>
   <bean id="webSocketSessionHandler" class="com.thoughtworks.go.agent.WebSocketSessionHandler"/>

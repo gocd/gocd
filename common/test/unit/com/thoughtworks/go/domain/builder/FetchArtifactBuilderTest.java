@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Deflater;
 
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -222,6 +223,10 @@ public class FetchArtifactBuilderTest {
     }
 
     private class StubFetchZipHttpService extends HttpService {
+        public StubFetchZipHttpService() {
+            super(null);
+        }
+
         public int download(String url, FetchHandler handler) throws IOException {
             handler.handle(new FileInputStream(zip));
             return SC_OK;

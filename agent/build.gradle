@@ -21,7 +21,7 @@ description = 'GoCD Agent'
 sourceSets {
   test {
     java {
-      srcDirs = ['test/functional', 'test/unit']
+      srcDirs = ['test/functional', 'test/unit', 'test/integration']
     }
   }
 }

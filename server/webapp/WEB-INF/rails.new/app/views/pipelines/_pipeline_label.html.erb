@@ -1,10 +1,10 @@
 <% scope[:rendering_gadget] ||= false %>
 
-<div class="label">Label:<%
+<span class="pipeline_run_label">Run:<%
        #check to see if we are currently waiting on scheduling (aka loading)
        if scope[:active_pipeline_in_pipeline].getLabel() == 'TBD' -%>
         <img src="<%=image_path('new/ajax_loader_small.gif')%>" alt="Scheduling..."/>
     <% else -%>
-        <a href="<%= url_for_pipeline_value_stream_map(scope[:active_pipeline_in_pipeline], :only_path => !scope[:rendering_gadget]) -%>" <%== scope[:rendering_gadget] ? "target='_blank'" : ""%> title="<%= scope[:active_pipeline_in_pipeline].getLabel()%>"><%= truncate(scope[:active_pipeline_in_pipeline].getLabel(), :length => 40) -%></a>
+        <%= truncate(scope[:active_pipeline_in_pipeline].getLabel(), :length => 40) -%>
     <% end -%>
-</div>
+</span>

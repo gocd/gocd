@@ -67,7 +67,7 @@
     <table class="pipeline-history-group" cellpadding="0" cellspacing="0" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
         <thead>
             <tr>
-                <th class="" scope="col" style="visibility: hidden;">Pipeline label</th>
+                <th class="pipeline-run-header" scope="col">Run</th>
                 {for stage in group.config.stages}
                 <th class="column-header{if stage_index == group.config.stages.length - 1} last-stage{/if}" scope="col">
                     <span>${% stage.name %}</span>
@@ -109,9 +109,12 @@
             <tr id="pipeline-${% pipeline.pipelineId %}">
                 <th class="pipeline-name" scope="row" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
                     <div class="wrapper" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
-                        <span id="pipeline-${% pipeline.pipelineId %}-label" class="pipeline-label"> <a href="$req.getContextPath()/pipelines/value_stream_map/${% data.pipelineName %}/${% pipeline.counterOrLabel %}" title="${% pipeline.label %}">${% pipeline.label.truncate(17) %}</a></span><br/>
-                        <span class="pipeline-info revision" id="pipeline-${% pipeline.pipelineId %}-revision" title="${% pipeline.revision %}">revision: ${% pipeline.revision %}</span><br/>
-                        <span id="pipeline-${% pipeline.pipelineId %}-modificationDate" class="pipeline-info scheduled-date" data="${% pipeline.scheduled_timestamp %}" title="Server Time: ${% pipeline.scheduled_date %}">${% pipeline.scheduled_date %}</span><br/>
+                      <div class="pipeline-run">
+                        <span id="pipeline-${% pipeline.pipelineId %}-label" title="${% pipeline.label %}" class="pipeline-label">${% pipeline.label.truncate(17) %} </span>
+                        <a href="$req.getContextPath()/pipelines/value_stream_map/${% data.pipelineName %}/${% pipeline.counterOrLabel %}" title="${% pipeline.label %}">VSM</a>
+                      </div>
+                        <span class="pipeline-info revision" id="pipeline-${% pipeline.pipelineId %}-revision" title="${% pipeline.revision %}">revision: ${% pipeline.revision %}</span>
+                        <span id="pipeline-${% pipeline.pipelineId %}-modificationDate" class="pipeline-info scheduled-date" data="${% pipeline.scheduled_timestamp %}" title="Server Time: ${% pipeline.scheduled_date %}">${% pipeline.scheduled_date %}</span>
                         <span id="pipeline-${% pipeline.pipelineId %}-buildCause"
                               class="pipeline-info popup-${% pipelineHistoryPage.buildCauseActor.getBuildCauseClass(pipeline.pipelineId) %}" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
                             {if pipeline.buildCauseBy ==  ''} No modifications

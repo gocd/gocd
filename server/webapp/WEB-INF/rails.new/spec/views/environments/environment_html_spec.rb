@@ -102,9 +102,12 @@ describe "/environments/_environment.html.erb" do
       end
     end
 
-    it "should display Label for pipeline with a link to the pipeline detail page" do
-      expect(response).to have_selector(".pipelines .status .label", :text => /Label:\s+1/)
-      expect(response).to have_selector(".pipelines .status .label a[href='/pipelines/value_stream_map/blahPipeline1/1']", :text => "1")
+    it "should display run Label for pipeline" do
+      expect(response).to have_selector(".pipelines .status .pipeline_run_label", :text => /Run:\s+1/)
+    end
+
+    it "should display link to VSM for the pipeline run" do
+      expect(response).to have_selector(".pipelines .status .vsm_link_wrapper a[href='/pipelines/value_stream_map/blahPipeline1/1']", :text => "VSM")
     end
 
     it "should set the the pipeline scheduled timestamp as data to be used by javascript" do

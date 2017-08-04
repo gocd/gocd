@@ -722,6 +722,10 @@ h1.entity_title {
   width:     auto;
   min-width: 12em;
   max-width: 25em;
+
+  .pipeline-info {
+    display: block;
+  }
 }
 
 .pipeline-history-group .pipeline-info.revision {
@@ -820,6 +824,27 @@ span.pipeline-buttons a.link_as_button {
   }
 
 }
+
+.pipeline-run {
+  display:         flex;
+  margin:          3px 0;
+  align-items:     center;
+  justify-content: space-between;
+
+  .pipeline-label {
+    font-size:     16px;
+    padding-right: 10px;
+  }
+
+  a {
+    font-size: 14px;
+  }
+}
+
+.pipeline-run-header {
+  font-size:      12px;
+}
+
 
 //stage history
 
@@ -3817,5 +3842,26 @@ ul.entity_title {
 #pipeline_activity_header {
   .label {
     top: -10px;
+  }
+}
+
+.pipeline_run_label {
+  font-size:     13px;
+  display:       block;
+  margin-bottom: 5px;
+  font-weight:   600;
+  color:         #333;
+  .vsm-entity & {
+    float: left;
+  }
+}
+
+.vsm_link_wrapper {
+  margin-left: 5px;
+  font-size:   11px;
+  .vsm-entity & {
+    float: right;
+    font-weight:   600;
+    margin-top:    1px;
   }
 }

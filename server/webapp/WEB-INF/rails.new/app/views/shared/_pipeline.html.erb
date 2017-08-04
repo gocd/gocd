@@ -61,8 +61,11 @@
                     <span class="changes_button_wrapper">
                         <%= link_to(l.string("CHANGES"), build_cause_path(:pipeline_name => active_pipeline_in_pipeline.getName(), :pipeline_counter => active_pipeline_in_pipeline.getCounter()), :id => scope[:show_changes_id], :class => "show_panel submit_small dashboard_build_cause_button") -%>
                     </span>
-
                 <% end -%>
+                <span class="separator">&nbsp;</span>
+                <span class="vsm_link_wrapper">
+                    <a href="<%= url_for_pipeline_value_stream_map(active_pipeline_in_pipeline) -%>" title="VSM for Run: <%= active_pipeline_in_pipeline.getLabel()%>">VSM</a>
+                </span>
                 <%= render :partial=> 'pipelines/pipeline_instance_details.html', :locals => {:scope =>{:active_pipeline_in_pipeline => active_pipeline_in_pipeline}} %>
             </div>
             <%= render :partial=> 'pipelines/previously_blurb.html', :locals => {:scope =>{:active_pipeline_in_pipeline => active_pipeline_in_pipeline, :should_display_previously_blurb =>  scope[:should_display_previously_blurb]}} %>

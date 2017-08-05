@@ -29,10 +29,6 @@ describe ApiV3::Plugin::SCMPluginInfoRepresenter do
     plugin_info = com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, 'Foo task', scm_settings, nil)
     actual_json = ApiV3::Plugin::SCMPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:scm_settings_doc)
-    expect(actual_json).to have_link(:scm_settings_doc).with_url('https://api.gocd.org/#scms')
-    actual_json.delete(:_links)
-
     expect(actual_json).to eq({
                                 display_name: 'Foo task',
                                 scm_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(scm_settings).to_hash(url_builder: UrlBuilder.new),

@@ -67,7 +67,7 @@ describe("AuthConfigsWidget", () => {
     "capabilities":       {
       "can_verify_connection": true
     },
-    "extension_settings": {
+    "extension_info": {
       "auth_config_settings": {
         "configurations": [
           {
@@ -98,7 +98,7 @@ describe("AuthConfigsWidget", () => {
     "capabilities":       {
       "can_verify_connection": false
     },
-    "extension_settings": {
+    "extension_info": {
       "auth_config_settings": {
         "configurations": [],
         "view":           {

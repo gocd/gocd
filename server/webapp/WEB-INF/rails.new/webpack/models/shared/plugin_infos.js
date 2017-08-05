@@ -116,8 +116,8 @@ PluginInfos.PluginInfo.PackageRepository.fromJSON = (data = {}) => new PluginInf
   id:                 data.id,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  packageSettings:    PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.package_settings),
-  repositorySettings: PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.repository_settings),
+  packageSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.package_settings),
+  repositorySettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.repository_settings),
   imageUrl:           _.get(data, '_links.image.href')
 });
 
@@ -131,7 +131,7 @@ PluginInfos.PluginInfo.Task.fromJSON = (data = {}) => new PluginInfos.PluginInfo
   id:           data.id,
   version:      data.version,
   about:        About.fromJSON(data.about),
-  taskSettings: PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.task_settings),
+  taskSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.task_settings),
   imageUrl:     _.get(data, '_links.image.href'),
 });
 
@@ -145,7 +145,7 @@ PluginInfos.PluginInfo.SCM.fromJSON = (data = {}) => new PluginInfos.PluginInfo.
   id:          data.id,
   version:     data.version,
   about:       About.fromJSON(data.about),
-  scmSettings: PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.scm_settings),
+  scmSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.scm_settings),
   imageUrl:    _.get(data, '_links.image.href'),
 });
 
@@ -162,8 +162,8 @@ PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.P
   id:                 data.id,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  authConfigSettings: PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.auth_config_settings),
-  roleSettings:       PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.role_settings),
+  authConfigSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.auth_config_settings),
+  roleSettings:       PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.role_settings),
   capabilities:       Capabilities.fromJSON(data.capabilities),
   imageUrl:           _.get(data, '_links.image.href'),
 });
@@ -177,7 +177,7 @@ PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.Pl
   id:              data.id,
   version:         data.version,
   about:           About.fromJSON(data.about),
-  profileSettings: PluggableInstanceSettings.fromJSON(data.extension_settings && data.extension_settings.profile_settings),
+  profileSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
   imageUrl:        _.get(data, '_links.image.href'),
 });
 

@@ -35,12 +35,12 @@ describe ApiV3::Plugin::ElasticPluginInfoRepresenter do
     plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, false)
     actual_json = ApiV3::Plugin::ElasticPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:profile_doc, :image)
-    expect(actual_json).to have_link(:profile_doc).with_url('https://api.gocd.org/#elastic-agent-profiles')
+    expect(actual_json).to have_links(:image)
     expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq({
+                               plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new),
                                profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new),
                               })
   end

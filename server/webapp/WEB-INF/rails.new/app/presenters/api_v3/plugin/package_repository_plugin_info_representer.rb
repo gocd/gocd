@@ -15,16 +15,7 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class PackageRepositoryPluginInfoRepresenter < BaseRepresenter
-
-      link :repository_settings_doc do |opts|
-        'https://api.gocd.org/#package-repositories'
-      end
-
-      link :package_settings_doc do |opts|
-        'https://api.gocd.org/#packages'
-      end
-
+    class PackageRepositoryPluginInfoRepresenter < BasePluginInfoRepresenter
       property :package_settings,
                skip_nil: true,
                expect_hash: true,

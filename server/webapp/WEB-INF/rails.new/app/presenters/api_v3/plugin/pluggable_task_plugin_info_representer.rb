@@ -15,7 +15,7 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class PluggableTaskPluginInfoRepresenter < BaseRepresenter
+    class PluggableTaskPluginInfoRepresenter < BasePluginInfoRepresenter
 
       property :display_name
 

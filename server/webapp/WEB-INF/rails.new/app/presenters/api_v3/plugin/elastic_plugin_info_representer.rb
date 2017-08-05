@@ -15,15 +15,11 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class ElasticPluginInfoRepresenter < BaseRepresenter
+    class ElasticPluginInfoRepresenter < BasePluginInfoRepresenter
       alias_method :plugin, :represented
 
       link :image do |opts|
         opts[:url_builder].plugin_images_url(plugin_id: plugin.getDescriptor.id, hash: plugin.image.getHash) if plugin.image
-      end
-
-      link :profile_doc do |opts|
-        'https://api.gocd.org/#elastic-agent-profiles'
       end
 
       property :profile_settings,

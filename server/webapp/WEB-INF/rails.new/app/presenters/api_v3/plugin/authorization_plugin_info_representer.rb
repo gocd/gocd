@@ -15,19 +15,11 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class AuthorizationPluginInfoRepresenter < BaseRepresenter
+    class AuthorizationPluginInfoRepresenter < BasePluginInfoRepresenter
       alias_method :plugin, :represented
 
       link :image do |opts|
         opts[:url_builder].plugin_images_url(plugin_id: plugin.getDescriptor.id, hash: plugin.getImage.getHash()) if plugin.image
-      end
-
-      link :auth_config_doc do |opts|
-        'https://api.gocd.org/#authorization-configuration'
-      end
-
-      link :role_config_doc do |opts|
-        'https://api.gocd.org/#roles'
       end
 
       property :auth_config_settings,

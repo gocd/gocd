@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe ApiV3::Plugin::PluginInfoRepresenter do
 
-  it 'should describe a NewPluginInfo object' do
+  it 'should describe a BadPluginInfo object' do
     vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
@@ -55,20 +55,48 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
                                   vendor: {
                                     name: 'bob',
                                     url: 'https://bob.example.com'}
+                                }
+                              })
+  end
+
+  it 'should describe a NewPluginInfo object' do
+    vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+    about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
+    descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
+
+    plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
+    plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+    plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
+
+    plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, plugin_settings)
+    actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+
+    expect(actual_json).to have_links(:self, :doc, :find)
+    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-info')
+    expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_info/:plugin_id')
+    actual_json.delete(:_links)
+
+    expect(actual_json).to eq({
+                                id: 'foo.example',
+                                type: 'configrepo',
+                                plugin_file_location: '/path/to/foo.jar',
+                                bundled_plugin: false,
+                                status: {
+                                  state: 'active'
                                 },
-                                plugin_settings: {
-                                  configurations: [
-                                    {
-                                      key: "memberOf",
-                                      metadata: {
-                                        secure: false,
-                                        required: true
-                                      }
-                                    }
-                                  ],
-                                  view: {
-                                    template: "plugin_view_template"
-                                  }
+                                about: {
+                                  name: 'Foo plugin',
+                                  version: '1.2.3',
+                                  target_go_version: '17.2.0',
+                                  description: 'Does foo',
+                                  target_operating_systems: ['Linux'],
+                                  vendor: {
+                                    name: 'bob',
+                                    url: 'https://bob.example.com'}
+                                },
+                                extension_info: {
+                                  plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new)
                                 }
                               })
   end

@@ -33,11 +33,6 @@ describe ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter do
     plugin_info = com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, repo_settings, package_settings, nil)
     actual_json = ApiV3::Plugin::PackageRepositoryPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:repository_settings_doc, :package_settings_doc)
-    expect(actual_json).to have_link(:repository_settings_doc).with_url('https://api.gocd.org/#package-repositories')
-    expect(actual_json).to have_link(:package_settings_doc).with_url('https://api.gocd.org/#packages')
-    actual_json.delete(:_links)
-
     expect(actual_json).to eq({
                                 package_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(package_settings).to_hash(url_builder: UrlBuilder.new),
                                 repository_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(repo_settings).to_hash(url_builder: UrlBuilder.new),

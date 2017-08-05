@@ -15,11 +15,7 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class SCMPluginInfoRepresenter < BaseRepresenter
-
-      link :scm_settings_doc do |opts|
-        'https://api.gocd.org/#scms'
-      end
+    class SCMPluginInfoRepresenter < BasePluginInfoRepresenter
 
       property :display_name
 

@@ -21,10 +21,12 @@ module ApiV3
       REPRESENTER_FOR_PLUGIN_INFO_TYPE = {
         com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo => AuthenticationPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo => NotificationPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo => PluggableTaskPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo => SCMPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
       }
 
       alias_method :plugin, :represented
@@ -63,13 +65,6 @@ module ApiV3
           property :url
         end
       end
-
-      property :plugin_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
 
       property :extension_info,
                exec_context: :decorator,

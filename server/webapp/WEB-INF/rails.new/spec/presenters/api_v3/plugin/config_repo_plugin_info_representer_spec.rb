@@ -16,8 +16,8 @@
 
 require 'spec_helper'
 
-describe ApiV3::Plugin::AuthenticationPluginInfoRepresenter do
-  it 'should describe an authentication plugin' do
+describe ApiV3::Plugin::ConfigRepoPluginInfoRepresenter do
+  it 'should describe an ConfigRepo plugin' do
     vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
@@ -26,15 +26,11 @@ describe ApiV3::Plugin::AuthenticationPluginInfoRepresenter do
     metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
     plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], auth_view)
 
-    plugin_info = com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo.new(descriptor, "display_name", 'display_image_url', true, true, plugin_settings)
-    actual_json = ApiV3::Plugin::AuthenticationPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+    plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(descriptor, plugin_settings)
+    actual_json = ApiV3::Plugin::ConfigRepoPluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq({
                                 plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new),
-                                display_name: 'display_name',
-                                display_image_url: 'display_image_url',
-                                supports_password_based_authentication: true,
-                                supports_web_based_authentication: true,
                               })
 
   end

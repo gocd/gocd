@@ -22,15 +22,14 @@ import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class OauthTokenSweeperTest {
     private OauthRepository mockRepo;
     private OauthTokenSweeper oauthTokenSweeper;
 
-    @Before public void setUp() {
+    @Before
+    public void setUp() {
         mockRepo = mock(OauthRepository.class);
         oauthTokenSweeper = new OauthTokenSweeper(mockRepo, null);
     }
@@ -46,6 +45,13 @@ public class OauthTokenSweeperTest {
     public void shouldDeleteAllTokensWhenSecurityMethodIsChanged() {
         oauthTokenSweeper.onConfigChange(configWithPasswordFile());
         oauthTokenSweeper.onConfigChange(configWithLdap());
+        verify(mockRepo).deleteAllOauthGrants();
+    }
+
+    @Test
+    public void shouldDeleteAllTokensWhenSecurityAuthConfigIsChanged() {
+        oauthTokenSweeper.onConfigChange(configWithPasswordFile());
+        oauthTokenSweeper.onConfigChange(configWithSecurityAuthConfig());
         verify(mockRepo).deleteAllOauthGrants();
     }
 
@@ -100,7 +106,7 @@ public class OauthTokenSweeperTest {
 
         CruiseConfig newConfig = configWithoutSecurity();
         newConfig.server().security().addRole(new RoleConfig(new CaseInsensitiveString("viewer")));
-        
+
         oauthTokenSweeper.onConfigChange(newConfig);
 
         verifyNoMoreInteractions(mockRepo);
@@ -130,8 +136,14 @@ public class OauthTokenSweeperTest {
 
     private CruiseConfig configWithPasswordFile() {
         return configWithSecurity(
-                null, 
+                null,
                 new PasswordFileConfig("password.properties"));
+    }
+
+    private CruiseConfig configWithSecurityAuthConfig() {
+        final CruiseConfig cruiseConfig = configWithSecurity(null, null);
+        cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.authorization.ldap"));
+        return cruiseConfig;
     }
 
     private CruiseConfig configWithSecurity(LdapConfig ldapConfig, PasswordFileConfig passwordFileConfig) {

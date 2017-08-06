@@ -126,9 +126,12 @@ public class SecurityConfig implements Validatable {
         if (newSecurity == null) {
             return true;
         }
+
         boolean ldapChanged = !ObjectUtil.equal(ldapConfig, newSecurity.ldapConfig());
         boolean passwordFileChanged = !ObjectUtil.equal(passwordFileConfig, newSecurity.passwordFileConfig());
-        return ldapChanged || passwordFileChanged;
+        final boolean securityAuthConfigChanged = !ObjectUtil.equal(securityAuthConfigs, newSecurity.securityAuthConfigs());
+
+        return ldapChanged || passwordFileChanged || securityAuthConfigChanged;
     }
 
     public boolean isUserMemberOfRole(final CaseInsensitiveString userName, final CaseInsensitiveString roleName) {

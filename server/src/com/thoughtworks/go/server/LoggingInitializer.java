@@ -25,14 +25,16 @@ import static com.thoughtworks.go.server.util.GoLauncher.DEFAULT_LOG4J_CONFIGURA
 
 public class LoggingInitializer implements ServletContextListener {
 
+    private LogConfigurator logConfigurator;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
         logConfigurator.initialize();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-
+        logConfigurator.shutdown();
     }
 }

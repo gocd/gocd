@@ -57,8 +57,8 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     public int launch(AgentLaunchDescriptor descriptor) {
         Thread shutdownHook = null;
+        LogConfigurator logConfigurator = new LogConfigurator("agent-launcher-log4j.properties");
         try {
-            LogConfigurator logConfigurator = new LogConfigurator("agent-launcher-log4j.properties");
             logConfigurator.initialize();
             int returnValue;
 
@@ -97,6 +97,7 @@ public class AgentLauncherImpl implements AgentLauncher {
             LOG.error("Launch encountered an unknown exception", e);
             return UNKNOWN_EXCEPTION_OCCURRED;
         } finally {
+            logConfigurator.shutdown();
             removeShutDownHook(shutdownHook);
             lockFile.delete();
         }

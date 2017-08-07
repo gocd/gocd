@@ -85,4 +85,8 @@ public class LogConfigurator {
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%d{ISO8601} [%-9t] %-5p %-16c{4}:%L %x- %m%n")));
         Logger.getRootLogger().setLevel(Level.INFO);
     }
+
+    public void shutdown() {
+        LogManager.shutdown();
+    }
 }

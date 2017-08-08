@@ -87,22 +87,7 @@ var SubTabs = Class.create({
                 window[init_method_name]();
             }
         }
-        this.storeCurrentTabNameInCookie(this.tab_name);
         TabsManager.prototype.updateLinkToThisPage(this.tab_name);
-    },
-    storeCurrentTabNameInCookie: function(tabName){
-        var type = this.container.tab_type;
-        var id = this.container.tab_id;
-
-        if(type && id) {
-            var expire_in_30_mins = new Date();
-            expire_in_30_mins.setTime(expire_in_30_mins.getTime() + 30 * 60 * 1000);
-
-            var cookie_key = 't-' + type + '-' + id;
-            var path = '/';
-
-            setCookie(cookie_key, this.tab_name, expire_in_30_mins, path);
-        }
     }
 });
 var TabsManager = Class.create({
@@ -140,25 +125,13 @@ var TabsManager = Class.create({
             return tabName;
         } else {
             tabName = this.getCurrentTabFromUrl();
-
             if(tabName){
                 return tabName;
-            } else {
-                tabName = this.getCurrentTabFromCookie();
-
-                if(tabName){
-                    return tabName;
-                } else {
-                    tabName = this.getCurrentTabFromBuildOrStageStatus();
-                    if(tabName){
-                        return tabName;
-                    } else {
-                        if (this.defaultTabName) {
-                            return this.defaultTabName;
-                        }
-                        return null;
-                    }
-                }
+            }else {
+              if (this.defaultTabName) {
+                return this.defaultTabName;
+              }
+              return null;
             }
         }
     },
@@ -173,29 +146,6 @@ var TabsManager = Class.create({
         } catch(e) {}
 
         return null; // return undefined if no name in the tail of URL
-    },
-    getCurrentTabFromCookie: function() {
-        var cookie_key = 't-' + this.type + '-' + this.unique_id;
-        if(cookie_key != 't--' && cookie_key != 't-undefined-undefined'){
-            return getCookie(cookie_key);
-        } else {
-            return null;
-        }
-    },
-    getCurrentTabFromBuildOrStageStatus: function() {
-        var job = jQuery(".job_details_content");
-
-        if (job.data("result")) {
-            if (job.data("result") === 'passed') {
-                return 'artifacts';
-            }
-
-            if (job.data("result") === 'failed' || job.data("result") === 'failing') {
-                return 'failures';
-            }
-        }
-
-        return null;
     },
     initializeCurrentTab: function(tab) {
         var current_tab_content_id = this.getCurrentTab(tab);

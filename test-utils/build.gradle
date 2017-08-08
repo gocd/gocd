@@ -33,6 +33,7 @@ dependencies {
   compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
+  compile group: 'org.eclipse.jetty', name: 'jetty-deploy', version: versions.jetty
   compile group: 'com.sun.mail', name: 'mailapi', version: '1.5.6'
   compile group: 'junit', name: 'junit', version: '4.11'
   compile group: 'com.googlecode', name: 'junit-ext', version: '1.0'

@@ -69,7 +69,7 @@
                       <ul>
                         <li>
                           <% if pipeline.isLocal() %>
-                              <% if is_quick_edit_page_default? %>
+                              <% if is_pipeline_config_spa_enabled? && is_quick_edit_page_default? %>
                                   <%= link_to l.string("EDIT"), edit_admin_pipeline_config_path(:pipeline_name => pipeline.name()), :class => "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
                               <% else %>
                                   <%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>

@@ -461,6 +461,10 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT)
   end
 
+  def is_pipeline_config_spa_enabled?
+    Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
+  end
+
   def plugin_supports_status_report?(plugin_id)
     plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(plugin_id)
 

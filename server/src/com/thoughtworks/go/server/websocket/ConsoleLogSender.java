@@ -92,6 +92,11 @@ public class ConsoleLogSender {
             // loop before we've seen the last content update
             if (isRunningBuild) sendLogs(webSocket, streamer, jobIdentifier);
 
+            //send the remaining logs if any
+            if (detectCompleted(jobIdentifier)) {
+                sendLogs(webSocket, consoleService.getStreamer(start, jobIdentifier), jobIdentifier);
+            }
+
             LOGGER.debug("Sent {} log lines for {}", streamer.totalLinesConsumed(), jobIdentifier);
         } finally {
             socketHealthService.deregister(webSocket);

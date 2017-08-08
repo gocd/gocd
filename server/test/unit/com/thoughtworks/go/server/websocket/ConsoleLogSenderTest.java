@@ -71,6 +71,7 @@ public class ConsoleLogSenderTest {
 
         when(jobInstance.isCompleted()).thenReturn(true);
         when(consoleService.getStreamer(0L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 0L));
+        when(consoleService.getStreamer(1L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 1L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -96,6 +97,27 @@ public class ConsoleLogSenderTest {
     }
 
     @Test
+    public void shouldSendConsoleLogEvenAfterBuildCompletion() throws Exception {
+        when(jobInstance.isCompleted()).
+                thenReturn(false).
+                thenReturn(true);
+
+        File fakeFile = mock(File.class);
+        when(fakeFile.exists()).thenReturn(true);
+        when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(fakeFile);
+        when(consoleService.getStreamer(0L, jobIdentifier))
+                .thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
+        when(consoleService.getStreamer(1L, jobIdentifier))
+                .thenReturn(new FakeConsoleStreamer("More Output"));
+
+        consoleLogSender.process(socket, jobIdentifier, 0L);
+
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("First Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("Second Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("More Output\n".getBytes(StandardCharsets.UTF_8))));
+    }
+
+    @Test
     public void shouldNotSendMessagesWhenOutputHasNotAdvanced() throws Exception {
         File console = makeConsoleFile("First Output");
         when(jobInstance.isCompleted()).thenReturn(false).thenReturn(true);
@@ -104,7 +126,7 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(jobInstance, times(2)).isCompleted();
+        verify(jobInstance, times(3)).isCompleted();
         verify(socket, times(1)).send(anyObject());
     }
 
@@ -114,6 +136,7 @@ public class ConsoleLogSenderTest {
 
         when(jobInstance.isCompleted()).thenReturn(true);
         when(consoleService.getStreamer(0L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 0L));
+        when(consoleService.getStreamer(1L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 1L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -164,6 +187,10 @@ public class ConsoleLogSenderTest {
 
         @Override
         public long stream(Consumer<String> action) throws IOException {
+            // this is necessary for showing no logs has been missed out even after job completion
+            if(mockedLines.length <= count) {
+                return mockedLines.length;
+            }
             action.accept(mockedLines[count]);
             return ++count;
         }

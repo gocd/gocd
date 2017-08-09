@@ -88,11 +88,20 @@ public class ConsoleLogSender {
                 }
             } while (webSocket.isOpen() && !detectCompleted(jobIdentifier));
 
+            LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
             // empty the tail end of the file because the build could have been marked completed, and exited the
             // loop before we've seen the last content update
             if (isRunningBuild) sendLogs(webSocket, streamer, jobIdentifier);
 
-            LOGGER.debug("Sent {} log lines for {}", streamer.totalLinesConsumed(), jobIdentifier);
+            //send the remaining logs if any
+            if (detectCompleted(jobIdentifier)) {
+                try(ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
+                    start += sendLogs(webSocket, consoleFileStreamer, jobIdentifier);
+                    LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
+                }
+            }
+
+            LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
         } finally {
             socketHealthService.deregister(webSocket);
             webSocket.close();

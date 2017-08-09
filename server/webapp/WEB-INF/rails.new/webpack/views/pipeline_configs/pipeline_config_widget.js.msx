@@ -143,7 +143,7 @@ const PipelineConfigWidget = function (options) {
             <f.row class="heading">
               <f.column size={10} largeSize={10}>
                 <h1>
-                  Pipeline configuation for pipeline
+                  Pipeline configuration for pipeline
                   {' '}
                   {pipeline.name()}
                 </h1>

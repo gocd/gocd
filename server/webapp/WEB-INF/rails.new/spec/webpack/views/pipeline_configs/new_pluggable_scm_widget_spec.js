@@ -79,7 +79,7 @@ describe("New Pluggable SCM Material Widget", () => {
     });
 
     it('should show the available pluggable scm list dropdown', () => {
-      expect($root.find('label')).toContainText('No existing SCMs for Github Pull Requests Builder');
+      expect($root.find('label')).toContainText('No existing SCMs for GitHub Pull Requests Builder');
     });
   });
 

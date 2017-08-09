@@ -30,6 +30,7 @@ import com.thoughtworks.go.i18n.Localizer;
 public class PipelineDependencyNode extends Node {
     private Set<Revision> revisions = new HashSet<>();
     private Localizable message;
+    private boolean canEdit;
 
     public PipelineDependencyNode(String nodeId, String nodeName) {
         super(DependencyNodeType.PIPELINE, nodeId, nodeName);
@@ -56,6 +57,14 @@ public class PipelineDependencyNode extends Node {
             }
         });
         return revisions;
+    }
+
+    public boolean canEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(boolean canEdit) {
+        this.canEdit = canEdit;
     }
 
     @Override

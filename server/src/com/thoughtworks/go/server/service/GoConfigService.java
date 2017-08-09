@@ -147,6 +147,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
 
+    public boolean canEditPipeline(String pipelineName, Username username) {
+        if ((getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName)) != null) &&
+                isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)))) {
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;

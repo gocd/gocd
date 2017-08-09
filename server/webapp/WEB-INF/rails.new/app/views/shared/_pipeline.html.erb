@@ -12,7 +12,11 @@
     <div class="pipeline_actions">
         <%= render :partial => "pipelines/pipeline_locking_blurb.html.erb", :locals => {:scope => {:pipeline_model => scope[:pipeline_model]}} %>
         <%- if scope[:pipeline_model].canAdminister() -%>
-            <%= link_to "", pipeline_edit_path(:pipeline_name => scope[:pipeline_name], :current_tab => "general"), :class => 'icon16 setting' %>
+          <% if is_pipeline_config_spa_enabled? && is_quick_edit_page_default? %>
+              <%= link_to "", edit_admin_pipeline_config_path(:pipeline_name => scope[:pipeline_name]), :class => 'icon16 setting' %>
+          <% else %>
+              <%= link_to "", pipeline_edit_path(:pipeline_name => scope[:pipeline_name], :current_tab => "general"), :class => 'icon16 setting' %>
+          <% end %>
         <%- end -%>
     </div>
     <div class="pipeline_name_link">

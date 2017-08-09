@@ -457,6 +457,10 @@ module ApplicationHelper
     form_remote_tag(options)
   end
 
+  def is_quick_edit_page_default?
+    Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT)
+  end
+
   def is_pipeline_config_spa_enabled?
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end

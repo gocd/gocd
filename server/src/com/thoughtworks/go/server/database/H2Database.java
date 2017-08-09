@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.database;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.server.util.H2EventListener;
+import com.thoughtworks.go.util.H2DbStore;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.h2.tools.Server;
@@ -141,10 +142,10 @@ public class H2Database implements Database {
     }
 
     private String dburl(Boolean mvccEnabled) {
-        return "jdbc:h2:" + systemEnvironment.getDbPath() + "/" + configuration.getName()
+        return "jdbc:h2:./" + systemEnvironment.getDbPath() + "/" + configuration.getName()
                 + ";DB_CLOSE_DELAY=-1"
                 + ";DB_CLOSE_ON_EXIT=FALSE"
-                + ";MVCC=" + mvccEnabled.toString().toUpperCase()
+//                + ";MVCC=" + mvccEnabled.toString().toUpperCase()
                 + ";CACHE_SIZE=" + systemEnvironment.getCruiseDbCacheSize()
                 + ";TRACE_LEVEL_FILE=" + systemEnvironment.getCruiseDbTraceLevel()
                 + ";TRACE_MAX_FILE_SIZE=" + systemEnvironment.getCruiseDbTraceFileSize()
@@ -161,6 +162,10 @@ public class H2Database implements Database {
         } else {
             Migration upgradeToH2 = new MigrateHsqldbToH2(source, systemEnvironment);
             upgradeToH2.migrate();
+
+            if (systemEnvironment.get(SystemEnvironment.H2_DB_STORE).equalsIgnoreCase(H2DbStore.mvstore.name())){
+                new CreateChangeLogTableForBlankDb(source, systemEnvironment).createChangeLog();
+            }
 
             Migration migrateSchema = new DbDeployMigration(source, systemEnvironment);
             migrateSchema.migrate();

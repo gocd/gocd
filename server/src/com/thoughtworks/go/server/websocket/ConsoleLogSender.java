@@ -42,7 +42,7 @@ public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
 
     private static final int LOG_DOES_NOT_EXIST = 4004;
-    private static final int LOG_FILE_DOES_NOT_EXIST = 1011;
+    private static final int LOG_FILE_DOES_NOT_EXIST = 4410;
     private static final int BUF_SIZE = 1024 * 1024; // 1MB
     private static final int FILL_INTERVAL = 500;
 

@@ -51,6 +51,7 @@ public class ConsoleLogSenderTest {
     private JobInstance jobInstance;
     private SocketHealthService socketHealthService;
 
+
     @Before
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
@@ -90,7 +91,7 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        int expectedCode = 1011;
+        int expectedCode = 4410;
         String expectedReason = String.format("Console log for %s is unavailable as it may have been purged by Go or deleted externally.", build);
         verify(socket).close(expectedCode, expectedReason);
     }

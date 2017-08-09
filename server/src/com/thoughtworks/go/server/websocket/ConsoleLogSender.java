@@ -64,8 +64,6 @@ public class ConsoleLogSender {
     public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
         if (start < 0L) start = 0L;
 
-        socketHealthService.register(webSocket);
-
         // check if we're tailing a running build, or viewing a prior build's logs
         boolean isRunningBuild = !detectCompleted(jobIdentifier);
 
@@ -73,7 +71,6 @@ public class ConsoleLogSender {
         try {
             waitForLogToExist(webSocket, jobIdentifier);
         } catch (Retryable.TooManyRetriesException e) {
-            socketHealthService.deregister(webSocket);
             webSocket.close(LOG_DOES_NOT_EXIST, e.getMessage());
             return;
         }
@@ -103,7 +100,6 @@ public class ConsoleLogSender {
 
             LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
         } finally {
-            socketHealthService.deregister(webSocket);
             webSocket.close();
         }
     }

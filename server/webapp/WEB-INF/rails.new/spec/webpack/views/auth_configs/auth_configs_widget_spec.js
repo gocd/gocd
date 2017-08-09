@@ -90,7 +90,7 @@ describe("AuthConfigsWidget", () => {
     "id":                   "cd.go.authorization.github",
     "type":                 "authorization",
     "about":                {
-      "name":    "Github authorization plugin",
+      "name":    "GitHub authorization plugin",
       "version": "1.x.x",
     },
     "capabilities":         {

@@ -93,11 +93,11 @@ describe("RolesWidget", () => {
   const githubPluginInfoJSON = {
     "id":            "cd.go.authorization.github",
     "type":          "authorization",
-    "about":         {"name": "Github authorization plugin"},
+    "about":         {"name": "GitHub authorization plugin"},
     "role_settings": {
       "configurations": [],
       "view":           {
-        "template": '<div class="plugin-role-view"><label>Github username:</label><input id="name" type="text"/></div>'
+        "template": '<div class="plugin-role-view"><label>GitHub username:</label><input id="name" type="text"/></div>'
       }
     }
   };
@@ -321,7 +321,7 @@ describe("RolesWidget", () => {
 
       expect($('.reveal input[data-prop-name]')).not.toBeDisabled();
       expect($('.reveal [data-prop-name=authConfigId] option:selected').text()).toEqual(`${secondValidAuthConfigJSON.id} (${githubPluginInfoJSON.about.name})`);
-      expect($('.reveal .plugin-role-view label').text()).toEqual("Github username:");
+      expect($('.reveal .plugin-role-view label').text()).toEqual("GitHub username:");
     });
 
     it("should make request to save role on click of save button", () => {

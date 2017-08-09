@@ -135,7 +135,7 @@ describe('PluginInfos', () => {
         "version": "1",
         "type":    "notification",
         "about":   {
-          "name":                     "Github Pull Requests status notifier",
+          "name":                     "GitHub Pull Requests status notifier",
           "version":                  "1.2",
           "target_go_version":        "15.1.0",
           "description":              "Updates build status for GitHub pull request",
@@ -352,7 +352,7 @@ describe('PluginInfos', () => {
         "version":      "1",
         "type":         "scm",
         "about":        {
-          "name":                     "Github Pull Requests Builder",
+          "name":                     "GitHub Pull Requests Builder",
           "version":                  "1.3.0-RC2",
           "target_go_version":        "15.1.0",
           "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
@@ -362,7 +362,7 @@ describe('PluginInfos', () => {
             "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
           }
         },
-        "display_name": "Github",
+        "display_name": "GitHub",
         "scm_settings": {
           "configurations": [
             {
@@ -554,7 +554,7 @@ describe('PluginInfos', () => {
       "id":      "github.pr",
       "version": "1",
       "about":   {
-        "name":                     "Github Pull Requests Builder",
+        "name":                     "GitHub Pull Requests Builder",
         "version":                  "1.3.0-RC2",
         "target_go_version":        "15.1.0",
         "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",

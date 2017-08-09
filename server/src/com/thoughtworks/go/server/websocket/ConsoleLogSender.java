@@ -95,14 +95,13 @@ public class ConsoleLogSender {
 
             //send the remaining logs if any
             if (detectCompleted(jobIdentifier)) {
-                ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier);
-                start += sendLogs(webSocket, consoleFileStreamer, jobIdentifier);
-                LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
-                consoleFileStreamer.close();
+                try(ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
+                    start += sendLogs(webSocket, consoleFileStreamer, jobIdentifier);
+                    LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
+                }
             }
 
             LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
-            streamer.close();
         } finally {
             socketHealthService.deregister(webSocket);
             webSocket.close();

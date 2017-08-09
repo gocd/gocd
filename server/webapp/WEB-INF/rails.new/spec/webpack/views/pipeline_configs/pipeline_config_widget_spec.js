@@ -103,7 +103,7 @@ describe("PipelineConfigWidget", () => {
   });
 
   it("should render the pipeline name", () => {
-    expect($root.find('.pipeline .heading h1')).toHaveText('Pipeline configuation for pipeline yourproject');
+    expect($root.find('.pipeline .heading h1')).toHaveText('Pipeline configuration for pipeline yourproject');
   });
 
   it('should disable button and page edits while pipeline config save is in progress', () => {

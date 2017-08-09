@@ -29,42 +29,33 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BuildRepositoryService {
-    @Autowired
-    private StageService stageService;
-    @Autowired
     private ScheduleService scheduleService;
-    @Autowired
     public JobInstanceService jobInstanceService;
-    @Autowired
-    private AgentService agentService;
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildRepositoryService.class);
 
-    public BuildRepositoryService() {
-    }
-
-    BuildRepositoryService(StageService stageService,
-                           JobInstanceService jobInstanceService,
-                           ScheduleService scheduleService) {
-        this.stageService = stageService;
+    @Autowired
+    public BuildRepositoryService(JobInstanceService jobInstanceService,
+                                  ScheduleService scheduleService) {
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
     }
 
     public void completing(JobIdentifier jobIdentifier, JobResult result, String agentUuid) {
+        checkAgentUUID(jobIdentifier, agentUuid, result.toString());
+        LOGGER.debug("Changing result of job instance with identifier {} to {} from agent[{}]", jobIdentifier, result, agentUuid);
         scheduleService.jobCompleting(jobIdentifier, result, agentUuid);
     }
 
     public void updateStatusFromAgent(JobIdentifier jobIdentifier, JobState jobState, String agentUuid) throws Exception {
+        checkAgentUUID(jobIdentifier, agentUuid, jobState.toString());
         LOGGER.debug("Changing status of job instance with identifier {} to {} from agent[{}]", jobIdentifier, jobState, agentUuid);
-        checkAgentUUID(jobIdentifier, agentUuid);
-
         scheduleService.updateJobStatus(jobIdentifier, jobState);
     }
 
-    private void checkAgentUUID(JobIdentifier jobIdentifier, String agentUuid) {
+    private void checkAgentUUID(JobIdentifier jobIdentifier, String agentUuid, String state) {
         JobInstance job = jobInstanceService.buildByIdWithTransitions(jobIdentifier.getBuildId());
         if (!StringUtils.equals(job.getAgentUuid(), agentUuid)) {
-            LOGGER.error("Build Instance is using agent [{}] but status updating from agent [{}]", job.getAgentUuid(), agentUuid);
+            LOGGER.error("Build Instance [{}] is using agent [{}] but is being updated to [{}] from agent [{}]", jobIdentifier.toString(), job.getAgentUuid(), state, agentUuid);
             throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:"
                     + agentUuid + ", Build: " + job.toString());
         }

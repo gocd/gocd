@@ -428,7 +428,7 @@ public class Stage extends PersistentObject {
     }
 
     public void building() {
-        if (state != null) {
+        if (state != null && !isReRun()) {
             LOG.warn("Expected stage [{}] to have no state, but was {}", identifier, state, new Exception().fillInStackTrace());
         }
         state = StageState.Building;

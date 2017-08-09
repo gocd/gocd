@@ -16,15 +16,43 @@
 
 description = 'GoCD Agent used for development'
 
+configurations {
+  copyOnly {
+    transitive = false
+  }
+}
+
 dependencies {
   compile project(':agent')
   compile project(':util')
+  copyOnly project(':go-plugin-activator')
+}
+
+def generatedResourcesOutput = file("resources-generated")
+
+sourceSets {
+  main {
+    resources {
+      output.dir generatedResourcesOutput, builtBy: 'generateResources'
+      srcDirs += generatedResourcesOutput
+    }
+  }
 }
 
 clean {
+  delete generatedResourcesOutput
   delete 'config'
   delete 'felix-cache'
   delete 'pipelines'
   delete 'plugins'
   delete 'plugins_work'
+}
+
+task generateResources(type: Copy) {
+  outputs.dir(generatedResourcesOutput)
+
+  into generatedResourcesOutput
+  from(project.configurations.copyOnly) {
+    rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
+  }
 }

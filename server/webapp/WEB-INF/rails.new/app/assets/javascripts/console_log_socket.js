@@ -64,6 +64,13 @@
     function maybeResume(e) {
       if (fatal) return;
 
+      if (e.type === "close" && e.code === 1011) {
+        startLine = 0;
+
+        console.error('Something went wrong:'+ e.reason);
+        return;
+      }
+
       if (e.type === "close" && e.code !== 4004) {
         startLine = 0;
 

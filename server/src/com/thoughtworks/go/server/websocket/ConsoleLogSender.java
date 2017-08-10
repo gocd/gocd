@@ -42,6 +42,7 @@ public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
 
     private static final int LOG_DOES_NOT_EXIST = 4004;
+    private static final int LOG_FILE_DOES_NOT_EXIST = 4410;
     private static final int BUF_SIZE = 1024 * 1024; // 1MB
     private static final int FILL_INTERVAL = 500;
 
@@ -65,7 +66,14 @@ public class ConsoleLogSender {
         if (start < 0L) start = 0L;
 
         // check if we're tailing a running build, or viewing a prior build's logs
-        boolean isRunningBuild = !detectCompleted(jobIdentifier);
+        boolean detectCompleted = detectCompleted(jobIdentifier);
+        if (detectCompleted && !doesLogExists(jobIdentifier)) {
+            String notFound = String.format("Console log for %s is unavailable as it may have been purged by Go or deleted externally.", jobIdentifier.toFullString());
+            webSocket.close(LOG_FILE_DOES_NOT_EXIST, notFound);
+            return;
+        }
+
+        boolean isRunningBuild = !detectCompleted;
 
         // Sometimes the log file may not have been created yet; leave it up to the client to handle reconnect logic.
         try {
@@ -101,6 +109,14 @@ public class ConsoleLogSender {
             LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
         } finally {
             webSocket.close();
+        }
+    }
+
+    private boolean doesLogExists(JobIdentifier jobIdentifier) {
+        try {
+            return consoleService.consoleLogFile(jobIdentifier).exists();
+        } catch (IllegalArtifactLocationException e) {
+            return false;
         }
     }
 

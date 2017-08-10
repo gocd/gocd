@@ -8,8 +8,8 @@
 
 <script type="text/javascript">
 Util.on_load(function() {
-    jQuery('#body_content').on('click', '#select_all_agents', function() {
-        jQuery('.agent_select').prop("checked", $(this).checked);
+    jQuery('#select_all_agents').change(function(){
+          jQuery('.agent_select').prop("checked", $(this).checked);
     });
 
     var lastChecked = null;

@@ -335,7 +335,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     private void logIfJobIsCompleted(JobInstance jobInstance) {
         JobState currentState = getCurrentState(jobInstance.getId());
-        if (currentState.isCompleted()) {
+        if (currentState.isCompleted() && !jobInstance.isCopy()) {
             String message = String.format(
                     "State change for a completed Job is not allowed. Job %s is currently State=%s, Result=%s",
                     jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getResult());

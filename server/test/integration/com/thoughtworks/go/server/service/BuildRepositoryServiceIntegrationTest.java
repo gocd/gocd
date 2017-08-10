@@ -39,11 +39,13 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -64,6 +66,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -71,22 +74,38 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class BuildRepositoryServiceIntegrationTest {
-    @Autowired private BuildRepositoryService buildRepositoryService;
-    @Autowired private StageService stageService;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoCache goCache;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private StageDao stageDao;
-    @Autowired private InstanceFactory instanceFactory;
+    @Autowired
+    private BuildRepositoryService buildRepositoryService;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private InstanceFactory instanceFactory;
 
     private static GoConfigFileHelper config = new GoConfigFileHelper();
     private PipelineConfig mingle;
@@ -103,7 +122,6 @@ public class BuildRepositoryServiceIntegrationTest {
     public static void tearDownConfigFileLocation() throws IOException {
         TestRepo.internalTearDown();
     }
-
 
     @Before
     public void setUp() throws Exception {

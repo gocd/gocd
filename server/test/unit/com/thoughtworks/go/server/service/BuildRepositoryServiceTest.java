@@ -1,98 +1,91 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullJobInstance;
-import com.thoughtworks.go.util.ClassMockery;
-import static org.hamcrest.core.Is.is;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import static org.junit.Assert.assertThat;
+import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.remote.work.InvalidAgentException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
 
-@RunWith(JMock.class)
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 public class BuildRepositoryServiceTest {
-    private Mockery context = new ClassMockery();
     private BuildRepositoryService buildRepositoryService;
+    @Mock
     private JobInstanceService jobInstanceService;
     private String agentUuid = "uuid";
-    private JobIdentifier jobIdendifier = new JobIdentifier("pipeline", "#1", "stage", "LATEST", "build", 1L);
+    @Mock
     private ScheduleService scheduleService;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+    private JobInstance jobInstance;
 
     @Before
     public void setup() {
-        jobInstanceService = context.mock(JobInstanceService.class);
-        StageService stageService = context.mock(StageService.class);
-        scheduleService = context.mock(ScheduleService.class);
-        buildRepositoryService = new BuildRepositoryService(stageService, jobInstanceService, scheduleService);
+        initMocks(this);
+        buildRepositoryService = new BuildRepositoryService(jobInstanceService, scheduleService);
+        jobInstance = JobInstanceMother.assignAgent(JobInstanceMother.building("job"), agentUuid);
+        when(jobInstanceService.buildByIdWithTransitions(jobInstance.getIdentifier().getBuildId())).thenReturn(jobInstance);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldNotUpdateStatusFromWrongAgent() throws Exception {
-        final JobState state = JobState.Assigned;
-        final JobInstance instance = context.mock(JobInstance.class);
-        context.checking(new Expectations() {
-            {
-                one(instance).isNull();
-                will(returnValue(false));
-                one(instance).getResult();
-                will(returnValue(JobResult.Unknown));
-                one(jobInstanceService).buildByIdWithTransitions(jobIdendifier.getBuildId());
-                will(returnValue(instance));
-                one(instance).getState();
-                one(instance).changeState(with(equal(state)));
-                one(jobInstanceService).updateStateAndResult(instance);
-                atLeast(1).of(instance).getAgentUuid();
-                will(returnValue(agentUuid));
-            }
-        });
-        buildRepositoryService.updateStatusFromAgent(jobIdendifier, state, "wrongId");
+        thrown.expect(InvalidAgentException.class);
+        thrown.expectMessage("AgentUUID has changed in the middle of a job. AgentUUID:");
+        buildRepositoryService.updateStatusFromAgent(jobInstance.getIdentifier(), JobState.Assigned, "wrongId");
+        verify(scheduleService, never()).updateJobStatus(eq(jobInstance.getIdentifier()), any());
+    }
+
+    @Test
+    public void shouldUpdateStatusFromAssignedAgent() throws Exception {
+        JobState state = JobState.Completing;
+        buildRepositoryService.updateStatusFromAgent(jobInstance.getIdentifier(), state, agentUuid);
+        verify(scheduleService).updateJobStatus(jobInstance.getIdentifier(), state);
     }
 
     @Test
     public void shouldUpdateResult() {
-        checkUpdateResult(agentUuid);
+        final JobResult result = JobResult.Passed;
+        buildRepositoryService.completing(jobInstance.getIdentifier(), result, agentUuid);
+        verify(scheduleService).jobCompleting(jobInstance.getIdentifier(), result, agentUuid);
     }
 
-    private void checkUpdateResult(final String uuid) {
+    @Test
+    public void shouldNotUpdateResultFromWrongAgent() {
         final JobResult result = JobResult.Passed;
-        context.checking(new Expectations() {
-            {
-                one(scheduleService).jobCompleting(jobIdendifier, result, uuid);
-            }
-        });
-        buildRepositoryService.completing(jobIdendifier, result, uuid);
+        thrown.expect(InvalidAgentException.class);
+        thrown.expectMessage("AgentUUID has changed in the middle of a job. AgentUUID:");
+        buildRepositoryService.completing(jobInstance.getIdentifier(), result, "wrong-agent");
+        verify(scheduleService, never()).jobCompleting(eq(jobInstance.getIdentifier()), any(), any());
     }
 
     @Test
     public void shouldReturnFalseIfBuildInstanceDoesNotExist() {
-        context.checking(new Expectations() {
-            {
-                one(jobInstanceService).buildByIdWithTransitions((long) with(any(Integer.class)));
-                will(returnValue(NullJobInstance.NULL));
-            }
-        });
+        when(jobInstanceService.buildByIdWithTransitions(123L)).thenReturn(NullJobInstance.NULL);
         assertThat(buildRepositoryService.isCancelledOrRescheduled(123L), is(false));
     }
 }

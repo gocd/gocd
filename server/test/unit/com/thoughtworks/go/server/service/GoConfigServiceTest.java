@@ -1239,7 +1239,7 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenReturn(null);
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new PipelineNotFoundException("Not Found"));
 
         assertFalse(goConfigService.canEditPipeline("non_existing_pipeline", null));
     }
@@ -1249,8 +1249,12 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineConfig());
+        BasicCruiseConfig basicCruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
+        when(cruiseConfig.getGroups()).thenReturn(basicCruiseConfig.getGroups());
+        when(cruiseConfig.findGroup("group1")).thenReturn(mock(PipelineConfigs.class));
         when(cruiseConfig.isAdministrator("view_user")).thenReturn(false);
+        when(cruiseConfig.server()).thenReturn(new ServerConfig());
 
         assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("view_user")));
     }

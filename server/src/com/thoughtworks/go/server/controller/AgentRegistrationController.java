@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
@@ -78,10 +79,6 @@ public class AgentRegistrationController {
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
     public void checkAgentStatus(HttpServletResponse response) throws IOException {
-        populateAgentChecksum();
-        populateLauncherChecksum();
-        populateTFSSDKChecksum();
-
         response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
         response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
@@ -91,24 +88,18 @@ public class AgentRegistrationController {
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
     public void checkAgentVersion(HttpServletResponse response) throws IOException {
-        populateAgentChecksum();
-
         response.setHeader("Content-MD5", agentChecksum);
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.HEAD)
     public void checkAgentLauncherVersion(HttpServletResponse response) throws IOException {
-        populateLauncherChecksum();
-
         response.setHeader("Content-MD5", agentLauncherChecksum);
         setOtherHeaders(response);
     }
 
     @RequestMapping(value = "/admin/tfs-impl.jar", method = RequestMethod.HEAD)
     public void checkTfsImplVersion(HttpServletResponse response) throws IOException {
-        populateTFSSDKChecksum();
-
         response.setHeader("Content-MD5", tfsSdkChecksum);
         setOtherHeaders(response);
     }
@@ -125,27 +116,24 @@ public class AgentRegistrationController {
         setOtherHeaders(response);
     }
 
-    private void populateLauncherChecksum() throws IOException {
-        synchronized (this) {
-            if (agentLauncherChecksum == null) {
-                agentLauncherChecksum = getChecksumFor(new AgentLauncherSrc());
-            }
+    @PostConstruct
+    public void populateLauncherChecksum() throws IOException {
+        if (agentLauncherChecksum == null) {
+            agentLauncherChecksum = getChecksumFor(new AgentLauncherSrc());
         }
     }
 
-    private void populateAgentChecksum() throws IOException {
-        synchronized (this) {
-            if (agentChecksum == null) {
-                agentChecksum = getChecksumFor(new AgentJarSrc());
-            }
+    @PostConstruct
+    public void populateAgentChecksum() throws IOException {
+        if (agentChecksum == null) {
+            agentChecksum = getChecksumFor(new AgentJarSrc());
         }
     }
 
-    private void populateTFSSDKChecksum() throws IOException {
-        synchronized (this) {
-            if (tfsSdkChecksum == null) {
-                tfsSdkChecksum = getChecksumFor(new TFSImplSrc());
-            }
+    @PostConstruct
+    public void populateTFSSDKChecksum() throws IOException {
+        if (tfsSdkChecksum == null) {
+            tfsSdkChecksum = getChecksumFor(new TFSImplSrc());
         }
     }
 

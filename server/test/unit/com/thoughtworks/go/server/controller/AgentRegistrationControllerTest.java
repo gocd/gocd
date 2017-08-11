@@ -67,6 +67,9 @@ public class AgentRegistrationControllerTest {
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
+        controller.populateAgentChecksum();
+        controller.populateLauncherChecksum();
+        controller.populateTFSSDKChecksum();
     }
 
     @Test

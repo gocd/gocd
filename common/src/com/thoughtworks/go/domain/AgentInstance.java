@@ -168,7 +168,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void refresh(final AgentRuntimeStatus.ChangeListener changeListener) {
-        if (agentConfigStatus == AgentConfigStatus.Pending || agentConfigStatus == AgentConfigStatus.Disabled) {
+        if (agentConfigStatus == AgentConfigStatus.Pending) {
             return;
         }
         if (lastHeardTime == null) {

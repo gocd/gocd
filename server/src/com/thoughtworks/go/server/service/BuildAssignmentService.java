@@ -143,6 +143,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
 
         synchronized (this) {
+//          check to ensure agent is not disabled after entering the synchronized block
+            if (agent.isDisabled()) {
+                return new DeniedAgentWork(agent.getUuid());
+            }
             //check if agent already has assigned build, if so, reschedule it
             scheduleService.rescheduleAbandonedBuildIfNecessary(agent.getAgentIdentifier());
             final JobPlan job = findMatchingJob(agent);

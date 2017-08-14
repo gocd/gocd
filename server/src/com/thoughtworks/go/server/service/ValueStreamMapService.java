@@ -202,6 +202,7 @@ public class ValueStreamMapService {
                 } else if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
                     pipelineDependencyNode.setNoPermission();
                 }
+                pipelineDependencyNode.setCanEdit(goConfigService.canEditPipeline(pipelineName, username));
             }
         }
     }

@@ -2612,11 +2612,10 @@ li.task_property {
 
 .vsm-entity h3 {
     background: image_url('andare/ico-16x16.png') no-repeat scroll 0px 0px transparent;
-    padding: 0px 0px 10px 12px;
+    padding: 0px 0px 8px 12px;
     border-bottom: 1px dotted #999;
     font-size: 13px;
     line-height: 16px;
-    padding-bottom: 5px;
 }
 
 .vsm-entity h3.restricted, .vsm-entity h3.deleted {
@@ -2948,6 +2947,12 @@ li.task_property {
 
 .vsm-entity.material .actions .pin {
     margin-top: 5px;
+}
+
+.vsm-entity .pipeline_actions {
+    position: absolute;
+    right:    -4px;
+    top:      9px;
 }
 
 .usercomment{

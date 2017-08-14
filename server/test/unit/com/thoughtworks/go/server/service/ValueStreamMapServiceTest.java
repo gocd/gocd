@@ -56,8 +56,7 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -767,7 +766,39 @@ public class ValueStreamMapServiceTest {
 
     }
 
-	@Test
+    @Test
+    public void shouldPopulateEditPermissionsForPipelineDependencyNode() throws Exception {
+        /*
+       * g --> p1 --> p2
+        */
+
+        GitMaterial git = new GitMaterial("git");
+        BuildCause p2buildCause = createBuildCause(asList("p1"), new ArrayList<>());
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+
+
+        when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
+        when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
+
+
+        PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(new GitMaterialConfig("test")));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p2Config));
+
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.hasPipelineNamed(any())).thenReturn(true);
+        when(goConfigService.canEditPipeline("p1", user)).thenReturn(true);
+        when(goConfigService.canEditPipeline("p2", user)).thenReturn(false);
+        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "p2-label", p2buildCause));
+
+        ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap("p2", 1, user, result);
+
+        PipelineDependencyNode p1 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).get(0);
+        PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).get(0);
+        assertTrue(p1.canEdit());
+        assertFalse(p2.canEdit());
+    }
+
+    @Test
 	public void shouldPopulateErrorCorrectly_VSMForMaterial() throws Exception {
 		/*
 				git --> p1

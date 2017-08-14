@@ -262,6 +262,9 @@ Graph_Renderer = function (container) {
         var instancesCount;
         if (node.instances != null && node.instances != undefined) {
             gui += '<h3 title="' + node.name + '"><a href="' + node.locator + '">' + node.name + '</a></h3>';
+            if(node.can_edit) {
+                gui += '<div class="pipeline_actions"> <a class="icon16 setting" href="'+ node.edit_path + '"></a> </div>'
+            }
             if (node.instances != undefined && node.instances.length > 0 && node.instances[0].stages) {
                 gui += '<ul class="instances">';
                 for (var i = 0; i < node.instances.length; i++) {

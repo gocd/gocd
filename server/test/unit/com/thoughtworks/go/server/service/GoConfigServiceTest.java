@@ -80,6 +80,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -1219,6 +1220,43 @@ public class GoConfigServiceTest {
         assertThat(schedulableDependencyMaterials.size(), is(2));
         assertTrue(schedulableDependencyMaterials.contains(svnMaterialConfig));
         assertTrue(schedulableDependencyMaterials.contains(pluggableSCMMaterialConfig));
+    }
+
+    @Test
+    public void shouldBeAbleToEditAExistentPipelineWithAdminPrivileges() throws Exception {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineConfig());
+        when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
+        when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
+
+        assertTrue(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
+    }
+
+    @Test
+    public void shouldNotBeAbleToEditANonExistentPipeline() throws Exception {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new PipelineNotFoundException("Not Found"));
+
+        assertFalse(goConfigService.canEditPipeline("non_existing_pipeline", null));
+    }
+
+    @Test
+    public void shouldNotBeAbleToEditPipelineIfUserDoesNotHaveSufficientPermissions() throws Exception {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineConfig());
+        BasicCruiseConfig basicCruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
+        when(cruiseConfig.getGroups()).thenReturn(basicCruiseConfig.getGroups());
+        when(cruiseConfig.findGroup("group1")).thenReturn(mock(PipelineConfigs.class));
+        when(cruiseConfig.isAdministrator("view_user")).thenReturn(false);
+        when(cruiseConfig.server()).thenReturn(new ServerConfig());
+
+        assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("view_user")));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

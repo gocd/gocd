@@ -39,6 +39,7 @@ describe ValueStreamMapController do
     @stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
       stage_detail_tab_path(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
     end
+    @pipeline_edit_path = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
   end
 
   describe :redirect_to_stage_pdg_if_ie8 do
@@ -123,7 +124,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path).to_json)
       end
 
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do
@@ -264,7 +265,9 @@ describe ValueStreamMapController do
                   "current"
                 ],
                 "node_type": "PIPELINE",
-                "name": "p1"
+                "name": "p1",
+                "can_edit": false,
+                "edit_path": "/admin/pipelines/p1/general"
               }
             ]
           },
@@ -280,7 +283,9 @@ describe ValueStreamMapController do
                 "instances": [],
                 "dependents": [],
                 "node_type": "PIPELINE",
-                "name": "current"
+                "name": "current",
+                "can_edit": false,
+                "edit_path": "/admin/pipelines/current/general"
               }
             ]
           }
@@ -317,7 +322,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path).to_json)
       end
 
       it "should display error message when the pipeline does not exist" do

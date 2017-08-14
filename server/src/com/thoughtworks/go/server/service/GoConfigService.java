@@ -147,6 +147,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
 
+    public boolean canEditPipeline(String pipelineName, Username username) {
+        if (pipelineExists(pipelineName) &&
+                isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)))) {
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
@@ -161,6 +170,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
         if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean pipelineExists(String pipelineName) {
+        try {
+            getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        } catch (PipelineNotFoundException e) {
             return false;
         }
         return true;

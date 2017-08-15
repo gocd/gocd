@@ -281,49 +281,27 @@ describe('PluginInfos', () => {
   describe("Task", () => {
     it("should deserialize", () => {
       const json = {
-          "id":      "docker-task",
-          "version": "1",
-          "type":    "task",
-          "about":   {
-            "name":                     "Docker Task",
-            "version":                  "0.1.27",
-            "target_go_version":        "14.4.0",
-            "description":              "Docker task to build, run with and push images",
-            "target_operating_systems": [
-              "Linux",
-              "Mac OS X"
-            ],
-            "vendor":                   {
-              "name": "manojlds",
-              "url":  "www.stacktoheap.com"
-            }
-          },
-        < < < < < < < HEAD
-      "display_name"
-      :
-      "Docker Task",
-        "extension_settings"
-      :
-      {
-      ======
-        =
-          "display_name"
-      :
-        "Docker Task",
-          "extension_info"
-      :
-        {
-        >>>>>>>
-          Have
-          plugin_settings
-          also
-          wrapped in 'extension_info'.
-          "task_settings"
-        :
-          {
-            "configurations"
-          :
-            [
+        "id":      "docker-task",
+        "version": "1",
+        "type":    "task",
+        "about":   {
+          "name":                     "Docker Task",
+          "version":                  "0.1.27",
+          "target_go_version":        "14.4.0",
+          "description":              "Docker task to build, run with and push images",
+          "target_operating_systems": [
+            "Linux",
+            "Mac OS X"
+          ],
+          "vendor":                   {
+            "name": "manojlds",
+            "url":  "www.stacktoheap.com"
+          }
+        },
+        "extension_info": {
+          "display_name": "Docker Task",
+          "task_settings": {
+            "configurations": [
               {
                 "key":      "DockerFile",
                 "metadata": {
@@ -353,17 +331,12 @@ describe('PluginInfos', () => {
                 }
               }
             ],
-              "view"
-          :
-            {
-              "template"
-            :
-              "<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerBuild2\" type=\"checkbox\" ng-model=\"IsDockerBuild2\" ng-init=\"IsDockerBuild2 = IsDockerBuild\" ng-change=\"IsDockerBuild = IsDockerBuild2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerBuild\" type=\"hidden\" ng-model=\"IsDockerBuild\" value=\"{{IsDockerBuild}}\">\n        <label for=\"IsDockerBuild\">Build docker image</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_build\" ng-show=\"IsDockerBuild == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Dockerfile path:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerFile\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerFile].$error.server\">{{GOINPUTNAME[DockerFile].$error.server}}</span>\n        </div>\n        <div class=\"form_item_block\" >\n            <label>Tag name:</label>\n            <input type=\"text\" ng-model=\"DockerBuildTag\">\n        </div>\n        <div class=\"checkbox_row\" ng-show=\"DockerBuildTag\">\n            <input id=\"TagWithPipelineLabel2\" type=\"checkbox\" ng-model=\"TagWithPipelineLabel2\" ng-init=\"TagWithPipelineLabel2 = TagWithPipelineLabel\" ng-change=\"TagWithPipelineLabel = TagWithPipelineLabel2\" ng-true-value=\"true\" ng-false-value=\"false\">\n            <input id=\"TagWithPipelineLabel\" type=\"hidden\" ng-model=\"TagWithPipelineLabel\" value=\"{{TagWithPipelineLabel}}\">\n            <label for=\"TagWithPipelineLabel\">Include pipeline label (tag_name:GO_PIPELINE_LABEL)</label>\n        </div>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerRun2\" type=\"checkbox\" ng-model=\"IsDockerRun2\" ng-init=\"IsDockerRun2 = IsDockerRun\" ng-change=\"IsDockerRun = IsDockerRun2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerRun\" type=\"hidden\" ng-model=\"IsDockerRun\" value=\"{{IsDockerRun}}\">\n        <label for=\"IsDockerRun\">Run command in docker image</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_run\" ng-show=\"IsDockerRun == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Script path:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerRunScript\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerRunScript].$error.server\">{{GOINPUTNAME[DockerRunScript].$error.server}}</span>\n        </div>\n        <div class=\"form_item_block\" >\n            <label>Arguments (one per line):</label>\n            <textarea ng-model=\"DockerRunArguments\" wrap=\"off\" style=\"width: 250px; resize: both;\" cols=\"58\" autocomplete=\"off\"></textarea>\n        </div>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerPush2\" type=\"checkbox\" ng-model=\"IsDockerPush2\" ng-init=\"IsDockerPush2 = IsDockerPush\" ng-change=\"IsDockerPush = IsDockerPush2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerPush\" type=\"hidden\" ng-model=\"IsDockerPush\" value=\"{{IsDockerPush}}\">\n        <label for=\"IsDockerPush\">Push image to registry</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_push\" ng-show=\"IsDockerPush == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Docker hub user:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerPushUser\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerPushUser].$error.server\">{{GOINPUTNAME[DockerPushUser].$error.server}}</span>\n        </div>\n        <div class=\"checkbox_row\" ng-show=\"DockerBuildTag\">\n            <input id=\"RemoveAfterPush2\" type=\"checkbox\" ng-model=\"RemoveAfterPush2\" ng-init=\"RemoveAfterPush2 = RemoveAfterPush\" ng-change=\"RemoveAfterPush = RemoveAfterPush2\" ng-true-value=\"true\" ng-false-value=\"false\">\n            <input id=\"RemoveAfterPush\" type=\"hidden\" ng-model=\"RemoveAfterPush\" value=\"{{RemoveAfterPush}}\">\n            <label for=\"RemoveAfterPush\">Remove local image after push</label>\n        </div>\n    </div>\n</div>\n"
+            "view": {
+              "template": "<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerBuild2\" type=\"checkbox\" ng-model=\"IsDockerBuild2\" ng-init=\"IsDockerBuild2 = IsDockerBuild\" ng-change=\"IsDockerBuild = IsDockerBuild2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerBuild\" type=\"hidden\" ng-model=\"IsDockerBuild\" value=\"{{IsDockerBuild}}\">\n        <label for=\"IsDockerBuild\">Build docker image</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_build\" ng-show=\"IsDockerBuild == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Dockerfile path:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerFile\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerFile].$error.server\">{{GOINPUTNAME[DockerFile].$error.server}}</span>\n        </div>\n        <div class=\"form_item_block\" >\n            <label>Tag name:</label>\n            <input type=\"text\" ng-model=\"DockerBuildTag\">\n        </div>\n        <div class=\"checkbox_row\" ng-show=\"DockerBuildTag\">\n            <input id=\"TagWithPipelineLabel2\" type=\"checkbox\" ng-model=\"TagWithPipelineLabel2\" ng-init=\"TagWithPipelineLabel2 = TagWithPipelineLabel\" ng-change=\"TagWithPipelineLabel = TagWithPipelineLabel2\" ng-true-value=\"true\" ng-false-value=\"false\">\n            <input id=\"TagWithPipelineLabel\" type=\"hidden\" ng-model=\"TagWithPipelineLabel\" value=\"{{TagWithPipelineLabel}}\">\n            <label for=\"TagWithPipelineLabel\">Include pipeline label (tag_name:GO_PIPELINE_LABEL)</label>\n        </div>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerRun2\" type=\"checkbox\" ng-model=\"IsDockerRun2\" ng-init=\"IsDockerRun2 = IsDockerRun\" ng-change=\"IsDockerRun = IsDockerRun2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerRun\" type=\"hidden\" ng-model=\"IsDockerRun\" value=\"{{IsDockerRun}}\">\n        <label for=\"IsDockerRun\">Run command in docker image</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_run\" ng-show=\"IsDockerRun == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Script path:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerRunScript\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerRunScript].$error.server\">{{GOINPUTNAME[DockerRunScript].$error.server}}</span>\n        </div>\n        <div class=\"form_item_block\" >\n            <label>Arguments (one per line):</label>\n            <textarea ng-model=\"DockerRunArguments\" wrap=\"off\" style=\"width: 250px; resize: both;\" cols=\"58\" autocomplete=\"off\"></textarea>\n        </div>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"checkbox_row\">\n        <input id=\"IsDockerPush2\" type=\"checkbox\" ng-model=\"IsDockerPush2\" ng-init=\"IsDockerPush2 = IsDockerPush\" ng-change=\"IsDockerPush = IsDockerPush2\" ng-true-value=\"true\" ng-false-value=\"false\">\n        <input id=\"IsDockerPush\" type=\"hidden\" ng-model=\"IsDockerPush\" value=\"{{IsDockerPush}}\">\n        <label for=\"IsDockerPush\">Push image to registry</label>\n    </div>\n</div>\n<div class=\"form_item_block\">\n    <div class=\"docker_push\" ng-show=\"IsDockerPush == 'true'\">\n        <div class=\"form_item_block\" >\n            <label>Docker hub user:<span class=\"asterisk\">*</span></label>\n            <input type=\"text\" ng-model=\"DockerPushUser\">\n            <span class=\"form_error\" ng-show=\"GOINPUTNAME[DockerPushUser].$error.server\">{{GOINPUTNAME[DockerPushUser].$error.server}}</span>\n        </div>\n        <div class=\"checkbox_row\" ng-show=\"DockerBuildTag\">\n            <input id=\"RemoveAfterPush2\" type=\"checkbox\" ng-model=\"RemoveAfterPush2\" ng-init=\"RemoveAfterPush2 = RemoveAfterPush\" ng-change=\"RemoveAfterPush = RemoveAfterPush2\" ng-true-value=\"true\" ng-false-value=\"false\">\n            <input id=\"RemoveAfterPush\" type=\"hidden\" ng-model=\"RemoveAfterPush\" value=\"{{RemoveAfterPush}}\">\n            <label for=\"RemoveAfterPush\">Remove local image after push</label>\n        </div>\n    </div>\n</div>\n"
             }
           }
         }
-      }
-      ;
+      };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
@@ -395,8 +368,8 @@ describe('PluginInfos', () => {
             "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
           }
         },
-        "display_name":   "GitHub",
         "extension_info": {
+          "display_name": "GitHub",
           "scm_settings": {
             "configurations": [
               {

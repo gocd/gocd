@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent.common.ssl;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.http.HttpHost;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -63,7 +64,11 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
         }
 
         sslContextBuilder.loadKeyMaterial(agentKeystore(), keystorePassword().toCharArray());
-
+        String proxyUrl = systemEnvironment.getProxyUrl();
+        if (!proxyUrl.isEmpty()) {
+            HttpHost proxy = HttpHost.create(proxyUrl);
+            builder.setProxy(proxy);
+        }
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(), hostnameVerifier);
         builder.setSSLSocketFactory(sslConnectionSocketFactory);
         return builder.build();

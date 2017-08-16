@@ -31,6 +31,7 @@ import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.mockito.Mock;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -72,7 +74,10 @@ public class UserSearchServiceTest {
     public void shouldSearchForUsers() throws Exception {
         User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
         User bar = new User("bar-foo", new ArrayList<>(), "bar@go.com", true);
+
+        when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
         when(passwordFileUserSearch.search("foo")).thenReturn(Arrays.asList(foo, bar));
+
         List<UserSearchModel> models = userSearchService.search("foo", new HttpLocalizedOperationResult());
         assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.PASSWORD_FILE), new UserSearchModel(bar, UserSourceType.PASSWORD_FILE))));
     }
@@ -83,9 +88,11 @@ public class UserSearchServiceTest {
 
         User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
         User bar = new User("bar-foo", new ArrayList<>(), "bar@go.com", true);
-        when(passwordFileUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
 
-        List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
+        when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
+        when(passwordFileUserSearch.search(searchTerm)).thenReturn(asList(foo, bar));
+
+        List<String> pluginIds = asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
         addPluginSupportingUserSearch(pluginIds.get(0));
         addPluginSupportingUserSearch(pluginIds.get(1));
@@ -93,31 +100,37 @@ public class UserSearchServiceTest {
         addPluginSupportingUserSearch(pluginIds.get(3));
         when(authorizationExtension.canHandlePlugin(anyString())).thenReturn(true);
         when(goConfigService.security()).thenReturn(new SecurityConfig());
-        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(getPluginUser(1)));
-        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
+        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(asList(getPluginUser(1)));
+        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm, Collections.emptyList())).thenReturn(asList(getPluginUser(2), getPluginUser(3)));
         when(authorizationExtension.searchUsers("plugin-id-3", searchTerm, Collections.emptyList())).thenReturn(new ArrayList<>());
-        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
+        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
-        assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.PASSWORD_FILE), new UserSearchModel(bar, UserSourceType.PASSWORD_FILE), new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
-                new UserSearchModel(getUser(2), UserSourceType.PLUGIN), new UserSearchModel(getUser(3), UserSourceType.PLUGIN), new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN))));
+        assertThat(models, Matchers.containsInAnyOrder(
+                new UserSearchModel(foo, UserSourceType.PASSWORD_FILE),
+                new UserSearchModel(bar, UserSourceType.PASSWORD_FILE),
+                new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
+                new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
+                new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
+                new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN)
+        ));
     }
 
     @Test
     public void shouldAddPluginSearchResultsWhenPluginImplementsAuthenticationExtension() {
         String searchTerm = "foo";
-        List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
+        List<String> pluginIds = asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
-        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<String>(pluginIds));
+        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(pluginIds));
         when(authenticationExtension.canHandlePlugin(anyString())).thenReturn(true);
-        when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
-        when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
+        when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(asList(getPluginUser(1)));
+        when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(asList(getPluginUser(2), getPluginUser(3)));
         when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.models.User>());
-        when(authenticationExtension.searchUser("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
+        when(authenticationExtension.searchUser("plugin-id-4", searchTerm)).thenReturn(asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
-        assertThat(models, is(Arrays.asList(new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
+        assertThat(models, is(asList(new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
                 new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN))));

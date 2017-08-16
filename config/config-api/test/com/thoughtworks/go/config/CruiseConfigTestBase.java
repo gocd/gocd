@@ -348,7 +348,6 @@ public abstract class CruiseConfigTestBase {
         SecurityAuthConfig ldapConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
         ldapConfig.errors().add("uri", "invalid ldap uri");
         ldapConfig.errors().add("searchBase", "invalid search base");
-
         config.server().security().securityAuthConfigs().add(ldapConfig);
 
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
@@ -380,6 +379,7 @@ public abstract class CruiseConfigTestBase {
         SecurityAuthConfig ldapConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
         ldapConfig.errors().add("uri", "invalid ldap uri");
         ldapConfig.errors().add("searchBase", "invalid search base");
+        config.server().security().securityAuthConfigs().add(ldapConfig);
 
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");
@@ -407,6 +407,7 @@ public abstract class CruiseConfigTestBase {
         SecurityAuthConfig ldapConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
         ldapConfig.errors().add("uri", "invalid ldap uri");
         ldapConfig.errors().add("searchBase", "invalid search base");
+        config.server().security().securityAuthConfigs().add(ldapConfig);
 
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");
@@ -433,6 +434,7 @@ public abstract class CruiseConfigTestBase {
         SecurityAuthConfig ldapConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
         ldapConfig.errors().add("uri", "invalid ldap uri");
         ldapConfig.errors().add("searchBase", "invalid search base");
+        config.server().security().securityAuthConfigs().add(ldapConfig);
 
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");

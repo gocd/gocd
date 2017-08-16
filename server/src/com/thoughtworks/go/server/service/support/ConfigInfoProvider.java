@@ -52,9 +52,7 @@ public class ConfigInfoProvider implements ServerInfoProvider {
         validConfig.put("Number of schedulable materials", service.getSchedulableMaterials().size());
 
         LinkedHashMap<String, Object> security = new LinkedHashMap<>();
-        security.put("LDAP", service.security().ldapConfig().isEnabled());
         security.put("Password", service.security().passwordFileConfig().isEnabled());
-
 
         json.put("Valid Config", validConfig);
         json.put("Security", security);

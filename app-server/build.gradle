@@ -30,7 +30,6 @@ dependencies {
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
-  testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
   testCompile project(':common')
   testCompile project(':config-server')
   testCompile project(':config-api')

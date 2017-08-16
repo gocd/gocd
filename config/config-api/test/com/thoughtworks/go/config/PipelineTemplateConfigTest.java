@@ -141,7 +141,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidateRoleNamesInTemplateAdminAuthorization() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
@@ -156,7 +156,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidateRoleNamesInTemplateViewAuthorization() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));

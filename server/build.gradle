@@ -137,12 +137,6 @@ dependencies {
     exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')
   }
-  compile(group: 'org.springframework.ldap', name: 'spring-ldap', version: '1.2.1') {
-    exclude(module: 'spring-core')
-    exclude(module: 'spring-beans')
-    exclude(module: 'commons-lang')
-    exclude(module: 'commons-logging')
-  }
   compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
   compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
   compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
@@ -546,7 +540,6 @@ task verifyWar(type: VerifyJarTask) {
       "spring-core-${project.versions.spring}.jar",
       "spring-expression-${project.versions.spring}.jar",
       "spring-jdbc-${project.versions.spring}.jar",
-      "spring-ldap-1.2.1.jar",
       "spring-orm-${project.versions.spring}.jar",
       "spring-security-core-2.0.3.jar",
       "spring-tx-${project.versions.spring}.jar",

@@ -501,30 +501,6 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldAcceptLdapConfiguration_withNoManagerDn() throws Exception {
-        String ldapCfg = "<ldap uri=\"foo\" searchFilter=\"filter\" >"
-                + "<bases><base>base1</base></bases>"
-                + "</ldap>";
-
-        LdapConfig ldapConfig = xmlLoader.fromXmlPartial(toInputStream(ldapCfg), LdapConfig.class);
-
-        assertThat(ldapConfig.managerDn(), is(""));
-        assertThat(ldapConfig.managerPassword(), is(""));
-    }
-
-
-    @Test
-    public void shouldAcceptLdapConfiguration_withoutSearchFilter() throws Exception {
-        String ldapCfg = "<ldap uri=\"foo\" managerDn=\"foo\" managerPassword=\"bar\">"
-                + "<bases><base>base1</base></bases>"
-                + "</ldap>";
-
-        LdapConfig ldapConfig = xmlLoader.fromXmlPartial(toInputStream(ldapCfg), LdapConfig.class);
-
-        assertThat(ldapConfig.searchFilter(), is(""));
-    }
-
-    @Test
     public void shouldLoadGetFromSvnPartialForDir() throws Exception {
         String buildXmlPartial =
                 "<jobs>\n"
@@ -2951,25 +2927,6 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(list, hasItem(EnvironmentPipelineValidator.class.getCanonicalName()));
         assertThat(list, hasItem(ServerIdImmutabilityValidator.class.getCanonicalName()));
         assertThat(list, hasItem(CommandRepositoryLocationValidator.class.getCanonicalName()));
-    }
-
-    @Test
-    public void shouldLoadAfterMigration62() {
-        final String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion='62'>\n"
-                + "    <server artifactsdir=\"artifacts\">\n"
-                + "      <security>"
-                + "        <ldap uri='some_url' managerDn='some_manager_dn' managerPassword='foo' searchFilter='(sAMAccountName={0})'>"
-                + "             <bases>"
-                + "                 <base value='ou=Enterprise,ou=Principal,dc=corporate,dc=thoughtworks,dc=com'/>"
-                + "             </bases>"
-                + "        </ldap>"
-                + "      </security>"
-                + "    </server>"
-                + " </cruise>";
-        GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
-        assertThat(goConfigHolder.config.server().security().ldapConfig().isEnabled(), is(false));
-        assertThat(goConfigHolder.config.server().security().securityAuthConfigs().get(0).getProperty("SearchBases").getValue(), is("ou=Enterprise,ou=Principal,dc=corporate,dc=thoughtworks,dc=com"));
     }
 
     @Test

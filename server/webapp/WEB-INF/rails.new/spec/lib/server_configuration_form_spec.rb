@@ -18,50 +18,6 @@ require 'spec_helper'
 
 describe ServerConfigurationForm do
 
-  describe "to_bases_collection" do
-    it "should convert new line separated entry to bases collection" do
-      input = " foo,bar, baz \nbase2\r\n\n base3 "
-      form = ServerConfigurationForm.new({})
-      actual = form.to_bases_collection input
-      actual.size.should == 3
-      actual[0].getValue().should == " foo,bar, baz "
-      actual[1].getValue().should == "base2"
-      actual[2].getValue().should == " base3 "
-    end
-
-    it "should ignore empty lines when constructing base config" do
-      input = "  \nfoo  \n  \n  "
-      form = ServerConfigurationForm.new({})
-      actual = form.to_bases_collection input
-      actual.size.should == 1
-    end
-
-    it "should not construct base config for empty" do
-      input = "  \n  "
-      form = ServerConfigurationForm.new({})
-      actual = form.to_bases_collection input
-      actual.size.should == 0
-    end
-  end
-
-  describe "from_bases_collection" do
-    it "should convert bases collection to new line separated entry" do
-      bases = BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig))
-      actual = ServerConfigurationForm.from_bases_collection(bases)
-      actual.should == "base1\r\nbase2"
-    end
-  end
-
-  describe "to_ldap_config" do
-    it "should construct ldap config" do
-      input = "foo,bar, baz\nbase2\n\nbase3\n\n\r\n\n\n\n\n\n\r\n"
-      form = ServerConfigurationForm.new({:ldap_search_base => input})
-      actual = form.to_ldap_config
-      actual.searchBases().should_not == nil
-      actual.searchBases().size().should == 3
-    end
-  end
-
   describe "allow_auto_login" do
     it "should default it to true when a new instance is created without a value being provided for it" do
       form = ServerConfigurationForm.new({})
@@ -80,9 +36,8 @@ describe ServerConfigurationForm do
     end
 
     it "should set allow_auto_login to 'true' when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is false" do
-      @ldap_config = LdapConfig.new("ldap://test.com", "test", "password", @encrypted_password, true,BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig)), "searchFilter")
       @password_file_config = PasswordFileConfig.new("path")
-      @security_config = SecurityConfig.new(@ldap_config, @password_file_config, false)
+      @security_config = SecurityConfig.new(@password_file_config, false)
       @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       form = ServerConfigurationForm.from_server_config(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
@@ -91,9 +46,8 @@ describe ServerConfigurationForm do
     end
 
     it "should set allow_auto_login to 'false' when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is true" do
-      @ldap_config = LdapConfig.new("ldap://test.com", "test", "password", @encrypted_password, true,BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig)), "searchFilter")
       @password_file_config = PasswordFileConfig.new("path")
-      @security_config = SecurityConfig.new(@ldap_config, @password_file_config, true)
+      @security_config = SecurityConfig.new(@password_file_config, true)
       @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       form = ServerConfigurationForm.from_server_config(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.security;
 
 import java.util.List;
-
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -47,13 +46,13 @@ public class PasswordFileUserSearchTest {
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, true);
         CONFIG_HELPER.addSecurityWithPasswordFile();
     }
 
     @After
     public void tearDown() throws Exception {
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, false);
     }
 
     @Test

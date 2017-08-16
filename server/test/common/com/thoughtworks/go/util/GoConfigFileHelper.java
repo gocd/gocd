@@ -26,8 +26,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
-import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -36,7 +34,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -70,26 +67,27 @@ public class GoConfigFileHelper {
     public GoConfigFileHelper() {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
     }
+
     public GoConfigFileHelper(GoPartialConfig partials) {
-        this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS,partials);
+        this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, partials);
     }
 
     public GoConfigFileHelper(GoConfigDao goConfigDao) {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, goConfigDao);
     }
 
-     private GoConfigFileHelper(String xml, GoConfigDao goConfigDao) {
-         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
-         this.originalXml = xml;
-         assignFileDao(goConfigDao);
-         try {
-             File dir = TestFileUtil.createTempFolder("server-config-dir");
-             this.configFile = new File(dir, "cruise-config.xml");
-             configFile.deleteOnExit();
-             sysEnv = new SystemEnvironment();
-             sysEnv.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
-             initializeConfigFile();
-         } catch (IOException e) {
+    private GoConfigFileHelper(String xml, GoConfigDao goConfigDao) {
+        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
+        this.originalXml = xml;
+        assignFileDao(goConfigDao);
+        try {
+            File dir = TestFileUtil.createTempFolder("server-config-dir");
+            this.configFile = new File(dir, "cruise-config.xml");
+            configFile.deleteOnExit();
+            sysEnv = new SystemEnvironment();
+            sysEnv.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
+            initializeConfigFile();
+        } catch (IOException e) {
             throw bomb("Error creating config file", e);
         }
     }
@@ -128,6 +126,7 @@ public class GoConfigFileHelper {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * Creates config dao that has custom remote configuration parts provided by partialConfig argument
      */
@@ -164,9 +163,10 @@ public class GoConfigFileHelper {
     }
 
     public GoConfigFileHelper(String xml) {
-       this(xml, createTestingDao());
+        this(xml, createTestingDao());
     }
-    public GoConfigFileHelper(String xml,GoPartialConfig partials) {
+
+    public GoConfigFileHelper(String xml, GoPartialConfig partials) {
         this(xml, createTestingDao(partials));
     }
 
@@ -294,7 +294,7 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public interface Updater<T>{
+    public interface Updater<T> {
         void update(T t);
     }
 
@@ -537,6 +537,7 @@ public class GoConfigFileHelper {
             throw new RuntimeException(e);
         }
     }
+
     public CruiseConfig loadForEdit() {
         try {
             goConfigDao.forceReload();
@@ -590,33 +591,16 @@ public class GoConfigFileHelper {
         addSecurity(new SecurityConfig());
     }
 
-    public void addLdapSecurity(String uri, String managerDn, String managerPassword, String searchBase,
-                                String searchFilter) {
-        LdapConfig ldapConfig = new LdapConfig(uri, managerDn, managerPassword, null, true, new BasesConfig(new BaseConfig(searchBase)), searchFilter);
-        addLdapSecurityWith(ldapConfig, true, new PasswordFileConfig(), new AdminsConfig());
-    }
-
-    public void addLdapSecurityWithAdmin(String uri, String managerDn, String managerPassword, String searchBase,
-                                         String searchFilter, String adminUser) {
-        LdapConfig ldapConfig = new LdapConfig(uri, managerDn, managerPassword, null, true, new BasesConfig(new BaseConfig(searchBase)), searchFilter);
-        addLdapSecurityWith(ldapConfig, true, new PasswordFileConfig(), new AdminsConfig(new AdminUser(new CaseInsensitiveString(adminUser))));
-    }
-
-    public void addLdapSecurityWith(LdapConfig ldapConfig, boolean anonymous, PasswordFileConfig passwordFileConfig,
-                                     AdminsConfig adminsConfig) {
-        SecurityConfig securityConfig = new SecurityConfig(ldapConfig, passwordFileConfig, anonymous, adminsConfig);
+    public void addBogusSecurity(boolean anonymous) {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
+        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(), anonymous, new AdminsConfig());
+        securityConfig.securityAuthConfigs().add(securityAuthConfig);
         addSecurity(securityConfig);
     }
 
-
-    public void addSecurityWithBogusLdapConfig(boolean anonymous) {
-        addLdapSecurityWith(new LdapConfig("uri", "dn", "pw", null, true, new BasesConfig(new BaseConfig("sb")), "sf"), anonymous, new PasswordFileConfig(),
-                new AdminsConfig());
-    }
-
-
     public File addSecurityWithPasswordFile() throws IOException {
-        addLdapSecurityWith(new LdapConfig(new GoCipher()), true, new PasswordFileConfig(addPasswordFile().getAbsolutePath()), new AdminsConfig());
+        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(addPasswordFile().getAbsolutePath()), true, new AdminsConfig());
+        addSecurity(securityConfig);
         return passwordFile;
     }
 
@@ -627,12 +611,6 @@ public class GoConfigFileHelper {
     @Deprecated
     public File turnOnSecurity() throws IOException {
         return addSecurityWithPasswordFile();
-    }
-
-    public void addSecurityWithNonExistantPasswordFile() throws IOException {
-        addLdapSecurityWith(new LdapConfig(new GoCipher()), true,
-                new PasswordFileConfig(new File("invalid", "path").getAbsolutePath()),
-                new AdminsConfig());
     }
 
     public void addSecurityWithAdminConfig() throws Exception {
@@ -850,12 +828,12 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-	public void setRunMultipleInstance(String pipelineName, String stageName, String jobName, Integer runInstanceCount) {
-		CruiseConfig config = loadForEdit();
-		PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-		pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunInstanceCount(runInstanceCount);
-		writeConfigFile(config);
-	}
+    public void setRunMultipleInstance(String pipelineName, String stageName, String jobName, Integer runInstanceCount) {
+        CruiseConfig config = loadForEdit();
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunInstanceCount(runInstanceCount);
+        writeConfigFile(config);
+    }
 
     public void addResourcesFor(String pipelineName, String stageName, String jobName, String... resources) {
         CruiseConfig config = loadForEdit();
@@ -969,7 +947,7 @@ public class GoConfigFileHelper {
     }
 
 
-    public static EnvironmentVariablesConfig env(String [] names, String [] values) {
+    public static EnvironmentVariablesConfig env(String[] names, String[] values) {
         return EnvironmentVariablesConfigMother.env(names, values);
     }
 
@@ -1004,7 +982,7 @@ public class GoConfigFileHelper {
         writeConfigFile(cruiseConfig);
     }
 
-    public void addPackageDefinition(PackageMaterialConfig packageMaterialConfig){
+    public void addPackageDefinition(PackageMaterialConfig packageMaterialConfig) {
         CruiseConfig config = loadForEdit();
         PackageRepository repository = packageMaterialConfig.getPackageDefinition().getRepository();
         config.getPackageRepositories().add(repository);

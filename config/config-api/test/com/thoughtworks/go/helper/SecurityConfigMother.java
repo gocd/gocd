@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.*;
 public class SecurityConfigMother {
 
     public static SecurityConfig securityConfigWith(String passwordFile) {
-        return new SecurityConfig(null, new PasswordFileConfig(passwordFile), true);
+        return new SecurityConfig(new PasswordFileConfig(passwordFile), true);
     }
 
     public static SecurityConfig securityConfigWithRole(String roleName, String... users) {

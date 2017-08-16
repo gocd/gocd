@@ -31,7 +31,7 @@ public class SecurityConfigTest {
     public void shouldAllowUnorderedRoleAndUserInXsd() throws Exception {
         CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(ConfigMigrator.migrate(
                 ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS)).configForEdit;
-        config.setServerConfig(new ServerConfig("dir", security(null, null, admins(role("role2"), user("jez"), role("role1")))));
+        config.setServerConfig(new ServerConfig("dir", security(null, admins(role("role2"), user("jez"), role("role1")))));
         new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, new ByteArrayOutputStream(), false);
     }
 }

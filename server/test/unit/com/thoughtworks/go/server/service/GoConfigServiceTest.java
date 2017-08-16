@@ -26,8 +26,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
-import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.update.UiBasedConfigUpdateCommand;
@@ -289,14 +287,6 @@ public class GoConfigServiceTest {
         pipelineConfig.lockExplicitly();
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline"), is(true));
-    }
-
-    @Test
-    public void shouldUnderstandIfLdapIsConfigured() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.setServerConfig(new ServerConfig(null, new SecurityConfig(new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test"), null, true, null)));
-        expectLoad(config);
-        assertThat("Ldap is configured", goConfigService.isLdapConfigured(), is(true));
     }
 
     @Test
@@ -593,7 +583,7 @@ public class GoConfigServiceTest {
         PipelineConfig down2 = GoConfigMother.createPipelineConfigWithMaterialConfig("down2", new DependencyMaterialConfig(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage")));
         when(goConfigDao.load()).thenReturn(configWith(
                 up, down1, down2, GoConfigMother.createPipelineConfigWithMaterialConfig("otherPipeline", new DependencyMaterialConfig(new CaseInsensitiveString("someotherpipeline"),
-                new CaseInsensitiveString("blahStage")))
+                        new CaseInsensitiveString("blahStage")))
         ));
 
         assertThat(goConfigService.downstreamPipelinesOf("blahPipeline"), is(Arrays.asList(down1, down2)));
@@ -1071,7 +1061,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void badConfigShouldContainOldMD5_WhenConfigUpdateFailed(){
+    public void badConfigShouldContainOldMD5_WhenConfigUpdateFailed() {
         when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new RuntimeException(getGoConfigInvalidException()));
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
@@ -1080,7 +1070,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void configShouldContainOldMD5_WhenConfigMergeFailed(){
+    public void configShouldContainOldMD5_WhenConfigMergeFailed() {
         when(goConfigDao.loadForEditing()).thenReturn(new BasicCruiseConfig());
         when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
@@ -1094,18 +1084,18 @@ public class GoConfigServiceTest {
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), null, null, true, "md5", null, null, null, null, "http://site",
+        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()),null, true, "md5", null, null, null, null, "http://site",
                 "https://site", "location");
         assertThat(configSaveState, is(expectedSaveState));
     }
 
-	@Test
-	public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
-		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-		expectLoad(cruiseConfig);
-		goConfigService.getAllPipelinesInGroup("group");
-		verify(cruiseConfig).pipelines("group");
-	}
+    @Test
+    public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        expectLoad(cruiseConfig);
+        goConfigService.getAllPipelinesInGroup("group");
+        verify(cruiseConfig).pipelines("group");
+    }
 
     @Test
     public void shouldNotUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasNeverSelectedPipelines() {
@@ -1160,8 +1150,7 @@ public class GoConfigServiceTest {
 
 
     @Test
-    public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() throws Exception
-    {
+    public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() throws Exception {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setOrigin(new RepoConfigOrigin());
@@ -1169,9 +1158,9 @@ public class GoConfigServiceTest {
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(false));
     }
+
     @Test
-    public void pipelineEditableViaUI_shouldReturnTrueWhenPipelineIsLocal() throws Exception
-    {
+    public void pipelineEditableViaUI_shouldReturnTrueWhenPipelineIsLocal() throws Exception {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
@@ -1291,7 +1280,7 @@ public class GoConfigServiceTest {
 
     private CruiseConfig mockConfigWithSecurity() {
         CruiseConfig config = mockConfig();
-        config.server().useSecurity(new SecurityConfig(null, new PasswordFileConfig("path"), true));
+        config.server().useSecurity(new SecurityConfig(new PasswordFileConfig("path"), true));
         return config;
     }
 

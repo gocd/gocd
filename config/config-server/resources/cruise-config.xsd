@@ -188,7 +188,6 @@
     </xsd:complexType>
     <xsd:complexType name="securityType">
         <xsd:all>
-            <xsd:element minOccurs="0" maxOccurs="1" name="ldap" type="ldapType"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="passwordFile" type="passwordfileType"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="authConfigs" type="authConfigsType">
                 <xsd:unique name="uniqueAuthConfig">
@@ -311,28 +310,6 @@
         </xsd:choice>
     </xsd:complexType>
 
-    <xsd:complexType name="ldapType">
-        <xsd:sequence>
-            <xsd:element name="bases" type="searchBasesType"/>
-        </xsd:sequence>
-        <xsd:attribute name="uri" type="xsd:string" use="required"/>
-        <xsd:attribute name="managerDn" type="xsd:string"/>
-        <xsd:attribute name="managerPassword" type="xsd:string"/>
-        <xsd:attribute name="encryptedManagerPassword" type="xsd:string"/>
-        <xsd:attribute name="searchFilter" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:complexType name="searchBasesType">
-        <xsd:sequence>
-            <xsd:element name="base" type="searchBaseType" minOccurs="1" maxOccurs="unbounded"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="searchBaseType">
-        <xsd:simpleContent>
-            <xsd:extension base="xsd:string">
-                <xsd:attribute type="xsd:string" name="value"/>
-            </xsd:extension>
-        </xsd:simpleContent>
-    </xsd:complexType>
     <xsd:complexType name="passwordfileType">
         <xsd:attribute name="path" type="xsd:string" use="required"/>
     </xsd:complexType>

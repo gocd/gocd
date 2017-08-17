@@ -32,7 +32,7 @@ const PluginRoleModalBody = {
       const items = [];
       vnode.attrs.authConfigs().eachAuthConfig((authConfig) => {
         const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
-        if (pluginInfo && pluginInfo.capabilities().canAuthorize) {
+        if (pluginInfo && pluginInfo.capabilities().canAuthorize()) {
           items.push({
             id:   authConfig.id(),
             text: `${authConfig.id()} (${pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id()})`

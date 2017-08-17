@@ -20,7 +20,7 @@ const Stream          = require('mithril/stream');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 
 const ElasticProfileWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
@@ -37,44 +37,36 @@ const ElasticProfileWidget = {
     };
   },
 
-  view (vnode) {
+  view(vnode) {
     const profile = vnode.attrs.profile;
-    let image;
     let actionIcons;
 
     if (vnode.attrs.pluginInfo) {
-      image       = (<img src={vnode.attrs.pluginInfo.imageUrl()}/>);
       actionIcons = (
         <div class="plugin-actions">
-          <f.link class='edit-profile' onclick={vnode.attrs.onEdit}/>
-          <f.link class='clone-profile' onclick={vnode.attrs.onClone}/>
-          <f.link class='delete-profile-confirm' onclick={vnode.attrs.onDelete}/>
+          <f.link class="edit-profile" onclick={vnode.attrs.onEdit}/>
+          <f.link class="clone-profile" onclick={vnode.attrs.onClone}/>
+          <f.link class="delete-profile-confirm" onclick={vnode.attrs.onDelete}/>
         </div>
       );
     } else {
-      image       = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
       actionIcons = (
         <div class="plugin-actions">
-          <f.link class='edit-profile disabled' title="Plugin not found"/>
-          <f.link class='clone-profile disabled' title="Plugin not found"/>
-          <f.link class='delete-profile-confirm' onclick={vnode.attrs.onDelete}/>
+          <f.link class="edit-profile disabled" title="Plugin not found"/>
+          <f.link class="clone-profile disabled" title="Plugin not found"/>
+          <f.link class="delete-profile-confirm" onclick={vnode.attrs.onDelete}/>
         </div>
       );
     }
     return (
-      <div class="elastic-profile">
+      <div class={`elastic-profile ${(vnode.state.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
         <div class="elastic-profile-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
-            <span class="plugin-icon">
-              {image}
-            </span>
           <div class="plugin-description">
-            <div class="profile-id"><span class="key">Id: </span><span class="value">{profile.id()}</span></div>
-            <div class="plugin-id"><span class="key">Plugin ID:</span> <span class="value">{profile.pluginId()}</span>
-            </div>
+            <div class="profile-id"><span class="key">Profile ID: </span><span class="value">{profile.id()}</span></div>
           </div>
 
         </div>
-        <div class={`plugin-config-read-only ${  vnode.state.showState()}`}>
+        <div class={`plugin-config-read-only ${vnode.state.showState()}`}>
           <dl class="key-value-pair">
 
             {profile.properties().mapConfigurations((configuration) => {

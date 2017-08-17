@@ -88,6 +88,9 @@ describe("RolesWidget", () => {
         "view":           {
           "template": '<div class="plugin-role-view"><label>Name</label><input id="name" type="text"/></div>'
         }
+      },
+      "capabilities":  {
+        "can_authorize": true
       }
     }
   };
@@ -102,6 +105,9 @@ describe("RolesWidget", () => {
         "view":           {
           "template": '<div class="plugin-role-view"><label>GitHub username:</label><input id="name" type="text"/></div>'
         }
+      },
+      "capabilities":  {
+        "can_authorize": true
       }
     }
   };
@@ -184,7 +190,7 @@ describe("RolesWidget", () => {
     });
 
     it("should render info callout in absence of authorization plugin", () => {
-      expect($root.find('.roles .callout').text()).toEqual("No authorization plugin installed.");
+      expect($root.find('.roles .callout').text()).toEqual("None of the installed plugin supports role based authorization.");
     });
 
     it("should list existing roles in absence of authorization plugin", () => {

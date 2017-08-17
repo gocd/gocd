@@ -50,7 +50,7 @@ function showSuccess(modal, ctrl, message) {
 }
 
 const ElasticProfilesWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     const ctrl = vnode.state;
     ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
     ComponentMixins.HasViewModel.call(this);
@@ -200,7 +200,7 @@ const ElasticProfilesWidget = {
           {
             text:  'Delete',
             class: deleteInProgress() ? 'delete-profile in-progress' : 'delete-profile',
-            onclick () {
+            onclick() {
               performDelete(modal, profile);
             }
           }
@@ -210,7 +210,7 @@ const ElasticProfilesWidget = {
     };
   },
 
-  view (vnode) {
+  view:  (vnode) => {
 
     let errorMessage;
     if (vnode.state.message().message) {
@@ -270,19 +270,49 @@ const ElasticProfilesWidget = {
           {errorMessage}
           <f.row>
 
-            {vnode.state.profiles().mapProfiles((profile) => {
-              const pluginInfo = vnode.attrs.pluginInfos().findById(profile.pluginId());
+            {_.map(vnode.state.profiles().groupByProfileProperty('pluginId'), (profiles, pluginId) => {
+              const pluginInfo = vnode.attrs.pluginInfos().findById(pluginId);
+              let statusReportButton, pluginNameLabel, pluginIcon;
 
-              return (
-                <ElasticProfileWidget
-                  profile={profile}
-                  pluginInfo={pluginInfo}
-                  key={profile.id()}
-                  vm={vnode.state.vmState(profile.id())}
-                  onEdit={vnode.state.edit.bind(vnode.state, profile)}
-                  onDelete={vnode.state.deleteConfirm.bind(vnode.state, profile)}
-                  onClone={vnode.state.clone.bind(vnode.state, profile, pluginInfo)}/>
-              );
+              if (pluginInfo) {
+                pluginIcon      = (<span class="plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);
+                pluginNameLabel = (<label className="medium-4 column plugin-name">{pluginInfo.about().name()}</label>);
+
+                if (pluginInfo.capabilities() && pluginInfo.capabilities().supportsStatusReport()) {
+                  statusReportButton = (
+                    <f.link class="button plugin-status end" href={`status_reports/${pluginId}`}>Status Report</f.link>);
+                }
+              } else {
+                pluginNameLabel = (
+                  <label className="medium-4 column plugin-not-installed">Plugin is not installed</label>);
+                pluginIcon      = (<span class="plugin-icon warning"></span>);
+              }
+
+              return (<div class="elastic-profile-plugin-group">
+
+                <div class="elastic-profile-plugin-group-header row">
+                  {pluginIcon}
+                  {pluginNameLabel}
+                  <label className="medium-4 column plugin-id end">Plugin ID: {pluginId}</label>
+                  {statusReportButton}
+                </div>
+
+                <div class="elastic-profile-plugin-group-content">
+                  {_.map(profiles, (profile) => {
+
+                    return (
+                      <ElasticProfileWidget
+                        profile={profile}
+                        pluginInfo={pluginInfo}
+                        key={profile.id()}
+                        vm={vnode.state.vmState(profile.id())}
+                        onEdit={vnode.state.edit.bind(vnode.state, profile)}
+                        onDelete={vnode.state.deleteConfirm.bind(vnode.state, profile)}
+                        onClone={vnode.state.clone.bind(vnode.state, profile, pluginInfo)}/>
+                    );
+                  })}
+                </div>
+              </div>);
             })}
           </f.row>
         </div>

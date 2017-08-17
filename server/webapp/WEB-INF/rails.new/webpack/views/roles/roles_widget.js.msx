@@ -236,7 +236,7 @@ const RolesWidget = function (options) {
       if (noPluginThatSupportsAuthorization) {
         noAuthorizationPluginMessage = (<f.row>
           <f.callout type="info">
-            No authorization plugin installed.
+            None of the installed plugin supports role based authorization.
           </f.callout>
         </f.row>);
       }

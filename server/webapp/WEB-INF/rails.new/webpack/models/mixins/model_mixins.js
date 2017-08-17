@@ -106,6 +106,8 @@ Mixins.HasMany = function (options) {
 
   this[`sortBy${associationNamePlural}`] = (cb, thisArg) => _.sortBy(collection(), cb, thisArg);
 
+  this[`groupBy${associationName}Property`] = (propName) => _.groupBy(collection(), propName);
+
   this[`every${associationName}`] = (cb, thisArg) => _.every(collection(), cb, thisArg);
 
   this[`collect${associationName}Property`] = function (propName) {

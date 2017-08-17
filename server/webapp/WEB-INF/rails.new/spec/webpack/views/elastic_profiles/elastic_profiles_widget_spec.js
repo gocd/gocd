@@ -61,32 +61,34 @@ describe("ElasticProfilesWidget", () => {
       "version": "0.5"
     },
     "type":             "elastic-agent",
-    "profile_settings": {
-      "configurations": [
-        {
-          "key":      "Image",
-          "metadata": {
-            "secure":   false,
-            "required": true
+    "extension_info": {
+      "profile_settings": {
+        "configurations": [
+          {
+            "key":      "Image",
+            "metadata": {
+              "secure":   false,
+              "required": true
+            }
+          },
+          {
+            "key":      "Command",
+            "metadata": {
+              "secure":   false,
+              "required": false
+            }
+          },
+          {
+            "key":      "Environment",
+            "metadata": {
+              "secure":   false,
+              "required": false
+            }
           }
-        },
-        {
-          "key":      "Command",
-          "metadata": {
-            "secure":   false,
-            "required": false
-          }
-        },
-        {
-          "key":      "Environment",
-          "metadata": {
-            "secure":   false,
-            "required": false
-          }
+        ],
+        "view":           {
+          "template": '<div><label class="docker-image">Docker image</label></div>'
         }
-      ],
-      "view":           {
-        "template": '<div><label class="docker-image">Docker image</label></div>'
       }
     }
   };
@@ -98,10 +100,12 @@ describe("ElasticProfilesWidget", () => {
       "version": "0.5"
     },
     "type":             "elastic-agent",
-    "profile_settings": {
-      "configurations": [],
-      "view":           {
-        "template": '<div><label class="ecs-ami">AMI</label></div>'
+    "extension_info": {
+      "profile_settings": {
+        "configurations": [],
+        "view":           {
+          "template": '<div><label class="ecs-ami">AMI</label></div>'
+        }
       }
     }
   };

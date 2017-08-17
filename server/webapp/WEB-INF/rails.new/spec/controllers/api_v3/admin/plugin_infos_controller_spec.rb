@@ -197,7 +197,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       get_with_api_header :show, id: 'bad.plugin'
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(bad_plugin_info, ApiV3::Plugin::BadPluginInfoRepresenter))
+      expect(actual_response).to eq(expected_response(bad_plugin_info, ApiV3::Plugin::PluginInfoRepresenter))
     end
 
     it 'should return 404 in absence of plugin_info' do

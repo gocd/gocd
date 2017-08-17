@@ -15,7 +15,12 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class BadPluginInfoRepresenter < BasePluginInfoRepresenter
+    class AuthorizationCapabilitiesRepresenter < BaseRepresenter
+      alias_method :capabilities, :represented
+
+      property :can_search
+      property :supported_auth_type
+      property :can_authorize
 
     end
   end

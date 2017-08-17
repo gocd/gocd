@@ -16,7 +16,6 @@
 module ApiV3
   module Plugin
     class PackageRepositoryPluginInfoRepresenter < BasePluginInfoRepresenter
-
       property :package_settings,
                skip_nil: true,
                expect_hash: true,
@@ -31,6 +30,7 @@ module ApiV3
                inherit: false,
                class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
+
     end
   end
 end

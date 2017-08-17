@@ -16,6 +16,7 @@
 module ApiV3
   module Plugin
     class SCMPluginInfoRepresenter < BasePluginInfoRepresenter
+
       property :display_name
 
       property :scm_settings,

@@ -79,25 +79,29 @@ describe("RolesWidget", () => {
   };
 
   const ldapPluginInfoJSON = {
-    "id":            "cd.go.authorization.ldap",
-    "type":          "authorization",
-    "about":         {"name": "Ldap authorization plugin"},
-    "role_settings": {
-      "configurations": [],
-      "view":           {
-        "template": '<div class="plugin-role-view"><label>Name</label><input id="name" type="text"/></div>'
+    "id":             "cd.go.authorization.ldap",
+    "type":           "authorization",
+    "about":          {"name": "Ldap authorization plugin"},
+    "extension_info": {
+      "role_settings": {
+        "configurations": [],
+        "view":           {
+          "template": '<div class="plugin-role-view"><label>Name</label><input id="name" type="text"/></div>'
+        }
       }
     }
   };
 
   const githubPluginInfoJSON = {
-    "id":            "cd.go.authorization.github",
-    "type":          "authorization",
-    "about":         {"name": "GitHub authorization plugin"},
-    "role_settings": {
-      "configurations": [],
-      "view":           {
-        "template": '<div class="plugin-role-view"><label>GitHub username:</label><input id="name" type="text"/></div>'
+    "id":             "cd.go.authorization.github",
+    "type":           "authorization",
+    "about":          {"name": "GitHub authorization plugin"},
+    "extension_info": {
+      "role_settings": {
+        "configurations": [],
+        "view":           {
+          "template": '<div class="plugin-role-view"><label>GitHub username:</label><input id="name" type="text"/></div>'
+        }
       }
     }
   };

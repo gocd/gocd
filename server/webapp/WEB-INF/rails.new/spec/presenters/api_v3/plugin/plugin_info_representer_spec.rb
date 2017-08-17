@@ -237,7 +237,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
 
       plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, false)
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
-
+      expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
 
       expect(actual_json).to eq({
@@ -250,11 +250,6 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
                                   },
                                   about: about_json,
                                   extension_info: {
-                                    _links: {
-                                      image: {
-                                        href: 'http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756'
-                                      }
-                                    },
                                     plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new),
                                     profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new),
                                   }
@@ -278,7 +273,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
 
         plugin_info = com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities, nil)
         actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
-
+        expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
         actual_json.delete(:_links)
 
         expect(actual_json).to eq({
@@ -291,11 +286,6 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
                                     },
                                     about: about_json,
                                     extension_info: {
-                                      _links: {
-                                        image: {
-                                          href: 'http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756'
-                                        }
-                                      },
                                       auth_config_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(auth_config_settings).to_hash(url_builder: UrlBuilder.new),
                                       role_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(role_config_settings).to_hash(url_builder: UrlBuilder.new),
                                       capabilities: ApiV3::Plugin::AuthorizationCapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)

@@ -18,10 +18,6 @@ module ApiV3
     class AuthorizationPluginInfoRepresenter < BasePluginInfoRepresenter
       alias_method :plugin, :represented
 
-      link :image do |opts|
-        opts[:url_builder].plugin_images_url(plugin_id: plugin.getDescriptor.id, hash: plugin.getImage.getHash()) if plugin.image
-      end
-
       property :auth_config_settings,
                skip_nil: true,
                expect_hash: true,

@@ -21,6 +21,8 @@ description = 'GoCD TFS SDK wrapper v14'
 dependencies {
   compile project(':common')
   compile group: 'com.microsoft', name: 'tfs-sdk', version: '14.0.3'
+  // not a compile dependency, but some classloader hell
+  compile(group: 'xalan', name: 'xalan', version: '2.7.1')
   testCompile group: 'junit', name: 'junit', version: project.versions.junit
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
@@ -36,7 +38,7 @@ task fatJar(type: Jar) {
   from(jar.archivePath) { into('lib/') }
 
   from(project.configurations.compile.findAll {
-    it.absolutePath.contains('tfs-sdk')
+    it.absolutePath.contains('tfs-sdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
   }) {
     into 'lib/'
   }
@@ -51,8 +53,10 @@ task verifyJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
       "lib": [
+          "serializer-2.7.1.jar",
           "tfs-impl-14-${project.version}-classes.jar",
           "tfs-sdk-14.0.3.jar",
+          "xalan-2.7.1.jar"
       ]
   ]
 }

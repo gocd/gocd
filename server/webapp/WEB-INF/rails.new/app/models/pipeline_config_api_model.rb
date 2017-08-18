@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class PipelineConfigAPIModel
-  attr_reader :name, :label, :materials, :stages
+  attr_reader :name, :label, :materials, :stages, :template_name
 
   def initialize(pipeline_config_model)
     @name = pipeline_config_model.name().to_s unless pipeline_config_model.name() == nil
@@ -23,8 +23,12 @@ class PipelineConfigAPIModel
     @materials = pipeline_config_model.materialConfigs().collect do |material_config_model|
       MaterialConfigAPIModel.new(material_config_model)
     end
-    @stages = pipeline_config_model.getStages().collect do |stage_config_model|
-      StageConfigAPIModel.new(stage_config_model)
+    if (pipeline_config_model.hasTemplate())
+      @template_name = pipeline_config_model.getTemplateName().to_s unless pipeline_config_model.getTemplateName().blank?
+    else
+      @stages = pipeline_config_model.getStages().collect do |stage_config_model|
+        StageConfigAPIModel.new(stage_config_model)
+      end
     end
   end
 end

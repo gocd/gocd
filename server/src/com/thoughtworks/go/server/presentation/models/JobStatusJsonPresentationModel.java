@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -37,10 +38,12 @@ import static java.lang.String.valueOf;
 public class JobStatusJsonPresentationModel {
     private Agent agent;
     private final JobInstance instance;
+    private final AgentConfig agentConfig;
     private DurationBean durationBean;
 
-    public JobStatusJsonPresentationModel(JobInstance instance, Agent agent, DurationBean durationBean) {
+    public JobStatusJsonPresentationModel(JobInstance instance, Agent agent, DurationBean durationBean, AgentConfig agentConfig) {
         this.instance = instance;
+        this.agentConfig = agentConfig;
 
         if (null == instance.getAgentUuid()) {
             agent = Agent.fromConfig(NullAgent.createNullAgent());
@@ -54,8 +57,8 @@ public class JobStatusJsonPresentationModel {
         this.durationBean = durationBean;
     }
 
-    public JobStatusJsonPresentationModel(JobInstance instance) {
-        this(instance, null, new DurationBean(instance.getId()));
+    JobStatusJsonPresentationModel(JobInstance instance) {
+        this(instance, null, new DurationBean(instance.getId()), null);
     }
 
     public Map toJsonHash() {
@@ -78,6 +81,11 @@ public class JobStatusJsonPresentationModel {
         jsonParams.put("result", getResult().toString());
         jsonParams.put("buildLocator", instance.buildLocator());
         jsonParams.put("buildLocatorForDisplay", instance.buildLocatorForDisplay());
+
+        if (agentConfig != null && agentConfig.isElastic()) {
+            jsonParams.put("elastic_agent_id", agentConfig.getElasticAgentId());
+        }
+
         return jsonParams;
     }
 

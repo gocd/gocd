@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
@@ -43,7 +44,7 @@ public class JobStatusJsonPresentationModelTest {
         final Agent agent = new Agent("1234", "cookie", "localhost", "1234");
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
-                agent, mock(DurationBean.class));
+                agent, mock(DurationBean.class), null);
         Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
@@ -72,7 +73,7 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = JobInstanceMother.building("test", new DateTime().minusSeconds(5).toDate());
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
-                new DurationBean(instance.getId(), 10L));
+                new DurationBean(instance.getId(), 10L), null);
         Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
@@ -91,7 +92,7 @@ public class JobStatusJsonPresentationModelTest {
 
         // "Not assigned" should depend on whether or not the JobInstance has an agentUuid, regardless of
         // the Agent object passed to the presenter, as this is the canonical definition of job assignment
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class), null);
 
         JsonTester tester = new JsonTester(presenter.toJsonHash());
         tester.shouldContain(" { 'agent' : 'Not yet assigned' } ");
@@ -104,7 +105,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
-                        new Agent("1234", "cookie","localhost", "address"), mock(DurationBean.class));
+                        new Agent("1234", "cookie","localhost", "address"), mock(DurationBean.class), null);
         JsonTester tester = new JsonTester(presenter.toJsonHash());
         tester.shouldContain(" { 'agent' : 'localhost' } ");
     }
@@ -147,4 +148,18 @@ public class JobStatusJsonPresentationModelTest {
         assertThat(JsonUtils.from(json).getString("buildLocatorForDisplay"), is("cruise-%/label-1/dev-%/1/job-%"));
     }
 
+    @Test
+    public void shouldIncludeElasticAgentIdForElasticAgents() throws Exception {
+        JobInstance instance = JobInstanceMother.completed("job-%", JobResult.Passed);
+        instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
+
+        final AgentConfig agentConfig = new AgentConfig();
+        agentConfig.setElasticAgentId("elastic_agent_id-1");
+        agentConfig.setElasticPluginId("cd.go.docker.swarm");
+
+        final JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null,  new DurationBean(instance.getId()), agentConfig);
+        final Map json = presenter.toJsonHash();
+
+        assertThat(JsonUtils.from(json).getString("elastic_agent_id"), is("elastic_agent_id-1"));
+    }
 }

@@ -69,6 +69,7 @@
       $('#build_completed_date').text(toHumanReadable(json.building_info.build_completed_date));
       $('#agent_name').attr("href", context_path("agents/" + json.building_info.agent_uuid));
       $('#agent_name').text(json.building_info.agent + ' (' + json.building_info.agent_ip + ')');
+      $('#elastic_agent_id').text(json.building_info.elastic_agent_id);
 
       // TODO: update css on building panel
       json_to_css.update_build_detail_header(json);

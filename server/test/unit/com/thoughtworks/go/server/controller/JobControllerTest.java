@@ -16,12 +16,18 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.Agent;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.util.JsonValue;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +40,8 @@ import java.util.List;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class JobControllerTest {
@@ -70,11 +78,11 @@ public class JobControllerTest {
         String pipelineName = job.getPipelineName();
         String stageName = job.getStageName();
 
-
         when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
         when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
         when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
         when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5l));
+        when(agentService.findAgent(newJob.getAgentUuid())).thenReturn(mock(AgentInstance.class));
 
         ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
 
@@ -89,5 +97,57 @@ public class JobControllerTest {
 
         assertThat(buildingInfo.getString("id"), is("2"));
         assertThat(buildingInfo.getString("last_build_duration"), is("5"));
+    }
+
+    @Test
+    public void shouldFindTheLatestJobWhenAgentIsNotAssigned() throws Exception {
+        JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Rescheduled, JobResult.Unknown, "config");
+        job.assign("agent", new Date());
+
+        JobInstance newJob = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "another_config");
+        newJob.setId(2);
+        newJob.assign("another_agent", new Date());
+
+        String pipelineName = job.getPipelineName();
+        String stageName = job.getStageName();
+
+        when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
+        when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
+        when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
+        when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5l));
+        when(agentService.findAgent(newJob.getAgentUuid())).thenReturn(null);
+
+        ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
+
+        JsonValue json = from(((List) modelAndView.getModel().get("json")).get(0));
+
+        assertNotNull(json);
+        assertFalse(json.hasKey("elastic_agent_id"));
+    }
+
+    @Test
+    public void shouldReturnNullAgentConfigIfJobIsNotAssignedToAnAgent() throws Exception {
+        JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Rescheduled, JobResult.Unknown, "config");
+        job.assign(null, new Date());
+
+        JobInstance newJob = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "another_config");
+        newJob.setId(2);
+        newJob.assign(null, new Date());
+
+        String pipelineName = job.getPipelineName();
+        String stageName = job.getStageName();
+
+        when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
+        when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
+        when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
+        when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5l));
+        when(agentService.findAgent(newJob.getAgentUuid())).thenCallRealMethod();
+
+        ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
+
+        JsonValue json = from(((List) modelAndView.getModel().get("json")).get(0));
+
+        assertNotNull(json);
+        assertFalse(json.hasKey("elastic_agent_id"));
     }
 }

@@ -57,6 +57,10 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     public int launch(AgentLaunchDescriptor descriptor) {
         Thread shutdownHook = null;
+        if (System.getProperty("go.agent.log.dir") == null) {
+            String logDir = System.getenv("LOG_DIR") == null ? "logs" : System.getenv("LOG_DIR");
+            System.setProperty("go.agent.log.dir", logDir);
+        }
         LogConfigurator logConfigurator = new LogConfigurator("agent-launcher-log4j.properties");
         try {
             logConfigurator.initialize();

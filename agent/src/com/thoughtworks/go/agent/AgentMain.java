@@ -31,6 +31,10 @@ public final class AgentMain {
     public static void main(String... argv) throws Exception {
         assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
+        if (System.getProperty("go.agent.log.dir") == null) {
+            String logDir = System.getenv("LOG_DIR") == null ? "logs" : System.getenv("LOG_DIR");
+            System.setProperty("go.agent.log.dir", logDir);
+        }
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
         logConfigurator.initialize();
 

@@ -163,6 +163,19 @@ public class AgentLauncherImplTest {
         assertThat(agentFile.length(), is(originalAgentLength));
     }
 
+    @Test
+    public void shouldSetTheLoggingSystemPropertyToLogsIfEnvironmentVariableIsAbsent() {
+        new AgentLauncherImpl().launch(launchDescriptor());
+        assertThat(System.getProperty("go.agent.log.dir"), is("logs"));
+    }
+
+    @Test
+    public void shouldUseTheValueSetForTheLoggingSystemProperty() {
+        System.setProperty("go.agent.log.dir", "foo");
+        new AgentLauncherImpl().launch(launchDescriptor());
+        assertThat(System.getProperty("go.agent.log.dir"), is("foo"));
+    }
+
     private File randomFile(final File pathname) throws IOException {
         FileUtils.write(pathname, "some rubbish", StandardCharsets.UTF_8);
         return pathname;

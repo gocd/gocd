@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -181,7 +182,7 @@ public class JobControllerIntegrationTest {
         JobInstance job = stage.getFirstJob();
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, true));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(true)));
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
 
@@ -210,7 +211,7 @@ public class JobControllerIntegrationTest {
         JobInstance job = stage.getFirstJob();
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, true));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(true)));
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
 

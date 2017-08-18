@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic.v2;
 
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -106,6 +107,15 @@ public class ElasticAgentExtensionConverterV2Test {
     public void shouldGetStatusReportViewFromResponseBody() throws Exception {
         String template = new ElasticAgentExtensionConverterV2().getStatusReportView("{\"view\":\"foo\"}");
         assertThat(template, is("foo"));
+    }
+
+    @Test
+    public void shouldGetCapabilitiesFromResponseBody() throws Exception {
+        String responseBody = "{\"supports_status_report\":\"true\"}";
+
+        Capabilities capabilities = new ElasticAgentExtensionConverterV2().getCapabilitiesFromResponseBody(responseBody);
+
+        assertTrue(capabilities.supportsStatusReport());
     }
 
     private AgentMetadata elasticAgent() {

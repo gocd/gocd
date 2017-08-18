@@ -106,7 +106,7 @@ public class ElasticProfileTest {
     @Test
     public void addConfiguration_shouldEncryptASecureVariable() throws Exception {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, false);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         ElasticProfile profile = new ElasticProfile("id", "plugin_id");
@@ -118,7 +118,7 @@ public class ElasticProfileTest {
 
     @Test
     public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() throws Exception {
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, false);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null);
 
         store.setPluginInfo(pluginInfo);
         ElasticProfile profile = new ElasticProfile("id", "plugin_id");
@@ -132,7 +132,7 @@ public class ElasticProfileTest {
     @Test
     public void postConstruct_shouldEncryptSecureConfigurations() throws Exception {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, false);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         ElasticProfile profile = new ElasticProfile("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));

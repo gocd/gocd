@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.domain.common.*;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -99,13 +100,27 @@ public class ElasticAgentPluginInfoBuilderTest {
     }
 
     @Test
-    public void statusReportIsSupportedByElasticAgentPluginsWhichImplementV2() throws Exception {
+    public void capabilitiesIsSupportedByElasticAgentPluginsWhichImplementV2() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
 
         when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("2.0");
+        Capabilities capabilities = new Capabilities(true);
+        when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension, pluginManager).pluginInfoFor(descriptor);
 
-        assertTrue(pluginInfo.supportsStatusReport());
+        assertThat(pluginInfo.getCapabilities(), is(capabilities));
+    }
+
+    @Test
+    public void capabilitiesIsNotSupportedByElastucAgentPluginsWhichImplementV1() throws Exception {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        when(pluginManager.resolveExtensionVersion("plugin1", SUPPORTED_VERSIONS)).thenReturn("1.0");
+
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension, pluginManager).pluginInfoFor(descriptor);
+
+        assertNull(pluginInfo.getCapabilities());
+        verify(extension, times(0)).getCapabilities(descriptor.id());
     }
 }

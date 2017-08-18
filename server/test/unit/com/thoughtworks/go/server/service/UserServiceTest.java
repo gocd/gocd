@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.persistence.OauthRepository;
+import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
@@ -36,16 +37,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -465,6 +463,90 @@ public class UserServiceTest {
         userService.deleteUser(username, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
+    }
+
+    @Test
+    public void shouldDeleteAllSpecifiedUsersSuccessfully() {
+        List<String> usernames = Arrays.asList("john", "joan");
+
+        User john = new User("john");
+        john.disable();
+        User joan = new User("joan");
+        joan.disable();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        when(userDao.findUser("john")).thenReturn(john);
+        when(userDao.findUser("joan")).thenReturn(joan);
+        userService.deleteUsers(usernames, result);
+
+        verify(userDao).deleteUsers(usernames);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.toString(), containsString("RESOURCES_DELETE_SUCCESSFUL"));
+        assertThat(result.toString(), containsString("[john, joan]"));
+    }
+
+    @Test
+    public void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkDelete() {
+        List<String> usernames = Arrays.asList("john", "joan");
+        User john = new User("John");
+        john.disable();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        BulkDeletionFailureResult expectedBulkDeletionFailureResult = new BulkDeletionFailureResult();
+        expectedBulkDeletionFailureResult.addNonExistentUserName("joan");
+
+        when(userDao.findUser("joan")).thenReturn(new NullUser());
+        when(userDao.findUser("john")).thenReturn(john);
+
+        BulkDeletionFailureResult bulkDeletionFailureResult = userService.deleteUsers(usernames, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.toString(), containsString("USER_ENABLED_OR_NOT_FOUND"));
+        assertThat(bulkDeletionFailureResult.getNonExistentUsers(), is(expectedBulkDeletionFailureResult.getNonExistentUsers()));
+        assertThat(bulkDeletionFailureResult.getEnabledUsers(), is(expectedBulkDeletionFailureResult.getEnabledUsers()));
+    }
+
+    @Test
+    public void shouldFailWithErrorEvenIfOneUserIsEnabledDuringBulkDelete() {
+        List<String> usernames =Arrays.asList("john", "joan");
+        User john = new User("john");
+        User joan = new User("joan");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        BulkDeletionFailureResult expectedBulkDeletionFailureResult = new BulkDeletionFailureResult();
+        expectedBulkDeletionFailureResult.addEnabledUserName("john");
+        expectedBulkDeletionFailureResult.addEnabledUserName("joan");
+
+        when(userDao.findUser("joan")).thenReturn(john);
+        when(userDao.findUser("john")).thenReturn(joan);
+
+        BulkDeletionFailureResult bulkDeletionFailureResult = userService.deleteUsers(usernames, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.toString(), containsString("USER_ENABLED_OR_NOT_FOUND"));
+        assertThat(bulkDeletionFailureResult.getNonExistentUsers(), is(expectedBulkDeletionFailureResult.getNonExistentUsers()));
+        assertThat(bulkDeletionFailureResult.getEnabledUsers(), is(expectedBulkDeletionFailureResult.getEnabledUsers()));
+    }
+
+    @Test
+    public void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkDelete() {
+        List<String> usernames = null;
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.deleteUsers(usernames, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.toString(), containsString("NO_USERS_SELECTED"));
+    }
+
+    @Test
+    public void shouldFailWithErrorIfEmptyUsersAreProvidedDuringBulkDelete() {
+        List<String> usernames = new ArrayList<>();
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.deleteUsers(usernames, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.toString(), containsString("NO_USERS_SELECTED"));
     }
 
     @Test

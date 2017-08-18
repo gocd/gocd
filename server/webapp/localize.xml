@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -512,6 +512,7 @@
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>
     <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete the template ''{0}'' as it is used by pipeline(s): ''{1}''</entry>
     <entry key="RESOURCE_DELETE_SUCCESSFUL">The {0} ''{1}'' was deleted successfully.</entry>
+    <entry key="RESOURCES_DELETE_SUCCESSFUL">{0} ''{1}'' were deleted successfully.</entry>
     <entry key="RESOURCE_UPDATE_SUCCESSFUL">The {0} ''{1}'' was updated successfully.</entry>
     <entry key="RESOURCE_ADD_FAILED">Failed to add {0}. {1}</entry>
     <entry key="RESOURCE_UPDATE_FAILED">Failed to update {0}. {1}</entry>
@@ -725,6 +726,7 @@
     <entry key="VSM_INTERNAL_SERVER_ERROR">Value Stream Map of pipeline ''{0}'' with counter ''{1}'' can not be rendered. Please check the server log for details.</entry>
     <entry key="VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL">Value Stream Map of material with fingerprint ''{0}'' with revision ''{1}'' can not be rendered. Please check the server log for details.</entry>
     <entry key="VSM_WARNING">Built from incompatible revisions.</entry>
+    <entry key="USER_ENABLED_OR_NOT_FOUND">Deletion failed because some users were either enabled or do not exist.</entry>
     <entry key="USER_NOT_DISABLED">User ''{0}'' is not disabled.</entry>
     <entry key="RESOURCE_NOT_FOUND">{0} ''{1}'' not found.</entry>
     <entry key="CAN_NOT_OPERATE_ON_REMOTE_ENTITY"> Can not operate on {0} ''{1}'' as it is defined remotely in ''{2}''.</entry>

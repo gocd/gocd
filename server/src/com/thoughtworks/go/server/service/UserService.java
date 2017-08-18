@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
+import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -255,6 +256,39 @@ public class UserService {
         } catch (UserEnabledException e) {
             result.badRequest(LocalizedMessage.string("USER_NOT_DISABLED", username));
         }
+    }
+
+    public BulkDeletionFailureResult deleteUsers(List<String> userNames, HttpLocalizedOperationResult result) {
+        if (userNames == null || userNames.isEmpty()) {
+            result.badRequest(LocalizedMessage.string("NO_USERS_SELECTED"));
+            return null;
+        }
+        synchronized (enableUserMutex) {
+            BulkDeletionFailureResult bulkDeletionFailureResult = deletionValidation(userNames);
+
+            if (bulkDeletionFailureResult.isEmpty()) {
+                userDao.deleteUsers(userNames);
+                result.setMessage(LocalizedMessage.string("RESOURCES_DELETE_SUCCESSFUL", "users", userNames));
+            } else {
+                result.unprocessableEntity(LocalizedMessage.string("USER_ENABLED_OR_NOT_FOUND"));
+            }
+            return bulkDeletionFailureResult;
+        }
+    }
+
+    private BulkDeletionFailureResult deletionValidation(List<String> userNames) {
+        BulkDeletionFailureResult bulkDeletionFailureResult = new BulkDeletionFailureResult();
+        for (String userName : userNames) {
+            User user = userDao.findUser(userName);
+            if (user instanceof NullUser) {
+                bulkDeletionFailureResult.addNonExistentUserName(userName);
+                continue;
+            }
+            if (user.isEnabled()) {
+                bulkDeletionFailureResult.addEnabledUserName(userName);
+            }
+        }
+        return bulkDeletionFailureResult;
     }
 
     public enum SortableColumn {

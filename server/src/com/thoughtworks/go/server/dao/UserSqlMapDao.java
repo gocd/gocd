@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 @Component
-public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
+public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
@@ -164,6 +164,7 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
         changeEnabledStatus(usernames, true);
     }
 
+    @Override
     public List<User> enabledUsers() {
         List<User> enabledUsers = new ArrayList<>();
         for (User user : allUsers()) {
@@ -207,6 +208,20 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
                     throw new UserEnabledException();
                 }
                 sessionFactory.getCurrentSession().delete(user);
+                return Boolean.TRUE;
+            }
+        });
+    }
+
+    @Override
+    public boolean deleteUsers(List<String> userNames) {
+        return (Boolean) transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                String queryString = "delete from User where name in (:userNames)";
+                Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+                query.setParameterList("userNames", userNames);
+                query.executeUpdate();
                 return Boolean.TRUE;
             }
         });

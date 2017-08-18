@@ -43,6 +43,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItems;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -50,9 +51,12 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class UserSqlMapDaoIntegrationTest {
-    @Autowired private UserSqlMapDao userDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private SessionFactory sessionFactory;
+    @Autowired
+    private UserSqlMapDao userDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private SessionFactory sessionFactory;
 
     @Before
     public void setup() throws Exception {
@@ -77,7 +81,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveLoginAsDisplayNameIfDisplayNameIsNotPresent(){
+    public void shouldSaveLoginAsDisplayNameIfDisplayNameIsNotPresent() {
         User user = new User("loser");
         userDao.saveOrUpdate(user);
 
@@ -85,7 +89,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldNotUpdateDisplayNameToNullOrBlank(){
+    public void shouldNotUpdateDisplayNameToNullOrBlank() {
         User user = new User("loser", "moocow", "moocow@example.com");
         userDao.saveOrUpdate(user);
         user.setDisplayName("");
@@ -193,7 +197,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateUserWithEnabledStatusWhenUserExist(){
+    public void shouldUpdateUserWithEnabledStatusWhenUserExist() {
         User user = new User("user", "my name", "user2@mail.com");
         userDao.saveOrUpdate(user);
         final User foundUser = userDao.findUser("user");
@@ -311,7 +315,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadSubscribersOfNotification(){
+    public void shouldLoadSubscribersOfNotification() {
         User user1 = new User("user1");
         user1.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Fails, true));
         userDao.saveOrUpdate(user1);
@@ -348,7 +352,7 @@ public class UserSqlMapDaoIntegrationTest {
 
 
     @Test
-    public void shouldDeleteNotificationOnAUser(){
+    public void shouldDeleteNotificationOnAUser() {
         User user = new User("user1");
         user.addNotificationFilter(new NotificationFilter("pipeline1", "stage", StageEvent.Fails, true));
         user.addNotificationFilter(new NotificationFilter("pipeline2", "stage", StageEvent.Fails, true));
@@ -423,6 +427,25 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(retrievedUser instanceof NullUser, is(false));
         assertThat(retrievedUser, is(addingTheUserNow));
         assertThat(userDao.deleteUser(userName), is(true));
+    }
+
+    @Test
+    public void shouldDeleteUsers() {
+        User john = new User("john");
+        john.disable();
+        User joan = new User("joan");
+        joan.disable();
+
+        List<String> userNames = Arrays.asList("john", "joan");
+
+        userDao.saveOrUpdate(john);
+        userDao.saveOrUpdate(joan);
+
+        boolean result = userDao.deleteUsers(userNames);
+        assertThat(result, is(true));
+
+        Users users = userDao.allUsers();
+        assertThat(users, is(empty()));
     }
 
     private User anUser() {

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
+
+import java.util.List;
+import java.util.Set;
 
 public interface UserDao {
     void saveOrUpdate(User user);
@@ -46,4 +46,6 @@ public interface UserDao {
     User load(long id);
 
     boolean deleteUser(String username);
+
+    boolean deleteUsers(List<String> userNames);
 }

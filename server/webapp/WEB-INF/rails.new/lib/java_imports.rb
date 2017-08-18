@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -267,4 +267,5 @@ module JavaImports
   java_import com.thoughtworks.go.config.AdminUser unless defined? AdminUser
   java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension unless defined? ElasticAgentExtension
   java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore unless defined? ElasticAgentMetadataStore
+  java_import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult unless defined? BulkDeletionFailureResult
 end

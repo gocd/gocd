@@ -287,6 +287,10 @@ Go::Application.routes.draw do
           put on: :member, action: :put
         end
       end
+      delete 'users', controller: 'users', action: 'bulk_delete'
+      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
+        patch :update, on: :member
+      end
 
       match '*url', via: :all, to: 'errors#not_found'
     end

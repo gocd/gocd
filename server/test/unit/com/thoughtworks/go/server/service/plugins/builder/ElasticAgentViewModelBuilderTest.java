@@ -66,8 +66,8 @@ public class ElasticAgentViewModelBuilderTest {
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() throws Exception {
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
-        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(dockerPlugin, null, null, null, false));
-        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(awsPlugin, null, null, null, false));
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(dockerPlugin, null, null, null, null));
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(awsPlugin, null, null, null, null));
 
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
@@ -85,7 +85,7 @@ public class ElasticAgentViewModelBuilderTest {
         ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
         com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)), "hash");;
         ElasticAgentPluginInfo elasticAgentPluginInfo = new ElasticAgentPluginInfo(dockerPlugin, new PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("foo", new Metadata(false, true))),
-                        new com.thoughtworks.go.plugin.domain.common.PluginView("foo_template")), image, null, false);
+                        new com.thoughtworks.go.plugin.domain.common.PluginView("foo_template")), image, null, null);
 
         metadataStore.setPluginInfo(elasticAgentPluginInfo);
 

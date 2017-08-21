@@ -233,9 +233,10 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
       plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
+      capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
 
 
-      plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, false)
+      plugin_info = com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, capabilities)
       actual_json = ApiV3::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
@@ -252,6 +253,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
                                   extension_info: {
                                     plugin_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new),
                                     profile_settings: ApiV3::Plugin::PluggableInstanceSettingsRepresenter.new(profile_settings).to_hash(url_builder: UrlBuilder.new),
+                                    capabilities: ApiV3::Plugin::ElasticPluginCapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
                                   }
                                 })
     end

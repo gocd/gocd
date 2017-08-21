@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConvert
 import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.SUPPORTED_VERSIONS;
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
 import static java.lang.String.format;
 
 @Component
@@ -55,7 +56,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration) {
-        pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, environment, configuration);
@@ -64,11 +65,11 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public void serverPing(final String pluginId) {
-        pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
     }
 
     public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -87,7 +88,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     List<PluginConfiguration> getProfileMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getProfileMetadataResponseFromBody(responseBody);
@@ -96,7 +97,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     String getProfileView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getProfileViewResponseFromBody(responseBody);
@@ -105,7 +106,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public ValidationResult validate(final String pluginId, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).validateRequestBody(configuration);
@@ -119,7 +120,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
@@ -128,15 +129,25 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public String getStatusReport(String pluginId) {
-        if (!ElasticAgentExtensionConverterV2.VERSION.equals(pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS))) {
-            throw new UnsupportedOperationException(format("Plugin `%s` implements Elastic Agent V1, `StatusReport` endpoint is not supported in this version.", pluginId));
-        }
-
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
                 return converter.getStatusReportView(responseBody);
+            }
+        });
+    }
+
+    public Capabilities getCapabilities(String pluginId) {
+        if (!ElasticAgentExtensionConverterV2.VERSION.equals(pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS))) {
+            throw new UnsupportedOperationException(format("Plugin `%s` implements Elastic Agent V1, `Capabilities` endpoint is not supported in this version.", pluginId));
+        }
+
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILTIES, new DefaultPluginInteractionCallback<Capabilities>() {
+            @Override
+            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+                final ElasticAgentExtensionConverterV2 converter = (ElasticAgentExtensionConverterV2) getElasticAgentMessageConverter(resolvedExtensionVersion);
+                return converter.getCapabilitiesFromResponseBody(responseBody);
             }
         });
     }

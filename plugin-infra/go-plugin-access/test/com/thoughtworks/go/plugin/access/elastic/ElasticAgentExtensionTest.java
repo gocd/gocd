@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -64,14 +66,33 @@ public class ElasticAgentExtensionTest {
         assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_STATUS_REPORT));
     }
 
+    @Test
+    public void shouldFetchCapabilitiesForPluginsWhichSupportV2() throws Exception {
+        final GoPluginDescriptor.About about = new GoPluginDescriptor.About("ECS Plugin", "2.0", null, null, null, null);
+
+        final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("ecs.plugin", "1", about, null, null, false);
+
+        when(pluginManager.isPluginOfType(ElasticAgentPluginConstants.EXTENSION_NAME, "ecs.plugin")).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion("ecs.plugin", Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
+        when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
+        when(pluginManager.submitTo(eq("ecs.plugin"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE,
+                "{\"supports_status_report\":\"true\"}"));
+
+        Capabilities capabilities = new ElasticAgentExtension(pluginManager).getCapabilities("ecs.plugin");
+
+        assertTrue(capabilities.supportsStatusReport());
+        assertThat(requestArgumentCaptor.getValue().extension(), is(ElasticAgentPluginConstants.EXTENSION_NAME));
+        assertThat(requestArgumentCaptor.getValue().requestName(), is("go.cd.elastic-agent.get-capabilities"));
+    }
+
     @Test(expected = UnsupportedOperationException.class)
-    public void getStatusReportIsSupportedOnlyInVersion2() throws Exception {
+    public void getCapabilitiesIsSupportedOnlyInVersion2() throws Exception {
         final GoPluginDescriptor.About about = new GoPluginDescriptor.About("ECS Plugin", "1.0", null, null, null, null);
 
         final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("ecs.plugin", "1", about, null, null, false);
         when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
 
-        new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin");
+        new ElasticAgentExtension(pluginManager).getCapabilities("ecs.plugin");
 
         verify(pluginManager, times(0)).submitTo(any(), any());
     }

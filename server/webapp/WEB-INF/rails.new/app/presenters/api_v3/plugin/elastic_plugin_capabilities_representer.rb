@@ -15,22 +15,11 @@
 ##########################################################################
 module ApiV3
   module Plugin
-    class ElasticPluginInfoRepresenter < BasePluginInfoRepresenter
-      alias_method :plugin, :represented
+    class ElasticPluginCapabilitiesRepresenter < BaseRepresenter
+      alias_method :capabilities, :represented
 
-      property :profile_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings,
-               decorator: PluggableInstanceSettingsRepresenter
+      property :supports_status_report
 
-      property :capabilities,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.elastic.Capabilities,
-               decorator: ElasticPluginCapabilitiesRepresenter
     end
   end
 end

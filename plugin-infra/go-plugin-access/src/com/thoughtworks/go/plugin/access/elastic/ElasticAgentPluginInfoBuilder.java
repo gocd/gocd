@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConvert
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -47,11 +48,8 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
 
-        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()), pluggableInstanceSettings, supportsStatusReport(descriptor.id()));
-    }
-
-    private boolean supportsStatusReport(String pluginId) {
-        return pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS).equals(ElasticAgentExtensionConverterV2.VERSION);
+        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()),
+                pluggableInstanceSettings, capabilities(descriptor.id()));
     }
 
     private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {
@@ -62,5 +60,13 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
         List<PluginConfiguration> profileMetadata = extension.getProfileMetadata(pluginId);
         String profileView = extension.getProfileView(pluginId);
         return new PluggableInstanceSettings(profileMetadata, new PluginView(profileView));
+    }
+
+    private Capabilities capabilities(String pluginId) {
+        return pluginSupportsElasticAgentV2Endpoint(pluginId) ? extension.getCapabilities(pluginId) : null;
+    }
+
+    private boolean pluginSupportsElasticAgentV2Endpoint(String pluginId) {
+        return pluginManager.resolveExtensionVersion(pluginId, SUPPORTED_VERSIONS).equals(ElasticAgentExtensionConverterV2.VERSION);
     }
 }

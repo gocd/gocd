@@ -43,5 +43,5 @@ public interface ElasticAgentPluginConstants {
     String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";
     String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list-agents";
     String REQUEST_STATUS_REPORT = REQUEST_PREFIX + ".status-report";
-
+    String REQUEST_CAPABILTIES = REQUEST_PREFIX + ".get-capabilities";
 }

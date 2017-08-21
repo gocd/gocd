@@ -123,7 +123,7 @@ public class PluginInfoBuilderTest {
         when(manager.getPluginDescriptorFor("xunit.convertor")).thenReturn(xunitConvertor);
         when(manager.getPluginDescriptorFor("github.pr")).thenReturn(githubPR);
 
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(dockerElasticAgentPlugin, null, null, null, false));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(dockerElasticAgentPlugin, null, null, null, null));
         AuthorizationMetadataStore.instance().setPluginInfo(new AuthorizationPluginInfo(ldapAuthPlugin, null, null, null, null, null));
 
         MetadataStoreHelper.clear();

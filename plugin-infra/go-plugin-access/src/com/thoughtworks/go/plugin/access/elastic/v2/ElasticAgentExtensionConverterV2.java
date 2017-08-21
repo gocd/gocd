@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMessageConverter;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
@@ -131,6 +132,10 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
             throw new RuntimeException("Status Report is blank!");
         }
         return statusReportView;
+    }
+
+    public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
+        return com.thoughtworks.go.plugin.access.elastic.models.Capabilities.fromJSON(responseBody).toCapabilites();
     }
 }
 

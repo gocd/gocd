@@ -833,6 +833,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return REAUTHENTICATION_TIME_INTERVAL.getValue();
     }
 
+    public void initializeAgentLogDir() {
+        if (getPropertyImpl("go.agent.log.dir") == null) {
+            String logDir = getEnvironmentVariable("LOG_DIR") == null ? "logs" : getEnvironmentVariable("LOG_DIR");
+            setProperty("go.agent.log.dir", logDir);
+        }
+    }
+
     public static abstract class GoSystemProperty<T> {
         private String propertyName;
         private T defaultValue;

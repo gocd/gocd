@@ -525,4 +525,17 @@ public class SystemEnvironmentTest {
         System.setProperty("go.config.repo.gc.periodic", "some-value");
         assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
     }
+
+    @Test
+    public void shouldInitializeLogDirWithTheProvidedValue() throws Exception {
+        System.setProperty("go.agent.log.dir", "some/path");
+        systemEnvironment.initializeAgentLogDir();
+        assertThat(systemEnvironment.getPropertyImpl("go.agent.log.dir"), is("some/path"));
+    }
+
+    @Test
+    public void shouldInitializeWithLogsDir() throws Exception {
+        systemEnvironment.initializeAgentLogDir();
+        assertThat(systemEnvironment.getPropertyImpl("go.agent.log.dir"), is("logs"));
+    }
 }

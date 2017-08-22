@@ -33,7 +33,7 @@ module ApiV1
 
       property :id
 
-      property :configProviderPluginName, as: :plugin
+      property :configProviderPluginName, as: :plugin_id
 
       property :materialConfig, as: :material,
                decorator: Config::ConfigRepo::Materials::MaterialRepresenter,

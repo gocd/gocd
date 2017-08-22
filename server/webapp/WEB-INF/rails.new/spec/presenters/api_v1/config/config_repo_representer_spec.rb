@@ -32,7 +32,7 @@ describe ApiV1::Config::ConfigRepoRepresenter do
     def get_config_repo_json
       {
         :id => 'repo-1',
-        :plugin => 'config-repo-json-plugin',
+        :plugin_id => 'config-repo-json-plugin',
         :material => {
           :type => 'git',
           :attributes => {

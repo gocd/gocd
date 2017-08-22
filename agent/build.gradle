@@ -39,7 +39,7 @@ dependencies {
   testCompile project(':test-utils')
 
   extractedAtTopLevel project(':agent-process-launcher')
-  extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
+  extractedAtTopLevel project(':jar-class-loader')
 }
 
 jar {
@@ -61,24 +61,19 @@ clean {
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
   dependsOn jar, project.configurations.extractedAtTopLevel
+
   manifest {
-    attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
-    attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.agent.AgentMain'
+    attributes 'Main-Class': 'com.thoughtworks.gocd.Boot'
+    attributes 'GoCD-Main-Class': 'com.thoughtworks.go.agent.AgentMain'
     attributes 'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.agent.AgentProcessParentImpl'
   }
 
-  from(configurations.compile) {
+  from(configurations.compile + jar.archivePath) {
     into "lib/"
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
   }
 
-  from(jar.archivePath) {
-    into('main/')
-  }
-
   from(project.configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
-    include '**/*.class'
-    exclude 'OneJar.class'
     into("/")
   }
 }
@@ -86,10 +81,8 @@ task fatJar(type: Jar) {
 task verifyJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
-    "main": [
+    "lib": [
       "agent-${project.version}-classes.jar",
-    ],
-    "lib" : [
       "agent-common-${project.version}.jar",
       "aopalliance-1.0.jar",
       "base-${project.version}.jar",

@@ -258,7 +258,7 @@ allprojects {
       tmpDir.mkdirs()
 
       def files = []
-      test.testClassesDirs.files.each { File classDir ->
+      testTask.testClassesDirs.files.each { File classDir ->
         classDir.eachFileRecurse(FileType.FILES) { f ->
           def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
           files << relPath

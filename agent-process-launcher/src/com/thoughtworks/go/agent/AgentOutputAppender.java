@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -26,7 +27,6 @@ import java.util.List;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class AgentOutputAppender {
-    private static final String LOG_DIR = "LOG_DIR";
 
     enum Outstream {
         STDOUT(ConsoleAppender.SYSTEM_OUT),
@@ -75,7 +75,7 @@ public class AgentOutputAppender {
     }
 
     private static String getEffectiveLogDirectory(String file) {
-        String logDir = System.getenv(LOG_DIR);
+        String logDir = new SystemEnvironment().getPropertyImpl("go.agent.log.dir");
 
         if (isBlank(logDir)) {
             return file;

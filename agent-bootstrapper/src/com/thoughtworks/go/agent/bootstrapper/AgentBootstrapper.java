@@ -60,6 +60,7 @@ public class AgentBootstrapper {
     public static void main(String[] argv) {
         assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
+        new SystemEnvironment().initializeAgentLogDir();
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
         logConfigurator.initialize();
         new AgentBootstrapper().go(true, args);

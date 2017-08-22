@@ -136,6 +136,7 @@ public abstract class LinuxPackagingTask extends DefaultTask {
 
     propertiesFiles.each { propertyFile ->
       def text = propertyFile.getText().replaceAll(/\.File=logs\/(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
+      text = text.replaceAll(/\.File=(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
 
       propertyFile.write(text)
     }

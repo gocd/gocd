@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@ class ValueStreamMapController < ApplicationController
 
   def show
     begin
-    @pipeline = pipeline_service.findPipelineByCounterOrLabel(params[:pipeline_name], params[:pipeline_counter])
+      @pipeline = pipeline_service.findPipelineByCounterOrLabel(params[:pipeline_name], params[:pipeline_counter])
     rescue
     end
     respond_to do |format|
       format.html
-      format.json { render :json => generate_vsm_json }
+      format.json {render :json => generate_vsm_json}
     end
   end
 
   def show_material
     respond_to do |format|
       format.html
-      format.json { render :json => generate_material_vsm_json }
+      format.json {render :json => generate_material_vsm_json}
     end
   end
 
@@ -53,12 +53,12 @@ class ValueStreamMapController < ApplicationController
   end
 
   def render_vsm_json(vsm, result)
-    vsm_path_partial = proc { |name, counter| vsm_show_path(name, counter) }
-    vsm_material_path_partial = proc { |material_fingerprint, revision| vsm_show_material_path(material_fingerprint, revision) }
+    vsm_path_partial = proc {|name, counter| vsm_show_path(name, counter)}
+    vsm_material_path_partial = proc {|material_fingerprint, revision| vsm_show_material_path(material_fingerprint, revision)}
     stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
-       stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
+      stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
     end
-    pipeline_edit_path_proc = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
+    pipeline_edit_path_proc = proc {|pipeline_name| edit_path_for_vsm_pipeline(pipeline_name)}
     ValueStreamMapModel.new(vsm, result.message(localizer), localizer, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial, pipeline_edit_path_proc).to_json
   end
 
@@ -70,5 +70,14 @@ class ValueStreamMapController < ApplicationController
       pim = pipeline_history_service.findPipelineInstance(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
       redirect_to url_for_pipeline_instance(pim)
     end
+  end
+
+  private
+
+  def edit_path_for_vsm_pipeline(pipeline_name)
+    if is_quick_edit_page_default?
+      return edit_admin_pipeline_config_path(:pipeline_name => pipeline_name)
+    end
+    pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
   end
 end

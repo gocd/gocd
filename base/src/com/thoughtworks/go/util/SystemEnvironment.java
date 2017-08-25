@@ -834,10 +834,12 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public void initializeAgentLogDir() {
-        if (getPropertyImpl("go.agent.log.dir") == null) {
-            String logDir = getEnvironmentVariable("LOG_DIR") == null ? "logs" : getEnvironmentVariable("LOG_DIR");
-            setProperty("go.agent.log.dir", logDir);
+        String logDir;
+        logDir = getEnvironmentVariable("GO_AGENT_LOG_DIR") == null ? getEnvironmentVariable("LOG_DIR") : getEnvironmentVariable("GO_AGENT_LOG_DIR");
+        if (logDir == null) {
+            logDir = "logs";
         }
+        setProperty("go.agent.log.dir", logDir);
     }
 
     public static abstract class GoSystemProperty<T> {

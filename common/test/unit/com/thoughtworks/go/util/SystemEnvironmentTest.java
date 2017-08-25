@@ -527,13 +527,6 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldInitializeLogDirWithTheProvidedValue() throws Exception {
-        System.setProperty("go.agent.log.dir", "some/path");
-        systemEnvironment.initializeAgentLogDir();
-        assertThat(systemEnvironment.getPropertyImpl("go.agent.log.dir"), is("some/path"));
-    }
-
-    @Test
     public void shouldInitializeWithLogsDir() throws Exception {
         systemEnvironment.initializeAgentLogDir();
         assertThat(systemEnvironment.getPropertyImpl("go.agent.log.dir"), is("logs"));

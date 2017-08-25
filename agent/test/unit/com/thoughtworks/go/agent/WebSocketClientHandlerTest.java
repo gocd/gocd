@@ -89,7 +89,8 @@ public class WebSocketClientHandlerTest {
                 mock(HttpService.class),
                 mock(WebSocketClientHandler.class),
                 mock(WebSocketSessionHandler.class),
-                mock(TimeProvider.class));
+                mock(TimeProvider.class),
+                null);
     }
 
     class WebSocketClientStub extends WebSocketClient {

@@ -143,7 +143,7 @@ public class AgentHTTPClientControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension, timeProvider);
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension, timeProvider, null);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -171,6 +171,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     private AgentHTTPClientController createAgentController() {
+
         return new AgentHTTPClientController(
                 loopServer,
                 artifactsManipulator,
@@ -182,6 +183,6 @@ public class AgentHTTPClientControllerTest {
                 pluginManager,
                 packageRepositoryExtension,
                 scmExtension,
-                taskExtension, timeProvider);
+                taskExtension, timeProvider, null);
     }
 }

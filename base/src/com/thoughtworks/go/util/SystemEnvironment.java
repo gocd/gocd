@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(SystemEnvironment.class);
@@ -209,6 +211,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> CONSOLE_OUT_TO_STDOUT = new GoBooleanSystemProperty("go.console.stdout", false);
+    private static GoSystemProperty<Boolean> AGENT_STATUS_API_ENABLED = new GoBooleanSystemProperty("go.agent.status.api.enabled", true);
+    private static GoSystemProperty<String> AGENT_STATUS_API_BIND_HOST = new GoStringSystemProperty("go.agent.status.api.bind.host", "localhost");
+    private static GoSystemProperty<Integer> AGENT_STATUS_API_BIND_PORT = new GoIntSystemProperty("go.agent.status.api.bind.port", 8152);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -822,6 +827,22 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getReAuthenticationTimeInterval() {
         return REAUTHENTICATION_TIME_INTERVAL.getValue();
+    }
+
+    public Boolean getAgentStatusEnabled() {
+        return AGENT_STATUS_API_ENABLED.getValue();
+    }
+
+    public String getAgentStatusHostname() {
+        if (isBlank(AGENT_STATUS_API_BIND_HOST.getValue())) {
+            return null;
+        } else {
+            return AGENT_STATUS_API_BIND_HOST.getValue();
+        }
+    }
+
+    public int getAgentStatusPort() {
+        return AGENT_STATUS_API_BIND_PORT.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

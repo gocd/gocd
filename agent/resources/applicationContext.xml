@@ -25,6 +25,7 @@
 
   <import resource="classpath:applicationContext-plugin-infra.xml"/>
   <context:annotation-config/>
+  <context:component-scan base-package="com.thoughtworks.go.agent.statusapi"/>
 
   <!-- Loads the System Properties -->
   <bean id="propertyConfigurer"
@@ -78,6 +79,8 @@
 
   <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory" />
   <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory" factory-method="createInstance" />
+
+  <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock" />
 
   <bean id="agentControllerLooper" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
         p:targetObject-ref="agentController"

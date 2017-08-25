@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -59,8 +60,10 @@ public class AgentHTTPClientController extends AgentController {
                                      PluginManager pluginManager,
                                      PackageRepositoryExtension packageRepositoryExtension,
                                      SCMExtension scmExtension,
-                                     TaskExtension taskExtension, TimeProvider timeProvider) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, timeProvider);
+                                     TaskExtension taskExtension,
+                                     TimeProvider timeProvider,
+                                     AgentHealthHolder agentHealthHolder) {
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, timeProvider, agentHealthHolder);
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
@@ -79,6 +82,7 @@ public class AgentHTTPClientController extends AgentController {
                 getAgentRuntimeInfo().refreshUsableSpace();
 
                 agentInstruction = server.ping(getAgentRuntimeInfo());
+                pingSuccess();
                 LOG.trace("{} pinged server [{}]", agent, server);
             }
         } catch (Throwable e) {

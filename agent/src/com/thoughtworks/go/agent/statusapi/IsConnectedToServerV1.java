@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.agent.statusapi;
 
-public interface AgentRegistry {
-    String uuid();
-    String serverBaseUrl();
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class IsConnectedToServerV1 extends HttpHandler {
+
+    private final AgentHealthHolder agentHealthHolder;
+
+    @Autowired
+    public IsConnectedToServerV1(AgentHealthHolder agentHealthHolder) {
+        this.agentHealthHolder = agentHealthHolder;
+    }
+
+    @Override
+    protected boolean isPassed() {
+        return !agentHealthHolder.hasLostContact();
+    }
 }

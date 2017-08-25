@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -27,10 +28,7 @@ import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.SubprocessLogger;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,12 +41,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AgentControllerTest {
@@ -83,18 +82,21 @@ public class AgentControllerTest {
     private AgentController agentController;
 
     private String agentUuid = "uuid";
-    private AgentIdentifier agentIdentifier;
 
     @Mock
     private AgentRegistry agentRegistry;
+    private TestingClock clock = new TestingClock();
+    private final int pingInterval = 5000;
+    private AgentHealthHolder agentHealthHolder = new AgentHealthHolder(clock, pingInterval);
+
     @Mock
     private TimeProvider timeProvider;
+    private AgentIdentifier agentIdentifier;
 
     @Before
     public void setUp() throws Exception {
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
-
 
     @Test
     public void shouldReturnTrueIfCausedBySecurity() throws Exception {
@@ -120,9 +122,24 @@ public class AgentControllerTest {
         inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
     }
 
+    @Test
+    public void remembersLastPingTime() throws Exception {
+        // initial time
+        Date now = new Date(42);
+        clock.setTime(now);
+        agentController = createAgentController();
+        agentController.pingSuccess();
+
+        assertFalse(agentHealthHolder.hasLostContact());
+        clock.addMillis(pingInterval);
+        assertFalse(agentHealthHolder.hasLostContact());
+        clock.addMillis(pingInterval);
+        assertTrue(agentHealthHolder.hasLostContact());
+    }
+
     private AgentController createAgentController() {
         return new AgentController(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager,
-                subprocessLogger, agentUpgradeService, timeProvider) {
+                subprocessLogger, agentUpgradeService, timeProvider, agentHealthHolder) {
             @Override
             public void ping() {
 

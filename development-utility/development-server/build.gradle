@@ -29,7 +29,6 @@ dependencies {
   compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-deploy', version: versions.jetty
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'

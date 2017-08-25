@@ -90,7 +90,6 @@ development-utility/development-agent/target/
 development-utility/development-server/target/
 installers/target/
 jetty9/target/
-jetty9/logs/
 plugin-infra/go-plugin-access/target/
 plugin-infra/go-plugin-activator/target/
 plugin-infra/go-plugin-api-internal/target/

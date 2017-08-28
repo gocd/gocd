@@ -25,6 +25,7 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SslVerificationMode;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,7 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     public int launch(AgentLaunchDescriptor descriptor) {
         Thread shutdownHook = null;
+        new SystemEnvironment().initializeAgentLogDir();
         LogConfigurator logConfigurator = new LogConfigurator("agent-launcher-log4j.properties");
         try {
             logConfigurator.initialize();

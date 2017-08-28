@@ -110,15 +110,16 @@ if [ ! -d "${AGENT_WORK_DIR}" ]; then
     echo Agent working directory ${AGENT_WORK_DIR} does not exist
     exit 2
 fi
-
-if [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -d /var/log/${SERVICE_NAME} ]; then
-        LOG_DIR=/var/log/${SERVICE_NAME}
+if [ -z "$GO_AGENT_LOG_DIR" ]; then
+    if [ "$PRODUCTION_MODE" == "Y" ]; then
+        if [ -d /var/log/${SERVICE_NAME} ]; then
+            GO_AGENT_LOG_DIR=/var/log/${SERVICE_NAME}
+        else
+            GO_AGENT_LOG_DIR=$AGENT_WORK_DIR/logs
+        fi
     else
-	    LOG_DIR=$AGENT_WORK_DIR/logs
+        GO_AGENT_LOG_DIR=$AGENT_WORK_DIR/logs
     fi
-else
-    LOG_DIR=$AGENT_WORK_DIR/logs
 fi
 
 mkdir -p "${LOG_DIR}"

@@ -31,6 +31,7 @@ public final class AgentMain {
     public static void main(String... argv) throws Exception {
         assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
+        new SystemEnvironment().initializeAgentLogDir();
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
         logConfigurator.initialize();
 

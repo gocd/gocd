@@ -19,6 +19,7 @@ import com.thoughtworks.go.build.WindowsPackagingTask
 import org.apache.tools.ant.filters.FixCrLfFilter
 
 task agentWindows32bitExe(type: WindowsPackagingTask) {
+  dependsOn configurations.agentBootstrapperJar
   group project.name
   description 'Build the go-agent windows installer'
 
@@ -33,6 +34,7 @@ task agentWindows32bitExe(type: WindowsPackagingTask) {
 }
 
 task agentWindows64bitExe(type: WindowsPackagingTask) {
+  dependsOn configurations.agentBootstrapperJar
   group project.name
   description 'Build the go-agent windows installer'
 
@@ -47,6 +49,7 @@ task agentWindows64bitExe(type: WindowsPackagingTask) {
 }
 
 task serverWindows32bitExe(type: WindowsPackagingTask) {
+  dependsOn configurations.serverJar
   group project.name
   description 'Build the go-server windows installer'
 
@@ -61,6 +64,7 @@ task serverWindows32bitExe(type: WindowsPackagingTask) {
 }
 
 task serverWindows64bitExe(type: WindowsPackagingTask) {
+  dependsOn configurations.serverJar
   group project.name
   description 'Build the go-server windows installer'
 

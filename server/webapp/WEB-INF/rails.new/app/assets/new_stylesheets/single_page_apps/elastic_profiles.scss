@@ -25,9 +25,10 @@ $elastic-profile-icon-text-padding: 20px;
 $elastic-profile-icon-color: #555;
 $elastic-profile-icon-hover-color: #000;
 
-.add-profile {
+.add-profile, .plugin-status {
   float:         right;
   margin-bottom: 0;
+  height:        $elastic-profile-plugin-icon-size;
 }
 
 .delete-profile {
@@ -43,10 +44,17 @@ $elastic-profile-icon-hover-color: #000;
 .elastic-profile {
   background:    $go-white;
   position:      relative;
-  margin-bottom: 10px;
-  border:        0;
+  border-top:    1px solid #ddd;
   border-radius: $global-border-radius;
   cursor:        pointer;
+
+  &.expanded {
+    background: #fcfaff;
+  }
+
+  &.collapsed {
+    background: #fff;
+  }
 }
 
 .elastic-profile-header {
@@ -107,6 +115,7 @@ $elastic-profile-icon-hover-color: #000;
   height:         $elastic-profile-plugin-icon-size;
   display:        inline-block;
   vertical-align: middle;
+  float:          left;
 }
 
 .plugin-description {
@@ -134,7 +143,6 @@ $elastic-profile-icon-hover-color: #000;
 .plugin-config-read-only {
   box-sizing: border-box;
   padding:    10px 10px 10px 60px;
-  border-top: 1px solid $light-grey;
   .key-value-pair {
     dt {
       width: 20%;
@@ -155,4 +163,38 @@ $elastic-profile-icon-hover-color: #000;
   &:before {
     margin: 0;
   }
+}
+
+.elastic-profile-plugin-group {
+  border-top-left-radius:  3px;
+  border-top-right-radius: 3px;
+  margin-bottom:           15px;
+
+  .elastic-profile-plugin-group-header {
+    padding:                 10px;
+    background:              #d1c4e9;
+    border-top-left-radius:  3px;
+    border-top-right-radius: 3px;
+    border-bottom:           1px solid #ddd;
+
+    .warning {
+      @include icon-before($type: exclamation-triangle, $size: $elastic-profile-plugin-icon-size, $color: #fff702);
+      &:before {
+        font-size:      20px;
+        text-align:     center;
+        vertical-align: middle;
+      }
+    }
+
+    .plugin-name, .plugin-id {
+      font-weight: 600;
+      line-height: $elastic-profile-plugin-icon-size;
+    }
+  }
+}
+
+.plugin-not-installed {
+  color:       rgba(0, 0, 0, 0.36);
+  font-weight: 600;
+  line-height: $elastic-profile-plugin-icon-size;
 }

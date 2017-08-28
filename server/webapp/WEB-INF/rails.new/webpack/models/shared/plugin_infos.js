@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-const _                         = require('lodash');
-const Stream                    = require('mithril/stream');
-const Mixins                    = require('models/mixins/model_mixins');
-const Routes                    = require('gen/js-routes');
-const CrudMixins                = require('models/mixins/crud_mixins');
-const PluggableInstanceSettings = require('models/shared/plugin_infos/pluggable_instance_settings');
-const Capabilities              = require('models/shared/plugin_infos/capabilities');
-const About                     = require('models/shared/plugin_infos/about');
+const _                               = require('lodash');
+const Stream                          = require('mithril/stream');
+const Mixins                          = require('models/mixins/model_mixins');
+const Routes                          = require('gen/js-routes');
+const CrudMixins                      = require('models/mixins/crud_mixins');
+const PluggableInstanceSettings       = require('models/shared/plugin_infos/pluggable_instance_settings');
+const AuthorizationPluginCapabilities = require('models/shared/plugin_infos/authorization_plugin_capabilities');
+const ElasticPluginCapabilities       = require('models/shared/plugin_infos/elastic_plugin_capabilities');
+const About                           = require('models/shared/plugin_infos/about');
 
 const PluginInfos = function (data) {
   Mixins.HasMany.call(this, {
@@ -116,8 +117,8 @@ PluginInfos.PluginInfo.PackageRepository.fromJSON = (data = {}) => new PluginInf
   id:                 data.id,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  packageSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.package_settings),
-  repositorySettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.repository_settings),
+  packageSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.package_settings")),
+  repositorySettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.repository_settings")),
   imageUrl:           _.get(data, '_links.image.href')
 });
 
@@ -131,7 +132,7 @@ PluginInfos.PluginInfo.Task.fromJSON = (data = {}) => new PluginInfos.PluginInfo
   id:           data.id,
   version:      data.version,
   about:        About.fromJSON(data.about),
-  taskSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.task_settings),
+  taskSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.task_settings")),
   imageUrl:     _.get(data, '_links.image.href'),
 });
 
@@ -145,7 +146,7 @@ PluginInfos.PluginInfo.SCM.fromJSON = (data = {}) => new PluginInfos.PluginInfo.
   id:          data.id,
   version:     data.version,
   about:       About.fromJSON(data.about),
-  scmSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.scm_settings),
+  scmSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.scm_settings")),
   imageUrl:    _.get(data, '_links.image.href'),
 });
 
@@ -162,22 +163,24 @@ PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.P
   id:                 data.id,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  authConfigSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.auth_config_settings),
-  roleSettings:       PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.role_settings),
-  capabilities:       Capabilities.fromJSON(data.capabilities),
+  authConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.auth_config_settings")),
+  roleSettings:       PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.role_settings")),
+  capabilities:       AuthorizationPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
   imageUrl:           _.get(data, '_links.image.href'),
 });
 
 PluginInfos.PluginInfo.ElasticAgent = function (data) {
   PluginInfos.PluginInfo.call(this, "elastic-agent", data);
   this.profileSettings = Stream(data.profileSettings);
+  this.capabilities    = Stream(data.capabilities);
 };
 
 PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ElasticAgent({
   id:              data.id,
   version:         data.version,
   about:           About.fromJSON(data.about),
-  profileSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
+  profileSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.profile_settings")),
+  capabilities:    ElasticPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
   imageUrl:        _.get(data, '_links.image.href'),
 });
 

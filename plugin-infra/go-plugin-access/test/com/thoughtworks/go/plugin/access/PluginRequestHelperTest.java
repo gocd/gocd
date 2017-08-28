@@ -168,4 +168,49 @@ public class PluginRequestHelperTest {
         assertThat(generatedRequest[0].requestParameters().get("p1"), is("v1"));
         assertThat(generatedRequest[0].requestParameters().get("p2"), is("v2"));
     }
+
+    @Test
+    public void shouldConstructTheRequestWithRequestHeaders() {
+        final String requestBody = "request_body";
+        when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
+
+        final GoPluginApiRequest[] generatedRequest = {null};
+        doAnswer(invocationOnMock -> {
+            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+            return response;
+        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+
+
+        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return requestBody;
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> requestHeaders(String resolvedExtensionVersion) {
+                final Map<String, String> headers = new HashMap();
+                headers.put("HEADER-1", "HEADER-VALUE-1");
+                headers.put("HEADER-2", "HEADER-VALUE-2");
+                return headers;
+            }
+
+            @Override
+            public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return null;
+            }
+        });
+
+        assertThat(generatedRequest[0].requestBody(), is(requestBody));
+        assertThat(generatedRequest[0].extension(), is(extensionName));
+        assertThat(generatedRequest[0].requestName(), is(requestName));
+        assertThat(generatedRequest[0].requestHeaders().size(), is(2));
+        assertThat(generatedRequest[0].requestHeaders().get("HEADER-1"), is("HEADER-VALUE-1"));
+        assertThat(generatedRequest[0].requestHeaders().get("HEADER-2"), is("HEADER-VALUE-2"));
+    }
 }

@@ -20,6 +20,7 @@ import com.thoughtworks.gocd.onejar.Handler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
@@ -62,10 +63,11 @@ public class Boot {
     }
 
     static File currentJarFile() {
-        return new File(Boot.class.getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .getPath());
+        try {
+            return new File(Boot.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     static String mainClassName(JarFile jarFile) throws IOException {

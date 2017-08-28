@@ -75,7 +75,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             AgentOutputAppender agentOutputAppenderForStdErr = new AgentOutputAppender(GO_AGENT_STDERR_LOG);
             AgentOutputAppender agentOutputAppenderForStdOut = new AgentOutputAppender(GO_AGENT_STDOUT_LOG);
 
-            if (new SystemEnvironment().agentConsoleOutToStdout()) {
+            if (new SystemEnvironment().consoleOutToStdout()) {
                 agentOutputAppenderForStdErr.writeTo(AgentOutputAppender.Outstream.STDERR);
                 agentOutputAppenderForStdOut.writeTo(AgentOutputAppender.Outstream.STDOUT);
             }

@@ -29,17 +29,18 @@ public class AgentOutputAppender {
     private static final String LOG_DIR = "LOG_DIR";
 
     enum Outstream {
-        STDOUT(ConsoleAppender.SYSTEM_OUT),
-        STDERR(ConsoleAppender.SYSTEM_ERR);
+        STDOUT(ConsoleAppender.SYSTEM_OUT, "stdout"),
+        STDERR(ConsoleAppender.SYSTEM_ERR, "stderr");
 
         private final String name;
+        private final String marker;
 
-        Outstream(String name) {
+        Outstream(String name, String marker) {
             this.name = name;
+            this.marker = marker;
         }
     }
 
-    private static final PatternLayout LAYOUT = new PatternLayout("%m%n");
     private final List<WriterAppender> appenders = new ArrayList<>();
 
     public AgentOutputAppender(String file) throws IOException {
@@ -47,7 +48,7 @@ public class AgentOutputAppender {
     }
 
     public void writeTo(Outstream target) {
-        appenders.add(new ConsoleAppender(LAYOUT, target.name));
+        appenders.add(new ConsoleAppender(new PatternLayout(target.marker + ": %m%n"), target.name));
     }
 
     public void write(String message, Exception throwable) {
@@ -68,7 +69,7 @@ public class AgentOutputAppender {
     }
 
     private RollingFileAppender rollingAppender(String file) throws IOException {
-        RollingFileAppender rollingFileAppender = new RollingFileAppender(LAYOUT, getEffectiveLogDirectory(file), true);
+        RollingFileAppender rollingFileAppender = new RollingFileAppender(new PatternLayout("%m%n"), getEffectiveLogDirectory(file), true);
         rollingFileAppender.setMaxBackupIndex(4);
         rollingFileAppender.setMaxFileSize("5000KB");
         return rollingFileAppender;

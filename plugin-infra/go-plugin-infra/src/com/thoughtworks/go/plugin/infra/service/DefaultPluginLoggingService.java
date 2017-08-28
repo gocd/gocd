@@ -18,10 +18,7 @@ package com.thoughtworks.go.plugin.infra.service;
 
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.RollingFileAppender;
+import org.apache.log4j.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,6 +98,13 @@ public class DefaultPluginLoggingService implements LoggingService {
             logger.setAdditivity(false);
             logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
             logger.addAppender(pluginAppender);
+
+            if (systemEnvironment.consoleOutToStdout()) {
+                ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d{ISO8601} %5p [%t] %c{1}:%L [plugin-" + pluginId + "] - %m%n"));
+                logger.setAdditivity(false);
+                logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
+                logger.addAppender(consoleAppender);
+            }
 
             loggingServiceLogger.debug("Plugin with ID: " + pluginId + " will log to: " + pluginAppender.getFile());
         }

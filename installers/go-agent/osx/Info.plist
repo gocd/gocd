@@ -67,7 +67,7 @@
                 <string>127.0.0.1</string>
                 <key>cruise.server.port</key>
                 <string>8153</string>
-                <key>one-jar.main.class</key>
+                <key>jar-class-loader.main.class</key>
                 <string>com.thoughtworks.go.agent.bootstrapper.osx.AgentMacWindow</string>
             </dict>
         </dict>

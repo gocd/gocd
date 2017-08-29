@@ -71,6 +71,15 @@ public class Boot {
     }
 
     static String mainClassName(JarFile jarFile) throws IOException {
+        // allow overriding the main class name, used by OSX installers
+        if (System.getProperty("jar-class-loader.main.class") == null) {
+            return defaultMainClassName(jarFile);
+        } else {
+            return System.getProperty("jar-class-loader.main.class");
+        }
+    }
+
+    private static String defaultMainClassName(JarFile jarFile) throws IOException {
         return jarFile.getManifest().getMainAttributes().getValue("GoCD-Main-Class");
     }
 }

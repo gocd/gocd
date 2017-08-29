@@ -29,8 +29,9 @@ public class PluginRequestHelper {
             DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(extensionName, resolvedExtensionVersion, requestName);
             apiRequest.setRequestBody(pluginInteractionCallback.requestBody(resolvedExtensionVersion));
             apiRequest.setRequestParams(pluginInteractionCallback.requestParams(resolvedExtensionVersion));
+            apiRequest.setRequestHeaders(pluginInteractionCallback.requestHeaders(resolvedExtensionVersion));
             GoPluginApiResponse response = pluginManager.submitTo(pluginId, apiRequest);
-            if(response == null){
+            if (response == null) {
                 throw new RuntimeException("The plugin sent a null response");
             }
             if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {

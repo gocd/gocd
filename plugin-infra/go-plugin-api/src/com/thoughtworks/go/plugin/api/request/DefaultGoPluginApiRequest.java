@@ -145,4 +145,10 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
             this.requestParameters = params;
         }
     }
+
+    public void setRequestHeaders(Map<String, String> headers) {
+        if (headers != null) {
+            this.requestHeaders = headers;
+        }
+    }
 }

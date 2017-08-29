@@ -164,7 +164,7 @@ public class ApplicationInitializerTest {
     }
 
     private void verifyOrder(Initializer... initializers) {
-        InOrder inOrder = inOrder(initializers);
+        InOrder inOrder = inOrder((Object[]) initializers);
         for (Initializer initializer : initializers) {
             inOrder.verify(initializer).initialize();
         }

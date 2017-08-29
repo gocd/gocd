@@ -31,6 +31,8 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.persistence.HibernateCallback;
+import com.thoughtworks.go.server.persistence.HibernateTemplate;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
@@ -55,12 +57,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -78,7 +76,7 @@ import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 
 @Component
-public class DatabaseAccessHelper extends HibernateDaoSupport {
+public class DatabaseAccessHelper {
     private IDatabaseTester databaseTester;
     private StageDao stageDao;
     private PipelineSqlMapDao pipelineDao;
@@ -97,6 +95,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private String md5 = "md5-test";
     private InstanceFactory instanceFactory;
     private JobAgentMetadataDao jobAgentMetadataDao;
+    private HibernateTemplate hibernateTemplate;
 
     @Deprecated // Should not be creating a new spring context for every test
     public DatabaseAccessHelper() throws AmbiguousTableNameException {
@@ -115,7 +114,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.goCache = (GoCache) context.getBean("goCache");
         this.instanceFactory = (InstanceFactory) context.getBean("instanceFactory");
         this.jobAgentMetadataDao = (JobAgentMetadataDao) context.getBean("jobAgentMetadataDao");
-        setSessionFactory((SessionFactory) context.getBean("sessionFactory"));
+        this.hibernateTemplate = new HibernateTemplate(context.getBean(SessionFactory.class), transactionTemplate);
         return context;
     }
 
@@ -154,7 +153,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.pipelineDao = (PipelineSqlMapDao) pipelineDao;
         this.materialRepository = materialRepository;
-        setSessionFactory(sessionFactory);
+        this.hibernateTemplate = new HibernateTemplate(sessionFactory, transactionTemplate);
         initialize(dataSource);
     }
 
@@ -605,11 +604,15 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Integer updateNaturalOrder(final long pipelineId, final double naturalOrder) {
-        return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+            public Integer doInHibernate(Session session) throws HibernateException, SQLException {
                 return PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder);
             }
         });
+    }
+
+    public HibernateTemplate getHibernateTemplate() {
+        return hibernateTemplate;
     }
 
     public MaterialRevision addRevisionsWithModifications(Material material, Modification... modifications) {

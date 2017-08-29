@@ -18,46 +18,40 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.*;
 import org.slf4j.Logger;
-import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
+
+import java.math.BigInteger;
+import java.sql.SQLException;
+import java.util.*;
+
 
 /**
  * @understands how to store and retrieve piplines from the database
  */
 @Component
-public class PipelineRepository extends HibernateDaoSupport {
+public class PipelineRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRepository.class);
     private final QueryExtensions queryExtensions;
+    private final SessionFactory sessionFactory;
+    private HibernateTemplate hibernateTemplate;
     private GoCache goCache;
 
     @Autowired
-    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy) {
+    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy, TransactionTemplate transactionTemplate) {
+        this.sessionFactory = sessionFactory;
         this.goCache = goCache;
+        this.hibernateTemplate = new HibernateTemplate(sessionFactory, transactionTemplate);
         this.queryExtensions = databaseStrategy.getQueryExtensions();
-        setSessionFactory(sessionFactory);
     }
 
     public static int updateNaturalOrderForPipeline(Session session, Long pipelineId, double naturalOrder) {
@@ -274,7 +268,7 @@ public class PipelineRepository extends HibernateDaoSupport {
             if (goCache.isKeyInCache(key)) {
                 return (PipelineSelections) goCache.get(key);
             }
-            List list = getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
+            List list = getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", userId);
             if (list.isEmpty()) {
                 pipelineSelections = null;
             } else {
@@ -305,5 +299,13 @@ public class PipelineRepository extends HibernateDaoSupport {
 
     String pipelineSelectionForCookieKey(long id) {
         return (PipelineRepository.class.getName() + "_cookiePipelineSelection_" + id).intern();
+    }
+
+    void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
+        this.hibernateTemplate = hibernateTemplate;
+    }
+
+    private HibernateTemplate getHibernateTemplate() {
+        return hibernateTemplate;
     }
 }

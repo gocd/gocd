@@ -30,11 +30,13 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ListUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.hibernate.*;
@@ -43,8 +45,6 @@ import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
@@ -59,31 +59,36 @@ import static org.hibernate.criterion.Restrictions.isNull;
 /**
  * @understands how to store and retrieve Materials from the database
  */
-public class MaterialRepository extends HibernateDaoSupport {
+public class MaterialRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
 
     private final GoCache goCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final MaterialConfigConverter materialConfigConverter;
     private final QueryExtensions queryExtensions;
+    private HibernateTemplate hibernateTemplate;
     private int latestModificationsCacheLimit;
     private MaterialExpansionService materialExpansionService;
 
     public MaterialRepository(SessionFactory sessionFactory, GoCache goCache, int latestModificationsCacheLimit, TransactionSynchronizationManager transactionSynchronizationManager,
-                              MaterialConfigConverter materialConfigConverter, MaterialExpansionService materialExpansionService, Database databaseStrategy) {
+                              MaterialConfigConverter materialConfigConverter, MaterialExpansionService materialExpansionService, Database databaseStrategy, TransactionTemplate transactionTemplate) {
         this.goCache = goCache;
         this.latestModificationsCacheLimit = latestModificationsCacheLimit;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.materialConfigConverter = materialConfigConverter;
         this.materialExpansionService = materialExpansionService;
         this.queryExtensions = databaseStrategy.getQueryExtensions();
-        setSessionFactory(sessionFactory);
+        this.hibernateTemplate = new HibernateTemplate(sessionFactory, transactionTemplate);
+    }
+
+    public SessionFactory getSessionFactory() {
+        return hibernateTemplate.getSessionFactory();
     }
 
     @SuppressWarnings({"unchecked"})
     public List<Modification> getModificationsForPipelineRange(final String pipelineName, final Integer fromCounter, final Integer toCounter) {
-        return (List<Modification>) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return getHibernateTemplate().execute(new HibernateCallback<List<Modification>>() {
+            public List<Modification> doInHibernate(Session session) throws HibernateException, SQLException {
                 final List<Long> fromInclusiveModificationList = fromInclusiveModificationsForPipelineRange(session, pipelineName, fromCounter, toCounter);
 
                 final Set<Long> fromModifications = new TreeSet<>(fromInclusiveModificationsForPipelineRange(session, pipelineName, fromCounter, fromCounter));
@@ -137,8 +142,8 @@ public class MaterialRepository extends HibernateDaoSupport {
         final int MATERIAL_TYPE = 3;
         final int MATERIAL_FINGERPRINT = 4;
         //noinspection unchecked
-        return (Map<Long, List<ModificationForPipeline>>) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return getHibernateTemplate().execute(new HibernateCallback<Map<Long, List<ModificationForPipeline>>>() {
+            public Map<Long, List<ModificationForPipeline>> doInHibernate(Session session) throws HibernateException, SQLException {
                 if (pipelineIds.isEmpty()) {
                     return new HashMap<Long, List<ModificationForPipeline>>();
                 }
@@ -435,6 +440,10 @@ public class MaterialRepository extends HibernateDaoSupport {
         return getHibernateTemplate().load(MaterialInstance.class, id);
     }
 
+    public HibernateTemplate getHibernateTemplate() {
+        return hibernateTemplate;
+    }
+
     public MaterialInstance saveMaterialRevision(MaterialRevision materialRevision) {
         LOGGER.info("Saving revision {}", materialRevision);
         MaterialInstance materialInstance = findOrCreateFrom(materialRevision.getMaterial());
@@ -608,14 +617,14 @@ public class MaterialRepository extends HibernateDaoSupport {
     private Long findLastBuiltModificationId(final Pipeline pipeline, final MaterialInstance materialInstance) {
         BigInteger result = (BigInteger) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                String sql = "SELECT fromRevisionId "
-                        + " FROM pipelineMaterialRevisions pmr "
-                        + "     INNER JOIN pipelines p on p.id = pmr.pipelineId "
-                        + " WHERE materialId = ? "
-                        + "     AND p.name = ? "
-                        + "     AND pipelineId < ? "
-                        + " ORDER BY pmr.id DESC"
-                        + " LIMIT 1";
+        String sql = "SELECT fromRevisionId "
+                + " FROM pipelineMaterialRevisions pmr "
+                + "     INNER JOIN pipelines p on p.id = pmr.pipelineId "
+                + " WHERE materialId = ? "
+                + "     AND p.name = ? "
+                + "     AND pipelineId < ? "
+                + " ORDER BY pmr.id DESC"
+                + " LIMIT 1";
                 SQLQuery query = session.createSQLQuery(sql);
                 query.setLong(0, materialInstance.getId());
                 query.setString(1, pipeline.getName());
@@ -624,26 +633,6 @@ public class MaterialRepository extends HibernateDaoSupport {
             }
         });
         return result == null ? null : result.longValue();
-    }
-
-    private boolean hasSameMaterialName(Material material, PipelineMaterialRevision pmr) {
-        if (material.getName() == null && pmr.getMaterialName() == null) {
-            return true;
-        }
-        if (material.getName() == null && pmr.getMaterialName() != null) {
-            return false;
-        }
-        return material.getName().equals(new CaseInsensitiveString(pmr.getMaterialName()));
-    }
-
-    private boolean hasSameFolder(Material material, PipelineMaterialRevision pmr) {
-        if (material.getFolder() == null && pmr.getFolder() == null) {
-            return true;
-        }
-        if (material.getFolder() == null && pmr.getFolder() != null) {
-            return false;
-        }
-        return material.getFolder().equals(pmr.getFolder());
     }
 
     private void save(final PipelineMaterialRevision pipelineMaterialRevision, final String pipelineName) {
@@ -717,8 +706,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private Modifications _findModificationsSince(MaterialInstance materialInstance, long sinceModificationId) {
-        return new Modifications(
-                (List<Modification>) getHibernateTemplate().find("FROM Modification WHERE materialId = ? AND id >= ? ORDER BY id DESC", new Object[]{materialInstance.getId(), sinceModificationId}));
+        return new Modifications(getHibernateTemplate().find("FROM Modification WHERE materialId = ? AND id >= ? ORDER BY id DESC", materialInstance.getId(), sinceModificationId));
     }
 
     private void removeLatestCachedModification(final MaterialInstance materialInstance, Modification latest) {
@@ -786,12 +774,12 @@ public class MaterialRepository extends HibernateDaoSupport {
         }
         String cacheKey = latestMaterialModificationsKey(expandedInstance);
         synchronized (cacheKey) {
-            Modification modification = (Modification) getHibernateTemplate().execute(new HibernateCallback() {
-                public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                    Query query = session.createQuery("FROM Modification WHERE materialId = ? ORDER BY id DESC");
-                    query.setMaxResults(1);
-                    query.setLong(0, expandedInstance.getId());
-                    return query.uniqueResult();
+            Modification modification = getHibernateTemplate().execute(new HibernateCallback<Modification>() {
+                public Modification doInHibernate(Session session) throws HibernateException, SQLException {
+                    return (Modification) session.createQuery("FROM Modification WHERE materialId = ? ORDER BY id DESC")
+                            .setMaxResults(1)
+                            .setLong(0, expandedInstance.getId())
+                            .uniqueResult();
                 }
             });
             goCache.put(cacheKey, new Modifications(modification));
@@ -859,8 +847,8 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public Modification findModificationWithRevision(final Material material, final String revision) {
-        return (Modification) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return getHibernateTemplate().execute(new HibernateCallback<Modification>() {
+            public Modification doInHibernate(Session session) throws HibernateException, SQLException {
                 try {
                     final long materialId = findOrCreateFrom(material).getId();
                     return MaterialRepository.this.findModificationWithRevision(session, materialId, revision);
@@ -880,9 +868,9 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 modification = (Modification) goCache.get(key);
                 if (modification == null) {
-                    Query query = session.createQuery("FROM Modification WHERE materialId = ? and revision = ? ORDER BY id DESC");
-                    query.setLong(0, materialId);
-                    query.setString(1, revision);
+                    Query query = session.createQuery("FROM Modification WHERE materialId = :materialId and revision = :revision ORDER BY id DESC");
+                    query.setParameter("materialId", materialId);
+                    query.setParameter("revision", revision);
                     modification = (Modification) query.uniqueResult();
                     goCache.put(key, modification);
                 }
@@ -905,8 +893,8 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public boolean hasPipelineEverRunWith(final String pipelineName, final MaterialRevisions revisions) {
-        return (Boolean) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return getHibernateTemplate().execute(new HibernateCallback<Boolean>() {
+            public Boolean doInHibernate(Session session) throws HibernateException, SQLException {
                 int numberOfMaterials = revisions.getRevisions().size();
                 int match = 0;
                 for (MaterialRevision revision : revisions) {
@@ -945,8 +933,8 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     @SuppressWarnings("unchecked")
     public List<MatchedRevision> findRevisionsMatching(final MaterialConfig materialConfig, final String searchString) {
-        return (List<MatchedRevision>) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        return getHibernateTemplate().execute(new HibernateCallback<List<MatchedRevision>>() {
+            public List<MatchedRevision> doInHibernate(Session session) throws HibernateException, SQLException {
                 String sql = "SELECT m.*"
                         + " FROM modifications AS m"
                         + " INNER JOIN materials mat ON mat.id = m.materialId"
@@ -978,11 +966,12 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 modifications = (List<Modification>) goCache.get(key);
                 if (modifications == null) {
-                    modifications = getHibernateTemplate().executeFind(new HibernateCallback() {
-                        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                            Query q = session.createQuery("FROM Modification WHERE revision = :revision ORDER BY id DESC");
-                            q.setParameter("revision", stageIdentifier.getStageLocator());
-                            return q.list();
+                    modifications = getHibernateTemplate().execute(new HibernateCallback<List<Modification>>() {
+                        public List<Modification> doInHibernate(Session session) throws HibernateException, SQLException {
+                            return (List<Modification>) session
+                                    .createQuery("FROM Modification WHERE revision = :revision ORDER BY id DESC")
+                                    .setParameter("revision", stageIdentifier.getStageLocator())
+                                    .list();
                         }
                     });
                     if (!modifications.isEmpty()) {
@@ -1001,11 +990,11 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 totalCount = (Long) goCache.get(key);
                 if (totalCount == null || totalCount == 0) {
-                    totalCount = (Long) getHibernateTemplate().execute(new HibernateCallback() {
-                        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                            Query q = session.createQuery("select count(*) FROM Modification WHERE materialId = ?");
-                            q.setLong(0, materialInstance.getId());
-                            return q.uniqueResult();
+                    totalCount = getHibernateTemplate().execute(new HibernateCallback<Long>() {
+                        public Long doInHibernate(Session session) throws HibernateException, SQLException {
+                            return (Long) session.createQuery("select count(*) FROM Modification WHERE materialId = :materialId")
+                                    .setParameter("materialId", materialInstance.getId())
+                                    .uniqueResult();
                         }
                     });
                     goCache.put(key, totalCount);
@@ -1023,13 +1012,13 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 modifications = (Modifications) goCache.get(key, subKey);
                 if (modifications == null) {
-                    List<Modification> modificationsList = getHibernateTemplate().executeFind(new HibernateCallback() {
-                        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                            Query q = session.createQuery("FROM Modification WHERE materialId = ? ORDER BY id DESC");
-                            q.setFirstResult(pagination.getOffset());
-                            q.setMaxResults(pagination.getPageSize());
-                            q.setLong(0, materialInstance.getId());
-                            return q.list();
+                    List<Modification> modificationsList = getHibernateTemplate().execute(new HibernateCallback<List<Modification>>() {
+                        public List<Modification> doInHibernate(Session session) throws HibernateException, SQLException {
+                            return session.createQuery("FROM Modification WHERE materialId = :materialId ORDER BY id DESC")
+                                    .setFirstResult(pagination.getOffset())
+                                    .setMaxResults(pagination.getPageSize())
+                                    .setParameter("materialId", materialInstance.getId())
+                                    .list();
                         }
                     });
                     if (!modificationsList.isEmpty()) {
@@ -1050,16 +1039,15 @@ public class MaterialRepository extends HibernateDaoSupport {
             synchronized (key) {
                 modificationId = (Long) goCache.get(key);
                 if (modificationId == null) {
-                    modificationId = (Long) getHibernateTemplate().execute(new HibernateCallback() {
-                        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                            SQLQuery sqlQuery = session.createSQLQuery("SELECT  MAX(pmr.toRevisionId) toRevisionId "
-                                    + "FROM (SELECT torevisionid, pipelineid FROM pipelineMaterialRevisions WHERE materialid = :material_id)  AS pmr\n"
-                                    + "INNER JOIN pipelines p ON ( p.name = :pipeline_name AND p.id = pmr.pipelineId)");
-
-                            sqlQuery.setParameter("material_id", materialId);
-                            sqlQuery.setParameter("pipeline_name", pipelineName.toString());
-                            sqlQuery.addScalar("toRevisionId", new LongType());
-                            return sqlQuery.uniqueResult();
+                    modificationId = getHibernateTemplate().execute(new HibernateCallback<Long>() {
+                        public Long doInHibernate(Session session) throws HibernateException, SQLException {
+                            return (Long) session.createSQLQuery("SELECT MAX(pmr.toRevisionId) toRevisionId "
+                                    + "FROM (SELECT torevisionid, pipelineid FROM pipelineMaterialRevisions WHERE materialid = :material_id) AS pmr "
+                                    + "INNER JOIN pipelines p ON ( p.name = :pipeline_name AND p.id = pmr.pipelineId)")
+                            .addScalar("toRevisionId", new LongType())
+                            .setParameter("material_id", materialId)
+                            .setParameter("pipeline_name", pipelineName.toString())
+                            .uniqueResult();
                         }
                     });
                     if (modificationId == null) {
@@ -1094,4 +1082,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         return new File(new File("pipelines", "flyweight"), materialInstance.getFlyweightName());
     }
 
+    void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
+        this.hibernateTemplate = hibernateTemplate;
+    }
 }

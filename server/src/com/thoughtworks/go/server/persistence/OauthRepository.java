@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.sql.SQLException;
-
 import com.thoughtworks.go.server.domain.oauth.OauthAuthorization;
 import com.thoughtworks.go.server.domain.oauth.OauthClient;
 import com.thoughtworks.go.server.domain.oauth.OauthDomainEntity;
@@ -28,33 +23,38 @@ import com.thoughtworks.go.server.domain.oauth.OauthToken;
 import com.thoughtworks.go.server.oauth.OauthDataSource;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.SessionFactory;
-import org.hibernate.Session;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @understands persistence for data used for oauth support
  */
 @Service
-public class OauthRepository extends HibernateDaoSupport implements OauthDataSource {
+public class OauthRepository implements OauthDataSource {
 
     private static final String PARAM_ID = "id";
 
+    private final SessionFactory sessionFactory;
+    private final HibernateTemplate hibernateTemplate;
     private TransactionTemplate txnTemplate;
     private final OauthPersistenceHelper persistenceHelper;
 
     @Autowired
     public OauthRepository(SessionFactory sessionFactory, TransactionTemplate txnTemplate) {
+        this.sessionFactory = sessionFactory;
+        this.hibernateTemplate = new HibernateTemplate(sessionFactory, txnTemplate);
         this.txnTemplate = txnTemplate;
-        setSessionFactory(sessionFactory);
-        this.persistenceHelper = new OauthPersistenceHelper(getHibernateTemplate());
+        this.persistenceHelper = new OauthPersistenceHelper(hibernateTemplate);
     }
 
     public void transaction(final Runnable txn) {
@@ -78,7 +78,7 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public Collection findAllClient() {
-        return persistenceHelper.dtoFromDomain((List<OauthClient>) getHibernateTemplate().find("from OauthClient"));
+        return persistenceHelper.dtoFromDomain(getHibernateTemplate().find("from OauthClient"));
     }
 
     public OauthClientDTO findOauthClientByClientId(final String clientId) {
@@ -227,11 +227,11 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     public void deleteUsersOauthGrants(final List<String> userIds) {
         txnTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                getHibernateTemplate().execute(new HibernateCallback() {
-                    public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                getHibernateTemplate().execute(new HibernateCallback<Void>() {
+                    public Void doInHibernate(Session session) throws HibernateException, SQLException {
                         deleteEntitiesByUserIds(OauthAuthorization.class, session, userIds);
                         deleteEntitiesByUserIds(OauthToken.class, session, userIds);
-                        return true;
+                        return null;
                     }
                 });
             }
@@ -239,9 +239,9 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     private <T> void deleteEntitiesByUserIds(Class<? extends OauthDomainEntity<T>> type, Session session, List<String> userIds) {
-        Query query = session.createQuery(String.format("DELETE FROM %s WHERE userId IN (:userIds)", type.getSimpleName()));
-        query.setParameterList("userIds", userIds);
-        query.executeUpdate();
+        session.createQuery(String.format("DELETE FROM %s WHERE userId IN (:userIds)", type.getSimpleName()))
+                .setParameterList("userIds", userIds)
+                .executeUpdate();
     }
 
     public void deleteOauthToken(long id) {
@@ -263,5 +263,9 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
 
     private OauthAuthorization loadAuthorization(long id) {
         return persistenceHelper.loadDomainEntity(OauthAuthorization.class, id);
+    }
+
+    public HibernateTemplate getHibernateTemplate() {
+        return hibernateTemplate;
     }
 }

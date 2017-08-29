@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ describe ValueStreamMapController do
     @user = double('some user')
     controller.stub(:current_user).and_return(@user)
     controller.stub(:is_ie8?).and_return(false)
+    controller.stub(:is_quick_edit_page_default?).and_return(false)
 
     @vsm_path_partial = proc do |name, counter|
       vsm_show_path(name, counter)
@@ -39,7 +40,8 @@ describe ValueStreamMapController do
     @stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
       stage_detail_tab_path(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
     end
-    @pipeline_edit_path = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
+    @pipeline_edit_path_normal_edit = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
+    @pipeline_edit_path_quick_edit = proc { |pipeline_name | edit_admin_pipeline_config_path(:pipeline_name => pipeline_name) }
   end
 
   describe :redirect_to_stage_pdg_if_ie8 do
@@ -124,7 +126,23 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
+      end
+
+      it "should get the pipeline dependency graph json when pipeline quick edit toggle is set to true" do
+        controller.stub(:is_quick_edit_page_default?).and_return(true)
+        pipeline = "P1"
+        @pipeline_service.stub(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
+        vsm = ValueStreamMap.new(pipeline, nil)
+        vsm.addUpstreamNode(PipelineDependencyNode.new("git", "git"), nil, pipeline)
+        model = vsm.presentationModel()
+        @value_stream_map_service.should_receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
+
+        get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
+
+        expect(response.status).to eq(200)
+
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_quick_edit).to_json)
       end
 
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do
@@ -322,7 +340,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
       end
 
       it "should display error message when the pipeline does not exist" do

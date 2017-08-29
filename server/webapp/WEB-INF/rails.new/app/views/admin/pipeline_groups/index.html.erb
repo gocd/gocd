@@ -22,7 +22,7 @@
 
   <% @groups.each do |group| %>
       <div class="group pipeline_group">
-        <h2 class="group_name entity_title wrapped_word"><%= group.getGroup() %></h2>
+        <h2 class="group_name entity_title wrapped_word" id="group-<%= group.getGroup() %>"><%= group.getGroup() %></a></h2>
         <div class="title_action_wrapper">
           <ul>
             <li>

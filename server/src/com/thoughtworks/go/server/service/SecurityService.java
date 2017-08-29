@@ -65,6 +65,10 @@ public class SecurityService {
         return goConfigService.isUserAdminOfGroup(userName, groupName);
     }
 
+    public boolean isUserAdminOfGroup(final Username username, String groupName) {
+        return goConfigService.isUserAdminOfGroup(username.getUsername(), groupName);
+    }
+
     public boolean hasOperatePermissionForPipeline(final CaseInsensitiveString username, String pipelineName) {
         String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         if (groupName == null) {

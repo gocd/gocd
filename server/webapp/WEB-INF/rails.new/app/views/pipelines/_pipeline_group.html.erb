@@ -2,7 +2,11 @@
 <div class="pipeline_bundle pipeline_group">
     <div class="pipelines">
         <%== content_wrapper_tag %>
-            <h2 class="entity_title"><%= scope[:pipeline_group].getName() %></h2>
+            <% if is_user_an_admin? || is_user_admin_of_group?(scope[:pipeline_group].getName()) %>
+              <h2 class="entity_title"><%= link_to scope[:pipeline_group].getName(), "#{pipeline_groups_path}#group-#{scope[:pipeline_group].getName()}" %></h2>
+            <% else %>
+              <h2 class="entity_title"><%= scope[:pipeline_group].getName() %></h2>
+            <% end %>
             <% scope[:pipeline_models] = scope[:pipeline_group].getPipelineModels()
                scope[:pipeline_models].each_with_index do |pipeline_model_in_pipeline_group, idx_in_pipeline_group| -%>
 

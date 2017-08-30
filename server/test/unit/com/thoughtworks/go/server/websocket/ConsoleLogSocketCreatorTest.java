@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.server.websocket.browser.subscription.consoleLog.ConsoleLogSender;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.junit.Before;
@@ -44,5 +45,4 @@ public class ConsoleLogSocketCreatorTest {
 
         verify(restfulService).findJob("pipe", "pipeLabel", "stage", "stageCount", "job");
     }
-
 }

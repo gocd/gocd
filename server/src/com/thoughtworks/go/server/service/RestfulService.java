@@ -63,6 +63,10 @@ public class RestfulService {
         return findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, null);
     }
 
+    public JobIdentifier findJob(JobIdentifier job) {
+        return findJob(job.getPipelineName(), job.getPipelineLabel(), job.getStageName(), job.getStageCounter(), job.getBuildName(), job.getBuildId());
+    }
+
     public StageIdentifier translateStageCounter(PipelineIdentifier pipelineIdentifier, String stageName, String stageCounter) {
         if (JobIdentifier.LATEST.equalsIgnoreCase(stageCounter)) {
             int latestCounter = stageDao.findLatestStageCounter(pipelineIdentifier, stageName);

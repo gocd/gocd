@@ -180,6 +180,12 @@
     <async-supported>true</async-supported>
   </servlet>
 
+  <servlet>
+    <servlet-name>go-websocket</servlet-name>
+    <servlet-class>com.thoughtworks.go.server.websocket.browser.GoWebSocketServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
+  </servlet>
 
   <servlet>
     <servlet-name>spring-repository</servlet-name>
@@ -301,6 +307,11 @@
   <servlet-mapping>
     <servlet-name>console-websocket</servlet-name>
     <url-pattern>/console-websocket/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>go-websocket</servlet-name>
+    <url-pattern>/go-websocket/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

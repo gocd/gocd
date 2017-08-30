@@ -19,7 +19,7 @@
       {
          "key": "browser_console_log_ws_key",
          "description": "Enables rendering console logs via websockets. Default: disabled.",
-         "value": false
+         "value": true
       }
   ]
 }

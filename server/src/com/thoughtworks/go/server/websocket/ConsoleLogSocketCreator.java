@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.server.websocket.browser.subscription.consoleLog.ConsoleLogSender;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;

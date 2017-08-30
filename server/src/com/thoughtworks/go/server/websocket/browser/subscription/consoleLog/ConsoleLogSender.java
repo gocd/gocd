@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.browser.subscription.consoleLog;
 
+import com.google.gson.*;
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.util.Retryable;
+import com.thoughtworks.go.server.websocket.SocketEndpoint;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -46,20 +49,13 @@ public class ConsoleLogSender {
     private static final int BUF_SIZE = 1024 * 1024; // 1MB
     private static final int FILL_INTERVAL = 500;
 
-    @Autowired
-    private ConsoleService consoleService;
+    private final ConsoleService consoleService;
+    private final JobInstanceDao jobInstanceDao;
 
     @Autowired
-    private JobInstanceDao jobInstanceDao;
-
-    @Autowired
-    private SocketHealthService socketHealthService;
-
-    @Autowired
-    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService) {
+    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao) {
         this.consoleService = consoleService;
         this.jobInstanceDao = jobInstanceDao;
-        this.socketHealthService = socketHealthService;
     }
 
     public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
@@ -164,7 +160,14 @@ public class ConsoleLogSender {
 
     private void flushBuffer(ByteArrayOutputStream buffer, SocketEndpoint webSocket) throws IOException {
         if (buffer.size() == 0) return;
-        webSocket.send(ByteBuffer.wrap(maybeGzipIfLargeEnough(buffer.toByteArray())));
+
+        JsonObject jsonElement = new JsonObject();
+        jsonElement.add("type", new JsonPrimitive("ConsoleLog"));
+        jsonElement.add("value", new JsonPrimitive(new String(buffer.toByteArray(), Charset.forName("UTF-8"))));
+
+        String json = new GsonBuilder().create().toJson(jsonElement);
+
+        webSocket.send(ByteBuffer.wrap(maybeGzipIfLargeEnough(json.getBytes())));
         buffer.reset();
     }
 

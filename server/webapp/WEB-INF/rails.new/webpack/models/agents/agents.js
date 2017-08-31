@@ -41,6 +41,10 @@ const statusComparator = (agent) => {
   return rank[agent.status()];
 };
 
+const freeSpaceComparator = (agent) => {
+  return parseInt(agent.freeSpace());
+};
+
 const sortByAttrName = (attrName) => (agent) => _.toLower(agent[attrName]());
 
 const resolve = (deferred) => (data, _textStatus, jqXHR) => {
@@ -73,12 +77,17 @@ const Agents = function (data) {
   this.sortBy = function (attrName, order) {
     let sortedAgents;
 
-    if (attrName === 'agentState') {
+    switch(attrName) {
+    case 'agentState':
       sortedAgents = this.sortByAgents(statusComparator);
-    } else {
+      break;
+    case 'freeSpace':
+      sortedAgents = this.sortByAgents(freeSpaceComparator);
+      break;
+    default:
       sortedAgents = this.sortByAgents(sortByAttrName(attrName));
     }
-
+    
     if (order === 'desc') {
       sortedAgents = _.reverse(sortedAgents);
     }

@@ -17,7 +17,7 @@
 describe('Agent Model', () => {
 
   const s = require('string-plus');
-
+  const _ = require('lodash');
   require('jasmine-ajax');
 
   const Agents = require('models/agents/agents');
@@ -195,9 +195,11 @@ describe('Agent Model', () => {
     it("should sort based on agent's free space", () => {
       const agents       = Agents.fromJSON(agentData);
       const sortedAgents = agents.sortBy('freeSpace', 'asc');
+      const freeSpaceOfAgents = agents.collectAgentProperty('freeSpace');
+      const expectedFreeSpacesOrder = _.sortBy(freeSpaceOfAgents, (space) => parseInt(space));
 
       const freeSpacesOfSortedAgents = sortedAgents.collectAgentProperty('freeSpace');
-      expect(freeSpacesOfSortedAgents).toEqual(agents.collectAgentProperty('freeSpace').sort());
+      expect(freeSpacesOfSortedAgents).toEqual(expectedFreeSpacesOrder);
     });
 
     it("should sort based on agent's resources", () => {

@@ -17,15 +17,19 @@
 package com.thoughtworks.go.logging;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.*;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 
 public class LogConfigurator {
+    private static final long DELAY = 5000;
     private final String configDir;
     private final String childLog4jConfigFile;
+    private StoppableFileWatchdogBecauseFileWatchDogIsUnStoppable watchDog;
 
     public LogConfigurator(String childLog4jConfigFile) {
         this(new SystemEnvironment().getConfigDir(), childLog4jConfigFile);
@@ -63,6 +67,10 @@ public class LogConfigurator {
                 }
             }
         }
+
+        if (watchDog != null) {
+            watchDog.start();
+        }
     }
 
     protected void initializeFromPropertyResource(URL resource) {
@@ -74,11 +82,13 @@ public class LogConfigurator {
     }
 
     protected void initializeFromPropertiesFile(File log4jFile) {
-        PropertyConfigurator.configureAndWatch(log4jFile.getAbsolutePath(), 5000);
+        watchDog = new PropertyWatchdog(log4jFile.getAbsolutePath());
+        watchDog.setDelay(DELAY);
     }
 
     protected void initializeFromXMLFile(File log4jFile) {
-        DOMConfigurator.configureAndWatch(log4jFile.getAbsolutePath(), 5000);
+        watchDog = new XMLWatchdog(log4jFile.getAbsolutePath());
+        watchDog.setDelay(DELAY);
     }
 
     protected void configureDefaultLogging() {
@@ -87,6 +97,26 @@ public class LogConfigurator {
     }
 
     public void shutdown() {
-        LogManager.shutdown();
+        stopWatchdogThread();
+        LogManager.shutdown(); // close everything log4j
+        LogFactory.releaseAll(); // close everything commons logging
+        java.beans.Introspector.flushCaches(); // See http://markmail.org/message/qhl3ibgc4pwqwxbb
+    }
+
+    private void stopWatchdogThread() {
+        if (watchDog == null) {
+            return;
+        }
+        try {
+            watchDog.stopWatchdog();
+            watchDog.join(DELAY + 1000);
+            if (watchDog.isAlive()) {
+                LoggerFactory.getLogger(LogConfigurator.class).warn("Watchdog thread is still alive.");
+            }
+            watchDog = null;
+        } catch (InterruptedException e) {
+            // ignore
+            LoggerFactory.getLogger(LogConfigurator.class).warn("Failed on awaiting the watchdog thread", e);
+        }
     }
 }

@@ -106,6 +106,9 @@ task mainJar(type: Jar) {
   }
 
   from(project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) }) {
+    include "**/StoppableFileWatchdogBecauseFileWatchDogIsUnStoppable.class"
+    include "**/PropertyWatchdog.class"
+    include "**/XMLWatchdog.class"
     include "**/AssertJava8.class"
     include "**/LogConfigurator.class"
     include "**/OperatingSystem.class"

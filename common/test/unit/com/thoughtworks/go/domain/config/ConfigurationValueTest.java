@@ -28,4 +28,28 @@ public class ConfigurationValueTest {
         ConfigurationValue configurationValue = new ConfigurationValue(ConfigurationValue.VALUE);
         assertThat(configurationValue, is(new ConfigurationValue(ConfigurationValue.VALUE)));
     }
+
+    @Test
+    public void shouldHandleBooleanValueAsAString() throws Exception {
+        final ConfigurationValue configurationValue = new ConfigurationValue(true);
+        assertThat(configurationValue.getValue(), is("true"));
+    }
+
+    @Test
+    public void shouldHandleIntegerValueAsAString() throws Exception {
+        final ConfigurationValue configurationValue = new ConfigurationValue(1);
+        assertThat(configurationValue.getValue(), is("1"));
+    }
+
+    @Test
+    public void shouldHandleLongValueAsAString() throws Exception {
+        final ConfigurationValue configurationValue = new ConfigurationValue(5L);
+        assertThat(configurationValue.getValue(), is("5"));
+    }
+
+    @Test
+    public void shouldHandleDoubleValueAsAString() throws Exception {
+        final ConfigurationValue configurationValue = new ConfigurationValue(3.1428571429D);
+        assertThat(configurationValue.getValue(), is("3.1428571429"));
+    }
 }

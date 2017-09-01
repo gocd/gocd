@@ -67,7 +67,6 @@ public class AgentBootstrapperTest {
 
             @Override
             AgentLauncherCreator getLauncherCreator() {
-
                 return new AgentLauncherCreator() {
                     public AgentLauncher createLauncher() {
                         try {
@@ -80,7 +79,7 @@ public class AgentBootstrapperTest {
                     }
 
                     @Override
-                    public void destroy() {
+                    public void close() {
                     }
                 };
             }
@@ -112,21 +111,27 @@ public class AgentBootstrapperTest {
     @Test(timeout = 10 * 1000)
     public void shouldNotRelaunchAgentLauncherWhenItReturnsAnIrrecoverableCode() throws InterruptedException {
         final boolean[] destroyCalled = new boolean[1];
-        final AgentBootstrapper bootstrapper = new AgentBootstrapper(new AgentLauncherCreator() {
-            public AgentLauncher createLauncher() {
-                return new AgentLauncher() {
-                    public int launch(AgentLaunchDescriptor descriptor) {
-                        return AgentLauncher.IRRECOVERABLE_ERROR;
-                    }
-
-                };
-            }
+        final AgentBootstrapper bootstrapper = new AgentBootstrapper(){
 
             @Override
-            public void destroy() {
-                destroyCalled[0] = true;
+            AgentLauncherCreator getLauncherCreator() {
+                return new AgentLauncherCreator() {
+                    public AgentLauncher createLauncher() {
+                        return new AgentLauncher() {
+                            public int launch(AgentLaunchDescriptor descriptor) {
+                                return AgentLauncher.IRRECOVERABLE_ERROR;
+                            }
+
+                        };
+                    }
+
+                    @Override
+                    public void close() {
+                        destroyCalled[0] = true;
+                    }
+                };
             }
-        });
+        };
 
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
@@ -162,7 +167,7 @@ public class AgentBootstrapperTest {
                     }
 
                     @Override
-                    public void destroy() {
+                    public void close() {
                     }
                 };
             }
@@ -223,7 +228,7 @@ public class AgentBootstrapperTest {
                     }
 
                     @Override
-                    public void destroy() {
+                    public void close() {
                     }
                 };
             }

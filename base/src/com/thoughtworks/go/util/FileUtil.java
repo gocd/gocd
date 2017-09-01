@@ -46,6 +46,7 @@ public class FileUtil {
 
     private static final boolean ON_NETWARE = OperatingSystem.isFamily("netware");
     private static final boolean ON_DOS = OperatingSystem.isFamily("dos");
+    public static final String TMP_PARENT_DIR = "data";
 
     public static boolean isFolderEmpty(File folder) {
         if (folder == null) {
@@ -415,7 +416,7 @@ public class FileUtil {
     }
 
     public static File createTempFolder() {
-        File tempDir = new File("data", CRUISE_TMP_FOLDER);
+        File tempDir = new File(TMP_PARENT_DIR, CRUISE_TMP_FOLDER);
         File dir = new File(tempDir, UUID.randomUUID().toString());
         boolean ret = dir.mkdirs();
         if (!ret) {

@@ -20,13 +20,16 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.AgentCLI;
 import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.logging.LogConfigurator;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
 import com.thoughtworks.go.util.validators.Validation;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.FalseFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,21 +42,16 @@ public class AgentBootstrapper {
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
     public static final String WAIT_TIME_BEFORE_RELAUNCH_IN_MS = "agent.bootstrapper.wait.time.before.relaunch.in.ms";
     public static final String DEFAULT_LOGBACK_CONFIGURATION_FILE = "agent-bootstrapper-logback.xml";
+    public static final RegexFileFilter AGENT_LAUNCHER_TMP_FILE_FILTER = new RegexFileFilter("([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})agent-launcher.jar", IOCase.INSENSITIVE);
 
     int waitTimeBeforeRelaunch = SystemUtil.getIntProperty(WAIT_TIME_BEFORE_RELAUNCH_IN_MS, DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrapper.class);
 
     private boolean loop;
 
-    private AgentLauncherCreator launcherCreator;
     private Thread launcherThread;
-    private Thread launcherCreatorShutdownHook;
 
     public AgentBootstrapper() {
-    }
-
-    public AgentBootstrapper(AgentLauncherCreator launcherCreator) {
-        this.launcherCreator = launcherCreator;
     }
 
     public static void main(String[] argv) {
@@ -74,8 +72,8 @@ public class AgentBootstrapper {
 
         do {
             ClassLoader tccl = launcherThread.getContextClassLoader();
-            try {
-                AgentLauncher launcher = getLauncher();
+            try (AgentLauncherCreator agentLauncherCreator = getLauncherCreator()) {
+                AgentLauncher launcher = agentLauncherCreator.createLauncher();
                 LOG.info("Attempting create and start launcher...");
                 setContextClassLoader(launcher.getClass().getClassLoader());
                 returnValue = launcher.launch(descriptor);
@@ -89,12 +87,9 @@ public class AgentBootstrapper {
             } finally {
                 resetContextClassLoader(tccl);
                 forceGCToPreventOOM();
-                destoryLauncherCreator();
             }
             waitForRelaunchTime();
         } while (loop);
-
-        destoryLauncherCreator();
 
         LOG.info("Agent Bootstrapper stopped");
 
@@ -102,8 +97,9 @@ public class AgentBootstrapper {
     }
 
     private void cleanupTempFiles() {
-        FileUtils.deleteQuietly(new File(JarUtil.EXPLODED_DEPENDENCIES_DIR_NAME));
-        FileUtils.deleteQuietly(new File(LauncherTempFileHandler.LAUNCHER_TMP_FILE_LIST));
+        FileUtils.deleteQuietly(new File(FileUtil.TMP_PARENT_DIR));
+        FileUtils.deleteQuietly(new File("exploded_agent_launcher_dependencies")); // launchers extracted from old versions
+        FileUtils.listFiles(new File("."), AGENT_LAUNCHER_TMP_FILE_FILTER, FalseFileFilter.INSTANCE).forEach(FileUtils::deleteQuietly);
         FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "trust.jks"));
     }
 
@@ -122,23 +118,6 @@ public class AgentBootstrapper {
 
     void jvmExit(int returnValue) {
         System.exit(returnValue);
-    }
-
-    private void destoryLauncherCreator() {
-        LOG.info("Destroying launcher creator");
-        try {
-            launcherCreator.destroy();
-        } catch (Exception e) {
-        }
-        launcherCreator = null;
-        removeLauncherCreatorShutdownHook();
-    }
-
-    private void removeLauncherCreatorShutdownHook() {
-        try {
-            Runtime.getRuntime().removeShutdownHook(launcherCreatorShutdownHook);
-        } catch (Exception e) {
-        }
     }
 
     private void setContextClassLoader(ClassLoader tccl) {
@@ -162,33 +141,7 @@ public class AgentBootstrapper {
         }
     }
 
-    private AgentLauncher getLauncher() {//do not use across 2 invocations -jj
-        try {
-            initLauncherCreator();
-            return launcherCreator.createLauncher();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create an instance of agent launcher", e);
-        }
-    }
-
-    private void initLauncherCreator() {
-        launcherCreator = getLauncherCreator();
-        launcherCreatorShutdownHook = new Thread() {
-            @Override
-            public void run() {
-                LOG.info("Interrupting Launcher and initiating shutdown...");
-                loop = false;
-                launcherThread.interrupt();
-                destoryLauncherCreator();
-            }
-        };
-        Runtime.getRuntime().addShutdownHook(launcherCreatorShutdownHook);
-    }
-
     AgentLauncherCreator getLauncherCreator() {
-        if (launcherCreator == null) {
-            return new DefaultAgentLauncherCreatorImpl();
-        }
-        return launcherCreator;
+        return new DefaultAgentLauncherCreatorImpl();
     }
 }

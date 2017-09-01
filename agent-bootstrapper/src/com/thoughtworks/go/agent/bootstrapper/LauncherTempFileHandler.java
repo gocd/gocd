@@ -16,6 +16,12 @@
 
 package com.thoughtworks.go.agent.bootstrapper;
 
+import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -23,12 +29,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.thoughtworks.go.agent.common.util.JarUtil;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class LauncherTempFileHandler implements Runnable {
 
@@ -57,8 +57,9 @@ class LauncherTempFileHandler implements Runnable {
             for (String fileName : fileSet) {
                 File file = new File(fileName);
                 FileUtils.deleteQuietly(file);
-                JarUtil.cleanup(fileName);
-                if (!file.exists() && !JarUtil.tempFileExist(fileName)) {
+                File depsDir = new File(FileUtil.TMP_PARENT_DIR, fileName);
+                FileUtils.deleteQuietly(depsDir);
+                if (!file.exists() && !depsDir.exists()) {
                     fileList.remove(fileName);
                 }
             }

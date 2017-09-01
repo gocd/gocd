@@ -54,7 +54,7 @@ public class Handler extends URLStreamHandler {
 
     @Override
     protected URLConnection openConnection(URL u) throws IOException {
-        return new URLConnection(u) {
+        URLConnection urlConnection = new URLConnection(u) {
 
             @Override
             public void connect() throws IOException {
@@ -67,6 +67,8 @@ public class Handler extends URLStreamHandler {
                 return Boot.class.getResourceAsStream("/" + file);
             }
         };
+        urlConnection.setUseCaches(false);
+        return urlConnection;
     }
 
     public static URL toOneJarUrl(String name) {

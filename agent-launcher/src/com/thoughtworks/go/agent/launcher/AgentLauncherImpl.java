@@ -18,19 +18,27 @@ package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.logging.LogConfigurator;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URLClassLoader;
+import java.security.SecureRandom;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.jar.JarEntry;
 
 public class AgentLauncherImpl implements AgentLauncher {
 
@@ -41,7 +49,7 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     public static final String GO_AGENT_BOOTSTRAP_CLASS = "Go-Agent-Bootstrap-Class";
     public static final String AGENT_BOOTSTRAPPER_LOCK_FILE = ".agent-bootstrapper.running";
-    private static Lockfile lockFile = new Lockfile(new File(AGENT_BOOTSTRAPPER_LOCK_FILE));
+    private Lockfile lockFile = new Lockfile(new File(AGENT_BOOTSTRAPPER_LOCK_FILE));
 
     private static final Logger LOG = LoggerFactory.getLogger(AgentLauncherImpl.class);
 
@@ -130,7 +138,7 @@ public class AgentLauncherImpl implements AgentLauncher {
     }
 
     private String getLauncherVersion() throws IOException {
-        return JarUtil.getGoVersion(Downloader.AGENT_LAUNCHER);
+        return CurrentGoCDVersion.getInstance().fullVersion();
     }
 
     public static interface AgentProcessParentRunner {
@@ -139,8 +147,24 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     private static class AgentJarBasedAgentParentRunner implements AgentProcessParentRunner {
         public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context) {
-            AgentProcessParent agentProcessParent = (AgentProcessParent) JarUtil.objectFromJar(Downloader.AGENT_BINARY, GO_AGENT_BOOTSTRAP_CLASS);
-            return agentProcessParent.run(launcherVersion, launcherMd5, urlGenerator, environmentVariables, context);
+            String agentProcessParentClassName = JarUtil.getManifestKey(Downloader.AGENT_BINARY_JAR, GO_AGENT_BOOTSTRAP_CLASS);
+            String tempDirSuffix = new BigInteger(64, new SecureRandom()).toString(16) + "-" + Downloader.AGENT_BINARY_JAR;
+            File tempDir = new File(FileUtil.TMP_PARENT_DIR, "deps-" + tempDirSuffix);
+            try {
+                try (URLClassLoader urlClassLoader = JarUtil.getClassLoaderFromJar(Downloader.AGENT_BINARY_JAR, jarEntryFilter(), tempDir, this.getClass().getClassLoader())) {
+                    Class<?> aClass = urlClassLoader.loadClass(agentProcessParentClassName);
+                    AgentProcessParent agentProcessParent = (AgentProcessParent) aClass.newInstance();
+                    return agentProcessParent.run(launcherVersion, launcherMd5, urlGenerator, environmentVariables, context);
+                } catch (ReflectiveOperationException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } finally {
+                FileUtils.deleteQuietly(tempDir);
+            }
+        }
+
+        private Predicate<JarEntry> jarEntryFilter() {
+            return jarEntry -> jarEntry.getName().startsWith("lib/") && jarEntry.getName().endsWith(".jar");
         }
     }
 

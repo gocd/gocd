@@ -17,121 +17,98 @@
 package com.thoughtworks.go.agent.common.util;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 public class JarUtil {
     private static final Logger LOG = LoggerFactory.getLogger(JarUtil.class);
-    public static final String GO_VERSION = "Go-Version";
-    public static final String EXPLODED_DEPENDENCIES_DIR_NAME = "exploded_agent_launcher_dependencies";
 
-    public static String getGoVersion(String jar) {
-        String version = getManifestKey(jar, GO_VERSION);
-        return version == null ? "Unknown" : version;
+    public static String getManifestKey(File aJarFile, String key) {
+        try (JarFile jarFile = new JarFile(aJarFile)) {
+            return getManifestKey(jarFile, key);
+        } catch (IOException e) {
+            LOG.error("Exception while trying to read key {} from manifest of {}", key, aJarFile, e);
+        }
+        return null;
     }
 
-    public static String getManifestKey(String jar, String key) {
-        String version = null;
+    private static String getManifestKey(JarFile jarFile, String key) {
         try {
-            JarFile jarFile = new JarFile(jar);
             Manifest manifest = jarFile.getManifest();
             if (manifest != null) {
                 Attributes attributes = manifest.getMainAttributes();
-                version = attributes.getValue(key);
+                return attributes.getValue(key);
             }
         } catch (IOException e) {
-            LOG.error("Exception while trying to read Go-Version from {}:{}", jar, e.toString());
+            LOG.error("Exception while trying to read key {} from manifest of {}", key, jarFile.getName(), e);
         }
-        return version;
+        return null;
     }
 
-    public static Object objectFromJar(final String jarFileName, final String manifestClassKey) {
-        return objectFromJar(jarFileName, manifestClassKey, null);
-    }
-
-    public static Object objectFromJar(String jarFileName, String manifestClassKey, String manifestLibDirKey, final Class... allowedForLoadingFromParent) {
-        LOG.info("Attempting to load {} from {} File: ", manifestClassKey, jarFileName);
-        try {
-            File agentJar = new File(jarFileName);
-            String absolutePath = agentJar.getAbsolutePath();
-            List<URL> urls = new ArrayList<>();
-            urls.add(agentJar.toURI().toURL());
-
-            if (manifestLibDirKey != null) {
-                String libDirPrefix = getManifestKey(absolutePath, manifestLibDirKey);
-                LOG.info("manifestLibDirKey: {}: {}", manifestLibDirKey, libDirPrefix);
-                prepareRefferedJars(jarFileName, absolutePath, urls, libDirPrefix);
-            }
-            ParentClassAccessFilteringClassloader filteringLoader = new ParentClassAccessFilteringClassloader(JarUtil.class.getClassLoader(), allowedForLoadingFromParent);
-            URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), filteringLoader);
-            String bootClassName = getManifestKey(absolutePath, manifestClassKey);
-            LOG.info("manifestClassKey: {}: {}", manifestClassKey, bootClassName);
-            return classLoader.loadClass(bootClassName).newInstance();
-        } catch (Exception e) {
+    private static File extractJarEntry(JarFile jarFile, JarEntry jarEntry, File targetFile) {
+        LOG.debug("Extracting {}!/{} -> {}", jarFile, jarEntry, targetFile);
+        try (InputStream inputStream = jarFile.getInputStream(jarEntry)) {
+            FileUtils.forceMkdirParent(targetFile);
+            Files.copy(inputStream, targetFile.toPath());
+            return targetFile;
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void prepareRefferedJars(String jarFileName, String absolutePath, List<URL> urlsExtracted, String libDirPrefix) throws IOException {
-        JarFile jarFile = new JarFile(absolutePath);
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-            JarEntry jarEntry = entries.nextElement();
-            String entryName = jarEntry.getName();
-            if (entryName.startsWith(libDirPrefix) && entryName.endsWith(".jar")) {
-                File depsDir = new File(EXPLODED_DEPENDENCIES_DIR_NAME, jarFileName);
-                depsDir.mkdirs();
-                String entryBaseName = entryName.replaceAll(".*/", "");
-                File extractedJar = new File(depsDir, entryBaseName);
-                String escapedJarURL = new File(absolutePath).toURI().toURL().toExternalForm();
-                InputStream jarStream = null;
-                FileOutputStream fileOutputStream = null;
-                try {
-                    URL jarUrl = new URL("jar:" + escapedJarURL + "!/" + entryName);
-                    URLConnection conn = jarUrl.openConnection();
-                    conn.setUseCaches(false);
-                    jarStream = conn.getInputStream();
-                    fileOutputStream = new FileOutputStream(extractedJar);
-                    IOUtils.copyLarge(jarStream, fileOutputStream);
-                } finally {
-                    try {
-                        if (jarStream != null) {
-                            jarStream.close();
-                        }
-                    } finally {
-                        if (fileOutputStream != null) {
-                            fileOutputStream.close();
-                        }
-                    }
-                }
-                urlsExtracted.add(extractedJar.toURI().toURL());
-            }
+    public static List<File> extractFilesInLibDirAndReturnFiles(File aJarFile, Predicate<JarEntry> extractFilter, File outputTmpDir) {
+        List<File> newClassPath = new ArrayList<>();
+        try (JarFile jarFile = new JarFile(aJarFile)) {
+
+            List<File> extractedJars = jarFile.stream()
+                    .filter(extractFilter)
+                    .map(jarEntry -> {
+                        String jarFileBaseName = FilenameUtils.getName(jarEntry.getName());
+                        File targetFile = new File(outputTmpDir, jarFileBaseName);
+                        return extractJarEntry(jarFile, jarEntry, targetFile);
+                    })
+                    .collect(Collectors.toList());
+
+            // add deps in dir specified by `libDirManifestKey`
+            newClassPath.addAll(extractedJars);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        return newClassPath;
     }
 
-    public static boolean cleanup(String inUseLauncher) {
-        File depsDir = new File(EXPLODED_DEPENDENCIES_DIR_NAME, inUseLauncher);
-        return FileUtils.deleteQuietly(depsDir);
+    public static URL[] toURLs(List<File> files) {
+        return files.stream().map(file -> {
+            try {
+                return file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList()).toArray(new URL[0]);
     }
 
-    public static boolean tempFileExist(String inUseLauncher) {
-        File depsDir = new File(EXPLODED_DEPENDENCIES_DIR_NAME, inUseLauncher);
-        return depsDir.exists();
+    public static URLClassLoader getClassLoaderFromJar(File aJarFile, Predicate<JarEntry> extractFilter, File outputTmpDir, ClassLoader parentClassLoader, Class... allowedClasses) {
+        List<File> urls = new ArrayList<>();
+        urls.add(aJarFile);
+        urls.addAll(extractFilesInLibDirAndReturnFiles(aJarFile, extractFilter, outputTmpDir));
+        ParentClassAccessFilteringClassloader filteringClassloader = new ParentClassAccessFilteringClassloader(parentClassLoader, allowedClasses);
+        return new URLClassLoader(toURLs(urls), filteringClassloader);
     }
 }

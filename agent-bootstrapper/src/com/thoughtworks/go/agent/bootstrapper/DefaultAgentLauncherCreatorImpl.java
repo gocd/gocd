@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.agent.bootstrapper;
 
-import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
+import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -27,54 +28,54 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.UUID;
+import java.math.BigInteger;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.security.SecureRandom;
+import java.util.Collections;
+import java.util.function.Predicate;
+import java.util.jar.JarEntry;
 
 public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAgentLauncherCreatorImpl.class);
 
-    public static final String GO_AGENT_LAUNCHER_CLASS = "Go-Agent-Launcher-Class";
-    public static final String GO_AGENT_LAUNCHER_LIB_DIR = "Go-Agent-Launcher-Lib-Dir";
+    private static final String GO_AGENT_LAUNCHER_CLASS = "Go-Agent-Launcher-Class";
+    private static final String GO_AGENT_LAUNCHER_LIB_DIR = "Go-Agent-Launcher-Lib-Dir";
 
-    public static final int DEFAULT_MAX_RETRY_FOR_CLEANUP = 5;
-    public static final String MAX_RETRY_FOR_LAUNCHER_TEMP_CLEANUP_PROPERTY = "MaxRetryCount.ForLauncher.TempFiles.cleanup";
+    private static final int DEFAULT_MAX_RETRY_FOR_CLEANUP = 5;
+    private static final String MAX_RETRY_FOR_LAUNCHER_TEMP_CLEANUP_PROPERTY = "MaxRetryCount.ForLauncher.TempFiles.cleanup";
 
+    private final int maxRetryAttempts = SystemUtil.getIntProperty(MAX_RETRY_FOR_LAUNCHER_TEMP_CLEANUP_PROPERTY, DEFAULT_MAX_RETRY_FOR_CLEANUP);
+    private final File inUseLauncher = new File(FileUtil.TMP_PARENT_DIR, new BigInteger(64, new SecureRandom()).toString(16) + "-" + Downloader.AGENT_LAUNCHER);
 
-    private int maxRetryAttempts = SystemUtil.getIntProperty(MAX_RETRY_FOR_LAUNCHER_TEMP_CLEANUP_PROPERTY,
-            DEFAULT_MAX_RETRY_FOR_CLEANUP);
-    private File inUseLauncher;
-
-    private volatile boolean launcherDestroyed = false;
+    private URLClassLoader urlClassLoader;
 
     public AgentLauncher createLauncher() {
-        inUseLauncher = createTempLauncherJar();
-        return (AgentLauncher) JarUtil.objectFromJar(inUseLauncher.getName(),
-                GO_AGENT_LAUNCHER_CLASS, GO_AGENT_LAUNCHER_LIB_DIR, AgentLauncher.class, AgentLaunchDescriptor.class);
+        createTempLauncherJar();
+        try {
+            String libDir = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_LIB_DIR);
+            String classNameToLoad = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_CLASS);
+            return (AgentLauncher) loadClass(inUseLauncher, GO_AGENT_LAUNCHER_CLASS, libDir, classNameToLoad).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private File createTempLauncherJar() {
-        File inUseLauncher;
+    private Class<?> loadClass(File sourceJar, String classNameManifestKey, String libDir, String classNameToLoad) throws ClassNotFoundException {
+        Predicate<JarEntry> filter = jarEntry -> jarEntry.getName().startsWith(libDir + "/") && jarEntry.getName().endsWith(".jar");
+        this.urlClassLoader = JarUtil.getClassLoaderFromJar(sourceJar, filter, getDepsDir(), DefaultAgentLauncherCreatorImpl.class.getClassLoader(), AgentLauncher.class, AgentLaunchDescriptor.class);
+        LOG.info("Attempting to load {} as specified by manifest key {}", classNameToLoad, classNameManifestKey);
+        return this.urlClassLoader.loadClass(classNameToLoad);
+    }
+
+    private void createTempLauncherJar() {
         try {
-            inUseLauncher = new File(UUID.randomUUID() + Downloader.AGENT_LAUNCHER);
-            FileUtils.copyFile(new File(Downloader.AGENT_LAUNCHER), inUseLauncher);
+            inUseLauncher.getParentFile().mkdirs();
+            Files.copy(new File(Downloader.AGENT_LAUNCHER).toPath(), inUseLauncher.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         LauncherTempFileHandler.startTempFileReaper();
-        return inUseLauncher;
-    }
-
-    @Override
-    public void destroy() {
-        if (launcherDestroyed) {
-            return;
-        }
-
-        recordCleanup();
-
-        attemptToCleanupMaxRetryTimes();
-
-        launcherDestroyed = true;
     }
 
     private void attemptToCleanupMaxRetryTimes() {
@@ -82,14 +83,11 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
         int retryCount = 0;
         do {
             forceGCToReleaseAnyReferences();
-
-            int oneSec = 1000;
             sleepForAMoment();
-
             LOG.info("Attempt No: {} to cleanup launcher temp files", retryCount + 1);
 
             FileUtils.deleteQuietly(inUseLauncher);
-            JarUtil.cleanup(inUseLauncher.getName());
+            FileUtils.deleteQuietly(getDepsDir());
 
             ++retryCount;
 
@@ -98,13 +96,16 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
         } while (shouldRetry);
     }
 
+    private File getDepsDir() {
+        return new File(FileUtil.TMP_PARENT_DIR, "deps-" + inUseLauncher.getName());
+    }
 
     private void recordCleanup() {
-        LauncherTempFileHandler.writeToFile(Arrays.asList(inUseLauncher.getName()), true);
+        LauncherTempFileHandler.writeToFile(Collections.singletonList(inUseLauncher.getName()), true);
     }
 
     private boolean tempFilesExist() {
-        return inUseLauncher.exists() || JarUtil.tempFileExist(inUseLauncher.getName());
+        return inUseLauncher.exists() || getDepsDir().exists();
     }
 
     private void sleepForAMoment() {
@@ -119,4 +120,11 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
         System.gc();
     }
 
+    @Override
+    public void close() throws Exception {
+        urlClassLoader.close();
+        urlClassLoader = null;
+        recordCleanup();
+        attemptToCleanupMaxRetryTimes();
+    }
 }

@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.agent;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
 import com.thoughtworks.go.agent.launcher.ServerBinaryDownloader;
 import com.thoughtworks.go.util.GoConstants;
@@ -48,7 +48,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
     public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
         int exitValue = 0;
-        LOG.info("Agent is version: {}", JarUtil.getGoVersion(Downloader.AGENT_BINARY));
+        LOG.info("Agent is version: {}", CurrentGoCDVersion.getInstance().fullVersion());
         String command[] = new String[]{};
 
         try {

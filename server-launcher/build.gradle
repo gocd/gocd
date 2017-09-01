@@ -112,7 +112,7 @@ task mainJar(type: Jar) {
   from(project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) }) {
     include "**/LogHelper.class"
     include "**/AssertJava8.class"
-    include "**/LogConfigurator.class"
+    include "**/LogConfigurator*.class"
     include "**/OperatingSystem.class"
     include "**/SystemEnvironment*.class"
     include "**/ConfigDirProvider.class"

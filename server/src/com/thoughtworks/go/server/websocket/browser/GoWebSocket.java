@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.websocket.browser;
 
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.websocket.ConsoleLogSocket;
 import com.thoughtworks.go.server.websocket.SocketEndpoint;
 import com.thoughtworks.go.server.websocket.SocketHealthService;
 import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
@@ -38,7 +37,7 @@ import java.util.function.Predicate;
 
 @WebSocket
 public class GoWebSocket implements SocketEndpoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSocket.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoWebSocket.class);
     private static final byte[] PING = "ping".getBytes();
     private final String key;
     private WebSocketSubscriptionManager subscriptionManager;

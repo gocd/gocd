@@ -24,8 +24,8 @@ dependencies {
   compile project(':rack_hack')
   compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
   compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: project.versions.slf4j
 
   testCompile project(':common')
   testCompile project(':config-server')

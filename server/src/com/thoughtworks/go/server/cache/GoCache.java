@@ -241,6 +241,9 @@ public class GoCache {
     public void remove(String key, String subKey) {
         synchronized (key.intern()) {
             KeyList subKeys = subKeyFamily(key);
+            if(subKeys == null) {
+                return;
+            }
             subKeys.remove(subKey);
             remove(compositeKey(key, subKey));
         }

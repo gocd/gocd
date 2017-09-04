@@ -77,9 +77,8 @@ module ApiV2
 
       def load_environment(environment_name = params[:name])
         @environment_config = environment_config_service.getEnvironmentForEdit(environment_name)
+        raise RecordNotFound if @environment_config.nil?
         @environment_config.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
-      rescue com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException
-        raise ApiV2::RecordNotFound
       end
 
       def get_environment_from_request

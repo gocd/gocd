@@ -106,7 +106,7 @@ describe ApiV2::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentForEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:getEnvironmentForEdit).and_return(nil)
         get_with_api_header :show, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -222,7 +222,7 @@ describe ApiV2::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentForEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:getEnvironmentForEdit).and_return(nil)
         put_with_api_header :put, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -333,7 +333,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should render 404 when a environment does not exist' do
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentForEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:getEnvironmentForEdit).and_return(nil)
         patch_with_api_header :patch, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -424,7 +424,7 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should render 404 when a environment does not exist' do
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentForEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:getEnvironmentForEdit).and_return(nil)
         delete_with_api_header :destroy, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end

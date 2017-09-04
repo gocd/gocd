@@ -30,6 +30,7 @@ describe ValueStreamMapController do
     controller.stub(:current_user).and_return(@user)
     controller.stub(:is_ie8?).and_return(false)
     controller.stub(:is_quick_edit_page_default?).and_return(false)
+    controller.stub(:is_pipeline_config_spa_enabled?).and_return(false)
 
     @vsm_path_partial = proc do |name, counter|
       vsm_show_path(name, counter)
@@ -131,6 +132,7 @@ describe ValueStreamMapController do
 
       it "should get the pipeline dependency graph json when pipeline quick edit toggle is set to true" do
         controller.stub(:is_quick_edit_page_default?).and_return(true)
+        controller.stub(:is_pipeline_config_spa_enabled?).and_return(true)
         pipeline = "P1"
         @pipeline_service.stub(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
         vsm = ValueStreamMap.new(pipeline, nil)

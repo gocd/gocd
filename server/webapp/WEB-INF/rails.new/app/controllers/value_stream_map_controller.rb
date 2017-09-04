@@ -58,7 +58,7 @@ class ValueStreamMapController < ApplicationController
     stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
       stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
     end
-    pipeline_edit_path_proc = proc {|pipeline_name| edit_path_for_vsm_pipeline(pipeline_name)}
+    pipeline_edit_path_proc = proc {|pipeline_name| edit_path_for_pipeline(pipeline_name)}
     ValueStreamMapModel.new(vsm, result.message(localizer), localizer, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial, pipeline_edit_path_proc).to_json
   end
 
@@ -72,12 +72,4 @@ class ValueStreamMapController < ApplicationController
     end
   end
 
-  private
-
-  def edit_path_for_vsm_pipeline(pipeline_name)
-    if is_quick_edit_page_default?
-      return edit_admin_pipeline_config_path(:pipeline_name => pipeline_name)
-    end
-    pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
-  end
 end

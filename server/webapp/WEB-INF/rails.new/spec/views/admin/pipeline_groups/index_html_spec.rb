@@ -39,6 +39,8 @@ describe "admin/pipeline_groups/index.html.erb" do
                                         CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
     })
     view.stub(:is_user_an_admin?).and_return(true)
+    view.stub(:is_quick_edit_page_default?).and_return(false)
+    view.stub(:is_pipeline_config_spa_enabled?).and_return(false)
   end
 
   def groups(*named)
@@ -86,34 +88,57 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should display all pipelines with delete link" do
+
     render
 
     Capybara.string(response.body).find('div.group_pipelines').tap do |div|
-      div.all("div.group") do |groups|
+      div.all("div.group").tap do |groups|
         expect(groups[0]).to have_selector("h2.group_name", :text => "group_foo")
         expect(groups[0]).to have_selector("a[href='#{pipeline_group_edit_path(:group_name => "group_foo")}']")
-        groups[0].find("table") do |table|
-          table.find("thead tr.pipeline") do |tr|
+        groups[0].find("table").tap do |table|
+
+          table.find("thead tr.pipeline").tap do |tr|
             expect(tr).to have_selector("th.name", :text => "Pipeline")
             expect(tr).to have_selector("th.actions", :text => "Actions")
           end
-          table.find("tbody") do |tbody|
-            tbody.find("tr.pipeline") do |tr|
+          table.find("tbody").tap do |tbody|
+            tbody.first("tr.pipeline").tap do |tr|
               expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
-              tr.find("td.actions") do |td|
+              tr.find("td.actions").tap do |td|
+                td.find("ul").tap do |ul|
+                  expect(ul).to have_selector("li span.delete_parent")
+                end
+              end
+            end
+            table.all("tr.pipeline")[2].tap do |tr|
+              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
+              tr.find("td.actions").tap do |td|
                 td.find("ul") do |ul|
                   expect(ul).to have_selector("li span.delete_parent")
                 end
               end
             end
+          end
+        end
+      end
+    end
+  end
 
-            table.find("tr.pipeline") do |tr|
-              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
-              tr.find("td.actions") do |td|
-                td.find("ul") do |ul|
-                  expect(ul).to have_selector("li span.delete_parent")
-                end
-              end
+  it "should display all pipelines with edit links pointing to quick edit page when quick edit toggles are enabled" do
+    view.stub(:is_quick_edit_page_default?).and_return(true)
+    view.stub(:is_pipeline_config_spa_enabled?).and_return(true)
+
+    render
+
+    Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+      div.all("div.group").tap do |groups|
+        groups[0].find("table").tap do |table|
+          table.find("tbody").tap do |tbody|
+            tbody.first("tr.pipeline").tap do |tr|
+              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_in_group_foo")}']", "pipeline_in_group_foo")
+            end
+            table.all("tr.pipeline")[2].tap do |tr|
+              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_2_in_group_foo")}']", "pipeline_2_in_group_foo")
             end
           end
         end

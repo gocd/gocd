@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.server.Jetty9Server;
-import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -49,11 +48,11 @@ public class GoSslSocketConnectorTest {
     public void setUp() throws Exception {
         keystore = folder.newFile("keystore");
         truststore = folder.newFile("truststore");
-        GoSSLConfig cipherSuite = mock(GoSSLConfig.class);
         String[] cipherSuitesToBeIncluded = {"FOO"};
-        when(cipherSuite.getCipherSuitesToBeIncluded()).thenReturn(cipherSuitesToBeIncluded);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getSslServerPort()).thenReturn(1234);
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS)).thenReturn(cipherSuitesToBeIncluded);
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(false);
         when(systemEnvironment.keystore()).thenReturn(keystore);
         when(systemEnvironment.truststore()).thenReturn(truststore);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
@@ -62,7 +61,7 @@ public class GoSslSocketConnectorTest {
 
         Jetty9Server jettyServer = mock(Jetty9Server.class);
         when(jettyServer.getServer()).thenReturn(new Server());
-        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, cipherSuite);
+        sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment);
     }
 
     @Test

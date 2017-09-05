@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.Jetty9Server;
-import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -35,16 +34,14 @@ public class GoSslSocketConnector implements GoSocketConnector {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GoSslSocketConnector.class.getName());
     private final String password;
     private final SystemEnvironment systemEnvironment;
-    private final GoSSLConfig goSSLConfig;
     private final File keystore;
     private final File truststore;
     private final File agentKeystore;
     private final Connector connector;
 
-    public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment, GoSSLConfig goSSLConfig) {
+    public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment) {
         this.password = password;
         this.systemEnvironment = systemEnvironment;
-        this.goSSLConfig = goSSLConfig;
         this.keystore = systemEnvironment.keystore();
         this.truststore = systemEnvironment.truststore();
         this.agentKeystore = systemEnvironment.agentkeystore();
@@ -68,16 +65,24 @@ public class GoSslSocketConnector implements GoSocketConnector {
         sslContextFactory.setTrustStorePassword(password);
         sslContextFactory.setWantClientAuth(true);
 
-        if(!ArrayUtil.isEmpty(goSSLConfig.getCipherSuitesToBeIncluded())) sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
-        if(!ArrayUtil.isEmpty(goSSLConfig.getCipherSuitesToBeExcluded())) sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());
-        if(!ArrayUtil.isEmpty(goSSLConfig.getProtocolsToBeExcluded())) sslContextFactory.setExcludeProtocols(goSSLConfig.getProtocolsToBeExcluded());
-        if(!ArrayUtil.isEmpty(goSSLConfig.getProtocolsToBeIncluded())) sslContextFactory.setIncludeProtocols(goSSLConfig.getProtocolsToBeIncluded());
-        sslContextFactory.setRenegotiationAllowed(goSSLConfig.isRenegotiationAllowed());
-        LOGGER.info("Included ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeIncluded()));
-        LOGGER.info("Excluded ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeExcluded()));
-        LOGGER.info("Included protocols: {}", ArrayUtil.join(goSSLConfig.getProtocolsToBeIncluded()));
-        LOGGER.info("Excluded protocols: {}", ArrayUtil.join(goSSLConfig.getProtocolsToBeExcluded()));
-        LOGGER.info("Renegotiation Allowed: {}", goSSLConfig.isRenegotiationAllowed());
+        if(!ArrayUtil.isEmpty(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS))) {
+            sslContextFactory.setIncludeCipherSuites(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS));
+        }
+        if(!ArrayUtil.isEmpty(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS))) {
+            sslContextFactory.setExcludeCipherSuites(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS));
+        }
+        if(!ArrayUtil.isEmpty(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS))) {
+            sslContextFactory.setExcludeProtocols(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS));
+        }
+        if(!ArrayUtil.isEmpty(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS))) {
+            sslContextFactory.setIncludeProtocols(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS));
+        }
+        sslContextFactory.setRenegotiationAllowed(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED));
+        LOGGER.info("Included ciphers: {}", ArrayUtil.join(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS)));
+        LOGGER.info("Excluded ciphers: {}", ArrayUtil.join(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS)));
+        LOGGER.info("Included protocols: {}", ArrayUtil.join(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS)));
+        LOGGER.info("Excluded protocols: {}", ArrayUtil.join(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS)));
+        LOGGER.info("Renegotiation Allowed: {}", systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED));
         ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
         https.setHost(systemEnvironment.getListenHost());
         https.setPort(systemEnvironment.getSslServerPort());

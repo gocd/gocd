@@ -91,7 +91,6 @@ public class GoFileConfigDataSourceTest {
     @Before
     public void setup() throws Exception {
         systemEnvironment = new SystemEnvironment();
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
         configRepository = new ConfigRepository(systemEnvironment);
@@ -113,7 +112,7 @@ public class GoFileConfigDataSourceTest {
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         dataSource.upgradeIfNecessary();
-        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null, null);
+        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null);
         cachedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
@@ -129,7 +128,6 @@ public class GoFileConfigDataSourceTest {
 
     @After
     public void teardown() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         cachedGoPartials.clear();
         configHelper.onTearDown();
         systemEnvironment.reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
@@ -738,8 +736,6 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldUpdateAndReloadConfigUsingFullSaveNormalFlowWithLastKnownPartials_onLoad() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
-
         GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
         MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
@@ -770,8 +766,6 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldReloadConfigUsingFullSaveNormalFlowWithLastValidPartialsIfUpdatingWithLastKnownPartialsFails_onLoad() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
-
         GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
         MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);

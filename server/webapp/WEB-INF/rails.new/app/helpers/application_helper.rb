@@ -260,6 +260,10 @@ module ApplicationHelper
     @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
   end
 
+  def unformatted_version
+    @@unformatted_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().goVersion()
+  end
+
   def copyright_year
     @@copyright_year ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().copyrightYear
   end

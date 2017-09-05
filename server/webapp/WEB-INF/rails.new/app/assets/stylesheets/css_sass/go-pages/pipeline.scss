@@ -147,10 +147,16 @@
 #pipelines .pipelines_selector .enhanced_dropdown .selector_pipeline .label {
   font-weight: normal;
   font-size:   1em;
+  float: left;
+  word-break: break-all;
+  width: 190px;
+  margin: 0;
+  padding: 0 5px;
 }
 
 #pipelines .pipelines_selector .enhanced_dropdown .selector_pipeline {
   padding: 5px 5px 5px 20px;
+  overflow: hidden;
 }
 
 #pipelines .pipelines_selector .enhanced_dropdown .selector_group {

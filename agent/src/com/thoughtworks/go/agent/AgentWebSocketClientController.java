@@ -74,8 +74,8 @@ public class AgentWebSocketClientController extends AgentController {
                                           SystemEnvironment systemEnvironment, PluginManager pluginManager,
                                           PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension,
                                           TaskExtension taskExtension, HttpService httpService,
-                                          WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService);
+                                          WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler, TimeProvider timeProvider) {
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, timeProvider);
         this.server = server;
         this.manipulator = manipulator;
         this.packageRepositoryExtension = packageRepositoryExtension;

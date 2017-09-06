@@ -36,10 +36,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.server.service.builders.*;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
@@ -198,6 +195,8 @@ public class BuildWorkTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
+    @Mock
+    private TimeProvider timeProvider;
 
     private static String willUpload(String file) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
@@ -248,7 +247,7 @@ public class BuildWorkTest {
     public void shouldReportStatus() throws Exception {
         buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.states, containsState(Preparing));
         assertThat(buildRepository.states, containsState(Building));
@@ -260,7 +259,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_NOT_RUN, PIPELINE_NAME);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
         assertThat(actual, not(containsString("run when status is failed")));
@@ -270,7 +269,7 @@ public class BuildWorkTest {
     public void shouldRunTaskWhenConditionMatches() throws Exception {
         buildWork = (BuildWork) getWork(MULTIPLE_RUN_IFS, PIPELINE_NAME);
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator,
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
         assertThat(actual, containsString("[go] Task: echo run when status is failed, passed or cancelled"));
@@ -284,7 +283,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(MULTIPLE_TASKS, PIPELINE_NAME);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
 
@@ -302,7 +301,7 @@ public class BuildWorkTest {
     public void shouldReportBuildIsFailedWhenAntBuildFailed() throws Exception {
         buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.results, containsResult(Failed));
     }
@@ -312,7 +311,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(NANT_WITH_WORKINGDIR, PIPELINE_NAME);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(artifactManipulator.consoleOut(), containsString("not-exists\" is not a directory!"));
     }
@@ -332,7 +331,7 @@ public class BuildWorkTest {
         com.thoughtworks.go.remote.work.HttpServiceStub httpService = new com.thoughtworks.go.remote.work.HttpServiceStub(HttpServletResponse.SC_OK);
         artifactManipulator = new GoArtifactsManipulatorStub(httpService);
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
 
@@ -351,7 +350,7 @@ public class BuildWorkTest {
         artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
 
@@ -364,7 +363,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.results, containsResult(Passed));
     }
@@ -378,7 +377,7 @@ public class BuildWorkTest {
         createBuildWorkWithJobPlan(jobPlan);
 
         try {
-            buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+            buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
             fail("Should have thrown an assertion error");
         } catch (AssertionError e) {
             assertThat(buildRepository.results.isEmpty(), is(true));
@@ -396,7 +395,7 @@ public class BuildWorkTest {
         createBuildWorkWithJobPlan(jobPlan);
 
         try {
-            buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+            buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
             fail("Should have thrown an assertion error");
         } catch (AssertionError e) {
             assertThat(buildRepository.results.isEmpty(), is(false));
@@ -409,7 +408,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, "pipeline1");
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub(true);
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.results.isEmpty(), is(true));
         assertThat(buildRepository.states, containsResult(JobState.Completed));
@@ -419,7 +418,7 @@ public class BuildWorkTest {
     public void shouldUpdateBothStatusAndResultWhenBuildHasPassed() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, "pipeline1");
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.results, containsResult(JobResult.Passed));
         assertThat(buildRepository.states, containsResult(JobState.Completed));
@@ -431,7 +430,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(CMD_NOT_EXIST, PIPELINE_NAME);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(artifactManipulator.consoleOut(), printedAppsMissingInfoOnUnix(SOMETHING_NOT_EXIST));
         assertThat(buildRepository.results, containsResult(Failed));
@@ -442,7 +441,7 @@ public class BuildWorkTest {
     public void shouldReportErrorWhenComandIsNotExistOnWindows() throws Exception {
         buildWork = (BuildWork) getWork(CMD_NOT_EXIST, PIPELINE_NAME);
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator,
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(artifactManipulator.consoleOut(), printedAppsMissingInfoOnWindows(SOMETHING_NOT_EXIST));
         assertThat(buildRepository.results, containsResult(Failed));
@@ -451,7 +450,7 @@ public class BuildWorkTest {
     @Test
     public void shouldReportConsoleout() throws Exception {
         buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String consoleOutAsString = artifactManipulator.consoleOut();
 
@@ -467,7 +466,7 @@ public class BuildWorkTest {
     public void nantTest() throws Exception {
         buildWork = (BuildWork) getWork(NANT, PIPELINE_NAME);
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator,
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(artifactManipulator.consoleOut(), containsString("Usage : NAnt [options] <target> <target> ..."));
     }
@@ -476,7 +475,7 @@ public class BuildWorkTest {
     public void rakeTest() throws Exception {
         buildWork = (BuildWork) getWork(RAKE, PIPELINE_NAME);
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator,
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(artifactManipulator.consoleOut(), containsString("rake [-f rakefile] {options} targets..."));
     }
@@ -484,7 +483,7 @@ public class BuildWorkTest {
     @Test
     public void doWork_shouldSkipMaterialUpdateWhenFetchMaterialsIsSetToFalse() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME, false, false);
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(), containsString("Start to prepare"));
         assertThat(artifactManipulator.consoleOut(), not(containsString("Start updating")));
         assertThat(artifactManipulator.consoleOut(), containsString("Skipping material update since stage is configured not to fetch materials"));
@@ -494,7 +493,7 @@ public class BuildWorkTest {
     @Test
     public void doWork_shouldUpdateMaterialsWhenFetchMaterialsIsTrue() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME, true, false);
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(), containsString("Start to prepare"));
         assertThat(buildRepository.states.contains(JobState.Preparing), is(true));
         assertThat(artifactManipulator.consoleOut(), containsString("Start to update materials"));
@@ -511,7 +510,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName);
 
         buildWork.doWork(agentIdentifier,
-                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(),
                 not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
 
@@ -531,7 +530,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, true, true);
 
         buildWork.doWork(agentIdentifier,
-                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(),
                 not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
 
@@ -550,7 +549,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, false);
 
         buildWork.doWork(agentIdentifier,
-                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(), not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
         assertThat(buildRepository.results.contains(Passed), is(true));
         assertThat(workingdir.exists(), is(true));
@@ -570,7 +569,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, true);
 
         buildWork.doWork(agentIdentifier,
-                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(), containsString("Cleaning working directory \"" + workingdir.getAbsolutePath()));
         assertThat(buildRepository.results.contains(Passed), is(true));
         assertThat(workingdir.exists(), is(true));
@@ -582,7 +581,7 @@ public class BuildWorkTest {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
 
         buildWork.doWork(agentIdentifier,
-                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(),
                 containsString("[" + SystemUtil.currentWorkingDirectory() + "]"));
     }
@@ -642,7 +641,7 @@ public class BuildWorkTest {
     public void shouldReportEnvironmentVariables() throws Exception {
         buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String consoleOut = artifactManipulator.consoleOut();
 
@@ -666,7 +665,7 @@ public class BuildWorkTest {
     public void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
         buildWork = (BuildWork) getWork(WITH_SECRET_ENV_VAR, PIPELINE_NAME);
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), packageRepositoryExtension, scmExtension, taskExtension);
 
         String consoleOut = artifactManipulator.consoleOut();
         assertThat(consoleOut, containsString("[go] setting environment variable 'foo' to value 'foo(******)'"));

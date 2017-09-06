@@ -28,6 +28,7 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ public class AgentControllerFactory {
     private final HttpService httpService;
     private final WebSocketClientHandler webSocketClientHandler;
     private final WebSocketSessionHandler sessionHandler;
+    private TimeProvider timeProvider;
     private static final Logger LOG = LoggerFactory.getLogger(AgentControllerFactory.class);
 
     @Autowired
@@ -65,7 +67,9 @@ public class AgentControllerFactory {
             SCMExtension scmExtension,
             TaskExtension taskExtension,
             HttpService httpService,
-            WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler sessionHandler) {
+            WebSocketClientHandler webSocketClientHandler,
+            WebSocketSessionHandler sessionHandler,
+            TimeProvider timeProvider) {
         this.server = server;
         this.manipulator = manipulator;
         this.pluginManager = pluginManager;
@@ -80,6 +84,7 @@ public class AgentControllerFactory {
         this.httpService = httpService;
         this.webSocketClientHandler = webSocketClientHandler;
         this.sessionHandler = sessionHandler;
+        this.timeProvider = timeProvider;
     }
 
     public AgentController createInstance() {
@@ -97,7 +102,7 @@ public class AgentControllerFactory {
                     packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
-                    httpService, webSocketClientHandler, sessionHandler);
+                    httpService, webSocketClientHandler, sessionHandler, timeProvider);
         } else {
             LOG.info("Connecting to server using HTTP(S)");
             return new AgentHTTPClientController(
@@ -111,7 +116,8 @@ public class AgentControllerFactory {
                     pluginManager,
                     packageRepositoryExtension,
                     scmExtension,
-                    taskExtension);
+                    taskExtension,
+                    timeProvider);
         }
     }
 }

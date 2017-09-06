@@ -22,6 +22,7 @@ import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ClassMockery;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.work.FakeWork;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -45,10 +46,12 @@ public class WorkAssignmentsTest {
     private IdleAgentTopic idleAgentsTopic;
     private AgentIdentifier agentIdentifier;
     private WorkAssignedTopic assignedWorkTopic;
+    private TimeProvider timeProvider;
 
     @Before
     public void setup() {
         context = new ClassMockery();
+        timeProvider = context.mock(TimeProvider.class);
         idleAgentsTopic = context.mock(IdleAgentTopic.class, "idle_topic");
         assignedWorkTopic = context.mock(WorkAssignedTopic.class, "assigned_work_topic");
         context.checking(new Expectations() {{
@@ -56,7 +59,7 @@ public class WorkAssignmentsTest {
         }});
         assignments = new WorkAssignments(idleAgentsTopic, assignedWorkTopic);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
     }
 
     @Test

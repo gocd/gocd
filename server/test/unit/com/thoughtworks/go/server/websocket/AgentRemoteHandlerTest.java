@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.websocket.*;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -46,9 +47,11 @@ public class AgentRemoteHandlerTest {
     private AgentService agentService;
     private AgentStub agent = new AgentStub();
     private ConsoleService consoleService;
+    private TimeProvider timeProvider;
 
     @Before
     public void setUp() {
+        timeProvider = mock(TimeProvider.class);
         remote = mock(BuildRepositoryRemote.class);
         agentService = mock(AgentService.class);
         consoleService = mock(ConsoleService.class);
@@ -58,7 +61,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void registerConnectedAgentsByPing() throws Exception {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, "cookie", false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, "cookie", false, timeProvider);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
 
         handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
@@ -71,7 +74,7 @@ public class AgentRemoteHandlerTest {
 
     @Test
     public void shouldCancelJobIfAgentRuntimeStatusIsCanceledOnSeverSideWhenClientPingsServer() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
         info.setCookie("cookie");
 
         when(remote.ping(info)).thenReturn(new AgentInstruction(true));
@@ -88,7 +91,7 @@ public class AgentRemoteHandlerTest {
 
     @Test
     public void shouldCancelBuildIfAgentRuntimeStatusIsCanceledOnSeverSideWhenClientWithBuildCommandSupportPingsServer() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, true);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, true, timeProvider);
         info.setCookie("cookie");
 
         when(remote.ping(info)).thenReturn(new AgentInstruction(true));
@@ -106,7 +109,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void shouldSetCookieIfNoCookieFoundWhenAgentPingsServer() throws Exception {
         AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
-        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, false, timeProvider);
 
         when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
         when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
@@ -122,7 +125,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void shouldSetCookieAndCancelJobWhenPingServerWithoutCookieAndServerSideRuntimeStatusIsCanceled() throws Exception {
         AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
-        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, false, timeProvider);
 
         when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
         when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(true));
@@ -144,7 +147,7 @@ public class AgentRemoteHandlerTest {
 
     @Test
     public void reportCurrentStatus() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
 
         JobIdentifier jobIdentifier = new JobIdentifier();
         handler.process(agent, new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(info, jobIdentifier, JobState.Preparing))));
@@ -154,7 +157,7 @@ public class AgentRemoteHandlerTest {
 
     @Test
     public void reportCompleting() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
 
         JobIdentifier jobIdentifier = new JobIdentifier();
         handler.process(agent, new Message(Action.reportCompleting, MessageEncoding.encodeData(new Report(info, jobIdentifier, JobResult.Passed))));
@@ -179,7 +182,7 @@ public class AgentRemoteHandlerTest {
 
     @Test
     public void reportCompleted() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
 
         JobIdentifier jobIdentifier = new JobIdentifier();
         handler.process(agent, new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(info, jobIdentifier, JobResult.Passed))));
@@ -195,7 +198,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void removeRegisteredAgent() throws Exception {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
         when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
@@ -209,7 +212,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void sendCancelMessage() throws Exception {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
         when(agentService.findAgentAndRefreshStatus(instance.getUuid())).thenReturn(instance);
         when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
@@ -229,7 +232,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void shouldNotSetDupCookieForSameAgent() throws Exception {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
         when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("cookie");
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
@@ -258,7 +261,7 @@ public class AgentRemoteHandlerTest {
     @Test
     public void shouldSendBackAnAcknowledgementMessageIfMessageHasAcknowledgementId() throws Exception {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false, timeProvider);
         info.setCookie("cookie");
         agent.setIgnoreAcknowledgements(false);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));

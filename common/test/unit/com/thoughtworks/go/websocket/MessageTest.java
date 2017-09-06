@@ -28,6 +28,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -53,7 +54,7 @@ public class MessageTest {
 
     @Test
     public void encodeAndDecodePingMessage() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, false, new TimeProvider());
         byte[] msg = MessageEncoding.encodeMessage(new Message(Action.ping, MessageEncoding.encodeData(info)));
         Message decoded = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
         AgentRuntimeInfo decodedInfo = MessageEncoding.decodeData(decoded.getData(), AgentRuntimeInfo.class);

@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -98,6 +99,12 @@ public class MessageEncoding {
 
     // todo: Remove hand wrote deserialization after merging ElasticAgentRuntimeInfo class into AgentRuntimeInfo (@wpc)
     private static class AgentRuntimeInfoTypeAdapter implements JsonDeserializer<AgentRuntimeInfo> {
+        private final TimeProvider timeProvider;
+
+        public AgentRuntimeInfoTypeAdapter() {
+            this.timeProvider = new TimeProvider();
+        }
+
         @Override
         public AgentRuntimeInfo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject jsonObject = json.getAsJsonObject();
@@ -115,9 +122,9 @@ public class MessageEncoding {
 
             AgentRuntimeInfo info;
             if (elasticPluginId == null || StringUtil.isBlank(elasticPluginId)) {
-                info = new AgentRuntimeInfo(identifier, runtimeStatus, location, cookie, supportsBuildCommandProtocol);
+                info = new AgentRuntimeInfo(identifier, runtimeStatus, location, cookie, supportsBuildCommandProtocol, timeProvider);
             } else {
-                info = new ElasticAgentRuntimeInfo(identifier, runtimeStatus, location, cookie, elasticAgentId, elasticPluginId);
+                info = new ElasticAgentRuntimeInfo(identifier, runtimeStatus, location, cookie, elasticAgentId, elasticPluginId, timeProvider);
             }
             info.setUsableSpace(usableSpace);
             info.setOperatingSystem(operatingSystemName);

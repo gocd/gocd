@@ -699,7 +699,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         info.setCookie("cookie");
 
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
@@ -719,7 +719,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createdPipelineWithAllStagesPassed();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         info.setCookie("cookie");
 
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
@@ -736,7 +736,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         info.setCookie("cookie");
 
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
@@ -757,7 +757,7 @@ public class BuildAssignmentServiceIntegrationTest {
                 AgentStatus.LostContact, AgentStatus.Missing
         };
         for (AgentStatus status : statuses) {
-            AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+            AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
             info.setCookie("cookie");
             info.setStatus(status);
             agent = new AgentStub();
@@ -774,7 +774,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         info.setCookie("cookie");
 
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
@@ -792,7 +792,7 @@ public class BuildAssignmentServiceIntegrationTest {
     public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         agentService.requestRegistration(new Username("bob"), info);
 
         assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
@@ -811,7 +811,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         AgentConfig canceledAgentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(canceledAgentConfig);
-        AgentRuntimeInfo canceledAgentInfo = AgentRuntimeInfo.fromServer(canceledAgentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo canceledAgentInfo = AgentRuntimeInfo.fromServer(canceledAgentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         canceledAgentInfo.setCookie("cookie1");
         AgentStub canceledAgent = new AgentStub();
         agentRemoteHandler.process(canceledAgent, new Message(Action.ping, MessageEncoding.encodeData(canceledAgentInfo)));
@@ -819,7 +819,7 @@ public class BuildAssignmentServiceIntegrationTest {
         agentInstance.cancel();
 
         AgentConfig needRegisterAgentConfig = AgentMother.remoteAgent();
-        AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS", false, timeProvider);
         agentService.requestRegistration(new Username("bob"), needRegisterAgentInfo);
         needRegisterAgentInfo.setCookie("cookie2");
         AgentStub needRegisterAgent = new AgentStub();
@@ -827,7 +827,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         AgentConfig assignedAgent = AgentMother.remoteAgent();
         configHelper.addAgent(assignedAgent);
-        AgentRuntimeInfo assignedAgentInfo = AgentRuntimeInfo.fromServer(assignedAgent, true, "location", 1000000l, "OS", false);
+        AgentRuntimeInfo assignedAgentInfo = AgentRuntimeInfo.fromServer(assignedAgent, true, "location", 1000000l, "OS", false, timeProvider);
         assignedAgentInfo.setCookie("cookie3");
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(assignedAgentInfo)));
 

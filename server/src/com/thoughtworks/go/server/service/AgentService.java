@@ -40,6 +40,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
 import org.slf4j.Logger;
@@ -71,12 +72,12 @@ public class AgentService {
     @Autowired
     public AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
                         SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
-                        final EmailSender emailSender) {
+                        final EmailSender emailSender, TimeProvider timeProvider) {
         this(agentConfigService, systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService);
         this.agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
             public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
             }
-        });
+        }, timeProvider);
     }
 
     AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, AgentInstances agentInstances,

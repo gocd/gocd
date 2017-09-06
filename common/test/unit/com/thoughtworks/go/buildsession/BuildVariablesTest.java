@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.TestingClock;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class BuildVariablesTest {
     @Before
     public void setup() {
         AgentIdentifier agentIdentifier = new AgentIdentifier("duloc", "127.0.0.1", "uuid");
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, "/home/lord-farquaad/builds", "cookie", false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, "/home/lord-farquaad/builds", "cookie", false, new TimeProvider());
 
         bvs = new BuildVariables(runtimeInfo, new TestingClock(new Date(0)));
     }

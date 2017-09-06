@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.DiskSpace;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import static java.lang.String.format;
 
 public class AgentRuntimeInfo implements Serializable {
     private static Logger LOGGER = LoggerFactory.getLogger(AgentRuntimeInfo.class);
+    private final TimeProvider timeProvider;
 
     @Expose
     private AgentIdentifier identifier;
@@ -53,23 +55,24 @@ public class AgentRuntimeInfo implements Serializable {
     private volatile String cookie;
     @Expose
     private volatile boolean supportsBuildCommandProtocol;
+    private Long lastUpdatedTime;
 
-    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, boolean supportsBuildCommandProtocol) {
+    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, boolean supportsBuildCommandProtocol, TimeProvider timeProvider) {
         this.identifier = identifier;
-        this.runtimeStatus = runtimeStatus;
         this.supportsBuildCommandProtocol = supportsBuildCommandProtocol;
         this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
         this.location = location;
         this.cookie = cookie;
+        this.timeProvider = timeProvider;
+        internalSetRuntimeStatus(runtimeStatus);
     }
 
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, boolean supportsBuildCommandProtocol) {
-        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null, supportsBuildCommandProtocol).refreshOperatingSystem().refreshUsableSpace();
+    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, boolean supportsBuildCommandProtocol, TimeProvider timeProvider) {
+        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null, supportsBuildCommandProtocol, timeProvider).refreshOperatingSystem().refreshUsableSpace();
     }
 
     public static AgentRuntimeInfo fromServer(AgentConfig agentConfig, boolean registeredAlready, String location,
-                                              Long usablespace, String operatingSystem, boolean supportsBuildCommandProtocol) {
-
+                                              Long usablespace, String operatingSystem, boolean supportsBuildCommandProtocol, TimeProvider timeProvider) {
         if (StringUtils.isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
         }
@@ -78,31 +81,36 @@ public class AgentRuntimeInfo implements Serializable {
             status = AgentStatus.Idle;
         }
 
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status.getRuntimeStatus(), location, null, supportsBuildCommandProtocol);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status.getRuntimeStatus(), location, null, supportsBuildCommandProtocol, timeProvider);
         agentRuntimeInfo.setUsableSpace(usablespace);
         agentRuntimeInfo.operatingSystemName = operatingSystem;
         return agentRuntimeInfo;
     }
 
-    public static AgentRuntimeInfo initialState(AgentConfig agentConfig) {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null, false);
+    public static AgentRuntimeInfo initialState(AgentConfig agentConfig, TimeProvider timeProvider) {
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null, false, timeProvider);
         if (agentConfig.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId(), timeProvider);
         }
         return agentRuntimeInfo;
     }
 
     public void busy(AgentBuildingInfo agentBuildingInfo) {
         this.buildingInfo = agentBuildingInfo;
-        this.runtimeStatus = AgentRuntimeStatus.Building;
+        internalSetRuntimeStatus(AgentRuntimeStatus.Building);
+    }
+
+    private void internalSetRuntimeStatus(AgentRuntimeStatus runtimeStatus) {
+        this.runtimeStatus = runtimeStatus;
+        this.lastUpdatedTime = timeProvider.currentTimeMillis();
     }
 
     public void cancel() {
-        this.runtimeStatus = AgentRuntimeStatus.Cancelled;
+        internalSetRuntimeStatus(AgentRuntimeStatus.Cancelled);
     }
 
     public void idle() {
-        this.runtimeStatus = AgentRuntimeStatus.Idle;
+        internalSetRuntimeStatus(AgentRuntimeStatus.Idle);
         this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
     }
 
@@ -197,7 +205,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public void setStatus(AgentStatus status) {
-        this.runtimeStatus = status.getRuntimeStatus();
+        internalSetRuntimeStatus(status.getRuntimeStatus());
     }
 
     public void setBuildingInfo(AgentBuildingInfo buildingInfo) {
@@ -278,7 +286,7 @@ public class AgentRuntimeInfo implements Serializable {
             if (changeListener != null) {
                 changeListener.statusUpdateRequested(this, runtimeStatus);
             }
-            this.runtimeStatus = runtimeStatus;
+            internalSetRuntimeStatus(runtimeStatus);
         }
     }
 
@@ -309,5 +317,13 @@ public class AgentRuntimeInfo implements Serializable {
 
     public boolean isElastic() {
         return false;
+    }
+
+    public Long getLastUpdatedTime() {
+        return lastUpdatedTime;
+    }
+
+    public void setLastUpdatedTime(Long newTime) {
+        lastUpdatedTime = newTime;
     }
 }

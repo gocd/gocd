@@ -76,6 +76,7 @@ public class AgentServiceIntegrationTest {
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private AgentDao agentDao;
     @Autowired private ConfigRepository configRepository;
+    @Autowired private TimeProvider timeProvider;
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private static final String UUID = "uuid";
@@ -294,14 +295,14 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldUpdateAgentStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), instance));
+        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), timeProvider, instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
         AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false, timeProvider));
         agents = agentService.findRegisteredAgents();
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Idle));
     }
@@ -309,14 +310,14 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), instance));
+        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), timeProvider, instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
         AgentIdentifier identifier = instance.agentConfig().getAgentIdentifier();
         agentDao.associateCookie(identifier, "new_cookie");
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", false, timeProvider);
         try {
             agentService.updateRuntimeInfo(runtimeInfo);
             fail("agent with bad cookie should not be able to update runtime info");
@@ -326,7 +327,7 @@ public class AgentServiceIntegrationTest {
         agents = agentService.findRegisteredAgents();
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false, timeProvider));
     }
 
     @Test
@@ -338,7 +339,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, timeProvider);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -357,7 +358,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, timeProvider);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -390,7 +391,7 @@ public class AgentServiceIntegrationTest {
         EmailSender mailSender = mock(EmailSender.class);
 
         agentDao.associateCookie(instance.getAgentIdentifier(), "rotten-cookie");
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender);
+        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, timeProvider);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -411,7 +412,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance pending = AgentInstanceMother.pending();
         AgentInstance building = AgentInstanceMother.building();
         AgentInstance denied = AgentInstanceMother.disabled();
-        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied));
+        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), timeProvider, idle, pending, building, denied));
 
         assertThat(agentService.agents().size(), is(4));
 
@@ -424,7 +425,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldApproveAgent() throws Exception {
         AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false, timeProvider));
         agentService.approve(pending.getUuid());
 
         assertThat(agentService.findRegisteredAgents().size(), is(1));
@@ -436,19 +437,19 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldAddOrUpdateAgent() throws Exception {
         AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false, timeProvider));
 
         agentService.approve(pending.getUuid());
 
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false, timeProvider));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false, timeProvider));
         assertThat(agentService.findRegisteredAgents().size(), is(1));
     }
 
     @Test
     public void shouldDenyAgentFromPendingList() throws Exception {
         AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false, timeProvider));
 
         String uuid = pending.getUuid();
 
@@ -507,7 +508,7 @@ public class AgentServiceIntegrationTest {
         addAgent(agentConfig);
         AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false, timeProvider);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
 
         agentService.updateRuntimeInfo(agentRuntimeInfo);
@@ -566,7 +567,7 @@ public class AgentServiceIntegrationTest {
         String agentName = "agentName";
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "50.40.30.9");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -580,7 +581,7 @@ public class AgentServiceIntegrationTest {
         String agentName = "agentName";
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "50.40.30.9");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -670,7 +671,7 @@ public class AgentServiceIntegrationTest {
         InetAddress inetAddress = InetAddress.getByName(nonLoopbackIp);
         assertThat(SystemUtil.isLocalIpAddress(nonLoopbackIp), is(true));
         AgentConfig agentConfig = new AgentConfig("uuid", inetAddress.getHostName(), nonLoopbackIp);
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false, timeProvider);
         agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
 
         AgentInstance agentInstance = agentService.findRegisteredAgents().findAgentAndRefreshStatus("uuid");
@@ -739,7 +740,7 @@ public class AgentServiceIntegrationTest {
         createEnvironment("uat");
         EnvironmentConfig environment = environmentConfigService.named("uat");
         environment.addAgent(UUID);
-        AgentInstances instances = new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied);
+        AgentInstances instances = new AgentInstances(null, new SystemEnvironment(), timeProvider, idle, pending, building, denied);
         AgentService agentService = getAgentService(instances);
 
         AgentsViewModel agents = agentService.registeredAgents();
@@ -1093,7 +1094,7 @@ public class AgentServiceIntegrationTest {
     private void disable(AgentConfig agentConfig) {
         AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false, timeProvider);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.updateRuntimeInfo(agentRuntimeInfo);
         agentService.disableAgents(USERNAME, new HttpOperationResult(), Arrays.asList(agentConfig.getUuid()));
@@ -1102,7 +1103,7 @@ public class AgentServiceIntegrationTest {
 
     private void disableAgent() {
         AgentConfig pending = new AgentConfig("uuid1", "agent1", "192.168.0.1");
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending, false, "/var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending, false, "/var/lib", 0L, "linux", false, timeProvider));
         agentService.approve("uuid1");
         agentConfigService.updateAgentApprovalStatus("uuid1", true, Username.ANONYMOUS);
     }
@@ -1112,7 +1113,7 @@ public class AgentServiceIntegrationTest {
     }
 
     public void addAgent(AgentConfig agentConfig) {
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false, timeProvider));
         agentService.approve(agentConfig.getUuid());
     }
 
@@ -1129,7 +1130,7 @@ public class AgentServiceIntegrationTest {
 
         AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false, timeProvider);
         agentRuntimeInfo.idle();
         agentService.updateRuntimeInfo(agentRuntimeInfo);
         assertTrue(agentService.findAgentAndRefreshStatus(uuid).isIdle());

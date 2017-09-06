@@ -26,10 +26,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.SubprocessLogger;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.util.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
@@ -91,7 +88,8 @@ public class WebSocketClientHandlerTest {
                 mock(TaskExtension.class),
                 mock(HttpService.class),
                 mock(WebSocketClientHandler.class),
-                mock(WebSocketSessionHandler.class));
+                mock(WebSocketSessionHandler.class),
+                mock(TimeProvider.class));
     }
 
     class WebSocketClientStub extends WebSocketClient {

@@ -706,7 +706,7 @@ public class AgentInstanceTest {
         when(systemEnvironment.isAutoRegisterLocalAgentEnabled()).thenReturn(true);
         AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment);
 
-        assertThat(agentInstance.getRuntimeInfoLastUpdatedTime(), is(greaterThan(agentRuntimeInfo.getLastUpdatedTime())));
+        assertThat(agentInstance.getRuntimeInfoLastUpdatedTime(), is(greaterThanOrEqualTo(agentRuntimeInfo.getLastUpdatedTime())));
     }
 
     @Test

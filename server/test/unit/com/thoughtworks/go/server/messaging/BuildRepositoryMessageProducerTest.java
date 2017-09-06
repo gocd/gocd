@@ -45,13 +45,15 @@ public class BuildRepositoryMessageProducerTest {
     private BuildRepositoryRemoteImpl oldImplementation;
     private WorkAssignments newImplementation;
     private BuildRepositoryMessageProducer producer;
-    private static final AgentIdentifier AGENT = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-    private static TimeProvider timeProvider;
-    private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+    private AgentIdentifier agent;
+    private TimeProvider timeProvider;
+    private AgentRuntimeInfo agentRuntimeInfo;
 
     @Before
     public void setUp() {
         timeProvider = mock(TimeProvider.class);
+        agent = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
+        agentRuntimeInfo = new AgentRuntimeInfo(agent, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         oldImplementation = mock(BuildRepositoryRemoteImpl.class);
         newImplementation = mock(WorkAssignments.class);
         WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger = mock(WorkAssignmentPerformanceLogger.class);
@@ -84,8 +86,8 @@ public class BuildRepositoryMessageProducerTest {
 
     @Test
     public void shouldUseEventDrivenImplementationByDefault() {
-        producer.getWork(AGENT_INFO);
-        verify(newImplementation).getWork(AGENT_INFO);
+        producer.getWork(agentRuntimeInfo);
+        verify(newImplementation).getWork(agentRuntimeInfo);
     }
 
     @Test

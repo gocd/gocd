@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-RAILS_INTERPOLATED_VIEWS = (ENV['INPUT_DIR'] or raise 'INPUT_DIR not defined')
+RAILS_INTERPOLATED_VIEWS = (ENV['INPUT_DIR'].split("\\").join("/") or raise 'INPUT_DIR not defined')
 
 def inline_partials(dir = RAILS_INTERPOLATED_VIEWS)
   Dir[File.join(dir, '*')].each do |path|

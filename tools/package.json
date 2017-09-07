@@ -1,6 +1,6 @@
 {
   "devDependencies": {
     "eslint": "^3.4.0",
-    "eslint-plugin-react": "^6.3.0"
+    "eslint-plugin-react": "^7.3.0"
   }
 }

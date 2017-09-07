@@ -183,9 +183,9 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
   railsCommand = {
     def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
 
-    FileTree tree = fileTree(dir: "${project.railsRoot}/spec").include('**/*_spec.rb')
+    FileTree tree = fileTree(dir: "${project.railsRoot}/spec", includes: ['**/*_spec.rb'])
 
-    def files = project.partitionFiles(tree.files)
+    def files = partitionFiles(tree.files)
 
     // relativize paths, because windows does not support very long command lines :(
     rspecCommand += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }

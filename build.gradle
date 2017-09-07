@@ -63,14 +63,14 @@ def getVersion = { ... args ->
       errorOutput = stdout
       ignoreExitValue = true
     }
-  } catch (Exception e) {
+  } catch (Exception ignored) {
     return "could not determine version!"
   }
 
   return stdout.toString().trim()
 }
 
-ext.partitionFiles = { Collection originalFiles ->
+def partitionFiles(Collection originalFiles) {
   def files = new LinkedHashSet(originalFiles).sort()
   def seed = System.getenv('GO_PIPELINE_COUNTER')?.toInteger() ?: System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
   def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
@@ -107,7 +107,7 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
   println "========================================================="
 
-  def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows();
+  def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
 
   println("Tool Versions")
   println("============================")
@@ -117,34 +117,28 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(" git: ${getVersion("git", "--version")}")
   println("  hg: ${getVersion("hg", "--quiet", "--version")}")
   println(" svn: ${getVersion("svn", "--quiet", "--version")}")
-  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join()}")
-  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join()}")
+  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join("")}")
+  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join("")}")
   println(" gcc: ${getVersion("gcc", "-dumpversion")}")
   println(" g++: ${getVersion("g++", "-dumpversion")}")
   println("============================")
 }
 
+rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
+rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
+rootProject.ext.goVersion = GO_VERSION
+rootProject.ext.distVersion = DIST_VERSION
+rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+rootProject.ext.gitRevision = GIT_REVISION
+rootProject.ext.copyrightYear = COPYRIGHT_YEAR
+rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 
 allprojects {
-  apply plugin: 'java'
   apply plugin: 'idea'
-
-  rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
-  rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
-  rootProject.ext.goVersion = GO_VERSION
-  rootProject.ext.distVersion = DIST_VERSION
-  rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-  rootProject.ext.gitRevision = GIT_REVISION
-  rootProject.ext.copyrightYear = COPYRIGHT_YEAR
-
-  rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 
   group = 'com.thoughtworks.go'
   version = project.fullVersion
   buildDir = "${projectDir}/target"
-
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
 
   repositories {
     mavenLocal()
@@ -152,10 +146,21 @@ allprojects {
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
   }
+}
+
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: org.owasp.dependencycheck.gradle.DependencyCheck
+  apply plugin: com.github.benmanes.gradle.versions.VersionsPlugin
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+  buildDir = "${projectDir}/target"
 
   configurations {
-    packagingOnly { transitive false }
-    extractedAtTopLevel { transitive false }
+    packagingOnly { transitive = false }
+    extractedAtTopLevel { transitive = false }
     fatJarConfig
 
     testOutput {
@@ -200,7 +205,7 @@ allprojects {
     }
 
     includeEmptyDirs false
-    duplicatesStrategy 'exclude'
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
     if (jarTask.name == 'testJar') {
       project.artifacts.add 'testOutput', jarTask
@@ -211,7 +216,7 @@ allprojects {
 
   tasks.withType(AbstractArchiveTask) {
     includeEmptyDirs false
-    duplicatesStrategy 'exclude'
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
     preserveFileTimestamps = false
     reproducibleFileOrder = true
@@ -265,10 +270,10 @@ allprojects {
         }
       }
 
-      List myPartition = project.partitionFiles(files)
+      List myPartition = partitionFiles(files)
 
       myPartition.each { f ->
-        include f
+        testTask.include f
       }
     }
 
@@ -300,17 +305,6 @@ allprojects {
       }
     }
   }
-}
-
-subprojects {
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
-
-  apply plugin: 'maven'
-  apply plugin: org.owasp.dependencycheck.gradle.DependencyCheck
-  apply plugin: com.github.benmanes.gradle.versions.VersionsPlugin
-
-  buildDir = "${projectDir}/target"
 }
 
 task allDependencies {

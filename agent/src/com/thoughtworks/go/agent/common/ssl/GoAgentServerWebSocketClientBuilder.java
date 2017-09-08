@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.net.ssl.TrustManager;
 import java.security.KeyStore;
@@ -28,11 +27,6 @@ import java.security.cert.CRL;
 import java.util.Collection;
 
 public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuilder<WebSocketClient> {
-    @Autowired
-    public GoAgentServerWebSocketClientBuilder(SystemEnvironment systemEnvironment) {
-        super(systemEnvironment);
-    }
-
     @Override
     public WebSocketClient build() throws Exception {
         SslContextFactory sslContextFactory = sslVerificationMode == SslVerificationMode.NONE ? new TrustAllSSLContextFactory() : new SslContextFactory();
@@ -54,6 +48,10 @@ public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuil
         WebSocketClient client = new WebSocketClient(sslContextFactory);
         client.setMaxIdleTimeout(systemEnvironment.getWebsocketMaxIdleTime());
         return client;
+    }
+
+    public GoAgentServerWebSocketClientBuilder(SystemEnvironment systemEnvironment) {
+        super(systemEnvironment);
     }
 
     private class TrustAllSSLContextFactory extends SslContextFactory {

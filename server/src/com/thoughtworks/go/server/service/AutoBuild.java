@@ -69,9 +69,7 @@ public class AutoBuild implements BuildType {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
 
         MaterialRevisions recomputedBasedOnDependencies;
-        if (systemEnvironment.enforceRevisionCompatibilityWithUpstream() && systemEnvironment.enforceFanInFallbackBehaviour()) {
-            recomputedBasedOnDependencies = fanInOnWithFallback(originalMaterialRevisions, cruiseConfig, new CaseInsensitiveString(pipelineName));
-        } else if (systemEnvironment.enforceRevisionCompatibilityWithUpstream()) {
+        if (systemEnvironment.enforceRevisionCompatibilityWithUpstream()) {
             recomputedBasedOnDependencies = fanInOn(originalMaterialRevisions, cruiseConfig, new CaseInsensitiveString(pipelineName));
         } else {
             recomputedBasedOnDependencies = fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
@@ -106,21 +104,6 @@ public class AutoBuild implements BuildType {
 
     @Override
     public void notifyPipelineNotScheduled(PipelineConfig pipelineConfig) {
-    }
-
-    private MaterialRevisions fanInOnWithFallback(MaterialRevisions originalMaterialRevisions, CruiseConfig cruiseConfig, CaseInsensitiveString targetPipelineName) {
-        try {
-            MaterialRevisions materialRevisions = fanInOn(originalMaterialRevisions, cruiseConfig, targetPipelineName);
-            serverHealthService.removeByScope(HealthStateScope.forFanin(pipelineName));
-            return materialRevisions;
-        } catch (NoCompatibleUpstreamRevisionsException | NoModificationsPresentForDependentMaterialException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            serverHealthService.update(ServerHealthState.warning("Turning off Fan-In for pipeline: '" + pipelineName + "'", "Error occurred during Fan-In resolution for the pipeline.",
-                    HealthStateType.general(HealthStateScope.forFanin(pipelineName))));
-            LOGGER.info("[Revision Resolution] Error occurred during Fan-In resolution for the pipeline: '{}'. Switching to Triangle Resolution", pipelineName);
-            return fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
-        }
     }
 
     private MaterialRevisions fanInOn(MaterialRevisions originalMaterialRevisions, CruiseConfig cruiseConfig, CaseInsensitiveString targetPipelineName) {

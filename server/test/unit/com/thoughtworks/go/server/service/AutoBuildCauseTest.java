@@ -310,37 +310,6 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void shouldFallbackToFanInOffTriangleDependencyBehaviourOnExceptionInFanInOn() throws Exception {
-        PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
-        String targetPipeline = dependencyGraph.getCurrent().name().toLower();
-        MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));
-        MaterialRevision dependencyRevision = dependencyMaterialRevision("up1", 1, "label", "first", 1, new Date());
-        dependencyRevision.markAsChanged();
-        revisions.addRevision(dependencyRevision);
-
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
-        // first time throw exception to check fanin off behavior and server logs. second time return null (no exception) to check that the server health logs are cleared
-        when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(new RuntimeException("failed")).thenReturn(null);
-
-        when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
-        when(systemEnvironment.enforceFanInFallbackBehaviour()).thenReturn(true);
-
-        new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
-
-        verify(pipelineService, times(1)).getRevisionsBasedOnDependencies(dependencyGraph, revisions);
-
-        assertThat(serverHealthService.getAllLogs().size(), is(1));
-        assertThat(serverHealthService.getAllLogs(), hasItem((ServerHealthState.warning("Turning off Fan-In for pipeline: 'current'",
-                "Error occurred during Fan-In resolution for the pipeline.", HealthStateType.general(HealthStateScope.forFanin(targetPipeline))))));
-
-        new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
-
-        verify(pipelineService, times(1)).getRevisionsBasedOnDependencies(dependencyGraph, revisions);
-
-        assertThat(serverHealthService.getAllLogs().size(), is(0));
-    }
-
-    @Test
     public void shouldNotFallbackToFanInOffTriangleDependencyBehaviourOnNoCompatibleUpstreamRevisionsException() throws Exception {
         PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
         String targetPipeline = dependencyGraph.getCurrent().name().toLower();
@@ -354,7 +323,6 @@ public class AutoBuildCauseTest {
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
-        when(systemEnvironment.enforceFanInFallbackBehaviour()).thenReturn(false);
 
         try {
             new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
@@ -377,7 +345,6 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
-        when(systemEnvironment.enforceFanInFallbackBehaviour()).thenReturn(false);
 
         try {
             new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);

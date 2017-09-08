@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -47,7 +46,6 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private final AuthorityGranter authorityGranter;
     private GoConfigService configService;
 
-    @Autowired
     public PreAuthenticatedAuthenticationProvider(AuthorizationExtension authorizationExtension, PluginRoleService pluginRoleService,
                                                   UserService userService, AuthorityGranter authorityGranter, GoConfigService configService) {
         this.authorizationExtension = authorizationExtension;

@@ -19,8 +19,15 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cache.GoCacheFactory;
+import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.security.OauthAuthenticationFilter;
+import com.thoughtworks.go.server.security.ReAuthenticationFilter;
+import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
+import com.thoughtworks.go.server.security.UserEnabledCheckFilter;
+import com.thoughtworks.go.server.security.providers.GoAuthenticationProviderFactory;
+import com.thoughtworks.go.server.security.providers.PreAuthenticatedAuthenticationProvider;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +54,6 @@ import static org.junit.Assert.fail;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-shine-server.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class SpringBeanCandidateConstructorIntegrationTest {
@@ -60,9 +66,10 @@ public class SpringBeanCandidateConstructorIntegrationTest {
         ConfigurableListableBeanFactory clbf = ((AbstractApplicationContext) applicationContext).getBeanFactory();
         AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
 
-        //Beans which are instantiated by explicitly specifying a constructor and its args in the applicationContext xml files
-        List<Class<?>> exclusions = Arrays.asList(Localizer.class, TransactionTemplate.class, GoCacheFactory.class,
-                GoCache.class, MaterialRepository.class, OauthAuthenticationFilter.class);
+        List<Class<?>> exclusions = Arrays.asList(Localizer.class, TransactionTemplate.class, TransactionSynchronizationManager.class,
+                GoCacheFactory.class, GoCache.class, MaterialRepository.class, PreAuthenticatedAuthenticationProvider.class,
+                UserEnabledCheckFilter.class, GoAuthenticationProviderFactory.class, OauthAuthenticationFilter.class,
+                RemoveAdminPermissionFilter.class, ReAuthenticationFilter.class, ShineDao.class);
         for (String name : allBeans) {
             Object bean = clbf.getSingleton(name);
             if (bean != null) {
@@ -93,4 +100,5 @@ public class SpringBeanCandidateConstructorIntegrationTest {
             }
         }
     }
+
 }

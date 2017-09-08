@@ -43,7 +43,7 @@ public class RemoteConsoleAppender implements ConsoleAppender {
         try {
             LOGGER.debug("Appending console to URL -> {}", consoleUri);
             putMethod.setEntity(new StringEntity(content, Charset.defaultCharset()));
-            httpService.setSizeHeader(putMethod, content.getBytes().length);
+            HttpService.setSizeHeader(putMethod, content.getBytes().length);
             CloseableHttpResponse response = httpService.execute(putMethod);
             LOGGER.debug("Got {}", response.getStatusLine().getStatusCode());
         } finally {

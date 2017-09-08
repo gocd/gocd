@@ -1,18 +1,18 @@
-/*
- * Copyright 2017 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.server.security;
 
@@ -66,7 +66,7 @@ public class ArtifactSizeEnforcementFilterTest {
     public void shouldRejectRequestBasedOnArtifactSize() throws IOException, ServletException {
         ArtifactSizeEnforcementFilter artifactSizeEnforcementFilter = new ArtifactSizeEnforcementFilter(mockArtifactsDirHolder, mockSysEnv);
 
-        request.addHeader(SystemEnvironment.GO_ARTIFACT_PAYLOAD_SIZE_HEADER, "713");
+        request.addHeader(HttpService.GO_ARTIFACT_PAYLOAD_SIZE, "713");
         artifactSizeEnforcementFilter.doFilter(request, response, filterChain);
         assertThat(response.getStatus(), is(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE));
 
@@ -79,7 +79,7 @@ public class ArtifactSizeEnforcementFilterTest {
         ArtifactSizeEnforcementFilter artifactSizeEnforcementFilter = new ArtifactSizeEnforcementFilter(mockArtifactsDirHolder, mockSysEnv);
         when(mockArtifactsDirHolder.getArtifactsDir()).thenReturn(artifactsDir);
         when(artifactsDir.getUsableSpace()).thenReturn(30000000L);
-        request.addHeader(SystemEnvironment.GO_ARTIFACT_PAYLOAD_SIZE_HEADER, "713");
+        request.addHeader(HttpService.GO_ARTIFACT_PAYLOAD_SIZE, "713");
         artifactSizeEnforcementFilter.doFilter(request, response, filterChain);
         artifactSizeEnforcementFilter.doFilter(request, response, filterChain); //another request within 5seconds
         verify(filterChain, times(2)).doFilter(request, response);

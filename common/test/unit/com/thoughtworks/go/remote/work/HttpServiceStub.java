@@ -39,7 +39,6 @@ public class HttpServiceStub extends HttpService {
     }
 
     public HttpServiceStub(int returnCode) {
-        super(null);
         this.returnCode = returnCode;
     }
 

@@ -15,9 +15,9 @@
                         <a href="https://twitter.com/goforcd" title="twitter" class="twitter" target="_blank"></a>
                         <a href="https://github.com/gocd/gocd" title="github" class="github" target="_blank"></a>
                         <a href="https://groups.google.com/d/forum/go-cd" title="forums" class="forums" target="_blank"></a>
-                        <a href="https://docs.gocd.org/current" title="documentation" class="documentation" target="_blank"></a>
+                        <a href="https://docs.gocd.org/$currentGoCDVersion.goVersion()" title="documentation" class="documentation" target="_blank"></a>
                         <a href="https://www.gocd.org/plugins/" title="plugins" class="plugins" target="_blank"></a>
-                        <a href="https://api.gocd.org/" title="api" class="api" target="_blank"></a>
+                        <a href="https://api.gocd.org/$currentGoCDVersion.goVersion()" title="api" class="api" target="_blank"></a>
                         <a href="$req.getContextPath()/about" title="about" class="server-details" target="_blank"></a>
                         <a href="$req.getContextPath()/cctray.xml" title="cctray" class="cctray" target="_blank"></a>
                     </span>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -81,7 +82,7 @@ public class HttpServiceTest {
 
         service.upload(uploadUrl, 100L, uploadingFile, checksums);
 
-        verify(mockPostMethod).setHeader(SystemEnvironment.GO_ARTIFACT_PAYLOAD_SIZE_HEADER, "100");
+        verify(mockPostMethod).setHeader(GO_ARTIFACT_PAYLOAD_SIZE, "100");
         verify(mockPostMethod).setHeader("Confirm", "true");
         verify(httpClientFactory).createMultipartRequestEntity(uploadingFile, checksums);
         verify(httpClient).execute(mockPostMethod);

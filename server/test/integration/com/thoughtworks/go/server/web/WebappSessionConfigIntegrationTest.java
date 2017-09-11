@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -48,6 +49,7 @@ public class WebappSessionConfigIntegrationTest {
         FileUtils.copyFile(srcWebXMlFile, webXmlForTest);
     }
 
+    @Ignore
     @Test
     public void shouldSetSessionTrackingModeToCookieOnly() throws Exception {
         Server server = new Server(1234);

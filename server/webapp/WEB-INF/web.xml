@@ -22,7 +22,12 @@
 
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/applicationContext-*.xml</param-value>
+    <param-value>
+      /WEB-INF/applicationContext-acegi-security.xml
+      /WEB-INF/applicationContext-shine-server.xml
+      /WEB-INF/applicationContext-dataLocalAccess.xml
+      /WEB-INF/applicationContext-global.xml
+    </param-value>
   </context-param>
 
   <filter>

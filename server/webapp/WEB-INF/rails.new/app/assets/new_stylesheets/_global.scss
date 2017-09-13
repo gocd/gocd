@@ -23,3 +23,29 @@ select {
 textarea {
   height: rem-calc(32);
 }
+
+.btn-primary {
+  display:       inline-block;
+  padding:       5px;
+  border-radius: 3px;
+  color:         #fff;
+  font-size:     14px;
+  font-weight:   600;
+  background:    #b66fc2;
+  &:hover, &:visited {
+    text-decoration: none;
+    color:           #fff;
+  }
+}
+
+.btn-small {
+  padding:   4px 10px;
+  font-size: 13px;
+}
+
+// scss-lint:disable SelectorFormat
+.form_error {
+  // scss-lint:enable SelectorFormat
+  @include form-error;
+  display: block;
+}

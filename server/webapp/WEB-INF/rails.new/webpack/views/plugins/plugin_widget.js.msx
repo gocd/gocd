@@ -1,0 +1,135 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m               = require('mithril');
+const _               = require('lodash');
+const f               = require('helpers/form_helper');
+const Stream          = require('mithril/stream');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Routes          = require('gen/js-routes');
+
+const PluginWidget = {
+  oninit(vnode){
+    this.args = vnode.attrs;
+    ComponentMixins.HasViewModel.call(this);
+    const vmStateKey = `show-${vnode.attrs.pluginInfo.id()}`;
+
+    this.vmState(vmStateKey, Stream(false));
+
+    this.toggleHide = function () {
+      this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
+    };
+
+    this.showState = function () {
+      return this.vmState(vmStateKey)() ? 'show' : 'hide';
+    };
+  },
+  view(vnode) {
+    const pluginInfo = vnode.attrs.pluginInfo;
+
+    let image, actionIcons, errorsLoadingPlugin, statusReportLink;
+
+    if (pluginInfo.imageUrl()) {
+      image = <img src={pluginInfo.imageUrl()}/>;
+    } else {
+      image = <span class="unknown-plugin-icon"/>;
+    }
+
+    if (pluginInfo.capabilities && pluginInfo.capabilities().supportsStatusReport && pluginInfo.capabilities().supportsStatusReport()) {
+      const statusReportHref = Routes.adminStatusReportPath(pluginInfo.id());
+      statusReportLink = (
+          <f.anchor href={statusReportHref} class='btn-primary btn-small status-report-btn'>Status Report</f.anchor>
+      );
+    }
+    actionIcons = (
+      <div class="plugin-actions">
+        {statusReportLink}
+        <f.link class='edit-plugin' onclick={vnode.attrs.onEdit}/>
+      </div>
+    );
+
+    if (!pluginInfo.isActive() || !pluginInfo.suportsPluginSettings()) {
+      actionIcons = (
+        <div class="plugin-actions">
+          {statusReportLink}
+        </div>
+      );
+    }
+
+    if (pluginInfo.hasErrors()) {
+      errorsLoadingPlugin = [
+        (<dt>There were errors loading the plugin</dt>),
+        (<dd>
+          {pluginInfo.status().messages().map((msg) => [msg, <br/>])}
+        </dd>)
+      ];
+    }
+
+    return (
+      <div class={`plugin ${pluginInfo.isActive() ? 'active' : 'disabled'}`}>
+        <div class="plugin-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+            <span class="plugin-icon">
+              {image}
+            </span>
+          <div class="plugin-description">
+            <div class="plugin-name">{pluginInfo.about().name()}</div>
+            <div class="plugin-version">
+              <span class="key">Version: </span>
+              <span class="value">{pluginInfo.about().version()}</span>
+            </div>
+            <div class="plugin-id">
+              <span class="key">Id: </span>
+              <span class="value">{pluginInfo.id()}</span>
+            </div>
+          </div>
+        </div>
+        <div class={`plugin-config-read-only ${vnode.state.showState()}`}>
+          <dl class="key-value-pair">
+            <dt>Description</dt>
+            <dd>
+              {pluginInfo.about().description()}
+            </dd>
+
+            <dt>Author</dt>
+            <dd>
+              <f.link target="_blank"
+                      href={pluginInfo.about().vendor().url()}>{pluginInfo.about().vendor().name()}</f.link>
+            </dd>
+
+            <dt>Supported operating systems</dt>
+            <dd>{_.isEmpty(pluginInfo.about().targetOperatingSystems()) ? 'No restrictions' : pluginInfo.about().targetOperatingSystems()}</dd>
+
+            <dt>Plugin file location</dt>
+            <dd>
+              <pre>{pluginInfo.pluginFileLocation()}</pre>
+            </dd>
+
+            <dt>Bundled</dt>
+            <dd>{pluginInfo.bundledPlugin() ? 'Yes' : 'No'}</dd>
+
+            <dt>Target Go Version</dt>
+            <dd>{pluginInfo.about().targetGoVersion()}</dd>
+
+            {errorsLoadingPlugin}
+          </dl>
+        </div>
+        {actionIcons}
+      </div>
+    );
+  }
+};
+
+module.exports = PluginWidget;

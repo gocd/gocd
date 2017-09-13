@@ -391,7 +391,7 @@ Tasks.Task.PluginTask.fromJSON = ({attributes, errors}) => {
 
 Tasks.Task.PluginTask.fromPluginInfo = (pluginInfo) => new Tasks.Task.PluginTask({
   pluginId:      pluginInfo.id(),
-  version:       pluginInfo.version(),
+  version:       pluginInfo.about().version(),
   configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.taskSettings().configurations())
 });
 

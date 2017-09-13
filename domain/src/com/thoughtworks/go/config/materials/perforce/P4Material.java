@@ -297,8 +297,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return "Perforce";
     }
 
-    private String p4view(String clientName) {
-//        rebuildViewIfJustLoadedFromDb();
+    public String p4view(String clientName) {
         return view.viewUsing(clientName);
     }
 

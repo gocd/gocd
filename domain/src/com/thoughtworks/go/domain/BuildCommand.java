@@ -147,6 +147,10 @@ public class BuildCommand {
     private String runIfConfig = "passed";
     @Expose
     private BuildCommand onCancel;
+    @Expose
+    private String[] execInput = new String[0];
+    @Expose
+    private Map<String, String> commandEnvVars = new HashMap<String, String>();
 
     public BuildCommand(String name) {
         this.name = name;
@@ -250,6 +254,24 @@ public class BuildCommand {
         return this;
     }
 
+    public BuildCommand setExecInput(String... input) {
+       this.execInput = input;
+       return this;
+    }
+
+    public String[] getExecInput() {
+        return execInput;
+    }
+
+    public BuildCommand setCommandEnvVars(Map<String, String> envVars) {
+        this.commandEnvVars = envVars;
+        return this;
+    }
+
+    public Map<String, String> getCommandEnvVars() {
+        return this.commandEnvVars;
+    }
+
     public String getWorkingDirectory() {
         return workingDirectory == null ? "" : workingDirectory;
     }
@@ -317,5 +339,4 @@ public class BuildCommand {
         }
         return GSON.fromJson(args.get(arg), String[].class);
     }
-
 }

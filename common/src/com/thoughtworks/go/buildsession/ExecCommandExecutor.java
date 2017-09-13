@@ -69,8 +69,9 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
         commandLine.withWorkingDir(workingDir);
         commandLine.withEnv(buildSession.getEnvs());
+        commandLine.withEnv(command.getCommandEnvVars());
 
-        return executeCommandLine(buildSession, commandLine) == 0;
+        return executeCommandLine(buildSession, commandLine, command.getExecInput()) == 0;
     }
 
     private CommandLine createCommandLine(String cmd) {
@@ -85,14 +86,14 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         return commandLine;
     }
 
-    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
+    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine, String... input) {
         final AtomicInteger exitCode = new AtomicInteger(-1);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
         buildSession.submitRunnable(new Runnable() {
             @Override
             public void run() {
                 try {
-                    exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null));
+                    exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null, input));
                 } catch (CommandLineException e) {
                     LOG.error("Command failed", e);
                     String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", commandLine.toStringForDisplay(), commandLine.getExecutable());

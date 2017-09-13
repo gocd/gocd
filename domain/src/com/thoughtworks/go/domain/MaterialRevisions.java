@@ -31,6 +31,11 @@ import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialUpdater;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialUpdater;
+import com.thoughtworks.go.config.materials.perforce.P4Material;
+import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
+import com.thoughtworks.go.domain.materials.perforce.P4MaterialUpdater;
 import com.thoughtworks.go.util.ObjectUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.slf4j.Logger;
@@ -390,6 +395,8 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
                     //do nothing
                 } else if (material instanceof TfsMaterial) {
                     TfsMaterialUpdater updater = new TfsMaterialUpdater((TfsMaterial) material);
+                } else if (material instanceof P4Material) {
+                    P4MaterialUpdater updater = new P4MaterialUpdater((P4Material) material);
                     commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
                 } else {
                     commands.add(BuildCommand.fail("%s Material is not supported for new build command agent", material.getTypeForDisplay()));

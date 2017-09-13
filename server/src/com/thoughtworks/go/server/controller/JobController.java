@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.Tabs;
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
@@ -45,6 +48,7 @@ import java.util.*;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
+import static com.thoughtworks.go.util.StringUtil.isBlank;
 import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 
 /*
@@ -180,16 +184,25 @@ public class JobController {
         try {
             JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
             JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
-
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
                     agentService.findAgentObjectByUuid(mostRecentJobInstance.getAgentUuid()),
-                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
+                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance),
+                    agentConfig(mostRecentJobInstance.getAgentUuid()));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
             LOGGER.warn(null, e);
             json = errorJsonMap(e);
         }
         return jsonFound(json).respond(response);
+    }
+
+    private AgentConfig agentConfig(String agentUuid) {
+        if (isBlank(agentUuid)) {
+            return null;
+        }
+
+        final AgentInstance agentInstance = agentService.findAgent(agentUuid);
+        return agentInstance == null ? null : agentInstance.agentConfig();
     }
 
     private Map errorJsonMap(Exception e) {

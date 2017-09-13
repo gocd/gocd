@@ -175,7 +175,7 @@ public class JobDetailPresentationModel {
     }
 
 
-    public String getIndexPageURL()  {
+    public String getIndexPageURL() {
         try {
             File testOutputFolder = artifactsService.findArtifact(job.getIdentifier(), TEST_OUTPUT_FOLDER);
 

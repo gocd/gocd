@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBeans;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.util.json.JsonAware;
 
 import java.util.*;
 
+import static com.thoughtworks.go.util.StringUtil.isBlank;
 import static com.thoughtworks.go.util.UrlUtil.encodeInUtf8;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
@@ -127,13 +129,22 @@ public class StageJsonPresentationModel implements JsonAware {
         for (JobInstance job : builds) {
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(job,
                     agentService.findAgentObjectByUuid(job.getAgentUuid()),
-                    durations.byId(job.getId()));
+                    durations.byId(job.getId()), agentConfig(job.getAgentUuid()));
             Map jsonMap = presenter.toJsonHash();
             jsonMap.put("buildLocator", job.buildLocator());
             plans.add(jsonMap);
 
         }
         return plans;
+    }
+
+    private AgentConfig agentConfig(String agentUuid) {
+        if (isBlank(agentUuid)) {
+            return null;
+        }
+
+        final AgentInstance agentInstance = agentService.findAgent(agentUuid);
+        return agentInstance == null ? null : agentInstance.agentConfig();
     }
 
     public Pipeline getPipeline() {

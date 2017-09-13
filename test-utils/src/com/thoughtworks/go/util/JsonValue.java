@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.util;
 
-import static java.lang.String.format;
-import java.io.StringReader;
-
 import com.sdicons.json.model.JSONArray;
 import com.sdicons.json.model.JSONObject;
 import com.sdicons.json.model.JSONValue;
 import com.sdicons.json.parser.JSONParser;
+
+import java.io.StringReader;
+
+import static java.lang.String.format;
 
 public class JsonValue {
     private JSONValue jsonValue;
@@ -45,6 +46,10 @@ public class JsonValue {
 
     public JSONValue getValue(Object... keys) {
         return getObject(keys).jsonValue;
+    }
+
+    public boolean hasKey(String key) {
+        return ((JSONObject) this.jsonValue).get(key) != null;
     }
 
     public JsonValue getObject(Object... keys) {

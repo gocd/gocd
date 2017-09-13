@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.util;
 
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class JsonValueTest {
 
@@ -51,5 +50,15 @@ public class JsonValueTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Key 'key' does not refer to any attribute of JSONArray"));
         }
+    }
+
+    @Test
+    public void hasKeyShouldReturnTrueIfItContainsTheKey() throws Exception {
+        assertTrue(new JsonValue("{\"key\": \"value\"}").hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyShouldReturnFalseIfItDoesNotContainsTheKey() throws Exception {
+        assertFalse(new JsonValue("{\"key\": \"value\"}").hasKey("no_key"));
     }
 }

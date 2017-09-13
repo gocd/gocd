@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.TrackingTool;
@@ -40,9 +41,9 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -240,6 +241,24 @@ public class StageJsonPresentationModelTest {
         Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("builds", 0, "buildLocator"),
                 is("pipeline-a%25b/1/stage-c%25d/1/job-%25"));
+    }
+
+    @Test
+    public void shouldIncludeElasticAgentIdForElasticAgent() throws Exception {
+        final AgentConfig agentConfig = new AgentConfig();
+        agentConfig.setElasticAgentId("elastic_agent_id-1");
+        agentConfig.setElasticPluginId("cd.go.docker.swarm");
+        final AgentInstance agentInstance = mock(AgentInstance.class);
+        when(agentInstance.agentConfig()).thenReturn(agentConfig);
+
+        when(agentService.findAgent(anyString())).thenReturn(agentInstance);
+
+        StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
+        Map json = presenter.toJson();
+
+        assertThat(JsonUtils.from(json).getString("builds", 0, "elastic_agent_id"), is("elastic_agent_id-1"));
+        assertThat(JsonUtils.from(json).getString("builds", 1, "elastic_agent_id"), is("elastic_agent_id-1"));
+        assertFalse(JsonUtils.from(json).getObject("builds", 2).hasKey("elastic_agent_id"));
     }
 
     private MaterialRevisions materialRevisions(String userWithHtmlCharacters) {

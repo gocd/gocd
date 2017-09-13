@@ -28,8 +28,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.HostnameVerifier;
-import java.io.*;
-import java.security.*;
+import java.io.File;
+import java.security.KeyStore;
 
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
 
@@ -43,6 +43,7 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
 
     public CloseableHttpClient build() throws Exception {
         HttpClientBuilder builder = HttpClients.custom();
+        builder.useSystemProperties();
         builder
                 .setDefaultSocketConfig(SocketConfig.custom()
                         .setTcpNoDelay(true)
@@ -50,7 +51,6 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
                         .build()
                 )
                 .setKeepAliveStrategy(DefaultConnectionKeepAliveStrategy.INSTANCE);
-
 
         HostnameVerifier hostnameVerifier = sslVerificationMode.verifier();
         TrustStrategy trustStrategy = sslVerificationMode.trustStrategy();

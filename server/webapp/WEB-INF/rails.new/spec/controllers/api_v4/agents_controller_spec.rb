@@ -298,6 +298,18 @@ describe ApiV4::AgentsController do
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
 
+      it 'should return agent json with no resources when agent resources update is successful by specifying an empty array' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: nil
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), resources: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
+      end
+
       it 'should return agent json when agent environments update is successful by specifing a comma separated string' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
@@ -308,6 +320,18 @@ describe ApiV4::AgentsController do
         patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: "pre-prod,performance"
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
+      end
+
+      it 'should return agent json with no environments when agent environments update is successful by specifying an empty array' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, "", TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: nil
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response({agent: agent, environments: %w(), resources: %w(), security_service: @security_service, current_user: @current_user}, ApiV4::AgentRepresenter))
       end
 
       it 'should return agent json when agent is enabled' do

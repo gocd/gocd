@@ -640,30 +640,49 @@ describe("Task Model", () => {
     describe('from pluginInfo', () => {
       it('should be created from a plugin', () => {
         const json = {
-          "id": "script-executor",
-          "version": "1",
-          "type": "task",
-          "about": {
-            "name": "Script Executor",
-            "version": "0.3.0",
-            "target_go_version": "16.1.0",
-            "description": "Thoughtworks Go plugin to run scripts",
+          "id":            "script-executor",
+          "type":          "task",
+          "status":        {
+            "state": "active"
+          },
+          "about":         {
+            "name":                     "Script Executor",
+            "version":                  "0.1.27",
+            "target_go_version":        "14.4.0",
+            "description":              "Script executor",
             "target_operating_systems": [
-
+              "Linux",
+              "Mac OS X"
             ],
-            "vendor": {
-              "name": "Srinivas Upadhya",
-              "url": "https://github.com/srinivasupadhya"
+            "vendor":                   {
+              "name": "foo",
+              "url":  "http://foo"
             }
           },
-          "display_name": "Script Executor",
+          "extension_info": {
+            "display_name":  "Script Executor",
+            "task_settings": {
+              "configurations": [
+                {
+                  "key":      "script",
+                  "metadata": {
+                    "secure":   false,
+                    "required": true
+                  }
+                }
+              ],
+              "view":           {
+                "template": "Script executor task view"
+              }
+            }
+          }
         };
 
         const plugin = PluginInfos.PluginInfo.fromJSON(json);
         const task = Tasks.Task.PluginTask.fromPluginInfo(plugin);
 
         expect(task.pluginId()).toBe('script-executor');
-        expect(task.version()).toBe('1');
+        expect(task.version()).toBe('0.1.27');
       });
     });
 

@@ -465,6 +465,13 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
+  def edit_path_for_pipeline(pipeline_name)
+    if is_pipeline_config_spa_enabled? && is_quick_edit_page_default?
+      return edit_admin_pipeline_config_path(:pipeline_name => pipeline_name)
+    end
+    pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
+  end
+
   def plugin_supports_status_report?(plugin_id)
     plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(plugin_id)
 

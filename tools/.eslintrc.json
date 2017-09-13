@@ -113,6 +113,15 @@
     ],
     "react/no-unknown-property": [
       "off"
+    ],
+    "react/jsx-key": [
+      "off"
+    ],
+    "react/jsx-no-target-blank": [
+      "off"
+    ],
+    "react/no-unescaped-entities": [
+      "off"
     ]
   }
 }

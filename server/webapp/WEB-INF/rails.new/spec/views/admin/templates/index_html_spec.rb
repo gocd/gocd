@@ -23,16 +23,19 @@ describe "admin/templates/index.html.erb" do
 
   before(:each) do
     assign(:template_to_pipelines, {
-                                      "template1" => to_list([CaseInsensitiveString.new("pipeline1"), CaseInsensitiveString.new("pipeline2")]),
-                                      "template2" => to_list([CaseInsensitiveString.new("pipeline3")]),
-                                      "template3" => to_list([])
-                                    })
+      "template1" => to_list([CaseInsensitiveString.new("pipeline1"), CaseInsensitiveString.new("pipeline2")]),
+      "template2" => to_list([CaseInsensitiveString.new("pipeline3")]),
+      "template3" => to_list([])
+    })
     assign(:user, Username.new(CaseInsensitiveString.new("loser")))
     view.stub(:tab_with_display_name).and_return("tab_link")
     view.stub(:mycruise_available?).and_return(false)
     view.stub(:can_view_admin_page?).and_return(true)
     view.stub(:is_user_a_template_admin_for_template?).and_return(false)
     view.stub(:is_user_an_admin?).and_return(true)
+    view.stub(:is_quick_edit_page_default?).and_return(false)
+    view.stub(:is_pipeline_config_spa_enabled?).and_return(false)
+
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
   end
@@ -52,21 +55,21 @@ describe "admin/templates/index.html.erb" do
 
       all_the_templates[0].tap do |template|
         expect(template).to have_selector("h2", :text => "template1")
-        template.find("table") do |table|
-          table.find("thead tr.pipeline") do |tr|
+        template.find("table").tap do |table|
+          table.find("thead tr.pipeline").tap do |tr|
             expect(tr).to have_selector("th", :text => "Pipeline")
             expect(tr).to have_selector("th", :text => "Actions")
           end
-          table.find("tbody") do |tbody|
-            tbody.find("tr.pipeline") do |tr|
+          table.find("tbody").tap do |tbody|
+            tbody.all("tr.pipeline")[0].tap do |tr|
               expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}']", :text => "pipeline1")
-              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']").tap do |td|
                 expect(td).to have_selector("span", :text => "Edit")
               end
             end
-            tbody.find("tr.pipeline") do |tr|
+            tbody.all("tr.pipeline")[1].tap do |tr|
               expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}']", :text => "pipeline2")
-              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']").tap do |td|
                 expect(td).to have_selector("span", :text => "Edit")
               end
             end
@@ -76,11 +79,11 @@ describe "admin/templates/index.html.erb" do
 
       all_the_templates[1].tap do |template|
         expect(template).to have_selector("h2", "template2")
-        template.find("table") do |table|
-          table.find("tbody") do |tbody|
-            tbody.find("tr.pipeline") do |tr|
+        template.find("table").tap do |table|
+          table.find("tbody").tap do |tbody|
+            tbody.find("tr.pipeline").tap do |tr|
               expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}']", :text => "pipeline3")
-              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']").tap do |td|
                 expect(td).to have_selector("span", :text => "Edit")
               end
             end
@@ -91,6 +94,58 @@ describe "admin/templates/index.html.erb" do
       all_the_templates[2].tap do |template|
         expect(template).to have_selector("h2", :text => "template3")
         expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
+      end
+    end
+  end
+
+  it "should display links in pipelines pointing to quick edit page if the associated toggles are turned on" do
+    view.stub(:is_quick_edit_page_default?).and_return(true)
+    view.stub(:is_pipeline_config_spa_enabled?).and_return(true)
+
+    render
+
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
+
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      all_the_templates = templates.all(".template")
+      expect(all_the_templates.size).to eq(3)
+
+      all_the_templates[0].tap do |template|
+        expect(template).to have_selector("h2", :text => "template1")
+        template.find("table").tap do |table|
+          table.find("thead tr.pipeline").tap do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
+          end
+          table.find("tbody").tap do |tbody|
+            tbody.all("tr.pipeline")[0].tap do |tr|
+              expect(tr).to have_selector("td a[href='#{edit_admin_pipeline_config_path("pipeline1")}']", :text => "pipeline1")
+              tr.find("td a[href='#{edit_admin_pipeline_config_path("pipeline1")}'][class='action_icon edit_icon']").tap do |td|
+                expect(td).to have_selector("span", :text => "Edit")
+              end
+            end
+            tbody.all("tr.pipeline")[1].tap do |tr|
+              expect(tr).to have_selector("td a[href='#{edit_admin_pipeline_config_path("pipeline2")}']", :text => "pipeline2")
+              tr.find("td a[href='#{edit_admin_pipeline_config_path("pipeline2")}'][class='action_icon edit_icon']").tap do |td|
+                expect(td).to have_selector("span", :text => "Edit")
+              end
+            end
+          end
+        end
+      end
+
+      all_the_templates[1].tap do |template|
+        expect(template).to have_selector("h2", "template2")
+        template.find("table").tap do |table|
+          table.find("tbody").tap do |tbody|
+            tbody.find("tr.pipeline").tap do |tr|
+              expect(tr).to have_selector("td a[href='#{edit_admin_pipeline_config_path("pipeline3")}']", :text => "pipeline3")
+              tr.find("td a[href='#{edit_admin_pipeline_config_path("pipeline3")}'][class='action_icon edit_icon']").tap do |td|
+                expect(td).to have_selector("span", :text => "Edit")
+              end
+            end
+          end
+        end
       end
     end
   end
@@ -249,6 +304,25 @@ describe "admin/templates/index.html.erb" do
                   expect(pipeline).to have_selector("span", :text => "Edit")
                 end
               end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  it "should display edit link to template admins that points to quick edit page if required toggles are turned on" do
+    view.stub(:is_quick_edit_page_default?).and_return(true)
+    view.stub(:is_pipeline_config_spa_enabled?).and_return(true)
+
+    render
+
+    Capybara.string(response.body).find('#template_container_template1').tap do |template_container|
+      template_container.find("table").tap do |table|
+        table.find("tbody").tap do |tbody|
+          tbody.all("tr.pipeline")[0].tap do |pipelines|
+            pipelines.find("td a[href='#{edit_admin_pipeline_config_path("pipeline1")}'][class='action_icon edit_icon']").tap do |pipeline|
+              expect(pipeline).to have_selector("span", :text => "Edit")
             end
           end
         end

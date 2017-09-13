@@ -25,7 +25,7 @@ dependencies {
   compile(group: 'commons-digester', name: 'commons-digester', version: '1.8') {
     exclude(module: 'commons-logging')
   }
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: project.versions.slf4j
   compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

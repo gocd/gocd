@@ -21,7 +21,7 @@ description = 'GoCD Agent'
 sourceSets {
   test {
     java {
-      srcDirs = ['test/functional', 'test/unit', 'test/integration']
+      srcDirs = ['test/functional', 'test/unit']
     }
   }
 }
@@ -122,10 +122,10 @@ task verifyJar(type: VerifyJarTask) {
       "joda-time-2.3.jar",
       "log4j-1.2.17.jar",
       "objenesis-1.2.jar",
-      "org.apache.felix.framework-5.6.6.jar",
+      "org.apache.felix.framework-${project.versions.felix}.jar",
       "quartz-1.6.5.jar",
-      "slf4j-api-1.7.21.jar",
-      "slf4j-log4j12-1.7.21.jar",
+      "slf4j-api-${project.versions.slf4j}.jar",
+      "slf4j-log4j12-${project.versions.slf4j}.jar",
       "spring-aop-${project.versions.spring}.jar",
       "spring-asm-${project.versions.spring}.jar",
       "spring-beans-${project.versions.spring}.jar",

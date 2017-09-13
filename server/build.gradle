@@ -166,9 +166,9 @@ dependencies {
   }
   // this is just an override to force a transitive dep to the version we want.
   compile group: 'xml-apis', name: 'xml-apis', version: '1.3.04'
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
-  compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: project.versions.slf4j
+  compile group: 'org.slf4j', name: 'jul-to-slf4j', version: project.versions.slf4j
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
@@ -522,12 +522,12 @@ task verifyWar(type: VerifyJarTask) {
       "jruby-rack-1.1.14.jar",
       "jsch-0.1.54.jar",
       "jta-1.1.jar",
-      "jul-to-slf4j-1.7.21.jar",
+      "jul-to-slf4j-${project.versions.slf4j}.jar",
       "kahadb-5.5.0.jar",
       "log4j-1.2.17.jar",
       "mailapi-1.5.6.jar",
       "objenesis-1.2.jar",
-      "org.apache.felix.framework-5.6.6.jar",
+      "org.apache.felix.framework-${project.versions.felix}.jar",
       "org.eclipse.jgit-4.7.0.201704051617-r.jar",
       "org.eclipse.jgit.http.server-4.7.0.201704051617-r.jar",
       "oscache-2.4.1.jar",
@@ -535,8 +535,8 @@ task verifyWar(type: VerifyJarTask) {
       "quartz-1.6.5.jar",
       "rack_hack-${project.version}.jar",
       "sesame-onejar-2.3.1.jar",
-      "slf4j-api-1.7.21.jar",
-      "slf4j-log4j12-1.7.21.jar",
+      "slf4j-api-${project.versions.slf4j}.jar",
+      "slf4j-log4j12-${project.versions.slf4j}.jar",
       "smtp-1.5.6.jar",
       "spring-aop-${project.versions.spring}.jar",
       "spring-asm-${project.versions.spring}.jar",

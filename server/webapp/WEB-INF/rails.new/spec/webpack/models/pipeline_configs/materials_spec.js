@@ -890,7 +890,10 @@ describe("Material Model", () => {
       it("should initialize material model with pluginInfo", () => {
         const data = {
           type: 'scm',
-          id:   'plugin_id'
+          id:   'plugin_id',
+          status: {
+            state: "active"
+          }
         };
         expect(Materials.create({pluginInfo: PluginInfos.PluginInfo.fromJSON(data)}).pluginInfo().id()).toBe('plugin_id');
       });

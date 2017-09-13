@@ -22,8 +22,8 @@ dependencies {
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.7.0.201704051617-r') {
     exclude(group: 'org.apache.httpcomponents')
   }
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: project.versions.slf4j
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(':test-utils')

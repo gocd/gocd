@@ -111,10 +111,16 @@
           p:filterProcessesUrl="/auth/security_check"
           p:invalidateSessionOnSuccessfulAuthentication="true"/>
 
-     <bean id="userEnabledCheckFilter" class="com.thoughtworks.go.server.security.UserEnabledCheckFilter" autowire="autodetect">
+     <bean id="userEnabledCheckFilter" class="com.thoughtworks.go.server.security.UserEnabledCheckFilter">
+         <constructor-arg index="0">
+            <bean class="com.thoughtworks.go.server.service.UserService" autowire="autodetect"/>
+        </constructor-arg>
      </bean>
 
-    <bean id="goAuthenticationProviderFactory" class="com.thoughtworks.go.server.security.providers.GoAuthenticationProviderFactory" autowire="autodetect">
+    <bean id="goAuthenticationProviderFactory" class="com.thoughtworks.go.server.security.providers.GoAuthenticationProviderFactory">
+        <constructor-arg index="0">
+            <bean class="com.thoughtworks.go.server.service.UserService" autowire="autodetect"/>
+        </constructor-arg>
     </bean>
 
     <bean id="goAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
@@ -287,6 +293,7 @@
                 /api/admin/config_repos=ROLE_SUPERVISOR
                 /api/elastic/profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /admin/elastic_profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
+                /admin/new_plugins/**=ROLE_SUPERVISOR
                 /api/admin/templates/**=ROLE_USER
                 /api/admin/**=ROLE_SUPERVISOR
                 /api/config-repository.git/**=ROLE_SUPERVISOR

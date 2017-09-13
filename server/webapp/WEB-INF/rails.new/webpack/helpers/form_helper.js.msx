@@ -457,7 +457,20 @@ let f = {
 
   link: {
     view (vnode) {
+      if (vnode.attrs.target === '_blank') {
+        if (s.isBlank(vnode.attrs.rel)) {
+          vnode.attrs.rel = 'noopener noreferrer';
+        } else {
+          vnode.attrs.rel += " noopener noreferrer";
+        }
+      }
       return (<a href="javascript:void(0)" class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}</a>);
+    }
+  },
+
+  anchor: {
+    view (vnode) {
+      return (<a href={vnode.attrs.href} class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}</a>);
     }
   },
 

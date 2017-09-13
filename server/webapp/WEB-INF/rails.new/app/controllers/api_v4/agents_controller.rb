@@ -38,7 +38,10 @@ module ApiV4
     def update
       result = HttpOperationResult.new
 
-      @agent_instance = agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], maybe_join(params[:resources]), maybe_join(params[:environments]), to_enabled_tristate)
+      maybe_join_resources = maybe_join(params, :resources)
+      maybe_join_environments = maybe_join(params,:environments)
+      @agent_instance = agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], maybe_join_resources, maybe_join_environments, to_enabled_tristate)
+
 
       if result.isSuccess
         load_agent
@@ -85,11 +88,13 @@ module ApiV4
       params[:operations][:environments][:remove] = params[:operations][:environments][:remove] || []
     end
 
-    def maybe_join(obj)
-      if obj.is_a?(Array)
-        obj.join(',')
+    def maybe_join(map, key)
+      if map.key?(key) && map[key].nil?
+        ''
+      elsif map[key].is_a?(Array)
+        map[key].join(',')
       else
-        obj
+        map[key]
       end
     end
 

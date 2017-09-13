@@ -25,8 +25,8 @@ dependencies {
   compile group: 'org.quartz-scheduler', name: 'quartz', version: '1.6.5'
   compile group: 'uk.com.robust-it', name: 'cloning', version: '1.7.3'
   compile group: 'org.jdom', name: 'jdom', version: '2.0.2'
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-  compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: '5.6.6'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
   testCompile project(':test-utils')
   testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'
   testCompile group: 'junit', name: 'junit', version: project.versions.junit

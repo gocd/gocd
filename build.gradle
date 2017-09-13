@@ -63,14 +63,14 @@ def getVersion = { ... args ->
       errorOutput = stdout
       ignoreExitValue = true
     }
-  } catch (Exception e) {
+  } catch (Exception ignored) {
     return "could not determine version!"
   }
 
   return stdout.toString().trim()
 }
 
-ext.partitionFiles = { Collection originalFiles ->
+def partitionFiles(Collection originalFiles) {
   def files = new LinkedHashSet(originalFiles).sort()
   def seed = System.getenv('GO_PIPELINE_COUNTER')?.toInteger() ?: System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
   def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
@@ -92,11 +92,11 @@ ext.partitionFiles = { Collection originalFiles ->
 def COPYRIGHT_YEAR = '2017'
 def GO_VERSION_SEGMENTS = [
   year         : 17,
-  releaseInYear: 9,
+  releaseInYear: 11,
   patch        : 0
 ]
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
-def GO_VERSION_PREVIOUS = '17.8.0'
+def GO_VERSION_PREVIOUS = '17.10.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 
@@ -107,7 +107,7 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
   println "========================================================="
 
-  def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows();
+  def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
 
   println("Tool Versions")
   println("============================")
@@ -117,26 +117,24 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(" git: ${getVersion("git", "--version")}")
   println("  hg: ${getVersion("hg", "--quiet", "--version")}")
   println(" svn: ${getVersion("svn", "--quiet", "--version")}")
-  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join()}")
-  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join()}")
+  println("  p4: ${getVersion("p4", "-V").readLines().grep(~/Rev.*/).join("")}")
+  println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join("")}")
   println(" gcc: ${getVersion("gcc", "-dumpversion")}")
   println(" g++: ${getVersion("g++", "-dumpversion")}")
   println("============================")
 }
 
+rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
+rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
+rootProject.ext.goVersion = GO_VERSION
+rootProject.ext.distVersion = DIST_VERSION
+rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+rootProject.ext.gitRevision = GIT_REVISION
+rootProject.ext.copyrightYear = COPYRIGHT_YEAR
+rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 
 allprojects {
   apply plugin: 'idea'
-
-  rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
-  rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
-  rootProject.ext.goVersion = GO_VERSION
-  rootProject.ext.distVersion = DIST_VERSION
-  rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-  rootProject.ext.gitRevision = GIT_REVISION
-  rootProject.ext.copyrightYear = COPYRIGHT_YEAR
-
-  rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 
   group = 'com.thoughtworks.go'
   version = project.fullVersion
@@ -158,12 +156,11 @@ subprojects {
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
-
   buildDir = "${projectDir}/target"
 
   configurations {
-    packagingOnly { transitive false }
-    extractedAtTopLevel { transitive false }
+    packagingOnly { transitive = false }
+    extractedAtTopLevel { transitive = false }
     fatJarConfig
 
     testOutput {
@@ -208,7 +205,7 @@ subprojects {
     }
 
     includeEmptyDirs false
-    duplicatesStrategy 'exclude'
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
     if (jarTask.name == 'testJar') {
       project.artifacts.add 'testOutput', jarTask
@@ -219,7 +216,7 @@ subprojects {
 
   tasks.withType(AbstractArchiveTask) {
     includeEmptyDirs false
-    duplicatesStrategy 'exclude'
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
 
     preserveFileTimestamps = false
     reproducibleFileOrder = true
@@ -273,10 +270,10 @@ subprojects {
         }
       }
 
-      List myPartition = project.partitionFiles(files)
+      List myPartition = partitionFiles(files)
 
       myPartition.each { f ->
-        include f
+        testTask.include f
       }
     }
 
@@ -317,9 +314,13 @@ task allDependencies {
 }
 
 ext.versions = [
+  slf4j   : '1.7.21',
+  log4j   : '1.2.17',
   jetty   : '9.2.18.v20160721',
   junit   : '4.12',
   mockito : '1.9.5',
   hamcrest: '1.3',
   spring  : '3.1.3.RELEASE'
+  spring  : '3.1.3.RELEASE',
+  felix   : '5.6.8'
 ]

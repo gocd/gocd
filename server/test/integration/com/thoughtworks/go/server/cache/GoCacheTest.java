@@ -242,6 +242,12 @@ public class GoCacheTest {
     }
 
     @Test
+    public void delete_shouldNotThrowAnExceptionWhenNoFamilySubKeysAreFound() {
+        goCache.remove("foo", "baz");
+        assertThat(goCache.get("foo", "baz"), nullValue());
+    }
+
+    @Test
     public void delete_shouldDeleteAllSubValuesForParentKey() {
         goCache.put("foo", "bar", "baz");
         goCache.put("foo", "baz", "quux");

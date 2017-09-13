@@ -58,9 +58,12 @@ describe("AuthConfigsWidget", () => {
   };
 
   const ldapPluginInfoJSON = {
-    "id":                 "cd.go.authorization.ldap",
-    "type":               "authorization",
-    "about":              {
+    "id":                   "cd.go.authorization.ldap",
+    "type":                 "authorization",
+    "status": {
+      "state": "active"
+    },
+    "about":                {
       "name":    "Ldap authorization plugin",
       "version": "1.x.x",
     },
@@ -89,9 +92,12 @@ describe("AuthConfigsWidget", () => {
   };
 
   const githubPluginInfoJSON = {
-    "id":                 "cd.go.authorization.github",
-    "type":               "authorization",
-    "about":              {
+    "id":                   "cd.go.authorization.github",
+    "type":                 "authorization",
+    "status": {
+      "state": "active"
+    },
+    "about":                {
       "name":    "GitHub authorization plugin",
       "version": "1.x.x",
     },

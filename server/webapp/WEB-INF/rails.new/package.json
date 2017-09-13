@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "license": "Apache-2.0",
   "scripts": {
-    "webpack-watch": "webpack --config config/webpack.config.js --debug --verbose --watch",
-    "webpack-dev": "webpack --config config/webpack.config.js --debug --verbose",
-    "webpack-prod": "webpack --config config/webpack.config.js --debug --verbose --env.production=true",
+    "webpack-watch": "webpack --config config/webpack.config.js --watch",
+    "webpack-dev": "webpack --config config/webpack.config.js",
+    "webpack-prod": "webpack --config config/webpack.config.js --env.production=true",
     "jasmine-ci": "karma start --single-run",
     "karma": "karma start"
   },

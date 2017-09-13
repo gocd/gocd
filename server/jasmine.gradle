@@ -30,7 +30,7 @@ def browser = { ->
 }
 
 task karma(type: Exec) {
-  dependsOn ':server:npmInstall'
+  dependsOn ':server:yarnInstall'
   dependsOn ':server:compileAssetsDev'
 
   outputs.upToDateWhen { false }
@@ -67,7 +67,7 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
 task jasmine(dependsOn: [karma, jasmineOld])
 
 task jasmineKarmaServer(type: Exec) {
-  dependsOn ':server:npmInstall'
+  dependsOn ':server:yarnInstall'
   dependsOn ':server:compileAssetsDev'
   outputs.upToDateWhen { false }
 

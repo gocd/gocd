@@ -20,8 +20,9 @@ import org.apache.tools.ant.types.Commandline
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.process.ExecSpec
 
-public class ExecuteUnderRailsTask extends DefaultTask {
+class ExecuteUnderRailsTask extends DefaultTask {
 
   @Input
   def railsCommand
@@ -29,7 +30,7 @@ public class ExecuteUnderRailsTask extends DefaultTask {
   @Input
   def environment = [:]
 
-  public ExecuteUnderRailsTask() {
+  ExecuteUnderRailsTask() {
     dependsOn ':server:cleanRails'
     dependsOn ':server:cleanDb'
     dependsOn ':server:prepareDb'
@@ -40,7 +41,7 @@ public class ExecuteUnderRailsTask extends DefaultTask {
 
     def self = this
     doFirst {
-      project.exec { execTask ->
+      project.exec { ExecSpec execTask ->
 
         PrepareRailsCommandHelper helper = new PrepareRailsCommandHelper(project)
         helper.prepare()
@@ -85,7 +86,7 @@ public class ExecuteUnderRailsTask extends DefaultTask {
     }
   }
 
-  void debugEnvironment(execTask) {
+  static void debugEnvironment(ExecSpec execTask) {
     println "Using environment variables"
     int longestEnv = execTask.environment.keySet().sort { a, b -> a.length() - b.length() }.last().length()
 

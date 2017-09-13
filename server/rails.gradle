@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-
-import com.thoughtworks.go.build.ExecuteUnderRailsTask
-import com.thoughtworks.go.build.NpmInstallTask
-import com.thoughtworks.go.build.PrepareRailsCommandHelper
+import com.thoughtworks.go.build.*
 
 task pathingJar(type: Jar) {
   classifier 'pathing'
@@ -31,11 +28,11 @@ task pathingJar(type: Jar) {
   }
 }
 
-task generateJSRoutes(type: ExecuteUnderRailsTask) {
+task generateJSRoutes(type: CacheableExecuteUnderRailsTask) {
   onlyIf { !project.hasProperty('fastBuild') }
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
-  inputs.dir(file("${project.railsRoot}/config"))
+  inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
   outputs.dir(outputDir)
 
   environment(
@@ -50,11 +47,7 @@ task generateJSRoutes(type: ExecuteUnderRailsTask) {
   }
 }
 
-private boolean isWindows() {
-  org.gradle.internal.os.OperatingSystem.current().isWindows()
-}
-
-task npmInstall(type: NpmInstallTask) {
+task yarnInstall(type: YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
@@ -95,28 +88,41 @@ task cleanRails(type: Delete) {
 }
 clean.dependsOn cleanRails
 
-task compileAssetsDev(type: Exec) {
-  onlyIf { !project.hasProperty('fastBuild') }
-  dependsOn npmInstall
+task compileAssetsDev(type: YarnRunTask) {
+  dependsOn yarnInstall
   dependsOn generateJSRoutes
 
-  standardOutput = System.out
-  errorOutput = System.err
+  onlyIf { !project.hasProperty('fastBuild') }
 
-  commandLine = [isWindows() ? "yarn.cmd" : "yarn", "run", "webpack-dev"]
   workingDir = project.railsRoot
+  destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
 
-  doFirst {
-    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
-  }
+  yarnCommand = ['webpack-dev', '--', "--env.outputDir", destinationDir.toPath().toString()]
+
+  source(project.file("${project.railsRoot}/webpack"))
+  source(project.file("${project.railsRoot}/vendor/assets"))
+  source(project.file("${project.railsRoot}/config"))
 }
 
-task compileAssets(type: ExecuteUnderRailsTask) {
-  dependsOn npmInstall
+task compileAssetsWebpackProd(type: YarnRunTask) {
+  dependsOn yarnInstall
   dependsOn generateJSRoutes
+
   onlyIf { !project.hasProperty('fastBuild') }
 
-  def outputAssetsDir = file("${project.buildDir}/assets")
+  source(project.file("${project.railsRoot}/webpack"))
+  source(project.file("${project.railsRoot}/vendor/assets"))
+  source(project.file("${project.railsRoot}/config"))
+
+  workingDir = project.railsRoot
+  destinationDir = project.file("${project.buildDir}/webpack-assets")
+  yarnCommand = ['webpack-prod', '--', "--env.outputDir", destinationDir.toPath().toString()]
+}
+
+task compileRailsAssets(type: CacheableExecuteUnderRailsTask) {
+  onlyIf { !project.hasProperty('fastBuild') }
+
+  def outputAssetsDir = file("${project.buildDir}/rails-assets")
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
   inputs.dir(file("${project.railsRoot}/app/assets"))
@@ -137,22 +143,36 @@ task compileAssets(type: ExecuteUnderRailsTask) {
   }
 
   doLast {
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-
-      commandLine = [isWindows() ? "yarn.cmd" : "yarn", "run", "webpack-prod"]
-      workingDir = project.railsRoot
-
-      println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
-    }
-
     copy {
       from publicAssetsDir
       into outputAssetsDir
     }
 
     delete publicAssetsDir
+  }
+}
+
+task compileAssets {
+  dependsOn compileRailsAssets
+  dependsOn compileAssetsWebpackProd
+  inputs.files compileRailsAssets.outputs.files
+  inputs.files compileAssetsWebpackProd.outputs.files
+
+  def outputDir = project.file("${project.buildDir}/assets")
+  outputs.dir(outputDir)
+
+  onlyIf { !project.hasProperty('fastBuild') }
+
+  doFirst {
+    delete outputDir
+    copy {
+      from compileRailsAssets
+      into outputDir
+    }
+    copy {
+      from compileAssetsWebpackProd
+      into "${outputDir}/webpack"
+    }
   }
 }
 

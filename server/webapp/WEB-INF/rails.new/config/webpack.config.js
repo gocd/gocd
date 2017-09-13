@@ -21,12 +21,12 @@
 var fs          = require('fs');
 var fsExtra     = require('fs-extra');
 var _           = require('lodash');
+var process     = require('process');
 var path        = require('path');
 var webpack     = require('webpack');
 var StatsPlugin = require('stats-webpack-plugin');
 
 var singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
-
 
 var mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
 let mithrilPatchFileContentAsLines = fs.readFileSync(path.join(__dirname, '..', 'spec/webpack/patches/mithril.js'), 'utf8').split("\n");
@@ -44,6 +44,9 @@ if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
 
 module.exports = function (env) {
   var production = (env && env.production === 'true');
+  var outputDir  = env.outputDir || path.join(__dirname, '..', 'public', 'assets', 'webpack');
+
+  console.log(`Generating assets in ${outputDir}`);
 
   var entries = _.reduce(fs.readdirSync(singlePageAppModuleDir), function (memo, file) {
     var fileName     = path.basename(file);
@@ -95,12 +98,13 @@ module.exports = function (env) {
     plugins.push(new webpack.NoEmitOnErrorsPlugin());
   }
 
+
   var config = {
     cache:     true,
     bail:      true,
     entry:     entries,
     output:    {
-      path:       path.join(__dirname, '..', 'public', 'assets', 'webpack'),
+      path:       outputDir,
       publicPath: '/go/assets/webpack/',
       filename:   production ? '[name]-[chunkhash].js' : '[name].js'
     },

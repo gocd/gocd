@@ -1,4 +1,5 @@
-import com.thoughtworks.go.build.NpmInstallTask
+import com.thoughtworks.go.build.ExtractJRubyTask
+import com.thoughtworks.go.build.YarnInstallTask
 
 /*
  * Copyright 2016 ThoughtWorks, Inc.
@@ -35,49 +36,12 @@ dependencies {
   jrubyGems group: 'rubygems', name: 'scss_lint', version: '0.50.1'
 }
 
-task prepareJRuby {
-  inputs.files project.configurations.jrubyDist.files + project.configurations.jrubyGems.files
-  outputs.dir project.file('jruby')
-
-  doFirst {
-    project.delete('jruby')
-    project.delete('jruby-1.7.26')
-
-    def copyDetails = []
-
-    project.copy {
-      from tarTree(project.files(project.configurations.jrubyDist.files).singleFile)
-      into project.projectDir
-      eachFile { copyDetails << it }
-    }
-
-    // we do this so IntelliJ does not re-index it over and over again
-    copyDetails.each { FileCopyDetails details ->
-      def target = new File(project.projectDir, details.path)
-      if (target.exists()) {
-        target.setLastModified(details.lastModified)
-      }
-    }
-
-    project.file('jruby-1.7.26').renameTo(project.file('jruby'))
-    exec {
-      standardOutput = System.out
-      errorOutput = System.err
-
-      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        setExecutable project.file("bin/jruby.bat")
-      } else {
-        setExecutable project.file("bin/jruby")
-      }
-
-      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
-      args += project.configurations.jrubyGems.files
-    }
-
-  }
+task prepareJRuby(type: ExtractJRubyTask) {
+  jrubyConfigs = project.configurations.jrubyDist
+  gems = project.configurations.jrubyGems
 }
 
-task prepareNodeJS(type: NpmInstallTask) {
+task yarnInstall(type: YarnInstallTask) {
   workingDir = project.projectDir
 }
 
@@ -89,5 +53,5 @@ clean {
 
 task prepare {
   dependsOn prepareJRuby
-  dependsOn prepareNodeJS
+  dependsOn yarnInstall
 }

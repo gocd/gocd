@@ -38,7 +38,7 @@ task scssLint {
 
 task jsLint {
   description "Run ESLint"
-  dependsOn ':tools:prepareNodeJS'
+  dependsOn ':tools:yarnInstall'
   doFirst {
     def binary = org.gradle.internal.os.OperatingSystem.current().isWindows() ? project.file('node_modules/.bin/eslint.cmd') : project.file('node_modules/.bin/eslint')
 

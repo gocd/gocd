@@ -556,8 +556,12 @@ public class ConfigConverter {
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(crPipeline.getName()), materialConfigs);
 
-        for (CRStage crStage : crPipeline.getStages()) {
-            pipelineConfig.add(toStage(crStage));
+        if (crPipeline.hasTemplate()) {
+            pipelineConfig.setTemplateName(new CaseInsensitiveString(crPipeline.getTemplate()));
+        } else {
+            for (CRStage crStage : crPipeline.getStages()) {
+                pipelineConfig.add(toStage(crStage));
+            }
         }
 
         if (crPipeline.getLabelTemplate() != null)
@@ -582,9 +586,18 @@ public class ConfigConverter {
             variables.add(toEnvironmentVariableConfig(crEnvironmentVariable));
         }
 
+        ParamsConfig params = pipelineConfig.getParams();
+        for (CRParameter crParameter : crPipeline.getParameters()) {
+            params.add(toParamConfig(crParameter));
+        }
+
         pipelineConfig.setLock(crPipeline.isLocked());
 
         return pipelineConfig;
+    }
+
+    private ParamConfig toParamConfig(CRParameter crParameter) {
+        return new ParamConfig(crParameter.getName(), crParameter.getValue());
     }
 
     public TimerConfig toTimerConfig(CRTimer crTimer) {

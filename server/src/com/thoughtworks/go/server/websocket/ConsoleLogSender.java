@@ -164,11 +164,11 @@ public class ConsoleLogSender {
 
     private void flushBuffer(ByteArrayOutputStream buffer, SocketEndpoint webSocket) throws IOException {
         if (buffer.size() == 0) return;
-        webSocket.send(ByteBuffer.wrap(gzip(buffer.toByteArray())));
+        webSocket.send(ByteBuffer.wrap(maybeGzipIfLargeEnough(buffer.toByteArray())));
         buffer.reset();
     }
 
-    byte[] gzip(byte[] input) {
+    byte[] maybeGzipIfLargeEnough(byte[] input) {
         if (input.length < 512) {
             return input;
         }

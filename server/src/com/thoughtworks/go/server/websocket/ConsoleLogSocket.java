@@ -37,7 +37,6 @@ import java.util.function.Predicate;
 @WebSocket
 public class ConsoleLogSocket implements SocketEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSocket.class);
-    private static final byte[] PING = "meh".getBytes();
 
     private final JobIdentifier jobIdentifier;
     private final ConsoleLogSender handler;
@@ -97,7 +96,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     @Override
     public void ping() throws IOException {
-        session.getRemote().sendPing(ByteBuffer.wrap(PING));
+        session.getRemote().sendString(WebsocketMessages.PING);
     }
 
     @Override

@@ -76,7 +76,7 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket).send(ByteBuffer.wrap(consoleLogSender.gzip((expected + '\n').getBytes(StandardCharsets.UTF_8))));
+        verify(socket).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough((expected + '\n').getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
@@ -110,8 +110,8 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("First Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("Second Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
@@ -130,9 +130,9 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("First Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("Second Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.gzip("More Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("More Output\n".getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class ConsoleLogSenderTest {
     @Test
     public void shouldNotGzipContentsLessThan512Bytes() throws Exception {
         byte[] bytes = RandomStringUtils.randomAlphanumeric(511).getBytes(StandardCharsets.UTF_8);
-        byte[] gzipped = consoleLogSender.gzip(bytes);
+        byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(bytes, equalTo(gzipped));
     }
 
@@ -172,7 +172,7 @@ public class ConsoleLogSenderTest {
     public void shouldGzipContentsGreaterThan512Bytes() throws Exception {
         byte[] bytes = RandomStringUtils.randomAlphanumeric(512).getBytes(StandardCharsets.UTF_8);
 
-        byte[] gzipped = consoleLogSender.gzip(bytes);
+        byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(gzipped.length, lessThanOrEqualTo(bytes.length));
 
         GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(gzipped));

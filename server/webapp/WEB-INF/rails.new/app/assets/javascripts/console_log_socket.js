@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-(function($) {
+(function ($) {
   "use strict";
 
   function ConsoleLogSocket(fallbackObserver, transformer, options) {
+    var CONSOLE_LOG_DOES_NOT_EXISTS = 4410;
     var startLine = 0, socket;
 
-    var details = $(".job_details_content"), contentArea = $(".buildoutput_pre");
-
-    if (details.data('websocket') == 'disabled') {
-      fallbackObserver.enable();
-      fallbackObserver.notify();
-      return;
-    }
-
-    var fatal = false;
+    var details              = $(".job_details_content");
+    var fallingBackToPolling = false;
 
     if (!details.length) return;
 
     function endpointUrl(startLine) {
-      var l = document.location;
+      var l        = document.location;
       var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
         "console-websocket",
         details.data("pipeline"),
@@ -46,41 +40,41 @@
       return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
     }
 
-    function init() {
-      socket = new WebSocket(endpointUrl(startLine));
-      socket.addEventListener("open", function initHandlers() {
-        socket.addEventListener("message", renderLines);
-      });
-      socket.addEventListener("error", fallbackToPolling);
-      socket.addEventListener("close", maybeResume);
-    }
+    socket = new WebSocketWrapper({
+      url:                          endpointUrl(startLine),
+      indefiniteRetry:              true,
+      failIfInitialConnectionFails: true
+    });
 
-    function fallbackToPolling(e) {
-      fatal = true; // prevent close handler from trying to reconnect
+    socket.on("message", renderLines);
+    socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
+    socket.on("close", maybeResumeOnClose);
+    socket.on("beforeInitialize", function (options) {
+      options.url = endpointUrl(startLine);
+    });
+
+    function retryConnectionOrFallbackToPollingOnError(e) {
+      fallingBackToPolling = true; // prevent close handler from trying to reconnect
       fallbackObserver.enable();
       fallbackObserver.notify();
     }
 
-    function maybeResume(e) {
-      if (fatal) return;
-
-      if (e.type === "close" && e.code === 1011) {
-        startLine = 0;
-
-        console.error('Something went wrong:'+ e.reason);
+    function maybeResumeOnClose(e) {
+      if (fallingBackToPolling) {
         return;
       }
 
-      if (e.type === "close" && e.code !== 4004) {
-        startLine = 0;
-
+      if (e.code === CONSOLE_LOG_DOES_NOT_EXISTS) {
         if (options && "function" === typeof options.onComplete) {
           transformer.invoke(options.onComplete);
         }
-        return;
       }
 
-      setTimeout(init, 500);
+      if (e.code === WebSocketWrapper.CLOSE_NORMAL) {
+        if (options && "function" === typeof options.onComplete) {
+          transformer.invoke(options.onComplete);
+        }
+      }
     }
 
     function maybeGunzip(gzippedBuf) {
@@ -97,32 +91,33 @@
     function renderLines(e) {
       var buildOutput = e.data, lines, slice = [];
 
-      if (buildOutput) {
-        var reader = new FileReader();
-
-        reader.addEventListener("loadend", function () {
-          var arrayBuffer   = reader.result;
-          var gzippedBuf    = new Uint8Array(arrayBuffer);
-          var consoleOutput = maybeGunzip(gzippedBuf);
-
-          lines = consoleOutput.split(/\r?\n/);
-
-          startLine += lines.length;
-
-          while (lines.length) {
-            slice = lines.splice(0, 1000);
-            transformer.transform(slice);
-          }
-
-          if (options && "function" === typeof options.onUpdate) {
-            transformer.invoke(options.onUpdate);
-          }
-        });
-        reader.readAsArrayBuffer(buildOutput);
+      if (!buildOutput || !(buildOutput instanceof Blob)) {
+        return;
       }
+
+      var reader = new FileReader();
+
+      reader.addEventListener("loadend", function () {
+        var arrayBuffer   = reader.result;
+        var gzippedBuf    = new Uint8Array(arrayBuffer);
+        var consoleOutput = maybeGunzip(gzippedBuf);
+
+        lines = consoleOutput.split(/\r?\n/);
+
+        startLine += lines.length;
+
+        while (lines.length) {
+          slice = lines.splice(0, 1000);
+          transformer.transform(slice);
+        }
+
+        if (options && "function" === typeof options.onUpdate) {
+          transformer.invoke(options.onUpdate);
+        }
+      });
+      reader.readAsArrayBuffer(buildOutput);
     }
 
-    init();
   }
 
   window.ConsoleLogSocket = ConsoleLogSocket;

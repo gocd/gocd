@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain.config;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.ConfigTag;
@@ -26,6 +23,9 @@ import com.thoughtworks.go.config.ConfigValue;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
+
+import java.io.Serializable;
+import java.util.Map;
 
 @ConfigTag("value")
 public class ConfigurationValue implements Serializable, Validatable {
@@ -40,6 +40,14 @@ public class ConfigurationValue implements Serializable, Validatable {
 
     public ConfigurationValue(String value) {
         this.value = value;
+    }
+
+    public ConfigurationValue(boolean value) {
+        this(String.valueOf(value));
+    }
+
+    public ConfigurationValue(Number value) {
+        this(String.valueOf(value));
     }
 
     public ConfigurationValue() {

@@ -39,6 +39,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -169,12 +170,12 @@ public class ServerConfigServiceIntegrationTest {
         MailHost mailHost = new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin@admin.com");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
+        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "artifacts", null, null, "-42", true, "http://site_url", "https://secure_site_url", "default", result,
                 goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), containsString("Failed to save the server configuration. Reason: "));
-        assertThat(result.message(localizer), containsString("Search Base should not be empty"));
+        assertThat(result.message(localizer), containsString("Timeout cannot be a negative number as it represents number of minutes"));
     }
 
     @Test

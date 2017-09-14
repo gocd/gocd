@@ -118,16 +118,6 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void hasSecurityMethodChanged_shouldReturnTrueIfSecurityAuthConfigIsChanged() {
-        final SecurityConfig oldSecurityConfig = new SecurityConfig();
-
-        final SecurityConfig newSecurityConfig = new SecurityConfig();
-        newSecurityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.authorization.ldap"));
-
-        assertTrue(oldSecurityConfig.hasSecurityMethodChanged(newSecurityConfig));
-    }
-
-    @Test
     public void testEqualsAndHashCode() {
         SecurityConfig one = new SecurityConfig(null, true, null, true);
         SecurityConfig two = new SecurityConfig(null, true, null, false);

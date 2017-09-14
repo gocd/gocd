@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.util.TimeProvider;
 
 import java.io.Serializable;
 
@@ -28,25 +29,26 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
     @Expose
     private volatile String elasticPluginId;
 
-    private ElasticAgentRuntimeInfo(AgentRuntimeInfo runtimeInfo, String elasticAgentId, String elasticPluginId) {
+    private ElasticAgentRuntimeInfo(AgentRuntimeInfo runtimeInfo, String elasticAgentId, String elasticPluginId, TimeProvider timeProvider) {
         this(runtimeInfo.getIdentifier(),
                 runtimeInfo.getRuntimeStatus(),
                 runtimeInfo.getLocation(),
                 runtimeInfo.getCookie(),
                 elasticAgentId,
-                elasticPluginId);
+                elasticPluginId,
+                timeProvider);
         this.setOperatingSystem(runtimeInfo.getOperatingSystem());
         this.setUsableSpace(runtimeInfo.getUsableSpace());
     }
 
-    public ElasticAgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String elasticAgentId, String elasticPluginId) {
-        super(identifier, runtimeStatus, location, cookie, false);
+    public ElasticAgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String elasticAgentId, String elasticPluginId, TimeProvider timeProvider) {
+        super(identifier, runtimeStatus, location, cookie, false, timeProvider);
         this.elasticAgentId = elasticAgentId;
         this.elasticPluginId = elasticPluginId;
     }
 
-    public static ElasticAgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String workingDir, String elasticAgentId, String pluginId) {
-        return (ElasticAgentRuntimeInfo) new ElasticAgentRuntimeInfo(identifier, runtimeStatus, workingDir, null, elasticAgentId, pluginId).refreshOperatingSystem().refreshUsableSpace();
+    public static ElasticAgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String workingDir, String elasticAgentId, String pluginId, TimeProvider timeProvider) {
+        return (ElasticAgentRuntimeInfo) new ElasticAgentRuntimeInfo(identifier, runtimeStatus, workingDir, null, elasticAgentId, pluginId, timeProvider).refreshOperatingSystem().refreshUsableSpace();
     }
 
     @Override
@@ -90,7 +92,7 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
         return result;
     }
 
-    public static AgentRuntimeInfo fromServer(AgentRuntimeInfo agentRuntimeInfo, String elasticAgentId, String elasticPluginId) {
-        return new ElasticAgentRuntimeInfo(agentRuntimeInfo, elasticAgentId, elasticPluginId);
+    public static AgentRuntimeInfo fromServer(AgentRuntimeInfo agentRuntimeInfo, String elasticAgentId, String elasticPluginId, TimeProvider timeProvider) {
+        return new ElasticAgentRuntimeInfo(agentRuntimeInfo, elasticAgentId, elasticPluginId, timeProvider);
     }
 }

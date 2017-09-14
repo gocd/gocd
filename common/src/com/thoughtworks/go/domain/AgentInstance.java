@@ -30,15 +30,19 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
 
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
+
 /**
  * @understands runtime and configuration information of a builder machine
  */
 public class AgentInstance implements Comparable<AgentInstance> {
+    private static Logger LOGGER = LoggerFactory.getLogger(AgentInstance.class);
     private AgentType agentType;
     protected AgentConfig agentConfig;
     private AgentRuntimeInfo agentRuntimeInfo;
@@ -52,11 +56,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
-        this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
+        this.timeProvider = new TimeProvider();
+        this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig, timeProvider);
         this.agentConfigStatus = AgentConfigStatus.Pending;
         this.agentConfig = agentConfig;
         this.agentType = agentType;
-        this.timeProvider = new TimeProvider();
     }
 
     public String getHostname() {
@@ -81,11 +85,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public void syncConfig(AgentConfig agentConfig) {
         this.agentConfig = agentConfig;
 
-        if (agentConfig.isElastic()){
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
+        if (agentConfig.isElastic()) {
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId(), timeProvider);
         }
 
-        if (agentRuntimeInfo.getRuntimeStatus()== AgentRuntimeStatus.Unknown) {
+        if (agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Unknown) {
             agentRuntimeInfo.idle();
         }
 
@@ -128,7 +132,9 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void deny() {
-        if (!canDisable()) { throw new RuntimeException("Should not deny agent when is building."); }
+        if (!canDisable()) {
+            throw new RuntimeException("Should not deny agent when is building.");
+        }
         agentConfig().disable();
         agentConfigStatus = AgentConfigStatus.Disabled;
     }
@@ -161,6 +167,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     /**
      * Used only from the old ui. New ui does not have the notion of "approved" agents only "enabled" ones.
+     *
      * @deprecated
      */
     public boolean canApprove() {
@@ -207,9 +214,15 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void update(AgentRuntimeInfo newRuntimeInfo) {
+        this.lastHeardTime = new Date();
+        if (newRuntimeInfo.getLastUpdatedTime() < agentRuntimeInfo.getLastUpdatedTime()) {
+            LOGGER.warn("Rejecting stale {} runtime info update request for agent {}. Last updated time: {} and current request time: {}",
+                    newRuntimeInfo, agentRuntimeInfo, agentRuntimeInfo.getLastUpdatedTime(), newRuntimeInfo.getLastUpdatedTime());
+            return;
+        }
+
         syncStatus(newRuntimeInfo.getRuntimeStatus());
         syncIp(newRuntimeInfo);
-        this.lastHeardTime = new Date();
         this.agentRuntimeInfo.updateSelf(newRuntimeInfo);
     }
 
@@ -336,7 +349,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public static AgentInstance createFromConfig(AgentConfig agentInConfig,
-                                                     SystemEnvironment systemEnvironment) {
+                                                 SystemEnvironment systemEnvironment) {
         AgentType type = agentInConfig.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance result = new AgentInstance(agentInConfig, type, systemEnvironment);
         result.agentConfigStatus = agentInConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
@@ -349,21 +362,16 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return result;
     }
 
-    public static AgentInstance createFromLiveAgent(AgentRuntimeInfo agentRuntimeInfo,
-                                                    SystemEnvironment systemEnvironment) {
+    public static AgentInstance createFromLiveAgent(AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment systemEnvironment) {
         AgentConfig config = agentRuntimeInfo.agent();
         AgentType type = config.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance instance;
+        instance = new AgentInstance(config, type, systemEnvironment);
+        instance.agentRuntimeInfo.setLastUpdatedTime(agentRuntimeInfo.getLastUpdatedTime());
         if (systemEnvironment.isAutoRegisterLocalAgentEnabled() && config.isFromLocalHost()) {
-            instance = new AgentInstance(config, type, systemEnvironment);
             instance.agentConfigStatus = AgentConfigStatus.Enabled;
-            instance.agentRuntimeInfo.idle();
-            instance.update(agentRuntimeInfo);
-            return instance;
-        } else {
-            instance = new AgentInstance(config, type, systemEnvironment);
-            instance.update(agentRuntimeInfo);
         }
+        instance.update(agentRuntimeInfo);
         return instance;
     }
 
@@ -372,19 +380,35 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (getClass() != that.getClass()) { return false; }
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (getClass() != that.getClass()) {
+            return false;
+        }
 
         return equals((AgentInstance) that);
     }
 
     private boolean equals(AgentInstance that) {
-        if (this.agentConfig == null ? that.agentConfig != null : !this.agentConfig.equals(that.agentConfig)) { return false; }
-        if (this.agentRuntimeInfo == null ? that.agentRuntimeInfo != null : !this.agentRuntimeInfo.equals(that.agentRuntimeInfo)) { return false; }
-        if (this.agentConfigStatus != that.agentConfigStatus) { return false; }
-        if (this.agentType != that.agentType) { return false; }
-        if (this.lastHeardTime == null ? that.lastHeardTime != null : !this.lastHeardTime.equals(that.lastHeardTime)) { return false; }
+        if (this.agentConfig == null ? that.agentConfig != null : !this.agentConfig.equals(that.agentConfig)) {
+            return false;
+        }
+        if (this.agentRuntimeInfo == null ? that.agentRuntimeInfo != null : !this.agentRuntimeInfo.equals(that.agentRuntimeInfo)) {
+            return false;
+        }
+        if (this.agentConfigStatus != that.agentConfigStatus) {
+            return false;
+        }
+        if (this.agentType != that.agentType) {
+            return false;
+        }
+        if (this.lastHeardTime == null ? that.lastHeardTime != null : !this.lastHeardTime.equals(that.lastHeardTime)) {
+            return false;
+        }
 
         return true;
     }
@@ -418,5 +442,9 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public boolean isNullAgent() {
         return false;
+    }
+
+    public Long getRuntimeInfoLastUpdatedTime() {
+        return agentRuntimeInfo.getLastUpdatedTime();
     }
 }

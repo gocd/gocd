@@ -63,6 +63,8 @@ public class AgentRemoteHandler {
         try {
             processWithoutAcknowledgement(agent, msg);
         } finally {
+            //TODO: Add retry logic for these as acknowledgements are important to agents. If sending an acknowledgement
+            //fails, the agent would fail the build causing the job to be rescheduled. - Jyoti/Ganesh
             agent.send(new Message(Action.acknowledge, MessageEncoding.encodeData(msg.getAcknowledgementId())));
         }
     }

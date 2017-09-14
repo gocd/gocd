@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.MapUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
@@ -41,14 +42,16 @@ public class AgentInstances implements Iterable<AgentInstance> {
     private SystemEnvironment systemEnvironment;
     private Map<String, AgentInstance> agentInstances = new ConcurrentHashMap<>();
     private AgentRuntimeStatus.ChangeListener changeListener;
+    private TimeProvider timeProvider;
 
-    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener) {
+    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener, TimeProvider timeProvider) {
         this.changeListener = changeListener;
+        this.timeProvider = timeProvider;
         this.systemEnvironment = new SystemEnvironment();
     }
 
-    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener, SystemEnvironment systemEnvironment, AgentInstance... agentInstances) {
-        this(changeListener);
+    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener, SystemEnvironment systemEnvironment, TimeProvider timeProvider, AgentInstance... agentInstances) {
+        this(changeListener, timeProvider);
         this.systemEnvironment = systemEnvironment;
         for (AgentInstance agentInstance : agentInstances) {
             this.add(agentInstance);
@@ -99,7 +102,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances allAgents() {
-        AgentInstances agents = new AgentInstances(changeListener);
+        AgentInstances agents = new AgentInstances(changeListener, timeProvider);
         for (AgentInstance agent : currentInstances()) {
             agents.add(agent);
         }
@@ -108,7 +111,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstances findRegisteredAgents() {
         this.refresh();
-        AgentInstances registered = new AgentInstances(changeListener);
+        AgentInstances registered = new AgentInstances(changeListener, timeProvider);
         synchronized (agentInstances) {
             for (AgentInstance agentInstance : this) {
                 if (agentInstance.getStatus().isRegistered()) {
@@ -120,7 +123,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances findDisabledAgents() {
-        AgentInstances agentInstances = new AgentInstances(changeListener);
+        AgentInstances agentInstances = new AgentInstances(changeListener, timeProvider);
         for (AgentInstance agentInstance : currentInstances()) {
             if (agentInstance.isDisabled()){
                 agentInstances.add(agentInstance);
@@ -130,7 +133,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances findEnabledAgents() {
-        AgentInstances agentInstances = new AgentInstances(changeListener);
+        AgentInstances agentInstances = new AgentInstances(changeListener, timeProvider);
         for (AgentInstance agentInstance : currentInstances()) {
             if (agentInstance.getStatus().isEnabled()) {
                 agentInstances.add(agentInstance);

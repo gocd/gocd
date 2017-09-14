@@ -22,6 +22,7 @@ import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ClassMockery;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.work.FakeWork;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -29,94 +30,82 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JMock.class)
 public class WorkAssignmentsTest {
     private static final Work NO_WORK = new NoWork();
     private static final Work REAL_WORK = new FakeWork();
 
     private WorkAssignments assignments;
     private AgentRuntimeInfo agent;
-    private Mockery context;
-    private IdleAgentTopic idleAgentsTopic;
     private AgentIdentifier agentIdentifier;
+    @Mock
+    private IdleAgentTopic idleAgentsTopic;
+    @Mock
     private WorkAssignedTopic assignedWorkTopic;
+    @Mock
+    private TimeProvider timeProvider;
 
     @Before
     public void setup() {
-        context = new ClassMockery();
-        idleAgentsTopic = context.mock(IdleAgentTopic.class, "idle_topic");
-        assignedWorkTopic = context.mock(WorkAssignedTopic.class, "assigned_work_topic");
-        context.checking(new Expectations() {{
-            one(assignedWorkTopic).addListener(with(any(WorkAssignments.class)));
-        }});
+        initMocks(this);
+
         assignments = new WorkAssignments(idleAgentsTopic, assignedWorkTopic);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
     }
 
     @Test
     public void shouldDispatchIdleMessageWhenNoWork() {
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
         assertThat(assignments.getWork(agent), is(NO_WORK));
+        verify(idleAgentsTopic, times(1)).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldOnlySendIdleMessageOnce() {
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
         assertThat(assignments.getWork(agent), is(NO_WORK));
         assertThat(assignments.getWork(agent), is(NO_WORK));
+        verify(idleAgentsTopic, times(1)).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldGiveAgentAllocatedWork() {
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
         assertThat(assignments.getWork(agent), is(NO_WORK));
 
         assignments.onMessage(new WorkAssignedMessage(agentIdentifier, REAL_WORK));
 
         assertThat(assignments.getWork(agent), is(REAL_WORK));
+        verify(idleAgentsTopic, times(1)).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldReturnNoWorkAfterWorkAllocatedOnce() {
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
-        assertThat(assignments.getWork(agent), is(NO_WORK));
+        Work work = assignments.getWork(agent);
+        assertThat(work, is(NO_WORK));
 
         assignments.onMessage(new WorkAssignedMessage(agentIdentifier, REAL_WORK));
         assignments.getWork(agent);
 
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
         assertThat(assignments.getWork(agent), is(NO_WORK));
+        verify(idleAgentsTopic, times(2)).post(new IdleAgentMessage(agent));
     }
 
     @Test
     public void shouldReSendIdleMessageIfNoWorkAllocated() {
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
+
         assertThat(assignments.getWork(agent), is(NO_WORK));
         assertThat(assignments.getWork(agent), is(NO_WORK));
 
         assignments.onMessage(new WorkAssignedMessage(agentIdentifier, NO_WORK));
 
-        context.checking(new Expectations() {{
-            one(idleAgentsTopic).post(new IdleAgentMessage(agent));
-        }});
         assertThat(assignments.getWork(agent), is(NO_WORK));
+        verify(idleAgentsTopic, times(2)).post(new IdleAgentMessage(agent));
     }
 }

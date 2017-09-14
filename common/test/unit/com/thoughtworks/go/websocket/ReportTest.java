@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -29,7 +30,7 @@ public class ReportTest {
 
     @Test
     public void encodeAndDecodeAsMessageData() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, true);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, true, new TimeProvider());
         JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 1, "pipelinelabel", "stagename", "1", "job", 1L);
         Report report = new Report(info, jobIdentifier, JobResult.Passed);
         assertThat(MessageEncoding.decodeData(MessageEncoding.encodeData(report), Report.class), is(report));

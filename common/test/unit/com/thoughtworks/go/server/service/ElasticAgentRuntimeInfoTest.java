@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -29,10 +30,12 @@ import static org.junit.Assert.assertThat;
 
 public class ElasticAgentRuntimeInfoTest {
 
+    private TimeProvider timeProvider = new TimeProvider();
+
     @Test
     public void shouldUpdateSelfForAnIdleAgent() throws Exception {
-        ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
-        ElasticAgentRuntimeInfo newRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentStatus.Building.getRuntimeStatus(), "/foo/two", "cookie", "42", "go.cd.elastic-agent-plugin.docker");
+        ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker", timeProvider);
+        ElasticAgentRuntimeInfo newRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentStatus.Building.getRuntimeStatus(), "/foo/two", "cookie", "42", "go.cd.elastic-agent-plugin.docker", timeProvider);
 
         agentRuntimeInfo.updateSelf(newRuntimeInfo);
 
@@ -46,7 +49,7 @@ public class ElasticAgentRuntimeInfoTest {
 
     @Test
     public void dataMapEncodingAndDecoding() {
-        AgentRuntimeInfo info = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
+        AgentRuntimeInfo info = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker", timeProvider);
         AgentRuntimeInfo clonedInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
         assertThat(clonedInfo, is(info));
     }
@@ -54,7 +57,7 @@ public class ElasticAgentRuntimeInfoTest {
     @Test
     public void shouldRefreshOperatingSystemOfAgent() throws Exception {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", false);
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", false, timeProvider);
         String os = new SystemEnvironment().getOperatingSystemCompleteName();
         assertThat(runtimeInfo.getOperatingSystem(), is(os));
     }
@@ -63,7 +66,7 @@ public class ElasticAgentRuntimeInfoTest {
     public void shouldRefreshUsableSpaceOfAgent() throws Exception {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
         String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, false);
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, false, timeProvider);
         long space = ElasticAgentRuntimeInfo.usableSpace(workingDirectory);
         assertThat(runtimeInfo.getUsableSpace(), is(space));
     }

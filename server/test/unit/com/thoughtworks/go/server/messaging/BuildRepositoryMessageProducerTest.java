@@ -25,6 +25,7 @@ import com.thoughtworks.go.remote.BuildRepositoryRemoteImpl;
 import com.thoughtworks.go.server.messaging.scheduling.WorkAssignments;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,11 +45,15 @@ public class BuildRepositoryMessageProducerTest {
     private BuildRepositoryRemoteImpl oldImplementation;
     private WorkAssignments newImplementation;
     private BuildRepositoryMessageProducer producer;
-    private static final AgentIdentifier AGENT = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-    private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+    private AgentIdentifier agent;
+    private TimeProvider timeProvider;
+    private AgentRuntimeInfo agentRuntimeInfo;
 
     @Before
     public void setUp() {
+        timeProvider = mock(TimeProvider.class);
+        agent = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
+        agentRuntimeInfo = new AgentRuntimeInfo(agent, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         oldImplementation = mock(BuildRepositoryRemoteImpl.class);
         newImplementation = mock(WorkAssignments.class);
         WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger = mock(WorkAssignmentPerformanceLogger.class);
@@ -57,20 +62,20 @@ public class BuildRepositoryMessageProducerTest {
 
     @Test
     public void shouldDelegatePingToTheOldImplementation() {
-        producer.ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        verify(oldImplementation).ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
+        producer.ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider));
+        verify(oldImplementation).ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider));
     }
 
     @Test
     public void shouldDelegateReportJobStatusToTheOldImplementation() {
-        producer.reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), jobIdentifier, assigned);
-        verify(oldImplementation).reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), jobIdentifier, assigned);
+        producer.reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), jobIdentifier, assigned);
+        verify(oldImplementation).reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), jobIdentifier, assigned);
     }
 
     @Test
     public void shouldDelegateReportJobResultToTheOldImplementation() {
-        producer.reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), jobIdentifier, passed);
-        verify(oldImplementation).reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), jobIdentifier, passed);
+        producer.reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), jobIdentifier, passed);
+        verify(oldImplementation).reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider), jobIdentifier, passed);
     }
 
     @Test
@@ -81,8 +86,8 @@ public class BuildRepositoryMessageProducerTest {
 
     @Test
     public void shouldUseEventDrivenImplementationByDefault() {
-        producer.getWork(AGENT_INFO);
-        verify(newImplementation).getWork(AGENT_INFO);
+        producer.getWork(agentRuntimeInfo);
+        verify(newImplementation).getWork(agentRuntimeInfo);
     }
 
     @Test

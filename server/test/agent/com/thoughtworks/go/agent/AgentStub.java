@@ -22,6 +22,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -38,7 +39,7 @@ public class AgentStub {
 
     public AgentStub(BuildRepositoryRemote server) {
         LOGGER.info("Agent started.");
-        Work work = server.getWork(new AgentRuntimeInfo(new AgentIdentifier("", "", "1234"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
+        Work work = server.getWork(new AgentRuntimeInfo(new AgentIdentifier("", "", "1234"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, new TimeProvider()));
         try {
             LOGGER.info(work.description());
         } catch (UnregisteredAgentException e) {

@@ -32,6 +32,7 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.After;
 import org.junit.Before;
@@ -79,6 +80,8 @@ public class AgentHTTPClientControllerTest {
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
     private AgentHTTPClientController agentController;
+    @Mock
+    private TimeProvider timeProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -140,7 +143,7 @@ public class AgentHTTPClientControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension);
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension, timeProvider);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -179,6 +182,6 @@ public class AgentHTTPClientControllerTest {
                 pluginManager,
                 packageRepositoryExtension,
                 scmExtension,
-                taskExtension);
+                taskExtension, timeProvider);
     }
 }

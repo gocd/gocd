@@ -48,6 +48,7 @@ public abstract class AgentController {
     private AgentRegistry agentRegistry;
     private SubprocessLogger subprocessLogger;
     private AgentUpgradeService agentUpgradeService;
+    protected TimeProvider timeProvider;
     private final String hostName;
     private final String ipAddress;
 
@@ -55,12 +56,13 @@ public abstract class AgentController {
                            SystemEnvironment systemEnvironment,
                            AgentRegistry agentRegistry,
                            PluginManager pluginManager,
-                           SubprocessLogger subprocessLogger, AgentUpgradeService agentUpgradeService) {
+                           SubprocessLogger subprocessLogger, AgentUpgradeService agentUpgradeService, TimeProvider timeProvider) {
         this.sslInfrastructureService = sslInfrastructureService;
         this.systemEnvironment = systemEnvironment;
         this.agentRegistry = agentRegistry;
         this.subprocessLogger = subprocessLogger;
         this.agentUpgradeService = agentUpgradeService;
+        this.timeProvider = timeProvider;
         PluginManagerReference.reference().setPluginManager(pluginManager);
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         ipAddress = SystemUtil.getClientIp(systemEnvironment.getServiceUrl());
@@ -147,9 +149,9 @@ public abstract class AgentController {
         agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
 
         if (agentAutoRegistrationProperties.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId(), timeProvider);
         } else {
-            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), buildCommandProtocolEnabled);
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), buildCommandProtocolEnabled, timeProvider);
         }
     }
 

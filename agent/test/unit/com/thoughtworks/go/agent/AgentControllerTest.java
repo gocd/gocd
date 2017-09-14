@@ -30,6 +30,7 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,6 +87,8 @@ public class AgentControllerTest {
 
     @Mock
     private AgentRegistry agentRegistry;
+    @Mock
+    private TimeProvider timeProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -119,7 +122,7 @@ public class AgentControllerTest {
 
     private AgentController createAgentController() {
         return new AgentController(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager,
-                subprocessLogger, agentUpgradeService) {
+                subprocessLogger, agentUpgradeService, timeProvider) {
             @Override
             public void ping() {
 

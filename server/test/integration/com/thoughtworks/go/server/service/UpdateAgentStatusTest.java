@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
@@ -63,6 +64,8 @@ public class UpdateAgentStatusTest {
     private ConfigRepository configRepo;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private TimeProvider timeProvider;
 
     @Autowired
     private MaterialRepository materialRepository;
@@ -78,7 +81,7 @@ public class UpdateAgentStatusTest {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig(agentId, "CCEDev01", "10.81.2.1"), false, "/var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig(agentId, "CCEDev01", "10.81.2.1"), false, "/var/lib", 0L, "linux", false, timeProvider));
         agentService.approve(agentId);
     }
 
@@ -94,7 +97,7 @@ public class UpdateAgentStatusTest {
         assertThat(oldIp, is("10.81.2.1"));
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
@@ -109,7 +112,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldUpdateAgentWorkingDirWhenItChanges() throws Exception {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 
@@ -122,7 +125,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldLogWarningWhenIPAddressChanges() throws Exception {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 

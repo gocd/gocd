@@ -45,6 +45,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -179,7 +180,9 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldRescheduleAbandonedBuild() throws SQLException {
-        AgentIdentifier instance = agent(AgentMother.localAgent());
+        AgentConfig agentConfig = AgentMother.localAgent();
+        markIdle(agentConfig);
+        AgentIdentifier instance = agent(agentConfig);
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(
                 DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
@@ -189,6 +192,7 @@ public class BuildAssignmentServiceIntegrationTest {
         long firstAssignedBuildId = buildOf(pipeline).getId();
 
         //somehow agent abandoned its original build...
+        markIdle(agentConfig);
 
         buildAssignmentService.assignWorkToAgent(instance);
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(firstAssignedBuildId);
@@ -238,6 +242,8 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
+
+        markIdle(agentConfig);
 
         AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
         assertFalse(agent.isBuilding());
@@ -360,7 +366,7 @@ public class BuildAssignmentServiceIntegrationTest {
             public void run() {
                 try {
                     final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
-
+                    markIdle(agentConfig);
                     buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -400,6 +406,8 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-other-resource"));
 
+        markIdle(agentConfig);
+
         try {
             buildAssignmentService.assignWorkToAgent(agent(agentConfig));
             fail("should have thrown PipelineNotFoundException");
@@ -423,7 +431,9 @@ public class BuildAssignmentServiceIntegrationTest {
         dbHelper.savePipelineWithStagesAndMaterials(pipeline1);
 
         buildAssignmentService.onTimer();
-        BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
+        AgentConfig agentConfig = AgentMother.localAgent();
+        markIdle(agentConfig);
+        BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig));
 
         BuildWork deserialized = (BuildWork) SerializationTester.serializeAndDeserialize(work);
 
@@ -440,7 +450,9 @@ public class BuildAssignmentServiceIntegrationTest {
         dbHelper.savePipelineWithStagesAndMaterials(pipeline1);
 
         buildAssignmentService.onTimer();
-        BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
+        AgentConfig agentConfig = AgentMother.localAgent();
+        markIdle(agentConfig);
+        BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig));
 
         assertThat("should have set fetchMaterials on assignment", work.getAssignment().getPlan().shouldFetchMaterials(), is(true));
     }
@@ -525,6 +537,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
         AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("fetcher"));
+        markIdle(agentConfig);
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig));
 
         List<Builder> builders = work.getAssignment().getBuilders();
@@ -598,7 +611,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-resource"));
-
+        markIdle(agentConfig);
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
@@ -625,6 +638,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-resource"));
+        markIdle(agentConfig);
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 
@@ -641,10 +655,13 @@ public class BuildAssignmentServiceIntegrationTest {
         assertThat(rescheduledJob.getId(), not(runningJob.getId()));
 
         buildAssignmentService.onTimer();
-        Work noResourcesWork = buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgentWithResources("WITHOUT_RESOURCES")));
+        AgentConfig agentWithResources = AgentMother.localAgentWithResources("WITH_RESOURCES");
+        markIdle(agentWithResources);
+        Work noResourcesWork = buildAssignmentService.assignWorkToAgent(agent(agentWithResources));
         assertThat(noResourcesWork, is(BuildAssignmentService.NO_WORK));
 
         buildAssignmentService.onTimer();
+        markIdle(agentConfig);
         Work correctAgentWork = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(correctAgentWork, is(not(BuildAssignmentService.NO_WORK)));
 
@@ -749,6 +766,7 @@ public class BuildAssignmentServiceIntegrationTest {
     public void shouldOnlyAssignWorkToIdleAgentsRegisteredInAgentRemoteHandler() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
+        markIdle(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
 
         AgentStatus[] statuses = new AgentStatus[] {
@@ -846,4 +864,11 @@ public class BuildAssignmentServiceIntegrationTest {
         return pipeline.getStages().first().getJobInstances().first();
     }
 
+    private void markIdle(AgentConfig agentConfig) {
+        AgentIdentifier agent = agent(agentConfig);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(agent, AgentRuntimeStatus.Idle, "/", false, timeProvider);
+        AgentInstances agents = agentService.agents();
+        agents.updateAgentRuntimeInfo(info);
+        agents.findAgent(agent.getUuid()).idle();
+    }
 }

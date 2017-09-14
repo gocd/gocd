@@ -564,7 +564,6 @@ public class BuildAssignmentServiceIntegrationTest {
         agentService.approve(agentConfig.getUuid());
         return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
     }
-
     @Test
     public void shouldNotScheduleIfAgentDoesNotHaveResources() throws Exception {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);

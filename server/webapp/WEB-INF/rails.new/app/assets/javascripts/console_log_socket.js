@@ -64,7 +64,7 @@
     socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
     socket.on("close", maybeResumeOnClose);
     socket.on("beforeInitialize", function (options) {
-      options.url = endpointUrl(startLine);
+      options.url = endpointUrl();
     });
 
     function retryConnectionOrFallbackToPollingOnError(e) {
@@ -116,8 +116,8 @@
         var gzippedBuf    = new Uint8Array(arrayBuffer);
         var consoleOutput = JSON.parse(maybeGunzip(gzippedBuf)).value;
         lines = consoleOutput.split(/\r?\n/);
-
         startLine += lines.length;
+
 
         while (lines.length) {
           slice = lines.splice(0, 1000);

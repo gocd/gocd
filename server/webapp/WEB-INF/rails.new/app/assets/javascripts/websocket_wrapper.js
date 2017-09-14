@@ -111,7 +111,7 @@
     var isPingFrame = function (data) {
       if (_.isString(data)) {
         try {
-          return JSON.parse(e.data)['type'] === 'ping'
+          return JSON.parse(data)['type'] === 'ping'
         } catch (e) {
           // ignore, maybe it's not json
         }

@@ -51,9 +51,9 @@ public class MagicalGoConfigXmlLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
 
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
+            new ConfigRepoPartialPreprocessor(),
             new TemplateExpansionPreprocessor(),
-            new ConfigParamPreprocessor(),
-            new ConfigRepoPartialPreprocessor());
+            new ConfigParamPreprocessor());
 
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),

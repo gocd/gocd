@@ -68,6 +68,7 @@ public class ConfigConverterTest {
     private CachedGoConfig cachedGoConfig;
 
     Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
+    Collection<CRParameter> parameters = new ArrayList<>();
     Collection<CRTab> tabs = new ArrayList<>();
     Collection<String> resources = new ArrayList<>();
     Collection<CRArtifact> artifacts = new ArrayList<>();
@@ -874,7 +875,7 @@ public class ConfigConverterTest {
     public void shouldConvertPipeline()
     {
         CRPipeline crPipeline = new CRPipeline("pipename","group1","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages);
+                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline,context);
         assertThat(pipelineConfig.name().toLower(),is("pipename"));
@@ -921,7 +922,7 @@ public class ConfigConverterTest {
     {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(new CRPipeline("pipename","group","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages));
+                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters));
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put("group",pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -934,7 +935,7 @@ public class ConfigConverterTest {
     {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(new CRPipeline("pipename",null,"label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages));
+                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters));
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put(null,pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -947,7 +948,7 @@ public class ConfigConverterTest {
     {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(new CRPipeline("pipename","","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages));
+                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters));
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put("",pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -960,7 +961,7 @@ public class ConfigConverterTest {
     public void shouldConvertPartialConfigWithGroupsAndEnvironments()
     {
         CRPipeline pipeline = new CRPipeline("pipename", "group", "label", true,
-                trackingTool, null, timer, environmentVariables, materials, stages);
+                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters);
         ArrayList<String> agents = new ArrayList<>();
         agents.add("12");
         ArrayList<String> pipelineNames = new ArrayList<>();
@@ -1004,5 +1005,22 @@ public class ConfigConverterTest {
         {
             //ok
         }
+    }
+
+    @Test
+    public void shouldConvertParametersWhenPassed() throws Exception {
+        Collection<CRParameter> parameters = new ArrayList<>();
+        parameters.add(new CRParameter("param", "value"));
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", true, null, null, null, environmentVariables, materials, null, "t1", parameters);
+        PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
+        assertThat(pipeline.getParams(), is(new ParamsConfig(new ParamConfig("param", "value"))));
+    }
+
+    @Test
+    public void shouldConvertTemplateNameWhenGiven() throws Exception {
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", true, null, null, null, environmentVariables, materials, null, "t1", parameters);
+        PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
+        assertThat(pipeline.isEmpty(), is(true));
+        assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("t1")));
     }
 }

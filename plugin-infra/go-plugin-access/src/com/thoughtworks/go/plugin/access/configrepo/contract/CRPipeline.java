@@ -33,21 +33,24 @@ public class CRPipeline extends CRBase {
     private CRMingle mingle;
     private CRTimer timer;
     private Collection<CREnvironmentVariable> environment_variables = new ArrayList<>();
+    private Collection<CRParameter> parameters = new ArrayList<>();
     private Collection<CRMaterial> materials = new ArrayList<>();
     private List<CRStage> stages = new ArrayList<>();
+    private String template;
 
     public CRPipeline(){}
-    public CRPipeline(String name, String groupName, CRMaterial material, CRStage... stages)
+    public CRPipeline(String name, String groupName, CRMaterial material, String template, CRStage... stages)
     {
         this.name = name;
         this.group = groupName;
+        this.template = template;
         this.materials.add(material);
         this.stages = Arrays.asList(stages);
     }
 
-    public CRPipeline(String name,String groupName, String labelTemplate, boolean isLocked, CRTrackingTool trackingTool,
+    public CRPipeline(String name, String groupName, String labelTemplate, boolean isLocked, CRTrackingTool trackingTool,
                       CRMingle mingle, CRTimer timer, Collection<CREnvironmentVariable> environmentVariables,
-                      Collection<CRMaterial> materials, List<CRStage> stages) {
+                      Collection<CRMaterial> materials, List<CRStage> stages, String template, Collection<CRParameter> parameters) {
         this.name = name;
         this.group = groupName;
         this.label_template = labelTemplate;
@@ -58,6 +61,8 @@ public class CRPipeline extends CRBase {
         this.environment_variables = environmentVariables;
         this.materials = materials;
         this.stages = stages;
+        this.template = template;
+        this.parameters = parameters;
     }
 
     public String getName() {
@@ -116,6 +121,14 @@ public class CRPipeline extends CRBase {
         this.environment_variables = environmentVariables;
     }
 
+    public Collection<CRParameter> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Collection<CRParameter> parameters) {
+        this.parameters = parameters;
+    }
+
     public Collection<CRMaterial> getMaterials() {
         return materials;
     }
@@ -141,6 +154,14 @@ public class CRPipeline extends CRBase {
 
     public void setStages(List<CRStage> stages) {
         this.stages = stages;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
     public void addMaterial(CRMaterial material) {
@@ -235,7 +256,6 @@ public class CRPipeline extends CRBase {
         errors.checkMissing(location,"name",name);
         errors.checkMissing(location,"group",group);
         errors.checkMissing(location,"materials",materials);
-        errors.checkMissing(location,"stages",stages);
         validateAtLeastOneMaterial(errors,location);
         if(materials != null) {
             for (CRMaterial material : this.materials) {
@@ -246,16 +266,42 @@ public class CRPipeline extends CRBase {
                 validateScmMaterials(errors,location);
             }
         }
-        validateAtLeastOneStage(errors,location);
-        if(stages != null){
-            for (CRStage stage : this.stages) {
-                stage.getErrors(errors, location);
-            }
-            if (stages.size() > 1) {
-                validateStageNameUniqueness(errors, location);
+        validateTemplateOrStages(errors, location);
+        if (!hasTemplate()) {
+            validateAtLeastOneStage(errors,location);
+            if(stages != null){
+                for (CRStage stage : this.stages) {
+                    stage.getErrors(errors, location);
+                }
+                if (stages.size() > 1) {
+                    validateStageNameUniqueness(errors, location);
+                }
             }
         }
+        validateEnvironmentVariableUniqueness(errors, location);
+        validateParamNameUniqueness(errors, location);
+
     }
+
+    private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {
+        HashSet<String> keys = new HashSet<>();
+        for(CREnvironmentVariable var : environment_variables)
+        {
+            String error = var.validateNameUniqueness(keys);
+            if(error != null)
+                errors.addError(location,error);
+        }
+    }
+    private void validateParamNameUniqueness(ErrorCollection errors, String location) {
+        HashSet<String> keys = new HashSet<>();
+        for(CRParameter param : parameters)
+        {
+            String error = param.validateNameUniqueness(keys);
+            if(error != null)
+                errors.addError(location,error);
+        }
+    }
+
     private void validateScmMaterials(ErrorCollection errors, String pipelineLocation) {
         List<SourceCodeMaterial> allSCMMaterials = filterScmMaterials();
         if (allSCMMaterials.size() > 1) {
@@ -300,13 +346,30 @@ public class CRPipeline extends CRBase {
     }
 
     private void validateAtLeastOneStage(ErrorCollection errors, String location) {
-        if(this.stages == null || this.stages.isEmpty())
+        if(!hasStages())
             errors.addError(location,"Pipeline has no stages");
+    }
+
+    private boolean hasStages() {
+        return !(this.stages == null || this.stages.isEmpty());
+    }
+
+    private void validateTemplateOrStages(ErrorCollection errors, String location) {
+        if (!hasTemplate() && !hasStages()) {
+            errors.addError(location, "Pipeline has to define stages or template.");
+        }
+        else if (hasTemplate() && hasStages()) {
+            errors.addError(location, "Pipeline has to either define stages or template. Not both.");
+        }
     }
 
     private void validateAtLeastOneMaterial(ErrorCollection errors, String location) {
         if(this.materials == null || this.materials.isEmpty())
             errors.addError(location,"Pipeline has no materials");
+    }
+
+    public boolean hasTemplate() {
+        return template != null && !StringUtil.isBlank(template);
     }
 
 }

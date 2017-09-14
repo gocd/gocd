@@ -7,6 +7,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.CRBuildTask;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
@@ -32,30 +33,30 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false,true, "gitrepo", "feature12", false, "externals", "tools");
 
         buildStage = new CRStage("build", buildRake);
-        pipe1 = new CRPipeline("pipe1","group1",veryCustomGit,buildStage);
+        pipe1 = new CRPipeline("pipe1","group1",veryCustomGit, null, buildStage);
 
 
-        customPipeline = new CRPipeline("pipe2","group1",veryCustomGit,buildStage);
+        customPipeline = new CRPipeline("pipe2","group1",veryCustomGit, null, buildStage);
         customPipeline.addMaterial(new CRDependencyMaterial("pipe1","pipe1","build"));
         customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
         customPipeline.setIsLocked(true);
         customPipeline.setMingle( new CRMingle("http://mingle.example.com","my_project"));
         customPipeline.setTimer(new CRTimer("0 15 10 * * ? *"));
 
-        invalidNoName = new CRPipeline(null,"group1",veryCustomGit,buildStage);
+        invalidNoName = new CRPipeline(null,"group1",veryCustomGit, "template", buildStage);
         invalidNoMaterial = new CRPipeline();
         invalidNoMaterial.setName("pipe4");
         invalidNoMaterial.setGroupName("g1");
         invalidNoMaterial.addStage(buildStage);
 
-        invalidNoGroup = new CRPipeline("name",null,veryCustomGit,buildStage);
+        invalidNoGroup = new CRPipeline("name",null,veryCustomGit, null, buildStage);
 
         invalidNoStages = new CRPipeline();
         invalidNoStages.setName("pipe4");
         invalidNoStages.setGroupName("g1");
         invalidNoStages.addMaterial(veryCustomGit);
 
-        invalidNoNamedMaterials = new CRPipeline("pipe2","group1",veryCustomGit,buildStage);
+        invalidNoNamedMaterials = new CRPipeline("pipe2","group1",veryCustomGit, null, buildStage);
         invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1","build"));
         invalidNoNamedMaterials.setGroupName("g1");
     }
@@ -142,6 +143,57 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         assertThat(fullError,contains("Pipeline pipe4; Stage (bla)"));
         assertThat(fullError,contains("Stage has no jobs"));
         assertThat(fullError,contains("Environment variable key defined more than once"));
+    }
+
+    @Test
+    public void shouldAddAnErrorWhenBothTemplateAndStagesAreDefined() throws Exception {
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", veryCustomGit, "template", buildStage);
+        ErrorCollection errorCollection = new ErrorCollection();
+        crPipeline.getErrors(errorCollection, "TEST");
+
+        assertThat(errorCollection.getErrorCount(), is(1));
+        assertThat(errorCollection.getErrorsAsText(), contains("Pipeline has to either define stages or template. Not both."));
+    }
+
+    @Test
+    public void shouldAddAnErrorIfNeitherTemplateOrStagesAreDefined() throws Exception {
+        ArrayList<CRMaterial> materials = new ArrayList<>();
+        materials.add(veryCustomGit);
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", true, null, null, null, new ArrayList<>(), materials, new ArrayList<>(), null, new ArrayList<>());
+        ErrorCollection errorCollection = new ErrorCollection();
+        crPipeline.getErrors(errorCollection, "TEST");
+
+        assertThat(errorCollection.getErrorsAsText(), contains("Pipeline has to define stages or template."));
+    }
+
+    @Test
+    public void shouldAddAnErrorForDuplicateParameterNames() throws Exception {
+        ArrayList<CRMaterial> materials = new ArrayList<>();
+        materials.add(veryCustomGit);
+
+        ArrayList<CRParameter> crParameters = new ArrayList<>();
+        crParameters.add(new CRParameter("param1", "value1"));
+        crParameters.add(new CRParameter("param1", "value2"));
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", true, null, null, null, new ArrayList<>(), materials, null, "t1", crParameters);
+        ErrorCollection errors = new ErrorCollection();
+        crPipeline.getErrors(errors, "TEST");
+
+        assertThat(errors.getErrorsAsText(), contains("Param name 'param1' is not unique."));
+    }
+
+    @Test
+    public void shouldAddAnErrorForDuplicateEnvironmentVariables() throws Exception {
+        ArrayList<CRMaterial> materials = new ArrayList<>();
+        materials.add(veryCustomGit);
+
+        ArrayList<CREnvironmentVariable> crEnvironmentVariables = new ArrayList<>();
+        crEnvironmentVariables.add(new CREnvironmentVariable("env1", "value1"));
+        crEnvironmentVariables.add(new CREnvironmentVariable("env1", "value2"));
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", true, null, null, null, crEnvironmentVariables, materials, null, "t1", new ArrayList<>());
+        ErrorCollection errors = new ErrorCollection();
+        crPipeline.getErrors(errors, "TEST");
+
+        assertThat(errors.getErrorsAsText(), contains("Environment variable env1 defined more than once"));
     }
 
     @Override

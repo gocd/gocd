@@ -30,7 +30,6 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
-import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
@@ -55,7 +54,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private ConfigRepository configRepository;
     @Autowired private InvalidConfigMessageRemover invalidConfigMessageRemover;
-    @Autowired private OauthTokenSweeper oauthTokenSweeper;
     @Autowired private LdapContextFactory ldapContextFactory;
     @Autowired private AgentService agentService;
     @Autowired private GoConfigService goConfigService;
@@ -117,7 +115,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
 
             //change listener
             environmentConfigService.initialize();
-            oauthTokenSweeper.initialize();
             invalidConfigMessageRemover.initialize();
             ldapContextFactory.initialize();
             agentService.initialize();

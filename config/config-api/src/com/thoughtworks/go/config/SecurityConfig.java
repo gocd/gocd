@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.ObjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,15 +119,6 @@ public class SecurityConfig implements Validatable {
 
     private boolean noAdminsRequired() {
         return adminsConfig == null || adminsConfig.isEmpty();
-    }
-
-    public boolean hasSecurityMethodChanged(SecurityConfig newSecurity) {
-        if (newSecurity == null) {
-            return true;
-        }
-        boolean ldapChanged = !ObjectUtil.equal(ldapConfig, newSecurity.ldapConfig());
-        boolean passwordFileChanged = !ObjectUtil.equal(passwordFileConfig, newSecurity.passwordFileConfig());
-        return ldapChanged || passwordFileChanged;
     }
 
     public boolean isUserMemberOfRole(final CaseInsensitiveString userName, final CaseInsensitiveString roleName) {

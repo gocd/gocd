@@ -160,19 +160,7 @@ public class SecurityConfigTest {
         assertThat(securityConfig.ldapConfig().managerPassword(), is(""));
         assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(nullValue()));
     }
-
-    @Test
-    public void shouldTellSecurityMethodHasNotChanged() {
-        assertFalse(new SecurityConfig().hasSecurityMethodChanged(new SecurityConfig()));
-    }
-
-    @Test
-    public void shouldBeAbleToTellIfSecurityMethodChangedFromNothingToLdap() {
-        SecurityConfig ldapSecurity = new SecurityConfig();
-        ldapSecurity.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), ""));
-        assertTrue(new SecurityConfig().hasSecurityMethodChanged(ldapSecurity));
-    }
-
+    
     private void assertUserRoles(SecurityConfig securityConfig, String username, Role... roles) {
         assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username)), is(Arrays.asList(roles)));
     }

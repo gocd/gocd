@@ -46,4 +46,9 @@ public class ConsoleLogSubscription implements WebSocketSubscriptionHandler<Cons
     public boolean isAuthorized(ConsoleLog message, BrowserWebSocket webSocket) {
         return securityService.hasViewPermissionForPipeline(webSocket.getCurrentUser(), message.getJobIdentifier().getPipelineName());
     }
+
+    @Override
+    public Class<ConsoleLog> getType() {
+        return ConsoleLog.class;
+    }
 }

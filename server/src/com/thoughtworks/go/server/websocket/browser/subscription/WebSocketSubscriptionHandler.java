@@ -23,4 +23,6 @@ public interface WebSocketSubscriptionHandler<T extends SubscriptionMessage> {
     void start(T message, BrowserWebSocket socket) throws Exception;
 
     boolean isAuthorized(ConsoleLog message, BrowserWebSocket securityService);
+
+    Class<T> getType();
 }

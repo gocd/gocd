@@ -55,7 +55,7 @@ public class ConsoleLogTest {
 
     @Test
     public void shouldSubscribeConsoleLogOverProvidedSession() throws Exception {
-        when(manager.getSubscription()).thenReturn(handler);
+        when(manager.getHandler(ConsoleLog.class)).thenReturn(handler);
         consoleLog.subscribe(manager, websocket);
 
         verify(handler, times(1)).start(consoleLog, websocket);
@@ -63,7 +63,7 @@ public class ConsoleLogTest {
 
     @Test
     public void shouldAskSubscriptionForAuthorization() throws Exception {
-        when(manager.getSubscription()).thenReturn(handler);
+        when(manager.getHandler(ConsoleLog.class)).thenReturn(handler);
         consoleLog.isAuthorized(manager, websocket);
 
         verify(handler, times(1)).isAuthorized(consoleLog, websocket);

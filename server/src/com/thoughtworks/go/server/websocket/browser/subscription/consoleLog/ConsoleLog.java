@@ -63,12 +63,12 @@ public class ConsoleLog extends SubscriptionMessage {
 
     @Override
     public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) throws Exception {
-        webSocketSubscriptionManager.getSubscription().start(this, webSocket);
+        webSocketSubscriptionManager.getHandler(this.getClass()).start(this, webSocket);
     }
 
     @Override
     public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
-        return webSocketSubscriptionManager.getSubscription().isAuthorized(this, webSocket);
+        return webSocketSubscriptionManager.getHandler(this.getClass()).isAuthorized(this, webSocket);
     }
 
     public JobIdentifier getJobIdentifier() {

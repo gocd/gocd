@@ -21,13 +21,18 @@ import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class WebSocketSubscriptionManager {
-    private final WebSocketSubscriptionHandler subscription;
+    private final Map<Class<? extends SubscriptionMessage>, WebSocketSubscriptionHandler> handlers = new HashMap<>();
 
     @Autowired
-    public WebSocketSubscriptionManager(WebSocketSubscriptionHandler subscription) {
-        this.subscription = subscription;
+    public WebSocketSubscriptionManager(WebSocketSubscriptionHandler... handlers) {
+        for (WebSocketSubscriptionHandler handler : handlers) {
+            this.handlers.put(handler.getType(), handler);
+        }
     }
 
     public void subscribe(SubscriptionMessage subscriptionMessage, BrowserWebSocket webSocket) throws Exception {
@@ -36,7 +41,7 @@ public class WebSocketSubscriptionManager {
         }
     }
 
-    public WebSocketSubscriptionHandler getSubscription() {
-        return subscription;
+    public WebSocketSubscriptionHandler getHandler(Class<? extends SubscriptionMessage> subscriptionType) {
+        return handlers.get(subscriptionType);
     }
 }

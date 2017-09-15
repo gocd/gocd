@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.plugin.infra.service;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.core.FileAppender;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,9 +29,11 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import static com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService.pluginLogFileName;
 import static com.thoughtworks.go.util.LogFixture.logFixtureForRootLogger;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,7 +58,6 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        LogManager.shutdown();
         for (Integer pluginIndex : plugins.keySet()) {
             FileUtils.deleteQuietly(pluginLog(pluginIndex));
         }
@@ -69,8 +69,8 @@ public class DefaultPluginLoggingServiceIntegrationTest {
             DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
             service.info(pluginID(1), "LoggingClass", "this-message-should-not-go-to-root-logger");
 
-            String failureMessage = "Expected no messages to be logged to root logger. Found: " + Arrays.toString(fixture.getMessages());
-            assertThat(failureMessage, fixture.getMessages().length, is(0));
+            String failureMessage = "Expected no messages to be logged to root logger. Found: " + fixture.getFormattedMessages();
+            assertThat(failureMessage, fixture.getFormattedMessages().size(), is(0));
         }
     }
 
@@ -89,8 +89,8 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         if (WINDOWS.satisfy()) {
             return;
         }
-        FileAppender fileAppender = mock(FileAppender.class);
-        when(fileAppender.getFile()).thenReturn("/var/log/go-server/go-server.log");
+        FileAppender fileAppender = new FileAppender();
+        fileAppender.setFile("/var/log/go-server/go-server.log");
 
         DefaultPluginLoggingService service = Mockito.spy(new DefaultPluginLoggingService(systemEnvironment));
         doReturn(fileAppender).when(service).getGoServerLogFileAppender();
@@ -206,7 +206,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
         List linesInLog = FileUtils.readLines(pluginLogFile, Charset.defaultCharset());
         for (Object line : linesInLog) {
-            if (((String) line).matches(String.format("^.*%s \\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
+            if (((String) line).matches(String.format("^.*%s\\s+\\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;
             }
         }
@@ -239,7 +239,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     private File pluginLog(int pluginIndex) {
-        File pluginLogFile = new File(pluginLogFileName(pluginID(pluginIndex)));
+        File pluginLogFile = pluginLoggingService.pluginLogFile(pluginID(pluginIndex));
         pluginLogFile.deleteOnExit();
         return pluginLogFile;
     }

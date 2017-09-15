@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,14 +130,6 @@ public abstract class LinuxPackagingTask extends DefaultTask {
         into project.file("${buildRoot()}/${new File(fileName).parentFile}")
         rename project.file(permissions.source).name, new File(fileName).name
       }
-    }
-
-    Set<File> propertiesFiles = project.fileTree(buildRoot()) { include("**/*/*log4j.properties") }.files
-
-    propertiesFiles.each { propertyFile ->
-      def text = propertyFile.getText().replaceAll(/\.File=logs\/(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
-
-      propertyFile.write(text)
     }
   }
 

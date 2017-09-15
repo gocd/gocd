@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright 2017 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration
+    xmlns="http://ch.qos.logback/xml/ns/logback"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback http://ch.qos.logback/xml/ns/logback/logback.xsd"
+    debug="${gocd.agent.logback.debug:-false}"
+    scan="${gocd.agent.logback.scan:-true}"
+    scanPeriod="${gocd.agent.logback.scanPeriod:-5 seconds}"
+>
+
+  <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${gocd.agent.log.dir:-${GO_AGENT_LOG_DIR:-${LOG_DIR:-logs}}}/go-agent.log</file>
+    <encoder>
+      <pattern>
+        ${gocd.agent.logback.defaultPattern:-%date{ISO8601} %-5level [%thread] %logger{0}:%line - %msg%n}
+      </pattern>
+    </encoder>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>
+        ${gocd.agent.log.dir:-${GO_AGENT_LOG_DIR:-${LOG_DIR:-logs}}}/go-agent.log.%d{yyyy-MM-dd}.%i.gz
+      </fileNamePattern>
+      <maxFileSize>${gocd.agent.logback.defaultRollingFileAppender.rotation.maxFileSize:-5 MB}</maxFileSize>
+      <maxHistory>${gocd.agent.logback.defaultRollingFileAppender.rotation.maxHistory:-4}</maxHistory>
+      <totalSizeCap>${gocd.agent.logback.defaultRollingFileAppender.rotation.totalSizeCap:-20 MB}</totalSizeCap>
+    </rollingPolicy>
+  </appender>
+
+  <root level="${gocd.agent.logback.root.level:-INFO}">
+    <appender-ref ref="${gocd.agent.logback.root.appender:-FileAppender}"/>
+  </root>
+
+  <logger name="org.apache.http.wire" level="ERROR"/>
+
+  <!-- make sure this is the last line in the config -->
+  <include optional="true" file="${cruise.config.file/..:-config}/agent-logback-include.xml"/>
+</configuration>

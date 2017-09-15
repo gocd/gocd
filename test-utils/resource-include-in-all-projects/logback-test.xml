@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright 2017 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration
+    xmlns="http://ch.qos.logback/xml/ns/logback"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback http://ch.qos.logback/xml/ns/logback/logback.xsd"
+    debug="false"
+    scan="false"
+>
+
+  <!-- since `base` module is on CP of all projects, this will be inherited by all projects -->
+  <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/test.log</file>
+    <encoder>
+      <pattern>%date{ISO8601} %-5level [%thread] %logger{0}:%line - %msg%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>10</maxIndex>
+      <fileNamePattern>logs/test.log.%i</fileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>10MB</maxFileSize>
+    </triggeringPolicy>
+  </appender>
+
+  <logger name="org.springframework.security.userdetails.memory" level="WARN"/>
+  <logger name="org.hibernate" level="DEBUG"/>
+  <logger name="java.sql.Statement" level="DEBUG"/>
+  <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+  <logger name="com.thoughtworks.go" level="INFO"/>
+  <root level="WARN">
+    <appender-ref ref="FileAppender"/>
+  </root>
+</configuration>

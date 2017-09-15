@@ -16,15 +16,18 @@
 
 package com.thoughtworks.go.server.service.support;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.*;
+
+import static com.thoughtworks.go.logging.LogHelper.LOGGER_CONTEXT;
 
 @Component
 public class FileLocationProvider implements ServerInfoProvider {
@@ -46,30 +49,35 @@ public class FileLocationProvider implements ServerInfoProvider {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("loc.config.dir", systemEnvironment.configDir().getAbsolutePath());
 
-        List<Logger> loggers = new ArrayList<>();
-        Logger rootLogger = Logger.getRootLogger();
-        loggers.add(rootLogger);
-        Enumeration currentLoggers = rootLogger.getLoggerRepository().getCurrentLoggers();
-        while (currentLoggers.hasMoreElements()) {
-            loggers.add((Logger) currentLoggers.nextElement());
+        List<Logger> loggers = LOGGER_CONTEXT.getLoggerList();
+
+        Appender[] appenders = getAppenders(loggers);
+
+        for (int i = 0; i < appenders.length; i++) {
+            Appender appender = appenders[i];
+            if (!isFileAppender(appender)) {
+                continue;
+            }
+            FileAppender fileAppender = (FileAppender) appender;
+            File logFile = new File(fileAppender.rawFileProperty());
+            json.put("loc.log.root." + i, new File(logFile.getAbsolutePath()).getParent());
+            json.put("loc.log.basename." + i, logFile.getName());
         }
 
-        int index = 0;
+        return json;
+    }
+
+    private Appender[] getAppenders(List<Logger> loggers) {
+        LinkedHashSet<Appender<ILoggingEvent>> appenders = new LinkedHashSet<>();
+
         for (Logger logger : loggers) {
-            Enumeration appenders = logger.getAllAppenders();
-            while (appenders.hasMoreElements()) {
-                Appender appender = (Appender) appenders.nextElement();
-                if (!isFileAppender(appender)) {
-                    continue;
-                }
-                FileAppender fileAppender = (FileAppender) appender;
-                File logFile = new File(fileAppender.getFile());
-                json.put("loc.log.root." + index, new File(logFile.getAbsolutePath()).getParent());
-                json.put("loc.log.basename." + index, logFile.getName());
-                ++index;
+            Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
+            while (appenderIterator.hasNext()) {
+                Appender<ILoggingEvent> appender = appenderIterator.next();
+                appenders.add(appender);
             }
         }
-        return json;
+        return appenders.toArray(new Appender[0]);
     }
 
     @Override

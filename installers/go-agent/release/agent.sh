@@ -113,17 +113,17 @@ fi
 
 if [ "$PRODUCTION_MODE" == "Y" ]; then
     if [ -d /var/log/${SERVICE_NAME} ]; then
-        LOG_DIR=/var/log/${SERVICE_NAME}
+        GO_AGENT_LOG_DIR=/var/log/${SERVICE_NAME}
     else
-	    LOG_DIR=$AGENT_WORK_DIR/logs
+	    GO_AGENT_LOG_DIR=$AGENT_WORK_DIR/logs
     fi
 else
-    LOG_DIR=$AGENT_WORK_DIR/logs
+    GO_AGENT_LOG_DIR=$AGENT_WORK_DIR/logs
 fi
 
-mkdir -p "${LOG_DIR}"
+mkdir -p "${GO_AGENT_LOG_DIR}"
 
-STDOUT_LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log
+STDOUT_LOG_FILE=$GO_AGENT_LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log
 
 if [ "$PID_FILE" ]; then
     echo "[$(date)] Use PID_FILE: $PID_FILE"
@@ -164,7 +164,7 @@ if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.security.egd=file:/dev/./urandom"
 fi
 export AGENT_STARTUP_ARGS
-export LOG_DIR
+export GO_AGENT_LOG_DIR
 
 eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
 AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")

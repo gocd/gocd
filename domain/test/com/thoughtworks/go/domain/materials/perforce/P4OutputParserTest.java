@@ -16,14 +16,7 @@
 
 package com.thoughtworks.go.domain.materials.perforce;
 
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
@@ -31,13 +24,20 @@ import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
+
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;

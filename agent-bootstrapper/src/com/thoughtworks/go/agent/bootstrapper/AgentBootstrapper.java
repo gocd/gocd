@@ -27,7 +27,6 @@ import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
 import com.thoughtworks.go.util.validators.Validation;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.NDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class AgentBootstrapper {
 
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
     public static final String WAIT_TIME_BEFORE_RELAUNCH_IN_MS = "agent.bootstrapper.wait.time.before.relaunch.in.ms";
-    public static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "agent-bootstrapper-log4j.properties";
+    public static final String DEFAULT_LOGBACK_CONFIGURATION_FILE = "agent-bootstrapper-logback.xml";
 
     int waitTimeBeforeRelaunch = SystemUtil.getIntProperty(WAIT_TIME_BEFORE_RELAUNCH_IN_MS, DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrapper.class);
@@ -60,9 +59,7 @@ public class AgentBootstrapper {
     public static void main(String[] argv) {
         assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
-        logConfigurator.initialize();
-        new AgentBootstrapper().go(true, args);
+        new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE).runWithLogger(() -> new AgentBootstrapper().go(true, args));
     }
 
     public void go(boolean shouldLoop, AgentBootstrapperArgs bootstrapperArgs) {
@@ -179,12 +176,10 @@ public class AgentBootstrapper {
         launcherCreatorShutdownHook = new Thread() {
             @Override
             public void run() {
-                NDC.push("Agent-BootStrapper-ShutdownHook");
                 LOG.info("Interrupting Launcher and initiating shutdown...");
                 loop = false;
                 launcherThread.interrupt();
                 destoryLauncherCreator();
-                NDC.pop();
             }
         };
         Runtime.getRuntime().addShutdownHook(launcherCreatorShutdownHook);

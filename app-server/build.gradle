@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ dependencies {
 
   compile project(':base')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
-  compile group: 'log4j', name: 'log4j', version: project.versions.log4j
+  compile group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
   compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {
     exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')

@@ -40,7 +40,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
+import ch.qos.logback.classic.Level;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;

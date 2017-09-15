@@ -34,8 +34,6 @@ import com.thoughtworks.go.tfssdk14.wrapper.GoTfsWorkspace;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +42,6 @@ import java.util.List;
 
 public class TfsSDKCommand extends AbstractTfsCommand {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TfsSDKCommand.class);
     private GoTfsVersionControlClient client;
     private TFSTeamProjectCollection collection;
     private SystemEnvironment systemEnvironment;

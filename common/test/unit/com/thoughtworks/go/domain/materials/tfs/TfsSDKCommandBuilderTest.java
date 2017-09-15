@@ -18,22 +18,12 @@ package com.thoughtworks.go.domain.materials.tfs;
 
 import com.thoughtworks.go.util.NestedJarClassLoader;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.List;
-import java.util.jar.JarInputStream;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -61,39 +51,5 @@ public class TfsSDKCommandBuilderTest {
             //Do not worry about load class failing. We're only asserting that load class is invoked with the right FQN for TFSSDKCommand
         }
         verify(mockSdkLoader, times(1)).loadClass("com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter");
-    }
-
-    @Test
-    public void shouldCheckMSSDKLoggingSupportBeforeUpgradingLog4j() throws Exception {
-        URL log4jJarFromClasspath = getLog4jJarFromClasspath();
-        assertThat(log4jJarFromClasspath != null, is(true));
-        String version = implementationVersionFromManifrest(log4jJarFromClasspath);
-        assertThat(version != null, is(true));
-        assertThat(version, is("1.2.17"));
-    }
-
-    private String implementationVersionFromManifrest(URL log4jJarFromClasspath) throws IOException {
-        JarInputStream in = new JarInputStream(log4jJarFromClasspath.openStream());
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        in.getManifest().write(out);
-        out.close();
-
-        List<String> lines = IOUtils.readLines(new ByteArrayInputStream(out.toByteArray()));
-        for (String line : lines) {
-            if (line.startsWith("Implementation-Version")) {
-                 return line.split(":")[1].trim();
-            }
-        }
-        return null;
-    }
-
-    private URL getLog4jJarFromClasspath() throws URISyntaxException {
-        URLClassLoader classLoader = (URLClassLoader) this.getClass().getClassLoader();
-        for (URL u : classLoader.getURLs()) {
-            if (FilenameUtils.getExtension(u.getPath()).equals("jar") && FilenameUtils.getName(u.getPath()).startsWith("log4j-")) {
-                return u;
-            }
-        }
-        return null;
     }
 }

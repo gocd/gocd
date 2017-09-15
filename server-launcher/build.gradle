@@ -1,7 +1,5 @@
-import com.thoughtworks.go.build.VerifyJarTask
-
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +13,8 @@ import com.thoughtworks.go.build.VerifyJarTask
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Server Launcher'
 
@@ -59,10 +59,14 @@ dependencies {
   packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: '2.5'
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
-  packagingInLibDir group: 'log4j', name: 'log4j', version: project.versions.log4j
-  packagingInLibDir group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  packagingInLibDir group: 'org.slf4j', name: 'slf4j-log4j12', version: project.versions.slf4j
   packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
+
+  // not really compile dependencies, but we want to centralize all logging using logback
+  packagingInLibDir(group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j)
+  packagingInLibDir(group: 'org.slf4j', name: 'log4j-over-slf4j', version: project.versions.slf4j)
+  packagingInLibDir(group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.versions.slf4j)
+  packagingInLibDir(group: 'org.slf4j', name: 'jul-to-slf4j', version: project.versions.slf4j)
+  packagingInLibDir(group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback)
 
   pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
@@ -106,9 +110,7 @@ task mainJar(type: Jar) {
   }
 
   from(project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) }) {
-    include "**/StoppableFileWatchdogBecauseFileWatchDogIsUnStoppable.class"
-    include "**/PropertyWatchdog.class"
-    include "**/XMLWatchdog.class"
+    include "**/LogHelper.class"
     include "**/AssertJava8.class"
     include "**/LogConfigurator.class"
     include "**/OperatingSystem.class"
@@ -138,7 +140,7 @@ task mainJar(type: Jar) {
     into('/')
   }
 
-  from("${project(':server').projectDir}/properties/src/config/log4j.properties") { into 'config' }
+  from("${project(':server').projectDir}/properties/src/config/logback.xml") { into 'config' }
 }
 
 task h2deltasZip(type: Zip) {
@@ -199,7 +201,6 @@ task fatJar(type: Jar) {
   from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
-  from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
   from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
   from(h2dbZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
@@ -247,12 +248,12 @@ task verifyFatJar(type: VerifyJarTask) {
       project.hasProperty('fastBuild') ? null : "defaultCommandSnippets.zip"
     ].findAll { it != null },
     "lib"         : [
-      "server-launcher-${project.version}-main.jar",
       "bcprov-jdk15on-1.47.jar",
       "commons-io-2.5.jar",
       "go-plugin-activator.jar",
       "javasysmon-0.3.6.jar",
       "javax.servlet-api-3.1.0.jar",
+      "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jetty-continuation-${versions.jetty}.jar",
       "jetty-http-${versions.jetty}.jar",
       "jetty-io-${versions.jetty}.jar",
@@ -267,9 +268,12 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-webapp-${versions.jetty}.jar",
       "jetty-xml-${versions.jetty}.jar",
       "joda-time-2.3.jar",
-      "log4j-${project.versions.log4j}.jar",
+      "jul-to-slf4j-${project.versions.slf4j}.jar",
+      "log4j-over-slf4j-${project.versions.slf4j}.jar",
+      "logback-classic-${project.versions.logback}.jar",
+      "logback-core-${project.versions.logback}.jar",
+      "server-launcher-${project.version}-main.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
-      "slf4j-log4j12-${project.versions.slf4j}.jar",
       "tfs-impl-14.jar",
       "websocket-api-${versions.jetty}.jar",
       "websocket-client-${versions.jetty}.jar",

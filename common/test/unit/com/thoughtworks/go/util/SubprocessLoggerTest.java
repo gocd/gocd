@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,19 @@
 
 package com.thoughtworks.go.util;
 
+import ch.qos.logback.classic.Level;
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
 import com.jezhumble.javasysmon.ProcessInfo;
 import com.jezhumble.javasysmon.ProcessVisitor;
+import org.junit.After;
+import org.junit.Test;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-
-import org.apache.log4j.Level;
-import org.junit.After;
-
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +46,11 @@ public class SubprocessLoggerTest {
         logger = new SubprocessLogger(sysMon);
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
-            assertThat(log.allLogs(), is(""));
+            String result;
+            synchronized (log) {
+                result = log.getLog();
+            }
+            assertThat(result, is(""));
         }
     }
 
@@ -60,7 +60,11 @@ public class SubprocessLoggerTest {
         String allLogs;
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
-            allLogs = log.allLogs();
+            String result;
+            synchronized (log) {
+                result = log.getLog();
+            }
+            allLogs = result;
         }
         assertThat(allLogs, containsString("Logged all subprocesses."));
     }
@@ -72,7 +76,11 @@ public class SubprocessLoggerTest {
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.registerAsExitHook("foo bar baz");
             logger.run();
-            allLogs = log.allLogs();
+            String result;
+            synchronized (log) {
+                result = log.getLog();
+            }
+            allLogs = result;
         }
         assertThat(allLogs, containsString("foo bar baz\n\tPID: 101\tname: name-1\towner: owner-1\tcommand: command-1\n\tPID: 103\tname: name-1a\towner: owner-1\tcommand: command-1a"));
         assertThat(allLogs, not(containsString("PID: 102")));

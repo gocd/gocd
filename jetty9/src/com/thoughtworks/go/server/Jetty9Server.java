@@ -233,6 +233,12 @@ public class Jetty9Server extends AppServer {
                 JettyWebXmlConfiguration.class.getCanonicalName()
         });
         webAppContext.setContextPath(systemEnvironment.getWebappContextPath());
+
+        // delegate all logging to parent classloader to avoid initialization of loggers in multiple classloaders
+        webAppContext.addSystemClass("org.apache.log4j.");
+        webAppContext.addSystemClass("org.slf4j.");
+        webAppContext.addSystemClass("org.apache.commons.logging.");
+
         webAppContext.setWar(getWarFile());
         webAppContext.setParentLoaderPriority(systemEnvironment.getParentLoaderPriority());
         return webAppContext;

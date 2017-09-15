@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -29,7 +30,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -153,7 +153,11 @@ public class ArtifactsServiceTest {
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
             artifactsService.saveFile(destFile, stream, true, 1);
-            assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
+            String result;
+            synchronized (logFixture) {
+                result = logFixture.getLog();
+            }
+            assertThat(result, containsString("Failed to save the file to:"));
         }
     }
 
@@ -171,7 +175,11 @@ public class ArtifactsServiceTest {
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
             artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
-            assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
+            String result;
+            synchronized (logFixture) {
+                result = logFixture.getLog();
+            }
+            assertThat(result, containsString("Failed to save the file to:"));
         }
     }
 

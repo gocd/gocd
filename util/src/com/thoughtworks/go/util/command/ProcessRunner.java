@@ -17,13 +17,14 @@ package com.thoughtworks.go.util.command;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
 public class ProcessRunner {
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ProcessRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessRunner.class);
 
     private ProcessBuilder builder;
     private boolean failOnError = true;

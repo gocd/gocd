@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-import static com.thoughtworks.go.server.util.GoLauncher.DEFAULT_LOG4J_CONFIGURATION_FILE;
+import static com.thoughtworks.go.server.util.GoLauncher.DEFAULT_LOGBACK_CONFIGURATION_FILE;
 import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
 
 /**
@@ -37,7 +37,7 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
 
 public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
         copyDbFiles();
         File webApp = new File("webapp");

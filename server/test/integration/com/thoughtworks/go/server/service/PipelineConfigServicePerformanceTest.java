@@ -26,18 +26,16 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.apache.log4j.*;
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,27 +60,6 @@ public class PipelineConfigServicePerformanceTest {
 
     static {
         new SystemEnvironment().setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, "false");
-        Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.INFO);
-        try {
-            Filter filter = new Filter() {
-                @Override
-                public int decide(LoggingEvent loggingEvent) {
-                    return loggingEvent.getLoggerName().startsWith("com.thoughtworks.go.util.PerfTimer") || loggingEvent.getLoggerName().startsWith("com.thoughtworks.go.server.service.PipelineConfigServicePerformanceTest") ? 0 : -1;
-                }
-            };
-            ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d [%p|%c|%C{1}] %m%n"));
-            consoleAppender.addFilter(filter);
-            consoleAppender.setName(consoleAppenderForPerformanceTest);
-
-            RollingFileAppender rollingFileAppender = new RollingFileAppender(new PatternLayout("%d [%p|%c|%C{1}] %m%n"), "/tmp/config-save-perf.log", false);
-            rollingFileAppender.addFilter(filter);
-            rollingFileAppender.setName(rollingFileAppenderForPerformanceTest);
-            rootLogger.addAppender(rollingFileAppender);
-            rootLogger.addAppender(consoleAppender);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Autowired
@@ -105,14 +82,7 @@ public class PipelineConfigServicePerformanceTest {
     private final int numberOfRequests = 100;
     private HttpLocalizedOperationResult result;
     private Username user;
-    private static Logger LOGGER = Logger.getLogger(PipelineConfigServicePerformanceTest.class.getName());
-
-    @AfterClass
-    public static void removeLogger() {
-        LOGGER.removeAppender(consoleAppenderForPerformanceTest);
-        LOGGER.removeAppender(rollingFileAppenderForPerformanceTest);
-    }
-
+    private static Logger LOGGER = LoggerFactory.getLogger(PipelineConfigServicePerformanceTest.class.getName());
 
     @Before
     public void setup() throws Exception {

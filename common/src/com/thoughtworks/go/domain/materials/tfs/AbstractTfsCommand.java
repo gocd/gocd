@@ -36,7 +36,7 @@ import java.util.List;
 
 public abstract class AbstractTfsCommand extends SCMCommand implements TfsCommand {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractTfsCommand.class);
+    protected static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractTfsCommand.class);
 
     private final CommandArgument url;
     private final String domain;

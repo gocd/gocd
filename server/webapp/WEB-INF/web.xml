@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -132,10 +132,6 @@
   </context-param>
 
   <listener>
-    <listener-class>com.thoughtworks.go.server.LoggingInitializer</listener-class>
-  </listener>
-
-  <listener>
     <!--
         The spring listener needs to be before Rails listener so that Spring container is initialized. We access some beans in Rails env.rb and hence need Spring to be inited first.
     -->
@@ -148,10 +144,6 @@
 
   <listener>
     <listener-class>com.thoughtworks.go.rackhack.DelegatingListener</listener-class>
-  </listener>
-
-  <listener>
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
   </listener>
 
   <servlet>

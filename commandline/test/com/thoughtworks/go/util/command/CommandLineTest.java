@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.util.command;
 
+import ch.qos.logback.classic.Level;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.*;
-import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -129,7 +129,7 @@ public class CommandLineTest {
             } catch (Exception e) {
                 //ignored
             }
-            assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("notexist ******"));
+            assertThat(logFixture.getLog(), containsString("notexist ******"));
         }
     }
 
@@ -139,9 +139,8 @@ public class CommandLineTest {
         try (LogFixture logFixture = logFixtureFor(CommandLine.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
             line.runOrBomb(null);
-            System.out.println(ArrayUtil.join(logFixture.getMessages()));
-            assertThat(ArrayUtil.join(logFixture.getMessages()), not(containsString("secret")));
-            assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("=> ******"));
+            assertThat(logFixture.getLog(), not(containsString("secret")));
+            assertThat(logFixture.getLog(), containsString("=> ******"));
         }
     }
 

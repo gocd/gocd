@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,15 @@
 
 package com.thoughtworks.go.helper;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.LogFixture;
-
-import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-
-import org.apache.log4j.Level;
-
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class RandomPortTest {
 

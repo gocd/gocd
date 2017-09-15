@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.util;
 
+import ch.qos.logback.classic.Level;
+import org.junit.Test;
+
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-
-import org.apache.log4j.Level;
-import org.junit.Test;
 
 public class PerfTimerTest {
 

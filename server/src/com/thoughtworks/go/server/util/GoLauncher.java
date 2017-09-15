@@ -28,7 +28,7 @@ import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
 
 public final class GoLauncher {
 
-    public static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "log4j.properties";
+    public static final String DEFAULT_LOGBACK_CONFIGURATION_FILE = "logback.xml";
 
     private GoLauncher() {
     }
@@ -37,8 +37,7 @@ public final class GoLauncher {
         assertVMVersion();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
-
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
 
         try {

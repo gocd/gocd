@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,8 +103,7 @@ class TfsSDKCommandBuilder {
 
         explodeNatives();
         setNativePath(tempFolder);
-        String useTheParentLog4jConfiguration = "log4j";
-        return new NestedJarClassLoader(getJarURL(), useTheParentLog4jConfiguration);
+        return new NestedJarClassLoader(getJarURL(), "org/apache/log4j/", "org/apache/commons/logging/");
     }
 
     private void setNativePath(File tempFolder) {

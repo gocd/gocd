@@ -114,7 +114,6 @@ public class GoConfigServiceTest {
         goCache = mock(GoCache.class);
         instanceFactory = mock(InstanceFactory.class);
         userDao = mock(UserDao.class);
-        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(false);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
@@ -907,24 +906,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnValidOnUpdateXml() throws Exception {
-        String groupName = "group_name";
-        String md5 = "md5";
-        cruiseConfig = new BasicCruiseConfig();
-        expectLoad(cruiseConfig);
-        new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
-        expectLoadForEditing(cruiseConfig);
-        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
-
-        GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver(groupName);
-        String renamedGroupName = "renamed_group_name";
-        GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
-        assertThat(validity.isValid(), Matchers.is(true));
-        assertThat(validity.errorMessage(), Matchers.is(""));
-        verify(goConfigDao).updateConfig(argThat(cruiseConfigIsUpdatedWith(renamedGroupName, "new_name", "${COUNT}-#{foo}")));
-    }
-
-    @Test
     public void shouldUpdateXmlUsingNewFlowIfEnabled() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
@@ -935,7 +916,6 @@ public class GoConfigServiceTest {
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
         when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
         GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver(groupName);

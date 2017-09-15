@@ -23,7 +23,6 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,15 +44,12 @@ public class CachedGoConfigTest {
     private ServerHealthService serverHealthService;
     @Mock
     private GoConfigMigrator goConfigMigrator;
-    @Mock
-    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
-        cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment);
-        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(true);
+        cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator);
         when(dataSource.load()).thenReturn(configHolder);
     }
 
@@ -207,14 +203,5 @@ public class CachedGoConfigTest {
         assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
         assertThat(cachedGoConfig.loadMergedForEditing(), Is.<CruiseConfig>is(mergedConfigForEdit));
         verify(serverHealthService).update(any(ServerHealthState.class));
-    }
-
-    @Test
-    public void shouldFallbackToOldConfigUpgradeIfNewFlowIsDisabled() throws Exception {
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
-
-        cachedGoConfig.upgradeConfig();
-
-        verify(dataSource).upgradeIfNecessary();
     }
 }

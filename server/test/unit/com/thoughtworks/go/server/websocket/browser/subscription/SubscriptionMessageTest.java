@@ -30,6 +30,7 @@ public class SubscriptionMessageTest {
     public static final String JSON = "[\n" +
             "  {\n" +
             "    \"type\": \"ConsoleLog\",\n" +
+            "    \"start_line\": 42,\n" +
             "    \"job_identifier\": {\n" +
             "      \"pipeline_name\": \"foo\",\n" +
             "      \"pipeline_label\": 42,\n" +
@@ -70,7 +71,7 @@ public class SubscriptionMessageTest {
         JobIdentifier jobIdentifier = new JobIdentifier("foo", -1, "42", "test", "1", "unit");
         jobIdentifier.setBuildId(null);
         jobIdentifier.setPipelineCounter(null);
-        assertThat(subscriptionMessage, equalTo(new ConsoleLog(jobIdentifier, 0)));
+        assertThat(subscriptionMessage, equalTo(new ConsoleLog(jobIdentifier, 42)));
     }
 
     @Test

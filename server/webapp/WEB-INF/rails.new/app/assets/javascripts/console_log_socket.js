@@ -51,7 +51,8 @@
             'stage_name': details.data('stage'),
             'stage_counter': details.data('stage-counter'),
             'build_name': details.data('build')
-          }
+          },
+          'start_line': startLine
         }
       ];
 

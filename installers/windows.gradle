@@ -131,6 +131,8 @@ private void copyCommonFiles(versionedDir, buildRoot, flavour) {
   project.copy { from('windows-shared/JavaHome.ini') into(buildRoot) }
   project.copy { from("windows-shared/tanuki/${flavour}/cruisewrapper.exe") into(versionedDir) }
   project.copy { from("windows-shared/tanuki/lib") into("${versionedDir}/lib") }
+  // create an empty log dir so tanuki wrapper can write to the logs
+  project.file("${versionedDir}/logs").mkdirs()
 }
 
 

@@ -51,8 +51,6 @@ public class UserSearchServiceTest {
     @Mock
     private AuthenticationExtension authenticationExtension;
     @Mock
-    private PasswordFileUserSearch passwordFileUserSearch;
-    @Mock
     private AuthorizationExtension authorizationExtension;
     @Mock
     private GoConfigService goConfigService;
@@ -62,7 +60,7 @@ public class UserSearchServiceTest {
     public void setUp() {
         initMocks(this);
 
-        userSearchService = new UserSearchService(passwordFileUserSearch, authorizationExtension, goConfigService, authenticationPluginRegistry, authenticationExtension);
+        userSearchService = new UserSearchService(authorizationExtension, goConfigService, authenticationPluginRegistry, authenticationExtension);
     }
 
     @After
@@ -71,26 +69,10 @@ public class UserSearchServiceTest {
     }
 
     @Test
-    public void shouldSearchForUsers() throws Exception {
-        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
-        User bar = new User("bar-foo", new ArrayList<>(), "bar@go.com", true);
+    public void shouldSearchUserUsingPlugins() throws Exception {
+        final String searchTerm = "foo";
 
         when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
-        when(passwordFileUserSearch.search("foo")).thenReturn(Arrays.asList(foo, bar));
-
-        List<UserSearchModel> models = userSearchService.search("foo", new HttpLocalizedOperationResult());
-        assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.PASSWORD_FILE), new UserSearchModel(bar, UserSourceType.PASSWORD_FILE))));
-    }
-
-    @Test
-    public void shouldAddPluginSearchResults() throws Exception {
-        String searchTerm = "foo";
-
-        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
-        User bar = new User("bar-foo", new ArrayList<>(), "bar@go.com", true);
-
-        when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
-        when(passwordFileUserSearch.search(searchTerm)).thenReturn(asList(foo, bar));
 
         List<String> pluginIds = asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
@@ -108,8 +90,6 @@ public class UserSearchServiceTest {
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
         assertThat(models, Matchers.containsInAnyOrder(
-                new UserSearchModel(foo, UserSourceType.PASSWORD_FILE),
-                new UserSearchModel(bar, UserSourceType.PASSWORD_FILE),
                 new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
@@ -137,19 +117,8 @@ public class UserSearchServiceTest {
     }
 
     @Test
-    public void shouldReturnWarningMessageWhenPasswordSearchFails() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
-        when(passwordFileUserSearch.search("foo")).thenThrow(new RuntimeException("Password file not found"));
-        List<UserSearchModel> models = userSearchService.search("foo", result);
-        assertThat(models.size(), is(0));
-        assertThat(result.localizable(), is(LocalizedMessage.string("PASSWORD_SEARCH_FAILED")));
-    }
-
-    @Test
     public void shouldReturnWarningMessageWhenSearchReturnsNoResults() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(passwordFileUserSearch.search("foo")).thenReturn(new ArrayList());
         userSearchService.search("foo", result);
         assertThat(result.localizable(), is(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR")));
     }
@@ -159,7 +128,10 @@ public class UserSearchServiceTest {
         String smallSearchText = "f";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search(smallSearchText, result);
-        verify(passwordFileUserSearch, never()).search(smallSearchText);
+
+        verifyZeroInteractions(authenticationExtension);
+        verifyZeroInteractions(authorizationExtension);
+        assertThat(result.localizable(), is(LocalizedMessage.string("SEARCH_STRING_TOO_SMALL")));
     }
 
     @Test
@@ -168,7 +140,9 @@ public class UserSearchServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search(smallSearchText, result);
 
-        verify(passwordFileUserSearch, never()).search(smallSearchText);
+        verifyZeroInteractions(authenticationExtension);
+        verifyZeroInteractions(authorizationExtension);
+        assertThat(result.localizable(), is(LocalizedMessage.string("SEARCH_STRING_TOO_SMALL")));
     }
 
     private User getUser(Integer userId) {

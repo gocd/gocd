@@ -42,7 +42,6 @@ import java.util.Set;
  */
 @Service
 public class UserSearchService {
-    private final PasswordFileUserSearch passwordFileUserSearch;
     private final AuthorizationMetadataStore store;
     private final AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
@@ -53,10 +52,8 @@ public class UserSearchService {
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
 
     @Autowired
-    public UserSearchService(PasswordFileUserSearch passwordFileUserSearch,
-                             AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
+    public UserSearchService(AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
                              AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension) {
-        this.passwordFileUserSearch = passwordFileUserSearch;
         this.store = AuthorizationMetadataStore.instance();
         this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
@@ -70,30 +67,12 @@ public class UserSearchService {
             return userSearchModels;
         }
 
-        searchPasswordFile(searchText, result, userSearchModels);
         searchUsingPlugins(searchText, userSearchModels);
 
         if (userSearchModels.size() == 0 && !result.hasMessage()) {
             result.setMessage(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR"));
         }
         return userSearchModels;
-    }
-
-    private boolean searchPasswordFile(String searchText, HttpLocalizedOperationResult result, List<UserSearchModel> userSearchModels) {
-        boolean passwordSearchFailed = false;
-        if (!goConfigService.isPasswordFileConfigured()) {
-            return false;
-        }
-        try {
-            List<User> passwordFileUsers = passwordFileUserSearch.search(searchText);
-            List<UserSearchModel> models = convertUsersToUserSearchModel(passwordFileUsers, UserSourceType.PASSWORD_FILE);
-            userSearchModels.addAll(models);
-        } catch (Exception e) {
-            passwordSearchFailed = true;
-            result.setMessage(LocalizedMessage.string("PASSWORD_SEARCH_FAILED"));
-            LOGGER.error("User search for {} on password failed with IOException.", searchText, e);
-        }
-        return passwordSearchFailed;
     }
 
     private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {

@@ -381,14 +381,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new ConfigUpdateResponse(config, node, subject, updateCommand, configSaveState);
     }
 
-    public ConfigSaveState updateServerConfig(final MailHost mailHost, final LdapConfig ldapConfig, final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin,
+    public ConfigSaveState updateServerConfig(final MailHost mailHost, final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin,
                                               final String md5, final String artifactsDir, final Double purgeStart, final Double purgeUpto, final String jobTimeout,
                                               final String siteUrl, final String secureSiteUrl, final String taskRepositoryLocation) {
         final List<ConfigSaveState> result = new ArrayList<>();
         result.add(updateConfig(
                 new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
                         goConfigDao.mailHostUpdater(mailHost),
-                        securityUpdater(ldapConfig, passwordFileConfig, shouldAllowAutoLogin),
+                        securityUpdater(passwordFileConfig, shouldAllowAutoLogin),
                         serverConfigUpdater(artifactsDir, purgeStart, purgeUpto, jobTimeout, siteUrl, secureSiteUrl, taskRepositoryLocation))));
         //should not reach here with empty result
         return result.get(0);
@@ -410,11 +410,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         };
     }
 
-    private UpdateConfigCommand securityUpdater(final LdapConfig ldapConfig, final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin) {
+    private UpdateConfigCommand securityUpdater(final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin) {
         return new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 SecurityConfig securityConfig = cruiseConfig.server().security();
-                securityConfig.modifyLdap(ldapConfig);
                 securityConfig.modifyPasswordFile(passwordFileConfig);
                 securityConfig.modifyAllowOnlyKnownUsers(!shouldAllowAutoLogin);
                 return cruiseConfig;
@@ -880,20 +879,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return serverConfig().security().isAllowOnlyKnownUsersToLogin();
     }
 
-    public boolean isLdapConfigured() {
-        return ldapConfig().isEnabled();
-    }
-
     public boolean isPasswordFileConfigured() {
         return passwordFileConfig().isEnabled();
     }
 
     public boolean shouldFetchMaterials(String pipelineName, String stageName) {
         return stageConfigNamed(pipelineName, stageName).isFetchMaterials();
-    }
-
-    public LdapConfig ldapConfig() {
-        return serverConfig().security().ldapConfig();
     }
 
     private PasswordFileConfig passwordFileConfig() {

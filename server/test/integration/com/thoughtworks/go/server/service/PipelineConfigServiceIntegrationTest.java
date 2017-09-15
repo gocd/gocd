@@ -136,8 +136,8 @@ public class PipelineConfigServiceIntegrationTest {
             }
         });
         GoCipher goCipher = new GoCipher();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
-        goConfigService.updateServerConfig(new MailHost(goCipher), new LdapConfig(goCipher), new PasswordFileConfig("path"), false, goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, true);
+        goConfigService.updateServerConfig(new MailHost(goCipher), new PasswordFileConfig("path"), false, goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
         remoteDownstreamPipelineName = "remote-downstream";
@@ -161,7 +161,7 @@ public class PipelineConfigServiceIntegrationTest {
         cachedGoPartials.clear();
         configHelper.onTearDown();
         dbHelper.onTearDown();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, false);
     }
 
     @Test

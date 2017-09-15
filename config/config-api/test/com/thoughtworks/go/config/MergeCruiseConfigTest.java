@@ -283,7 +283,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
         CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
 
-        shouldCollectAllTheErrorsInTheChilderHelper(config);
+        shouldCollectAllTheErrorsInTheChildrenHelper(config);
     }
 
     @Test

@@ -42,7 +42,6 @@ import java.util.Set;
  */
 @Service
 public class UserSearchService {
-    private final LdapUserSearch ldapUserSearch;
     private final PasswordFileUserSearch passwordFileUserSearch;
     private final AuthorizationMetadataStore store;
     private final AuthorizationExtension authorizationExtension;
@@ -54,10 +53,9 @@ public class UserSearchService {
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
 
     @Autowired
-    public UserSearchService(LdapUserSearch ldapUserSearch, PasswordFileUserSearch passwordFileUserSearch,
+    public UserSearchService(PasswordFileUserSearch passwordFileUserSearch,
                              AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
                              AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension) {
-        this.ldapUserSearch = ldapUserSearch;
         this.passwordFileUserSearch = passwordFileUserSearch;
         this.store = AuthorizationMetadataStore.instance();
         this.authorizationExtension = authorizationExtension;
@@ -71,34 +69,14 @@ public class UserSearchService {
         if (isInputValid(searchText, result)) {
             return userSearchModels;
         }
-        boolean passwordSearchFailed = searchPasswordFile(searchText, result, userSearchModels);
-        searchLdap(searchText, result, userSearchModels, passwordSearchFailed);
+
+        searchPasswordFile(searchText, result, userSearchModels);
         searchUsingPlugins(searchText, userSearchModels);
 
         if (userSearchModels.size() == 0 && !result.hasMessage()) {
             result.setMessage(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR"));
         }
         return userSearchModels;
-    }
-
-    private void searchLdap(String searchText, HttpLocalizedOperationResult result, List<UserSearchModel> userSearchModels, boolean passwordSearchFailed) {
-        if (goConfigService.isLdapConfigured()) {
-            List<User> users = new ArrayList<>();
-            try {
-                users = ldapUserSearch.search(searchText);
-            } catch (LdapUserSearch.NotAllResultsShownException ex) {
-                result.setMessage(LocalizedMessage.string("NOT_ALL_RESULTS_SHOWN"));
-                users = ex.getUsers();
-            } catch (Exception ex) {
-                LOGGER.error("User search for {} on ldap failed with Exception.", searchText, ex);
-                if (passwordSearchFailed) {
-                    result.badRequest(LocalizedMessage.string("USER_SEARCH_FAILED"));
-                } else {
-                    result.setMessage(LocalizedMessage.string("LDAP_ERROR"));
-                }
-            }
-            userSearchModels.addAll(convertUsersToUserSearchModel(users, UserSourceType.LDAP));
-        }
     }
 
     private boolean searchPasswordFile(String searchText, HttpLocalizedOperationResult result, List<UserSearchModel> userSearchModels) {

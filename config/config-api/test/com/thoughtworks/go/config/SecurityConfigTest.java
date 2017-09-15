@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
-import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.config.Admin;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.ReflectionUtil;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,7 +27,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 
 public class SecurityConfigTest {
@@ -48,12 +42,6 @@ public class SecurityConfigTest {
     }
 
     @Test
-    public void shouldSaySecurityEnabledIfLdapSecurityEnabled() {
-        ServerConfig serverConfig = server(ldap(), null, admins());
-        assertTrue("Security should be enabled when LDAP config present", serverConfig.isSecurityEnabled());
-    }
-
-    @Test
     public void twoEmptySecurityConfigsShouldBeTheSame() throws Exception {
         SecurityConfig one = new SecurityConfig();
         SecurityConfig two = new SecurityConfig();
@@ -62,23 +50,23 @@ public class SecurityConfigTest {
 
     @Test
     public void shouldSaySecurityEnabledIfPasswordFileSecurityEnabled() {
-        ServerConfig serverConfig = server(null, pwordFile(), admins());
+        ServerConfig serverConfig = server(pwordFile(), admins());
         assertTrue("Security should be enabled when password file config present", serverConfig.isSecurityEnabled());
     }
 
     @Test
     public void shouldKnowIfUserIsAdmin() throws Exception {
-        SecurityConfig security = security(new LdapConfig(new GoCipher()), new PasswordFileConfig(), admins(user("chris")));
+        SecurityConfig security = security(new PasswordFileConfig(), admins(user("chris")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(true));
-        security = security(null, pwordFile(), admins(user("chris")));
+        security = security(pwordFile(), admins(user("chris")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(false));
     }
 
     @Test
     public void shouldKnowIfRoleIsAdmin() throws Exception {
-        SecurityConfig security = security(null, pwordFile(), admins(role("role1")));
+        SecurityConfig security = security(pwordFile(), admins(role("role1")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(false));
@@ -86,24 +74,24 @@ public class SecurityConfigTest {
 
     @Test
     public void shouldNotCareIfValidUserInRoleOrUser() throws Exception {
-        SecurityConfig security = security(null, pwordFile(), admins(role("role2")));
+        SecurityConfig security = security(pwordFile(), admins(role("role2")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(false));
 
-        security = security(null, pwordFile(), admins(role("role2"), user("jez")));
+        security = security(pwordFile(), admins(role("role2"), user("jez")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(true));
     }
 
     @Test
     public void shouldValidateRoleAsAdmin() throws Exception {
-        SecurityConfig security = security(null, pwordFile(), admins(role("role2")));
+        SecurityConfig security = security(pwordFile(), admins(role("role2")));
         assertThat(security.isAdmin(new AdminRole(new CaseInsensitiveString("role2"))), is(true));
     }
 
     @Test
     public void shouldReturnTheMemberRoles() throws Exception {
-        SecurityConfig securityConfig = security(null, pwordFile(), admins());
+        SecurityConfig securityConfig = security(pwordFile(), admins());
         assertUserRoles(securityConfig, "chris", DEFAULT_ROLES);
         assertUserRoles(securityConfig, "jez", DEFAULT_ROLES[0]);
         assertUserRoles(securityConfig, "loser");
@@ -111,7 +99,7 @@ public class SecurityConfigTest {
 
     @Test
     public void shouldReturnTrueIfDeletingARoleGoesThroughSuccessfully() throws Exception {
-        SecurityConfig securityConfig = security(null, pwordFile(), admins());
+        SecurityConfig securityConfig = security(pwordFile(), admins());
         securityConfig.deleteRole(ROLE1);
 
         assertUserRoles(securityConfig, "chris", ROLE2);
@@ -121,7 +109,7 @@ public class SecurityConfigTest {
     @Test
     public void shouldBombIfDeletingARoleWhichDoesNotExist() throws Exception {
         try {
-            SecurityConfig securityConfig = security(null, pwordFile(), admins());
+            SecurityConfig securityConfig = security(pwordFile(), admins());
             securityConfig.deleteRole(new RoleConfig(new CaseInsensitiveString("role99")));
             fail("Should have blown up with an exception on the previous line as deleting role99 should blow up");
         } catch (RuntimeException e) {
@@ -131,9 +119,9 @@ public class SecurityConfigTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        SecurityConfig one = new SecurityConfig(null, null, true, null, true);
-        SecurityConfig two = new SecurityConfig(null, null, true, null, false);
-        SecurityConfig three = new SecurityConfig(null, null, true, null, true);
+        SecurityConfig one = new SecurityConfig(null, true, null, true);
+        SecurityConfig two = new SecurityConfig(null, true, null, false);
+        SecurityConfig three = new SecurityConfig(null, true, null, true);
 
         assertThat(one, is(three));
         assertThat(one, not(is(two)));
@@ -141,39 +129,18 @@ public class SecurityConfigTest {
         assertThat(one.hashCode(), not(is(two.hashCode())));
     }
 
-    @Test
-    public void shouldNotUpdateManagerPasswordForLDAPIfNotChangedOrNull() throws InvalidCipherTextException {
-        SecurityConfig securityConfig = new SecurityConfig();
-        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), ""));
-        assertThat(ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
-        assertThat(securityConfig.ldapConfig().managerPassword(), is("p"));
-        String encryptedPassword = new GoCipher().encrypt("p");
-        assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(encryptedPassword));
-
-        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "notP", null, false, new BasesConfig(new BaseConfig("")), ""));
-
-        assertThat(ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
-        assertThat(securityConfig.ldapConfig().managerPassword(), is("p"));
-        assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(encryptedPassword));
-
-        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "", null, true, new BasesConfig(new BaseConfig("")), ""));
-        assertThat(securityConfig.ldapConfig().managerPassword(), is(""));
-        assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(nullValue()));
-    }
-    
     private void assertUserRoles(SecurityConfig securityConfig, String username, Role... roles) {
         assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username)), is(Arrays.asList(roles)));
     }
 
-    private ServerConfig server(LdapConfig ldap, PasswordFileConfig pwordFile, AdminsConfig admins) {
-        return new ServerConfig("", security(ldap, pwordFile, admins));
+    private ServerConfig server(PasswordFileConfig pwordFile, AdminsConfig admins) {
+        return new ServerConfig("", security(pwordFile, admins));
     }
 
-    public static SecurityConfig security(LdapConfig ldap, PasswordFileConfig pwordFile, AdminsConfig admins) {
-        ldap = ldap == null ? new LdapConfig(new GoCipher()) : ldap;
+    public static SecurityConfig security(PasswordFileConfig pwordFile, AdminsConfig admins) {
         pwordFile = pwordFile == null ? new PasswordFileConfig() : pwordFile;
 
-        SecurityConfig security = new SecurityConfig(ldap, pwordFile, true, admins);
+        SecurityConfig security = new SecurityConfig(pwordFile, true, admins);
         for (Role role : DEFAULT_ROLES) {
             security.addRole(role);
         }
@@ -190,10 +157,6 @@ public class SecurityConfigTest {
 
     public static AdminRole role(String name) {
         return new AdminRole(new CaseInsensitiveString(name));
-    }
-
-    public static LdapConfig ldap() {
-        return new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test");
     }
 
     public static PasswordFileConfig pwordFile() {

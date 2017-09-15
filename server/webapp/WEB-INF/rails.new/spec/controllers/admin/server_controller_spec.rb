@@ -26,17 +26,11 @@ describe Admin::ServerController do
   before(:each) do
     @encrypted_password = GoCipher.new.encrypt("encrypted_password")
     @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
-    @ldap_config = LdapConfig.new("ldap://test.com", "test", "password", @encrypted_password, true,BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig)), "searchFilter")
-    @ldap_config_without_password = LdapConfig.new("ldap://test.com", "test", "********", @encrypted_password, false,BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig)), "searchFilter")
     @password_file_config = PasswordFileConfig.new("path")
     @should_allow_auto_login = true
-    @security_config = SecurityConfig.new(@ldap_config, @password_file_config, false)
+    @security_config = SecurityConfig.new(@password_file_config, false)
     @valid_mail_host_params = {:hostName => "blrstdcrspair02", :port => "9999", :username => "pavan", :password => "strong_password", :tls => "true", :from => "from@from.com", :adminMail => "admin@admin.com"}
-    @valid_ldap_params = {:ldap_uri => "ldap://test.com", :ldap_username => "test", :ldap_password => "password", :ldap_encrypted_password => @encrypted_password,  :ldap_password_changed => "true",
-                          :ldap_search_base =>"base1\r\nbase2", :ldap_search_filter => "searchFilter"}
-    @valid_ldap_not_changed_password_params = {:ldap_uri => "ldap://test.com", :ldap_username => "test", :ldap_password => "********", :ldap_encrypted_password => @encrypted_password, :ldap_password_changed => "false",
-                          :ldap_search_base =>"base1\r\nbase2", :ldap_search_filter => "searchFilter"}
-    @valid_security_config_params = ({:allow_auto_login => (@should_allow_auto_login ? "true" : "false"), :password_file_path => "path"}).merge(@valid_ldap_params)
+    @valid_security_config_params = ({:allow_auto_login => (@should_allow_auto_login ? "true" : "false"), :password_file_path => "path"})
 
     @valid_artifacts_setting = {:artifactsDir => "newArtifactDir", :purgeStart => "10", :purgeUpto => "20", :purgeArtifacts => "Size"}
     @valid_server_params = @valid_mail_host_params.merge(@valid_security_config_params).merge(@valid_artifacts_setting)
@@ -66,45 +60,6 @@ describe Admin::ServerController do
         com.thoughtworks.go.i18n.LocalizedMessage.string(args[0], args[1..-1].to_java(java.lang.Object)).localize(Spring.bean("localizer"))
       end
     end.new)
-  end
-
-  describe "validate_ldap" do
-    it "should resolve /admin/config/server/validate_ldap" do
-      {:post => "/admin/config/server/validate_ldap"}.should route_to(:controller => "admin/server", :action => "validate_ldap")
-    end
-
-    it "should return error if validate ldap fails" do
-      result = nil
-      @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config, an_instance_of(HttpLocalizedOperationResult)) do |ldap_settings, op_result|
-        op_result.badRequest(LocalizedMessage.string('CANNOT_CONNECT_TO_LDAP'))
-        result = op_result
-      end
-
-      post :validate_ldap, :server_configuration_form => @valid_ldap_params
-      json = JSON.parse(response.body)
-      json["error"].should == "Cannot connect to ldap, please check the settings. Reason: {0}"
-      json["success"].should == nil
-    end
-
-    it "should report success on being able to connect to ldap" do
-      result = nil
-      @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config_without_password, an_instance_of(HttpLocalizedOperationResult))
-
-      post :validate_ldap, :server_configuration_form => @valid_ldap_not_changed_password_params
-      json = JSON.parse(response.body)
-      json["error"].should == nil
-      json["success"].should == "Connected to LDAP successfully."
-    end
-
-    it "should report success on being able to connect to ldap when the password is not changed" do
-      result = nil
-      @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config, an_instance_of(HttpLocalizedOperationResult))
-
-      post :validate_ldap, :server_configuration_form => @valid_ldap_params
-      json = JSON.parse(response.body)
-      json["error"].should == nil
-      json["success"].should == "Connected to LDAP successfully."
-    end
   end
 
   describe "index" do
@@ -144,31 +99,6 @@ describe Admin::ServerController do
       assigns[:command_repository_base_dir_location].should == "foo/"
     end
 
-    it "should construct server config form to display ldap searchbases" do
-      get :index
-
-      assigns[:server_configuration_form].ldap_search_base.should == "base1\r\nbase2"
-    end
-
-    it "should set inbuilt_ldap_password_auth_enabled flag to true if set on system environment" do
-      controller.stub(:system_environment).and_return(system_environment = Object.new)
-      system_environment.should_receive(:inbuiltLdapPasswordAuthEnabled).at_least(1).and_return(true)
-      system_environment.should_receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
-      get :index
-
-      assigns[:inbuilt_ldap_password_auth_enabled].should == true
-    end
-
-    it "should unset inbuilt_ldap_password_auth_enabled flag to true if set on system environment" do
-      controller.stub(:system_environment).and_return(system_environment = Object.new)
-      system_environment.should_receive(:inbuiltLdapPasswordAuthEnabled).at_least(1).and_return(false)
-      system_environment.should_receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
-      get :index
-
-      assigns[:inbuilt_ldap_password_auth_enabled].should == false
-    end
-
-
     describe "with view" do
       render_views
 
@@ -201,7 +131,7 @@ describe Admin::ServerController do
 
     it "should render success message returned by service while updating server config" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      @server_config_service.should_receive(:updateServerConfig) do |mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      @server_config_service.should_receive(:updateServerConfig) do |mailhost, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       end
 
@@ -212,7 +142,7 @@ describe Admin::ServerController do
 
     it "should assign server config details" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(@mail_host, @ldap_config, @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
+      stub_update_server_config(@mail_host, @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_server_params, :cruise_config_md5 => "foo_bar_baz"
 
@@ -238,7 +168,7 @@ describe Admin::ServerController do
 
     it "should skip validating mailHost params if all of them are empty" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
+      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),  @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting), :cruise_config_md5 => "foo_bar_baz"
 
@@ -247,7 +177,7 @@ describe Admin::ServerController do
 
     it "should drop purge-values when purging turned off" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", nil, nil, nil, @should_allow_auto_login, nil, nil,nil,  localized_success_message, "foo_bar_baz")
+      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),  @password_file_config, "newArtifactDir", nil, nil, nil, @should_allow_auto_login, nil, nil,nil,  localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never"), :cruise_config_md5 => "foo_bar_baz"
 
@@ -256,7 +186,7 @@ describe Admin::ServerController do
 
     it "should send '0' for never terminate hung job" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", nil, nil, '0', @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
+      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),  @password_file_config, "newArtifactDir", nil, nil, '0', @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never", :timeoutType => 'neverTimeout'), :cruise_config_md5 => "foo_bar_baz"
 
@@ -265,7 +195,7 @@ describe Admin::ServerController do
 
     it "should send overridden jobTimeout for terminate hung job" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", nil, nil, '42', @should_allow_auto_login, nil, nil, nil,localized_success_message, "foo_bar_baz")
+      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),  @password_file_config, "newArtifactDir", nil, nil, '42', @should_allow_auto_login, nil, nil, nil,localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never", :timeoutType => 'overrideTimeout', :jobTimeout => '42'), :cruise_config_md5 => "foo_bar_baz"
 
@@ -274,14 +204,14 @@ describe Admin::ServerController do
 
     it "should update the server site url and secure site url" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", nil, nil, nil, @should_allow_auto_login, "http://site_url", "https://secure_site_url", nil, localized_success_message, "foo_bar_baz")
+      stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),  @password_file_config, "newArtifactDir", nil, nil, nil, @should_allow_auto_login, "http://site_url", "https://secure_site_url", nil, localized_success_message, "foo_bar_baz")
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never", :siteUrl => "http://site_url", :secureSiteUrl => "https://secure_site_url"), :cruise_config_md5 => "foo_bar_baz"
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success')
     end
 
     it "should render error message if there is an error reported by the service" do
       result = nil
-      @server_config_service.should_receive(:updateServerConfig) do |mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      @server_config_service.should_receive(:updateServerConfig) do |mailhost, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.notAcceptable(LocalizedMessage.string("INVALID_FROM_ADDRESS"))
         result = operation_result
       end
@@ -293,7 +223,7 @@ describe Admin::ServerController do
 
     it "should update command repository location" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      stub_update_server_config(@mail_host, @ldap_config, @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, "value",localized_success_message, nil)
+      stub_update_server_config(@mail_host,  @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, "value",localized_success_message, nil)
       post :update, :server_configuration_form => @valid_server_params.merge(:commandRepositoryLocation => "value")
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success')
     end
@@ -319,10 +249,9 @@ describe Admin::ServerController do
       LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")
     end
 
-    def stub_update_server_config(mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, repo_location, localizable_message,md5)
-      @server_config_service.should_receive(:updateServerConfig) do |actual_mailhost, actual_ldap, actual_password, actual_artifact_dir, actual_purgeStart, actual_purgeEnd, actual_jobTimeout, actual_should_allow_auto_login, actual_siteUrl, actual_secureSiteUrl, actual_repo_location, actual_operation_result,actual_md5|
+    def stub_update_server_config(mailhost, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, repo_location, localizable_message,md5)
+      @server_config_service.should_receive(:updateServerConfig) do |actual_mailhost, actual_password, actual_artifact_dir, actual_purgeStart, actual_purgeEnd, actual_jobTimeout, actual_should_allow_auto_login, actual_siteUrl, actual_secureSiteUrl, actual_repo_location, actual_operation_result,actual_md5|
         actual_mailhost.should == mailhost
-        actual_ldap.should == ldap
         actual_password.should == password
         actual_artifact_dir.should == artifact_dir
         actual_purgeStart.should == purgeStart

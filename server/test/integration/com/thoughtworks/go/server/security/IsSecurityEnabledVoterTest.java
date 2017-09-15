@@ -49,17 +49,17 @@ public class IsSecurityEnabledVoterTest {
         goConfigDao = GoConfigFileHelper.createTestingDao();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.initializeConfigFile();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, true);
     }
 
     @After
     public void tearDown() throws Exception {
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, false);
     }
 
     @Test
     public void shouldNotVoteAccessGrantedIfSecurityIsEnabledButAnonymousIsNot() {
-        configHelper.addSecurityWithBogusLdapConfig(false);
+        configHelper.addBogusSecurity(false);
         GoConfigService configService = new GoConfigService(goConfigDao, null, new SystemTimeClock(), mock(GoConfigMigration.class), null, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(),
                 new InstanceFactory(), mock(CachedGoPartials.class), null);

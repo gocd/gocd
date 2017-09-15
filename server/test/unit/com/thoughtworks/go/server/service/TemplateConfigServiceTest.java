@@ -414,7 +414,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnAMapOfAllTemplatesWithAuthorizationsForAnyUser() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
 
@@ -463,7 +463,7 @@ public class TemplateConfigServiceTest {
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
         return cruiseConfig;

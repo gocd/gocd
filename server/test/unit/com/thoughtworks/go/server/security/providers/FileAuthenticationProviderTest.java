@@ -20,10 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.LdapConfig;
 import com.thoughtworks.go.config.PasswordFileConfig;
 import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
@@ -94,7 +92,7 @@ public class FileAuthenticationProviderTest {
 
     @Test(expected = UsernameNotFoundException.class)
     public void shouldThrowExceptionIfFileDoesNotExist() throws Exception {
-        when(goConfigService.security()).thenReturn(new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("ueyrweiyri"), true, null));
+        when(goConfigService.security()).thenReturn(new SecurityConfig(new PasswordFileConfig("ueyrweiyri"), true, null));
 
         AuthorityGranter authorityGranter = new AuthorityGranter(securityService);
         FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, authorityGranter, userService, securityService, systemEnvironment);
@@ -185,7 +183,7 @@ public class FileAuthenticationProviderTest {
         final File passwordFile = TestFileUtil.createTempFile("password.properties");
         passwordFile.deleteOnExit();
         FileUtils.writeStringToFile(passwordFile, userAndPasswordAndRoles);
-        final SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()),
+        final SecurityConfig securityConfig = new SecurityConfig(
                 new PasswordFileConfig(passwordFile.getAbsolutePath()), true, null);
         when(goConfigService.security()).thenReturn(securityConfig);
     }
@@ -193,7 +191,7 @@ public class FileAuthenticationProviderTest {
     @Test
     public void shouldNotEngageWhenPasswordFileIsNotConfigured() throws Exception {
         FileAuthenticationProvider provider = new FileAuthenticationProvider(goConfigService, null, userService, securityService, systemEnvironment);
-        when(goConfigService.security()).thenReturn(new SecurityConfig(null, new PasswordFileConfig(), true));
+        when(goConfigService.security()).thenReturn(new SecurityConfig(new PasswordFileConfig(), true));
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
     }
 }

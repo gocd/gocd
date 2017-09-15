@@ -37,9 +37,9 @@ public class ServerConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost(new GoCipher());
 
-        when(goConfigService.updateServerConfig(mailHost, null, null, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
+        when(goConfigService.updateServerConfig(mailHost,null, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
                 ConfigSaveState.MERGED);
-        serverConfigService.updateServerConfig(mailHost, null, null, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
+        serverConfigService.updateServerConfig(mailHost, null, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
         assertThat(result.localizable(), Is.is(LocalizedMessage.composite(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED"))));
     }
@@ -52,9 +52,9 @@ public class ServerConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost(new GoCipher());
 
-        when(goConfigService.updateServerConfig(mailHost, null, null, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
+        when(goConfigService.updateServerConfig(mailHost, null, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
                 ConfigSaveState.UPDATED);
-        serverConfigService.updateServerConfig(mailHost, null, null, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
+        serverConfigService.updateServerConfig(mailHost, null, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
         assertThat(result.localizable(), Is.is(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
 

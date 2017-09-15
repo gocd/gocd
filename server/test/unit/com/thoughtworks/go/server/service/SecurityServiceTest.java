@@ -266,7 +266,7 @@ public class SecurityServiceTest {
     public void shouldReturnTrueForGroupAdminsWithinARoleToViewTemplate() {
         CaseInsensitiveString groupAdmin = new CaseInsensitiveString("groupAdmin");
         BasicCruiseConfig config = new BasicCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(groupAdmin));
         serverConfig.security().addRole(role);
         config.setServerConfig(serverConfig);
@@ -289,7 +289,7 @@ public class SecurityServiceTest {
     public void shouldReturnFalseForGroupAdminsWithinARoleToVIewTemplateIfDisallowed() {
         CaseInsensitiveString groupAdmin = new CaseInsensitiveString("groupAdmin");
         BasicCruiseConfig config = new BasicCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(groupAdmin));
         serverConfig.security().addRole(role);
         config.setServerConfig(serverConfig);
@@ -339,7 +339,7 @@ public class SecurityServiceTest {
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
         return cruiseConfig;

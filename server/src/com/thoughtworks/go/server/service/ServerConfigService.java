@@ -22,8 +22,6 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.controller.beans.GoMailSenderProvider;
-import com.thoughtworks.go.server.security.LdapContextSourceConfigurator;
-import com.thoughtworks.go.server.security.LdapUserSearch;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -33,7 +31,6 @@ import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.stereotype.Service;
 
 import javax.mail.internet.AddressException;
@@ -41,7 +38,6 @@ import javax.mail.internet.InternetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 
 @Service
@@ -59,7 +55,7 @@ public class ServerConfigService implements BaseUrlProvider {
         this.userService = userService;
     }
 
-    public void updateServerConfig(MailHost mailHost, LdapConfig ldapConfig, PasswordFileConfig passwordFileConfig, String artifactsDir,
+    public void updateServerConfig(MailHost mailHost, PasswordFileConfig passwordFileConfig, String artifactsDir,
                                    Double purgeStart, Double purgeUpto, String jobTimeout, boolean shouldAllowAutoLogin, String siteUrl, String secureSiteUrl,
                                    String taskRepositoryLocation, final HttpLocalizedOperationResult result, final String md5) {
         if (!mailHost.equals(new MailHost(new GoCipher()))) {
@@ -73,7 +69,7 @@ public class ServerConfigService implements BaseUrlProvider {
 
         if (result.isSuccessful()) {
             try {
-                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
+                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, passwordFileConfig, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
                         purgeUpto, jobTimeout, siteUrl,
                         secureSiteUrl, taskRepositoryLocation);
                 if (ConfigSaveState.MERGED.equals(configSaveState)) {
@@ -142,30 +138,6 @@ public class ServerConfigService implements BaseUrlProvider {
         if (!validationBean.isValid()) {
             result.notAcceptable(LocalizedMessage.string("FAILED_TO_SEND_TEST_MAIL", validationBean.getError()));
         }
-    }
-
-    public void validateLdapSettings(LdapConfig ldapConfig, HttpLocalizedOperationResult result) {
-        try {
-            new LdapUserSearch(goConfigService, ldapContextSource(ldapConfig)).search(ANY_USER, ldapConfig);
-        } catch (LdapUserSearch.NotAllResultsShownException ex) {
-            // Connected to ldap sucessfully. Dont care about results.
-        } catch (RuntimeException e) {
-            result.connectionError(LocalizedMessage.string("CANNOT_CONNECT_TO_LDAP", e.getMessage()));
-        }
-    }
-
-    DefaultSpringSecurityContextSource ldapContextSource(LdapConfig ldapConfig) {
-        DefaultSpringSecurityContextSource source = new DefaultSpringSecurityContextSource(ldapConfig.uri());
-
-        //so user can define the variable java.naming.referral=follow in the server.sh
-        source.setBaseEnvironmentProperties(System.getProperties());
-        new LdapContextSourceConfigurator(ldapConfig).configure(source);
-        try {
-            source.afterPropertiesSet();
-        } catch (Exception e) {
-            bomb("Cannot create ldap context", e);
-        }
-        return source;
     }
 
     public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {

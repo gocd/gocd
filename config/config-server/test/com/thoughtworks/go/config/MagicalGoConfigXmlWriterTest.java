@@ -27,8 +27,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
-import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -82,12 +80,12 @@ public class MagicalGoConfigXmlWriterTest {
         ConfigCache configCache = new ConfigCache();
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, true);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, true);
     }
 
     @After
     public void tearDown() throws Exception {
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_LDAP_PASSWORD_AUTH_ENABLED, false);
+        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, false);
     }
 
     @Test
@@ -415,12 +413,6 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' >"
                 + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"
-                + "<security>"
-                + "<ldap uri=\"ldap://blah.blah.somewhere.com\" managerDn=\"cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com\" "
-                + "managerPassword=\"password\" searchFilter=\"(sAMAccountName={0})\">"
-                + "<bases><base value=\"ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com\"/></bases>"
-                + "</ldap>"
-                + "</security>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"
@@ -445,11 +437,6 @@ public class MagicalGoConfigXmlWriterTest {
                 "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\" />"));
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
                 "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"));
-        String expectedLdapConfig = "<ldap uri=\"ldap://blah.blah.somewhere.com\" managerDn=\"cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com\" "
-                + "encryptedManagerPassword=\"pVyuW5ny9I6YT4Ou+KLZhQ==\" searchFilter=\"(sAMAccountName={0})\"> "
-                + "<bases> <base value=\"ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com\" /> </bases> </ldap>";
-        assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                expectedLdapConfig));
     }
 
     @Test
@@ -819,24 +806,6 @@ public class MagicalGoConfigXmlWriterTest {
         }
 
         assertThat(new String(output.toByteArray()), containsString("<fetchartifact pipeline=\"uppest/upper/downer\" stage=\"stage\" job=\"job\" srcfile=\"src\" dest=\"dest\" />"));
-    }
-
-    @Test
-    public void shouldWriteMultipleSearchBases() throws Exception {
-        BaseConfig base1 = new BaseConfig("base1");
-        BaseConfig base2 = new BaseConfig("base2");
-        BasesConfig basesConfig = new BasesConfig(base1, base2);
-        LdapConfig ldapConfig = new LdapConfig("url", "managerDn", "managerPassword", "managerPassword", false, basesConfig, "filter");
-        SecurityConfig securityConfig = new SecurityConfig(ldapConfig, new PasswordFileConfig("some_path"), false);
-        ServerConfig serverConfig = new ServerConfig(securityConfig, new MailHost(new GoCipher()));
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.setServerConfig(serverConfig);
-
-        xmlWriter.write(cruiseConfig, output, false);
-        GoConfigHolder holder = xmlLoader.loadConfigHolder(output.toString());
-        BasesConfig actualBasesConfig = holder.config.server().security().ldapConfig().getBasesConfig();
-        assertThat(actualBasesConfig.size(), is(2));
-        assertThat(actualBasesConfig, hasItems(base1, base2));
     }
 
     @Test

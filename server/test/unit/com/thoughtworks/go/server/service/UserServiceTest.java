@@ -319,7 +319,7 @@ public class UserServiceTest {
     @Test
     public void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
         CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = new SecurityConfig(null, new PasswordFileConfig("path"), true, null);
+        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig("path"), true, null);
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
                 new RoleUser(new CaseInsensitiveString("user3"))));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),

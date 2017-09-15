@@ -281,7 +281,7 @@ public class Jetty9ServerTest {
         int sessionTimeoutInSeconds = 1234;
 
         jetty9Server.configure();
-        jetty9Server.setCookieExpirePeriod(sessionTimeoutInSeconds);
+        jetty9Server.setSessionAndCookieExpiryTimeout(sessionTimeoutInSeconds);
 
         WebAppContext webAppContext = getWebAppContext(jetty9Server);
         assertThat(webAppContext.getSessionHandler().getSessionManager().getMaxInactiveInterval(), is(1234));

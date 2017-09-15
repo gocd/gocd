@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -58,7 +59,7 @@ public class GoRepoConfigDataSourceTest {
         CachedGoConfig cachedGoConfig = mock(CachedGoConfig.class);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        configWatchList = new GoConfigWatchList(cachedGoConfig);
+        configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService,serverHealthService);
     }

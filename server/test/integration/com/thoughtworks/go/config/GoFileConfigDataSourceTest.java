@@ -33,6 +33,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -118,7 +119,7 @@ public class GoFileConfigDataSourceTest {
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        GoConfigWatchList configWatchList = new GoConfigWatchList(cachedGoConfig);
+        GoConfigWatchList configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
         ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
         GoConfigPluginService configPluginService = new GoConfigPluginService(mock(ConfigRepoExtension.class), new ConfigCache(), configElementImplementationRegistry, cachedGoConfig);
         repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");

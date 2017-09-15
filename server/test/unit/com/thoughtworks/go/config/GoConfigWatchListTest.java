@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,19 +32,26 @@ public class GoConfigWatchListTest {
     private CachedGoConfig cachedGoConfig;
     private GoConfigWatchList watchList;
     private CruiseConfig cruiseConfig;
+    private GoConfigService goConfigService;
+    private ConfigReposConfig configRepos;
 
     @Before
     public void setUp() throws Exception {
         cachedGoConfig = mock(CachedGoConfig.class);
         cruiseConfig = mock(CruiseConfig.class);
+        goConfigService = mock(GoConfigService.class);
+        configRepos = new ConfigReposConfig();
+
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
-        watchList = new GoConfigWatchList(cachedGoConfig);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getConfigRepos()).thenReturn(configRepos);
+
+        watchList = new GoConfigWatchList(cachedGoConfig, goConfigService);
     }
 
     @Test
-    public  void shouldListenForConfigFileChanges()
-    {
-        verify(cachedGoConfig,times(1)).registerListener(watchList);
+    public void shouldListenForConfigFileChanges() {
+        verify(cachedGoConfig, times(1)).registerListener(watchList);
     }
 
     @Test
@@ -51,47 +59,52 @@ public class GoConfigWatchListTest {
         final ChangedRepoConfigWatchListListener listener = mock(ChangedRepoConfigWatchListListener.class);
 
         watchList.registerListener(listener);
-
-        when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig());
         watchList.onConfigChange(cruiseConfig);
 
-        verify(listener, times(1)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
+        verify(listener, times(2)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
     }
 
     @Test
-    public void shouldReturnTrueWhenHasConfigRepoWithFingerprint()
-    {
+    public void shouldNotifyConfigListenersWhenSingleConfigRepoHasChanged() throws Exception {
+        final ChangedRepoConfigWatchListListener listener = mock(ChangedRepoConfigWatchListListener.class);
+        watchList.registerListener(listener);
+        watchList.onEntityConfigChange(new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "id"));
+
+        verify(listener, times(2)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenHasConfigRepoWithFingerprint() {
         GitMaterialConfig gitrepo = new GitMaterialConfig("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
                 new ConfigRepoConfig(gitrepo,"myplugin")));
 
-        watchList = new GoConfigWatchList(cachedGoConfig);
+        watchList = new GoConfigWatchList(cachedGoConfig, goConfigService);
 
         assertTrue(watchList.hasConfigRepoWithFingerprint(gitrepo.getFingerprint()));
     }
+
     @Test
-    public void shouldReturnFalseWhenDoesNotHaveConfigRepoWithFingerprint()
-    {
+    public void shouldReturnFalseWhenDoesNotHaveConfigRepoWithFingerprint() {
         GitMaterialConfig gitrepo = new GitMaterialConfig("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
-                new ConfigRepoConfig(gitrepo,"myplugin")));
+                new ConfigRepoConfig(gitrepo, "myplugin")));
 
-        watchList = new GoConfigWatchList(cachedGoConfig);
+        watchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
-        GitMaterialConfig gitrepo2 = new GitMaterialConfig("http://configrepo.git","dev");
+        GitMaterialConfig gitrepo2 = new GitMaterialConfig("http://configrepo.git", "dev");
         assertFalse(watchList.hasConfigRepoWithFingerprint(gitrepo2.getFingerprint()));
     }
 
 
     @Test
-    public void shouldReturnConfigRepoForMaterial()
-    {
+    public void shouldReturnConfigRepoForMaterial() {
         GitMaterialConfig gitrepo = new GitMaterialConfig("http://configrepo.git");
         ConfigRepoConfig repoConfig = new ConfigRepoConfig(gitrepo, "myplugin");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
                 repoConfig));
 
-        watchList = new GoConfigWatchList(cachedGoConfig);
+        watchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
         assertThat(watchList.getConfigRepoForMaterial(gitrepo), is(repoConfig));
     }

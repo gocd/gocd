@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -143,6 +144,21 @@ public class SCMMaterialSourceTest {
 
         source.onConfigChange(mock(CruiseConfig.class));
         materials = source.materialsForUpdate();
+
+        assertThat(materials.size(), is(2));
+        assertTrue(materials.contains(svnMaterial));
+        assertTrue(materials.contains(gitMaterial));
+    }
+
+    @Test
+    public void shouldReloadSchedulableMaterialsOnConfigRepoChange() {
+        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
+        when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
+
+        source.onEntityConfigChange(mock(ConfigRepoConfig.class));
+        Set<Material> materials = source.materialsForUpdate();
 
         assertThat(materials.size(), is(2));
         assertTrue(materials.contains(svnMaterial));

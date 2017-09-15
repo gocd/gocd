@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +34,17 @@ import java.util.List;
  * Provides a list of configuration repositories.
  */
 @Component
-public class GoConfigWatchList implements ConfigChangedListener {
+public class GoConfigWatchList extends EntityConfigChangedListener<ConfigRepoConfig> implements ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigWatchList.class);
 
     private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<>();
     private ConfigReposConfig reposConfig;
+    private GoConfigService goConfigService;
 
     @Autowired
-    public GoConfigWatchList(CachedGoConfig cachedGoConfig) {
+    public GoConfigWatchList(CachedGoConfig cachedGoConfig, GoConfigService goConfigService) {
         this.reposConfig = cachedGoConfig.currentConfig().getConfigRepos();
+        this.goConfigService = goConfigService;
         cachedGoConfig.registerListener(this);
     }
 
@@ -54,6 +58,16 @@ public class GoConfigWatchList implements ConfigChangedListener {
 
         this.reposConfig = partSources;
         notifyListeners(partSources);
+    }
+
+    @Override
+    public void onEntityConfigChange(ConfigRepoConfig newConfigRepo) {
+        this.reposConfig.remove(this.reposConfig.getConfigRepo(newConfigRepo.getId()));
+        if(goConfigService.currentCruiseConfig().getConfigRepos().getConfigRepo(newConfigRepo.getId()) != null) {
+            this.reposConfig.add(newConfigRepo);
+        }
+
+        notifyListeners(this.reposConfig);
     }
 
     private synchronized void notifyListeners(ConfigReposConfig configRepoConfigs) {

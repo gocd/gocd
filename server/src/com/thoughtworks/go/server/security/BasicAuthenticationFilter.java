@@ -70,7 +70,7 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
     }
 
     public void handleException(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Exception e) throws IOException {
-        String message = localizer.localize("INVALID_LDAP_ERROR");
+        String message = localizer.localize("AUTHENTICATION_ERROR");
         if (hasAccept(httpRequest, "text/html") || hasAccept(httpRequest, "application/xhtml")) {
             httpRequest.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new RuntimeException(message));
             httpRequest.setAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED, true);

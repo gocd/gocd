@@ -55,7 +55,7 @@ public class BasicAuthenticationFilterTest {
         httpResponse = new MockHttpServletResponse();
         localizer = mock(Localizer.class);
         filter = new BasicAuthenticationFilter(localizer);
-        when(localizer.localize("INVALID_LDAP_ERROR")).thenReturn(errorMessage);
+        when(localizer.localize("AUTHENTICATION_ERROR")).thenReturn(errorMessage);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class BasicAuthenticationFilterTest {
         SecurityContext context = SecurityContextHolder.getContext();
 
         filter.handleException(httpRequest, httpResponse, new Exception("some error"));
-        verify(localizer).localize("INVALID_LDAP_ERROR");
+        verify(localizer).localize("AUTHENTICATION_ERROR");
 
         assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(errorMessage));
         assertThat(httpRequest.getAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED).toString(), is("true"));
@@ -103,7 +103,7 @@ public class BasicAuthenticationFilterTest {
         httpRequest.addHeader("Accept", "application/vnd.go.cd.v1+json");
 
         filter.handleException(httpRequest, httpResponse, null);
-        verify(localizer).localize("INVALID_LDAP_ERROR");
+        verify(localizer).localize("AUTHENTICATION_ERROR");
         assertEquals("application/vnd.go.cd.v1+json; charset=utf-8", httpResponse.getContentType());
         assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
         assertEquals(500, httpResponse.getStatus());
@@ -115,7 +115,7 @@ public class BasicAuthenticationFilterTest {
         httpRequest.addHeader("Accept", "application/XML");
 
         filter.handleException(httpRequest, httpResponse, null);
-        verify(localizer).localize("INVALID_LDAP_ERROR");
+        verify(localizer).localize("AUTHENTICATION_ERROR");
         assertEquals("application/xml; charset=utf-8", httpResponse.getContentType());
         assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
         assertEquals(500, httpResponse.getStatus());
@@ -126,7 +126,7 @@ public class BasicAuthenticationFilterTest {
     public void testShouldRender500WithWithHTMLWithNoAcceptHeader() throws Exception {
 
         filter.handleException(httpRequest, httpResponse, new Exception("foo"));
-        verify(localizer).localize("INVALID_LDAP_ERROR");
+        verify(localizer).localize("AUTHENTICATION_ERROR");
         assertEquals(500, httpResponse.getStatus());
         assertEquals("foo", httpResponse.getErrorMessage());
     }

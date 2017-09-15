@@ -47,7 +47,10 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,8 +139,7 @@ public class PipelineConfigServiceIntegrationTest {
             }
         });
         GoCipher goCipher = new GoCipher();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, true);
-        goConfigService.updateServerConfig(new MailHost(goCipher), new PasswordFileConfig("path"), false, goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
+        goConfigService.updateServerConfig(new MailHost(goCipher), false, goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
         remoteDownstreamPipelineName = "remote-downstream";
@@ -147,7 +149,7 @@ public class PipelineConfigServiceIntegrationTest {
         goPartialConfig.onSuccessPartialConfig(repoConfig2, partialConfigFromRepo2);
         result = new HttpLocalizedOperationResult();
         headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
-
+        goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
     }
 
     @After
@@ -161,7 +163,6 @@ public class PipelineConfigServiceIntegrationTest {
         cachedGoPartials.clear();
         configHelper.onTearDown();
         dbHelper.onTearDown();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, false);
     }
 
     @Test
@@ -620,6 +621,7 @@ public class PipelineConfigServiceIntegrationTest {
 
     @Test
     public void shouldNotDeleteThePipelineForUnauthorizedUsers() throws Exception {
+        goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
 

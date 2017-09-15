@@ -77,9 +77,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -868,7 +866,7 @@ public class GoConfigServiceTest {
     public void shouldThrowExceptionIfGroupDoesNotExist_WhenUserIsAdmin() {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");
         GoConfigMother mother = new GoConfigMother();
-        mother.enableSecurityWithPasswordFile(cruiseConfig);
+        mother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         String groupName = String.format("group_%s", UUID.randomUUID());
         try {
@@ -884,7 +882,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");
         String groupName = String.format("group_%s", UUID.randomUUID());
         GoConfigMother mother = new GoConfigMother();
-        mother.enableSecurityWithPasswordFile(cruiseConfig);
+        mother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         try {
             goConfigService.isUserAdminOfGroup(new CaseInsensitiveString("foo"), groupName);
@@ -899,7 +897,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");
         String groupName = String.format("group_%s", UUID.randomUUID());
         GoConfigMother mother = new GoConfigMother();
-        mother.enableSecurityWithPasswordFile(cruiseConfig);
+        mother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         cruiseConfig.server().security().adminsConfig().add(new AdminUser(adminName));
         mother.addPipelineWithGroup(cruiseConfig, groupName, "pipeline", "stage");
         mother.addAdminUserForPipelineGroup(cruiseConfig, "user", groupName);
@@ -1084,7 +1082,7 @@ public class GoConfigServiceTest {
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()),null, true, "md5", null, null, null, null, "http://site",
+        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), true, "md5", null, null, null, null, "http://site",
                 "https://site", "location");
         assertThat(configSaveState, is(expectedSaveState));
     }
@@ -1280,7 +1278,9 @@ public class GoConfigServiceTest {
 
     private CruiseConfig mockConfigWithSecurity() {
         CruiseConfig config = mockConfig();
-        config.server().useSecurity(new SecurityConfig(new PasswordFileConfig("path"), true));
+        final SecurityConfig securityConfig = new SecurityConfig(true);
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
+        config.server().useSecurity(securityConfig);
         return config;
     }
 

@@ -21,14 +21,14 @@ class ServerConfigurationForm
   PURGING_ENABLED = "Size"
 
   attr_accessor :hostName, :port, :username, :password, :encrypted_password, :tls, :from, :adminMail, :password_changed,
-                :allow_auto_login, :password_file_path,
+                :allow_auto_login,
                 :artifactsDir, :purgeArtifacts, :jobTimeout, :timeoutType, :siteUrl, :secureSiteUrl, :commandRepositoryLocation
 
   def initialize(attributes)
     @hostName, @port, @username, @password, @encrypted_password, @password_changed, @tls, @from, @adminMail =
             attributes[:hostName], attributes[:port], attributes[:username], attributes[:password], attributes[:encrypted_password], attributes[:password_changed], attributes[:tls], attributes[:from], attributes[:adminMail]
 
-    @allow_auto_login, @password_file_path = attributes[:allow_auto_login], attributes[:password_file_path]
+    @allow_auto_login = attributes[:allow_auto_login]
     @artifactsDir, @purgeArtifacts, @purgeStart, @purgeUpto = attributes[:artifactsDir], attributes[:purgeArtifacts], attributes[:purgeStart], attributes[:purgeUpto]
     @jobTimeout = attributes[:timeoutType] == com.thoughtworks.go.config.ServerConfig::NEVER_TIMEOUT ? "0" : attributes[:jobTimeout]
     @timeoutType = attributes[:timeoutType]
@@ -42,18 +42,16 @@ class ServerConfigurationForm
 
   def self.from_server_config(server_config)
     security_config, mail_host = server_config.security(),server_config.mailHost()
-    password_file_path = security_config.passwordFileConfig().path()
     auto_login = security_config.isAllowOnlyKnownUsersToLogin() ? "false" : "true"
 
     allow_auto_login = {:allow_auto_login => auto_login}
     mail_host_params= {:hostName => mail_host.getHostName(), :port => mail_host.getPort().to_s, :username => mail_host.getUserName(),
                        :password => mail_host.getPassword(), :encrypted_password => mail_host.getEncryptedPassword(), :password_changed => mail_host.isPasswordChanged().to_s , :tls => mail_host.getTls().to_s, :from => mail_host.getFrom(), :adminMail => mail_host.getAdminMail()}
-    password_file_params = { :password_file_path => password_file_path}
     artifacts_params = {:artifactsDir => server_config.artifactsDir(), :purgeArtifacts => artifactPurgingAllowed?(server_config), :purgeStart => server_config.getPurgeStart(), :purgeUpto => server_config.getPurgeUpto()}
     job_timeout_params = {:timeoutType => server_config.getTimeoutType(), :jobTimeout => server_config.getJobTimeout()}
     site_url_params = {:siteUrl => server_config.getSiteUrl().getUrl(), :secureSiteUrl => server_config.getSecureSiteUrl().getUrl()}
     command_repo_location = {:commandRepositoryLocation => server_config.getCommandRepositoryLocation()}
-    ServerConfigurationForm.new(mail_host_params.merge(password_file_params).merge(allow_auto_login).merge(artifacts_params).merge(job_timeout_params).merge(site_url_params).merge(command_repo_location))
+    ServerConfigurationForm.new(mail_host_params.merge(allow_auto_login).merge(artifacts_params).merge(job_timeout_params).merge(site_url_params).merge(command_repo_location))
   end
 
   def to_mail_host
@@ -63,16 +61,12 @@ class ServerConfigurationForm
     MailHost.new(hostName, Integer(port), username, password, encrypted_password, password_changed == "true", tls == "true", from, adminMail)
   end
 
-  def to_password_file_config
-    PasswordFileConfig.new(password_file_path)
-  end
-
   def should_allow_auto_login
     allow_auto_login != "false"
   end
 
   def to_security
-    SecurityConfig.new(to_password_file_config, !should_allow_auto_login)
+    SecurityConfig.new(!should_allow_auto_login)
   end
 
   def purging_allowed?
@@ -138,12 +132,11 @@ class ServerConfigurationForm
     tls == other.tls &&
     from == other.from &&
     adminMail == other.adminMail &&
-    allow_auto_login == other.allow_auto_login &&
-    password_file_path == other.password_file_path
+    allow_auto_login == other.allow_auto_login
   end
 
   def hash
-    hostName ^ port ^ username ^ password ^ tls ^ from ^ adminMail ^ allow_auto_login  ^ password_file_path
+    hostName ^ port ^ username ^ password ^ tls ^ from ^ adminMail ^ allow_auto_login
   end
 end
 

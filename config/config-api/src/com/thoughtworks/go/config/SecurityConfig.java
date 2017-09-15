@@ -25,8 +25,6 @@ import java.util.List;
 @ConfigTag("security")
 public class SecurityConfig implements Validatable {
     @ConfigSubtag(optional = true)
-    private PasswordFileConfig passwordFileConfig = new PasswordFileConfig();
-    @ConfigSubtag(optional = true)
     private SecurityAuthConfigs securityAuthConfigs = new SecurityAuthConfigs();
     @ConfigSubtag(optional = true)
     private RolesConfig rolesConfig = new RolesConfig();
@@ -40,34 +38,25 @@ public class SecurityConfig implements Validatable {
     }
 
     /*Dont chain constructors*/
-    public SecurityConfig(PasswordFileConfig passwordFileConfig, boolean allowOnlyKnownUsersToLogin) {
-        this.passwordFileConfig = passwordFileConfig;
+    public SecurityConfig(boolean allowOnlyKnownUsersToLogin) {
         this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
     }
 
-    public SecurityConfig(PasswordFileConfig pwordFile, AdminsConfig admins) {
-        this.passwordFileConfig = pwordFile;
+    public SecurityConfig(AdminsConfig admins) {
         this.adminsConfig = admins;
     }
 
-    public SecurityConfig(PasswordFileConfig passwordFileConfig, AdminsConfig adminsConfig, boolean allowOnlyKnownUsersToLogin) {
+    public SecurityConfig(AdminsConfig adminsConfig, boolean allowOnlyKnownUsersToLogin) {
         this.adminsConfig = adminsConfig;
-        this.passwordFileConfig = passwordFileConfig;
         this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
     }
 
     public boolean isSecurityEnabled() {
-        boolean passwordFileEnabled = passwordFileConfig != null && passwordFileConfig.isEnabled();
-        boolean isPluginAuthEnabled = securityAuthConfigs != null && !securityAuthConfigs.isEmpty();
-        return passwordFileEnabled || isPluginAuthEnabled;
+        return securityAuthConfigs != null && !securityAuthConfigs.isEmpty();
     }
 
     public AdminsConfig adminsConfig() {
         return adminsConfig;
-    }
-
-    public PasswordFileConfig passwordFileConfig() {
-        return passwordFileConfig;
     }
 
     public RolesConfig getRoles() {
@@ -124,10 +113,6 @@ public class SecurityConfig implements Validatable {
         return this.allowOnlyKnownUsersToLogin;
     }
 
-    public void modifyPasswordFile(PasswordFileConfig passwordConfig) {
-        this.passwordFileConfig = passwordConfig;
-    }
-
     public void modifyAllowOnlyKnownUsers(boolean shouldAllow) {
         this.allowOnlyKnownUsersToLogin = shouldAllow;
     }
@@ -140,8 +125,6 @@ public class SecurityConfig implements Validatable {
         SecurityConfig that = (SecurityConfig) o;
 
         if (allowOnlyKnownUsersToLogin != that.allowOnlyKnownUsersToLogin) return false;
-        if (passwordFileConfig != null ? !passwordFileConfig.equals(that.passwordFileConfig) : that.passwordFileConfig != null)
-            return false;
         if (securityAuthConfigs != null ? !securityAuthConfigs.equals(that.securityAuthConfigs) : that.securityAuthConfigs != null)
             return false;
         if (rolesConfig != null ? !rolesConfig.equals(that.rolesConfig) : that.rolesConfig != null) return false;
@@ -151,8 +134,7 @@ public class SecurityConfig implements Validatable {
 
     @Override
     public int hashCode() {
-        int result = passwordFileConfig != null ? passwordFileConfig.hashCode() : 0;
-        result = 31 * result + (securityAuthConfigs != null ? securityAuthConfigs.hashCode() : 0);
+        int result = securityAuthConfigs != null ? securityAuthConfigs.hashCode() : 0;
         result = 31 * result + (rolesConfig != null ? rolesConfig.hashCode() : 0);
         result = 31 * result + (adminsConfig != null ? adminsConfig.hashCode() : 0);
         result = 31 * result + (allowOnlyKnownUsersToLogin ? 1 : 0);
@@ -162,8 +144,7 @@ public class SecurityConfig implements Validatable {
 
     @Override
     public String toString() {
-        return String.format("SecurityConfig{passwordFileConfig=%s, rolesConfig=%s, adminsConfig=%s, allowOnlyKnownUsersToLogin=%s}", passwordFileConfig,
-                rolesConfig, adminsConfig, allowOnlyKnownUsersToLogin);
+        return String.format("SecurityConfig{securityAuthConfigs=%s, rolesConfig=%s, adminsConfig=%s, allowOnlyKnownUsersToLogin=%s}", securityAuthConfigs, rolesConfig, adminsConfig, allowOnlyKnownUsersToLogin);
     }
 
     public void validate(ValidationContext validationContext) {

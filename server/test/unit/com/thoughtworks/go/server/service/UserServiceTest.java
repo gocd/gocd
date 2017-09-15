@@ -319,7 +319,8 @@ public class UserServiceTest {
     @Test
     public void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
         CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig("path"), null);
+        SecurityConfig securityConfig = new SecurityConfig(null);
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
                 new RoleUser(new CaseInsensitiveString("user3"))));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),

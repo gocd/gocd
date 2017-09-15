@@ -18,10 +18,15 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+
 public class SecurityConfigMother {
 
-    public static SecurityConfig securityConfigWith(String passwordFile) {
-        return new SecurityConfig(new PasswordFileConfig(passwordFile), true);
+    public static SecurityConfig securityConfigWith(String passwordFilePath) {
+        final SecurityConfig securityConfig = new SecurityConfig(true);
+        final SecurityAuthConfig passwordFile = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile", create("PasswordFilePath", false, passwordFilePath));
+        securityConfig.securityAuthConfigs().add(passwordFile);
+        return securityConfig;
     }
 
     public static SecurityConfig securityConfigWithRole(String roleName, String... users) {

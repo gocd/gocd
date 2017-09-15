@@ -106,34 +106,6 @@ ServerConfiguration = function (validation_url) {
         }
       });
     },
-    validateLdapSettings:   function (form, url, messageId, csrfToken) {
-      showMessage(messageId, 'Testing ldap connectivity...');
-      new Ajax.Request(url, {
-        method:         'POST',
-        parameters:     {
-          'server_configuration_form[ldap_uri]':                $('server_configuration_form_ldap_uri').value,
-          'server_configuration_form[ldap_username]':           $('server_configuration_form_ldap_username').value,
-          'server_configuration_form[ldap_password]':           $('server_configuration_form_ldap_password').value,
-          'server_configuration_form[ldap_password_changed]':   $('server_configuration_form_ldap_password_changed').checked,
-          'server_configuration_form[ldap_encrypted_password]': $('server_configuration_form_ldap_encrypted_password').value,
-          'server_configuration_form[ldap_search_base]':        $('server_configuration_form_ldap_search_base').value,
-          'server_configuration_form[ldap_search_filter]':      $('server_configuration_form_ldap_search_filter').value
-
-        },
-        requestHeaders: {
-          'X-CSRF-Token': csrfToken
-        },
-        onSuccess:      function (transport) {
-          var jsonText = transport.responseText;
-          var value    = jsonText.evalJSON();
-          if (value.error) {
-            showFailure(messageId, value.error);
-          } else {
-            showSuccess(messageId, value.success);
-          }
-        }
-      });
-    },
     validatePort:           function (id, error_id) {
       validate(id, error_id, "port");
     },

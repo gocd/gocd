@@ -25,7 +25,7 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     security_config = SecurityConfig.new()
-    security_config.modifyPasswordFile(PasswordFileConfig.new("/tmp/pass"));
+    security_config.securityAuthConfigs().add(SecurityAuthConfig.new('foo', 'cd.go.ldap'));
     admin_config = security_config.adminsConfig()
     admin_config.add(com.thoughtworks.go.config.AdminUser.new(@admin.getUsername()))
     server_config = ServerConfig.new("artifacts-dir", security_config)

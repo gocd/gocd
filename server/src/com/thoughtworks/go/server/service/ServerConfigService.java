@@ -55,7 +55,7 @@ public class ServerConfigService implements BaseUrlProvider {
         this.userService = userService;
     }
 
-    public void updateServerConfig(MailHost mailHost, PasswordFileConfig passwordFileConfig, String artifactsDir,
+    public void updateServerConfig(MailHost mailHost, String artifactsDir,
                                    Double purgeStart, Double purgeUpto, String jobTimeout, boolean shouldAllowAutoLogin, String siteUrl, String secureSiteUrl,
                                    String taskRepositoryLocation, final HttpLocalizedOperationResult result, final String md5) {
         if (!mailHost.equals(new MailHost(new GoCipher()))) {
@@ -69,7 +69,7 @@ public class ServerConfigService implements BaseUrlProvider {
 
         if (result.isSuccessful()) {
             try {
-                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, passwordFileConfig, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
+                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
                         purgeUpto, jobTimeout, siteUrl,
                         secureSiteUrl, taskRepositoryLocation);
                 if (ConfigSaveState.MERGED.equals(configSaveState)) {

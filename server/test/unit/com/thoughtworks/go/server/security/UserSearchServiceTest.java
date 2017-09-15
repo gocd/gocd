@@ -71,9 +71,6 @@ public class UserSearchServiceTest {
     @Test
     public void shouldSearchUserUsingPlugins() throws Exception {
         final String searchTerm = "foo";
-
-        when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
-
         List<String> pluginIds = asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
         addPluginSupportingUserSearch(pluginIds.get(0));

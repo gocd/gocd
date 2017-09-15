@@ -123,7 +123,6 @@ public class AgentWebSocketClientController extends AgentController {
                 cancelJobIfThereIsOneRunning();
                 Work work = MessageEncoding.decodeWork(message.getData());
                 LOG.debug("Got work from server: [{}]", work.description());
-                getAgentRuntimeInfo().idle();
                 runner = new JobRunner();
                 try {
                     runner.run(work, agentIdentifier(),
@@ -132,6 +131,7 @@ public class AgentWebSocketClientController extends AgentController {
                             packageRepositoryExtension, scmExtension,
                             taskExtension);
                 } finally {
+                    getAgentRuntimeInfo().idle();
                     updateServerAgentRuntimeInfo();
                 }
                 break;

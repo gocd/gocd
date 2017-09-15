@@ -40,14 +40,28 @@ describe "pipelines/index.html.erb" do
       include StagesHelper
     end
     view.stub(:on_pipeline_dashboard?).and_return(true)
+    @security_service = stub_service(:security_service)
+    allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
 
-  it "should render multiple groups" do
+  it "should render multiple groups with links for admin" do
     render
 
+    expect(response).to have_selector(".pipeline_group .entity_title a[href='/admin/pipelines#group-group-1']", :text => "group-1")
+    expect(response).to have_selector(".pipeline_group .entity_title a[href='/admin/pipelines#group-group-2']", :text => "group-2")
+    expect(response).to_not have_selector(".pipeline_group .entity_title", :text => "group-3-empty")
+  end
+
+  it "should render specific groups with links for pipeline group admin" do
+    @security_service.should_receive(:isUserAdmin).and_return(false)
+    allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group-1').and_return(false)
+    allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group-2').and_return(true)
+
+    render
+
+    expect(response).to_not have_selector(".pipeline_group .entity_title a[href='/admin/pipelines#group-group-1']", :text => "group-1")
     expect(response).to have_selector(".pipeline_group .entity_title", :text => "group-1")
-    expect(response).to have_selector(".pipeline_group .entity_title", :text => "group-1")
-    expect(response).to have_selector(".pipeline_group .entity_title", :text => "group-2")
+    expect(response).to have_selector(".pipeline_group .entity_title a[href='/admin/pipelines#group-group-2']", :text => "group-2")
     expect(response).to_not have_selector(".pipeline_group .entity_title", :text => "group-3-empty")
   end
 

@@ -217,6 +217,10 @@ module ApplicationHelper
     security_service.isUserAdmin(current_user)
   end
 
+  def is_user_admin_of_group? group_name
+    security_service.isUserAdminOfGroup(current_user, group_name)
+  end
+
   def has_admin_permissions_for_pipeline? pipeline_name
     security_service.hasAdminPermissionsForPipeline(current_user, pipeline_name)
   end

@@ -391,6 +391,7 @@ Go::Application.routes.draw do
 
       # Vendor Webhooks
       post 'webhooks/github/notify' => 'git_hub#notify', as: :github_notify
+      post 'webhooks/gitlab/notify' => 'git_lab#notify', as: :gitlab_notify
 
 
       scope 'admin/feature_toggles' do

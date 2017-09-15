@@ -25,7 +25,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import javax.servlet.ServletException;
 
 public class AgentRemoteServlet extends WebSocketServlet {
-
     private WebApplicationContext wac;
 
     @Override
@@ -36,6 +35,7 @@ public class AgentRemoteServlet extends WebSocketServlet {
 
     @Override
     public void configure(WebSocketServletFactory factory) {
+        factory.getPolicy().setIdleTimeout(new SystemEnvironment().getWebsocketMaxIdleTime());
         factory.setCreator(wac.getBean(AgentRemoteSocketCreator.class));
     }
 }

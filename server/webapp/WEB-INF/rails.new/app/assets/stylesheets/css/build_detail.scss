@@ -626,20 +626,25 @@ a.collapse-all {
 
 .job_details.page_header {
   border-bottom: 1px solid #000;
+  height:51px !important;
 }
 .job_details.page_header.building {
   border-bottom: 3px solid #ffc11b;
+  height:53px !important;
 }
 .job_details.page_header.passed {
   border-bottom: 3px solid #78C42D;
+  height:53px !important;
 }
 .job_details.page_header.cancelled {
   border-bottom: 3px dotted #ffc11b;
+  height:53px !important;
 }
 .job_details.page_header.failed,
 .job_details.page_header.failing
 {
   border-bottom: 3px solid #fa2d2d;
+  height:53px !important;
 }
 
 .build-status.cancelled {

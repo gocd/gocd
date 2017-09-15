@@ -277,6 +277,17 @@ public class Jetty9ServerTest {
     }
 
     @Test
+    public void shouldSetSessionMaxInactiveInterval() throws Exception {
+        int sessionTimeoutInSeconds = 1234;
+
+        jetty9Server.configure();
+        jetty9Server.setSessionAndCookieExpiryTimeout(sessionTimeoutInSeconds);
+
+        WebAppContext webAppContext = getWebAppContext(jetty9Server);
+        assertThat(webAppContext.getSessionHandler().getSessionManager().getMaxInactiveInterval(), is(1234));
+    }
+
+    @Test
     public void shouldAddExtraJarsIntoClassPath() throws Exception {
         jetty9Server.configure();
         jetty9Server.addExtraJarsToClasspath("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar");

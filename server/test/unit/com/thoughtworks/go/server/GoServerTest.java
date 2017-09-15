@@ -117,7 +117,7 @@ public class GoServerTest {
         AppServerStub appServerStub = (AppServerStub) appServer;
 
         assertThat(appServerStub.calls.get("addExtraJarsToClasspath"), is(""));
-        assertThat(appServerStub.calls.get("setCookieExpirePeriod"), is(1209600));
+        assertThat(appServerStub.calls.get("setSessionAndCookieExpiryTimeout"), is(1209600));
         assertThat(appServerStub.calls.get("getUnavailableException"), is(true));
         assertThat(appServerStub.calls.get("configure"), is(true));
         assertThat(appServerStub.calls.get("start"), is(true));

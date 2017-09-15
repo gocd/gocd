@@ -27,6 +27,7 @@ import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -106,10 +107,12 @@ public class Jetty9Server extends AppServer {
     }
 
     @Override
-    public void setCookieExpirePeriod(int cookieExpirePeriod) {
+    public void setSessionAndCookieExpiryTimeout(int sessionAndCookieExpiryTimeout) {
         SessionCookieConfig cookieConfig = webAppContext.getSessionHandler().getSessionManager().getSessionCookieConfig();
         cookieConfig.setHttpOnly(true);
-        cookieConfig.setMaxAge(cookieExpirePeriod);
+        cookieConfig.setMaxAge(sessionAndCookieExpiryTimeout);
+        SessionManager sessionManager = webAppContext.getSessionHandler().getSessionManager();
+        sessionManager.setMaxInactiveInterval(sessionAndCookieExpiryTimeout);
     }
 
     @Override

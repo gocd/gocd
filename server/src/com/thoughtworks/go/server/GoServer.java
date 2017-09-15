@@ -83,12 +83,8 @@ public class GoServer {
         AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
-        server.setCookieExpirePeriod(twoWeeks());
+        server.setSessionAndCookieExpiryTimeout(systemEnvironment.sessionTimeoutInSeconds());
         return server;
-    }
-
-    private int twoWeeks() {
-        return 60 * 60 * 24 * 14;
     }
 
     private String getExtraJarsToBeAddedToClasspath() {

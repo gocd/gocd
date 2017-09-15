@@ -350,9 +350,7 @@
     <mime-type>image/svg+xml</mime-type>
   </mime-mapping>
 
-  <!-- Do not timeout idle/stale sessions for 14 days: 60 * 24 * 14 minutes. -->
   <session-config>
-    <session-timeout>20160</session-timeout>
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 </web-app>

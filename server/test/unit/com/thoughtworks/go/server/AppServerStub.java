@@ -35,8 +35,8 @@ public class AppServerStub extends AppServer {
     }
 
     @Override
-    void setCookieExpirePeriod(int cookieExpirePeriod) {
-        calls.put("setCookieExpirePeriod", cookieExpirePeriod);
+    void setSessionAndCookieExpiryTimeout(int sessionAndCookieExpiryTimeout) {
+        calls.put("setSessionAndCookieExpiryTimeout", sessionAndCookieExpiryTimeout);
     }
 
     @Override

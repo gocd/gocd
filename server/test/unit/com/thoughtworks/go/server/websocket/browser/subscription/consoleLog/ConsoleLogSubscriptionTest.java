@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,7 +41,7 @@ public class ConsoleLogSubscriptionTest {
     @Mock
     private RestfulService restfulService;
     @Mock
-    private GoWebSocket socket;
+    private BrowserWebSocket socket;
     private JobIdentifier jobIdentifier;
 
     @Before

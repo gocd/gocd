@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.websocket.browser.subscription.consoleLog;
 
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,12 +38,12 @@ public class ConsoleLogSubscription implements WebSocketSubscriptionHandler<Cons
     }
 
     @Override
-    public void start(ConsoleLog message, GoWebSocket socket) throws Exception {
+    public void start(ConsoleLog message, BrowserWebSocket socket) throws Exception {
         consoleLogSender.process(socket, restfulService.findJob(message.getJobIdentifier()), message.getStartLine());
     }
 
     @Override
-    public boolean isAuthorized(ConsoleLog message, GoWebSocket webSocket) {
+    public boolean isAuthorized(ConsoleLog message, BrowserWebSocket webSocket) {
         return securityService.hasViewPermissionForPipeline(webSocket.getCurrentUser(), message.getJobIdentifier().getPipelineName());
     }
 }

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.websocket.browser.subscription.consoleLog;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionHandler;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class ConsoleLogTest {
     @Mock
     private WebSocketSubscriptionManager manager;
     @Mock
-    private GoWebSocket websocket;
+    private BrowserWebSocket websocket;
     @Mock
     private WebSocketSubscriptionHandler handler;
 

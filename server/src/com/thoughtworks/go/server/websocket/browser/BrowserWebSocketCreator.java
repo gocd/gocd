@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.browser;
 
+import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.server.websocket.SocketHealthService;
+import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
@@ -23,16 +26,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AgentRemoteSocketCreator implements WebSocketCreator {
-    private AgentRemoteHandler handler;
+public class BrowserWebSocketCreator implements WebSocketCreator {
+    private SocketHealthService socketHealthService;
+    private WebSocketSubscriptionManager subscriptionFactory;
 
     @Autowired
-    public AgentRemoteSocketCreator(AgentRemoteHandler handler) {
-        this.handler = handler;
+    public BrowserWebSocketCreator(SocketHealthService socketHealthService, WebSocketSubscriptionManager webSocketSubscriptionManager) {
+        this.socketHealthService = socketHealthService;
+        this.subscriptionFactory = webSocketSubscriptionManager;
     }
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        return new AgentRemoteSocket(handler);
+        return new BrowserWebSocket(socketHealthService, subscriptionFactory, UserHelper.getUserName());
     }
 }

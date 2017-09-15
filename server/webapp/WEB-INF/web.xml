@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -168,14 +168,14 @@
 
   <servlet>
     <servlet-name>agent-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.AgentRemoteServlet</servlet-class>
+    <servlet-class>com.thoughtworks.go.server.websocket.agent.AgentRemoteServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
   </servlet>
 
   <servlet>
     <servlet-name>go-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.browser.GoWebSocketServlet</servlet-class>
+    <servlet-class>com.thoughtworks.go.server.websocket.browser.BrowserWebSocketServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
   </servlet>

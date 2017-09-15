@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +35,7 @@ public class WebSocketSubscriptionManagerTest {
     @Mock
     private SubscriptionMessage message;
     @Mock
-    private GoWebSocket websocket;
+    private BrowserWebSocket websocket;
 
 
     @Before

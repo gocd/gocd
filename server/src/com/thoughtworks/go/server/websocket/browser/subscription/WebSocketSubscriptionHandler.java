@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import com.thoughtworks.go.server.websocket.browser.subscription.consoleLog.ConsoleLog;
 
 public interface WebSocketSubscriptionHandler<T extends SubscriptionMessage> {
-    void start(T message, GoWebSocket socket) throws Exception;
+    void start(T message, BrowserWebSocket socket) throws Exception;
 
-    boolean isAuthorized(ConsoleLog message, GoWebSocket securityService);
+    boolean isAuthorized(ConsoleLog message, BrowserWebSocket securityService);
 }

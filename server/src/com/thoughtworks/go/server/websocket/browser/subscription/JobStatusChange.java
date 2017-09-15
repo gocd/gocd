@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.websocket.browser.subscription;
 
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 
 public class JobStatusChange extends SubscriptionMessage {
     @Expose
@@ -51,12 +51,12 @@ public class JobStatusChange extends SubscriptionMessage {
     }
 
     @Override
-    public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, GoWebSocket webSocket) {
+    public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
 
     }
 
     @Override
-    public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, GoWebSocket webSocket) {
+    public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
         return false;
     }
 }

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
 
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class WebSocketSubscriptionManager {
         this.subscription = subscription;
     }
 
-    public void subscribe(SubscriptionMessage subscriptionMessage, GoWebSocket webSocket) throws Exception {
+    public void subscribe(SubscriptionMessage subscriptionMessage, BrowserWebSocket webSocket) throws Exception {
         if (subscriptionMessage.isAuthorized(this, webSocket)) {
             subscriptionMessage.subscribe(this, webSocket);
         }

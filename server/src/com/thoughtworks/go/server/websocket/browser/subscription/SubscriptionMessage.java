@@ -20,7 +20,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import com.thoughtworks.go.server.websocket.browser.subscription.consoleLog.ConsoleLog;
 
 import java.lang.reflect.Type;
@@ -58,7 +58,7 @@ public abstract class SubscriptionMessage {
     }
 
 
-    public abstract void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, GoWebSocket webSocket) throws Exception;
+    public abstract void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) throws Exception;
 
-    public abstract boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, GoWebSocket webSocket);
+    public abstract boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket);
 }

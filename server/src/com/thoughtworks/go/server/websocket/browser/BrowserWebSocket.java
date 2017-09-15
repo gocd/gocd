@@ -32,13 +32,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Predicate;
 
 @WebSocket
-public class GoWebSocket implements SocketEndpoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoWebSocket.class);
+public class BrowserWebSocket implements SocketEndpoint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrowserWebSocket.class);
     private static final String PING = "{\"type\":\"ping\"}";
     private final String key;
     private WebSocketSubscriptionManager subscriptionManager;
@@ -49,7 +48,7 @@ public class GoWebSocket implements SocketEndpoint {
 
     private SocketHealthService socketHealthService;
 
-    GoWebSocket(SocketHealthService socketHealthService, WebSocketSubscriptionManager subscriptionManager, Username currentUser) {
+    BrowserWebSocket(SocketHealthService socketHealthService, WebSocketSubscriptionManager subscriptionManager, Username currentUser) {
         this.socketHealthService = socketHealthService;
         this.subscriptionManager = subscriptionManager;
         this.currentUser = currentUser;

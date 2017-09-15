@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket.browser;
+package com.thoughtworks.go.server.websocket.agent;
 
-import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.server.websocket.SocketHealthService;
-import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
+import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
@@ -26,18 +24,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GoWebSocketCreator implements WebSocketCreator {
-    private SocketHealthService socketHealthService;
-    private WebSocketSubscriptionManager subscriptionFactory;
+public class AgentRemoteSocketCreator implements WebSocketCreator {
+    private AgentRemoteHandler handler;
 
     @Autowired
-    public GoWebSocketCreator(SocketHealthService socketHealthService, WebSocketSubscriptionManager webSocketSubscriptionManager) {
-        this.socketHealthService = socketHealthService;
-        this.subscriptionFactory = webSocketSubscriptionManager;
+    public AgentRemoteSocketCreator(AgentRemoteHandler handler) {
+        this.handler = handler;
     }
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        return new GoWebSocket(socketHealthService, subscriptionFactory, UserHelper.getUserName());
+        return new AgentRemoteSocket(handler);
     }
 }

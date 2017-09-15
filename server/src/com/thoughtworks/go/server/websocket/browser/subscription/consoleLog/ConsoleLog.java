@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.websocket.browser.subscription.consoleLog;
 
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.websocket.browser.GoWebSocket;
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
 import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
 
@@ -62,12 +62,12 @@ public class ConsoleLog extends SubscriptionMessage {
     }
 
     @Override
-    public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, GoWebSocket webSocket) throws Exception {
+    public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) throws Exception {
         webSocketSubscriptionManager.getSubscription().start(this, webSocket);
     }
 
     @Override
-    public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, GoWebSocket webSocket) {
+    public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
         return webSocketSubscriptionManager.getSubscription().isAuthorized(this, webSocket);
     }
 

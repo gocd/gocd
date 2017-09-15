@@ -26,14 +26,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class GoWebSocketServlet extends WebSocketServlet {
-    private GoWebSocketCreator socketCreator;
+public class BrowserWebSocketServlet extends WebSocketServlet {
+    private BrowserWebSocketCreator socketCreator;
 
     @Override
     public void init() throws ServletException {
         WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 
-        socketCreator = wac.getBean(GoWebSocketCreator.class);
+        socketCreator = wac.getBean(BrowserWebSocketCreator.class);
         super.init();
     }
 

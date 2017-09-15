@@ -126,8 +126,9 @@ public class BrowserWebSocket implements SocketEndpoint {
 
     private String sessionName() {
         if (null == sessionId) {
-            if (null == session)
+            if (null == session) {
                 throw new IllegalStateException(String.format("Cannot get session name because the session has not been assigned to socket %s", key()));
+            }
             sessionId = String.format("Session[%s:%s]", session.getRemoteAddress(), key());
         }
         return sessionId;

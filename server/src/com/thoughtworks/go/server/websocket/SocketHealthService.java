@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 public class SocketHealthService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketHealthService.class);
 
-    private ConcurrentHashMap<String, SocketEndpoint> connections = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, SocketEndpoint> connections = new ConcurrentHashMap<>();
 
     public void register(SocketEndpoint socket) {
         connections.put(socket.key(), socket);

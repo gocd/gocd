@@ -52,11 +52,11 @@ public class JobStatusChange extends SubscriptionMessage {
 
     @Override
     public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 }

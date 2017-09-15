@@ -16,27 +16,12 @@
 
 package com.thoughtworks.go.server.websocket.browser;
 
-import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import com.thoughtworks.go.server.websocket.agent.AbstractWebSocketServlet;
 
-import javax.servlet.ServletException;
-
-public class BrowserWebSocketServlet extends WebSocketServlet {
-    private BrowserWebSocketCreator socketCreator;
-
+public class BrowserWebSocketServlet extends AbstractWebSocketServlet<BrowserWebSocketCreator> {
     @Override
-    public void init() throws ServletException {
-        WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-
-        socketCreator = wac.getBean(BrowserWebSocketCreator.class);
-        super.init();
-    }
-
-    @Override
-    public void configure(WebSocketServletFactory factory) {
-        factory.setCreator(socketCreator);
+    protected Class<BrowserWebSocketCreator> socketCreater() {
+        return BrowserWebSocketCreator.class;
     }
 
 }

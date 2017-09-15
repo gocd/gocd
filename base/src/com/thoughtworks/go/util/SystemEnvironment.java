@@ -33,23 +33,23 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(SystemEnvironment.class);
 
-    public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
+    private static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     private static final String CRUISE_DATABASE_PORT = "cruise.database.port";
-    public static final String CRUISE_SERVER_PORT = "cruise.server.port";
+    private static final String CRUISE_SERVER_PORT = "cruise.server.port";
     public static final String CRUISE_SERVER_SSL_PORT = "cruise.server.ssl.port";
     static final String AGENT_CONNECTION_TIMEOUT_IN_SECONDS = "agent.connection.timeout";
     private static final String JETTY_XML = "jetty.xml";
     public static final String CRUISE_SERVER_WAR_PROPERTY = "cruise.server.war";
 
 
-    public static final String CRUISE_CONFIG_REPO_DIR = "cruise.config.repo.dir";
+    static final String CRUISE_CONFIG_REPO_DIR = "cruise.config.repo.dir";
     private static final String DB_BASE_DIR = "db/";
     private static final String DB_DEFAULT_PATH = DB_BASE_DIR + "h2db";
     private static final String CONFIG_REPO_DEFAULT_PATH = DB_BASE_DIR + "config.git";
-    public static final String CRUISE_DB_CACHE_SIZE = "cruise.db.cache.size";
-    public static final String CRUISE_DB_CACHE_SIZE_DEFAULT = String.valueOf(128 * 1024); // 128MB Cache Size by default
-    public static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
-    public static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
+    static final String CRUISE_DB_CACHE_SIZE = "cruise.db.cache.size";
+    private static final String CRUISE_DB_CACHE_SIZE_DEFAULT = String.valueOf(128 * 1024); // 128MB Cache Size by default
+    static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
+    private static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
     private static final String ACTIVEMQ_CONNECTOR_PORT = "activemq.conn.port";
 
     public static final String PARENT_LOADER_PRIORITY = "parent.loader.priority";
@@ -60,27 +60,29 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_PLUGINS_ZIP_MD5_HEADER = "Agent-Plugins-Content-MD5";
     public static final String AGENT_TFS_SDK_MD5_HEADER = "TFS-SDK-Content-MD5";
 
-    public static final String EMPTY_STRING = "";
-    public static final String BLANK_STRING = EMPTY_STRING;
+    private static final String EMPTY_STRING = "";
+    private static final String BLANK_STRING = EMPTY_STRING;
     public static final String ENFORCE_SERVERID_MUTABILITY = "go.enforce.serverId.immutability";
 
-    public static final String CONFIGURATION_YES = "Y";
+    static final String CONFIGURATION_YES = "Y";
+    static final String CONFIGURATION_NO = "N";
 
-    public static final String CONFIGURATION_NO = "N";
-    public static final String RESOLVE_FANIN_REVISIONS = "resolve.fanin.revisions";
-    public static final String RESOLVE_FANIN_FALLBACK_TRIANGLE = "resolve.fanin.fallback.triangle";
+    static final String RESOLVE_FANIN_REVISIONS = "resolve.fanin.revisions";
+    private static final String RESOLVE_FANIN_FALLBACK_TRIANGLE = "resolve.fanin.fallback.triangle";
     private String hsqlPath = null;
 
-    public static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
+    static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
     public static final GoSystemProperty<Boolean> ENABLE_CONFIG_MERGE_FEATURE = new CachedProperty<>(new GoBooleanSystemProperty(ENABLE_CONFIG_MERGE_PROPERTY, Boolean.TRUE));
 
     private String defaultDbPort = "9153";
     private static final String DB_UPGRADE_H2_DELTAS_FOLDER = "h2deltas";
     private boolean debug;
 
-    public static final String CRUISE_PROPERTIES = "/cruise.properties";
+    private static final String CRUISE_PROPERTIES = "/cruise.properties";
     private Properties properties;
-    public static final String CRUISE_EXPERIMENTAL_ENABLE_ALL = "cruise.experimental.enable-all";
+
+    @Deprecated// seems unused
+    static final String CRUISE_EXPERIMENTAL_ENABLE_ALL = "cruise.experimental.enable-all";
 
     public static final String ARTIFACT_FULL_SIZE_LIMIT = "artifact.full.size.limit";
     public static final String DATABASE_FULL_SIZE_LIMIT = "db.full.size.limit";
@@ -89,9 +91,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_SIZE_LIMIT = "agent.size.limit";
     private static final String DISK_SPACE_CACHE_REFRESHER_INTERVAL = "disk.space.cache.refresher.interval";
     private static final String COMMAND_REPOSITORY_WARNING_TIMEOUT = "command.repo.warning.timeout";
-    public static final String AGENT_SOCKET_TYPE_NIO = "nio";
-
-    private static final String AGENT_SOCKET_TYPE_PROPERTY = "agent.socket.type";
 
     public static final String CONFIG_FILE_PROPERTY = "cruise.config.file";
     public static final String INTERVAL = "cruise.console.publish.interval";
@@ -99,16 +98,17 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
-    public static final String CONFIG_CIPHER = "cipher";
-    public static final String HOSTNAME_SHINE_USES = "localhost";
-    public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
-    public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
+    private static final String CONFIG_CIPHER = "cipher";
+    private static final String HOSTNAME_SHINE_USES = "localhost";
+
+    static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
+    static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
     public static GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));
     public static GoSystemProperty<Integer> MATERIAL_UPDATE_INACTIVE_TIMEOUT = new CachedProperty<>(new GoIntSystemProperty("material.update.inactive.timeout", 15));
 
-    public static GoSystemProperty<Integer> H2_DB_TRACE_LEVEL = new GoIntSystemProperty("h2.trace.level", 1);
-    public static GoSystemProperty<Integer> H2_DB_TRACE_FILE_SIZE_MB = new GoIntSystemProperty("h2.trace.file.size.mb", 16);
+    private static GoSystemProperty<Integer> H2_DB_TRACE_LEVEL = new GoIntSystemProperty("h2.trace.level", 1);
+    private static GoSystemProperty<Integer> H2_DB_TRACE_FILE_SIZE_MB = new GoIntSystemProperty("h2.trace.file.size.mb", 16);
     private static GoSystemProperty<String> CRUISE_DATABASE_DIR = new GoStringSystemProperty("cruise.database.dir", DB_DEFAULT_PATH);
 
     public static final String MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY = "material.update.idle.interval";
@@ -137,7 +137,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
     public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", 300);
 
-    public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
+    private static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
 
     /* DATABASE CONFIGURATION - Defaults are of H2 */
     public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");
@@ -149,16 +149,20 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoIntSystemProperty GO_DATABASE_MAX_IDLE = new GoIntSystemProperty("db.maxIdle", 32);
     public static final String H2_DATABASE = "com.thoughtworks.go.server.database.H2Database";
     public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
+
+    @Deprecated// seems to be hardcoded and used by shine
     public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
     public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
-    public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
+    static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY9));
+
+    // used by BC
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     public static GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
-    public static GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
+    static GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
     public static GoSystemProperty<String> GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT = new GoStringSystemProperty("go.ssl.agent.protocol", "TLSv1.2");
     public static GoSystemProperty<String> GO_SSL_CERTS_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.algorithm", "SHA512WITHRSA");
     public static GoSystemProperty<String> GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.public-key.algorithm", "SHA256WithRSAEncryption");
@@ -169,41 +173,40 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.exclude", null);
     public static GoSystemProperty<Boolean> GO_SSL_RENEGOTIATION_ALLOWED = new GoBooleanSystemProperty("go.ssl.renegotiation.allowed", true);
     public static GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
-    public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_EXPIRE = new GoLongSystemProperty("go.config.repo.gc.expire", 24L);
+    static GoSystemProperty<Long> GO_CONFIG_REPO_GC_EXPIRE = new GoLongSystemProperty("go.config.repo.gc.expire", 24L);
     public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD = new GoLongSystemProperty("go.config.repo.gc.warning.looseobject.threshold", 10000L);
     public static GoSystemProperty<Boolean> GO_CONFIG_REPO_PERIODIC_GC = new GoBooleanSystemProperty("go.config.repo.gc.periodic", false);
 
     public static GoSystemProperty<String> GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME = new GoStringSystemProperty("go.update.server.public.key.file.name", "go_update_server.pub");
-    public static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.org/channels/supported/latest.json");
-    public static GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
+    static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.org/channels/supported/latest.json");
+    static GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
 
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS = new GoIntSystemProperty("go.elasticplugin.createagent.threads", 5);
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_SERVER_PING_THREADS = new GoIntSystemProperty("go.elasticplugin.serverping.threads", 1);
-    public static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
+    static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
 
     public static GoSystemProperty<Boolean> WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.websocket.enabled", false);
     public static GoSystemProperty<Boolean> CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.console.logs.websocket.enabled", false);
 
-    public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
-    public static GoSystemProperty<Long> GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT = new GoLongSystemProperty("go.websocket.ack.message.timeout", 300 * 1000L);
-    public static GoSystemProperty<Integer> GO_WEBSOCKET_SEND_RETRY_COUNT = new GoIntSystemProperty("go.websocket.send.retry.count", 5);
+    private static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
+    private static GoSystemProperty<Long> GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT = new GoLongSystemProperty("go.websocket.ack.message.timeout", 300 * 1000L);
+    private static GoSystemProperty<Integer> GO_WEBSOCKET_SEND_RETRY_COUNT = new GoIntSystemProperty("go.websocket.send.retry.count", 5);
 
-    public static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
+    private static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
     public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
     public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
-    public static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
+    private static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
 
-    public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
+    private static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
     public static GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
     public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
-    public static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
+    private static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
     private static final GoSystemProperty<Boolean> GO_AGENT_USE_SSL_CONTEXT = new GoBooleanSystemProperty("go.agent.reuse.ssl.context", true);
-    public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
-    public static final GoSystemProperty<? extends Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
+    private static final GoSystemProperty<Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
+    public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
-    public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
+    private static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
 
-    public static GoSystemProperty<Boolean> OPTIMIZE_FULL_CONFIG_SAVE = new GoBooleanSystemProperty("optimize.full.config.save", true);
     public static GoSystemProperty<String> GO_SERVER_MODE = new GoStringSystemProperty("go.server.mode", "production");
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
@@ -522,12 +525,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return properties;
     }
 
-    public boolean useNioSslSocket() {
-        String socketType = getPropertyImpl(AGENT_SOCKET_TYPE_PROPERTY, AGENT_SOCKET_TYPE_NIO);
-        return AGENT_SOCKET_TYPE_NIO.equalsIgnoreCase(socketType);
-    }
-
-
     public String getCruiseConfigFile() {
         return getPropertyImpl(CONFIG_FILE_PROPERTY, getConfigDir() + "/cruise-config.xml");
     }
@@ -809,15 +806,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public boolean isBuildCommandProtocolEnabled() {
-        return Boolean.valueOf(get(SystemEnvironment.ENABLE_BUILD_COMMAND_PROTOCOL));
+        return get(SystemEnvironment.ENABLE_BUILD_COMMAND_PROTOCOL);
     }
 
     public String getAgentKeyStorePassword() {
         return get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
-    }
-
-    public boolean optimizeFullConfigSave() {
-        return OPTIMIZE_FULL_CONFIG_SAVE.getValue();
     }
 
     public boolean isProductionMode() {

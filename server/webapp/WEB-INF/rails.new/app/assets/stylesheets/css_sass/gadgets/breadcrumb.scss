@@ -54,7 +54,6 @@
 }
 
 ul.entity_title li a{
-   font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;
     line-height: 27px;
 }
 
@@ -70,9 +69,8 @@ ul.entity_title li.last {
     background: none;
 }
 ul.entity_title li.last > * , h1.entity_title {
-    color: #3D3D3D !important;
-    font-size: 21px !important;
-    font-weight: 400 !important;
+    color: #3D3D3D;
+    font-size: 21px;
     line-height: 1.2em;
 }
 h1.entity_title {

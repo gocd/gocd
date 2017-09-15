@@ -1,9 +1,14 @@
 <% @view_title = "Value Stream Map of #{params[:pipeline_name]}" -%>
 
 <div class="page_header">
+  <span class="page_name">Value Stream Map</span>
     <ul class="entity_title">
-        <li class="name"><%=link_to params[:pipeline_name], url_for_pipeline(params[:pipeline_name]) %></li>
-        <li class="last"><h1><%= @pipeline!=nil ? @pipeline.getLabel() : params[:pipeline_counter] %></h1></li>
+        <li class="name">
+          <span class="label">Pipeline</span>
+          <%=link_to params[:pipeline_name], url_for_pipeline(params[:pipeline_name]) %></li>
+        <li class="last">
+          <span class="label">Run</span>
+          <h1><%= @pipeline!=nil ? @pipeline.getLabel() : params[:pipeline_counter] %> VSM</h1></li>
     </ul>
 </div>
 

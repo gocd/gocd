@@ -1,14 +1,25 @@
 <ul class="entity_title">
     <!--<li><%= link_to "Pipelines", url_for_path('pipelines') %></li>-->
-    <li class="name"><%= link_to scope[:pipeline].getName(), url_for_pipeline(scope[:pipeline].getName()) %></li>
+    <li class="name">
+      <span class="label">Pipeline</span>
+      <%= link_to scope[:pipeline].getName(), url_for_pipeline(scope[:pipeline].getName()) %>
+    </li>
 
     <% if scope[:third][:link] %>
-        <li><%= link_to scope[:third][:text], scope[:third][:link] %> </li>
+        <li>
+          <span class="label">Run</span>
+          <span class="run_no"><%= scope[:third][:text] %></span>
+          <%= link_to "VSM ", scope[:third][:link] %>
+
+        </li>
      <% else %>
-         <li class="last"><h1><%= scope[:third][:text] %></h1> </li>
+         <li class="last">
+           <h1><%= scope[:third][:text] %></h1> </li>
     <% end %>
 
     <% if scope[:fourth] %>
-        <li class="last"><h1><%= scope[:fourth] %></h1></li>
+        <li class="last">
+          <span class="label">Stage</span>
+          <h1><%= scope[:fourth] %></h1></li>
     <% end %>
 </ul>

@@ -21,19 +21,16 @@ import com.thoughtworks.go.server.websocket.SocketEndpoint;
 import com.thoughtworks.go.server.websocket.SocketHealthService;
 import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
-import org.eclipse.jetty.websocket.api.UpgradeRequest;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.UUID;
 
 @WebSocket
 public class BrowserWebSocket implements SocketEndpoint {
@@ -132,19 +129,6 @@ public class BrowserWebSocket implements SocketEndpoint {
             sessionId = String.format("Session[%s:%s]", session.getRemoteAddress(), key());
         }
         return sessionId;
-    }
-
-    public List<String> parseEvents(UpgradeRequest request) {
-        Optional<NameValuePair> events = URLEncodedUtils.parse(request.getRequestURI(), "UTF-8").
-                stream().
-                filter(new Predicate<NameValuePair>() {
-                    @Override
-                    public boolean test(NameValuePair pair) {
-                        return "events".equals(pair.getName());
-                    }
-                }).findFirst();
-
-        return events.isPresent() ? Arrays.asList(events.get().getValue().split(",")) : new ArrayList<>();
     }
 
     public Session getSession() {

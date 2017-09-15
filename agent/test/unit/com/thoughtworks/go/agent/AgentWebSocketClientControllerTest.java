@@ -163,7 +163,7 @@ public class AgentWebSocketClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Building));
 
         verify(webSocketSessionHandler, times(1)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
@@ -172,7 +172,6 @@ public class AgentWebSocketClientControllerTest {
         assertThat(message.getAcknowledgementId(), notNullValue());
         assertThat(message.getAction(), is(Action.ping));
         assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
-
     }
 
     @Test
@@ -184,7 +183,7 @@ public class AgentWebSocketClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Building));
 
         verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
@@ -367,7 +366,7 @@ public class AgentWebSocketClientControllerTest {
         agentController.process(new Message(Action.cancelBuild));
         buildingThread.join(MAX_WAIT_IN_TEST);
 
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Cancelled));
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done_canceled"));
     }
 

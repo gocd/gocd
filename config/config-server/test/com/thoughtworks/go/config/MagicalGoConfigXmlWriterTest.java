@@ -145,13 +145,12 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
         PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
         remotePart.setOrigin(new RepoConfigOrigin());
-        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
+        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, remotePart);
         try {
             xmlWriter.write(merged, output, true);
-        }
-        catch(GoConfigInvalidException ex) {
+        } catch (GoConfigInvalidException ex) {
             // ok
-            assertThat(ex.getMessage(),is("Attempted to save merged configuration with patials"));
+            assertThat(ex.getMessage(), is("Attempted to save merged configuration with patials"));
             return;
         }
         fail("should have thrown when saving merged configuration");
@@ -165,6 +164,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
         assertXmlEquals(xml, output.toString());
     }
+
     @Test
     public void shouldNotWriteDuplicatedPipelines() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
@@ -186,6 +186,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(config, output, false);
         assertThat(output.toString(), containsString("<server"));
     }
+
     @Test
     public void shouldWriteConfigRepos() throws Exception {
         CruiseConfig config = GoConfigMother.configWithConfigRepo();
@@ -371,7 +372,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldBeAValidXSD() throws  Exception {
+    public void shouldBeAValidXSD() throws Exception {
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
         factory.newSchema(new StreamSource(getClass().getResourceAsStream("/cruise-config.xsd")));
     }
@@ -494,10 +495,17 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteAllowOnlyKnownUsersFlag() throws Exception {
-        String content = ConfigFileFixture.configwithSecurity(
-                "    <security allowOnlyKnownUsersToLogin='false'>\n"
-                        + "      <passwordFile path=\"/home/cruise/projects/cruise_qa/cruise-twist-new/src/config/password.properties\" />\n"
-                        + "    </security>");
+        String content = ConfigFileFixture.configwithSecurity("<security>\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>" +
+                "</security>");
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         SecurityConfig securityConfig = cruiseConfig.server().security();
@@ -1116,7 +1124,7 @@ public class MagicalGoConfigXmlWriterTest {
         try {
             xmlWriter.write(config, output, false);
             fail("expected to blow up");
-        }catch (XsdValidationException e){
+        } catch (XsdValidationException e) {
             assertThat(e.getMessage(), containsString("should conform to the pattern - \\S(.*\\S)?"));
         }
     }

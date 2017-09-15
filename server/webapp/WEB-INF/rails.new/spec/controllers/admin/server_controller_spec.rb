@@ -129,7 +129,7 @@ describe Admin::ServerController do
 
     it "should render success message returned by service while updating server config" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      @server_config_service.should_receive(:updateServerConfig) do |mailhost, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      @server_config_service.should_receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       end
 
@@ -209,7 +209,7 @@ describe Admin::ServerController do
 
     it "should render error message if there is an error reported by the service" do
       result = nil
-      @server_config_service.should_receive(:updateServerConfig) do |mailhost, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      @server_config_service.should_receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.notAcceptable(LocalizedMessage.string("INVALID_FROM_ADDRESS"))
         result = operation_result
       end

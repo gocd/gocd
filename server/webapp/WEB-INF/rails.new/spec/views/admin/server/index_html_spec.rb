@@ -186,7 +186,7 @@ describe "admin/server/index.html.erb" do
       render
 
       Capybara.string(response.body).find('#user_management').tap do |div|
-        expect(div).to have_selector("label[for='server_configuration_form_allow_auto_login']", :text => /Allow users that exist/)
+        expect(div).to have_selector("label[for='server_configuration_form_allow_auto_login']", :text => 'Allow users to login via plugin into GoCD, even if they haven\'t been explicitly added to GoCD.')
         expect(div).to_not have_selector("input[name='server_configuration_form[allow_auto_login]'][type='hidden']")
         expect(div).to have_selector("input#server_configuration_form_allow_auto_login[name='server_configuration_form[allow_auto_login]'][disabled='disabled'][type='checkbox'][value='true']")
       end

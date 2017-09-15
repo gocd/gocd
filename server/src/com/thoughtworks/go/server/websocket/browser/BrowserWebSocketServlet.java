@@ -22,9 +22,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class BrowserWebSocketServlet extends WebSocketServlet {
     private BrowserWebSocketCreator socketCreator;
@@ -42,8 +39,4 @@ public class BrowserWebSocketServlet extends WebSocketServlet {
         factory.setCreator(socketCreator);
     }
 
-    @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.service(request, response);
-    }
 }

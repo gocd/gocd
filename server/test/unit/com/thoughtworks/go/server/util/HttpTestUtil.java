@@ -20,7 +20,6 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -107,8 +106,7 @@ public class HttpTestUtil {
         prepareCertStore(serverKeyStore);
         server = new Server();
 		WebAppContext ctx = new WebAppContext();
-        SessionManager sm = new HashSessionManager();
-        SessionHandler sh = new SessionHandler(sm);
+        SessionHandler sh = new SessionHandler();
         ctx.setSessionHandler(sh);
         customizer.customize(ctx);
         ctx.setContextPath("/go");

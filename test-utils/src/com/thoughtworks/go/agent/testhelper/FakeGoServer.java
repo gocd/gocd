@@ -122,7 +122,12 @@ public class FakeGoServer extends ExternalResource {
         holder.setServlet(new HttpServlet() {
             @Override
             protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-                resp.getOutputStream().println("Hello");
+                resp.getWriter().println("hello");
+            }
+
+            @Override
+            protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
             }
         });
         wac.addServlet(holder, "/hello");

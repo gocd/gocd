@@ -253,6 +253,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "go-plugin-activator.jar",
       "javasysmon-0.3.6.jar",
       "javax.servlet-api-3.1.0.jar",
+      "jetty-client-${versions.jetty}.jar",
       "jetty-continuation-${versions.jetty}.jar",
       "jetty-http-${versions.jetty}.jar",
       "jetty-io-${versions.jetty}.jar",

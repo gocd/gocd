@@ -20,16 +20,15 @@ import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.MovedContextHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.Jetty;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -41,20 +40,34 @@ import org.xml.sax.SAXException;
 
 import javax.management.MBeanServer;
 import javax.net.ssl.SSLSocketFactory;
-import javax.servlet.ServletException;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 
 import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
+    public static final String[] GZIP_MIME_TYPES = {"text/html",
+            "text/plain",
+            "text/xml",
+            "text/css",
+            "application/xhtml+xml",
+            "application/javascript",
+            "image/svg+xml",
+            "application/json",
+            "application/vnd.go.cd.v1+json",
+            "application/vnd.go.cd.v2+json",
+            "application/vnd.go.cd.v3+json",
+            "application/vnd.go.cd.v4+json",
+    };
+
     protected static String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
     private static final String JETTY_XML = "jetty.xml";
-    private static final String JETTY_VERSION = "jetty-v9.2.3";
+    private static final String JETTY_VERSION = "jetty-" + Jetty.VERSION;
     private Server server;
     private WebAppContext webAppContext;
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
@@ -76,17 +89,22 @@ public class Jetty9Server extends AppServer {
         server.addEventListener(mbeans());
         server.addConnector(plainConnector());
         server.addConnector(sslConnector());
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.addHandler(welcomeFileHandler());
+        server.insertHandler(welcomeFileHandler());
+        server.insertHandler(webAppContext);
         createWebAppContext();
-        addResourceHandler(handlers, webAppContext);
-        handlers.addHandler(webAppContext);
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
         server.addBean(errorHandler);
-        server.setHandler(handlers);
+        server.insertHandler(gzipHandler());
         performCustomConfiguration();
         server.setStopAtShutdown(true);
+    }
+
+    private GzipHandler gzipHandler() {
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.addIncludedMimeTypes(GZIP_MIME_TYPES);
+        gzipHandler.addIncludedMethods("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE");
+        return gzipHandler;
     }
 
     @Override
@@ -107,7 +125,7 @@ public class Jetty9Server extends AppServer {
 
     @Override
     public void setCookieExpirePeriod(int cookieExpirePeriod) {
-        SessionCookieConfig cookieConfig = webAppContext.getSessionHandler().getSessionManager().getSessionCookieConfig();
+        SessionCookieConfig cookieConfig = webAppContext.getSessionHandler().getSessionCookieConfig();
         cookieConfig.setHttpOnly(true);
         cookieConfig.setMaxAge(cookieExpirePeriod);
     }
@@ -129,7 +147,13 @@ public class Jetty9Server extends AppServer {
     }
 
     ContextHandler welcomeFileHandler() {
-        return new GoServerWelcomeFileHandler();
+        MovedContextHandler movedContextHandler = new MovedContextHandler();
+        movedContextHandler.setContextPath("/");
+        movedContextHandler.setNewContextURL("/go/home");
+        movedContextHandler.setPermanent(true);
+        movedContextHandler.setDiscardPathInfo(true);
+        movedContextHandler.setDiscardQuery(true);
+        return movedContextHandler;
     }
 
     private Connector plainConnector() {
@@ -140,35 +164,35 @@ public class Jetty9Server extends AppServer {
         return new GoSslSocketConnector(this, password, systemEnvironment, goSSLConfig).getConnector();
     }
 
-    class GoServerWelcomeFileHandler extends ContextHandler {
-        public GoServerWelcomeFileHandler() {
-            setContextPath("/");
-            setHandler(new Handler());
-        }
-
-        private class Handler extends AbstractHandler {
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
-                if ("/go".equals(request.getPathInfo()) || request.getPathInfo().startsWith("/go/")) {
-                    return;
-                }
-
-                response.setHeader("X-XSS-Protection", "1; mode=block");
-                response.setHeader("X-Content-Type-Options", "nosniff");
-                response.setHeader("X-Frame-Options", "SAMEORIGIN");
-                response.setHeader("X-UA-Compatible", "chrome=1");
-
-                if ("/".equals(target)) {
-                    response.setHeader("Location", GoConstants.GO_URL_CONTEXT + "/home");
-                    response.setStatus(301);
-                    response.setHeader("Content-Type", "text/html");
-                    PrintWriter writer = response.getWriter();
-                    writer.write("redirecting..");
-                    writer.close();
-                }
-            }
-        }
-    }
+//    class GoServerWelcomeFileHandler extends ContextHandler {
+//        public GoServerWelcomeFileHandler() {
+//            setContextPath("/");
+//            setHandler(new Handler());
+//        }
+//
+//        private class Handler extends AbstractHandler {
+//            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+//
+//                if ("/go".equals(request.getPathInfo()) || request.getPathInfo().startsWith("/go/")) {
+//                    return;
+//                }
+//
+//                response.setHeader("X-XSS-Protection", "1; mode=block");
+//                response.setHeader("X-Content-Type-Options", "nosniff");
+//                response.setHeader("X-Frame-Options", "SAMEORIGIN");
+//                response.setHeader("X-UA-Compatible", "chrome=1");
+//
+//                if ("/".equals(target)) {
+//                    response.setHeader("Location", GoConstants.GO_URL_CONTEXT + "/home");
+//                    response.setStatus(301);
+//                    response.setHeader("Content-Type", "text/html");
+//                    PrintWriter writer = response.getWriter();
+//                    writer.write("redirecting..");
+//                    writer.close();
+//                }
+//            }
+//        }
+//    }
 
 
     private void performCustomConfiguration() throws Exception {
@@ -205,14 +229,6 @@ public class Jetty9Server extends AppServer {
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
-    }
-
-
-    private void addResourceHandler(HandlerCollection handlers, WebAppContext webAppContext) throws IOException {
-        if (!systemEnvironment.useCompressedJs()) return;
-        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
-        handlers.addHandler(handler);
-        webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
     }
 
 

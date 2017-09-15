@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,12 +30,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,12 +77,12 @@ public class GoSslSocketConnectorTest {
     }
 
     @Test
-    public void shouldSetupSslContextWithKeystoreAndTruststore() {
+    public void shouldSetupSslContextWithKeystoreAndTruststore() throws IOException {
         ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
         Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
         SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
-        assertThat(sslContextFactory.getKeyStorePath(), is(keystore.getAbsolutePath()));
-        assertThat(sslContextFactory.getTrustStore(), is(truststore.getAbsolutePath()));
+        assertThat(sslContextFactory.getKeyStoreResource(), is(Resource.newResource(keystore.getPath())));
+        assertThat(sslContextFactory.getTrustStoreResource(), is(Resource.newResource(truststore.getPath())));
         assertThat(sslContextFactory.getWantClientAuth(), is(true));
     }
 

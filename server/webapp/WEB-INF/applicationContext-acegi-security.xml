@@ -133,11 +133,6 @@
                 </bean>
                 <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
                     <constructor-arg index="0">
-                        <bean class="com.thoughtworks.go.server.security.providers.FileAuthenticationProvider" autowire="autodetect"/>
-                    </constructor-arg>
-                </bean>
-                <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
-                    <constructor-arg index="0">
                         <bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider" autowire="autodetect"/>
                     </constructor-arg>
                 </bean>

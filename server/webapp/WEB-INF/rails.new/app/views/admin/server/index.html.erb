@@ -37,70 +37,10 @@
                     <label class="inline" for="server_configuration_form_allow_auto_login"><%= l.string("ALLOW_AUTO_LOGIN_MESSAGE") -%></label>
                 </div>
 
-                <% if @inbuilt_ldap_password_auth_enabled -%>
-                <div class="ldap_settings">
-                    <h3><%= l.string("LDAP Settings") -%></h3>
 
-                    <div class="form_item">
-                        <label for="server_configuration_form_ldap_uri"><%= required_label_text(l.string("URI")) -%></label>
-                        <%= form.text_field :ldap_uri, {:size => 30, :maxLength => 255} %>
-                        <span id="ldap_uri_error_message"></span>
-                    </div>
-                    <div class="form_item">
-                        <%= label_tag "server_configuration_form_ldap_username", l.string("LDAP_USERNAME") -%>
-                        <%= form.text_field :ldap_username, {:size => 30} %>
-                        <span id="ldap_username_error_message"></span>
-                    </div>
-
-                    <div class="form_item">
-                        <label for="server_configuration_form_ldap_password"><%= required_label_text(l.string("LDAP_PASSWORD")) -%></label>
-                        <%= form.password_field :ldap_password, {:size => 30, :maxLength => 64, :disabled => true, :autocomplete => "off" } %>
-                        <%= form.hidden_field :ldap_encrypted_password %>
-                        <span class="checkbox_row">
-                                <%= form.check_box :ldap_password_changed, {}, "true", "false" %>
-                            <label for="server_configuration_form_ldap_password_changed"><%= l.string("CHANGE_PASSWORD") -%></label>
-                            </span>
-                        <button type="button" class="submit tertiary " id="testLDAPSettings"
-                                onclick="serverConfiguration.validateLdapSettings(this, '<%= validate_ldap_settings_path %>', 'ldap_settings_validation', '<%= form_authenticity_token %>')">
-                            <span><%= l.string("LDAP_VALIDATE") -%></span>
-                        </button>
-                        <span id="ldap_settings_validation"></span>
-                    </div>
-                    <script type="text/javascript">
-                        Util.on_load(function () {
-                            var checkBox = jQuery("#server_configuration_form_ldap_password_changed");
-                            var passwordField = jQuery("#server_configuration_form_ldap_password");
-                            Util.bindPasswordField(checkBox, passwordField);
-                        });
-                    </script>
-
-                    <div class="form_item">
-                        <label for="server_configuration_form_ldap_search_base"><%= required_label_text(l.string("SEARCH_BASE")) -%></label>
-                        <%= form.text_area :ldap_search_base, {:size => 30, :class => "large", :rows => 5} %>
-                        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_LDAP_SEARCH_BASE_FORMAT") -%>"></div>
-                    </div>
-
-                    <div class="form_item">
-                        <label for="server_configuration_form_ldap_search_filter"><%= l.string("SEARCH_FILTER") -%></label>
-                        <%= form.text_field :ldap_search_filter, {:size => 30} %>
-                    </div>
+                <div class="information">
+                  <span>Support for LDAP and Password file authentication in GoCD core has been removed in favour of the bundled <%= link_to "LDAP", "https://github.com/gocd/gocd-ldap-authentication-plugin", target: "_blank" -%> and <%= link_to "Password File", "https://github.com/gocd/filebased-authentication-plugin", target: "_blank" -%> plugins respectively. Your existing LDAP and Password file configurations have been moved to <%= link_to "Authorization Configuration", admin_security_auth_configs_path -%></span>
                 </div>
-                <div class="password_file_settings">
-                    <h3><%= l.string("Password File Settings") -%></h3>
-
-                    <div class="form_item">
-                        <label for="server_configuration_form_password_file_path"><%= l.string("PASSWORD_FILE_PATH") -%></label>
-                        <%= form.text_field :password_file_path, {:size => 80, :class => "large"} %>
-                        <span id="password_file_path_error_message"></span>
-                    </div>
-                </div>
-                  <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
-
-              <% else -%>
-                  <div class="information">
-                    <span>Support for LDAP and Password file authentication in GoCD core has been disabled in favour of the bundled <%= link_to "LDAP", "https://github.com/gocd/gocd-ldap-authentication-plugin", target: "_blank" -%> and <%= link_to "Password File", "https://github.com/gocd/filebased-authentication-plugin", target: "_blank" -%> plugins respectively. Your existing LDAP and Password file configurations have been moved to <%= link_to "Authorization Configuration", admin_security_auth_configs_path -%></span>
-                  </div>
-              <% end -%>
             </div>
         </div>
     </div>

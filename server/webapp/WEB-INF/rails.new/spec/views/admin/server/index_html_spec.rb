@@ -167,17 +167,13 @@ describe "admin/server/index.html.erb" do
     end
   end
 
-  describe "inbuiltLdapPasswordAuth disabled" do
-    before(:each) do
-      assign(:inbuilt_ldap_password_auth_enabled, false)
-    end
-
-    it "should not display passwordfile settings when inbuilt_password_auth_enabled is turned off" do
+  describe "inbuiltLdapPasswordAuth removed" do
+    it "should display built in ldap and password file support has been removed and migrated to respective plugins" do
       render
 
       Capybara.string(response.body).find('#user_management').tap do |div|
         expect(div).not_to have_selector(".password_file_settings")
-        expect(div).to have_selector("div[class='information']", :text => "Support for LDAP and Password file authentication in GoCD core has been disabled in favour of the bundled LDAP and Password File plugins respectively. Your existing LDAP and Password file configurations have been moved to Authorization Configuration")
+        expect(div).to have_selector("div[class='information']", :text => "Support for LDAP and Password file authentication in GoCD core has been removed in favour of the bundled LDAP and Password File plugins respectively. Your existing LDAP and Password file configurations have been moved to Authorization Configuration")
       end
     end
   end

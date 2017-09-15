@@ -92,7 +92,6 @@ describe Admin::ServerController do
     it "should assign command repo base directory location" do
       controller.stub(:system_environment).and_return(@system_environment = Object.new)
       @system_environment.should_receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
-      @system_environment.should_receive(:inbuiltLdapPasswordAuthEnabled).at_least(1).and_return(false)
 
       get :index
 

@@ -108,7 +108,6 @@ public class AgentWebSocketClientController extends AgentController {
         }
     }
 
-
     void process(Message message) throws InterruptedException {
         switch (message.getAction()) {
             case cancelBuild:
@@ -133,7 +132,6 @@ public class AgentWebSocketClientController extends AgentController {
                             packageRepositoryExtension, scmExtension,
                             taskExtension);
                 } finally {
-                    getAgentRuntimeInfo().idle();
                     updateServerAgentRuntimeInfo();
                 }
                 break;

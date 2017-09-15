@@ -163,7 +163,7 @@ public class AgentWebSocketClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Building));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
         verify(webSocketSessionHandler, times(1)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
@@ -183,7 +183,7 @@ public class AgentWebSocketClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Building));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
         verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
@@ -366,7 +366,7 @@ public class AgentWebSocketClientControllerTest {
         agentController.process(new Message(Action.cancelBuild));
         buildingThread.join(MAX_WAIT_IN_TEST);
 
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Cancelled));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done_canceled"));
     }
 

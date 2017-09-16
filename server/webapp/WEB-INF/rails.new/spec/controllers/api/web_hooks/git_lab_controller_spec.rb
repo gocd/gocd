@@ -16,8 +16,7 @@
 
 require 'spec_helper'
 
-describe Api::GitLabController do
-  include APIModelMother
+describe Api::WebHooks::GitLabController do
 
   before :each do
     @material_update_service = double('Material Update Service')

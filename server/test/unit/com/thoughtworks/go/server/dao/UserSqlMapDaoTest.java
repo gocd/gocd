@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.Arrays;
-import java.util.Set;
-
-import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.persistence.HibernateCallback;
+import com.thoughtworks.go.server.persistence.HibernateTemplate;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -30,21 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.support.TransactionCallback;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class UserSqlMapDaoTest {
@@ -63,25 +51,10 @@ public class UserSqlMapDaoTest {
     }
 
     @Test
-    public void shouldGetUserNamesForIds() {
-        final User foo = new User("foo");
-        foo.setId(1);
-        final User bar = new User("bar");
-        bar.setId(2);
-        final User baz = new User("baz");
-        bar.setId(3);
-        when(transactionTemplate.execute(Matchers.<TransactionCallback>any())).thenReturn(Arrays.asList(foo, bar, baz));
-
-        Set<String> userNames = dao.findUsernamesForIds(s(foo.getId(), bar.getId()));
-        assertThat(userNames.size(), is(2));
-        assertThat(userNames, hasItems("foo", "bar"));
-    }
-
-    @Test
     public void shouldCacheTheEnabledUserCountIfItIsNotInTheCache() throws Exception {
         UserSqlMapDao daoSpy = spy(dao);
-        doReturn(mockHibernateTemplate).when(daoSpy).hibernateTemplate();
-        doReturn(10).when(mockHibernateTemplate).execute(Matchers.<HibernateCallback<Object>>any());
+        doReturn(mockHibernateTemplate).when(daoSpy).getHibernateTemplate();
+        doReturn(10).when(mockHibernateTemplate).execute(Matchers.any());
 
         Integer firstEnabledUserCount = daoSpy.enabledUserCount();
         Integer secondEnabledUserCount = daoSpy.enabledUserCount();
@@ -112,7 +85,7 @@ public class UserSqlMapDaoTest {
         GoCache cache = mock(GoCache.class);
         UserSqlMapDao userSqlMapDaoSpy = spy(new UserSqlMapDao(sessionFactory, transactionTemplate, cache, transactionSynchronizationManager));
 
-        doReturn(mockHibernateTemplate).when(userSqlMapDaoSpy).hibernateTemplate();
+        doReturn(mockHibernateTemplate).when(userSqlMapDaoSpy).getHibernateTemplate();
         doReturn(10).when(mockHibernateTemplate).execute(Matchers.<HibernateCallback<Object>>any());
 
         Integer firstEnabledUserCount = userSqlMapDaoSpy.enabledUserCount();

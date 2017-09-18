@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -58,7 +57,6 @@ public class TransactionCacheInterceptorTest {
     @Autowired private SessionFactory sessionFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private HibernateDaoSupport hibernateDaoSupport;
     private TransactionCacheAssertionUtil assertionUtil;
 
 
@@ -68,9 +66,6 @@ public class TransactionCacheInterceptorTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();
-        hibernateDaoSupport = new HibernateDaoSupport() {
-        };
-        hibernateDaoSupport.setSessionFactory(sessionFactory);
         assertionUtil = new TransactionCacheAssertionUtil(goCache, transactionTemplate);
     }
 
@@ -85,7 +80,7 @@ public class TransactionCacheInterceptorTest {
         final MaterialInstance materialInstance = hgInstance();
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
             public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().save(materialInstance);
+                sessionFactory.getCurrentSession().save(materialInstance);
             }
         });
         assertThat(materialInstance.getId(), greaterThan(0l));
@@ -98,11 +93,11 @@ public class TransactionCacheInterceptorTest {
         ReflectionUtil.setField(materialInstance, "url", "loser-name");
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
             public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().update(materialInstance);
-                hibernateDaoSupport.getHibernateTemplate().flush();
+                sessionFactory.getCurrentSession().update(materialInstance);
+                sessionFactory.getCurrentSession().flush();
             }
         });
-        assertThat(ReflectionUtil.getField(hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId()), "url"), is("loser-name"));
+        assertThat(ReflectionUtil.getField(sessionFactory.getCurrentSession().load(MaterialInstance.class, materialInstance.getId()), "url"), is("loser-name"));
     }
 
     @Test
@@ -111,12 +106,12 @@ public class TransactionCacheInterceptorTest {
 
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
             public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().delete(materialInstance);
+                sessionFactory.getCurrentSession().delete(materialInstance);
             }
         });
 
         try {
-            hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId());
+            sessionFactory.getCurrentSession().load(MaterialInstance.class, materialInstance.getId());
             fail("should have deleted the entity successfully");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("No row with the given identifier exists"));
@@ -128,7 +123,7 @@ public class TransactionCacheInterceptorTest {
         final MaterialInstance materialInstance = savedHg();
         final Modification mod = new Modification("loser", "loser commiting a winner stroke", "foo@bar.com", new Date(), "123");
         mod.setMaterialInstance(materialInstance);
-        hibernateDaoSupport.getHibernateTemplate().save(mod);
+        sessionFactory.getCurrentSession().save(mod);
 
         ModifiedFile foo_c = mod.createModifiedFile("foo.c", "src", ModifiedAction.added);
         ModifiedFile bar_c = mod.createModifiedFile("bar.c", "src", ModifiedAction.deleted);
@@ -136,7 +131,7 @@ public class TransactionCacheInterceptorTest {
 
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
             public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().update(mod);
+                sessionFactory.getCurrentSession().update(mod);
             }
         });
 
@@ -153,23 +148,23 @@ public class TransactionCacheInterceptorTest {
 
         ModifiedFile foo_c = mod.createModifiedFile("foo.c", "src", ModifiedAction.added);
 
-        hibernateDaoSupport.getHibernateTemplate().save(mod);
+        sessionFactory.getCurrentSession().save(mod);
 
         ReflectionUtil.setField(foo_c, "fileName", "foo_generated.c");
 
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
             public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().update(mod);
-                hibernateDaoSupport.getHibernateTemplate().flush();
+                sessionFactory.getCurrentSession().update(mod);
+                sessionFactory.getCurrentSession().flush();
             }
         });
 
-        assertThat(hibernateDaoSupport.getHibernateTemplate().load(ModifiedFile.class, foo_c.getId()).getFileName(), is("foo_generated.c"));
+        assertThat(((ModifiedFile)sessionFactory.getCurrentSession().load(ModifiedFile.class, foo_c.getId())).getFileName(), is("foo_generated.c"));
     }
 
     private MaterialInstance savedHg() {
         MaterialInstance materialInstance = hgInstance();
-        hibernateDaoSupport.getHibernateTemplate().save(materialInstance);
+        sessionFactory.getCurrentSession().save(materialInstance);
         return materialInstance;
     }
 

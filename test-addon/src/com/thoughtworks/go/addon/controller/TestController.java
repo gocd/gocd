@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.thoughtworks.go.addon.controller;
 
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.service.UserService;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,17 +30,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class TestController {
     private final BackupService backupService;
     private final UserService userService;
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    public TestController(BackupService backupService, UserService userService) {
+    public TestController(BackupService backupService, UserService userService, SessionFactory sessionFactory) {
         this.backupService = backupService;
         this.userService = userService;
+        this.sessionFactory = sessionFactory;
     }
 
     @RequestMapping(value = "/backups/delete")
     @ResponseBody
     public String deleteAllBackups() {
-        backupService.deleteAll();
+        Session currentSession = sessionFactory.getCurrentSession();
+        try {
+            currentSession.createQuery("DELETE ServerBackup").executeUpdate();
+        } finally {
+            currentSession.close();
+        }
         return "Deleted";
     }
 

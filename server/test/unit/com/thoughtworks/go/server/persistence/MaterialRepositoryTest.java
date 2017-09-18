@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -27,6 +23,7 @@ import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -34,7 +31,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -51,6 +51,7 @@ public class MaterialRepositoryTest {
     private MaterialConfigConverter materialConfigConverter;
     private MaterialExpansionService materialExpansionService;
     private DatabaseStrategy databaseStrategy;
+    private TransactionTemplate transactionTemplate;
 
     @Before
     public void setUp() {
@@ -62,7 +63,8 @@ public class MaterialRepositoryTest {
         mockHibernateTemplate = mock(HibernateTemplate.class);
         materialConfigConverter = mock(MaterialConfigConverter.class);
         materialExpansionService = mock(MaterialExpansionService.class);
-        materialRepository = new MaterialRepository(sessionFactory, goCache, 4242, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
+        transactionTemplate = mock(TransactionTemplate.class);
+        materialRepository = new MaterialRepository(sessionFactory, goCache, 4242, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy, transactionTemplate);
         materialRepository.setHibernateTemplate(mockHibernateTemplate);
         when(goCache.get(anyString())).thenAnswer(new Answer<Object>() {
             @Override

@@ -16,20 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -49,11 +35,20 @@ import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @understands backing up db and config
@@ -187,6 +182,7 @@ public class BackupService implements BackupStatusProvider {
         return serverBackup == null ? null : serverBackup.getUsername();
     }
 
+    @Deprecated // used only in tests
     public void deleteAll() {
         serverBackupRepository.deleteAll();
     }

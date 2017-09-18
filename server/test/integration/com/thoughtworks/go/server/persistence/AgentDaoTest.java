@@ -1,22 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.persistence;
-
-import java.sql.SQLException;
 
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -29,10 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.sql.SQLException;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -103,8 +101,8 @@ public class AgentDaoTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
-        hibernateTemplate.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        hibernateTemplate.execute(new HibernateCallback<Void>() {
+            public Void doInHibernate(Session session) throws HibernateException, SQLException {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
                 agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                 session.update(agent);
@@ -124,8 +122,8 @@ public class AgentDaoTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
-        hibernateTemplate.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        hibernateTemplate.execute(new HibernateCallback<Void>() {
+            public Void doInHibernate(Session session) throws HibernateException, SQLException {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
                 agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                 session.update(agent);
@@ -148,9 +146,9 @@ public class AgentDaoTest {
     }
 
     private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
-        return (Agent) hibernateTemplate.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return session.createSQLQuery("SELECT * from agents where uuid = '" + agentIdentifier.getUuid() + "'").addEntity(Agent.class).uniqueResult();
+        return hibernateTemplate.execute(new HibernateCallback<Agent>() {
+            public Agent doInHibernate(Session session) throws HibernateException, SQLException {
+                return (Agent) session.createSQLQuery("SELECT * from agents where uuid = '" + agentIdentifier.getUuid() + "'").addEntity(Agent.class).uniqueResult();
             }
         });
     }

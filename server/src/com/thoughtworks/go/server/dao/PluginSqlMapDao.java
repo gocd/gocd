@@ -20,11 +20,9 @@ import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -33,7 +31,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.util.List;
 
 @Component
-public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
+public class PluginSqlMapDao implements PluginDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
@@ -43,7 +41,6 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
         this.goCache = goCache;
-        setSessionFactory(sessionFactory);
     }
 
     @Override
@@ -102,9 +99,9 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         return (List<Plugin>) transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus transactionStatus) {
-                Query query = sessionFactory.getCurrentSession().createQuery("FROM " + Plugin.class.getSimpleName());
-                query.setCacheable(true);
-                return query.list();
+                return sessionFactory.getCurrentSession()
+                        .createQuery("FROM Plugin")
+                        .list();
             }
         });
     }
@@ -115,7 +112,9 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().createQuery("DELETE FROM " + Plugin.class.getSimpleName()).executeUpdate();
+                sessionFactory.getCurrentSession()
+                        .createQuery("DELETE FROM Plugin")
+                        .executeUpdate();
             }
         });
     }

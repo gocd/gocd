@@ -34,14 +34,13 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.persistence.HibernateCallback;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -260,11 +259,11 @@ public class ScheduleTestUtil {
 
 
     private List<Modification> modForRev(final RevisionsForMaterial revision) {
-        return (List<Modification>) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
-                q.setParameterList("in", revision.revs);
-                List list = q.list();
+        return materialRepository.getHibernateTemplate().execute(new HibernateCallback<List<Modification>>() {
+            public List<Modification> doInHibernate(Session session) throws HibernateException, SQLException {
+                List list = session.createQuery("from Modification where revision in (:in) order by id desc")
+                        .setParameterList("in", revision.revs)
+                        .list();
                 if (list.isEmpty()) {
                     throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
                 }
@@ -286,17 +285,11 @@ public class ScheduleTestUtil {
     }
 
     private Modification modForRev(final String revision) {
-        return (Modification) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from Modification where revision = ?");
-                q.setParameter(0, revision);
-                List list = q.list();
-                if (list.isEmpty()) {
-                    throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
-                }
-                return list.get(0);
-            }
-        });
+        Modification first = materialRepository.getHibernateTemplate().findFirst("from Modification where revision = ?", revision);
+        if (first == null){
+            throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
+        }
+        return first;
     }
 
     public static final class AddedPipeline {

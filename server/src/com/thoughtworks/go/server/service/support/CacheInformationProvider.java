@@ -100,7 +100,7 @@ public class CacheInformationProvider implements ServerInfoProvider {
         json.put("Disk Spool Buffer Size in MB", config.getDiskSpoolBufferSizeMB());
         json.put("Disk Access Stripes", config.getDiskAccessStripes());
         json.put("Disk Expiry Thread Interval Seconds", config.getDiskExpiryThreadIntervalSeconds());
-        json.put("Logging Enabled", config.isLoggingEnabled());
+        json.put("Logging Enabled", config.getLogging());
         json.put("Cache Event Listener Configurations", config.getCacheEventListenerConfigurations());
         json.put("Cache Extension Configurations", config.getCacheExtensionConfigurations());
         json.put("Cache Extension Configurations", config.getCacheExtensionConfigurations());

@@ -1,55 +1,51 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.persistence;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import com.thoughtworks.go.server.domain.ServerBackup;
-import org.hibernate.Criteria;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
 
-@Service
-public class ServerBackupRepository extends HibernateDaoSupport {
+import java.sql.SQLException;
 
+@Service
+public class ServerBackupRepository {
+
+    private final HibernateTemplate hibernateTemplate;
 
     @Autowired
-    public ServerBackupRepository(SessionFactory sessionFactory) {
-        setSessionFactory(sessionFactory);
+    public ServerBackupRepository(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
+        this.hibernateTemplate = new HibernateTemplate(sessionFactory, transactionTemplate);
     }
 
     public ServerBackup lastBackup() {
-        List results = (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Criteria criteria = session.createCriteria(ServerBackup.class);
-                criteria.setMaxResults(1);
-                criteria.addOrder(Order.desc("id"));
-                return criteria.list();
+        return getHibernateTemplate().execute(new HibernateCallback<ServerBackup>() {
+            @Override
+            public ServerBackup doInHibernate(Session session) throws HibernateException, SQLException {
+                return (ServerBackup) session
+                        .createQuery("from ServerBackup order by id desc")
+                        .setMaxResults(1)
+                        .uniqueResult();
             }
         });
-
-        return results.isEmpty() ? null : (ServerBackup) results.get(0);
     }
 
     public void save(ServerBackup serverBackup) {
@@ -57,10 +53,15 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public void deleteAll() {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate();
+        getHibernateTemplate().execute(new HibernateCallback<Void>() {
+            public Void doInHibernate(Session session) throws HibernateException, SQLException {
+                session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate();
+                return null;
             }
         });
+    }
+
+    private HibernateTemplate getHibernateTemplate() {
+        return hibernateTemplate;
     }
 }

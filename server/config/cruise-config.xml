@@ -29,7 +29,7 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+        <git url="test-repo" />
       </materials>
       <stage name="up42_stage">
         <jobs>

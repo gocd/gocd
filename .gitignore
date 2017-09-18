@@ -120,6 +120,7 @@ server/plugins_work/
 server/plugins/
 server/target/
 server/test-addons/
+server/test-repo/
 server/testdata/agent-launcher.jar
 server/testdata/test-agent.jar
 server/webapp/WEB-INF/rails.new/*.log

@@ -255,6 +255,58 @@ task copyH2Deltas(type: Copy, dependsOn: [':server:cleanDb']) {
   into('db/h2deltas')
 }
 
+task cleanTestRepo(type: Delete) {
+  delete 'test-repo'
+}
+
+clean.dependsOn cleanTestRepo
+
+task prepareTestGitRepo {
+  def repoDir = project.file('test-repo')
+  outputs.dir repoDir
+
+  doFirst {
+    project.delete(repoDir)
+    repoDir.mkdirs()
+
+    project.file("${repoDir}/README.md").withPrintWriter { out ->
+      out.println("# This is a test repo")
+    }
+
+    project.exec {
+      commandLine = ['git', "init"]
+      workingDir = repoDir
+
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+
+    project.exec {
+      commandLine = ['git', "config", "commit.gpgSign", "false"]
+      workingDir = repoDir
+
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+
+    project.exec {
+      commandLine = ['git', 'add', '.']
+      workingDir = repoDir
+
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+
+    project.exec {
+      commandLine = ['git', 'commit', '-m', "Initial commit"]
+      workingDir = repoDir
+
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+  }
+}
+
 task prepareDb {
   dependsOn copyH2Db, copyH2Deltas
 }
@@ -278,7 +330,7 @@ task prepareNoRails {
 }
 
 task prepare {
-  dependsOn = [prepareNoRails, ':server:dependencyClassPath', ':server:compileAssetsDev']
+  dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:dependencyClassPath', ':server:compileAssetsDev']
 }
 
 test {

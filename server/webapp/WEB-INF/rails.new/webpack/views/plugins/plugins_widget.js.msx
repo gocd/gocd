@@ -169,7 +169,7 @@ const PluginsWidget = {
           </header>
         </div>
 
-        <div class="plugins">
+        <div class="plugins-settings">
           {noPluginsMessage}
           {errorMessage}
 

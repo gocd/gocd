@@ -50,8 +50,8 @@ public class AgentProcessParentImplTest {
     public FakeGoServer server = new FakeGoServer();
 
     private static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
-    private final File stderrLog = new File(AgentProcessParentImpl.GO_AGENT_STDERR_LOG);
-    private final File stdoutLog = new File(AgentProcessParentImpl.GO_AGENT_STDOUT_LOG);
+    private final File stderrLog = new File("logs", AgentProcessParentImpl.GO_AGENT_STDERR_LOG);
+    private final File stdoutLog = new File("logs", AgentProcessParentImpl.GO_AGENT_STDOUT_LOG);
 
     @BeforeClass
     public static void setup() {

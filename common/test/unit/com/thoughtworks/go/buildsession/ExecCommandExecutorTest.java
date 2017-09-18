@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.log4j.Level;
+import ch.qos.logback.classic.Level;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -127,7 +127,7 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
         try (LogFixture logFixture = logFixtureFor(ExecCommandExecutor.class, Level.DEBUG)) {
             runBuild(compose(secret("topsecret"),
                     exec("not-not-not-exist", "topsecret")), Failed);
-            String logs = ArrayUtil.join(logFixture.getMessages());
+            String logs = logFixture.getLog();
             assertThat(logs, containsString("not-not-not-exist ******"));
             assertThat(logs, not(containsString("topsecret")));
         }

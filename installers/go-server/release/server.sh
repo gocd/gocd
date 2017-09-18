@@ -78,13 +78,14 @@ SERVER_DIR="$(cd "$CWD" && pwd)"
 [ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
 [ ! -z "$YOURKIT_DISABLE_TRACING" ] || YOURKIT_DISABLE_TRACING=""
 
-if [ -z "${STDOUT_LOG_FILE}" ]; then
-  if [ -d /var/log/go-server ]; then
-    STDOUT_LOG_FILE=/var/log/go-server/go-server.out.log
-  else
-    STDOUT_LOG_FILE=go-server.out.log
-  fi
+if [ -d "${GO_SERVER_LOG_DIR}" ]; then
+  export GO_SERVER_LOG_DIR="logs"
+  mkdir -p "${GO_SERVER_LOG_DIR}"
+else
+  export GO_SERVER_LOG_DIR="/var/log/go-server"
 fi
+
+STDOUT_LOG_FILE="${GO_SERVER_LOG_DIR}/go-server.out.log"
 
 if [ "$PID_FILE" ]; then
     echo "Overriding PID_FILE with $PID_FILE"

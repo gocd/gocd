@@ -34,7 +34,7 @@ import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.log4j.Level;
+import ch.qos.logback.classic.Level;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;

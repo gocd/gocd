@@ -178,7 +178,7 @@ public class NestedJarClassLoader extends ClassLoader {
 
     private boolean isExcluded(String name) {
         for (String excluded : excludes) {
-            if (name.contains(excluded)) {
+            if (name.startsWith(excluded)) {
                 return true;
             }
         }

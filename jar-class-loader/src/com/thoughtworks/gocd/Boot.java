@@ -20,9 +20,13 @@ import com.thoughtworks.gocd.onejar.Handler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
@@ -47,10 +51,14 @@ public class Boot {
         try (JarFile jarFile = new JarFile(currentJarFile())) {
             String mainClassName = mainClassName(jarFile);
 
-            List<URL> urls = jarFile.stream()
+            List<URL> jarsInJar = jarFile.stream()
                     .filter(FIND_JAR_FILES_UNDER_LIB_FOLDER)
                     .map(jarEntry -> Handler.toOneJarUrl(jarEntry.getName()))
                     .collect(Collectors.toList());
+
+            List<URL> urls = new ArrayList<>();
+            urls.addAll(additionalJarsInLibsDirectoryInCWD());
+            urls.addAll(jarsInJar);
 
             ClassLoader jcl = new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader());
             Thread.currentThread().setContextClassLoader(jcl);
@@ -60,6 +68,21 @@ public class Boot {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    private List<URL> additionalJarsInLibsDirectoryInCWD() {
+        File[] libs = new File("libs").listFiles(pathname -> pathname.getName().endsWith(".jar"));
+
+        if (libs != null && libs.length > 0) {
+            return Arrays.stream(libs).map(file -> {
+                try {
+                    return file.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     static File currentJarFile() {

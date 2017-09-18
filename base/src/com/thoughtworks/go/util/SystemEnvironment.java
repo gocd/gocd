@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.util;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ import java.util.Properties;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(SystemEnvironment.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SystemEnvironment.class);
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     private static final String CRUISE_DATABASE_PORT = "cruise.database.port";

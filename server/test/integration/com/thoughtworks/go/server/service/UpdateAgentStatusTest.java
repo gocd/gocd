@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -32,7 +33,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

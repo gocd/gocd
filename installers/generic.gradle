@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,6 @@ task agentGenericZip(type: Zip) {
     rename "(.*)-${project.version}.(.*)", '$1.$2'
   }
 
-  from("${project(':agent-bootstrapper').projectDir}/resources/config/agent-bootstrapper-log4j.properties") {
-    into "config"
-  }
-  from("${project(':agent-launcher').projectDir}/resources/config/agent-launcher-log4j.properties") { into "config" }
-  from("${project(':agent').projectDir}/resources/config/agent-log4j.properties") { into "config" }
 }
 
 task serverGenericZip(type: Zip) {
@@ -53,7 +48,6 @@ task serverGenericZip(type: Zip) {
 
   // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
   from("${rootProject.projectDir}/LICENSE")
-  from("${project(':server').projectDir}/properties/src/config/log4j.properties") { into "config" }
 
   from("${project.projectDir}/go-server/release") {
     include "*.sh"

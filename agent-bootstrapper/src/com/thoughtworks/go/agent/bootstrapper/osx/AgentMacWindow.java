@@ -31,7 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import static com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper.DEFAULT_LOG4J_CONFIGURATION_FILE;
+import static com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper.DEFAULT_LOGBACK_CONFIGURATION_FILE;
 
 public class AgentMacWindow extends JFrame {
     private static final File PREFS_FILE = new File(System.getProperty("user.home"), "/Library/Preferences/com.thoughtworks.go.agent.properties");
@@ -43,7 +43,7 @@ public class AgentMacWindow extends JFrame {
     private MacBootstrapperThread bootstrapLauncher;
 
     public static void main(String[] args) throws IOException {
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
         new AgentMacWindow().go();
     }

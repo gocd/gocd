@@ -47,6 +47,10 @@ configurations {
 
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
+
+  // this dependency is a "provided" dependency
+  compile.exclude(group: 'ch.qos.logback', module: 'logback-classic')
+  runtime.exclude(group: 'ch.qos.logback', module: 'logback-classic')
 }
 
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
@@ -113,14 +117,12 @@ dependencies {
   compile group: 'org.apache.ibatis', name: 'ibatis-sqlmap', version: '2.3.4.726'
   compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.0.0'
   compile(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
-    exclude(module: 'commons-logging')
     exclude(module: 'jms')
     exclude(module: 'servlet-api')
   }
   compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
     exclude(module: 'spring-context')
     exclude(module: 'org.osgi.core')
-    exclude(module: 'commons-logging')
   }
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
@@ -134,7 +136,6 @@ dependencies {
     exclude(module: 'spring-aop')
 
     exclude(module: 'commons-codec')
-    exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')
   }
   compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
@@ -161,8 +162,6 @@ dependencies {
   // this is just an override to force a transitive dep to the version we want.
   compile group: 'xml-apis', name: 'xml-apis', version: '1.3.04'
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: project.versions.slf4j
-  compile group: 'org.slf4j', name: 'jul-to-slf4j', version: project.versions.slf4j
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
@@ -186,8 +185,8 @@ dependencies {
 
 jar {
   classifier = 'classes'
-  exclude '**/*/log4j.properties'
-  exclude 'log4j.properties'
+  exclude '**/*/logback.xml'
+  exclude 'logback.xml'
 }
 
 def findGemsToNotPack = {
@@ -379,7 +378,6 @@ clean {
   delete 'artifactsDir'
   delete 'data'
   delete 'felix-cache'
-  delete 'logs'
   delete 'pipelines'
   delete 'plugins'
   delete 'tfs-impl-14.jar'
@@ -442,8 +440,8 @@ task war(type: Jar) {
   extension 'war'
 
   // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
-  exclude '**/*/log4j.properties'
-  exclude 'log4j.properties'
+  exclude '**/*/logback.xml'
+  exclude 'logback.xml'
 
   // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
 
@@ -525,7 +523,6 @@ task verifyWar(type: VerifyJarTask) {
       "commons-fileupload-1.3.2.jar",
       "commons-io-2.5.jar",
       "commons-lang-2.6.jar",
-      "commons-logging-1.2.jar",
       "commons-net-2.0.jar",
       "commons-pool-1.5.6.jar",
       "config-api-${project.version}.jar",
@@ -562,15 +559,14 @@ task verifyWar(type: VerifyJarTask) {
       "javasysmon-0.3.6.jar",
       "javax.servlet-api-3.1.0.jar",
       "jaxen-1.1.6.jar",
+      "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jdom-2.0.2.jar",
       "joda-time-2.3.jar",
       "jruby-complete-1.7.26.jar",
       "jruby-rack-1.1.14.jar",
       "jsch-0.1.54.jar",
       "jta-1.1.jar",
-      "jul-to-slf4j-${project.versions.slf4j}.jar",
       "kahadb-5.5.0.jar",
-      "log4j-1.2.17.jar",
       "mailapi-1.5.6.jar",
       "objenesis-1.2.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
@@ -582,7 +578,6 @@ task verifyWar(type: VerifyJarTask) {
       "rack_hack-${project.version}.jar",
       "sesame-onejar-2.3.1.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
-      "slf4j-log4j12-${project.versions.slf4j}.jar",
       "smtp-1.5.6.jar",
       "spring-aop-${project.versions.spring}.jar",
       "spring-asm-${project.versions.spring}.jar",

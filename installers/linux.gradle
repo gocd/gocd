@@ -1,8 +1,5 @@
-import com.thoughtworks.go.build.DebPackagingTask
-import com.thoughtworks.go.build.RpmPackagingTask
-
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +14,9 @@ import com.thoughtworks.go.build.RpmPackagingTask
  * limitations under the License.
  */
 
+import com.thoughtworks.go.build.DebPackagingTask
+import com.thoughtworks.go.build.RpmPackagingTask
+
 def agent = [
   dirs       : [
     '/etc/default'             : [ownedByPackage: false],
@@ -29,15 +29,12 @@ def agent = [
     '/var/run/go-agent'        : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true]
   ],
   files      : [
-    '/etc/default/go-agent'                                       : [mode: 0640, owner: 'root', group: 'go', source: file('go-agent/release/go-agent.default').path, confFile: true],
-    '/etc/init.d/go-agent'                                        : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/go-agent.init').path],
-    '/usr/share/doc/go-agent/LICENSE'                             : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
-    '/usr/share/go-agent/agent-bootstrapper.jar'                  : [mode: 0644, owner: 'root', group: 'root', source: configurations.agentBootstrapperJar.singleFile.path],
-    '/usr/share/go-agent/agent.sh'                                : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/agent.sh').path],
-    '/usr/share/go-agent/stop-agent.sh'                           : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/stop-agent.sh').path],
-    '/var/lib/go-agent/config/agent-bootstrapper-log4j.properties': [mode: 0660, owner: 'root', group: 'go', source: project(':agent-bootstrapper').file('resources/config/agent-bootstrapper-log4j.properties').path, confFile: true],
-    '/var/lib/go-agent/config/agent-launcher-log4j.properties'    : [mode: 0660, owner: 'root', group: 'go', source: project(':agent-launcher').file('resources/config/agent-launcher-log4j.properties').path, confFile: true],
-    '/var/lib/go-agent/config/agent-log4j.properties'             : [mode: 0660, owner: 'root', group: 'go', source: project(':agent').file('resources/config/agent-log4j.properties').path, confFile: true],
+    '/etc/default/go-agent'                                  : [mode: 0640, owner: 'root', group: 'go', source: file('go-agent/release/go-agent.default').path, confFile: true],
+    '/etc/init.d/go-agent'                                   : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/go-agent.init').path],
+    '/usr/share/doc/go-agent/LICENSE'                        : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
+    '/usr/share/go-agent/agent-bootstrapper.jar'             : [mode: 0644, owner: 'root', group: 'root', source: configurations.agentBootstrapperJar.singleFile.path],
+    '/usr/share/go-agent/agent.sh'                           : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/agent.sh').path],
+    '/usr/share/go-agent/stop-agent.sh'                      : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/stop-agent.sh').path]
   ],
   description: '''
       Go Agent Component
@@ -59,7 +56,6 @@ def server = [
   files      :
     [
       '/etc/default/go-server'             : [mode: 0640, owner: 'root', group: 'go', source: file('go-server/release/go-server.default').path, confFile: true],
-      '/etc/go/log4j.properties'           : [mode: 0660, owner: 'root', group: 'go', source: project(':server').file('properties/src/config/log4j.properties').path, confFile: true],
       '/etc/init.d/go-server'              : [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/go-server.init').path],
       '/usr/share/doc/go-server/LICENSE'   : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
       '/usr/share/go-server/go.jar'        : [mode: 0644, owner: 'root', group: 'root', source: configurations.serverJar.singleFile.path],

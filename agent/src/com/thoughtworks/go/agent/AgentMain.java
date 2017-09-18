@@ -26,12 +26,12 @@ import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
 
 
 public final class AgentMain {
-    private static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "agent-log4j.properties";
+    private static final String DEFAULT_LOGBACK_CONFIGURATION_FILE = "agent-logback.xml";
 
     public static void main(String... argv) throws Exception {
         assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
 
         new SystemEnvironment().setProperty("go.process.type", "agent");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -36,7 +37,6 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +49,6 @@ import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -100,7 +99,7 @@ public class AgentServiceTest {
             } catch (Exception e) {
                 assertThat(e, instanceOf(AgentNoCookieSetException.class));
                 assertThat(e.getMessage(), is(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
-                assertThat(Arrays.asList(logFixture.getMessages()), hasItem(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
+                assertThat(logFixture.getRawMessages(), hasItem(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
             }
         }
 
@@ -119,7 +118,7 @@ public class AgentServiceTest {
                 fail("should throw exception when cookie mismatched");
             } catch (Exception e) {
                 assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
-                assertThat(Arrays.asList(logFixture.getMessages()), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
+                assertThat(logFixture.getRawMessages(), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
                 verify(serverHealthService).update(ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay()),
                         "Please check the agent installation. Click <a href='https://docs.gocd.org/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
                         HealthStateType.duplicateAgent(HealthStateScope.forAgent(runtimeInfo.getCookie())), Timeout.THIRTY_SECONDS));

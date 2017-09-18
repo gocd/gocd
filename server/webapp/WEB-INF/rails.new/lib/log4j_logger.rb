@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,94 +12,146 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 class Log4jLogger
-  module Severity
-    DEBUG   = 0
-    INFO    = 1
-    WARN    = 2
-    ERROR   = 3
-    FATAL   = 4
-    UNKNOWN = 5
-  end
-  include Severity
+  # SLF4J severity levels
+  LEVELS = %w{ trace debug info warn error }
 
-  def self.init_severities_map
-    all = {}
-    Severity.constants.each do |c|
-      all[const_get(c)] = c
+  RUBY_LEVELS = {
+    ::Logger::Severity::FATAL => 'fatal',
+    ::Logger::Severity::ERROR => 'error',
+    ::Logger::Severity::WARN  => 'warn',
+    ::Logger::Severity::INFO  => 'info',
+    ::Logger::Severity::DEBUG => 'debug'
+  }
+
+  # Logger compatible facade over org.slf4j.Logger
+  #
+  # === Generated Methods
+  #
+  # Corresponding methods are generated for each of the SLF4J levels:
+  #
+  # * trace
+  # * debug
+  # * info
+  # * warn
+  # * error
+  # * fatal (alias to error)
+  #
+  # These have the form (using _info_ as example):
+  #
+  #   log = Logger.new("name")
+  #   log.info?                  # Is this level enabled for logging?
+  #   log.info("message")        # Log message
+  #   log.info { "message" }     # Execute block if enabled and log returned value
+  #   log.info("message", ex)    # Log message with exception message/stack trace
+  #   log.info(ex) { "message" } # Log message with exception message/stack trace
+  #   log.info(ex)               # Log exception with default "Exception:" message
+  #
+  # Note that the exception variants are aware of JRuby's
+  # NativeException class (a wrapped java exception) and will log
+  # using the Java ex.cause in this case.
+  #
+  class Logger
+    attr_accessor :level
+    attr_reader :name
+
+    # Create new or find existing Logger by name. If name is a Module (Class, etc.)
+    # then use SLF4J.to_log_name(name) as the name
+    #
+    # Note that loggers are arranged in a hiearchy by dot '.' name
+    # notation using java package/class name conventions:
+    #
+    # * "pmodule"
+    # * "pmodule.cmodule."
+    # * "pmodule.cmodule.ClassName"
+    #
+    # Which enables hierarchical level setting and abbreviation in some output adapters.
+    #
+    def initialize(name='com.thoughtworks.go.server.Rails')
+      @name = name.is_a?(Module) ? SLF4J.to_log_name(name) : name
+      @logger = org.slf4j.LoggerFactory.getLogger(@name)
     end
-    all
-  end
 
-  @@severities = init_severities_map
+    def level
+      @logger.level
+    end
 
-  # :singleton-method:
-  # Set to false to disable the silencer
-  @@silencer = true
+    def level=(lvl)
+      lvl_string = (RUBY_LEVELS[lvl] || 'trace').upcase
+      @logger.level = Java::ch.qos.logback.classic.Level.const_get(lvl_string)
+    end
 
-  def self.silencer=(silencer)
-    @@silencer = silencer
-  end
+    # Return underlying org.slf4j.Logger
+    def java_logger
+      @logger
+    end
 
-  def self.silencer
-    @@silencer
-  end
+    # Define logging methods for each level: debug(), error(), etc.
+    LEVELS.each do |lvl|
+      module_eval( %Q{
+          def #{lvl}?
+            @logger.is#{lvl.capitalize}Enabled
+          end
+          def #{lvl}( msg=nil, ex=nil )
+            if msg.is_a?( Exception ) && ex.nil?
+              msg, ex = "Exception:", msg
+            end
+            msg = yield if ( block_given? && #{lvl}? )
+            if msg
+              if ex
+                #{lvl}_ex( msg, ex )
+              else
+                @logger.#{lvl}( msg.to_s )
+              end
+            end
+          end
+          def #{lvl}_ex( msg, ex )
+            if ex.is_a?( NativeException )
+              @logger.#{lvl}( msg.to_s, ex.cause )
+            elsif #{lvl}?
+              log = msg.to_s.dup
+              log << '\n'
+              log << ex.class.name << ': ' << ex.message << '\n'
+              ex.backtrace.each do |b|
+                log << '\t' << b << '\n'
+              end
+              @logger.#{lvl}( log )
+            end
+          end
+        } )
+    end
 
-  # Silences the logger for the duration of the block.
-  def silence(temporary_level = ERROR)
-    if silencer
-      begin
-        old_logger_level, self.level = level, temporary_level
-        yield self
-      ensure
-        self.level = old_logger_level
+    # Alias fatal to error for Logger compatibility
+    alias_method :fatal, :error
+    alias_method :fatal?, :error?
+
+    def <<(msg)
+      add @level, msg
+    end
+
+    def add(severity, message = nil, progname = nil)
+      level = (RUBY_LEVELS[severity] || severity || 'trace').downcase
+      level = 'trace' unless self.respond_to?("#{level}?".to_sym)
+
+      if self.send("#{level}?".to_sym)
+        if message.nil?
+          if block_given?
+            message = yield
+          end
+        end
+        msg = [progname, message].reject { |f| f.nil? }
+        self.send(level.to_sym, msg.join(' - ')) unless msg.empty?
       end
-    else
-      yield self
+
+      return true
     end
+
+    alias_method :unknown, :warn
+
+    # aliased for Logger compatibility
+    alias_method :log, :add
   end
 
-  attr_accessor :level
-
-  def initialize(level = DEBUG)
-    @level = level
-    @logger = org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails")
-  end
-
-  def add(severity, message = nil, progname = nil, &block)
-    return if @level > severity
-    message = (message || (block && block.call) || progname).to_s
-    # If a newline is necessary then create a new message ending with a newline.
-    # Ensures that the original message is not mutated.
-    # message = "#{message}\n" unless message[-1] == ?\n
-    @logger.log(to_log4j_level(severity), message)
-    message
-  end
-
-  Severity.constants.each do |severity|
-    class_eval <<-EOT, __FILE__, __LINE__
-      def #{severity.downcase}(message = nil, progname = nil, &block)  # def debug(message = nil, progname = nil, &block)
-        add(#{severity}, message, progname, &block)                    #   add(DEBUG, message, progname, &block)
-      end                                                              # end
-                                                                       #
-      def #{severity.downcase}?                                        # def debug?
-        #{severity} >= @level                                          #   DEBUG >= @level
-      end                                                              # end
-    EOT
-  end
-
-  def close
-  end
-
-  protected
-
-  def to_log4j_level(severity)
-    org.apache.log4j.Level.toLevel(severity_from(severity).to_s, org.apache.log4j.Level::WARN)
-  end
-
-  def severity_from(severity)
-    @@severities[severity]
-  end
 end

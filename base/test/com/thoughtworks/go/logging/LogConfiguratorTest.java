@@ -72,43 +72,44 @@ public class LogConfiguratorTest {
         assertTrue(defaultLoggingInvoked[0]);
 
         assertThat(stderr.toString(), containsString(String.format("Could not find file `%s'. Attempting to load from classpath.", new File("non-existant-dir", "non-existant.properties"))));
-        assertThat(stderr.toString(), containsString("Could not find classpath resource `config/non-existant.properties'. Falling back to using a default log4j configuration that writes to stdout."));
+        assertThat(stderr.toString(), containsString("Could not find classpath resource `config/non-existant.properties'. Falling back to using a default logback configuration that writes to stdout."));
         assertThat(stdout.toString(), is(""));
     }
 
     @Test
     public void shouldUseDefaultLog4jConfigFromClasspathIfUserSpecifiedConfigFileIsNotFound() throws Exception {
         final URL[] initializeFromPropertyResource = {null};
-        LogConfigurator logConfigurator = new LogConfigurator("xxx", "logging-test-log4j.properties") {
+        LogConfigurator logConfigurator = new LogConfigurator("xxx", "logging-test-logback.xml") {
             @Override
-            protected void initializeFromPropertyResource(URL resource) {
+            protected void configureWith(URL resource) {
                 initializeFromPropertyResource[0] = resource;
             }
         };
         logConfigurator.initialize();
 
-        assertThat(initializeFromPropertyResource[0], equalTo(getClass().getClassLoader().getResource("config/logging-test-log4j.properties")));
+        URL expectedResource = getClass().getClassLoader().getResource("config/logging-test-logback.xml");
+        assertThat(initializeFromPropertyResource[0], equalTo(expectedResource));
 
-        assertThat(stderr.toString(), containsString("Using classpath resource `config/logging-test-log4j.properties'"));
+        assertThat(stderr.toString(), containsString("Using classpath resource `" + expectedResource + "'"));
         assertThat(stdout.toString(), is(""));
     }
 
     @Test
     public void shouldFallbackToDefaultFileIfLog4jConfigFound() throws Exception {
         File configFile = folder.newFile("foo.properties");
-        final File[] initializeFromPropertiesFile = {null};
+        final URL[] initializeFromPropertiesFile = {null};
         LogConfigurator logConfigurator = new LogConfigurator(configFile.getParentFile().getAbsolutePath(), configFile.getName()) {
             @Override
-            protected void initializeFromPropertiesFile(File log4jFile) {
-                initializeFromPropertiesFile[0] = log4jFile;
+            protected void configureWith(URL resource) {
+                initializeFromPropertiesFile[0] = resource;
             }
         };
 
         logConfigurator.initialize();
 
-        assertThat(initializeFromPropertiesFile[0], is(configFile));
+        assertThat(initializeFromPropertiesFile[0], is(configFile.toURI().toURL()));
 
-        assertThat(stderr.toString(), containsString(String.format("Using log4j configuration from %s", configFile)));
+        assertThat(stderr.toString(), containsString(String.format("Using logback configuration from file %s", configFile)));
         assertThat(stdout.toString(), is(""));
     }
 }

@@ -1,30 +1,37 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.infra.service;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import com.thoughtworks.go.logging.LogHelper;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
+
+import static com.thoughtworks.go.logging.LogHelper.rootLogger;
 
 public class DefaultPluginLoggingService implements LoggingService {
-    private static Logger loggingServiceLogger = Logger.getLogger(DefaultPluginLoggingService.class);
+    private static Logger loggingServiceLogger = LoggerFactory.getLogger(DefaultPluginLoggingService.class);
     private static int MAX_LENGTH_OF_PLUGIN_FILENAME = 200;
     private static final String PLUGIN_LOGGER_PREFIX = "plugin";
 
@@ -46,7 +53,8 @@ public class DefaultPluginLoggingService implements LoggingService {
 
     @Override
     public void info(String pluginId, String loggerName, String message) {
-        getLogger(pluginId, loggerName).info(message);
+        Logger logger = getLogger(pluginId, loggerName);
+        logger.info(message);
     }
 
     @Override
@@ -76,11 +84,11 @@ public class DefaultPluginLoggingService implements LoggingService {
 
     private Logger getLogger(String pluginId, String loggerName) {
         initializeLoggerForPluginId(pluginId);
-        return Logger.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId + "." + loggerName);
+        return LoggerFactory.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId + "." + loggerName);
     }
 
     private boolean alreadyInitialized(String pluginId) {
-        return Logger.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId).getAllAppenders().hasMoreElements();
+        return ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId)).getAppender(rollingFileAppenderName(pluginId)) != null;
     }
 
     private void initializeLoggerForPluginId(String pluginId) {
@@ -92,32 +100,52 @@ public class DefaultPluginLoggingService implements LoggingService {
             if (alreadyInitialized(pluginId)) {
                 return;
             }
-            FileAppender pluginAppender = getAppender(pluginId);
+            FileAppender<ILoggingEvent> pluginAppender = getAppender(pluginId);
 
-            Logger logger = Logger.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId);
-            logger.setAdditivity(false);
+            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(PLUGIN_LOGGER_PREFIX + "." + pluginId);
+            logger.setAdditive(false);
             logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
             logger.addAppender(pluginAppender);
 
             if (systemEnvironment.consoleOutToStdout()) {
-                ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d{ISO8601} %5p [%t] %c{1}:%L [plugin-" + pluginId + "] - %m%n"));
-                logger.setAdditivity(false);
+                ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+                consoleAppender.setEncoder(LogHelper.encoder("%d{ISO8601} %5p [%t] %c{1}:%L [plugin-" + pluginId + "] - %m%n"));
+                logger.setAdditive(false);
                 logger.setLevel(systemEnvironment.pluginLoggingLevel(pluginId));
+                consoleAppender.start();
                 logger.addAppender(consoleAppender);
             }
 
-            loggingServiceLogger.debug("Plugin with ID: " + pluginId + " will log to: " + pluginAppender.getFile());
+            loggingServiceLogger.debug("Plugin with ID: " + pluginId + " will log to: " + pluginAppender.rawFileProperty());
         }
     }
 
-    private FileAppender getAppender(String pluginId) {
-        try {
-            String logDirectory = getCurrentLogDirectory();
-            File pluginLogFileLocation = new File(logDirectory, pluginLogFileName(pluginId));
-            return new RollingFileAppender(new PatternLayout("%d{ISO8601} %5p [%t] %c{1}:%L - %m%n"), pluginLogFileLocation.getPath(), true);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private FileAppender<ILoggingEvent> getAppender(String pluginId) {
+        File pluginLogFileLocation = pluginLogFile(pluginId);
+
+        RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
+        rollingFileAppender.setEncoder(LogHelper.encoder());
+        rollingFileAppender.setContext(LogHelper.LOGGER_CONTEXT);
+        rollingFileAppender.setFile(pluginLogFileLocation.getPath());
+        rollingFileAppender.setName(rollingFileAppenderName(pluginId));
+
+        LogHelper.rollingPolicyForAppender(
+                rollingFileAppender,
+                "5 MB",
+                "20 MB",
+                7
+        );
+
+        rollingFileAppender.start();
+        return rollingFileAppender;
+    }
+
+    File pluginLogFile(String pluginId) {
+        return new File(getCurrentLogDirectory(), pluginLogFileName(pluginId));
+    }
+
+    private String rollingFileAppenderName(String pluginId) {
+        return "rollingFileAppender-" + pluginId;
     }
 
     static String pluginLogFileName(String pluginId) {
@@ -131,7 +159,7 @@ public class DefaultPluginLoggingService implements LoggingService {
     String getCurrentLogDirectory() {
         try {
             FileAppender fileAppender = getGoServerLogFileAppender();
-            String fileName = fileAppender.getFile();
+            String fileName = fileAppender.rawFileProperty();
             return new File(fileName).getAbsoluteFile().getParent();
         } catch (Exception e) {
             return ".";
@@ -139,6 +167,7 @@ public class DefaultPluginLoggingService implements LoggingService {
     }
 
     FileAppender getGoServerLogFileAppender() {
-        return (FileAppender) Logger.getRootLogger().getAppender("FileAppender");
+        return (FileAppender) rootLogger().getAppender("FileAppender");
     }
+
 }

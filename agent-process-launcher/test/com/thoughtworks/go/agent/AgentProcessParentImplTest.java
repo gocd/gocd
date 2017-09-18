@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent;
 
+import ch.qos.logback.classic.Level;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
@@ -24,7 +25,6 @@ import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
 import org.junit.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

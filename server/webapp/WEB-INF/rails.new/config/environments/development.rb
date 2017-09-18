@@ -31,5 +31,4 @@ Go::Application.configure do
   config.java_services_cache = :ServiceCache
 
   config.log_level = :debug
-  org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails").setLevel(org.apache.log4j.Level::DEBUG)
 end

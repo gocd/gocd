@@ -94,6 +94,7 @@ plugin-infra/go-plugin-access/target/
 plugin-infra/go-plugin-activator/target/
 plugin-infra/go-plugin-api-internal/target/
 plugin-infra/go-plugin-api/target/
+plugin-infra/go-plugin-infra/logs/
 plugin-infra/go-plugin-infra/target/
 rack_hack/target/
 release/target/
@@ -147,6 +148,7 @@ tools/node_modules/
 tools/npm-debug.log
 plugin-infra/go-plugin-access/config/cipher
 
+**/logs/test.log
 /build/
 out/
 config/config-server/warnings.log

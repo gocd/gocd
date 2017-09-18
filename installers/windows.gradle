@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,9 +91,6 @@ def copyAgentSpecificFiles(versionedDir, buildRoot, flavour) {
   project.copy { from('go-agent/release/start-agent.bat') into(versionedDir) }
   project.copy { from('go-agent/release/stop-agent.bat') into(versionedDir) }
   project.copy { from('go-agent/release/README.md') into(versionedDir) }
-  project.copy { from(project(':agent-bootstrapper').file('resources/config/agent-bootstrapper-log4j.properties')) into("${versionedDir}/config") }
-  project.copy { from(project(':agent').file('resources/config/agent-log4j.properties')) into("${versionedDir}/config") }
-  project.copy { from(project(':agent-launcher').file('resources/config/agent-launcher-log4j.properties')) into("${versionedDir}/config") }
   project.copy { from('go-agent/win/config') into("${versionedDir}/config") }
   project.file("${versionedDir}/tmp").mkdirs()
 }
@@ -111,7 +108,6 @@ private void copyServerSpecificFiles(versionedDir, buildRoot, flavour) {
   project.copy { from('go-server/release/start-server.bat') into(versionedDir) }
   project.copy { from('go-server/release/stop-server.bat') into(versionedDir) }
   project.copy { from('go-server/win/config') into("${versionedDir}/config") }
-  project.copy { from(project(':server').file('properties/src/config/log4j.properties')) into("${versionedDir}/config") }
   project.file("${versionedDir}/tmp").mkdirs()
 }
 

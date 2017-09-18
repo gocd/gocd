@@ -28,7 +28,7 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.LogFixture;
-import org.apache.log4j.Level;
+import ch.qos.logback.classic.Level;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

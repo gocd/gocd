@@ -35,7 +35,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.log4j.Level;
+import ch.qos.logback.classic.Level;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;

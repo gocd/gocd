@@ -1,5 +1,3 @@
-import com.thoughtworks.go.build.VerifyJarTask
-
 /*
  * Copyright 2017 ThoughtWorks, Inc.
  *
@@ -15,6 +13,8 @@ import com.thoughtworks.go.build.VerifyJarTask
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'Agent Launcher Jar'
 
@@ -48,14 +48,14 @@ task verifyJar(type: VerifyJarTask) {
           "base-${project.version}.jar",
           "commons-io-2.5.jar",
           "commons-lang-2.6.jar",
-          "commons-logging-1.2.jar",
           "httpclient-4.5.2.jar",
           "httpcore-4.4.4.jar",
+          "jcl-over-slf4j-${project.versions.slf4j}.jar",
           "jcommander-1.60.jar",
           "joda-time-2.3.jar",
-          "log4j-1.2.17.jar",
+          "logback-classic-${project.versions.logback}.jar",
+          "logback-core-${project.versions.logback}.jar",
           "slf4j-api-${project.versions.slf4j}.jar",
-          "slf4j-log4j12-${project.versions.slf4j}.jar",
       ]
   ]
 }

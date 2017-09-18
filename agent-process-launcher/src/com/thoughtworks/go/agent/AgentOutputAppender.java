@@ -16,72 +16,104 @@
 
 package com.thoughtworks.go.agent;
 
-import org.apache.log4j.*;
-import org.apache.log4j.spi.LoggingEvent;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.OutputStreamAppender;
+import ch.qos.logback.core.joran.spi.ConsoleTarget;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import com.thoughtworks.go.logging.LogHelper;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-public class AgentOutputAppender {
-    private static final String LOG_DIR = "LOG_DIR";
-
+class AgentOutputAppender {
     enum Outstream {
-        STDOUT(ConsoleAppender.SYSTEM_OUT, "stdout"),
-        STDERR(ConsoleAppender.SYSTEM_ERR, "stderr");
+        STDOUT(ConsoleTarget.SystemOut, "stdout"),
+        STDERR(ConsoleTarget.SystemErr, "stderr");
 
-        private final String name;
+        private final ConsoleTarget target;
         private final String marker;
 
-        Outstream(String name, String marker) {
-            this.name = name;
+        Outstream(ConsoleTarget target, String marker) {
+            this.target = target;
             this.marker = marker;
         }
     }
 
-    private final List<WriterAppender> appenders = new ArrayList<>();
+    private final List<OutputStreamAppender<ILoggingEvent>> appenders = new ArrayList<>();
 
-    public AgentOutputAppender(String file) throws IOException {
+    AgentOutputAppender(String file) throws IOException {
         appenders.add(rollingAppender(file));
     }
 
-    public void writeTo(Outstream target) {
-        appenders.add(new ConsoleAppender(new PatternLayout(target.marker + ": %m%n"), target.name));
+    void writeTo(Outstream target) {
+        ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+        appender.setTarget(target.target.getName());
+        appender.setEncoder(LogHelper.encoder("%date{ISO8601} [" + target.marker + "] - %msg%n"));
+        appender.start();
+        appenders.add(appender);
     }
 
-    public void write(String message, Exception throwable) {
-        for (WriterAppender appender : appenders) {
-            Logger logger = Logger.getLogger(AgentOutputAppender.class);
-            appender.append(new LoggingEvent("", logger, Level.ERROR, message, throwable));
+    private void write(String message, Exception throwable) {
+        for (OutputStreamAppender<ILoggingEvent> appender : appenders) {
+            Logger logger = (Logger) LoggerFactory.getLogger(AgentOutputAppender.class);
+            appender.doAppend(new LoggingEvent("", logger, Level.ERROR, message, throwable, null));
         }
     }
 
-    public void write(String line) {
+    void write(String line) {
         write(line, null);
     }
 
-    public void close() {
-        for (WriterAppender appender : appenders) {
-            appender.close();
-        }
+    void close() {
+        appenders.forEach(OutputStreamAppender::stop);
     }
 
-    private RollingFileAppender rollingAppender(String file) throws IOException {
-        RollingFileAppender rollingFileAppender = new RollingFileAppender(new PatternLayout("%m%n"), getEffectiveLogDirectory(file), true);
-        rollingFileAppender.setMaxBackupIndex(4);
-        rollingFileAppender.setMaxFileSize("5000KB");
+    private RollingFileAppender<ILoggingEvent> rollingAppender(String file) throws IOException {
+        RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
+        rollingFileAppender.setEncoder(LogHelper.encoder("%date{ISO8601} - %msg%n"));
+        rollingFileAppender.setContext(LogHelper.LOGGER_CONTEXT);
+        rollingFileAppender.setFile(getEffectiveLogDirectory(file));
+        rollingFileAppender.setName(UUID.randomUUID().toString());
+
+        LogHelper.rollingPolicyForAppender(
+                rollingFileAppender,
+                "5 MB",
+                "20 MB",
+                4
+        );
+        rollingFileAppender.start();
         return rollingFileAppender;
     }
 
     private static String getEffectiveLogDirectory(String file) {
-        String logDir = System.getenv(LOG_DIR);
+        return getLogDir() + "/" + file;
+    }
 
-        if (isBlank(logDir)) {
-            return file;
-        } else {
-            return logDir + "/" + file;
+    private static String getLogDir() {
+        List<String> logDirs = Arrays.asList(
+                System.getProperty("gocd.agent.log.dir"),
+                System.getenv("GO_AGENT_LOG_DIR"),
+                System.getenv("LOG_DIR"),
+                "logs"
+        );
+
+        for (String logDir : logDirs) {
+            if (isNotBlank(logDir)) {
+                return logDir;
+            }
         }
+
+        throw new IllegalStateException("Could not find a log directory to log to.");
     }
 }

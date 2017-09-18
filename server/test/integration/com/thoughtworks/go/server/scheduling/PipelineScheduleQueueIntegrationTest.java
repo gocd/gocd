@@ -39,7 +39,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.log4j.Level;
+import ch.qos.logback.classic.Level;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;

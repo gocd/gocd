@@ -78,7 +78,7 @@ SERVER_DIR="$(cd "$CWD" && pwd)"
 [ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
 [ ! -z "$YOURKIT_DISABLE_TRACING" ] || YOURKIT_DISABLE_TRACING=""
 
-if [ -d "${GO_SERVER_LOG_DIR}" ]; then
+if [ -d ${GO_SERVER_LOG_DIR} ]; then
   export GO_SERVER_LOG_DIR="logs"
   mkdir -p "${GO_SERVER_LOG_DIR}"
 else

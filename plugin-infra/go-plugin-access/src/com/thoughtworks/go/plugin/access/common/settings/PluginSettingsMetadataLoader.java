@@ -72,7 +72,8 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
             }
             metadataStore.addMetadataFor(pluginId, configuration, view);
         } catch (Exception e) {
-            LOGGER.error("Failed to fetch Plugin Settings metadata for plugin : {}", pluginId, e);
+            LOGGER.error("Failed to fetch Plugin Settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", pluginId);
+            LOGGER.debug(null, e);
         }
     }
 }

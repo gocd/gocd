@@ -34,16 +34,13 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
@@ -68,22 +65,6 @@ public class GoVelocityViewTest {
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
         securityContext = new SecurityContextImpl();
-    }
-
-    @Test
-    public void shouldRetriveLdapCompleteNameFromSessionWhenAuthenticated() throws Exception {
-        securityContext.setAuthentication(new TestingAuthenticationToken(new LdapUserDetailsImpl() {
-            public String getUsername() {
-                return "test1";
-            }
-
-            public String getDn() {
-                return "cn=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
-            }
-        }, null, null));
-        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
-        view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
     }
 
     @Test

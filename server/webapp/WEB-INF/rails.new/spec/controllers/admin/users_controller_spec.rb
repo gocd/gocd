@@ -168,8 +168,10 @@ describe Admin::UsersController do
       controller.stub(:current_user).and_return(current_user_name)
 
       search_text = "foo"
-      user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
-                            UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"))]
+      user_search_models = [
+        UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go"), UserSourceType::PLUGIN),
+        UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PLUGIN)
+      ]
       @user_search_service.should_receive(:search).with(search_text, @result).and_return(user_search_models)
 
       post :search, :no_layout => true, :search_text => search_text
@@ -182,8 +184,10 @@ describe Admin::UsersController do
       controller.stub(:current_user).and_return(current_user_name)
 
       search_text = "foo"
-      user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
-                            UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"))]
+      user_search_models = [
+        UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go"), UserSourceType::PLUGIN),
+        UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PLUGIN)
+      ]
       @user_search_service.should_receive(:search).with(search_text, @result).and_return(user_search_models)
 
       post :search, :no_layout => true, :search_text => search_text
@@ -198,8 +202,10 @@ describe Admin::UsersController do
       controller.stub(:current_user).and_return(current_user_name)
 
       search_text = "foo"
-      user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
-                            UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"))]
+      user_search_models = [
+        UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go"), UserSourceType::PLUGIN),
+        UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PLUGIN)
+      ]
       @user_search_service.should_receive(:search).with(search_text, @result).and_return(user_search_models)
       post :search, :no_layout => true, :search_text => search_text
 
@@ -220,8 +226,8 @@ describe Admin::UsersController do
 
       params_selections = [{"name"=>"foo", "full_name"=>"Mr Foo", "email"=>"foo@cruise.com"},{"name"=>"Bar", "full_name"=>"Mr Bar", "email"=>"bar@cruise.com"}]
 
-      user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.com"), UserSourceType::PASSWORD_FILE),
-                            UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PASSWORD_FILE)]
+      user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.com"), UserSourceType::PLUGIN),
+                            UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PLUGIN)]
       result = Object.new
       HttpLocalizedOperationResult.stub(:new).and_return(result)
       user_service.should_receive(:create).with(user_search_models, result)

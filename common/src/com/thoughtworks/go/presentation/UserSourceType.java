@@ -20,17 +20,6 @@ package com.thoughtworks.go.presentation;
  * Understand source of where users can be added from.
  */
 public enum UserSourceType {
-    LDAP {
-        public String displayString() {
-            return "LDAP";
-        }
-
-    },
-    PASSWORD_FILE {
-        public String displayString() {
-            return "Password File";
-        }
-    },
     PLUGIN {
         public String displayString() {
             return "Plugin";

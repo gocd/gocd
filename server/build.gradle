@@ -171,7 +171,6 @@ dependencies {
   testCompile group: 'org.dbunit', name: 'dbunit', version: '2.5.1'
   testCompile group: 'org.mozilla', name: 'rhino', version: '1.7.7'
   testCompile group: 'jmock', name: 'jmock-cglib', version: '1.1.0'
-  testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config-server', configuration: 'testOutput')
   testCompile project(path: ':config-api', configuration: 'testOutput')

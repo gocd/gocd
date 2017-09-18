@@ -16,12 +16,12 @@
 
 require 'spec_helper'
 
-describe "admin/users/_user_results_table.html.erb" do
+describe "admin/users/_user_results_table.html.erb" do  
   it "should replace . in username with _dot_" do
     user_search_model = double('user_search_model')
     user = User.new("username.with.dot", "display.name.with.dot", "email.with.dot@dot.com")
     user_search_model.should_receive(:getUser).at_least(:once).and_return(user)
-    user_search_model.should_receive(:getUserSourceType).and_return(com.thoughtworks.go.presentation.UserSourceType::LDAP)
+    user_search_model.should_receive(:getUserSourceType).and_return(com.thoughtworks.go.presentation.UserSourceType::PLUGIN)
 
     render partial: "admin/users/user_results_table.html", locals: { scope: { users: [user_search_model] } }
 
@@ -34,7 +34,7 @@ describe "admin/users/_user_results_table.html.erb" do
     user_search_model = double("user_search_model")
     user = User.new("!username-with_special_chars._@#\$%^&*()-_ and spaces", "!display-name-with_special_chars_@#\$%^&*()-_", "email!me#now*@dot.com")
     user_search_model.should_receive(:getUser).at_least(:once).and_return(user)
-    user_search_model.should_receive(:getUserSourceType).and_return(com.thoughtworks.go.presentation.UserSourceType::LDAP)
+    user_search_model.should_receive(:getUserSourceType).and_return(com.thoughtworks.go.presentation.UserSourceType::PLUGIN)
 
     render partial: "admin/users/user_results_table.html", locals: { scope: { users: [user_search_model] } }
 

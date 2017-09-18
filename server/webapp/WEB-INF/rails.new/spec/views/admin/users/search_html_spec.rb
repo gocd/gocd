@@ -28,22 +28,22 @@ describe "/admin/users/search.html.erb" do
 
   it "should render search results" do
     assign(:users,[
-          UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go"), UserSourceType::LDAP),
-          UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PASSWORD_FILE)])
+          UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go"), UserSourceType::PLUGIN),
+          UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PLUGIN)
+    ])
 
     render
 
     Capybara.string(response.body).all("table[class='list_table'] tr[class='user']").tap do |tr|
-
         expect(tr[0]).to have_selector("td[class='username'][title='Mr Foo'] span", :text=> "Mr Foo")
         expect(tr[0]).to have_selector("td[class='fullname'][title='foo'] span", :text=> "foo")
         expect(tr[0]).to have_selector("td[class='email'][title='foo@cruise.go'] span", :text=> "foo@cruise.go")
-        expect(tr[0]).to have_selector("td[class='source'][title='LDAP'] span", :text=> "LDAP")
+        expect(tr[0]).to have_selector("td[class='source'][title='Plugin'] span", :text=> "Plugin")
 
         expect(tr[1]).to have_selector("td[class='username'][title='Mr Bar'] span", :text=> "Mr Bar")
         expect(tr[1]).to have_selector("td[class='fullname'][title='Bar'] span", :text=> "Bar")
         expect(tr[1]).to have_selector("td[class='email'][title='bar@cruise.com'] span", :text=> "bar@cruise.com")
-        expect(tr[1]).to have_selector("td[class='source'][title='Password File'] span", :text=> "Password File")
+        expect(tr[1]).to have_selector("td[class='source'][title='Plugin'] span", :text=> "Plugin")
     end
   end
 end

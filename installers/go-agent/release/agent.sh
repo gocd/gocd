@@ -93,7 +93,6 @@ AGENT_DIR="$(cd "$CWD" && pwd)"
 
 AGENT_MEM=${AGENT_MEM:-"128m"}
 AGENT_MAX_MEM=${AGENT_MAX_MEM:-"256m"}
-JVM_DEBUG_PORT=${JVM_DEBUG_PORT:-"5006"}
 VNC=${VNC:-"N"}
 
 
@@ -144,19 +143,7 @@ if [ "$VNC" == "Y" ]; then
     export DISPLAY
 fi
 
-if [ "$JVM_DEBUG" != "" ]; then
-    JVM_DEBUG="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${JVM_DEBUG_PORT}"
-else
-    JVM_DEBUG=""
-fi
-
-if [ "$GC_LOG" != "" ]; then
-    GC_LOG="-verbose:gc -Xloggc:${SERVICE_NAME}-gc.log -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGC"
-else
-    GC_LOG=""
-fi
-
-AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $JVM_DEBUG $GC_LOG $GO_AGENT_SYSTEM_PROPERTIES"
+AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $GO_AGENT_SYSTEM_PROPERTIES"
 if [ "$TMPDIR" != "" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.io.tmpdir=$TMPDIR"
 fi

@@ -103,58 +103,6 @@ if [ -z "${GO_CONFIG_DIR}" ]; then
   fi
 fi
 
-if [ -e /usr/lib/yourkit/libyjpagent.jnilib ]; then
-    YOURKIT_PATH="/usr/lib/yourkit/libyjpagent.jnilib"
-elif [ -e /usr/lib/yourkit/libyjpagent.so ]; then
-    YOURKIT_PATH="/usr/lib/yourkit/libyjpagent.so"
-fi
-
-YJP_PARAMS_9="
-YOURKIT_DO_NOT_disabletracing
-YOURKIT_DO_NOT_disablealloc
-YOURKIT_DO_NOT_disablej2ee
-YOURKIT_DO_NOT_disableexceptiontelemetry
-"
-
-YJP_PARAMS_8="
-YOURKIT_DO_NOT_disablecounts
-YOURKIT_DO_NOT_disablealloc
-YOURKIT_DO_NOT_disablej2ee
-YOURKIT_DO_NOT_disableexceptiontelemetry
-"
-
-if [ "$YOURKIT_PATH" != "" ]; then
-    YOURKIT="-agentpath:$YOURKIT_PATH=port=6133,builtinprobes=none"
-    [ ! -z $YOURKIT_VERSION ] || YOURKIT_VERSION="9"
-    if [[ $ENABLE_YOURKIT_OPTIMIZATIONS = yes ]]; then
-        echo "Attempting yourkit optimizations, assuming yourkit major version $YOURKIT_VERSION"
-        YJP_PARAMS_VARIABLE="YJP_PARAMS_$YOURKIT_VERSION"
-        YJP_PARAMS=${!YJP_PARAMS_VARIABLE}
-        for yjp_param in `echo $YJP_PARAMS`; do
-            param_set=${!yjp_param}
-            if [ "x$param_set" = "x" ]; then
-                actual_param_name=`echo $yjp_param | sed -e 's/YOURKIT_DO_NOT_//g'`
-                echo "initializing yourkit with: $actual_param_name"
-                YOURKIT="$YOURKIT,$actual_param_name"
-            fi
-        done
-    fi
-else
-    YOURKIT=""
-fi
-
-if [ "$JVM_DEBUG" != "" ]; then
-    JVM_DEBUG=("-Xdebug" "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005")
-else
-    JVM_DEBUG=()
-fi
-
-if [ "$GC_LOG" != "" ]; then
-    GC_LOG=("-verbose:gc" "-Xloggc:go-server-gc.log" "-XX:+PrintGCTimeStamps" "-XX:+PrintTenuringDistribution" "-XX:+PrintGCDetails" "-XX:+PrintGC")
-else
-    GC_LOG=()
-fi
-
 eval stringToArgsArray "$GO_SERVER_SYSTEM_PROPERTIES"
 GO_SERVER_SYSTEM_PROPERTIES=("${_stringToArgs[@]}")
 
@@ -163,9 +111,6 @@ if [ ! -z $SERVER_LISTEN_HOST ]; then
 fi
 SERVER_STARTUP_ARGS=("-server")
 
-if [ ! -z $YOURKIT ]; then
-    SERVER_STARTUP_ARGS+=("$YOURKIT")
-fi
 if [ "$TMPDIR" != "" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.io.tmpdir=$TMPDIR")
 fi
@@ -174,7 +119,7 @@ if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
 fi
 
 SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM" "-Xmx$SERVER_MAX_MEM" "-XX:MaxMetaspaceSize=$SERVER_MAX_PERM_GEN")
-SERVER_STARTUP_ARGS+=("${JVM_DEBUG[@]}" "${GC_LOG[@]}" "${GO_SERVER_SYSTEM_PROPERTIES[@]}")
+SERVER_STARTUP_ARGS+=("${GO_SERVER_SYSTEM_PROPERTIES[@]}")
 SERVER_STARTUP_ARGS+=("-Duser.language=en" "-Djruby.rack.request.size.threshold.bytes=30000000")
 SERVER_STARTUP_ARGS+=("-Duser.country=US" "-Dcruise.config.dir=$GO_CONFIG_DIR" "-Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
 SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT" "-Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")

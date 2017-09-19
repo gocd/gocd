@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.browser.subscription.consoleLog;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.ConsoleStreamer;
@@ -23,6 +23,8 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
+import com.thoughtworks.go.server.websocket.SocketEndpoint;
+import com.thoughtworks.go.server.websocket.SocketHealthService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
@@ -51,7 +53,6 @@ public class ConsoleLogSenderTest {
     private JobInstance jobInstance;
     private SocketHealthService socketHealthService;
 
-
     @Before
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
@@ -59,7 +60,7 @@ public class ConsoleLogSenderTest {
         JobInstanceDao jobInstanceDao = mock(JobInstanceDao.class);
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
-        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService);
+        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao);
         jobIdentifier = mock(JobIdentifier.class);
         jobInstance = mock(JobInstance.class);
         when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
@@ -68,6 +69,8 @@ public class ConsoleLogSenderTest {
     @Test
     public void shouldSendConsoleLog() throws Exception {
         String expected = "Expected output for this test";
+        String wrapped = "{\"type\":\"ConsoleLog\",\"value\":\"Expected output for this test\\n\"}";
+
         File console = makeConsoleFile(expected);
 
         when(jobInstance.isCompleted()).thenReturn(true);
@@ -76,7 +79,7 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough((expected + '\n').getBytes(StandardCharsets.UTF_8))));
+        verify(socket).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough((wrapped).getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
@@ -110,12 +113,12 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("{\"type\":\"ConsoleLog\",\"value\":\"First Output\\n\"}".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("{\"type\":\"ConsoleLog\",\"value\":\"Second Output\\n\"}".getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
-    public void shouldSendConsoleLogEvenAfterBuildCompletion() throws Exception {
+    public void shouldSendConsoleLogWrappedInAJSONResponseEvenAfterBuildCompletion() throws Exception {
         when(jobInstance.isCompleted()).
                 thenReturn(false).
                 thenReturn(true);
@@ -130,9 +133,9 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("More Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("{\"type\":\"ConsoleLog\",\"value\":\"First Output\\n\"}".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("{\"type\":\"ConsoleLog\",\"value\":\"Second Output\\n\"}".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("{\"type\":\"ConsoleLog\",\"value\":\"More Output\\n\"}".getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test

@@ -160,18 +160,17 @@
 
   <servlet>
     <servlet-name>agent-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.AgentRemoteServlet</servlet-class>
+    <servlet-class>com.thoughtworks.go.server.websocket.agent.AgentRemoteServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
   </servlet>
 
   <servlet>
-    <servlet-name>console-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.ConsoleLogSocketServlet</servlet-class>
+    <servlet-name>go-websocket</servlet-name>
+    <servlet-class>com.thoughtworks.go.server.websocket.browser.BrowserWebSocketServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
   </servlet>
-
 
   <servlet>
     <servlet-name>spring-repository</servlet-name>
@@ -291,8 +290,8 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>console-websocket</servlet-name>
-    <url-pattern>/console-websocket/*</url-pattern>
+    <servlet-name>go-websocket</servlet-name>
+    <url-pattern>/go-websocket/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

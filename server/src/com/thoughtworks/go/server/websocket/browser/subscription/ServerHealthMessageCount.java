@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.browser.subscription;
 
-public class WebsocketMessages {
-    public static final String PING = "{\"type\":\"ping\"}";
+import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
+
+public class ServerHealthMessageCount extends SubscriptionMessage {
+
+    @Override
+    public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
+        throw new UnsupportedOperationException();
+    }
 }

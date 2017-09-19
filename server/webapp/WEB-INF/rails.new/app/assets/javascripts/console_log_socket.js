@@ -26,31 +26,46 @@
 
     if (!details.length) return;
 
-    function endpointUrl(startLine) {
-      var l        = document.location;
-      var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
-        "console-websocket",
-        details.data("pipeline"),
-        details.data("pipeline-label"),
-        details.data("stage"),
-        details.data("stage-counter"),
-        details.data("build")
-      ].join("/");
+    function endpointUrl() {
+      var l = document.location;
+      var protocol = l.protocol.replace("http", "ws"), host = l.host, path = "go-websocket";
 
-      return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
+      return protocol + "//" + host + context_path(path);
     }
 
+
     socket = new WebSocketWrapper({
-      url:                          endpointUrl(startLine),
+      url:                          endpointUrl(),
       indefiniteRetry:              true,
       failIfInitialConnectionFails: true
+    });
+
+    socket.on("open", function () {
+      //on connection open, subscribe for console-log event
+      var msg = [
+        {
+          'type': 'ConsoleLog',
+          'job_identifier': {
+            'pipeline_name': details.data('pipeline'),
+            'pipeline_label': details.data('pipeline-label'),
+            'stage_name': details.data('stage'),
+            'stage_counter': details.data('stage-counter'),
+            'build_name': details.data('build')
+          },
+          'start_line': startLine
+        }
+      ];
+
+      // we call `toJSON` offered by prototype.js.
+      // Calling `JSON.stringify()` fails because of monkey patched `toJSON` on all JS prototypes applied by prototype.js.
+      socket.send(msg.toJSON());
     });
 
     socket.on("message", renderLines);
     socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
     socket.on("close", maybeResumeOnClose);
     socket.on("beforeInitialize", function (options) {
-      options.url = endpointUrl(startLine);
+      options.url = endpointUrl();
     });
 
     function retryConnectionOrFallbackToPollingOnError(e) {
@@ -100,11 +115,10 @@
       reader.addEventListener("loadend", function () {
         var arrayBuffer   = reader.result;
         var gzippedBuf    = new Uint8Array(arrayBuffer);
-        var consoleOutput = maybeGunzip(gzippedBuf);
-
+        var consoleOutput = JSON.parse(maybeGunzip(gzippedBuf)).value;
         lines = consoleOutput.split(/\r?\n/);
-
         startLine += lines.length;
+
 
         while (lines.length) {
           slice = lines.splice(0, 1000);

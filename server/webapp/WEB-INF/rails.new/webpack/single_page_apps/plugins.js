@@ -24,13 +24,16 @@ require('foundation-sites');
 
 $(() => {
   $(document).foundation();
+  const pluginElement = $('#plugins');
+  const isUserAnAdmin = pluginElement.attr('is-user-an-admin');
   new VersionUpdater().update();
 
   const onSuccess = (pluginInfos) => {
     const component = {
       view() {
         return m(PluginsWidget, {
-          pluginInfos: Stream(pluginInfos)
+          pluginInfos: Stream(pluginInfos),
+          isUserAnAdmin: Stream(isUserAnAdmin === 'true')
         });
       }
     };

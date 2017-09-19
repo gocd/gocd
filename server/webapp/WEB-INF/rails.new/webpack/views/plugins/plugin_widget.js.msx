@@ -27,7 +27,7 @@ const PluginWidget = {
     ComponentMixins.HasViewModel.call(this);
     const vmStateKey = `show-${vnode.attrs.pluginInfo.id()}`;
 
-    this.vmState(vmStateKey, Stream(false));
+    this.vmState(vmStateKey, Stream(!vnode.attrs.pluginInfo.isActive()));
 
     this.toggleHide = function () {
       this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
@@ -44,29 +44,40 @@ const PluginWidget = {
 
     if (pluginInfo.imageUrl()) {
       image = <img src={pluginInfo.imageUrl()}/>;
+    } else if (pluginInfo.isBundled()) {
+      image = <img src="../assets/andare/icon-plugin-default-bundled.png" class="unknown-plugin-icon-bundled"/>;
     } else {
-      image = <span class="unknown-plugin-icon"/>;
+      image = <img src="../assets/andare/icon-plugin-default.png" class="unknown-plugin-icon-default"/>;
     }
 
-    if (pluginInfo.capabilities && pluginInfo.capabilities().supportsStatusReport && pluginInfo.capabilities().supportsStatusReport()) {
-      const statusReportHref = Routes.adminStatusReportPath(pluginInfo.id());
-      statusReportLink = (
+    const statusReport = pluginInfo.capabilities && pluginInfo.capabilities().supportsStatusReport && pluginInfo.capabilities().supportsStatusReport();
+
+    actionIcons = (<div class="plugin-actions">
+    </div>);
+
+    const editPluginSettingsLink = vnode.attrs.isUserAnAdmin() ? (
+      <f.link class='edit-plugin' onclick={vnode.attrs.onEdit}/>) : (
+      <f.link class='edit-plugin disabled' title="Not allowed to edit plugin settings"/>);
+
+
+    if (pluginInfo.isActive()) {
+      if (statusReport && vnode.attrs.isUserAnAdmin()) {
+        const statusReportHref = Routes.adminStatusReportPath(pluginInfo.id());
+        statusReportLink       = (
           <f.anchor href={statusReportHref} class='btn-primary btn-small status-report-btn'>Status Report</f.anchor>
-      );
-    }
-    actionIcons = (
-      <div class="plugin-actions">
-        {statusReportLink}
-        <f.link class='edit-plugin' onclick={vnode.attrs.onEdit}/>
-      </div>
-    );
+        );
+      }
+      else if (statusReport) {
+        statusReportLink = (
+          <span class='btn-primary btn-small status-report-btn disabled' title="Not allowed to view status report">
+            Status Report</span>
+        );
+      }
 
-    if (!pluginInfo.isActive() || !pluginInfo.suportsPluginSettings()) {
-      actionIcons = (
-        <div class="plugin-actions">
-          {statusReportLink}
-        </div>
-      );
+      actionIcons = (<div class="plugin-actions">
+        {statusReportLink}
+        {editPluginSettingsLink}
+      </div>);
     }
 
     if (pluginInfo.hasErrors()) {

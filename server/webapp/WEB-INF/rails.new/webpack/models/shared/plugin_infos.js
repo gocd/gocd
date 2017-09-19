@@ -81,6 +81,8 @@ PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, s
 
   this.isActive = () => this.status().state() === 'active';
 
+  this.isBundled = () =>  this.bundledPlugin() === true;
+
   this.hasErrors = () => this.status().state() === 'invalid';
 
   this.suportsPluginSettings = () => !!this.pluginSettings;

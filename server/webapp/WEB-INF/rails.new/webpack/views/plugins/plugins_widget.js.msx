@@ -183,6 +183,7 @@ const PluginsWidget = {
                   key={pluginInfo.id()}
                   vm={vnode.state.vmState(pluginInfo.id())}
                   onEdit={vnode.state.edit.bind(vnode.state, pluginInfo)}
+                  isUserAnAdmin={vnode.attrs.isUserAnAdmin}
                 />
               );
             })}

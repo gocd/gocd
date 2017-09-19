@@ -35,6 +35,10 @@ $elastic-profile-icon-hover-color: #000;
   position: relative;
   top:      -2px;
   right:    8px;
+
+  &.disabled {
+    background: $light-grey;
+  }
 }
 
 .plugin {
@@ -145,4 +149,11 @@ $elastic-profile-icon-hover-color: #000;
   &:before {
     margin: 0;
   }
+}
+
+.unknown-plugin-icon-bundled, .unknown-plugin-icon-default {
+  width:          $elastic-profile-plugin-icon-size;
+  height:         $elastic-profile-plugin-icon-size;
+  display:        inline-block;
+  vertical-align: middle;
 }

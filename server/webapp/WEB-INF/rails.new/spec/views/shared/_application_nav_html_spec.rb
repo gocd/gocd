@@ -156,6 +156,8 @@ describe "/shared/_application_nav.html.erb" do
   describe :admin_dropdown do
     before :each do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
+      allow(view).to receive(:is_plugin_spa_toggle_enabled?).and_return(false)
+
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path, "Server Configuration" => edit_server_config_path, "User Summary" => user_listing_path,
                         "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
     end

@@ -20,6 +20,11 @@
          "key": "browser_console_log_ws_key",
          "description": "Enables rendering console logs via websockets. Default: disabled.",
          "value": false
+      },
+      {
+        "key": "plugin_spa_toggle_key",
+        "description": "Links to plugin listing page go to the new plugins SPA. Default: disabled.",
+        "value": false
       }
   ]
 }

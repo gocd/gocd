@@ -246,6 +246,7 @@
                 /assets/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /api/webhooks/github/notify/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /api/webhooks/gitlab/notify/**=IS_AUTHENTICATED_ANONYMOUSLY
+                /api/webhooks/bitbucket/notify/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /images/cruise.ico=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/latest-agent.status=IS_AUTHENTICATED_ANONYMOUSLY

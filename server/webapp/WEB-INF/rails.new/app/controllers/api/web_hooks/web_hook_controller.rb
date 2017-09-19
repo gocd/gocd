@@ -19,23 +19,25 @@ module Api
     class WebHookController < ::Api::ApiController
       def notify
         possible_urls = %W(
-        https://#{repo_host_name}/#{repo_full_name}
-        https://#{repo_host_name}/#{repo_full_name}/
-        https://#{repo_host_name}/#{repo_full_name}.git
-        https://#{repo_host_name}/#{repo_full_name}.git/
-        http://#{repo_host_name}/#{repo_full_name}
-        http://#{repo_host_name}/#{repo_full_name}/
-        http://#{repo_host_name}/#{repo_full_name}.git
-        http://#{repo_host_name}/#{repo_full_name}.git/
-        git://#{repo_host_name}/#{repo_full_name}
-        git://#{repo_host_name}/#{repo_full_name}/
-        git://#{repo_host_name}/#{repo_full_name}.git
-        git://#{repo_host_name}/#{repo_full_name}.git/
-        git@#{repo_host_name}:#{repo_full_name}
-        git@#{repo_host_name}:#{repo_full_name}/
-        git@#{repo_host_name}:#{repo_full_name}.git
-        git@#{repo_host_name}:#{repo_full_name}.git/
-      )
+          https://#{repo_host_name}/#{repo_full_name}
+          https://#{repo_host_name}/#{repo_full_name}/
+          https://#{repo_host_name}/#{repo_full_name}.git
+          https://#{repo_host_name}/#{repo_full_name}.git/
+          http://#{repo_host_name}/#{repo_full_name}
+          http://#{repo_host_name}/#{repo_full_name}/
+          http://#{repo_host_name}/#{repo_full_name}.git
+          http://#{repo_host_name}/#{repo_full_name}.git/
+          git://#{repo_host_name}/#{repo_full_name}
+          git://#{repo_host_name}/#{repo_full_name}/
+          git://#{repo_host_name}/#{repo_full_name}.git
+          git://#{repo_host_name}/#{repo_full_name}.git/
+          git@#{repo_host_name}:#{repo_full_name}
+          git@#{repo_host_name}:#{repo_full_name}/
+          git@#{repo_host_name}:#{repo_full_name}.git
+          git@#{repo_host_name}:#{repo_full_name}.git/
+        )
+
+        Rails.logger.info("[WebHook] Noticed a git push to #{repo_host_name}/#{repo_full_name} on branch #{repo_branch}")
 
         if material_update_service.updateGitMaterial(repo_branch, possible_urls)
           render text: 'OK!', content_type: 'text/plain', status: :accepted, layout: nil

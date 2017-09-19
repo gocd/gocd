@@ -390,9 +390,9 @@ Go::Application.routes.draw do
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 
       # Vendor Webhooks
-      post 'webhooks/github/notify' => 'web_hooks/git_hub#notify', as: :github_notify
-      post 'webhooks/gitlab/notify' => 'web_hooks/git_lab#notify', as: :gitlab_notify
-
+      post 'webhooks/github/notify' => 'web_hooks/git_hub#notify'
+      post 'webhooks/gitlab/notify' => 'web_hooks/git_lab#notify'
+      post 'webhooks/bitbucket/notify' => 'web_hooks/bit_bucket#notify'
 
       scope 'admin/feature_toggles' do
         defaults :no_layout => true, :format => :json do

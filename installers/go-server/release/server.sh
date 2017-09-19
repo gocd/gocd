@@ -78,11 +78,16 @@ SERVER_DIR="$(cd "$CWD" && pwd)"
 [ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
 [ ! -z "$YOURKIT_DISABLE_TRACING" ] || YOURKIT_DISABLE_TRACING=""
 
-if [ -d ${GO_SERVER_LOG_DIR} ]; then
-  export GO_SERVER_LOG_DIR="logs"
-  mkdir -p "${GO_SERVER_LOG_DIR}"
+if [ "$MANUAL_SETTING" == "Y" ]; then
+  # gocd running functional tests
+  GO_SERVER_LOG_DIR="${SERVER_WORK_DIR}/logs"
 else
-  export GO_SERVER_LOG_DIR="/var/log/go-server"
+  if [ -d "/var/log/go-server" ]; then
+    GO_SERVER_LOG_DIR="/var/log/go-server"
+  else
+    GO_SERVER_LOG_DIR="${SERVER_WORK_DIR}/logs"
+    mkdir -p "${GO_SERVER_LOG_DIR}"
+  fi
 fi
 
 STDOUT_LOG_FILE="${GO_SERVER_LOG_DIR}/go-server.out.log"

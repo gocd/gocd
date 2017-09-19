@@ -119,9 +119,9 @@ public class SecurityConfigTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        SecurityConfig one = new SecurityConfig(null, true, null, true);
-        SecurityConfig two = new SecurityConfig(null, true, null, false);
-        SecurityConfig three = new SecurityConfig(null, true, null, true);
+        SecurityConfig one = new SecurityConfig(null, null, true);
+        SecurityConfig two = new SecurityConfig(null, null, false);
+        SecurityConfig three = new SecurityConfig(null, null, true);
 
         assertThat(one, is(three));
         assertThat(one, not(is(two)));
@@ -140,7 +140,7 @@ public class SecurityConfigTest {
     public static SecurityConfig security(PasswordFileConfig pwordFile, AdminsConfig admins) {
         pwordFile = pwordFile == null ? new PasswordFileConfig() : pwordFile;
 
-        SecurityConfig security = new SecurityConfig(pwordFile, true, admins);
+        SecurityConfig security = new SecurityConfig(pwordFile, admins);
         for (Role role : DEFAULT_ROLES) {
             security.addRole(role);
         }

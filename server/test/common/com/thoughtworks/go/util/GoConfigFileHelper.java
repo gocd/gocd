@@ -593,13 +593,13 @@ public class GoConfigFileHelper {
 
     public void addBogusSecurity(boolean anonymous) {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
-        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(), anonymous, new AdminsConfig());
+        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(), new AdminsConfig());
         securityConfig.securityAuthConfigs().add(securityAuthConfig);
         addSecurity(securityConfig);
     }
 
     public File addSecurityWithPasswordFile() throws IOException {
-        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(addPasswordFile().getAbsolutePath()), true, new AdminsConfig());
+        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(addPasswordFile().getAbsolutePath()), new AdminsConfig());
         addSecurity(securityConfig);
         return passwordFile;
     }

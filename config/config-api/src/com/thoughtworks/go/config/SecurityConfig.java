@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ public class SecurityConfig implements Validatable {
     private RolesConfig rolesConfig = new RolesConfig();
     @ConfigSubtag(optional = true)
     private AdminsConfig adminsConfig = new AdminsConfig();
-    @ConfigAttribute(value = "anonymous")
-    private boolean anonymous = true;
     @ConfigAttribute(value = "allowOnlyKnownUsersToLogin")
     private boolean allowOnlyKnownUsersToLogin = false;
     private ConfigErrors errors = new ConfigErrors();
@@ -47,14 +45,12 @@ public class SecurityConfig implements Validatable {
         this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
     }
 
-    public SecurityConfig(PasswordFileConfig pwordFile, boolean anonymous, AdminsConfig admins) {
+    public SecurityConfig(PasswordFileConfig pwordFile, AdminsConfig admins) {
         this.passwordFileConfig = pwordFile;
-        this.anonymous = anonymous;
         this.adminsConfig = admins;
     }
 
-    public SecurityConfig(PasswordFileConfig passwordFileConfig, boolean anonymous, AdminsConfig adminsConfig, boolean allowOnlyKnownUsersToLogin) {
-        this.anonymous = anonymous;
+    public SecurityConfig(PasswordFileConfig passwordFileConfig, AdminsConfig adminsConfig, boolean allowOnlyKnownUsersToLogin) {
         this.adminsConfig = adminsConfig;
         this.passwordFileConfig = passwordFileConfig;
         this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
@@ -64,10 +60,6 @@ public class SecurityConfig implements Validatable {
         boolean passwordFileEnabled = passwordFileConfig != null && passwordFileConfig.isEnabled();
         boolean isPluginAuthEnabled = securityAuthConfigs != null && !securityAuthConfigs.isEmpty();
         return passwordFileEnabled || isPluginAuthEnabled;
-    }
-
-    public boolean anonymousAccess() {
-        return anonymous;
     }
 
     public AdminsConfig adminsConfig() {
@@ -147,7 +139,6 @@ public class SecurityConfig implements Validatable {
 
         SecurityConfig that = (SecurityConfig) o;
 
-        if (anonymous != that.anonymous) return false;
         if (allowOnlyKnownUsersToLogin != that.allowOnlyKnownUsersToLogin) return false;
         if (passwordFileConfig != null ? !passwordFileConfig.equals(that.passwordFileConfig) : that.passwordFileConfig != null)
             return false;
@@ -164,7 +155,6 @@ public class SecurityConfig implements Validatable {
         result = 31 * result + (securityAuthConfigs != null ? securityAuthConfigs.hashCode() : 0);
         result = 31 * result + (rolesConfig != null ? rolesConfig.hashCode() : 0);
         result = 31 * result + (adminsConfig != null ? adminsConfig.hashCode() : 0);
-        result = 31 * result + (anonymous ? 1 : 0);
         result = 31 * result + (allowOnlyKnownUsersToLogin ? 1 : 0);
         result = 31 * result + (errors != null ? errors.hashCode() : 0);
         return result;
@@ -172,8 +162,8 @@ public class SecurityConfig implements Validatable {
 
     @Override
     public String toString() {
-        return String.format("SecurityConfig{passwordFileConfig=%s, rolesConfig=%s, adminsConfig=%s, anonymous=%s, allowOnlyKnownUsersToLogin=%s}", passwordFileConfig,
-                rolesConfig, adminsConfig, anonymous, allowOnlyKnownUsersToLogin);
+        return String.format("SecurityConfig{passwordFileConfig=%s, rolesConfig=%s, adminsConfig=%s, allowOnlyKnownUsersToLogin=%s}", passwordFileConfig,
+                rolesConfig, adminsConfig, allowOnlyKnownUsersToLogin);
     }
 
     public void validate(ValidationContext validationContext) {

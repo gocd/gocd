@@ -27,7 +27,11 @@
     <a href="$req.getContextPath()/admin/pipelines/snippet">$l.localize("PIPELINES_SNIPPET")</a>
 </li>
 <li role="presentation">
-    <a href="$req.getContextPath()/admin/plugins">$l.localize("PLUGINS_TAB")</a>
+    #if($plugin_spa_toggle_key)
+      <a href="$req.getContextPath()/admin/new_plugins">$l.localize("PLUGINS_TAB")</a>
+    #else
+      <a href="$req.getContextPath()/admin/plugins">$l.localize("PLUGINS_TAB")</a>
+    #end
 </li>
 <li role="presentation">
     <a href="$req.getContextPath()/admin/package_repositories/new">$l.localize("PACKAGE_REPOSITORY_TAB")</a>

@@ -81,6 +81,7 @@ SERVER_DIR="$(cd "$CWD" && pwd)"
 if [ "$MANUAL_SETTING" == "Y" ]; then
   # gocd running functional tests
   GO_SERVER_LOG_DIR="${SERVER_WORK_DIR}/logs"
+  mkdir -p "${GO_SERVER_LOG_DIR}"
 else
   if [ -d "/var/log/go-server" ]; then
     GO_SERVER_LOG_DIR="/var/log/go-server"

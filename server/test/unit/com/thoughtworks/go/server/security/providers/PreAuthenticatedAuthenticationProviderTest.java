@@ -36,13 +36,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -75,7 +79,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
         pluginRoleService = mock(PluginRoleService.class);
         goConfigService = mock(GoConfigService.class);
         authenticationProvider = new PreAuthenticatedAuthenticationProvider(authorizationExtension, pluginRoleService, userService, authorityGranter, goConfigService);
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, Arrays.asList("admin"));
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
 
         securityConfig = new SecurityConfig();
         stub(goConfigService.security()).toReturn(securityConfig);
@@ -139,7 +143,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
         securityConfig.addRole(operatorRole);
 
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
-        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole))).thenReturn(new AuthenticationResponse(user, Arrays.asList("admin")));
+        when(authorizationExtension.authenticateUser(pluginId, credentials, Collections.singletonList(githubPublic), Collections.singletonList(adminRole))).thenReturn(new AuthenticationResponse(user, asList("admin")));
 
         PreAuthenticatedAuthenticationToken authenticate = (PreAuthenticatedAuthenticationToken) authenticationProvider.authenticate(authenticationToken);
 
@@ -209,7 +213,7 @@ public class PreAuthenticatedAuthenticationProviderTest {
     public void authenticate_shouldEnsureUserDetailsInAuthTokenHasDisplayName() {
         Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
         PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse(new User("username", null, "email"), Arrays.asList("admin"));
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse(new User("username", null, "email"), asList("admin"));
 
         when(authorizationExtension.authenticateUser(any(String.class), any(Map.class), any(List.class), any(List.class))).thenReturn(authenticationResponse);
 
@@ -247,6 +251,32 @@ public class PreAuthenticatedAuthenticationProviderTest {
         PreAuthenticatedAuthenticationToken authenticate = (PreAuthenticatedAuthenticationToken) authenticationProvider.authenticate(authenticationToken);
 
         assertNull(authenticate);
+    }
+
+    @Test
+    public void authenticate_shouldAssignRoleBeforeGrantingAnAuthority() throws Exception {
+        final InOrder inOrder = inOrder(pluginRoleService, authorityGranter);
+        Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
+        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
+
+        authenticationProvider.authenticate(authenticationToken);
+
+        inOrder.verify(pluginRoleService).updatePluginRoles(pluginId, user.getUsername(), asList(new CaseInsensitiveString("admin")));
+        inOrder.verify(authorityGranter).authorities(user.getUsername());
+    }
+
+    @Test
+    public void authenticate_shouldPerformOperationInSequence() throws Exception {
+        final InOrder inOrder = inOrder(authorizationExtension, pluginRoleService, authorityGranter, userService);
+        Map<String, String> credentials = Collections.singletonMap("access_token", "some_token");
+        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(null, credentials, pluginId);
+
+        authenticationProvider.authenticate(authenticationToken);
+
+        inOrder.verify(authorizationExtension).authenticateUser(eq(pluginId), eq(credentials), any(List.class), any(List.class));
+        inOrder.verify(pluginRoleService).updatePluginRoles(pluginId, user.getUsername(), asList(new CaseInsensitiveString("admin")));
+        inOrder.verify(authorityGranter).authorities(user.getUsername());
+        inOrder.verify(userService).addUserIfDoesNotExist(any(com.thoughtworks.go.domain.User.class));
     }
 }
 

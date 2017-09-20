@@ -230,7 +230,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
     private File configDir;
     private volatile Boolean enforceRevisionCompatibilityWithUpstream;
-    private volatile Boolean enforceFanInFallbackTriangle;
 
     public SystemEnvironment() {
     }

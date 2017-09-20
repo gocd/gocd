@@ -45,7 +45,6 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
-import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialUpdateCompletedTopic;
 import com.thoughtworks.go.server.materials.MaterialUpdateFailedMessage;
@@ -514,7 +513,7 @@ public class BuildCauseProducerServiceTest {
         when(materialExpansionService.expandMaterialConfigsForScheduling(config.materialConfigs())).thenReturn(knownMaterialConfigs);
         when(materialConfigConverter.toMaterials(knownMaterialConfigs)).thenReturn(materials);
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, new SystemEnvironment(), null, mockServerHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, new SystemEnvironment(), null);
         ServerHealthState serverHealthState = buildCauseProducerService.newProduceBuildCause(config, autoBuild, result, 12345);
 
         assertThat(serverHealthState.isSuccess(), is(true));

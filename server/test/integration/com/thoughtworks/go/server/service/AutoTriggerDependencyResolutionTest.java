@@ -370,7 +370,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         pipelineTimeline.update();
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "P3", systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "P3", systemEnvironment, materialChecker);
 
         assertThat(autoBuild.onModifications(given, false, previous), nullValue());
     }
@@ -1553,7 +1553,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(git, true, "g1"),
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
         assertThat(buildCause, is(nullValue()));
@@ -1592,7 +1592,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(svn, true, "s1")
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, true, previousRevisions);
         assertThat(buildCause, is(notNullValue()));
@@ -1632,7 +1632,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(git, true, "g1"),
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
         assertThat(buildCause, is(nullValue()));
@@ -1797,7 +1797,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(p4, false, p4_2),
                 u.mr(p5, false, p5_1));
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p6.config.name().toString(), env, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p6.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
 
         BuildCause buildCause = autoBuild.onModifications(given, false, null);
@@ -1842,7 +1842,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(git, false, "g2"),
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
         assertThat(buildCause, is(nullValue()));
@@ -1884,7 +1884,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(git, true, "g1"),
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, false, previousRevisions);
         assertThat(buildCause, is(nullValue()));
@@ -1925,7 +1925,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(svn, true, "s1")
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, true, previousRevisions);
         assertThat(buildCause, is(notNullValue()));
@@ -1962,7 +1962,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(git, true, "g1")
         });
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
         BuildCause buildCause = autoBuild.onModifications(given, true, previousRevisions);
         assertThat(buildCause, is(notNullValue()));

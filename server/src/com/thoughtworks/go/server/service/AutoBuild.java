@@ -26,10 +26,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -44,17 +41,14 @@ public class AutoBuild implements BuildType {
     private final String pipelineName;
     private final SystemEnvironment systemEnvironment;
     private final MaterialChecker materialChecker;
-    private final ServerHealthService serverHealthService;
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoBuild.class);
 
-    public AutoBuild(GoConfigService goConfigService, PipelineService pipelineService, String pipelineName, SystemEnvironment systemEnvironment, MaterialChecker materialChecker,
-                     ServerHealthService serverHealthService) {
+    public AutoBuild(GoConfigService goConfigService, PipelineService pipelineService, String pipelineName, SystemEnvironment systemEnvironment, MaterialChecker materialChecker) {
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
         this.pipelineName = pipelineName;
         this.systemEnvironment = systemEnvironment;
         this.materialChecker = materialChecker;
-        this.serverHealthService = serverHealthService;
     }
 
     public BuildCause onModifications(MaterialRevisions originalMaterialRevisions, boolean materialConfigurationChanged, MaterialRevisions previousMaterialRevisions) {

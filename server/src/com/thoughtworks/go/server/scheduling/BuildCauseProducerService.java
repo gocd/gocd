@@ -106,7 +106,7 @@ public class BuildCauseProducerService {
 
         try {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-            newProduceBuildCause(pipelineConfig, new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker, serverHealthService), result, trackingId);
+            newProduceBuildCause(pipelineConfig, new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker), result, trackingId);
         } finally {
             schedulingPerformanceLogger.autoSchedulePipelineFinish(trackingId, pipelineName);
         }

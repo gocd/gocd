@@ -27,7 +27,7 @@
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.5.1",
-    "fs-extra": "^3.0.1",
+    "fs-extra": "^4.0.2",
     "html-webpack-plugin": "^2.28.0",
     "jasmine": "^2.6.0",
     "jasmine-ajax": "^3.3.1",
@@ -46,7 +46,7 @@
     "sourcemapped-stacktrace": "^1.1.6",
     "stats-webpack-plugin": "^0.6.0",
     "synchronize": "^2.0.0",
-    "webpack": "^2.6.1",
+    "webpack": "^3.6.0",
     "webpack-dev-server": "^2.4.5"
   }
 }

@@ -72,7 +72,7 @@ class NpmInstallTask extends DefaultTask {
       execTask.errorOutput = System.err
       execTask.workingDir = this.workingDir
 
-      execTask.commandLine = [isWindows() ? "yarn.cmd" : "yarn", "install"]
+      execTask.commandLine = [isWindows() ? "yarn.cmd" : "yarn", "install", "--mutex", "network"]
     }
   }
 

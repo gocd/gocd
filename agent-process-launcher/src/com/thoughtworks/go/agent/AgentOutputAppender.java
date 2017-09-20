@@ -103,7 +103,6 @@ class AgentOutputAppender {
     private static String getLogDir() {
         List<String> logDirs = Arrays.asList(
                 System.getProperty("gocd.agent.log.dir"),
-                System.getenv("GO_AGENT_LOG_DIR"),
                 System.getenv("LOG_DIR"),
                 "logs"
         );

@@ -70,9 +70,9 @@ start_go_agent() {
     fi
 
     if [ "${CUR_USER}" == "root" ]; then
-        start_daemon "/bin/su - go -c '/usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}'"
+        start_daemon "/bin/su - go -c '/usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME} service_mode'"
     else
-        start_daemon /usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}
+        start_daemon /usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME} service_mode
     fi
 
     # Sleep for a while to see if GoCD bleats about anything

@@ -65,9 +65,9 @@ start_go_server() {
     fi
 
     if [ "${CUR_USER}" == "root" ]; then
-        start_daemon /bin/su - go -c /usr/share/go-server/server.sh
+        start_daemon /bin/su - go -c /usr/share/go-server/server.sh service_mode
     else
-        start_daemon /usr/share/go-server/server.sh
+        start_daemon /usr/share/go-server/server.sh service_mode
     fi
 
     # Sleep for a while to see if GoCD bleats about anything

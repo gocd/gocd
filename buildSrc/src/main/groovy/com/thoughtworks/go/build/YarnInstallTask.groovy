@@ -17,7 +17,10 @@
 package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.internal.os.OperatingSystem
 
@@ -74,7 +77,7 @@ class YarnInstallTask extends DefaultTask {
         execTask.errorOutput = System.err
         execTask.workingDir = this.getWorkingDir()
 
-        execTask.commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "install"]
+        execTask.commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "install", "--mutex", "network"]
       }
     }
     setDidWork(shouldExecute)

@@ -55,6 +55,7 @@ public class SCM implements Serializable, Validatable {
     public static final String PLUGIN_CONFIGURATION = "pluginConfiguration";
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
+    public static final String TYPE_PREFIX = "pluggable_material_";
 
     private ConfigErrors errors = new ConfigErrors();
 
@@ -333,6 +334,6 @@ public class SCM implements Serializable, Validatable {
     }
 
     public String getSCMType() {
-        return "pluggable_material_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
+        return TYPE_PREFIX + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
     }
 }

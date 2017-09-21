@@ -27,6 +27,7 @@ module Admin
 
     before_filter :load_config_for_edit, :only => [:new, :create, :clone, :save_clone]
     before_filter :load_template_list, :only => [:new, :create]
+    before_filter :load_scm_materials, :only => [:new, :create]
 
     load_pipeline_except_for :update, :new, :create, :clone, :save_clone
 
@@ -45,18 +46,21 @@ module Admin
 
     def create
       pipeline = empty_pipeline
-      pipeline.setConfigAttributes(params[:pipeline_group][:pipeline], task_view_service)
+      pipeline_attributes = prepare_scm_attributes(params[:pipeline_group][:pipeline])
+      pipeline.setConfigAttributes(pipeline_attributes, task_view_service)
+
       save_action = Class.new(::ConfigUpdate::SaveAction) do
         attr_reader :group
         include ::ConfigUpdate::CheckCanCreatePipeline
         include ::ConfigUpdate::CruiseConfigNode
         include ::ConfigUpdate::LoadConfig
 
-        def initialize params, user, security_service, pipeline, package_definition_service, pluggable_task_service
+        def initialize params, user, security_service, pipeline, package_definition_service, pluggable_task_service, pluggable_scm_service
           super(params, user, security_service)
           @pipeline = pipeline
           @package_definition_service = package_definition_service
           @pluggable_task_service = pluggable_task_service
+          @pluggable_scm_service = pluggable_scm_service
         end
 
         def subject(cruise_config)
@@ -69,10 +73,13 @@ module Admin
             @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
             @pluggable_task_service.validate(task.cancelTask()) if (!task.cancelTask().nil?) && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
           end
-          if @pipeline.material_configs.size() > 0 && @pipeline.material_configs.get(0).type == PackageMaterialConfig::TYPE
-            handle_package_material_creation_or_association(cruise_config)
+          if @pipeline.material_configs.size() > 0
+            if @pipeline.material_configs.get(0).type == PackageMaterialConfig::TYPE
+              handle_package_material_creation_or_association(cruise_config)
+            elsif @pipeline.material_configs.get(0).type == PluggableSCMMaterialConfig::TYPE
+              handle_pluggable_scm_material_creation(cruise_config)
+            end
           end
-
           add_pipeline(cruise_config, params[:pipeline_group][:group], @pipeline)
         end
 
@@ -87,11 +94,25 @@ module Admin
           end
         end
 
+        def handle_pluggable_scm_material_creation(cruise_config)
+          material = @pipeline.material_configs.get(0)
+          material_attrs = params[:pipeline_group][:pipeline][:materials][PluggableSCMMaterialConfig::TYPE]
+          scm = com.thoughtworks.go.domain.scm.SCM.new
+          scm.setPluginConfiguration(PluginConfiguration.new(material_attrs[:pluginId], '1'))
+          scm.setConfigAttributes(material_attrs)
+          scm.ensureIdExists
+          material.setSCMConfig(scm)
+
+          @pluggable_scm_service.validate(scm)
+          scm.clearEmptyConfigurations()
+          cruise_config.getSCMs().add(scm)
+        end
+
         def add_pipeline cruise_config, group_name, pipeline
           cruise_config.addPipelineWithoutValidation(group_name, pipeline)
           @group = cruise_config.findGroupOfPipeline(pipeline)
         end
-      end.new(params, current_user, security_service, pipeline, package_definition_service, pluggable_task_service)
+      end.new(params, current_user, security_service, pipeline, package_definition_service, pluggable_task_service, pluggable_scm_service)
 
       save_page(params[:config_md5], nil, {:action => :new, :layout => 'application'}, save_action, l.string("PIPELINE_SAVED_SUCCESSFULLY")) do
         assert_load(:task_view_models, task_view_service.getTaskViewModels()) if !@update_result.isSuccessful()
@@ -121,8 +142,13 @@ module Admin
         end
 
         @original_cruise_config = @cruise_config
-        if @pipeline.material_configs.size() > 0 && @pipeline.material_configs.get(0).type == PackageMaterialConfig::TYPE
-          populate_package_material_data
+        if @pipeline.material_configs.size() > 0
+          material = @pipeline.material_configs.get(0)
+          if material.type == PackageMaterialConfig::TYPE
+            populate_package_material_data
+          elsif material.type == PluggableSCMMaterialConfig::TYPE
+            populate_pluggable_scm_material_data(material)
+          end
         end
       end
     end
@@ -134,6 +160,10 @@ module Admin
         package_configurations = PackageMetadataStore.getInstance().getMetadata(plugin_id)
         @package_configuration = PackageViewModel.new(package_configurations, package_definition)
       end
+    end
+
+    def populate_pluggable_scm_material_data(material)
+      @scm_materials[@selected_scm_id] = material
     end
 
     def edit
@@ -277,6 +307,20 @@ module Admin
       assert_load(:template_list, template_config_service.getTemplateViewModels(current_user.getUsername()))
     end
 
+    def load_scm_materials
+      @selected_scm_id = nil
+      materials = Hash.new
+      scm_plugin_ids = SCMMetadataStore.getInstance().getPlugins()
+      scm_plugin_ids.each_with_index do |plugin_id, index|
+        material = PluggableSCMMaterialConfig.new
+        scm = com.thoughtworks.go.domain.scm.SCM.new
+        scm.setPluginConfiguration(com.thoughtworks.go.domain.config.PluginConfiguration.new(plugin_id, "1"))
+        material.setSCMConfig(scm)
+        materials[scm.getSCMType()] = material
+      end
+      assert_load(:scm_materials, materials)
+    end
+
     def load_group_list
       group_array = Array.new
       group_list = Array.new
@@ -291,6 +335,16 @@ module Admin
     def load_autocomplete_suggestions
       load_group_list()
       assert_load :pipeline_stages_json, pipeline_stages_json(go_config_service.getCurrentConfig(), current_user, security_service, params)
+    end
+
+    def prepare_scm_attributes(pipeline_attributes)
+      materials = pipeline_attributes[:materials]
+      if (materials && materials[:materialType].start_with?(SCM::TYPE_PREFIX))
+        @selected_scm_id = materials[:materialType]
+        materials[:materialType] = PluggableSCMMaterialConfig::TYPE
+        materials[PluggableSCMMaterialConfig::TYPE] = materials[@selected_scm_id]
+      end
+      pipeline_attributes
     end
 
   end

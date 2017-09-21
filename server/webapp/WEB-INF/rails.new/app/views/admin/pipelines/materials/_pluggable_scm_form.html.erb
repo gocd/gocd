@@ -1,0 +1,42 @@
+<div class="form_item">
+  <% f = scope[:form]
+     material = scope[:material]
+     scm_config = material.getSCMConfig()
+     plugin_id = scm_config.getPluginConfiguration().getId()
+     check_connection_url = admin_pluggable_scm_check_connection_path(:plugin_id => plugin_id);
+     form_name_provider_obj = form_name_provider(f)
+     plugged_material_controller_element_id = form_name_provider_obj.css_id_for("angular_container")
+  %>
+
+  <div id="<%= plugged_material_controller_element_id %>" ng-controller="PluggableSCMConfigurationController">
+    <%= f.hidden_field :pluginId, :value => plugin_id %>
+    <%= f.hidden_field com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::SCM_ID -%>
+    <div class="form_item_block required">
+      <%= required_label(f, com.thoughtworks.go.domain.scm.SCM::NAME, l.string('MATERIAL_NAME')) %>
+      <%= f.text_field com.thoughtworks.go.domain.scm.SCM::NAME, {:class => "form_input required", :id => nil} -%>
+      <%= error_message_on(scm_config, com.thoughtworks.go.domain.scm.SCM::NAME, :css_class => "form_error") %>
+    </div>
+    <div class="plugged_material_template required">
+      <%== com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().template(plugin_id) %>
+    </div>
+
+    <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}} %>
+    <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
+
+    <%= submit_button(l.string("CHECK_CONNECTION"), :class => "check_connection", :type => "button", :'ng-click' => "checkConnection('#{check_connection_url}')") -%>
+    <div ng-class="['connection_test_message', check_connection_state]">
+      <pre ng-bind="check_connection_message" ng-show="check_connection_message"></pre>
+    </div>
+
+    <%= render :partial => 'shared/convert_tool_tips.html' %>
+  </div>
+</div>
+<%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+
+<script type="text/javascript">
+  jQuery(document).ready(function () {
+    var form_name_prefix = "<%= form_name_provider_obj.form_name_prefix %>";
+    var plugged_material_controller_element_id = "<%= plugged_material_controller_element_id %>";
+    new PluggableSCMConfigurationModule().initialize(plugged_material_controller_element_id, form_name_prefix);
+  });
+</script>

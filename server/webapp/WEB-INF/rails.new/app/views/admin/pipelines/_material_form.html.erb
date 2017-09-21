@@ -15,8 +15,13 @@
             </div>
             <%= p_f.fields_for(:materials, material_configs) do |materials_form| %>
                 <div class="form_item required">
+                    <% selected = material_configs.getMaterialOptions()
+                        if selected == com.thoughtworks.go.config.materials.PluggableSCMMaterial::TYPE
+                         selected = @selected_scm_id
+                        end
+                    %>
                     <%= label_tag random_dom_id('material_type_'), required_label_text(l.string("MATERIAL_TYPE")) %>
-                    <%= select(materials_form.object_name, com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_TYPE, material_options, {:selected => material_configs.getMaterialOptions()}, {:class => "material_type", :id => "material_type_options"}) %>
+                    <%= select(materials_form.object_name, com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_TYPE, material_options, {:selected => selected}, {:class => "material_type", :id => "material_type_options"}) %>
                 </div>
 
                 <div class="hidden material_entry SvnMaterial">
@@ -61,6 +66,13 @@
                         <%= render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:form => package_form, :material => package_material}} -%>
                     <% end %>
                 </div>
+                <% scope[:scm_materials].each do |material_id, material| %>
+                    <div class="hidden material_entry <%= material_id %>">
+                        <%= materials_form.fields_for material_id, material do |pluggable_scm_form| %>
+                            <%= render :partial => "admin/pipelines/materials/pluggable_scm_form.html", :locals => {:scope => {:form => pluggable_scm_form, :material => material, :material_id => material_id}} -%>
+                        <% end %>
+                    </div>
+                <% end %>
 
             <% end %>
         </div>
@@ -69,6 +81,9 @@
 <script type="text/javascript">
     Util.on_load(function() {
         new TaskEditor.TypeEditor({container: jQuery('#material_forms'), switch_control: jQuery('#material_type_options'), entry_to_be_hidden: '.material_entry'});
+    });
+    jQuery(document).ready(function () {
+        new PluggableSCMConfigurationModule().bootstrap();
     });
 </script>
 

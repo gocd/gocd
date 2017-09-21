@@ -75,6 +75,9 @@ TabsWizard = function() {
                     case "DependencyMaterial": return jQuery("input[name='pipeline_group[pipeline][materials][DependencyMaterial][pipelineStageName]']").valid();
                     case "PackageMaterial": return _isPackageRepositoryFormValid();
                 }
+                if (material.startsWith("pluggable_material_")) {
+                    return jQuery("input[name='pipeline_group[pipeline][materials][" + material + "][name]']").valid();
+                }
             },
             finish : function() {
                 var selected = jQuery("input[name='pipeline_group[pipeline][configurationType]']:checked").val();

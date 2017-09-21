@@ -14,15 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-
+# by default we do not daemonize
+DAEMON="${DAEMON:-N}"
 SERVICE_NAME=${1:-go-agent}
-PRODUCTION_MODE=${PRODUCTION_MODE:-"Y"}
 
-if [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -f /etc/default/${SERVICE_NAME} ]; then
-        echo "[$(date)] using default settings from /etc/default/${SERVICE_NAME}"
-        . /etc/default/${SERVICE_NAME}
-    fi
+if [ "$2" == "service_mode" ]; then
+  if [ -f /etc/default/${SERVICE_NAME} ]; then
+    . /etc/default/${SERVICE_NAME}
+  fi
+
+  # no point in not daemonizing the service
+  DAEMON=Y
 fi
 
 yell() {
@@ -94,46 +96,27 @@ AGENT_DIR="$(cd "$CWD" && pwd)"
 AGENT_MEM=${AGENT_MEM:-"128m"}
 AGENT_MAX_MEM=${AGENT_MAX_MEM:-"256m"}
 VNC=${VNC:-"N"}
+AGENT_WORK_DIR="${AGENT_WORK_DIR:-$AGENT_DIR}"
 
-
-#If this script is launched to start testing agent by production agent while running twist test, the variable
-# AGENT_WORK_DIR is already set by the production agent. But testing agent should not use that.
-
-if [ "$PRODUCTION_MODE" == "Y" ]; then
-    AGENT_WORK_DIR=${AGENT_WORK_DIR:-"$AGENT_DIR"}
-else
-    AGENT_WORK_DIR=$AGENT_DIR
-fi
 
 if [ ! -d "${AGENT_WORK_DIR}" ]; then
-    echo Agent working directory ${AGENT_WORK_DIR} does not exist
-    exit 2
+  echo Agent working directory ${AGENT_WORK_DIR} does not exist
+  exit 2
 fi
 
-if [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -d /var/log/${SERVICE_NAME} ]; then
-        GO_AGENT_LOG_DIR=/var/log/${SERVICE_NAME}
-    else
-	    GO_AGENT_LOG_DIR=$AGENT_WORK_DIR/logs
-    fi
+if [ "$2" == 'service_mode' ] && [ -d "/var/log/${SERVICE_NAME}" ]; then
+  GO_AGENT_LOG_DIR="/var/log/${SERVICE_NAME}"
 else
-    GO_AGENT_LOG_DIR=$AGENT_WORK_DIR/logs
+  GO_AGENT_LOG_DIR="$AGENT_WORK_DIR/logs"
+  mkdir -p "${GO_AGENT_LOG_DIR}"
 fi
 
-mkdir -p "${GO_AGENT_LOG_DIR}"
+STDOUT_LOG_FILE="$GO_AGENT_LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log"
 
-STDOUT_LOG_FILE=$GO_AGENT_LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log
-
-if [ "$PID_FILE" ]; then
-    echo "[$(date)] Use PID_FILE: $PID_FILE"
-elif [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -d /var/run/go-agent ]; then
-        PID_FILE=/var/run/go-agent/${SERVICE_NAME}.pid
-    else
-    	PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
-    fi
+if [ "$1" == "service_mode" ] && [ -d "/var/run/go-agent" ]; then
+  PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 else
-    PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
+  PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
 fi
 
 if [ "$VNC" == "Y" ]; then
@@ -143,7 +126,9 @@ if [ "$VNC" == "Y" ]; then
     export DISPLAY
 fi
 
-AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $GO_AGENT_SYSTEM_PROPERTIES"
+AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM -Dgo.agent.log.dir=$GO_AGENT_LOG_DIR $GO_AGENT_SYSTEM_PROPERTIES"
+
+
 if [ "$TMPDIR" != "" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.io.tmpdir=$TMPDIR"
 fi
@@ -151,23 +136,24 @@ if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.security.egd=file:/dev/./urandom"
 fi
 export AGENT_STARTUP_ARGS
-export GO_AGENT_LOG_DIR
 
 eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
 AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")
 
 eval stringToArgsArray "$AGENT_BOOTSTRAPPER_JVM_ARGS"
-AGENT_BOOTSTRAPPER_JVM_ARGS=("${_stringToArgs[@]}")
+AGENT_BOOTSTRAPPER_JVM_ARGS=("-Dgo.agent.log.dir=$GO_AGENT_LOG_DIR")
+if [ "$DAEMON" == "Y" ]; then
+  AGENT_BOOTSTRAPPER_JVM_ARGS+=("-Dgo.redirect.stdout.to.file=$STDOUT_LOG_FILE")
+fi
+
+AGENT_BOOTSTRAPPER_JVM_ARGS+=("${_stringToArgs[@]}")
 
 RUN_CMD=("$(autoDetectJavaExecutable)" "${AGENT_BOOTSTRAPPER_JVM_ARGS[@]}" "-jar" "$AGENT_DIR/agent-bootstrapper.jar" "-serverUrl" "$(autoDetectGoServerUrl)" "${AGENT_BOOTSTRAPPER_ARGS[@]}")
 
-echo "[$(date)] Starting Go Agent Bootstrapper with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
-echo "[$(date)] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$STDOUT_LOG_FILE"
-echo "[$(date)] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>"$STDOUT_LOG_FILE"
 cd "$AGENT_WORK_DIR"
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup "${RUN_CMD[@]}" >> "$STDOUT_LOG_FILE" 2>&1 &
+    exec nohup "${RUN_CMD[@]}" &
     disown $!
     echo $! >"$PID_FILE"
 else

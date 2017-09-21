@@ -15,13 +15,16 @@
 # limitations under the License.
 ##########################################################################
 
-MANUAL_SETTING=${MANUAL_SETTING:-"N"}
+# by default we do not daemonize
+DAEMON="${DAEMON:-N}"
 
-if [ "$MANUAL_SETTING" == "N" ]; then
-    if [ -f /etc/default/go-server ]; then
-        echo "[$(date)] using default settings from /etc/default/go-server"
-        . /etc/default/go-server
-    fi
+if [ "$1" == 'service_mode' ]; then
+  if [ -f /etc/default/go-server ]; then
+    . /etc/default/go-server
+  fi
+
+  # no point in not daemonizing the service
+  DAEMON=Y
 fi
 
 yell() {
@@ -70,35 +73,31 @@ function stringToArgsArray() {
 CWD="$(dirname "$0")"
 SERVER_DIR="$(cd "$CWD" && pwd)"
 
-[ ! -z $SERVER_MEM ] || SERVER_MEM="512m"
-[ ! -z $SERVER_MAX_MEM ] || SERVER_MAX_MEM="1024m"
-[ ! -z $SERVER_MAX_PERM_GEN ] || SERVER_MAX_PERM_GEN="256m"
-[ ! -z $GO_SERVER_PORT ] || GO_SERVER_PORT="8153"
-[ ! -z $GO_SERVER_SSL_PORT ] || GO_SERVER_SSL_PORT="8154"
-[ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
-[ ! -z "$YOURKIT_DISABLE_TRACING" ] || YOURKIT_DISABLE_TRACING=""
+SERVER_MEM="${SERVER_MEM:-512m}"
+SERVER_MAX_MEM="${SERVER_MAX_MEM:-1g}"
+SERVER_MAX_PERM_GEN="${SERVER_MAX_PERM_GEN:-256m}"
+GO_SERVER_PORT="${GO_SERVER_PORT:-8153}"
+GO_SERVER_SSL_PORT="${GO_SERVER_SSL_PORT:-8154}"
+SERVER_WORK_DIR="${SERVER_WORK_DIR:-$SERVER_DIR}"
 
-if [ "$MANUAL_SETTING" == "Y" ]; then
-  # gocd running functional tests
+if [ ! -d "${SERVER_WORK_DIR}" ]; then
+  echo Server working directory ${SERVER_WORK_DIR} does not exist
+  exit 2
+fi
+
+if [ "$1" == 'service_mode' ] && [ -d "/var/log/go-server" ]; then
+  GO_SERVER_LOG_DIR="/var/log/go-server"
+else
   GO_SERVER_LOG_DIR="${SERVER_WORK_DIR}/logs"
   mkdir -p "${GO_SERVER_LOG_DIR}"
-else
-  if [ -d "/var/log/go-server" ]; then
-    GO_SERVER_LOG_DIR="/var/log/go-server"
-  else
-    GO_SERVER_LOG_DIR="${SERVER_WORK_DIR}/logs"
-    mkdir -p "${GO_SERVER_LOG_DIR}"
-  fi
 fi
 
 STDOUT_LOG_FILE="${GO_SERVER_LOG_DIR}/go-server.out.log"
 
-if [ "$PID_FILE" ]; then
-    echo "Overriding PID_FILE with $PID_FILE"
-elif [ -d /var/run/go-server ]; then
-    PID_FILE=/var/run/go-server/go-server.pid
+if [ "$1" == "service_mode" ] && [ -d "/var/run/go-server" ]; then
+  PID_FILE="/var/run/go-server/go-server.pid"
 else
-    PID_FILE=go-server.pid
+  PID_FILE="${SERVER_WORK_DIR}/go-server.pid"
 fi
 
 if [ -z "${GO_CONFIG_DIR}" ]; then
@@ -117,6 +116,10 @@ if [ ! -z $SERVER_LISTEN_HOST ]; then
 fi
 SERVER_STARTUP_ARGS=("-server")
 
+if [ "$DAEMON" == "Y" ]; then
+  SERVER_STARTUP_ARGS+=("-Dgo.redirect.stdout.to.file=$STDOUT_LOG_FILE")
+fi
+
 if [ "$TMPDIR" != "" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.io.tmpdir=$TMPDIR")
 fi
@@ -132,12 +135,10 @@ SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT" "-Dcruise.server.ss
 
 RUN_CMD=("$(autoDetectJavaExecutable)" "${SERVER_STARTUP_ARGS[@]}" "-jar" "$SERVER_DIR/go.jar")
 
-echo "[$(date)] Starting Go Server with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
-echo "[$(date)] Starting Go Server in directory: $SERVER_WORK_DIR" >>"$STDOUT_LOG_FILE"
 cd "$SERVER_WORK_DIR"
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup "${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE" 2>&1 &
+    exec nohup "${RUN_CMD[@]}" &
     disown $!
     echo $! >"$PID_FILE"
 else

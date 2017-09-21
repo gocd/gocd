@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -857,7 +856,7 @@ public class FaninDependencyResolutionTest {
     }
 
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, staging.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, staging.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
         return autoBuild.onModifications(given, false, previous);
     }

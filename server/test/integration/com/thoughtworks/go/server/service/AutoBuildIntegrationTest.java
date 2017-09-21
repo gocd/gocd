@@ -115,7 +115,7 @@ public class AutoBuildIntegrationTest {
 
         MaterialRevisions expected = scheduleUtil.mrs(scheduleUtil.mr(up_pipe, true, up_pipe_1));
 
-        AutoBuild autoBuildType = new AutoBuild(goConfigService, pipelineService, "down_pipe", systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuildType = new AutoBuild(goConfigService, pipelineService, "down_pipe", systemEnvironment, materialChecker);
         assertThat(autoBuildType.onModifications(given, true, null).getMaterialRevisions(), is(expected));
     }
 }

@@ -76,7 +76,7 @@ public class AutoBuildTriangleDependencyTest {
         when(dependencyGraph.unsharedMaterialConfigs()).thenReturn(new MaterialConfigs(dependencyMaterial.config()));
         when(originalRevisions.findRevisionFor(dependencyMaterial)).thenReturn(new MaterialRevision(dependencyMaterial, new Modification()));
 
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker);
         AutoBuild spyAutoBuild = spy(autoBuild);
         doAnswer(new Answer() {
             @Override public Object answer(InvocationOnMock invocation) throws Throwable {

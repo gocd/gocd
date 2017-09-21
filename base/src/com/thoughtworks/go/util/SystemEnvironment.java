@@ -69,7 +69,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String CONFIGURATION_NO = "N";
     public static final String RESOLVE_FANIN_REVISIONS = "resolve.fanin.revisions";
-    public static final String RESOLVE_FANIN_FALLBACK_TRIANGLE = "resolve.fanin.fallback.triangle";
     private String hsqlPath = null;
 
     public static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
@@ -231,7 +230,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
     private File configDir;
     private volatile Boolean enforceRevisionCompatibilityWithUpstream;
-    private volatile Boolean enforceFanInFallbackTriangle;
 
     public SystemEnvironment() {
     }
@@ -677,13 +675,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getTfsSocketTimeout() {
         return Integer.parseInt(getPropertyImpl(TFS_SOCKET_TIMEOUT_PROPERTY, String.valueOf(TFS_SOCKET_TIMEOUT_IN_MILLISECONDS)));
-    }
-
-    public boolean enforceFanInFallbackBehaviour() {
-        if (enforceFanInFallbackTriangle == null) {
-            enforceFanInFallbackTriangle = CONFIGURATION_YES.equals(getPropertyImpl(RESOLVE_FANIN_FALLBACK_TRIANGLE, CONFIGURATION_NO));
-        }
-        return enforceFanInFallbackTriangle;
     }
 
     public int getCruiseDbTraceLevel() {

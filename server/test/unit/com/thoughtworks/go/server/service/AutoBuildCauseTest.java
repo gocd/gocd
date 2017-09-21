@@ -34,10 +34,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Assert;
@@ -83,7 +80,7 @@ public class AutoBuildCauseTest {
     public void shouldThrowExceptionIfNoChanges() throws Exception {
         MaterialRevisions modifications = new MaterialRevisions();
         try {
-            new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker, serverHealthService).onModifications(modifications, false, null);
+            new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(modifications, false, null);
             Assert.fail("Should throw Exception");
         } catch (Exception e) {
 
@@ -98,7 +95,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf("foo", cruiseConfig)).thenReturn(new PipelineConfigDependencyGraph(null));
         when(pipelineService.getRevisionsBasedOnDependencies(materialRevisions, cruiseConfig, new CaseInsensitiveString("foo"))).thenReturn(materialRevisions);
 
-        BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker, serverHealthService).onModifications(materialRevisions, false,
+        BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(materialRevisions, false,
                 null);
         assertThat(buildCause.getApprover(), is(GoConstants.DEFAULT_APPROVED_BY));
     }
@@ -115,7 +112,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf("current", cruiseConfig)).thenReturn(dependencyGraph);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(false);
-        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "current", systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "current", systemEnvironment, materialChecker);
 
         BuildCause current = autoBuild.onModifications(revisions, false, null);
         assertThat(current, is(nullValue()));
@@ -138,7 +135,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf("downstream", cruiseConfig)).thenReturn(dependencyGraph);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(false);
-        AutoBuild build = new AutoBuild(goConfigService, pipelineService, "downstream", systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild build = new AutoBuild(goConfigService, pipelineService, "downstream", systemEnvironment, materialChecker);
 
         BuildCause cause = build.onModifications(revisions, false, null);
         assertThat(cause, is(nullValue()));
@@ -165,7 +162,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
-        assertThat(new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker, serverHealthService).onModifications(revisions, false, null).getMaterialRevisions(), is(expectedRevisions));
+        assertThat(new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker).onModifications(revisions, false, null).getMaterialRevisions(), is(expectedRevisions));
     }
 
     @Test
@@ -190,7 +187,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
-        assertThat(new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker, serverHealthService).onModifications(revisions, false, null).getMaterialRevisions(), is(expectedRevisions));
+        assertThat(new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker).onModifications(revisions, false, null).getMaterialRevisions(), is(expectedRevisions));
     }
 
     @Test
@@ -215,7 +212,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf("third", cruiseConfig)).thenReturn(dependencyGraph);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(false);
-        AutoBuild build = new AutoBuild(goConfigService, pipelineService, "third", systemEnvironment, materialChecker, serverHealthService);
+        AutoBuild build = new AutoBuild(goConfigService, pipelineService, "third", systemEnvironment, materialChecker);
         BuildCause cause = build.onModifications(revisions, false, null);
         assertThat(cause, is(nullValue()));
     }
@@ -245,7 +242,7 @@ public class AutoBuildCauseTest {
 
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
-        assertThat(new AutoBuild(goConfigService, pipelineService, "third", new SystemEnvironment(), materialChecker, serverHealthService).onModifications(revisions, false, null).getMaterialRevisions(),
+        assertThat(new AutoBuild(goConfigService, pipelineService, "third", new SystemEnvironment(), materialChecker).onModifications(revisions, false, null).getMaterialRevisions(),
                 sameInstance(expectedRevisions));
     }
 
@@ -266,7 +263,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
-        BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker, serverHealthService).onModifications(revisions, false, null);
+        BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker).onModifications(revisions, false, null);
 
         MaterialRevision expected = expectedRevisions.getMaterialRevision(0);
         assertThat(buildCause.getMaterialRevisions().getMaterialRevision(0), is(expected));
@@ -296,7 +293,7 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
-        BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker, serverHealthService).onModifications(revisions, false, null);
+        BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker).onModifications(revisions, false, null);
         MaterialRevisions finalRevisions = buildCause.getMaterialRevisions();
 
         assertThat(finalRevisions.numberOfRevisions(), is(expectedRevisions.numberOfRevisions()));
@@ -307,37 +304,6 @@ public class AutoBuildCauseTest {
             assertThat(finalRev, is(expectedRev));
             assertThat(finalRev.isChanged(), is(expectedRev.isChanged()));
         }
-    }
-
-    @Test
-    public void shouldFallbackToFanInOffTriangleDependencyBehaviourOnExceptionInFanInOn() throws Exception {
-        PipelineConfigDependencyGraph dependencyGraph = dependencyGraphOfDepthOne(MaterialConfigsMother.hgMaterialConfig());
-        String targetPipeline = dependencyGraph.getCurrent().name().toLower();
-        MaterialRevisions revisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));
-        MaterialRevision dependencyRevision = dependencyMaterialRevision("up1", 1, "label", "first", 1, new Date());
-        dependencyRevision.markAsChanged();
-        revisions.addRevision(dependencyRevision);
-
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
-        // first time throw exception to check fanin off behavior and server logs. second time return null (no exception) to check that the server health logs are cleared
-        when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(new RuntimeException("failed")).thenReturn(null);
-
-        when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
-        when(systemEnvironment.enforceFanInFallbackBehaviour()).thenReturn(true);
-
-        new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
-
-        verify(pipelineService, times(1)).getRevisionsBasedOnDependencies(dependencyGraph, revisions);
-
-        assertThat(serverHealthService.getAllLogs().size(), is(1));
-        assertThat(serverHealthService.getAllLogs(), hasItem((ServerHealthState.warning("Turning off Fan-In for pipeline: 'current'",
-                "Error occurred during Fan-In resolution for the pipeline.", HealthStateType.general(HealthStateScope.forFanin(targetPipeline))))));
-
-        new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
-
-        verify(pipelineService, times(1)).getRevisionsBasedOnDependencies(dependencyGraph, revisions);
-
-        assertThat(serverHealthService.getAllLogs().size(), is(0));
     }
 
     @Test
@@ -354,10 +320,9 @@ public class AutoBuildCauseTest {
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
-        when(systemEnvironment.enforceFanInFallbackBehaviour()).thenReturn(false);
 
         try {
-            new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
+            new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker).onModifications(revisions, false, null);
             fail("should have thrown exception");
         } catch (NoCompatibleUpstreamRevisionsException e) {
             assertThat(e, is(expectedException));
@@ -377,10 +342,9 @@ public class AutoBuildCauseTest {
         when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
-        when(systemEnvironment.enforceFanInFallbackBehaviour()).thenReturn(false);
 
         try {
-            new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker, serverHealthService).onModifications(revisions, false, null);
+            new AutoBuild(goConfigService, pipelineService, targetPipeline, systemEnvironment, materialChecker).onModifications(revisions, false, null);
             fail("should have thrown exception");
         } catch (RuntimeException e) {
             assertThat(e, is(expectedException));

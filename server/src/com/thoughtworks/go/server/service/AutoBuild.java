@@ -26,10 +26,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -44,17 +41,14 @@ public class AutoBuild implements BuildType {
     private final String pipelineName;
     private final SystemEnvironment systemEnvironment;
     private final MaterialChecker materialChecker;
-    private final ServerHealthService serverHealthService;
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoBuild.class);
 
-    public AutoBuild(GoConfigService goConfigService, PipelineService pipelineService, String pipelineName, SystemEnvironment systemEnvironment, MaterialChecker materialChecker,
-                     ServerHealthService serverHealthService) {
+    public AutoBuild(GoConfigService goConfigService, PipelineService pipelineService, String pipelineName, SystemEnvironment systemEnvironment, MaterialChecker materialChecker) {
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
         this.pipelineName = pipelineName;
         this.systemEnvironment = systemEnvironment;
         this.materialChecker = materialChecker;
-        this.serverHealthService = serverHealthService;
     }
 
     public BuildCause onModifications(MaterialRevisions originalMaterialRevisions, boolean materialConfigurationChanged, MaterialRevisions previousMaterialRevisions) {
@@ -69,9 +63,7 @@ public class AutoBuild implements BuildType {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
 
         MaterialRevisions recomputedBasedOnDependencies;
-        if (systemEnvironment.enforceRevisionCompatibilityWithUpstream() && systemEnvironment.enforceFanInFallbackBehaviour()) {
-            recomputedBasedOnDependencies = fanInOnWithFallback(originalMaterialRevisions, cruiseConfig, new CaseInsensitiveString(pipelineName));
-        } else if (systemEnvironment.enforceRevisionCompatibilityWithUpstream()) {
+        if (systemEnvironment.enforceRevisionCompatibilityWithUpstream()) {
             recomputedBasedOnDependencies = fanInOn(originalMaterialRevisions, cruiseConfig, new CaseInsensitiveString(pipelineName));
         } else {
             recomputedBasedOnDependencies = fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
@@ -106,21 +98,6 @@ public class AutoBuild implements BuildType {
 
     @Override
     public void notifyPipelineNotScheduled(PipelineConfig pipelineConfig) {
-    }
-
-    private MaterialRevisions fanInOnWithFallback(MaterialRevisions originalMaterialRevisions, CruiseConfig cruiseConfig, CaseInsensitiveString targetPipelineName) {
-        try {
-            MaterialRevisions materialRevisions = fanInOn(originalMaterialRevisions, cruiseConfig, targetPipelineName);
-            serverHealthService.removeByScope(HealthStateScope.forFanin(pipelineName));
-            return materialRevisions;
-        } catch (NoCompatibleUpstreamRevisionsException | NoModificationsPresentForDependentMaterialException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            serverHealthService.update(ServerHealthState.warning("Turning off Fan-In for pipeline: '" + pipelineName + "'", "Error occurred during Fan-In resolution for the pipeline.",
-                    HealthStateType.general(HealthStateScope.forFanin(pipelineName))));
-            LOGGER.info("[Revision Resolution] Error occurred during Fan-In resolution for the pipeline: '{}'. Switching to Triangle Resolution", pipelineName);
-            return fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
-        }
     }
 
     private MaterialRevisions fanInOn(MaterialRevisions originalMaterialRevisions, CruiseConfig cruiseConfig, CaseInsensitiveString targetPipelineName) {

@@ -1,3 +1,7 @@
+import com.thoughtworks.go.build.DownloadFile
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.tools.ant.filters.ReplaceTokens
+
 /*
  * Copyright 2017 ThoughtWorks, Inc.
  *
@@ -14,53 +18,213 @@
  * limitations under the License.
  */
 
-task agentGenericZip(type: Zip) {
-  destinationDir file("${project.convention.plugins.get("base").distsDir}/zip")
-  archiveName "go-agent-${rootProject.fullVersion}.zip"
-  into("go-agent-${project.goVersion}")
-  group project.name
-  description 'Build the go-agent zip installer'
 
-  // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
-  from("${rootProject.projectDir}/LICENSE")
+def tanukiWrapperUrl() {
+  System.getenv('TANUKI_WRAPPER_URL') ?: 'https://wrapper.tanukisoftware.com/download/3.5.33/wrapper-delta-pack-3.5.33-st.tar.gz'
+}
 
-  from("${project.projectDir}/go-agent/release") {
-    exclude "*.sh"
+
+def tanukiWrapperFile() { new File(new URL(tanukiWrapperUrl()).getFile()) }
+
+private File destFile() {
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(tanukiWrapperUrl())}/${tanukiWrapperFile().getName()}")
+}
+
+task downloadTanukiWrapper(type: DownloadFile) {
+  src tanukiWrapperUrl()
+  dest destFile()
+  checksum 'd7679eef1398e66c51f09f3efcc392365e14cf1da4ef222f03d388345ff5f3bf'
+}
+
+task unpackTanukiWrapper(type: Copy) {
+  dependsOn downloadTanukiWrapper
+  from project.tarTree(downloadTanukiWrapper.outputs.files.singleFile)
+  into "${buildDir}/tanuki-wrapper"
+  includeEmptyDirs = false
+  // strip out the directory prefix
+  eachFile { FileCopyDetails fcp ->
+    def segments = fcp.relativePath.segments
+    def pathsegments = segments[1..-1] as String[]
+    fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathsegments)
   }
 
-  from("${project.projectDir}/go-agent/release") {
-    include "*.sh"
-    fileMode = 0755
+  doLast {
+    project.mkdir("${buildDir}/tanuki-wrapper/run")
+    ant.touch(file: "${buildDir}/tanuki-wrapper/run/.keep")
   }
+}
 
-  from(configurations.agentBootstrapperJar) {
-    rename "(.*)-${project.version}.(.*)", '$1.$2'
+def replacementTokens(String service) {
+  [
+    'app.name'          : "go-${service}",
+    'app.long.name'     : "Go ${service.capitalize()}",
+    'app.description'   : "Go ${service.capitalize()}",
+    'script.description': "Go ${service.capitalize()}",
+    'wrapper.command'   : '-c'
+  ].collectEntries { k, v ->
+    [k.toString(), v.toString()]
+  }
+}
+
+
+def configureGenericZip(Zip zipTask, Configuration configuration, String jarFile, String service) {
+  zipTask.with {
+    def replacementTokens = replacementTokens(service)
+    dependsOn unpackTanukiWrapper
+    destinationDir = file("${project.convention.plugins.get("base").distsDir}/zip")
+    archiveName = "go-${service}-${rootProject.fullVersion}.zip"
+    // the base dir inside the zip
+    into("go-${service}-${project.goVersion}")
+
+    from("${rootProject.projectDir}/LICENSE")
+
+    from(configuration) {
+      rename "(.*)-${project.version}.(.*)", jarFile
+    }
+
+    into("logs") {
+      from "${unpackTanukiWrapper.outputs.files.singleFile}/logs"
+    }
+
+    into("run") {
+      from "${unpackTanukiWrapper.outputs.files.singleFile}/run"
+    }
+
+    def copySpec = project.copySpec {
+      from("${unpackTanukiWrapper.outputs.files.singleFile}/src/bin") {
+        into 'bin'
+        include 'sh.script.in', 'App.bat.in'
+        rename "(.*).in", '$1'
+        rename 'sh.script', "go-${service}.sh"
+        rename 'App.bat', "go-${service}.bat"
+        filter(ReplaceTokens, tokens: replacementTokens)
+        filter { String line ->
+          if (line.startsWith('WRAPPER_CMD=')) {
+            'WRAPPER_CMD=../wrapper/bin/wrapper'
+          } else if (line.startsWith('WRAPPER_CONF=')) {
+            'WRAPPER_CONF=../wrapper/conf/wrapper.conf'
+          } else if (line.startsWith("PIDDIR=")) {
+            "PIDDIR=../run"
+          } else {
+            line
+          }
+        }
+        eachFile { fcp ->
+          if (fcp.name.endsWith(".sh")) {
+            fileMode = 0755
+          }
+        }
+      }
+    }
+
+    with(copySpec)
+
+    into('wrapper') {
+      from("${unpackTanukiWrapper.outputs.files.singleFile}/bin") {
+        into "bin"
+        include 'wrapper*'
+        include 'wrapper*.*'
+      }
+
+      from("${unpackTanukiWrapper.outputs.files.singleFile}/lib") {
+        into "lib"
+        include 'libwrapper*'
+        include 'wrapper.jar'
+      }
+    }
+  }
+}
+
+task agentGenericZip(type: Zip) { Zip zipTask ->
+  def jarFile = 'agent-bootstrapper.jar'
+  def service = 'agent'
+
+  configureGenericZip(zipTask, configurations.agentBootstrapperJar, jarFile, service)
+
+  def replacementTokens = replacementTokens(service)
+
+  into('wrapper') {
+    into('conf') {
+      from "${unpackTanukiWrapper.outputs.files.singleFile}/src/conf/wrapper.conf.in"
+      from "${unpackTanukiWrapper.outputs.files.singleFile}/conf/wrapper-license.conf"
+      rename "(.*).in", '$1'
+      filter(ReplaceTokens, tokens: replacementTokens)
+      filter { String line ->
+        if (line.startsWith("wrapper.java.mainclass=")) {
+          "wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp"
+        } else if (line.startsWith("wrapper.app.parameter.1=")) {
+          [
+            "wrapper.app.parameter.1=${jarFile}",
+            "wrapper.app.parameter.2=-serverUrl",
+            "wrapper.app.parameter.3=https://localhost:8154/go",
+            "wrapper.working.dir=../../",
+          ].join("\r\n")
+        } else if (line.startsWith("wrapper.java.classpath.1=")) {
+          [
+            "wrapper.java.classpath.1=./wrapper/lib/wrapper.jar",
+            "wrapper.java.classpath.2=${jarFile}"
+          ].join("\r\n")
+        } else if (line.startsWith("wrapper.java.library.path.1=")) {
+          [
+            "wrapper.java.library.path.1=./wrapper/lib"
+          ].join("\r\n")
+        } else if (line.startsWith("wrapper.logfile")) {
+          [
+            "wrapper.logfile=./logs/wrapper.log"
+          ].join("\r\n")
+        } else {
+          line
+        }
+      }
+    }
   }
 
 }
 
-task serverGenericZip(type: Zip) {
-  destinationDir file("${project.convention.plugins.get("base").distsDir}/zip")
-  archiveName "go-server-${rootProject.fullVersion}.zip"
-  into("go-server-${project.goVersion}")
-  group project.name
-  description = 'Build the go-server zip installer'
+task serverGenericZip(type: Zip) { Zip zipTask ->
+  dependsOn unpackTanukiWrapper
+  def jarFile = 'go.jar'
+  def service = 'server'
 
-  // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
-  from("${rootProject.projectDir}/LICENSE")
+  configureGenericZip(zipTask, configurations.serverJar, jarFile, service)
 
-  from("${project.projectDir}/go-server/release") {
-    include "*.sh"
-    fileMode = 0755
+  def replacementTokens = replacementTokens(service)
+
+  into('wrapper') {
+
+    into('conf') {
+      from "${unpackTanukiWrapper.outputs.files.singleFile}/src/conf/wrapper.conf.in"
+      from "${unpackTanukiWrapper.outputs.files.singleFile}/conf/wrapper-license.conf"
+      rename "(.*).in", '$1'
+      filter(ReplaceTokens, tokens: replacementTokens)
+      filter { String line ->
+        if (line.startsWith("wrapper.java.mainclass=")) {
+          "wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp"
+        } else if (line.startsWith("wrapper.app.parameter.1=")) {
+          [
+            "wrapper.app.parameter.1=./${jarFile}",
+            "wrapper.working.dir=../../",
+          ].join("\r\n")
+        } else if (line.startsWith("wrapper.java.classpath.1=")) {
+          [
+            "wrapper.java.classpath.1=./wrapper/lib/wrapper.jar",
+            "wrapper.java.classpath.2=./${jarFile}"
+          ].join("\r\n")
+        } else if (line.startsWith("wrapper.java.library.path.1=")) {
+          [
+            "wrapper.java.library.path.1=./wrapper/lib"
+          ].join("\r\n")
+        } else if (line.startsWith("wrapper.logfile")) {
+          [
+            "wrapper.logfile=./logs/wrapper.log"
+          ].join("\r\n")
+        } else {
+          line
+        }
+      }
+    }
   }
 
-  from("${project.projectDir}/go-server/release") {
-    exclude "cruise-config.xml"
-  }
-
-  from(configurations.serverJar) {
-    rename "(.*)-${project.version}.(.*)", 'go.jar'
-  }
 }
 
 assemble.dependsOn(":installers:agentGenericZip", ":installers:serverGenericZip")

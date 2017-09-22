@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class DownloadableFileTest {
     @Test
     public void shouldReturnTrueIfChecksumIsEqual() throws Exception {
         File inputFile = new File("test-resources/checksum.txt");
-        assertTrue(DownloadableFile.matchChecksum(inputFile, "FlCLOoC4KK/RMxgAO1hibg=="));
+        assertTrue(DownloadableFile.matchChecksum(inputFile, "16508b3a80b828afd13318003b58626e"));
     }
 
     /*

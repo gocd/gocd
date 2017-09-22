@@ -23,8 +23,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +30,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
-import java.security.DigestInputStream;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Comparator;
 import java.util.List;
@@ -93,7 +90,8 @@ public class PluginsZip implements PluginChangeListener {
         checkFilesAccessibility(bundledPlugins, externalPlugins);
         reset();
 
-        try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(destZipFile)))) {
+        MessageDigest md5Digest = DigestUtils.getMd5Digest();
+        try (ZipOutputStream zos = new ZipOutputStream(new DigestOutputStream(new BufferedOutputStream(new FileOutputStream(destZipFile)), md5Digest))) {
             for (GoPluginDescriptor taskPlugin : agentPlugins()) {
                 String zipEntryPrefix = "external/";
 
@@ -105,10 +103,11 @@ public class PluginsZip implements PluginChangeListener {
                 Files.copy(new File(taskPlugin.pluginFileLocation()).toPath(), zos);
                 zos.closeEntry();
             }
-            md5DigestOfPlugins = computeMd5DigestOfPlugins();
         } catch (Exception e) {
             LOG.error("Could not create zip of plugins for agent to download.", e);
         }
+
+        md5DigestOfPlugins = Hex.encodeHexString(md5Digest.digest());
     }
 
     private void reset() {
@@ -117,25 +116,7 @@ public class PluginsZip implements PluginChangeListener {
     }
 
     public String md5() {
-        if (md5DigestOfPlugins == null) {
-            return computeMd5DigestOfPlugins();
-        }
         return md5DigestOfPlugins;
-    }
-
-    private String computeMd5DigestOfPlugins() {
-        try {
-            MessageDigest md5Digest = DigestUtils.getMd5Digest();
-            List<GoPluginDescriptor> taskPlugins = agentPlugins();
-            for (GoPluginDescriptor taskPlugin : taskPlugins) {
-                try (DigestInputStream digest = new DigestInputStream(new FileInputStream(taskPlugin.pluginFileLocation()), md5Digest)) {
-                    IOUtils.copy(digest, new NullOutputStream());
-                }
-            }
-            return Hex.encodeHexString(md5Digest.digest());
-        } catch (Exception e) {
-            throw new RuntimeException("Could not compute md5 of plugins.", e);
-        }
     }
 
     private List<GoPluginDescriptor> agentPlugins() {

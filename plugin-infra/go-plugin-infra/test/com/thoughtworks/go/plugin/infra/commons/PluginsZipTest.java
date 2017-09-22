@@ -158,21 +158,6 @@ public class PluginsZipTest {
         assertThat(pluginsZip.md5(), is(not(oldMd5)));
     }
 
-    @Test
-    public void shouldGetChecksumOfExistingFile() throws Exception {
-        String md5 = pluginsZip.md5();
-        assertThat(md5, is(notNullValue()));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhileRetrievingChecksumOfUnavailableFile() throws Exception {
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage(containsString("Could not compute md5 of plugins."));
-
-        temporaryFolder.delete();
-        pluginsZip.md5();
-    }
-
     @Test(expected = FileAccessRightsCheckException.class)
     public void shouldFailGracefullyWhenExternalFileCannotBeRead() throws Exception {
         File bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled-ext");

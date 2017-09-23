@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
@@ -592,14 +593,22 @@ public class GoConfigFileHelper {
     }
 
     public void addBogusSecurity(boolean anonymous) {
-        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
-        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(), new AdminsConfig());
+        final SecurityConfig securityConfig = new SecurityConfig(new AdminsConfig());
+
+        final SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
+        final SecurityAuthConfig passwordFile = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile");
+
         securityConfig.securityAuthConfigs().add(securityAuthConfig);
+        securityConfig.securityAuthConfigs().add(passwordFile);
         addSecurity(securityConfig);
     }
 
     public File addSecurityWithPasswordFile() throws IOException {
-        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig(addPasswordFile().getAbsolutePath()), new AdminsConfig());
+        final SecurityAuthConfig authConfig = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile",
+                create("PasswordFilePath", false, addPasswordFile().getAbsolutePath())
+        );
+        SecurityConfig securityConfig = new SecurityConfig(new AdminsConfig());
+        securityConfig.securityAuthConfigs().add(authConfig);
         addSecurity(securityConfig);
         return passwordFile;
     }

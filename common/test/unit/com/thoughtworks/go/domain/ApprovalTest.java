@@ -184,7 +184,7 @@ public class ApprovalTest {
     public void validate_shouldNotAllow_UserInApprovalListButNotInOperationList() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
-                new CaseInsensitiveString("admin")));
+                        new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
@@ -203,7 +203,7 @@ public class ApprovalTest {
     public void validate_shouldNotAllowRoleInApprovalListButNotInOperationList() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
-                new CaseInsensitiveString("admin")));
+                        new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
@@ -239,7 +239,7 @@ public class ApprovalTest {
     public void validate_shouldAllowUserWhoIsDefinedInGroup() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
-                new CaseInsensitiveString("admin")));
+                        new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
@@ -256,7 +256,7 @@ public class ApprovalTest {
     public void validate_shouldAllowUserWhenSecurityIsNotDefinedInGroup() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
-                new CaseInsensitiveString("admin")));
+                        new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
@@ -273,7 +273,7 @@ public class ApprovalTest {
     public void validate_shouldAllowAdminToOperateOnAStage() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
-                new CaseInsensitiveString("admin")));
+                        new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
@@ -300,7 +300,7 @@ public class ApprovalTest {
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "first", "some-other-user-who-is-not-operate-authorized");
         Approval approval = stage.getApproval();
-        
+
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
@@ -313,7 +313,7 @@ public class ApprovalTest {
     public void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
-                new CaseInsensitiveString("admin")));
+                        new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
@@ -326,13 +326,13 @@ public class ApprovalTest {
     }
 
     @Test
-    public void shouldValidateTree(){
+    public void shouldValidateTree() {
         Approval approval = new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("role"))));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.server().security().adminsConfig().addRole(new AdminRole(new CaseInsensitiveString("super-admin")));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs());
         cruiseConfig.addPipeline("g1", pipelineConfig);
-        
+
         assertThat(approval.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g1", cruiseConfig, pipelineConfig)), is(false));
         assertThat(approval.getAuthConfig().errors().isEmpty(), is(false));
     }
@@ -340,7 +340,7 @@ public class ApprovalTest {
     private CruiseConfig cruiseConfigWithSecurity(Role roleDefinition, Admin admins) {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipeline");
         SecurityConfig securityConfig = cruiseConfig.server().security();
-        securityConfig.modifyPasswordFile(new PasswordFileConfig("foo.bar"));
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
         securityConfig.addRole(roleDefinition);
         securityConfig.adminsConfig().add(admins);
         return cruiseConfig;

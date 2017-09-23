@@ -50,23 +50,24 @@ public class SecurityConfigTest {
 
     @Test
     public void shouldSaySecurityEnabledIfPasswordFileSecurityEnabled() {
-        ServerConfig serverConfig = server(pwordFile(), admins());
+        ServerConfig serverConfig = server(passwordFileAuthConfig(), admins());
         assertTrue("Security should be enabled when password file config present", serverConfig.isSecurityEnabled());
     }
 
     @Test
     public void shouldKnowIfUserIsAdmin() throws Exception {
-        SecurityConfig security = security(new PasswordFileConfig(), admins(user("chris")));
+        SecurityConfig security = security(null, admins(user("chris")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(true));
-        security = security(pwordFile(), admins(user("chris")));
+
+        security = security(passwordFileAuthConfig(), admins(user("chris")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(false));
     }
 
     @Test
     public void shouldKnowIfRoleIsAdmin() throws Exception {
-        SecurityConfig security = security(pwordFile(), admins(role("role1")));
+        SecurityConfig security = security(passwordFileAuthConfig(), admins(role("role1")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("evilHacker"))), is(false));
@@ -74,24 +75,24 @@ public class SecurityConfigTest {
 
     @Test
     public void shouldNotCareIfValidUserInRoleOrUser() throws Exception {
-        SecurityConfig security = security(pwordFile(), admins(role("role2")));
+        SecurityConfig security = security(passwordFileAuthConfig(), admins(role("role2")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(false));
 
-        security = security(pwordFile(), admins(role("role2"), user("jez")));
+        security = security(passwordFileAuthConfig(), admins(role("role2"), user("jez")));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("chris"))), is(true));
         assertThat(security.isAdmin(new AdminUser(new CaseInsensitiveString("jez"))), is(true));
     }
 
     @Test
     public void shouldValidateRoleAsAdmin() throws Exception {
-        SecurityConfig security = security(pwordFile(), admins(role("role2")));
+        SecurityConfig security = security(passwordFileAuthConfig(), admins(role("role2")));
         assertThat(security.isAdmin(new AdminRole(new CaseInsensitiveString("role2"))), is(true));
     }
 
     @Test
     public void shouldReturnTheMemberRoles() throws Exception {
-        SecurityConfig securityConfig = security(pwordFile(), admins());
+        SecurityConfig securityConfig = security(passwordFileAuthConfig(), admins());
         assertUserRoles(securityConfig, "chris", DEFAULT_ROLES);
         assertUserRoles(securityConfig, "jez", DEFAULT_ROLES[0]);
         assertUserRoles(securityConfig, "loser");
@@ -99,7 +100,7 @@ public class SecurityConfigTest {
 
     @Test
     public void shouldReturnTrueIfDeletingARoleGoesThroughSuccessfully() throws Exception {
-        SecurityConfig securityConfig = security(pwordFile(), admins());
+        SecurityConfig securityConfig = security(passwordFileAuthConfig(), admins());
         securityConfig.deleteRole(ROLE1);
 
         assertUserRoles(securityConfig, "chris", ROLE2);
@@ -109,7 +110,7 @@ public class SecurityConfigTest {
     @Test
     public void shouldBombIfDeletingARoleWhichDoesNotExist() throws Exception {
         try {
-            SecurityConfig securityConfig = security(pwordFile(), admins());
+            SecurityConfig securityConfig = security(passwordFileAuthConfig(), admins());
             securityConfig.deleteRole(new RoleConfig(new CaseInsensitiveString("role99")));
             fail("Should have blown up with an exception on the previous line as deleting role99 should blow up");
         } catch (RuntimeException e) {
@@ -119,9 +120,9 @@ public class SecurityConfigTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        SecurityConfig one = new SecurityConfig(null, null, true);
-        SecurityConfig two = new SecurityConfig(null, null, false);
-        SecurityConfig three = new SecurityConfig(null, null, true);
+        SecurityConfig one = new SecurityConfig(null, true);
+        SecurityConfig two = new SecurityConfig(null, false);
+        SecurityConfig three = new SecurityConfig(null, true);
 
         assertThat(one, is(three));
         assertThat(one, not(is(two)));
@@ -133,14 +134,17 @@ public class SecurityConfigTest {
         assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username)), is(Arrays.asList(roles)));
     }
 
-    private ServerConfig server(PasswordFileConfig pwordFile, AdminsConfig admins) {
-        return new ServerConfig("", security(pwordFile, admins));
+    private ServerConfig server(SecurityAuthConfig passwordFile, AdminsConfig admins) {
+        return new ServerConfig("", security(passwordFile, admins));
     }
 
-    public static SecurityConfig security(PasswordFileConfig pwordFile, AdminsConfig admins) {
-        pwordFile = pwordFile == null ? new PasswordFileConfig() : pwordFile;
+    public static SecurityConfig security(SecurityAuthConfig securityAuthConfig, AdminsConfig admins) {
+        final SecurityConfig security = new SecurityConfig(admins);
 
-        SecurityConfig security = new SecurityConfig(pwordFile, admins);
+        if (securityAuthConfig != null) {
+            security.securityAuthConfigs().add(securityAuthConfig);
+        }
+
         for (Role role : DEFAULT_ROLES) {
             security.addRole(role);
         }
@@ -159,8 +163,8 @@ public class SecurityConfigTest {
         return new AdminRole(new CaseInsensitiveString(name));
     }
 
-    public static PasswordFileConfig pwordFile() {
-        return new PasswordFileConfig("test");
+    public static SecurityAuthConfig passwordFileAuthConfig() {
+        return new SecurityAuthConfig("file", "cd.go.authentication.passwordfile");
     }
 
     @Test

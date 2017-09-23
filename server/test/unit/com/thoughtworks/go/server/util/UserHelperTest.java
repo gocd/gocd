@@ -30,7 +30,6 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -87,34 +86,6 @@ public class UserHelperTest {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(
                 new User("user", "pass", true, false, true, true, new GrantedAuthority[0]), null, null);
         assertThat(UserHelper.getUserName(authentication).getDisplayName(), is("user"));
-    }
-
-    @Test
-    public void shouldGetFullNameFromLdapUserDetails() {
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken(new LdapUserDetailsImpl() {
-            public String getUsername() {
-                return "test1";
-            }
-
-            public String getDn() {
-                return "cn=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
-            }
-        }, null, null);
-        assertThat(UserHelper.getUserName(authentication).getDisplayName(), is("Test User"));
-    }
-
-    @Test
-    public void shouldGetNameFromLdapUserDetailsIfCannotGetFullName() {
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken(new LdapUserDetailsImpl() {
-            public String getUsername() {
-                return "test1";
-            }
-
-            public String getDn() {
-                return "n=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
-            }
-        }, null, null);
-        assertThat(UserHelper.getUserName(authentication).getDisplayName(), is("test1"));
     }
 
     @Test

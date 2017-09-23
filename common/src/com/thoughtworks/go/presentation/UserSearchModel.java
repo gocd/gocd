@@ -30,21 +30,13 @@ public class UserSearchModel {
         this.userSourceType = userSourceType;
     }
 
-
-    public UserSearchModel(User user) {
-        this(user, UserSourceType.PASSWORD_FILE);
-
-    }
-
     public UserSourceType getUserSourceType() {
         return userSourceType;
     }
-
     
     public User getUser() {
         return user;
     }
-
 
     @Override public String toString() {
         return "UserSearchModel{" +

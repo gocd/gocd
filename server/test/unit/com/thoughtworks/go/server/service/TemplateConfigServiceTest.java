@@ -384,7 +384,7 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldLoadTemplateForViewing(){
+    public void shouldLoadTemplateForViewing() {
         PipelineTemplateConfig template = template("first_template");
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
         cruiseConfig.addTemplate(template);
@@ -414,9 +414,9 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnAMapOfAllTemplatesWithAuthorizationsForAnyUser() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
 
         CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
         CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
@@ -463,9 +463,9 @@ public class TemplateConfigServiceTest {
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig( new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         return cruiseConfig;
     }
 }

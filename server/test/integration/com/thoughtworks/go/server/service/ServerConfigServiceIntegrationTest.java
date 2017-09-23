@@ -22,7 +22,6 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -50,11 +49,14 @@ public class ServerConfigServiceIntegrationTest {
 
     @Autowired
     GoConfigService goConfigService;
-    @Autowired ServerConfigService serverConfigService;
-    @Autowired UserService userService;
+    @Autowired
+    ServerConfigService serverConfigService;
+    @Autowired
+    UserService userService;
     @Autowired
     GoConfigDao goConfigDao;
-    @Autowired Localizer localizer;
+    @Autowired
+    Localizer localizer;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -64,60 +66,52 @@ public class ServerConfigServiceIntegrationTest {
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();
-
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, true);
+        goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
     }
 
     @After
     public void tearDown() throws Exception {
         configHelper.onTearDown();
-        new SystemEnvironment().set(SystemEnvironment.INBUILT_AUTH_ENABLED, false);
     }
 
     @Test
     public void shouldUpdateServerConfigWithoutValidatingMailHostWhenMailhostisEmpty() {
-        PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost(new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-
-        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
+        serverConfigService.updateServerConfig(mailHost, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
                 goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.getMailHost(), is(mailHost));
-        assertThat(goConfigService.security(), is(new SecurityConfig(passwordFileConfig, false)));
         assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
     public void shouldUpdateServerConfig() throws InvalidCipherTextException {
-        PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "newArtifactsDir", 10.0, 20.0, "42", true, "http://site_url", "https://secure_site_url", "gist-repo/folder",
+        serverConfigService.updateServerConfig(mailHost, "newArtifactsDir", 10.0, 20.0, "42", true, "http://site_url", "https://secure_site_url", "gist-repo/folder",
                 result, goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.getMailHost(), is(mailHost));
-        assertThat(goConfigService.security(), is(new SecurityConfig(passwordFileConfig, false)));
         assertThat(goConfigService.serverConfig().artifactsDir(), is("newArtifactsDir"));
         assertThat(goConfigService.serverConfig().getSiteUrl().getUrl(), is("http://site_url"));
         assertThat(goConfigService.serverConfig().getSecureSiteUrl().getUrl(), is("https://secure_site_url"));
         assertThat(goConfigService.serverConfig().getJobTimeout(), is("42"));
         assertThat(goConfigService.serverConfig().getPurgeStart(), is(10.0));
         assertThat(goConfigService.serverConfig().getPurgeUpto(), is(20.0));
-        assertThat(goConfigService.serverConfig().getCommandRepositoryLocation(),is("gist-repo/folder"));
+        assertThat(goConfigService.serverConfig().getCommandRepositoryLocation(), is("gist-repo/folder"));
 
         assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
     public void shouldAllowNullValuesForPurgeStartAndPurgeUpTo() throws InvalidCipherTextException {
-        PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "newArtifactsDir", null, null, "42", true, "http://site_url", "https://secure_site_url", "default",
+        serverConfigService.updateServerConfig(mailHost, "newArtifactsDir", null, null, "42", true, "http://site_url", "https://secure_site_url", "default",
                 result,
                 goConfigDao.md5OfConfigFile());
 
@@ -127,10 +121,9 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateWithEmptySecureSiteUrlAndSiteUrl() throws InvalidCipherTextException {
-        PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
-        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "newArtifactsDir", null, null, "42", true, "", "", "default", result,
+        serverConfigService.updateServerConfig(mailHost, "newArtifactsDir", null, null, "42", true, "", "", "default", result,
                 goConfigDao.md5OfConfigFile());
         assertThat(goConfigService.serverConfig().getSiteUrl(), is(new ServerSiteUrlConfig()));
         assertThat(goConfigService.serverConfig().getSecureSiteUrl(), is(new ServerSiteUrlConfig()));
@@ -142,13 +135,13 @@ public class ServerConfigServiceIntegrationTest {
         configHelper.turnOnSecurity();
         configHelper.addRole(role);
 
-        PasswordFileConfig passwordConfig = new PasswordFileConfig("valid_path.txt");
-        SecurityConfig securityConfig = createSecurity(role, passwordConfig, false);
+        SecurityConfig securityConfig = createSecurity(role, null, false);
+        securityConfig.securityAuthConfigs().addAll(goConfigService.serverConfig().security().securityAuthConfigs());
 
         MailHost mailHost = new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin@admin.com");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        serverConfigService.updateServerConfig(mailHost, passwordConfig, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
+        serverConfigService.updateServerConfig(mailHost, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
                 goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.getMailHost(), is(mailHost));
@@ -156,21 +149,22 @@ public class ServerConfigServiceIntegrationTest {
         assertThat(result.isSuccessful(), is(true));
     }
 
-    private SecurityConfig createSecurity(Role role, PasswordFileConfig passwordConfig, boolean allowOnlyKnownUsersToLogin) {
+    private SecurityConfig createSecurity(Role role, SecurityAuthConfig securityAuthConfig, boolean allowOnlyKnownUsersToLogin) {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.addRole(role);
-        securityConfig.modifyPasswordFile(passwordConfig);
+        if (securityAuthConfig != null) {
+            securityConfig.securityAuthConfigs().add(securityAuthConfig);
+        }
         securityConfig.modifyAllowOnlyKnownUsers(allowOnlyKnownUsersToLogin);
         return securityConfig;
     }
 
     @Test
     public void shouldUpdateServerConfigShouldFailWhenConfigSaveFails() {
-        PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin@admin.com");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        serverConfigService.updateServerConfig(mailHost, passwordFileConfig, "artifacts", null, null, "-42", true, "http://site_url", "https://secure_site_url", "default", result,
+        serverConfigService.updateServerConfig(mailHost, "artifacts", null, null, "-42", true, "http://site_url", "https://secure_site_url", "default", result,
                 goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
@@ -184,7 +178,7 @@ public class ServerConfigServiceIntegrationTest {
         userService.deleteAll();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        serverConfigService.updateServerConfig(new MailHost(new GoCipher()), new PasswordFileConfig(), "artifacts", null, null, "42",
+        serverConfigService.updateServerConfig(new MailHost(new GoCipher()), "artifacts", null, null, "42",
                 false,
                 "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
@@ -197,7 +191,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost("boo%bee", 1, "username", "password", true, true, "from@from.com", "admin@admin.com"),
-                new PasswordFileConfig(), "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
+                "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)."));
@@ -209,7 +203,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost("boo", -1, "username", "password", true, true, "from@from.com", "admin@admin.com"),
-                new PasswordFileConfig(), "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
+                "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Invalid port."));
@@ -221,7 +215,6 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost("boo", 1, "username", "password", true, true, "from", "admin@admin.com"),
-                new PasswordFileConfig(),
                 "artifacts", null, null, "42", true,
                 "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
@@ -235,7 +228,6 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin"),
-                new PasswordFileConfig(),
                 "artifacts", null, null, "42", true,
                 "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 

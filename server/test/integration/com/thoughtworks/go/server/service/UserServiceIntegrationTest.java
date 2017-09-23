@@ -272,7 +272,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldCreateANewUser() throws Exception {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.LDAP);
+        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
 
@@ -282,7 +282,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldReturnErrorWhenTryingToAddAnonymousUser() throws Exception {
-        UserSearchModel anonymous = new UserSearchModel(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()), "Mr. Anonymous", "anon@cruise.com"), UserSourceType.LDAP);
+        UserSearchModel anonymous = new UserSearchModel(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()), "Mr. Anonymous", "anon@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(anonymous), result);
 
@@ -292,7 +292,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldReturnErrorWhenUserAlreadyExists() throws Exception {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.LDAP);
+        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         addUser(foo.getUser());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
@@ -370,7 +370,7 @@ public class UserServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
-        UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.LDAP);
+        UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.PLUGIN);
 
         userService.create(Arrays.asList(searchModel), result);
 
@@ -380,7 +380,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldDeleteAllUsers() throws Exception {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"));
+        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
 
@@ -767,7 +767,7 @@ public class UserServiceIntegrationTest {
     private List<UserSearchModel> users(String... usernames) {
         List<UserSearchModel> models = new ArrayList<>();
         for (String username : usernames) {
-            models.add(new UserSearchModel(new User(username, username, "foo@cruise.com")));
+            models.add(new UserSearchModel(new User(username, username, "foo@cruise.com"), UserSourceType.PLUGIN));
         }
         return models;
     }

@@ -170,10 +170,8 @@
     <entry key="SOURCE">Source</entry>
     <entry key="USER_SUCCESSFULLY_ADDED">User ''{0}'' successfully added.</entry>
     <entry key="USER_DOES_NOT_EXIST_IN_DB">User ''{0}'' does not exist in the database.</entry>
-    <entry key="INVALID_LDAP_ERROR">There was an error authenticating you. Please check the go server logs, or contact the go server administrator.</entry>
+    <entry key="AUTHENTICATION_ERROR">There was an error authenticating you. Please check the go server logs, or contact the go server administrator.</entry>
     <entry key="LDAP_ERROR">Ldap search failed, please contact the administrator.</entry>
-    <entry key="PASSWORD_SEARCH_FAILED">Password file search failed, please contact the administrator.</entry>
-    <entry key="USER_SEARCH_FAILED">Ldap search and password search failed, please contact the administrator.</entry>
     <entry key="SEARCH_STRING_TOO_SMALL">Please use a search string that has at least two (2) letters.</entry>
     <entry key="USER_FIELD_VALIDATIONS_FAILED">Failed to add user. Validations failed. {0}</entry>
     <entry key="GO">Go</entry>
@@ -212,11 +210,7 @@
     <entry key="MAIL_HOST_ADMIN_MAIL">Admin mail</entry>
     <entry key="MAIL_HOST_SEND_TEST_EMAIL">SEND TEST EMAIL</entry>
     <entry key="URI">URI</entry>
-    <entry key="LDAP_USERNAME">Manager DN</entry>
-    <entry key="LDAP_PASSWORD">Manager Password</entry>
     <entry key="REQUIRED_FIELD">*</entry>
-    <entry key="SEARCH_BASE">Search Base</entry>
-    <entry key="SEARCH_FILTER">Search Filter</entry>
     <entry key="LICENSE">License</entry>
     <entry key="USER">User:</entry>
     <entry key="SAVE">SAVE</entry>
@@ -238,13 +232,7 @@
     <entry key="PORT_REQUIRED">Port is required.</entry>
     <entry key="HOSTNAME_REQUIRED">Hostname is required.</entry>
     <entry key="USER_MANAGEMENT">User Management</entry>
-    <entry key="LDAP_SETTINGS">LDAP Settings</entry>
-    <entry key="LDAP_VALIDATE">Check LDAP</entry>
-    <entry key="CANNOT_CONNECT_TO_LDAP">Cannot connect to ldap, please check the settings. Reason: {0}</entry>
-    <entry key="ABLE_TO_CONNECT_TO_LDAP">Connected to LDAP successfully.</entry>
-    <entry key="PASSWORD_FILE_SETTINGS">Password File Settings</entry>
-    <entry key="PASSWORD_FILE_PATH">Password File Path</entry>
-    <entry key="ALLOW_AUTO_LOGIN_MESSAGE">Allow users that exist in LDAP, password file or via plugin to log into GoCD, even if they haven't been explicitly added to GoCD.</entry>
+    <entry key="ALLOW_AUTO_LOGIN_MESSAGE">Allow users to login via plugin into GoCD, even if they haven't been explicitly added to GoCD.</entry>
     <entry key="ALLOW_GROUP_ADMINS">Allow all pipeline group administrators view access to {0} template.</entry>
     <entry key="FAILED_TO_SAVE_THE_SERVER_CONFIGURATION">Failed to save the server configuration. Reason: {0}</entry>
     <entry key="LICENSE_DETAILS">License Details</entry>
@@ -706,7 +694,6 @@
     <entry key="TOOLTIP_FETCH_MATERIALS">Perform material updates or checkouts</entry>
     <entry key="TOOLTIP_ARTIFACT_CLEANUP_PROHIBITED">Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level</entry>
     <entry key="TOOLTIP_CLEAN_WORKING_DIRECTORY">Remove all files/directories in the working directory on the agent</entry>
-    <entry key="TOOLTIP_LDAP_SEARCH_BASE_FORMAT">Multiple search bases could be specified, separated by a new line.</entry>
     <entry key="AUTOMATIC_PIPELINE_SCHEDULING">Automatic pipeline scheduling</entry>
     <entry key="TOOLTIP_AUTOMATIC_PIPELINE_SCHEDULING">If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.</entry>
     <entry key="INLINE_INSTRUCTION_AUTOMATIC_PIPELINE_SCHEDULING">Since this pipeline is based on a template, automatic/manual behaviour is determined by the template (first stage)</entry>

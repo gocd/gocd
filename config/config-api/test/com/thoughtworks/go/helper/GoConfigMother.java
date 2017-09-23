@@ -77,8 +77,8 @@ public class GoConfigMother {
         adminsConfig.addRole(new AdminRole(new CaseInsensitiveString(rolename)));
     }
 
-    public static void enableSecurityWithPasswordFile(CruiseConfig cruiseConfig) {
-        cruiseConfig.server().security().modifyPasswordFile(new PasswordFileConfig("password_file_path"));
+    public static void enableSecurityWithPasswordFilePlugin(CruiseConfig cruiseConfig) {
+        cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("file","cd.go.authentication.passwordfile"));
     }
 
     public static CruiseConfig addUserAsSuperAdmin(CruiseConfig config, String adminName) {

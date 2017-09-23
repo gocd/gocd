@@ -221,7 +221,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldCreateNewUsers() throws Exception {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.LDAP);
+        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
 
         doNothing().when(userDao).saveOrUpdate(foo.getUser());
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
@@ -233,25 +233,11 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldAllowCreateNewUsersFromPasswordFileWithoutEmailAddress() throws Exception {
-        UserSearchModel passwordUser = new UserSearchModel(new User("passwordUser"), UserSourceType.PASSWORD_FILE);
-
-        doNothing().when(userDao).saveOrUpdate(passwordUser.getUser());
-        when(userDao.findUser("passwordUser")).thenReturn(new NullUser());
-        when(userDao.enabledUserCount()).thenReturn(10);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(Arrays.asList(passwordUser), result);
-        assertThat(result.isSuccessful(), is(true));
-
-    }
-
-    @Test
     public void shouldReturnConflictWhenUserAlreadyExists() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         User existsingUser = new User("existingUser", "Existing User", "existing@user.com");
-        UserSearchModel searchModel = new UserSearchModel(existsingUser, UserSourceType.LDAP);
+        UserSearchModel searchModel = new UserSearchModel(existsingUser, UserSourceType.PLUGIN);
         when(userDao.findUser("existingUser")).thenReturn(existsingUser);
         userService.create(Arrays.asList(searchModel), result);
 
@@ -259,13 +245,12 @@ public class UserServiceTest {
         assertThat(result.httpCode(), is(HttpServletResponse.SC_CONFLICT));
     }
 
-
     @Test
     public void shouldReturnErrorMessageWhenUserValidationsFail() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
-        UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.LDAP);
+        UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.PLUGIN);
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
         when(userDao.enabledUserCount()).thenReturn(1);
 
@@ -319,7 +304,8 @@ public class UserServiceTest {
     @Test
     public void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
         CruiseConfig config = new BasicCruiseConfig();
-        SecurityConfig securityConfig = new SecurityConfig(new PasswordFileConfig("path"), null);
+        SecurityConfig securityConfig = new SecurityConfig(null);
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
                 new RoleUser(new CaseInsensitiveString("user3"))));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),

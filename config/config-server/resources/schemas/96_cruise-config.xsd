@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="97"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="96"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -188,6 +188,7 @@
     </xsd:complexType>
     <xsd:complexType name="securityType">
         <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="passwordFile" type="passwordfileType"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="authConfigs" type="authConfigsType">
                 <xsd:unique name="uniqueAuthConfig">
                     <xsd:selector xpath="authConfig"/>
@@ -309,6 +310,9 @@
         </xsd:choice>
     </xsd:complexType>
 
+    <xsd:complexType name="passwordfileType">
+        <xsd:attribute name="path" type="xsd:string" use="required"/>
+    </xsd:complexType>
     <xsd:complexType name="pipelinesType">
         <xsd:sequence>
             <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="authorizationType"/>

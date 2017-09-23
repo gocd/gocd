@@ -86,7 +86,7 @@ public class ConfigSaveValidationContextTest {
     @Test
     public void shouldGetServerSecurityConfig(){
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
         assertThat(context.getServerSecurityConfig(), is(cruiseConfig.server().security()));
     }

@@ -24,7 +24,6 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
-import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
@@ -476,7 +475,7 @@ public class UserService {
                     return;
                 }
 
-                if (!userSearchModel.getUserSourceType().equals(UserSourceType.PASSWORD_FILE) && validate(result, user)) {
+                if (validate(result, user)) {
                     return;
                 }
                 userDao.saveOrUpdate(user);

@@ -113,7 +113,6 @@ Go::Application.routes.draw do
   post "admin/config/server/update" => "admin/server#update", as: :update_server_config
   post "admin/config/server/validate" => "admin/server#validate", as: :validate_server_config_params, constraints: HeaderConstraint.new
   post "admin/config/server/test_email" => "admin/server#test_email", as: :send_test_email
-  post "admin/config/server/validate_ldap" => "admin/server#validate_ldap", as: :validate_ldap_settings
 
   get "admin/pipelines" => "admin/pipeline_groups#index", as: :pipeline_groups
   get "admin/pipeline_group/new" => "admin/pipeline_groups#new", as: :pipeline_group_new

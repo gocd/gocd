@@ -209,7 +209,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> CONSOLE_OUT_TO_STDOUT = new GoBooleanSystemProperty("go.console.stdout", false);
-    public static GoSystemProperty<Boolean> INBUILT_AUTH_ENABLED = new GoBooleanSystemProperty("go.security.inbuilt.auth.enabled", false);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -645,10 +644,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getUserDirectory() {
         return getPropertyImpl("user.dir");
-    }
-
-    public boolean inbuiltLdapPasswordAuthEnabled() {
-        return get(INBUILT_AUTH_ENABLED);
     }
 
     public static final ThreadLocal<Boolean> enforceServerIdImmutability = new ThreadLocal<Boolean>() {

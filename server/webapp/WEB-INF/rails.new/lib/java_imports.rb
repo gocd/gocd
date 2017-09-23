@@ -32,7 +32,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.ArtifactType unless defined? ArtifactType
   java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
   java_import com.thoughtworks.go.domain.ConfigErrors unless defined? ConfigErrors
-  java_import com.thoughtworks.go.config.PasswordFileConfig unless defined? PasswordFileConfig
   java_import com.thoughtworks.go.config.CruiseConfig unless defined? CruiseConfig
   java_import com.thoughtworks.go.config.BasicCruiseConfig unless defined? BasicCruiseConfig
   java_import com.thoughtworks.go.config.EnvironmentConfig unless defined? EnvironmentConfig

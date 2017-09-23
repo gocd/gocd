@@ -25,11 +25,7 @@ import org.junit.Test;
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SecurityServiceTest {
     private GoConfigService goConfigService;
@@ -132,7 +128,7 @@ public class SecurityServiceTest {
         CaseInsensitiveString templateName = new CaseInsensitiveString("template");
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
 
-        GoConfigMother.enableSecurityWithPasswordFile(config);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
         GoConfigMother.addUserAsSuperAdmin(config, "theSuperAdmin");
         config.addTemplate(createTemplate("template", new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
 
@@ -149,7 +145,7 @@ public class SecurityServiceTest {
         String adminName = "theSuperAdmin";
         CaseInsensitiveString templateName = new CaseInsensitiveString("template");
 
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         GoConfigMother.addUserAsSuperAdmin(cruiseConfig, adminName).addTemplate(createTemplate("template"));
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
@@ -167,7 +163,7 @@ public class SecurityServiceTest {
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
         CaseInsensitiveString secondTemplateAdminName = new CaseInsensitiveString("secondTemplateAdmin");
 
-        GoConfigMother.enableSecurityWithPasswordFile(config);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
         GoConfigMother.addUserAsSuperAdmin(config, theSuperAdmin);
         config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
         config.addTemplate(createTemplate(secondTemplateName, new Authorization(new AdminsConfig(new AdminUser(secondTemplateAdminName)))));
@@ -266,11 +262,11 @@ public class SecurityServiceTest {
     public void shouldReturnTrueForGroupAdminsWithinARoleToViewTemplate() {
         CaseInsensitiveString groupAdmin = new CaseInsensitiveString("groupAdmin");
         BasicCruiseConfig config = new BasicCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(groupAdmin));
         serverConfig.security().addRole(role);
         config.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(config);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
 
         setUpGroupWithAuthorization(config, new Authorization(new AdminsConfig(new AdminRole(role))));
 
@@ -289,11 +285,11 @@ public class SecurityServiceTest {
     public void shouldReturnFalseForGroupAdminsWithinARoleToVIewTemplateIfDisallowed() {
         CaseInsensitiveString groupAdmin = new CaseInsensitiveString("groupAdmin");
         BasicCruiseConfig config = new BasicCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(groupAdmin));
         serverConfig.security().addRole(role);
         config.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(config);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
 
         setUpGroupWithAuthorization(config, new Authorization(new AdminsConfig(new AdminRole(role))));
 
@@ -319,7 +315,7 @@ public class SecurityServiceTest {
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
         CaseInsensitiveString templateViewUser = new CaseInsensitiveString("templateViewUser");
 
-        GoConfigMother.enableSecurityWithPasswordFile(config);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
         GoConfigMother.addUserAsSuperAdmin(config, theSuperAdmin);
         config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
         config.addTemplate(createTemplate(secondTemplateName, new Authorization(new ViewConfig(new AdminUser(templateViewUser)))));
@@ -339,9 +335,9 @@ public class SecurityServiceTest {
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         return cruiseConfig;
     }
 

@@ -36,8 +36,7 @@ describe ServerConfigurationForm do
     end
 
     it "should set allow_auto_login to 'true' when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is false" do
-      @password_file_config = PasswordFileConfig.new("path")
-      @security_config = SecurityConfig.new(@password_file_config, false)
+      @security_config = SecurityConfig.new(false)
       @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       form = ServerConfigurationForm.from_server_config(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
@@ -46,8 +45,7 @@ describe ServerConfigurationForm do
     end
 
     it "should set allow_auto_login to 'false' when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is true" do
-      @password_file_config = PasswordFileConfig.new("path")
-      @security_config = SecurityConfig.new(@password_file_config, true)
+      @security_config = SecurityConfig.new(true)
       @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       form = ServerConfigurationForm.from_server_config(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))

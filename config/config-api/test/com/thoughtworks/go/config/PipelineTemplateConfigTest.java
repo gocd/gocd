@@ -16,16 +16,19 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.DataStructureUtils;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -141,9 +144,9 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidateRoleNamesInTemplateAdminAuthorization() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new AdminsConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
                 StageConfigMother.manualStage("stage"));
@@ -156,9 +159,9 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidateRoleNamesInTemplateViewAuthorization() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new ViewConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
                 StageConfigMother.manualStage("stage"));
@@ -234,7 +237,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-       assertThat(template.errors().getAllOn("base"), is(Arrays.asList("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)")));
+        assertThat(template.errors().getAllOn("base"), is(Arrays.asList("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)")));
     }
 
     @Test

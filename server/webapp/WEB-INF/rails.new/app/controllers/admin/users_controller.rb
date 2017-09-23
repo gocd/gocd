@@ -26,7 +26,7 @@ module Admin
 
     def create
       user_selections = params[:selections] || []
-      user_models = user_selections.map { |u| UserSearchModel.new(User.new(u[:name], u[:full_name], u[:email])) }
+      user_models = user_selections.map { |u| UserSearchModel.new(User.new(u[:name], u[:full_name], u[:email]), UserSourceType::PLUGIN) }
       user_service.create(user_models, result = HttpLocalizedOperationResult.new)
       if result.isSuccessful()
         users

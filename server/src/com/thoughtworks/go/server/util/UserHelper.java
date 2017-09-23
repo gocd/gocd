@@ -26,11 +26,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.LdapUserDetails;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
 
@@ -48,10 +45,6 @@ public class UserHelper {
 
     public static Username getUserName(Authentication authentication) {
         Object principal = authentication.getPrincipal();
-        if (principal instanceof LdapUserDetails) {
-            LdapUserDetails userDetails = (LdapUserDetails) principal;
-            return new Username(new CaseInsensitiveString(userDetails.getUsername()), resolveDisplayName(userDetails.getUsername(), userDetails.getDn()));
-        }
         if (principal instanceof GoUserPrinciple) {
             GoUserPrinciple userPrincipleDetails = (GoUserPrinciple) principal;
             return new Username(new CaseInsensitiveString(userPrincipleDetails.getUsername()), userPrincipleDetails.getDisplayName());
@@ -91,15 +84,6 @@ public class UserHelper {
             }
         }
         return false;
-    }
-
-    private static String resolveDisplayName(String username, String dn) {
-        Pattern pattern = Pattern.compile("cn=(.*?),\\s");
-        Matcher matcher = pattern.matcher(dn);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return username;
     }
 
     public static String getSessionKeyForUserId() {

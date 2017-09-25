@@ -7,7 +7,7 @@
 - Feature proposal
 - Feature enhancement
 - Documentation Report
-- Question? [**DO NOT** ask it here. Ask in the [https://groups.google.com/forum/#!forum/go-cd](mailing list)].
+- Question? [**DO NOT** ask it here. Ask in the [mailing list](https://groups.google.com/forum/#!forum/go-cd)].
 
 ##### Summary
 

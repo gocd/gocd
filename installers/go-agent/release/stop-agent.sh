@@ -15,9 +15,12 @@
 # limitations under the License.
 #*************************GO-LICENSE-END**********************************
 
+SERVICE_NAME=${1:-go-agent}
 
-if [ -f /etc/default/go-agent ]; then
-    . /etc/default/go-agent
+if [ "$2" == "service_mode" ]; then
+  if [ -f /etc/default/${SERVICE_NAME} ]; then
+    . /etc/default/${SERVICE_NAME}
+  fi
 fi
 
 CWD=`dirname "$0"`
@@ -25,13 +28,10 @@ AGENT_DIR=`(cd "$CWD" && pwd)`
 
 AGENT_WORK_DIR=${AGENT_WORK_DIR:-"$AGENT_DIR"}
 
-if [ "$PID_FILE" ]; then
-    echo "Overriding PID_FILE with $PID_FILE"
-elif [ -d /var/run/go-agent ]; then
-    PID_FILE=/var/run/go-agent/go-agent.pid
+if [ "$1" == "service_mode" ] && [ -d "/var/run/go-agent" ]; then
+  PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 else
-    PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
+  PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
 fi
-
 
 cat $PID_FILE | xargs kill

@@ -16,19 +16,19 @@
 #*************************GO-LICENSE-END**********************************
 
 
-if [ -f /etc/default/go-server ]; then
+if [ "$1" == 'service_mode' ]; then
+  if [ -f /etc/default/go-server ]; then
     . /etc/default/go-server
+  fi
 fi
 
 CWD=`dirname "$0"`
 SERVER_DIR=`(cd "$CWD" && pwd)`
 
-if [ "$PID_FILE" ]; then
-    echo "Overriding PID_FILE with $PID_FILE"
-elif [ -d /var/run/go-server ]; then
-    PID_FILE=/var/run/go-server/go-server.pid
+if [ "$1" == "service_mode" ] && [ -d "/var/run/go-server" ]; then
+  PID_FILE="/var/run/go-server/go-server.pid"
 else
-    PID_FILE="$SERVER_DIR/go-server.pid"
+  PID_FILE="${SERVER_DIR}/go-server.pid"
 fi
 
 cat $PID_FILE | xargs kill

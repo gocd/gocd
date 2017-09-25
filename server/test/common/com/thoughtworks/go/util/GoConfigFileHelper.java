@@ -253,6 +253,14 @@ public class GoConfigFileHelper {
         return addTemplate(pipelineName, new Authorization(), stageName);
     }
 
+    public PipelineTemplateConfig addTemplate(String templateName, String paramName, String stageName) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(), StageConfigMother.stageConfigWithParams(stageName, paramName));
+        cruiseConfig.getTemplates().add(templateConfig);
+        writeConfigFile(cruiseConfig);
+        return templateConfig;
+    }
+
     public PipelineTemplateConfig addTemplate(String pipelineName, Authorization authorization, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate(pipelineName, authorization, StageConfigMother.manualStage(stageName));

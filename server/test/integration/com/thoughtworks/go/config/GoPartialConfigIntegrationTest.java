@@ -31,12 +31,15 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -87,6 +90,10 @@ public class GoPartialConfigIntegrationTest {
         }
         configHelper.onTearDown();
     }
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     @Test
     public void shouldSaveConfigWhenANewValidPartialGetsAdded() {
@@ -212,6 +219,35 @@ public class GoPartialConfigIntegrationTest {
         assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), repo2), is(true));
         assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), repo1), is(true));
         assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), repo3), is(true));
+    }
+
+    @Test
+    public void shouldPerformPreprocessingOfTemplatesOnCRPartials() throws Exception {
+        configHelper.addTemplate("t1", "stage");
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipelineAssociatedWithTemplate("pipe-with-template", "t1", new RepoConfigOrigin(repoConfig1, "124")));
+
+        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-template")), is(true));
+        assertThat(goConfigDao.loadConfigHolder().config.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-template")).hasTemplateApplied(), is(true));
+    }
+
+    @Test
+    public void shouldPerformParamResolutionOnCRPipelines() throws Exception {
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withParams("pipe-with-params", "paramName", "paramValue", new RepoConfigOrigin(repoConfig1, "124")));
+        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-params")), is(true));
+        String resolvedParam = goConfigDao.loadConfigHolder().config.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-params")).getStage("stage").getVariables().get(0).getValue();
+        assertThat(resolvedParam, is("paramValue"));
+    }
+
+    @Test
+    public void shouldFailToSaveCRPipelineReferencingATemplateWithParams() throws Exception {
+        configHelper.addTemplate("t1", "param1", "stage");
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipelineAssociatedWithTemplate("pipe-with-template", "t1", new RepoConfigOrigin(repoConfig1, "124")));
+
+        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-template")), is(false));
+        List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
+        assertThat(serverHealthStates.isEmpty(), is(false));
+        assertThat(serverHealthStates.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
+        assertThat(serverHealthStates.get(0).getDescription(), is("Parameter 'param1' is not defined. All pipelines using this parameter directly or via a template must define it. -  Config-Repo: url1 at 124"));
     }
 
     private boolean cacheContainsPartial(List<PartialConfig> partialConfigs, final PartialConfig partialConfig) {

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pipelines group="default">
+    <pipeline name="pipe-with-template" isLocked="false" template="t1">
+      <params>
+        <param name="param1">foo</param>
+      </params>
+      <materials>
+        <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+      </materials>
+    </pipeline>
+  </pipelines>
+</cruise>

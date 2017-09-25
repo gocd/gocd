@@ -26,7 +26,7 @@ dependencies {
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle)
 }
 
 test {

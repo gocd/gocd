@@ -33,5 +33,5 @@ dependencies {
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   compileOnly group: 'com.google.guava', name: 'guava', version: '20.0'
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle)
 }

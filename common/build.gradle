@@ -45,5 +45,6 @@ dependencies {
   testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: '1.4.0')
   testCompile project(':test-utils')
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.8'
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle)
+  compileOnly(group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle)
 }

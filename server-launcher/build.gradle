@@ -56,7 +56,8 @@ dependencies {
     transitive = false
   }
   packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
-  packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle
+  packagingInLibDir group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: '2.5'
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
   packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'

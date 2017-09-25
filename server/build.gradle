@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 import com.thoughtworks.go.build.VerifyJarTask
-import org.jruby.CompatVersion
 import org.jruby.Ruby
 import org.jruby.RubyInstanceConfig
 
@@ -28,7 +26,7 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
+    classpath group: 'org.jruby', name: 'jruby-complete', version: versions.jruby
   }
 }
 
@@ -124,7 +122,7 @@ dependencies {
     exclude(module: 'spring-context')
     exclude(module: 'org.osgi.core')
   }
-  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
+  compile group: 'org.jruby', name: 'jruby-complete', version: versions.jruby
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
@@ -165,7 +163,8 @@ dependencies {
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
-  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle
+  compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
   testCompile group: 'org.dbunit', name: 'dbunit', version: '2.5.1'
@@ -197,7 +196,6 @@ def findGemsToNotPack = {
   Ruby ruby
   try {
     def config = new RubyInstanceConfig()
-    config.compatVersion = CompatVersion.RUBY2_0
     config.output = System.out
     config.error = System.err
     config.compileMode = RubyInstanceConfig.CompileMode.OFF
@@ -206,7 +204,7 @@ def findGemsToNotPack = {
     gems = ruby.evalScriptlet(
       """
           Dir.chdir('${project.railsRoot}') do
-            \$LOAD_PATH.unshift("vendor/bundle/jruby/1.9/gems/bundler-1.9.9/lib")
+            \$LOAD_PATH.unshift("vendor/bundle/jruby/2.3.0/gems/bundler-${versions.gems.bundler}/lib")
             require 'bundler'
             require 'json'
             definition = ::Bundler.definition
@@ -401,7 +399,7 @@ task inlinePartials {
 
   outputs.dir(inlinedPartialsDir)
   inputs.dir(viewsDir)
-  outputs.cacheIf {true}
+  outputs.cacheIf { true }
 
   doFirst {
     delete inlinedPartialsDir
@@ -562,7 +560,7 @@ task verifyWar(type: VerifyJarTask) {
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jdom-2.0.2.jar",
       "joda-time-2.3.jar",
-      "jruby-complete-1.7.26.jar",
+      "jruby-complete-${project.versions.jruby}.jar",
       "jruby-rack-1.1.14.jar",
       "jsch-0.1.54.jar",
       "jta-1.1.jar",

@@ -30,7 +30,8 @@ dependencies {
   compile project(':agent-common')
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: versions.bouncycastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: versions.bouncycastle
   compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty
 
@@ -85,7 +86,8 @@ task verifyJar(type: VerifyJarTask) {
       "agent-common-${project.version}.jar",
       "aopalliance-1.0.jar",
       "base-${project.version}.jar",
-      "bcprov-jdk15on-1.47.jar",
+      "bcprov-jdk15on-${versions.bouncycastle}.jar",
+      "bcpkix-jdk15on-${versions.bouncycastle}.jar",
       "cloning-1.7.3.jar",
       "commandline-${project.version}.jar",
       "common-${project.version}.jar",

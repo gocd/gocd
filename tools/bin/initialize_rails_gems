@@ -28,7 +28,10 @@ rm -rf bin/* .bundle/config
 $GO_ROOT/tools/bin/jruby -S bundle install --path vendor/bundle --binstubs --clean
 
 # then install bundler afterwards, because, well bundler uninstalls itself
-$GO_ROOT/tools/bin/jruby -S gem install bundler --install-dir vendor/bundle/jruby/1.9 --version 1.9.9 --bindir bin
+$GO_ROOT/tools/bin/jruby -S gem install bundler --install-dir vendor/bundle/jruby/2.3.0 --version 1.14.6 --bindir bin
+
+# because, non-existant symlink in the package
+rm -frv vendor/bundle/jruby/2.3.0/gems/rack-throttle-*/README
 
 cd $GO_ROOT
 git checkout server/webapp/WEB-INF/rails.new/bin/bundle

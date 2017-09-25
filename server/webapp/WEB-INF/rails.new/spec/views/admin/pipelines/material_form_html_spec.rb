@@ -34,6 +34,19 @@ describe "admin/pipelines/new.html.erb" do
     @pipeline_group = BasicPipelineConfigs.new
     @pipeline_group.add(@pipeline)
 
+    @selected_scm_id = nil
+    @scm_materials = Hash.new
+    @meta_data_store = SCMMetadataStore.getInstance
+    scm_view = double('SCMView')
+    scm_view.stub(:displayValue).and_return('SCM Material')
+    scm_view.stub(:template).and_return(%Q{
+        <label>URL:<span class="asterisk">*</span></label>
+        <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]" ng-model="url" ng-required="true" tabindex="1"/>
+    })
+    scm_configurations = SCMConfigurations.new
+    scm_configurations.add(SCMConfiguration.new('url'))
+    @meta_data_store.addMetadataFor('com.plugin.id', scm_configurations, scm_view)
+
     assign(:pipeline, @pipeline)
     assign(:pipeline_group, @pipeline_group)
     assign(:template_list, Array.new)
@@ -68,12 +81,14 @@ describe "admin/pipelines/new.html.erb" do
       Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-materials').tap do |tab|
         expect(tab).to have_selector("h2.section_title", :text => "Step 2: Materials")
         expect(tab).to have_selector("label", :text => "Material Type*")
-        tab.find("select[name='pipeline_group[pipeline][materials][materialType]']") do |select|
+        tab.find("select[name='pipeline_group[pipeline][materials][materialType]']").tap do |select|
           expect(select).to have_selector("option[value='SvnMaterial']", :text => "Subversion")
           expect(select).to have_selector("option[value='GitMaterial']", :text => "Git")
           expect(select).to have_selector("option[value='HgMaterial']", :text => "Mercurial")
           expect(select).to have_selector("option[value='P4Material']", :text => "Perforce")
+          expect(select).to have_selector("option[value='TfsMaterial']", :text => "Team Foundation Server")
           expect(select).to have_selector("option[value='DependencyMaterial']", :text => "Pipeline")
+          expect(select).to have_selector("option[value='pluggable_material_com_plugin_id']", :text => "SCM Material")
         end
         expect(tab).to have_selector("button.cancel_button", :text => "Cancel")
         expect(tab).to have_selector("button#next_to_materials", :text => "Next")
@@ -371,6 +386,28 @@ describe "admin/pipelines/new.html.erb" do
                 expect(warnings).to have_selector("a[href='#{package_repositories_new_path}']", :text => "add a package repository")
               end
           end
+        end
+      end
+    end
+
+    describe "Pluggable SCM Material" do
+      it "should render all scm material attributes" do
+        plugin_id = "com.plugin.id"
+        material_id = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), nil).getSCMType()
+        material = PluggableSCMMaterialConfig.new
+        scm = com.thoughtworks.go.domain.scm.SCM.new
+        scm.setPluginConfiguration(com.thoughtworks.go.domain.config.PluginConfiguration.new(plugin_id, "1"))
+        material.setSCMConfig(scm)
+
+        @scm_materials[material_id] = material
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |form|
+          expect(form).to have_selector("label", :text => "Material Name*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][#{com.thoughtworks.go.domain.scm.SCM::NAME}]']")
+
+          expect(form).to have_selector("label", :text => "URL:*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]']")
         end
       end
     end

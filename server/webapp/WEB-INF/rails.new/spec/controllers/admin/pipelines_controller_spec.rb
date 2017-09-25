@@ -686,8 +686,9 @@ describe Admin::PipelinesController do
       scm_configurations.add(SCMConfiguration.new('username'))
       @meta_data_store.addMetadataFor('com.plugin.id', scm_configurations, scm_view)
 
-      material_type = PluggableSCMMaterialConfig::TYPE + "0"
-      scm_params = {:pluginId => "com.plugin.id", :name => "material name", :url => "http://material.url", :username => "user"}
+      plugin_id = "com.plugin.id"
+      material_type = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), nil).getSCMType()
+      scm_params = {:pluginId => plugin_id, :name => "material name", :url => "http://material.url", :username => "user"}
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip", :materials =>
         {:materialType => material_type, material_type.to_sym => scm_params}}}
 

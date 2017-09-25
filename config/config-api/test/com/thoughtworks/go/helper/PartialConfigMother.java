@@ -49,6 +49,26 @@ public class PartialConfigMother {
         return partialConfig;
     }
 
+    public static PartialConfig withPipelineAssociatedWithTemplate(String name, String templateName, RepoConfigOrigin repoConfigOrigin) {
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(name, templateName);
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(pipeline);
+        pipelineConfigs.setGroup("group");
+        PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipelineConfigs));
+        partialConfig.setOrigins(repoConfigOrigin);
+        return partialConfig;
+    }
+
+    public static PartialConfig withParams(String name, String paramName, String paramValue, RepoConfigOrigin repoConfigOrigin) {
+        StageConfig stageConfig = StageConfigMother.stageConfigWithParams("stage", paramName);
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(name, stageConfig);
+        pipeline.setParams(new ParamsConfig(new ParamConfig(paramName, paramValue)));
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(pipeline);
+        pipelineConfigs.setGroup("group");
+        PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipelineConfigs));
+        partialConfig.setOrigins(repoConfigOrigin);
+        return partialConfig;
+    }
+
     public static PartialConfig invalidPartial(String name) {
         return invalidPartial(name, createRepoOrigin());
     }

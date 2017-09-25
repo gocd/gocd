@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -93,6 +94,15 @@ public class StageConfigMother {
     public static StageConfig stageConfigWithEnvironmentVariable(String stageName) {
         StageConfig stageConfig = StageConfigMother.stageConfig(stageName);
         stageConfig.setVariables(EnvironmentVariablesConfigMother.environmentVariables());
+        stageConfig.getJobs().add(JobConfigMother.jobConfig());
+        return stageConfig;
+    }
+
+    public static StageConfig stageConfigWithParams(String stageName, String paramName) {
+        StageConfig stageConfig = StageConfigMother.stageConfig(stageName);
+        ArrayList<EnvironmentVariableConfig> environmentVariableConfigs = new ArrayList<>();
+        environmentVariableConfigs.add(new EnvironmentVariableConfig("env1", "#{" +paramName+ "}"));
+        stageConfig.setVariables(new EnvironmentVariablesConfig(environmentVariableConfigs));
         stageConfig.getJobs().add(JobConfigMother.jobConfig());
         return stageConfig;
     }

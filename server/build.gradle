@@ -401,6 +401,7 @@ task inlinePartials {
 
   outputs.dir(inlinedPartialsDir)
   inputs.dir(viewsDir)
+  outputs.cacheIf {true}
 
   doFirst {
     delete inlinedPartialsDir

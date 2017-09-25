@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "pathname"
+
+def run(*cmd)
+  return if system(*cmd)
+  raise "Running `#{cmd.join(" ")}` failed"
+end
+
+version = ENV.delete("RGV")
+rubygems_path = Pathname.new(__FILE__).join("../../tmp/rubygems").expand_path
+unless rubygems_path.directory?
+  rubygems_path.parent.mkpath unless rubygems_path.directory?
+  run("git", "clone", "https://github.com/rubygems/rubygems.git", rubygems_path.to_s)
+end
+Dir.chdir(rubygems_path) do
+  version = "v#{version}" if version =~ /\A\d/
+  run("git", "checkout", version, "--quiet")
+end if version
+
+rubygems_lib = rubygems_path + "lib"
+ENV["RUBYOPT"] = %(-I#{rubygems_lib} #{ENV["RUBYOPT"]})
+
+if $0 != __FILE__
+  ARGV.unshift($0)
+elsif cmd = ARGV.first
+  possible_dirs = [
+    Pathname.new(__FILE__) + "..",
+    Pathname.new(__FILE__) + "../../exe",
+    rubygems_path + "bin",
+  ]
+  cmd = possible_dirs.map do |dir|
+    dir.join(cmd).expand_path
+  end.find(&:file?)
+  ARGV[0] = cmd.to_s if cmd
+end
+
+exec(*ARGV)

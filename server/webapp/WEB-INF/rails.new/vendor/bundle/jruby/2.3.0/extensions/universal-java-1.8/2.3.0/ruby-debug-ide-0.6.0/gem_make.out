@@ -1,0 +1,5 @@
+current directory: /Users/ketanpadegaonkar/projects/gocd/gocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/2.3.0/gems/ruby-debug-ide-0.6.0/ext
+/Users/ketanpadegaonkar/projects/gocd/gocd/tools/jruby/bin/jruby mkrf_conf.rb
+
+current directory: /Users/ketanpadegaonkar/projects/gocd/gocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/2.3.0/gems/ruby-debug-ide-0.6.0/ext
+/Users/ketanpadegaonkar/projects/gocd/gocd/tools/jruby/bin/jruby -rubygems /Users/ketanpadegaonkar/projects/gocd/gocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/2.3.0/gems/rake-11.2.2/exe/rake RUBYARCHDIR=/Users/ketanpadegaonkar/projects/gocd/gocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/2.3.0/extensions/universal-java-1.8/2.3.0/ruby-debug-ide-0.6.0 RUBYLIBDIR=/Users/ketanpadegaonkar/projects/gocd/gocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/2.3.0/extensions/universal-java-1.8/2.3.0/ruby-debug-ide-0.6.0

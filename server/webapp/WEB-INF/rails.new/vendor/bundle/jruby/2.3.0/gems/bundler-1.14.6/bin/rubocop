@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+load File.expand_path("../with_rubygems", __FILE__) if ENV["RGV"]
+
+require "rubygems"
+
+bundler_spec = Gem::Specification.load(File.expand_path("../../bundler.gemspec", __FILE__))
+bundler_spec.dependencies.each do |dep|
+  gem dep.name, dep.requirement
+end
+
+gem "rubocop", "= 0.45.0"
+
+Gem.finish_resolve if Gem.respond_to?(:finish_resolve)
+
+load Gem.bin_path("rubocop", "rubocop")

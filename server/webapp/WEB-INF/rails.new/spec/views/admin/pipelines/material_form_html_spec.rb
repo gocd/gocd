@@ -36,7 +36,8 @@ describe "admin/pipelines/new.html.erb" do
 
     @selected_scm_id = nil
     @scm_materials = Hash.new
-    @meta_data_store = SCMMetadataStore.getInstance
+    @meta_data_store = SCMMetadataStore.getInstance()
+    @meta_data_store.clear()
     scm_view = double('SCMView')
     scm_view.stub(:displayValue).and_return('SCM Material')
     scm_view.stub(:template).and_return(%Q{

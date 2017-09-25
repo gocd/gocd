@@ -35,6 +35,7 @@ describe "admin/pipelines/new.html.erb" do
     @pipeline_group.add(@pipeline)
     @selected_scm_id = nil
     @scm_materials = Hash.new
+    SCMMetadataStore.getInstance().clear()
 
     assign(:pipeline, @pipeline)
     assign(:pipeline_group, @pipeline_group)

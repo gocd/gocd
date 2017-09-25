@@ -1,57 +1,65 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.jce.PrincipalUtil;
-import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.cert.CertIOException;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.*;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import static com.thoughtworks.go.security.X509PrincipalGenerator.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_ALGORITHM;
 import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM;
+
+import java.security.cert.Certificate;
 
 @Component
 public class X509CertificateGenerator {
     private static final int YEARS = 10;
     private static final String PASSWORD = "Crui3CertSigningPassword";
-    @Deprecated private static final char[] PASSWORD_AS_CHAR_ARRAY = PASSWORD.toCharArray();
+    @Deprecated
+    private static final char[] PASSWORD_AS_CHAR_ARRAY = PASSWORD.toCharArray();
     public static final String AGENT_CERT_OU = "Cruise agent certificate";
     private static final String INTERMEDIATE_CERT_OU = "Cruise intermediate certificate";
     private static final String CERT_EMAIL = "support@thoughtworks.com";
@@ -65,7 +73,7 @@ public class X509CertificateGenerator {
     }
 
     public void createAndStoreX509Certificates(File keystore, File truststore, File agentKeystore,
-                                      String password, String principalDn) {
+                                               String password, String principalDn) {
         if (!keystore.exists()) {
             storeX509Certificate(keystore, password, createCertificateWithDn(principalDn));
         }
@@ -78,8 +86,8 @@ public class X509CertificateGenerator {
     private void storeX509Certificate(File file, String passwd, Registration entry) {
         try {
             PKCS12BagAttributeSetter.usingBagAttributeCarrier(entry.getPrivateKey())
-                .setFriendlyName(FRIENDLY_NAME)
-                .setLocalKeyId(entry.getPublicKey());
+                    .setFriendlyName(FRIENDLY_NAME)
+                    .setLocalKeyId(entry.getPublicKey());
 
             keyStoreManager.storeX509Certificate(FRIENDLY_NAME, file, passwd, entry);
         } catch (Exception e) {
@@ -116,12 +124,12 @@ public class X509CertificateGenerator {
     private X509Certificate createIntermediateCertificate(PrivateKey caPrivKey,
                                                           X509Certificate caCert,
                                                           Date startDate, KeyPair keyPair) throws Exception {
-        X509Principal issuerDn = PrincipalUtil.getSubjectX509Principal(caCert);
+        X500Name issuerDn = JcaX500NameUtil.getSubject(caCert);
 
-        X509Principal subjectDn = createX509Principal(
-                                      withOU(INTERMEDIATE_CERT_OU),
-                                      withEmailAddress(CERT_EMAIL)
-                                  );
+        X500NameBuilder subjectBuilder = new X500NameBuilder(BCStyle.INSTANCE);
+        subjectBuilder.addRDN(BCStyle.OU, INTERMEDIATE_CERT_OU);
+        subjectBuilder.addRDN(BCStyle.EmailAddress, CERT_EMAIL);
+        X500Name subjectDn = subjectBuilder.build();
 
         X509CertificateGenerator.V3X509CertificateGenerator v3CertGen = new V3X509CertificateGenerator(startDate,
                 issuerDn, subjectDn, keyPair.getPublic(), serialNumber());
@@ -150,16 +158,17 @@ public class X509CertificateGenerator {
     private X509Certificate createAgentCertificate(PublicKey publicKey, PrivateKey intermediatePrivateKey,
                                                    PublicKey intermediatePublicKey, String hostname,
                                                    Date startDate) throws Exception {
-        X509Principal issuerDn = createX509Principal(
-                withOU(INTERMEDIATE_CERT_OU),
-                withEmailAddress(CERT_EMAIL)
-        );
 
-        X509Principal subjectDn = createX509Principal(
-                withOU(AGENT_CERT_OU),
-                withCN(hostname),
-                withEmailAddress(CERT_EMAIL)
-        );
+        X500NameBuilder issuerBuilder = new X500NameBuilder(BCStyle.INSTANCE);
+        issuerBuilder.addRDN(BCStyle.OU, INTERMEDIATE_CERT_OU);
+        issuerBuilder.addRDN(BCStyle.EmailAddress, CERT_EMAIL);
+        X500Name issuerDn = issuerBuilder.build();
+
+        X500NameBuilder subjectBuilder = new X500NameBuilder(BCStyle.INSTANCE);
+        subjectBuilder.addRDN(BCStyle.OU, AGENT_CERT_OU);
+        subjectBuilder.addRDN(BCStyle.CN, hostname);
+        subjectBuilder.addRDN(BCStyle.EmailAddress, CERT_EMAIL);
+        X500Name subjectDn = subjectBuilder.build();
 
         X509CertificateGenerator.V3X509CertificateGenerator v3CertGen = new V3X509CertificateGenerator(startDate,
                 issuerDn, subjectDn, publicKey, BigInteger.valueOf(3));
@@ -270,44 +279,37 @@ public class X509CertificateGenerator {
     }
 
     private class V3X509CertificateGenerator {
-        private final X509V3CertificateGenerator v3CertGen;
+        private final X509v3CertificateBuilder v3CertGen;
 
-        public V3X509CertificateGenerator(Date startDate, X509Principal issuerDn, X509Principal subjectDn,
+        public V3X509CertificateGenerator(Date startDate, X500Name issuerDn, X500Name subjectDn,
                                           PublicKey publicKey, BigInteger serialNumber) {
-            X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
-            gen.reset();
-            gen.setSignatureAlgorithm(new SystemEnvironment().get(GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM));
-            gen.setNotBefore(startDate);
-            DateTime now = new DateTime(new Date());
-            gen.setNotAfter(now.plusYears(YEARS).toDate());
-            gen.setIssuerDN(issuerDn);
-            gen.setSubjectDN(subjectDn);
-            gen.setPublicKey(publicKey);
-            gen.setSerialNumber(serialNumber);
-            this.v3CertGen = gen;
+            SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
+            this.v3CertGen = new X509v3CertificateBuilder(issuerDn, serialNumber, startDate, new DateTime().plusYears(YEARS).toDate(), subjectDn, publicKeyInfo);
         }
 
-        public void addSubjectKeyIdExtension(PublicKey key) throws CertificateParsingException, InvalidKeyException {
-            v3CertGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
-                    new SubjectKeyIdentifierStructure(key));
+
+        public void addSubjectKeyIdExtension(PublicKey key) throws CertificateParsingException, InvalidKeyException, IOException, NoSuchAlgorithmException {
+            SubjectKeyIdentifier subjectKeyIdentifier = new JcaX509ExtensionUtils().createSubjectKeyIdentifier(key);
+            v3CertGen.addExtension(Extension.subjectKeyIdentifier, false, subjectKeyIdentifier);
         }
 
-        public void addAuthorityKeyIdExtension(X509Certificate cert) throws CertificateParsingException {
-            v3CertGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false,
-                    new AuthorityKeyIdentifierStructure(cert));
+        public void addAuthorityKeyIdExtension(X509Certificate cert) throws CertificateParsingException, CertificateEncodingException, CertIOException, NoSuchAlgorithmException {
+            AuthorityKeyIdentifier authorityKeyIdentifier = new JcaX509ExtensionUtils().createAuthorityKeyIdentifier(cert);
+            v3CertGen.addExtension(Extension.authorityKeyIdentifier, false, authorityKeyIdentifier);
         }
 
-        public void addAuthorityKeyIdExtension(PublicKey key) throws InvalidKeyException {
-            v3CertGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false,
-                    new AuthorityKeyIdentifierStructure(key));
+        public void addAuthorityKeyIdExtension(PublicKey key) throws InvalidKeyException, CertIOException, NoSuchAlgorithmException {
+            AuthorityKeyIdentifier authorityKeyIdentifier = new JcaX509ExtensionUtils().createAuthorityKeyIdentifier(key);
+            v3CertGen.addExtension(Extension.authorityKeyIdentifier, false, authorityKeyIdentifier);
         }
 
-        private void addBasicConstraintsExtension() {
-            v3CertGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(0));
+        private void addBasicConstraintsExtension() throws CertIOException {
+            v3CertGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(0));
         }
 
         public X509Certificate generate(PrivateKey caPrivKey) throws Exception {
-            return v3CertGen.generate(caPrivKey, "BC");
+            ContentSigner contentSigner = new JcaContentSignerBuilder(new SystemEnvironment().get(GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM)).setProvider("BC").build(caPrivKey);
+            return new JcaX509CertificateConverter().setProvider("BC").getCertificate(v3CertGen.build(contentSigner));
         }
     }
 

@@ -629,7 +629,7 @@ public class ScheduleService {
                         LOGGER.warn("[Job Reschedule] Rescheduling and marking old job as ignored: {}", toBeRescheduled);
                         //Reloading it because we want to see the latest committed state after acquiring the mutex.
                         JobInstance oldJob = jobInstanceService.buildById(toBeRescheduled.getId());
-                        if (oldJob.isCompleted()) {
+                        if (oldJob.isCompleted() || oldJob.isRescheduled()) {
                             return;
                         }
                         JobInstance newJob = oldJob.clone();

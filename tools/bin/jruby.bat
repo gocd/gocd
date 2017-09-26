@@ -5,6 +5,6 @@ set GEM_HOME=
 set GEM_PATH=
 set PATH=%TOOLS_BIN%\;%JRUBY_BASE%\bin;%PATH%
 
-set JRUBY_OPTS="%JRUBY_OPTS% -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compat.version=2.0 -J-Djruby.compile.invokedynamic=false -J-Djruby.compile.mode=OFF"
+set JRUBY_OPTS="%JRUBY_OPTS% -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compile.invokedynamic=false -J-Djruby.compile.mode=OFF"
 %JRUBY_BASE%\bin\jruby.bat %*
 

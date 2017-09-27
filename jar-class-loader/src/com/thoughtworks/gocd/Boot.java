@@ -77,7 +77,7 @@ public class Boot {
     }
 
     private static String getOutFile() {
-        return System.getProperty("go.redirect.stdout.to.file");
+        return System.getProperty("gocd.redirect.stdout.to.file");
     }
 
     private static boolean shouldRedirectStdOutAndErr() {

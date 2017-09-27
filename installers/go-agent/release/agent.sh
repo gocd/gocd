@@ -126,7 +126,7 @@ if [ "$VNC" == "Y" ]; then
     export DISPLAY
 fi
 
-AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM -Dgo.agent.log.dir=$GO_AGENT_LOG_DIR $GO_AGENT_SYSTEM_PROPERTIES"
+AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM -Dgocd.agent.log.dir=$GO_AGENT_LOG_DIR $GO_AGENT_SYSTEM_PROPERTIES"
 
 
 if [ "$TMPDIR" != "" ]; then
@@ -141,9 +141,9 @@ eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
 AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")
 
 eval stringToArgsArray "$AGENT_BOOTSTRAPPER_JVM_ARGS"
-AGENT_BOOTSTRAPPER_JVM_ARGS=("-Dgo.agent.log.dir=$GO_AGENT_LOG_DIR")
+AGENT_BOOTSTRAPPER_JVM_ARGS=("-Dgocd.agent.log.dir=$GO_AGENT_LOG_DIR")
 if [ "$DAEMON" == "Y" ]; then
-  AGENT_BOOTSTRAPPER_JVM_ARGS+=("-Dgo.redirect.stdout.to.file=$STDOUT_LOG_FILE")
+  AGENT_BOOTSTRAPPER_JVM_ARGS+=("-Dgocd.redirect.stdout.to.file=$STDOUT_LOG_FILE")
 fi
 
 AGENT_BOOTSTRAPPER_JVM_ARGS+=("${_stringToArgs[@]}")

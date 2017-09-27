@@ -117,7 +117,7 @@ fi
 SERVER_STARTUP_ARGS=("-server")
 
 if [ "$DAEMON" == "Y" ]; then
-  SERVER_STARTUP_ARGS+=("-Dgo.redirect.stdout.to.file=$STDOUT_LOG_FILE")
+  SERVER_STARTUP_ARGS+=("-Dgocd.redirect.stdout.to.file=$STDOUT_LOG_FILE")
 fi
 
 if [ "$TMPDIR" != "" ]; then

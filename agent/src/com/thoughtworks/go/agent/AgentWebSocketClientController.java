@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildVariables;
@@ -74,8 +75,9 @@ public class AgentWebSocketClientController extends AgentController {
                                           SystemEnvironment systemEnvironment, PluginManager pluginManager,
                                           PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension,
                                           TaskExtension taskExtension, HttpService httpService,
-                                          WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler, TimeProvider timeProvider) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, timeProvider);
+                                          WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler,
+                                          TimeProvider timeProvider, AgentHealthHolder agentHealthHolder) {
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, timeProvider, agentHealthHolder);
         this.server = server;
         this.manipulator = manipulator;
         this.packageRepositoryExtension = packageRepositoryExtension;
@@ -231,7 +233,10 @@ public class AgentWebSocketClientController extends AgentController {
         AgentIdentifier agent = agentIdentifier();
         LOG.trace("{} is pinging server [{}]", agent, server);
         getAgentRuntimeInfo().refreshUsableSpace();
-        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())));
+        if (webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())))) {
+            pingSuccess();
+        }
+
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 

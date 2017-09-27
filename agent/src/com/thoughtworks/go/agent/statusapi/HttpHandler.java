@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.agent.statusapi;
 
-public interface AgentRegistry {
-    String uuid();
-    String serverBaseUrl();
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
+
+abstract class HttpHandler {
+    NanoHTTPD.Response process() {
+        if (isPassed()) {
+            return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/plain; charset=utf-8", "OK!");
+        } else {
+            return NanoHTTPD.newFixedLengthResponse(Status.SERVICE_UNAVAILABLE, "text/plain; charset=utf-8", "Bad!");
+        }
+    }
+
+    protected abstract boolean isPassed();
 }

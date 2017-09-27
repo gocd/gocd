@@ -433,7 +433,7 @@ public class AgentWebSocketClientControllerTest {
                 scmExtension,
                 taskExtension,
                 httpService,
-                webSocketClientHandler, webSocketSessionHandler, timeProvider);
+                webSocketClientHandler, webSocketSessionHandler, timeProvider, null);
         return controller;
     }
 }

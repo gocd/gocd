@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -52,6 +53,7 @@ public class AgentControllerFactory {
     private final WebSocketSessionHandler sessionHandler;
     private TimeProvider timeProvider;
     private static final Logger LOG = LoggerFactory.getLogger(AgentControllerFactory.class);
+    private final AgentHealthHolder agentHealthHolder;
 
     @Autowired
     public AgentControllerFactory(
@@ -69,7 +71,8 @@ public class AgentControllerFactory {
             HttpService httpService,
             WebSocketClientHandler webSocketClientHandler,
             WebSocketSessionHandler sessionHandler,
-            TimeProvider timeProvider) {
+            TimeProvider timeProvider,
+            AgentHealthHolder agentHealthHolder) {
         this.server = server;
         this.manipulator = manipulator;
         this.pluginManager = pluginManager;
@@ -84,6 +87,7 @@ public class AgentControllerFactory {
         this.httpService = httpService;
         this.webSocketClientHandler = webSocketClientHandler;
         this.sessionHandler = sessionHandler;
+        this.agentHealthHolder = agentHealthHolder;
         this.timeProvider = timeProvider;
     }
 
@@ -102,7 +106,11 @@ public class AgentControllerFactory {
                     packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
-                    httpService, webSocketClientHandler, sessionHandler, timeProvider);
+                    httpService,
+                    webSocketClientHandler,
+                    sessionHandler,
+                    timeProvider,
+                    agentHealthHolder);
         } else {
             LOG.info("Connecting to server using HTTP(S)");
             return new AgentHTTPClientController(
@@ -117,7 +125,8 @@ public class AgentControllerFactory {
                     packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
-                    timeProvider);
+                    timeProvider,
+                    agentHealthHolder);
         }
     }
 }

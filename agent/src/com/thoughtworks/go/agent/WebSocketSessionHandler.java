@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class WebSocketSessionHandler {
         }
     }
 
-    void sendAndWaitForAcknowledgement(Message message) {
+    boolean sendAndWaitForAcknowledgement(Message message) {
         final CountDownLatch wait = new CountDownLatch(1);
         sendWithCallback(message, new MessageCallback() {
             @Override
@@ -92,10 +92,11 @@ public class WebSocketSessionHandler {
             }
         });
         try {
-            wait.await(systemEnvironment.getWebsocketAckMessageTimeout(), TimeUnit.MILLISECONDS);
+            return wait.await(systemEnvironment.getWebsocketAckMessageTimeout(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             bomb(e);
         }
+        return false;
     }
 
     private void sendWithCallback(Message message, MessageCallback callback) {

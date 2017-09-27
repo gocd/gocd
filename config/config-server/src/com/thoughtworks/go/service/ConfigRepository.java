@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -174,6 +175,8 @@ public class ConfigRepository {
                 RevCommit revision;
                 try {
                     revision = getCurrentRevCommit();
+                } catch (NoHeadException e) {
+                    return null;
                 } catch (GitAPIException e) {
                     LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
                     return null;
@@ -187,6 +190,10 @@ public class ConfigRepository {
     public RevCommit getCurrentRevCommit() throws GitAPIException {
         try {
             return revisions().iterator().next();
+        } catch (NoHeadException e) {
+            // don't log scary exception
+            LOGGER.warn("[CONFIG REPOSITORY] No head exists in the config repository.");
+            throw e;
         } catch (GitAPIException e) {
             LOGGER.error("[CONFIG REPOSITORY] Could not fetch latest commit id", e);
             throw e;

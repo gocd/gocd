@@ -52,7 +52,8 @@ public interface PluginInfoBuilder<T extends PluginInfo> {
             }
             pluggableInstanceSettings = new PluggableInstanceSettings(configurations(pluginSettingsConfiguration), new PluginView(pluginSettingsView));
         } catch (Exception e) {
-            LOGGER.warn("Plugin settings configuration and view could not be retrieved. May be because the plugin doesn't have any plugin settings", e);
+            LOGGER.error("Failed to fetch Plugin Settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", descriptor.id());
+            LOGGER.debug(null, e);
         }
         return pluggableInstanceSettings;
     }

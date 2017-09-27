@@ -37,6 +37,8 @@ public class GoServer {
     static {
         System.setProperty("jruby.compile.invokedynamic", "false");
         System.setProperty("jruby.ji.objectProxyCache", "false");
+        System.setProperty("jruby.rack.logging", "slf4j");
+        System.setProperty("jruby.rack.logging.name", "com.thoughtworks.go.server.Rails");
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);

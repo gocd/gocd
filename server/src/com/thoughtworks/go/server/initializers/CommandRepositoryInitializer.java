@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_COMMAND_SNIPPETS_ZIP;
@@ -61,7 +62,8 @@ public class CommandRepositoryInitializer implements Initializer {
         } catch (Exception e) {
             String message = "Unable to upgrade command repository located at " + defaultDirectory.getAbsolutePath() + ". Message: " + e.getMessage();
             serverHealthService.update(ServerHealthState.error("Command Repository", message, HealthStateType.commandRepositoryUpgradeIssue()));
-            LOG.error("[Command Repository] {}", message, e);
+            LOG.error("[Command Repository] {}", message);
+            LOG.debug(null, e);
         }
     }
 
@@ -94,7 +96,11 @@ public class CommandRepositoryInitializer implements Initializer {
     }
 
     ZipInputStream getPackagedRepositoryZipStream() {
-        return new ZipInputStream(this.getClass().getResourceAsStream(systemEnvironment.get(DEFAULT_COMMAND_SNIPPETS_ZIP)));
+        InputStream resourceAsStream = this.getClass().getResourceAsStream(systemEnvironment.get(DEFAULT_COMMAND_SNIPPETS_ZIP));
+        if (resourceAsStream == null) {
+            throw new RuntimeException("Could not find default command snippets zip on classpath.");
+        }
+        return new ZipInputStream(resourceAsStream);
     }
 
 }

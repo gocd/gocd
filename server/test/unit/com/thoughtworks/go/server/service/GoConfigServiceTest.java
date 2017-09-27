@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
@@ -1214,7 +1215,10 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineConfig());
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setOrigin(new FileConfigOrigin());
+        pipeline.setName("pipeline1");
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
         when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
         when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
 
@@ -1226,7 +1230,7 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new PipelineNotFoundException("Not Found"));
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new PipelineNotFoundException("Not found."));
 
         assertFalse(goConfigService.canEditPipeline("non_existing_pipeline", null));
     }
@@ -1236,7 +1240,10 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineConfig());
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setOrigin(new FileConfigOrigin());
+        pipeline.setName("pipeline1");
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
         BasicCruiseConfig basicCruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
         when(cruiseConfig.getGroups()).thenReturn(basicCruiseConfig.getGroups());
         when(cruiseConfig.findGroup("group1")).thenReturn(mock(PipelineConfigs.class));
@@ -1244,6 +1251,21 @@ public class GoConfigServiceTest {
         when(cruiseConfig.server()).thenReturn(new ServerConfig());
 
         assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("view_user")));
+    }
+
+    @Test
+    public void shouldNotAllowEditOfConfigRepoPipelines() throws Exception {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        when(goConfigDao.load()).thenReturn(cruiseConfig);
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("pipeline1");
+        pipeline.setOrigin(new RepoConfigOrigin());
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
+        when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
+        when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
+
+        assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

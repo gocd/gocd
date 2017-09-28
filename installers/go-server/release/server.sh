@@ -92,6 +92,8 @@ else
   mkdir -p "${GO_SERVER_LOG_DIR}"
 fi
 
+export GO_SERVER_LOG_DIR
+
 STDOUT_LOG_FILE="${GO_SERVER_LOG_DIR}/go-server.out.log"
 
 if [ "$1" == "service_mode" ] && [ -d "/var/run/go-server" ]; then

@@ -78,8 +78,8 @@ describe ApiV3::Admin::TemplatesController do
         login_as_admin
 
         templates = TemplateToPipelines.new(CaseInsensitiveString.new("template"), true, true)
-        templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
-        templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
+        templates.add(PipelineEditabilityInfo.new(CaseInsensitiveString.new("pipeline1"), true, true))
+        templates.add(PipelineEditabilityInfo.new(CaseInsensitiveString.new("pipeline2"), false, true))
 
         expect(@template_config_service).to receive(:getTemplatesList).and_return([templates])
 

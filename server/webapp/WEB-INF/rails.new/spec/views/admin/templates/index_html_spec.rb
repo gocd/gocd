@@ -39,7 +39,7 @@ describe "admin/templates/index.html.erb" do
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     @go_config_service = double('go_config_service')
     view.stub(:go_config_service).and_return(@go_config_service)
-    allow(@go_config_service).to receive(:isPipelineEditableViaUI).and_return(true)
+    allow(@go_config_service).to receive(:isPipelineEditable).and_return(true)
     set(cruise_config, "md5", "abcd1234")
   end
 
@@ -213,7 +213,7 @@ describe "admin/templates/index.html.erb" do
   it 'should display names of config repo pipelines using the template for an admin' do
     view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(true)
-    allow(@go_config_service).to receive(:isPipelineEditableViaUI).with('pipeline2').and_return(false)
+    allow(@go_config_service).to receive(:isPipelineEditable).with('pipeline2').and_return(false)
 
     render
 

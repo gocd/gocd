@@ -241,8 +241,8 @@ module ApplicationHelper
     security_service.isAuthorizedToViewTemplates(current_user)
   end
 
-  def is_origin_local? pipeline_name
-    go_config_service.isPipelineEditableViaUI(pipeline_name.to_s)
+  def is_pipeline_editable? pipeline_name
+    go_config_service.isPipelineEditable(pipeline_name.to_s)
   end
 
 

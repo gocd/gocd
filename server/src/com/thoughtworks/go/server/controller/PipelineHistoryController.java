@@ -82,7 +82,7 @@ public class PipelineHistoryController {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             model.put("pipelineName", pipelineConfig.name());
             model.put("l", localizer);
-            model.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(pipelineName));
+            model.put("isEditableViaUI", goConfigService.isPipelineEditable(pipelineName));
             return new ModelAndView("pipeline/pipeline_history", model);
         } catch (PipelineNotFoundException e) {
             model.put("errorMessage", e.getMessage());

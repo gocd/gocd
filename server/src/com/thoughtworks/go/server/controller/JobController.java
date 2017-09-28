@@ -125,7 +125,7 @@ public class JobController {
         data.put("presenter", presenter);
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
         data.put("l", localizer);
-        data.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(jobDetail.getPipelineName()));
+        data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
         if (StringUtils.isNotBlank(elasticProfilePluginId)) {
             data.put("elasticProfilePluginId", elasticProfilePluginId);

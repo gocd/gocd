@@ -101,7 +101,7 @@ public class PipelineHistoryServiceTest {
     public void setUp() {
         initMocks(this);
         when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(true);
-        when(goConfigService.isPipelineEditableViaUI(any(String.class))).thenReturn(true);
+        when(goConfigService.isPipelineEditable(any(String.class))).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
         pipelineHistoryService = new PipelineHistoryService(pipelineDao, stageDao, goConfigService, securityService, scheduleService,
                 mock(MaterialRepository.class),
@@ -274,7 +274,7 @@ public class PipelineHistoryServiceTest {
 
     @Test
     public void shouldRestrictAdminPermissionOnRemotePipelines() throws Exception {
-        when(goConfigService.isPipelineEditableViaUI(any(String.class))).thenReturn(false);
+        when(goConfigService.isPipelineEditable(any(String.class))).thenReturn(false);
         Username jez = new Username(new CaseInsensitiveString("jez"));
         setupExpectationsForAllActivePipelinesWithTwoGroups(jez);
         when(goConfigService.isUserAdminOfGroup(jez.getUsername(), "defaultGroup")).thenReturn(true);

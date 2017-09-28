@@ -981,10 +981,17 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    public boolean isPipelineEditableViaUI(String pipelineName) {
-        PipelineConfig pipelineConfig = this.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        if (pipelineConfig == null)
+    public boolean isPipelineEditable(String pipelineName) {
+        return isPipelineEditable(new CaseInsensitiveString(pipelineName));
+    }
+
+    public boolean isPipelineEditable(CaseInsensitiveString pipelineName) {
+        PipelineConfig pipelineConfig;
+        try {
+            pipelineConfig = pipelineConfigNamed(pipelineName);
+        } catch (PipelineNotFoundException e) {
             return false;
+        }
         return isOriginLocal(pipelineConfig.getOrigin());
     }
 

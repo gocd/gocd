@@ -87,6 +87,8 @@ public class TemplateConfigServiceTest {
         Username admin = new Username("admin");
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.isPipelineEditable(new CaseInsensitiveString("p1"))).thenReturn(true);
+        when(goConfigService.isPipelineEditable(new CaseInsensitiveString("p2"))).thenReturn(true);
         when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), admin)).thenReturn(true);
         when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t1"), admin)).thenReturn(true);
@@ -95,10 +97,10 @@ public class TemplateConfigServiceTest {
 
         List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
         TemplateToPipelines template1 = new TemplateToPipelines(new CaseInsensitiveString("t1"), true, true);
-        template1.add(new PipelineWithAuthorization(new CaseInsensitiveString("p1"), true));
+        template1.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p1"), true, true));
         templateToPipelines.add(template1);
         TemplateToPipelines template2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), true, true);
-        template2.add(new PipelineWithAuthorization(new CaseInsensitiveString("p2"), true));
+        template2.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p2"), true, true));
         templateToPipelines.add(template2);
 
         assertThat(service.getTemplatesList(admin), is(templateToPipelines));
@@ -215,11 +217,12 @@ public class TemplateConfigServiceTest {
 
         Username groupAdminUser = new Username(groupAdmin);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.isPipelineEditable(new CaseInsensitiveString("p1"))).thenReturn(true);
         when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), groupAdminUser)).thenReturn(true);
 
         List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
         TemplateToPipelines t1 = new TemplateToPipelines(new CaseInsensitiveString("t1"), false, false);
-        t1.add(new PipelineWithAuthorization(new CaseInsensitiveString("p1"), true));
+        t1.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p1"), true, true));
         templateToPipelines.add(t1);
 
         assertThat(service.getTemplatesList(groupAdminUser), is(templateToPipelines));

@@ -37,6 +37,9 @@ describe "admin/templates/index.html.erb" do
     allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(false)
 
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
+    @go_config_service = double('go_config_service')
+    view.stub(:go_config_service).and_return(@go_config_service)
+    allow(@go_config_service).to receive(:isPipelineEditableViaUI).and_return(true)
     set(cruise_config, "md5", "abcd1234")
   end
 
@@ -203,6 +206,37 @@ describe "admin/templates/index.html.erb" do
       all_the_templates[2].tap do |template|
         expect(template).to have_selector("h2", :text => "template3")
         expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
+      end
+    end
+  end
+
+  it 'should display names of config repo pipelines using the template for an admin' do
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
+    view.stub(:is_user_an_admin?).and_return(true)
+    allow(@go_config_service).to receive(:isPipelineEditableViaUI).with('pipeline2').and_return(false)
+
+    render
+
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
+
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find("#template_container_template1").tap do |template_container|
+        expect(template_container).to have_selector("h2", :text => "template1")
+        template_container.find("table").tap do |table|
+          table.find("thead tr.pipeline").tap do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
+          end
+          table.find("tbody").tap do |tbody|
+            expect(tbody).to have_selector("tr.pipeline td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}']")
+
+            tbody.find("tr.pipeline td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']").tap do |td|
+              expect(td).to have_selector("span", :text => "Edit")
+            end
+            expect(tbody).to have_selector("tr.pipeline td span", text: 'pipeline2')
+            expect(tbody).to have_selector("tr.pipeline td span.edit_icon_disabled[title='Cannot edit pipeline pipeline2. Either you are unauthorized to edit the pipeline or the pipeline is defined in configuration repository.']")
+          end
+        end
       end
     end
   end

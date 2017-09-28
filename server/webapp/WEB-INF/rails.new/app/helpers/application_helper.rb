@@ -241,6 +241,11 @@ module ApplicationHelper
     security_service.isAuthorizedToViewTemplates(current_user)
   end
 
+  def is_origin_local? pipeline_name
+    go_config_service.isPipelineEditableViaUI(pipeline_name.to_s)
+  end
+
+
   def render_json(options={})
     options = options.merge({locals: {scope: {}}}) unless options.has_key? :locals
     render(options).to_json

@@ -17,14 +17,15 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @package_repository_service = double('package_repository_service')
-    controller.stub(:package_repository_service).and_return(@package_repository_service)
+    allow(controller).to receive(:package_repository_service).and_return(@package_repository_service)
 
     @package_definition_service = double('package_definition_service')
-    controller.stub(:package_definition_service).and_return(@package_definition_service)
+    allow(controller).to receive(:package_definition_service).and_return(@package_definition_service)
   end
 
   describe 'repository_check_connection' do
@@ -90,7 +91,7 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
             }
           ]
         }
-        @package_repository_service.should_receive(:checkConnection).with(an_instance_of(PackageRepository), result) do |repository, result|
+        expect(@package_repository_service).to receive(:checkConnection).with(an_instance_of(PackageRepository), result) do |repository, result|
           result.setMessage(LocalizedMessage::string("CONNECTION_OK"))
         end
 
@@ -166,9 +167,9 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
       it 'should return the successful response for a valid package repo' do
         package_repository = PackageRepository.new
         package_repository.setPluginConfiguration(PluginConfiguration.new("yum", nil))
-        @package_repository_service.should_receive(:getPackageRepository).with(anything).and_return(package_repository)
+        expect(@package_repository_service).to receive(:getPackageRepository).with(anything).and_return(package_repository)
         result = HttpLocalizedOperationResult.new
-        @package_definition_service.should_receive(:checkConnection).with(an_instance_of(PackageDefinition), result) do |package_definition, result|
+        expect(@package_definition_service).to receive(:checkConnection).with(an_instance_of(PackageDefinition), result) do |package_definition, result|
           result.setMessage(LocalizedMessage::string("CONNECTION_OK"))
         end
 
@@ -179,7 +180,7 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
 
       it 'should error out if repository is not found' do
 
-        @package_repository_service.should_receive(:getPackageRepository).with(anything).and_return(nil)
+        expect(@package_repository_service).to receive(:getPackageRepository).with(anything).and_return(nil)
 
         post_with_api_header :package_check_connection, package_repository_check_connection: @package_definition
         expect(response).to have_api_message_response(404, "Either the resource you requested was not found, or you are not authorized to perform this action.")

@@ -37,7 +37,7 @@ describe "comparison/show.html.erb" do
   end
 
   def ensure_show_bisect_message_is_shown parent_id
-    view.should_receive(:compare_pipelines_path).exactly(1).with(:show_bisect => true).and_return("http://foo.bar?baz=quux")
+    expect(view).to receive(:compare_pipelines_path).exactly(1).with(:show_bisect => true).and_return("http://foo.bar?baz=quux")
     render :template => 'comparison/show.html.erb'
 
     response_body = Capybara.string(response.body)

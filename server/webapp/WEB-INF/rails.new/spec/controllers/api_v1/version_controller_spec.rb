@@ -22,7 +22,7 @@ describe ApiV1::VersionController do
   describe :show do
     it 'should render the current gocd server version for admins' do
       actual_json = {go_version: '16.6.0', go_build_number: '235', git_sha: '69ef4921709a84831913d9fa7e750fbf840f213c'}
-      ApiV1::VersionRepresenter.should_receive(:version).and_return(OpenStruct.new(actual_json))
+      expect(ApiV1::VersionRepresenter).to receive(:version).and_return(OpenStruct.new(actual_json))
 
       get_with_api_header :show
       expect(response).to be_ok

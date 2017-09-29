@@ -31,13 +31,13 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:pipeline_name] = "my-pipeline"
     @params[:stage_parent] = "pipelines"
-    @security_service.should_receive(:isUserAdminOfGroup).with(CaseInsensitiveString.new("loser"), PipelineConfigs::DEFAULT_GROUP).and_return(false)
+    expect(@security_service).to receive(:isUserAdminOfGroup).with(CaseInsensitiveString.new("loser"), PipelineConfigs::DEFAULT_GROUP).and_return(false)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_false
-    result.httpCode().should == 401
-    result.message(Spring.bean("localizer")).should == "Unauthorized to edit my-pipeline pipeline."
+    expect(result.isSuccessful()).to be_falsey
+    expect(result.httpCode()).to eq(401)
+    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit my-pipeline pipeline.")
   end
 
   it "should return successful result if user is a group admin of given pipeline" do
@@ -45,11 +45,11 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:pipeline_name] = "my-pipeline"
     @params[:stage_parent] = "pipelines"
-    @security_service.should_receive(:isUserAdminOfGroup).with(CaseInsensitiveString.new("loser"), PipelineConfigs::DEFAULT_GROUP).and_return(true)
+    expect(@security_service).to receive(:isUserAdminOfGroup).with(CaseInsensitiveString.new("loser"), PipelineConfigs::DEFAULT_GROUP).and_return(true)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_true
+    expect(result.isSuccessful()).to be_truthy
     end
 
    it "should return successful result when user is trying to edit a template and user is template admin or super admin" do
@@ -57,11 +57,11 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:pipeline_name] = "my-pipeline"
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("my-pipeline"), Username.new(CaseInsensitiveString.new("anonymous"))).and_return(true)
+    expect(@security_service).to receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("my-pipeline"), Username.new(CaseInsensitiveString.new("anonymous"))).and_return(true)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_true
+    expect(result.isSuccessful()).to be_truthy
    end
 
   it "should return unsuccessful result editing a template and user is not super admin" do
@@ -69,26 +69,26 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:pipeline_name] = "my-pipeline"
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("my-pipeline"), Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
+    expect(@security_service).to receive(:isAuthorizedToEditTemplate).with(CaseInsensitiveString.new("my-pipeline"), Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_false
-    result.httpCode().should == 401
-    result.message(Spring.bean("localizer")).should == "Unauthorized to edit my-pipeline pipeline."
+    expect(result.isSuccessful()).to be_falsey
+    expect(result.httpCode()).to eq(401)
+    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit my-pipeline pipeline.")
   end
 
   it "should give a generic unauthorized message when pipeline name and group name are not available" do
     cruise_config = GoConfigMother.configWithPipelines(["his-pipeline", "my-pipeline", "her-pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
+    expect(@security_service).to receive(:isAuthorizedToEditTemplate).with(anything, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_false
-    result.httpCode().should == 401
-    result.message(Spring.bean("localizer")).should == "Unauthorized to edit."
+    expect(result.isSuccessful()).to be_falsey
+    expect(result.httpCode()).to eq(401)
+    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit.")
   end
 
   it "should return unsuccessful result if user is not a group admin of given pipeline group" do
@@ -96,12 +96,12 @@ describe ConfigUpdate::CheckCanEditPipelineOrTemplate do
     result = HttpLocalizedOperationResult.new
     @params[:group_name] = "my-pipeline-group"
     @params[:stage_parent] = "templates"
-    @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
+    expect(@security_service).to receive(:isAuthorizedToEditTemplate).with(anything, Username.new(CaseInsensitiveString.new("anonymous"))).and_return(false)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_false
-    result.httpCode().should == 401
-    result.message(Spring.bean("localizer")).should == "Unauthorized to edit 'my-pipeline-group' group."
+    expect(result.isSuccessful()).to be_falsey
+    expect(result.httpCode()).to eq(401)
+    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit 'my-pipeline-group' group.")
   end
 end

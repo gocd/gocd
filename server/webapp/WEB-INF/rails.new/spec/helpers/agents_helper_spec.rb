@@ -136,7 +136,7 @@ describe AgentsHelper do
   it "should call security service to check if user has view or operate permission" do
     should_receive(:current_user).and_return(:user)
     should_receive(:security_service).and_return(security_service = Object.new)
-    security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(:user, "uat").and_return(true)
+    expect(security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(:user, "uat").and_return(true)
 
     expect(has_view_or_operate_permission_on_pipeline?("uat/1/dist/2/build")).to eq(true)
   end

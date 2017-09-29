@@ -22,26 +22,26 @@ describe ComparisonHelper do
   describe "pipeline_compare_href" do
     it "should construct url for the given pipeline compare parameters" do
       actual = pipeline_compare_href("pipeline-name", 5444, 6666)
-      actual.should == compare_pipelines_path(:pipeline_name => 'pipeline-name', :from_counter => 5444, :to_counter => 6666)
+      expect(actual).to eq(compare_pipelines_path(:pipeline_name => 'pipeline-name', :from_counter => 5444, :to_counter => 6666))
     end
 
      it "should construct url by switching 'from' and 'to' counters if 'from' is greater than 'to'" do
       actual = pipeline_compare_href("pipeline-name", 6666, 5444)
-      actual.should == compare_pipelines_path(:pipeline_name => 'pipeline-name', :from_counter => 5444, :to_counter => 6666)
+      expect(actual).to eq(compare_pipelines_path(:pipeline_name => 'pipeline-name', :from_counter => 5444, :to_counter => 6666))
     end
   end
 
   describe "any_match?" do
     it "should match in a case insensitive manner" do
-      any_match?("foo", "AFOOB").should == true
+      expect(any_match?("foo", "AFOOB")).to eq(true)
     end
 
     it "should match multiple args" do
-      any_match?("foo", "BAR", "FOOBAR").should == true
+      expect(any_match?("foo", "BAR", "FOOBAR")).to eq(true)
     end
 
     it "should ignore nils" do
-      any_match?("foo", "BAR", nil, "FOOBAR").should == true
+      expect(any_match?("foo", "BAR", nil, "FOOBAR")).to eq(true)
     end
   end
 end

@@ -39,87 +39,87 @@ module ApiSpecHelper
 
   def login_as_pipeline_group_Non_Admin_user
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdminOfGroup).and_return(false)
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
   end
 
   def login_as_pipeline_group_admin_user(group_name)
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdminOfGroup).with(@user.getUsername, group_name).and_return(true)
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername, group_name).and_return(true)
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
   end
 
   def login_as_user
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserAdminOfGroup).with(anything, anything).and_return(false)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewTemplates).with(@user).and_return(false)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isUserGroupAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, anything).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(false)
   end
 
   def allow_current_user_to_access_pipeline(pipeline_name)
-    @security_service.stub(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(true)
+    allow(@security_service).to receive(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(true)
   end
 
   def allow_current_user_to_not_access_pipeline(pipeline_name)
-    @security_service.stub(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(false)
+    allow(@security_service).to receive(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(false)
   end
 
   def disable_security
-    controller.stub(:security_service).and_return(@security_service = double('security-service'))
-    @security_service.stub(:isSecurityEnabled).and_return(false)
-    @security_service.stub(:isUserAdmin).and_return(true)
+    allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
+    allow(@security_service).to receive(:isSecurityEnabled).and_return(false)
+    allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
 
   def enable_security
-    controller.stub(:security_service).and_return(@security_service = double('security-service'))
-    @security_service.stub(:isSecurityEnabled).and_return(true)
+    allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
+    allow(@security_service).to receive(:isSecurityEnabled).and_return(true)
   end
 
   def login_as_admin
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
-    @security_service.stub(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
-    @security_service.stub(:isAuthorizedToViewTemplates).with(@user).and_return(true)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(anything).and_return(true)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(anything).and_return(true)
   end
 
   def login_as_group_admin
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(true)
-    @security_service.stub(:isUserAdminOfGroup).with(anything, anything).and_return(true)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isUserGroupAdmin).with(@user).and_return(true)
+    allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, anything).and_return(true)
   end
 
   def login_as_template_admin
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(true)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
-    @security_service.stub(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
-    @security_service.stub(:isAuthorizedToViewTemplates).with(@user).and_return(true)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isUserGroupAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(true)
 
   end
 
   def login_as_anonymous
-    controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewTemplates).with(@user).and_return(false)
+    allow(controller).to receive(:current_user).and_return(@user = Username::ANONYMOUS)
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isUserGroupAdmin).with(@user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
+    allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(false)
   end
 
   def actual_response

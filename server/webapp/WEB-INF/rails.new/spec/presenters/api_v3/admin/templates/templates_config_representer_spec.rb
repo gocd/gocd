@@ -30,6 +30,6 @@ describe ApiV3::Admin::Templates::TemplatesConfigRepresenter do
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/templates/:template_name')
     actual_json.delete(:_links)
 
-    actual_json.fetch(:_embedded).should == {templates: [ApiV3::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)]}
+    expect(actual_json.fetch(:_embedded)).to eq({templates: [ApiV3::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)]})
   end
 end

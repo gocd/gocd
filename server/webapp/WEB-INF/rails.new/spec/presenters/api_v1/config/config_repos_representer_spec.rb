@@ -27,7 +27,7 @@ describe ApiV1::Config::ConfigReposRepresenter do
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/config_repos')
-      actual_json.fetch(:_embedded).should == {:config_repos => [ApiV1::Config::ConfigRepoRepresenter.new(config_repo_config).to_hash(url_builder: UrlBuilder.new)]}
+      expect(actual_json.fetch(:_embedded)).to eq({:config_repos => [ApiV1::Config::ConfigRepoRepresenter.new(config_repo_config).to_hash(url_builder: UrlBuilder.new)]})
     end
   end
 end

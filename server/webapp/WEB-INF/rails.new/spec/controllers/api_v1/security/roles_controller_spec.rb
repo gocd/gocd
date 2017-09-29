@@ -17,13 +17,14 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Security::RolesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @service = double('role_config_service')
     @entity_hashing_service = double('entity_hashing_service')
-    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-    controller.stub(:role_config_service).and_return(@service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(controller).to receive(:role_config_service).and_return(@service)
   end
 
   describe :index do
@@ -70,7 +71,7 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should list all security auth configs' do
         role = PluginRoleConfig.new('foo', 'ldap')
-        @service.should_receive(:listAll).and_return([role])
+        expect(@service).to receive(:listAll).and_return([role])
 
         get_with_api_header :index
 
@@ -82,7 +83,7 @@ describe ApiV1::Admin::Security::RolesController do
         plugin_role_config = PluginRoleConfig.new('foo', 'ldap')
         gocd_role_config = RoleConfig.new(CaseInsensitiveString.new('bar'))
 
-        @service.should_receive(:listAll).and_return([plugin_role_config, gocd_role_config])
+        expect(@service).to receive(:listAll).and_return([plugin_role_config, gocd_role_config])
 
         get_with_api_header :index, type: 'plugin'
 
@@ -122,7 +123,7 @@ describe ApiV1::Admin::Security::RolesController do
   describe :show do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
 
       it 'should allow all with security disabled' do
@@ -168,8 +169,8 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should render the security auth config of specified name' do
         role = PluginRoleConfig.new('blackbird', 'ldap')
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginRoleConfig)).and_return('md5')
-        @service.should_receive(:findRole).with('blackbird').and_return(role)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginRoleConfig)).and_return('md5')
+        expect(@service).to receive(:findRole).with('blackbird').and_return(role)
 
         get_with_api_header :show, role_name: 'blackbird'
 
@@ -178,7 +179,7 @@ describe ApiV1::Admin::Security::RolesController do
       end
 
       it 'should return 404 if the security auth config does not exist' do
-        @service.should_receive(:findRole).with('non-existent-security-auth-config').and_return(nil)
+        expect(@service).to receive(:findRole).with('non-existent-security-auth-config').and_return(nil)
 
         get_with_api_header :show, role_name: 'non-existent-security-auth-config'
 
@@ -225,7 +226,7 @@ describe ApiV1::Admin::Security::RolesController do
   describe :create do
     describe :security do
       before :each do
-        @service.stub(:findRole).with(anything).and_return(nil)
+        allow(@service).to receive(:findRole).with(anything).and_return(nil)
       end
 
       it 'should allow all with security disabled' do
@@ -271,9 +272,9 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should deserialize auth config from given parameters' do
         role = PluginRoleConfig.new('blackbird', 'blackbird', ConfigurationPropertyMother.create('foo', false, 'bar'))
-        controller.stub(:etag_for).and_return('some-md5')
-        @service.should_receive(:findRole).with(anything).and_return(nil)
-        @service.should_receive(:create).with(anything, an_instance_of(PluginRoleConfig), an_instance_of(HttpLocalizedOperationResult))
+        allow(controller).to receive(:etag_for).and_return('some-md5')
+        expect(@service).to receive(:findRole).with(anything).and_return(nil)
+        expect(@service).to receive(:create).with(anything, an_instance_of(PluginRoleConfig), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, role: plugin_role_hash
 
         expect(response).to be_ok
@@ -282,13 +283,13 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should fail to save if there are validation errors' do
         result = double('HttpLocalizedOperationResult')
-        HttpLocalizedOperationResult.stub(:new).and_return(result)
-        result.stub(:isSuccessful).and_return(false)
-        result.stub(:message).with(anything()).and_return('Save failed')
-        result.stub(:httpCode).and_return(422)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+        allow(result).to receive(:isSuccessful).and_return(false)
+        allow(result).to receive(:message).with(anything()).and_return('Save failed')
+        allow(result).to receive(:httpCode).and_return(422)
 
-        @service.should_receive(:findRole).with(anything).and_return(nil)
-        @service.should_receive(:create).with(anything, an_instance_of(RoleConfig), result)
+        expect(@service).to receive(:findRole).with(anything).and_return(nil)
+        expect(@service).to receive(:create).with(anything, an_instance_of(RoleConfig), result)
 
         post_with_api_header :create, role: role_hash
 
@@ -296,7 +297,7 @@ describe ApiV1::Admin::Security::RolesController do
       end
 
       it 'should check for existence of role with same name' do
-        @service.should_receive(:findRole).with('blackbird').and_return(PluginRoleConfig.new)
+        expect(@service).to receive(:findRole).with('blackbird').and_return(PluginRoleConfig.new)
 
         post_with_api_header :create, role: role_hash
 
@@ -331,9 +332,9 @@ describe ApiV1::Admin::Security::RolesController do
   describe :update do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
-        controller.stub(:check_for_stale_request).and_return(nil)
-        controller.stub(:check_for_attempted_rename).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:check_for_attempted_rename).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -369,8 +370,8 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should not allow rename of auth config id' do
         role = PluginRoleConfig.new('blackbird', 'ldap')
-        controller.stub(:load_entity_from_config).and_return(role)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(role)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
 
         put_with_api_header :update, role_name: 'foo', role: plugin_role_hash
 
@@ -379,8 +380,8 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should fail update if etag does not match' do
         role = PluginRoleConfig.new('blackbird', 'ldap')
-        controller.stub(:load_entity_from_config).and_return(role)
-        controller.stub(:etag_for).and_return('another-etag')
+        allow(controller).to receive(:load_entity_from_config).and_return(role)
+        allow(controller).to receive(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = 'some-etag'
 
         put_with_api_header :update, role_name: 'blackbird', role: plugin_role_hash
@@ -391,10 +392,10 @@ describe ApiV1::Admin::Security::RolesController do
       it 'should proceed with update if etag matches' do
         controller.request.env['HTTP_IF_MATCH'] = %Q{"#{Digest::MD5.hexdigest('md5')}"}
         role = PluginRoleConfig.new('blackbird', 'blackbird', ConfigurationPropertyMother.create('foo', false, 'bar'))
-        controller.stub(:load_entity_from_config).twice.and_return(role)
+        allow(controller).to receive(:load_entity_from_config).twice.and_return(role)
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginRoleConfig)).exactly(3).times.and_return('md5')
-        @service.should_receive(:update).with(anything, 'md5', an_instance_of(PluginRoleConfig), anything)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginRoleConfig)).exactly(3).times.and_return('md5')
+        expect(@service).to receive(:update).with(anything, 'md5', an_instance_of(PluginRoleConfig), anything)
 
         put_with_api_header :update, role_name: 'blackbird', role: plugin_role_hash
 
@@ -440,7 +441,7 @@ describe ApiV1::Admin::Security::RolesController do
   describe :destroy do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -476,7 +477,7 @@ describe ApiV1::Admin::Security::RolesController do
       end
 
       it 'should raise an error if role is not found' do
-        @service.should_receive(:findRole).and_return(nil)
+        expect(@service).to receive(:findRole).and_return(nil)
 
         delete_with_api_header :destroy, role_name: 'foo'
 
@@ -485,9 +486,9 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should render the success message on deleting a role' do
         role = PluginRoleConfig.new('foo', 'ldap')
-        @service.should_receive(:findRole).and_return(role)
+        expect(@service).to receive(:findRole).and_return(role)
         result = HttpLocalizedOperationResult.new
-        @service.stub(:delete).with(anything, an_instance_of(PluginRoleConfig), result) do |user, role, result|
+        allow(@service).to receive(:delete).with(anything, an_instance_of(PluginRoleConfig), result) do |user, role, result|
           result.setMessage(LocalizedMessage::string('RESOURCE_DELETE_SUCCESSFUL', 'role', 'foo'))
         end
         delete_with_api_header :destroy, role_name: 'foo'
@@ -497,9 +498,9 @@ describe ApiV1::Admin::Security::RolesController do
 
       it 'should render the validation errors on failure to delete' do
         role = PluginRoleConfig.new('foo', 'ldap')
-        @service.should_receive(:findRole).and_return(role)
+        expect(@service).to receive(:findRole).and_return(role)
         result = HttpLocalizedOperationResult.new
-        @service.stub(:delete).with(anything, an_instance_of(PluginRoleConfig), result) do |user, role, result|
+        allow(@service).to receive(:delete).with(anything, an_instance_of(PluginRoleConfig), result) do |user, role, result|
           result.unprocessableEntity(LocalizedMessage::string('SAVE_FAILED_WITH_REASON', 'Validation failed'))
         end
         delete_with_api_header :destroy, role_name: 'foo'

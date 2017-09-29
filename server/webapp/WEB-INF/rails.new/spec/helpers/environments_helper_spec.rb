@@ -52,9 +52,9 @@ describe EnvironmentsHelper do
       list.add(first = Object.new)
       list.add(middle = Object.new)
       list.add(last = Object.new)
-      expect(is_last(list, first)).to be_false
-      expect(is_last(list, middle)).to be_false
-      expect(is_last(list, last)).to be_true
+      expect(is_last(list, first)).to be_falsey
+      expect(is_last(list, middle)).to be_falsey
+      expect(is_last(list, last)).to be_truthy
     end
   end
 end

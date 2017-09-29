@@ -20,7 +20,7 @@ require 'java'
 describe ApplicationController do
 
   before do
-    UserHelper.stub(:getUserId).and_return(1)
+    allow(UserHelper).to receive(:getUserId).and_return(1)
   end
 
   describe "error_handling" do
@@ -32,7 +32,7 @@ describe ApplicationController do
 
     it "should handle InvalidAuthenticityToken by redirecting to root_url" do
       exception = ActionController::InvalidAuthenticityToken.new
-      exception.should_receive(:backtrace).and_return([])
+      expect(exception).to receive(:backtrace).and_return([])
       nil.bomb rescue exception
 
       expect(Rails.logger).to receive(:error).with(anything)
@@ -111,7 +111,7 @@ describe ApplicationController do
     end
 
     it "should load flash_message_service" do
-      controller.flash_message_service.should be_a(com.thoughtworks.go.server.web.FlashMessageService)
+      expect(controller.flash_message_service).to be_a(com.thoughtworks.go.server.web.FlashMessageService)
     end
 
     it "should load user_search_service" do
@@ -142,7 +142,7 @@ describe ApplicationController do
       @controller.params[:hi] = "bye"
       @controller.params[:hello] = "world"
       @controller.params[:user] = {:name => "foo"}
-      expect(@controller.send(:default_as_empty_list)).to be_true
+      expect(@controller.send(:default_as_empty_list)).to be_truthy
       expect(@controller.params).to eq(HashWithIndifferentAccess.new({:hi => "bye", :hello => "world", :user => {:name => "foo"}, :foo => [], :bar => {:baz => []}, :quux => {:bang => {:boom => []}}}))
     end
 
@@ -157,20 +157,20 @@ describe ApplicationController do
   describe "config MD5 stuff" do
     it "should understand loaded config-file md5" do
       @controller.instance_variable_set('@cruise_config_md5', "md5_value")
-      @controller.send(:cruise_config_md5).should == "md5_value"
+      expect(@controller.send(:cruise_config_md5)).to eq("md5_value")
     end
 
     it "should understand loaded config-file md5" do
-      lambda do
+      expect do
         @controller.send(:cruise_config_md5)
-      end.should raise_error("md5 for config file has not been loaded yet")
+      end.to raise_error("md5 for config file has not been loaded yet")
     end
 
     it "should get servlet request" do
       expect(controller).to receive(:request).and_return(req = double('request'))
       expect(req).to receive(:env).and_return(env = {})
       env['java.servlet_request'] = :holy_cow
-      controller.send(:servlet_request).should == :holy_cow
+      expect(controller.send(:servlet_request)).to eq(:holy_cow)
     end
   end
 
@@ -195,8 +195,8 @@ describe ApplicationController do
 
       # These values are configured in the spec_helper's setup_base_urls method.
       # But, this controller puts them on the current thread.
-      Thread.current[:ssl_base_url].should == "https://ssl.host:443"
-      Thread.current[:base_url].should == "http://test.host"
+      expect(Thread.current[:ssl_base_url]).to eq("https://ssl.host:443")
+      expect(Thread.current[:base_url]).to eq("http://test.host")
     end
   end
 
@@ -231,12 +231,12 @@ describe ApplicationController do
         get "/anonymous/test_action"
       end
       config_service = stub_service(:go_config_service)
-      config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)
+      allow(config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)
     end
 
     it "should set the current user as @user on set_current_user" do
       username = Username.new(CaseInsensitiveString.new("bob"), "bobby")
-      UserHelper.should_receive(:getUserName).and_return(username)
+      expect(UserHelper).to receive(:getUserName).and_return(username)
 
       get :test_action
 
@@ -244,7 +244,7 @@ describe ApplicationController do
     end
 
     it "should set the current user entity id as @user_id on set_current_user" do
-      UserHelper.stub(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
+      allow(UserHelper).to receive(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
       session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId] = 123
 
       get :test_action
@@ -253,7 +253,7 @@ describe ApplicationController do
     end
 
     it "should set the current user entity id as nil on set_current_user when authentication is turned off" do
-      UserHelper.stub(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
+      allow(UserHelper).to receive(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
       session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId] = nil
 
       get :test_action
@@ -307,7 +307,7 @@ describe ApplicationController do
 
       it "should cache the url if options is an active-record object" do
         obj = TestObject.new
-        controller.should_receive(:test_object_url).with(obj).and_return("some-url")
+        expect(controller).to receive(:test_object_url).with(obj).and_return("some-url")
         expect(controller.url_for(obj)).to eq("some-url")
       end
 
@@ -349,7 +349,7 @@ describe ApplicationController do
             str.join("|")
           end
         end
-        stub_service(:server_config_service).stub(:siteUrlFor) do |url, _force_ssl|
+        allow(stub_service(:server_config_service)).to receive(:siteUrlFor) do |url, _force_ssl|
           url
         end
       end
@@ -365,27 +365,27 @@ describe ApplicationController do
 
       it "should cache the url based on options" do
         controller.params.clear
-        controller.url_for('foo' => 'foo', 'bar' => 'bar').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
-        controller.url_for('bar' => 'bar', 'foo' => 'foo').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
+        expect(controller.url_for('foo' => 'foo', 'bar' => 'bar')).to eq("1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host")
+        expect(controller.url_for('bar' => 'bar', 'foo' => 'foo')).to eq("1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host")
       end
 
       it "should cache the url based on params" do
-        controller.stub(:params).and_return(foo: "foo", bar: "bar")
+        allow(controller).to receive(:params).and_return(foo: "foo", bar: "bar")
         expect(controller.url_for).to eq("1 - bar=bar|foo=foo - only_path=true - http:// - test.host")
-        controller.stub(:params).and_return(bar: "bar", foo: "foo")
+        allow(controller).to receive(:params).and_return(bar: "bar", foo: "foo")
         expect(controller.url_for).to eq("1 - bar=bar|foo=foo - only_path=true - http:// - test.host")
       end
 
       it "should cache the url based on params and options" do
-        controller.stub(:params).and_return(bar: "bar", baz: "baz")
+        allow(controller).to receive(:params).and_return(bar: "bar", baz: "baz")
         expect(controller.url_for(foo: "foo", quux: "quux")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
 
-        controller.stub(:params).and_return(baz: "baz", bar: "bar")
+        allow(controller).to receive(:params).and_return(baz: "baz", bar: "bar")
         expect(controller.url_for(quux: "quux", foo: "foo")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
 
         expect(controller.url_for(foo: "foo")).to eq("2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host")
 
-        controller.stub(:params).and_return(bar: "bar")
+        allow(controller).to receive(:params).and_return(bar: "bar")
         expect(controller.url_for(foo: "foo")).to eq("3 - bar=bar - foo=foo|only_path=true - http:// - test.host")
       end
 
@@ -400,33 +400,33 @@ describe ApplicationController do
       end
 
       it "should cache the url based on host_and_port request reached on" do
-        controller.request.stub(:host_with_port).and_return("local-host:8153")
+        allow(controller.request).to receive(:host_with_port).and_return("local-host:8153")
         expect(controller.url_for(foo: "foo")).to eq("1 -  - foo=foo|only_path=true - http:// - local-host:8153")
-        controller.request.stub(:host_with_port).and_return("local-ghost:8154")
+        allow(controller.request).to receive(:host_with_port).and_return("local-ghost:8154")
         expect(controller.url_for(foo: "foo")).to eq("2 -  - foo=foo|only_path=true - http:// - local-ghost:8154")
-        controller.request.stub(:host_with_port).and_return("local-ghost:8153")
+        allow(controller.request).to receive(:host_with_port).and_return("local-ghost:8153")
         expect(controller.url_for(foo: "foo")).to eq("3 -  - foo=foo|only_path=true - http:// - local-ghost:8153")
       end
 
       it "should cache the url based on protocol request reached on" do
-        controller.request.stub(:host_with_port).and_return("host")
-        controller.request.stub(:protocol).and_return("http://")
+        allow(controller.request).to receive(:host_with_port).and_return("host")
+        allow(controller.request).to receive(:protocol).and_return("http://")
         expect(controller.url_for(foo: "foo")).to eq("1 -  - foo=foo|only_path=true - http:// - host")
 
-        controller.request.stub(:protocol).and_return("https://")
+        allow(controller.request).to receive(:protocol).and_return("https://")
         expect(controller.url_for(foo: "foo")).to eq("2 -  - foo=foo|only_path=true - https:// - host")
 
-        controller.request.stub(:protocol).and_return("spdy://")
+        allow(controller.request).to receive(:protocol).and_return("spdy://")
         expect(controller.url_for(foo: "foo")).to eq("3 -  - foo=foo|only_path=true - spdy:// - host")
       end
 
       it "should not mistake pipeline_counter and stage_counter for caching" do
-        controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
+        allow(controller).to receive(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
                                             "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
         expect(controller.url_for(format: "json")).to eq(
               "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host")
 
-        controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
+        allow(controller).to receive(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
                                             "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
         expect(controller.url_for(format: "json")).to eq(
               "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host")
@@ -434,7 +434,7 @@ describe ApplicationController do
 
       it "should sort symbols after string" do
         h = HashMapKey
-        [h.new(:pavan), h.new("pavan"), h.new("JJ"), h.new(:JJ)].sort.should == [h.new("JJ"), h.new("pavan"), h.new(:JJ), h.new(:pavan)]
+        expect([h.new(:pavan), h.new("pavan"), h.new("JJ"), h.new(:JJ)].sort).to eq([h.new("JJ"), h.new("pavan"), h.new(:JJ), h.new(:pavan)])
       end
 
       it "should contain flash message in the session upon redirect and forwards the params" do
@@ -476,11 +476,11 @@ describe ApplicationController do
         localhost = InetAddress.getLocalHost
         @controller.request.env["SERVER_NAME"] = localhost.getHostName
         @controller.request.env["REMOTE_ADDR"] = localhost.getHostAddress
-        expect(@controller.send(:request_from_localhost?)).to be_true
+        expect(@controller.send(:request_from_localhost?)).to be_truthy
 
         @controller.request.env["SERVER_NAME"] = localhost.getHostName
         @controller.request.env["REMOTE_ADDR"] = "8.8.8.8"
-        expect(@controller.send(:request_from_localhost?)).to be_false
+        expect(@controller.send(:request_from_localhost?)).to be_falsey
       end
     end
   end

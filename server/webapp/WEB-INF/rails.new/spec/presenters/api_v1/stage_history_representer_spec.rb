@@ -33,7 +33,7 @@ describe ApiV1::StageHistoryRepresenter do
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#get-stage-history')
 
     actual_json.delete(:_links)
-    actual_json.fetch(:_embedded).should == {:stages => [ApiV1::StageRepresenter.new(stage_model).to_hash(url_builder: UrlBuilder.new)]}
+    expect(actual_json.fetch(:_embedded)).to eq({:stages => [ApiV1::StageRepresenter.new(stage_model).to_hash(url_builder: UrlBuilder.new)]})
     actual_json.delete(:_embedded)
   end
 end

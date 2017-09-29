@@ -19,9 +19,9 @@ require 'spec_helper'
 describe AgentAutocompleteController do
 
   before :each do
-    controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
-    controller.stub(:environment_config_service).and_return(@environment_config_service = Object.new)
-    controller.stub(:agent_service).and_return(@agent_service = Object.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
+    allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = Object.new)
+    allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
   end
 
   describe :routes do
@@ -38,12 +38,12 @@ describe AgentAutocompleteController do
 
   describe :actions do
     before do
-      @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+      allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
     end
 
     describe :resource do
       it "should return all resources starting with given query string" do
-        @go_config_service.should_receive(:getResourceList).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
+        expect(@go_config_service).to receive(:getResourceList).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
         get "resource", :q => "li"
 
         expect(response.body).to eq("linux")
@@ -70,14 +70,14 @@ describe AgentAutocompleteController do
     describe :environment do
       it "should return all environments" do
         env_list = java.util.Arrays.asList([CaseInsensitiveString.new("prod"), CaseInsensitiveString.new("testing"), CaseInsensitiveString.new("staging")].to_java(CaseInsensitiveString))
-        @environment_config_service.should_receive(:environmentNames).and_return(env_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(env_list)
         get "environment", :q => ""
         expect(response.body).to eq("prod\ntesting\nstaging")
       end
 
       it "should return all environments starting with a query string" do
         env_list = java.util.Arrays.asList([CaseInsensitiveString.new("prod"), CaseInsensitiveString.new("testing"), CaseInsensitiveString.new("staging")].to_java(CaseInsensitiveString))
-        @environment_config_service.should_receive(:environmentNames).and_return(env_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(env_list)
         get "environment", :q => "test"
         expect(response.body).to eq("testing")
       end
@@ -85,14 +85,14 @@ describe AgentAutocompleteController do
 
     describe :name do
       it "should return all unique agent hostnames" do
-        @agent_service.should_receive(:getUniqueAgentNames).and_return(java.util.Arrays.asList(["dev-agent", "test-linux-agent", "test-win-agent"].to_java(java.lang.String)))
+        expect(@agent_service).to receive(:getUniqueAgentNames).and_return(java.util.Arrays.asList(["dev-agent", "test-linux-agent", "test-win-agent"].to_java(java.lang.String)))
 
         get "name", :q => ""
         expect(response.body).to eq("dev-agent\ntest-linux-agent\ntest-win-agent")
       end
 
       it "should return all unique agent hostnames starting with given query string" do
-        @agent_service.should_receive(:getUniqueAgentNames).and_return(java.util.Arrays.asList(["dev-agent", "test-linux-agent", "test-win-agent"].to_java(java.lang.String)))
+        expect(@agent_service).to receive(:getUniqueAgentNames).and_return(java.util.Arrays.asList(["dev-agent", "test-linux-agent", "test-win-agent"].to_java(java.lang.String)))
 
         get "name", :q => "te"
         expect(response.body).to eq("test-linux-agent\ntest-win-agent")
@@ -101,14 +101,14 @@ describe AgentAutocompleteController do
 
     describe :ip do
       it "should return all agent ip addresses" do
-        @agent_service.should_receive(:getUniqueIPAddresses).and_return(java.util.Arrays.asList(["10.11.12.13", "11.13.14.15"].to_java(java.lang.String)))
+        expect(@agent_service).to receive(:getUniqueIPAddresses).and_return(java.util.Arrays.asList(["10.11.12.13", "11.13.14.15"].to_java(java.lang.String)))
 
         get "ip", :q => ""
         expect(response.body).to eq("10.11.12.13\n11.13.14.15")
       end
 
       it "should return all agent ip addresses starting with a given query string" do
-        @agent_service.should_receive(:getUniqueIPAddresses).and_return(java.util.Arrays.asList(["10.11.12.13", "11.13.14.15"].to_java(java.lang.String)))
+        expect(@agent_service).to receive(:getUniqueIPAddresses).and_return(java.util.Arrays.asList(["10.11.12.13", "11.13.14.15"].to_java(java.lang.String)))
 
         get "ip", :q => "11."
         expect(response.body).to eq("11.13.14.15")
@@ -117,14 +117,14 @@ describe AgentAutocompleteController do
 
     describe :os do
       it "should return all agent operating systems" do
-        @agent_service.should_receive(:getUniqueAgentOperatingSystems).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
+        expect(@agent_service).to receive(:getUniqueAgentOperatingSystems).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
 
         get "os", :q => ""
         expect(response.body).to eq("linux\nwindows")
       end
 
       it "should return all agent operating systems starting with a given query string" do
-        @agent_service.should_receive(:getUniqueAgentOperatingSystems).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
+        expect(@agent_service).to receive(:getUniqueAgentOperatingSystems).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
 
         get "os", :q => "li"
         expect(response.body).to eq("linux")

@@ -17,21 +17,22 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PluginSettingsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @plugin_settings = PluginSettings.new("plugin.id.1")
     @plugin_settings.setPluginSettingsProperties([ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
     @plugin_service = double('plugin_service')
     @entity_hashing_service = double('entity_hashing_service')
-    controller.stub(:plugin_service).and_return(@plugin_service)
-    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(controller).to receive(:plugin_service).and_return(@plugin_service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
   end
 
   describe 'show' do
     describe 'authorization_check' do
       before :each do
-        controller.stub(:load_plugin_settings).and_return(nil)
+        allow(controller).to receive(:load_plugin_settings).and_return(nil)
       end
 
       it 'should allow all with security disabled' do
@@ -85,8 +86,8 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render the plugin settings for a specified plugin id' do
-        @plugin_service.should_receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        @entity_hashing_service.should_receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
 
         get_with_api_header :show, plugin_id: 'plugin.id.1'
 
@@ -95,7 +96,7 @@ describe ApiV1::Admin::PluginSettingsController do
       end
 
       it 'should render 404 for a non existent plugin' do
-        @plugin_service.should_receive(:getPluginSettings).with('plugin.id.2').and_return(nil)
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.2').and_return(nil)
 
         get_with_api_header :show, plugin_id: 'plugin.id.2'
 
@@ -171,14 +172,14 @@ describe ApiV1::Admin::PluginSettingsController do
         enable_security
         login_as_admin
         @default_plugin_info_finder = double('default_plugin_info_finder')
-        controller.stub(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
+        allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
       end
 
       it 'should deserialize plugin settings from given object' do
-        @entity_hashing_service.stub(:md5ForEntity).and_return("some-md5")
+        allow(@entity_hashing_service).to receive(:md5ForEntity).and_return("some-md5")
         hash = {plugin_id: 'plugin.id.2',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
-        @plugin_service.should_receive(:createPluginSettings).with(anything, anything, an_instance_of(PluginSettings))
+        expect(@plugin_service).to receive(:createPluginSettings).with(anything, anything, an_instance_of(PluginSettings))
 
         post_with_api_header :create, plugin_setting: hash
 
@@ -192,11 +193,11 @@ describe ApiV1::Admin::PluginSettingsController do
       it 'should fail save if validation has failed' do
         hash = {plugin_id: 'plugin.id.2'}
         result = double('HttpLocalizedOperationResult')
-        HttpLocalizedOperationResult.stub(:new).and_return(result)
-        result.stub(:isSuccessful).and_return(false)
-        result.stub(:message).with(anything).and_return("Save failed")
-        result.stub(:httpCode).and_return(422)
-        @plugin_service.should_receive(:createPluginSettings).with(anything, result, an_instance_of(PluginSettings))
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+        allow(result).to receive(:isSuccessful).and_return(false)
+        allow(result).to receive(:message).with(anything).and_return("Save failed")
+        allow(result).to receive(:httpCode).and_return(422)
+        expect(@plugin_service).to receive(:createPluginSettings).with(anything, result, an_instance_of(PluginSettings))
 
         post_with_api_header :create, plugin_setting: hash
 
@@ -226,8 +227,8 @@ describe ApiV1::Admin::PluginSettingsController do
   describe 'update' do
     describe 'authorization_check' do
       before :each do
-        controller.stub(:load_plugin_settings).and_return(nil)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:load_plugin_settings).and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -279,20 +280,20 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should not proceed with update if validation has failed' do
         @default_plugin_info_finder = double('default_plugin_info_finder')
-        controller.stub(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
-        controller.stub(:check_for_stale_request)
+        allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
+        allow(controller).to receive(:check_for_stale_request)
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
 
         result = double('HttpLocalizedOperationResult')
-        HttpLocalizedOperationResult.stub(:new).and_return(result)
-        result.stub(:isSuccessful).and_return(false)
-        result.stub(:message).with(anything).and_return("Save failed")
-        result.stub(:httpCode).and_return(422)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+        allow(result).to receive(:isSuccessful).and_return(false)
+        allow(result).to receive(:message).with(anything).and_return("Save failed")
+        allow(result).to receive(:httpCode).and_return(422)
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('md5')
-        @plugin_service.should_receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        @plugin_service.should_receive(:updatePluginSettings).with(anything, result, an_instance_of(PluginSettings), "md5")
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('md5')
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:updatePluginSettings).with(anything, result, an_instance_of(PluginSettings), "md5")
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
@@ -302,8 +303,8 @@ describe ApiV1::Admin::PluginSettingsController do
       it 'should fail update if etag does not match' do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('another-etag')
-        @plugin_service.should_receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).and_return('another-etag')
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 
@@ -312,14 +313,14 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should proceed with update if etag matches.' do
         @default_plugin_info_finder = double('default_plugin_info_finder')
-        controller.stub(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
+        allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
         hash = {plugin_id: 'plugin.id.1',configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PluginSettings)).exactly(3).times.and_return('md5')
-        @plugin_service.should_receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
-        @plugin_service.should_receive(:updatePluginSettings).with(anything, anything, an_instance_of(PluginSettings), "md5")
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).exactly(3).times.and_return('md5')
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@plugin_service).to receive(:updatePluginSettings).with(anything, anything, an_instance_of(PluginSettings), "md5")
 
         put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
 

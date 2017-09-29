@@ -23,21 +23,21 @@ describe Api::FeatureTogglesController do
 
   describe :route do
     it "should resolve route to list all feature toggles" do
-      {:get => "/api/admin/feature_toggles"}.should route_to(:controller => "api/feature_toggles", :action => "index", :no_layout => true, :format => :json)
-      api_admin_feature_toggles_path.should == "/api/admin/feature_toggles"
+      expect({:get => "/api/admin/feature_toggles"}).to route_to(:controller => "api/feature_toggles", :action => "index", :no_layout => true, :format => :json)
+      expect(api_admin_feature_toggles_path).to eq("/api/admin/feature_toggles")
     end
 
     it "should resolve route to update the value of feature toggle" do
       expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      {:post => "/api/admin/feature_toggles/toggle.key"}.should route_to(:controller => "api/feature_toggles", :action => "update", :toggle_key => "toggle.key",
+      expect({:post => "/api/admin/feature_toggles/toggle.key"}).to route_to(:controller => "api/feature_toggles", :action => "update", :toggle_key => "toggle.key",
                                                                      :no_layout => true, :format => :json)
-      api_admin_feature_toggle_update_path("abc").should == "/api/admin/feature_toggles/abc"
+      expect(api_admin_feature_toggle_update_path("abc")).to eq("/api/admin/feature_toggles/abc")
     end
   end
 
   describe :index do
     it "should list existing feature toggles in JSON format" do
-      @feature_toggle_service.stub(:allToggles).and_return(FeatureToggleMother.someToggles())
+      allow(@feature_toggle_service).to receive(:allToggles).and_return(FeatureToggleMother.someToggles())
 
       get :index
 
@@ -56,7 +56,7 @@ describe Api::FeatureTogglesController do
     end
 
     it "should be empty JSON when there are no toggles" do
-      @feature_toggle_service.stub(:allToggles).and_return(FeatureToggleMother.noToggles())
+      allow(@feature_toggle_service).to receive(:allToggles).and_return(FeatureToggleMother.noToggles())
 
       get :index
 

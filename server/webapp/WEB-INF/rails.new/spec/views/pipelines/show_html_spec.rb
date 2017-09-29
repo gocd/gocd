@@ -143,13 +143,13 @@ describe "/pipelines/show.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
 
     Capybara.string(response.body).all(".material_detail dt") do |dts|
-      dts[0].text.should == "Subversion"
-      dts[1].text.should == "Dest:"
-      dts[2].text.should == "Date:"
-      dts[3].text.should == "User:"
-      dts[4].text.should == "Comment:"
-      dts[5].text.should == "Currently Deployed:"
-      dts[6].text.should == "Revision to Deploy:"
+      expect(dts[0].text).to eq("Subversion")
+      expect(dts[1].text).to eq("Dest:")
+      expect(dts[2].text).to eq("Date:")
+      expect(dts[3].text).to eq("User:")
+      expect(dts[4].text).to eq("Comment:")
+      expect(dts[5].text).to eq("Currently Deployed:")
+      expect(dts[6].text).to eq("Revision to Deploy:")
     end
   end
 end

@@ -48,7 +48,7 @@ describe "admin/jobs/index.html.erb" do
   end
 
   it "should show job listing" do
-    view.stub(:random_dom_id).and_return("delete_job_random_id")
+    allow(view).to receive(:random_dom_id).and_return("delete_job_random_id")
 
     render
 

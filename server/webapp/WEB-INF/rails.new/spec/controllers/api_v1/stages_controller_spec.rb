@@ -20,7 +20,7 @@ describe ApiV1::StagesController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   before :each do
-    controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+    allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
   end
 
   describe :show do
@@ -57,7 +57,7 @@ describe ApiV1::StagesController do
 
         it 'should get stage instance json' do
           @stage_model=StageMother.passedStageInstance('stage', 'job', 'pipeline')
-          @stage_service.should_receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', @user.getUsername.to_s, anything).and_return(@stage_model)
+          expect(@stage_service).to receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', @user.getUsername.to_s, anything).and_return(@stage_model)
           get_with_api_header :show, pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: '1', stage_counter: '1'
           expect(response).to be_ok
           expect(actual_response).to eq(expected_response(@stage_model, ApiV1::StageRepresenter))
@@ -179,13 +179,13 @@ describe ApiV1::StagesController do
         before(:each) do
           login_as_user
           allow_current_user_to_access_pipeline('pipeline')
-          controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+          allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
         end
 
         it 'should get stage instance json' do
           @stage_instance_models = [StageMother.toStageInstanceModel(StageMother.passedStageInstance('stage', 'job', 'pipeline'))]
-          @stage_service.should_receive(:getCount).and_return(10)
-          @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, @user.getUsername.to_s, anything).and_return(@stage_instance_models)
+          expect(@stage_service).to receive(:getCount).and_return(10)
+          expect(@stage_service).to receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, @user.getUsername.to_s, anything).and_return(@stage_instance_models)
           get_with_api_header :history, pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: '1', stage_counter: '1'
           expect(response).to be_ok
           expect(actual_response).to eq(expected_response_with_options(@stage_instance_models, {pipeline_name: 'pipeline', stage_name: 'stage'}, ApiV1::StageHistoryRepresenter))

@@ -17,15 +17,16 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::MergedEnvironmentsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   describe :index do
     before(:each) do
       environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(environment_name))
       @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
-      @environment_config_service.stub(:getAllMergedEnvironments).and_return([@environment_config])
+      allow(controller).to receive(:environment_config_service).and_return(@environment_config_service)
+      allow(@environment_config_service).to receive(:getAllMergedEnvironments).and_return([@environment_config])
     end
 
     describe :for_admins do
@@ -89,10 +90,10 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       @environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
       @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
+      allow(controller).to receive(:environment_config_service).and_return(@environment_config_service)
       environment_config_element = com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment_config, "md5")
-      @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(environment_config_element)
-      @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+      allow(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).and_return(environment_config_element)
+      allow(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
     end
 
     describe :for_admins do
@@ -108,7 +109,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(nil)
+        allow(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).and_return(nil)
         get_with_api_header :show, environment_name: @environment_name, withconfigrepo: 'true'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end

@@ -32,7 +32,7 @@ describe Api::CommandsController do
   describe "actions" do
     describe "reload_cache" do
       it "should reload the cache" do
-        @command_repository_service.should_receive(:reloadCache)
+        expect(@command_repository_service).to receive(:reloadCache)
 
         post :reload_cache, :no_layout => true
 

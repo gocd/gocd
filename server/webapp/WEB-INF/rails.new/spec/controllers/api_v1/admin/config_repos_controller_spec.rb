@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::ConfigReposController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @material_config = GitMaterialConfig.new('git://foo', 'master')
@@ -27,12 +28,12 @@ describe ApiV1::Admin::ConfigReposController do
     @md5 = 'some-digest'
 
     @entity_hashing_service = double('entity-hashing-service')
-    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
 
     @config_repo_service = double('config-repo-service')
-    controller.stub(:config_repo_service).and_return(@config_repo_service)
+    allow(controller).to receive(:config_repo_service).and_return(@config_repo_service)
 
-    @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
+    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
   end
 
   describe :show do
@@ -43,14 +44,14 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should render the package repo' do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
+        allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
         get_with_api_header :show, id: @config_repo_id
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response(@config_repo, ApiV1::Config::ConfigRepoRepresenter))
       end
 
       it 'should render 404 when a config repo with specified id does not exist' do
-        @config_repo_service.stub(:getConfigRepo).with('invalid-package-id').and_return(nil)
+        allow(@config_repo_service).to receive(:getConfigRepo).with('invalid-package-id').and_return(nil)
         get_with_api_header :show, id: 'invalid-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -58,7 +59,7 @@ describe ApiV1::Admin::ConfigReposController do
 
     describe :security do
       before :each do
-        controller.stub(:load_config_repo).and_return(nil)
+        allow(controller).to receive(:load_config_repo).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -114,7 +115,7 @@ describe ApiV1::Admin::ConfigReposController do
 
       it 'should render a list of config_repos, for admins' do
         repos = Arrays.asList(@config_repo)
-        @config_repo_service.should_receive(:getConfigRepos).and_return(repos)
+        expect(@config_repo_service).to receive(:getConfigRepos).and_return(repos)
 
         get_with_api_header :index
         expect(response).to be_ok
@@ -173,8 +174,8 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should allow deleting config repo' do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
-        @config_repo_service.should_receive(:deleteConfigRepo).with(@config_repo_id, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
+        allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
+        expect(@config_repo_service).to receive(:deleteConfigRepo).with(@config_repo_id, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
           result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'config repo', @config_repo_id))
         end
 
@@ -183,7 +184,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should render 404 when config repo does not exist' do
-        @config_repo_service.stub(:getConfigRepo).with('invalid-package-id').and_return(nil)
+        allow(@config_repo_service).to receive(:getConfigRepo).with('invalid-package-id').and_return(nil)
         delete_with_api_header :destroy, id: 'invalid-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -191,7 +192,7 @@ describe ApiV1::Admin::ConfigReposController do
 
     describe :security do
       before :each do
-        @config_repo_service.stub(:getConfigRepo).and_return(@config_repo)
+        allow(@config_repo_service).to receive(:getConfigRepo).and_return(@config_repo)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -247,8 +248,8 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should render 200 created when config repo is created' do
-        @config_repo_service.stub(:getConfigRepo).and_return(@config_repo)
-        @config_repo_service.should_receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
+        allow(@config_repo_service).to receive(:getConfigRepo).and_return(@config_repo)
+        expect(@config_repo_service).to receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, :config_repo => get_config_repo_json(@config_repo_id)
 
         expect(response.status).to be(200)
@@ -256,7 +257,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
       
       it 'should render the error occurred while creating a package' do
-        @config_repo_service.should_receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
+        expect(@config_repo_service).to receive(:createConfigRepo).with(an_instance_of(ConfigRepoConfig), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
@@ -314,9 +315,9 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should allow updating config repo' do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
+        allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo)
         result = HttpLocalizedOperationResult.new
-        @config_repo_service.should_receive(:updateConfigRepo).with(@config_repo_id, an_instance_of(ConfigRepoConfig), @md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(result)
+        expect(@config_repo_service).to receive(:updateConfigRepo).with(@config_repo_id, an_instance_of(ConfigRepoConfig), @md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(result)
         hash = get_config_repo_json(@config_repo_id)
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
@@ -327,7 +328,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should not update package config if etag passed does not match the one on server' do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo_id)
+        allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo_id)
         controller.request.env['HTTP_IF_MATCH'] = 'old-etag'
         hash = get_config_repo_json(@config_repo_id)
 
@@ -338,7 +339,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should not update package config if no etag is passed' do
-        @config_repo_service.stub(:getConfigRepo).with(@config_repo_id).and_return(@config_repo_id)
+        allow(@config_repo_service).to receive(:getConfigRepo).with(@config_repo_id).and_return(@config_repo_id)
         hash = get_config_repo_json(@config_repo_id)
 
         put_with_api_header :update, id: @config_repo_id, :config_repo => hash
@@ -348,7 +349,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
 
       it 'should render 404 when a package does not exist' do
-        @config_repo_service.stub(:getConfigRepo).with('non-existent-package-id').and_return(nil)
+        allow(@config_repo_service).to receive(:getConfigRepo).with('non-existent-package-id').and_return(nil)
         put_with_api_header :update, id: 'non-existent-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -357,8 +358,8 @@ describe ApiV1::Admin::ConfigReposController do
 
     describe :security do
       before(:each) do
-        @config_repo_service.stub(:getConfigRepo).and_return(@config_repo_id)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(@config_repo_service).to receive(:getConfigRepo).and_return(@config_repo_id)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do

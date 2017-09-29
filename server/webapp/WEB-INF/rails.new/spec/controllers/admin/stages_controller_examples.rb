@@ -19,8 +19,8 @@ shared_examples_for :stages_controller do
     describe "increment_index" do
 
       before do
-        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should increment stage order" do
@@ -32,8 +32,8 @@ shared_examples_for :stages_controller do
 
         post :increment_index, :stage_parent => @stage_parent, :pipeline_name => "pipeline-name", :stage_name => "stage-to-move", :config_md5 => "1234abcd"
 
-        @pipeline.get(0).name().should == CaseInsensitiveString.new("fixed_stage")
-        @pipeline.get(1).name().should == CaseInsensitiveString.new("stage-to-move")
+        expect(@pipeline.get(0).name()).to eq(CaseInsensitiveString.new("fixed_stage"))
+        expect(@pipeline.get(1).name()).to eq(CaseInsensitiveString.new("stage-to-move"))
         assert_save_arguments
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::PipelineOrTemplateNode, ConfigUpdate::PipelineStageSubject
       end
@@ -42,8 +42,8 @@ shared_examples_for :stages_controller do
     describe "decrement_index" do
 
       before do
-        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should decrement stage order" do
@@ -54,8 +54,8 @@ shared_examples_for :stages_controller do
 
         post :decrement_index, :stage_parent => @stage_parent, :pipeline_name => "pipeline-name", :stage_name => "stage-to-move", :config_md5 => "1234abcd"
 
-        @pipeline.get(0).name().should == CaseInsensitiveString.new("stage-to-move")
-        @pipeline.get(1).name().should == CaseInsensitiveString.new("fixed_stage")
+        expect(@pipeline.get(0).name()).to eq(CaseInsensitiveString.new("stage-to-move"))
+        expect(@pipeline.get(1).name()).to eq(CaseInsensitiveString.new("fixed_stage"))
         assert_save_arguments
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::PipelineOrTemplateNode, ConfigUpdate::PipelineStageSubject
       end

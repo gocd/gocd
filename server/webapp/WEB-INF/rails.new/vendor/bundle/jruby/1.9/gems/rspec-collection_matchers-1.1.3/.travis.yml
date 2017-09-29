@@ -1,0 +1,20 @@
+language: ruby
+script: "script/test_all"
+bundler_args: "--standalone --binstubs --without documentation"
+before_install:
+  - gem update --system
+  - gem install bundler
+rvm:
+  - 2.3.3
+  - 2.2.5
+  - 2.1
+  - 2.0.0
+  - 1.9.3
+  - 1.9.2
+  - 1.8.7
+  - ree
+  - jruby-19mode
+  - jruby-18mode
+env:
+  - BRANCH=master
+  - BRANCH=2-99-maintenance

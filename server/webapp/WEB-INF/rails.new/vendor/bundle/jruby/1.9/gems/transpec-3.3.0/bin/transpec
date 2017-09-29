@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+
+$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
+require 'transpec/cli'
+
+result = Transpec::CLI.run
+exit(result ? 0 : 1)

@@ -19,39 +19,39 @@ require 'spec_helper'
 describe Admin::Plugins::PluginsController do
 
   before :each do
-    controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
-    controller.stub(:system_environment).and_return(@system_environment = double("system_environment", :isPluginUploadEnabled => true))
-    controller.stub(:plugin_service).and_return(@plugin_service = double('plugin service'))
+    allow(controller).to receive(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
+    allow(controller).to receive(:system_environment).and_return(@system_environment = double("system_environment", :isPluginUploadEnabled => true))
+    allow(controller).to receive(:plugin_service).and_return(@plugin_service = double('plugin service'))
   end
 
   describe :routes do
     it "should resolve the route_for_index" do
-      {:get => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "index")
-      plugins_listing_path.should == "/admin/plugins"
+      expect({:get => "/admin/plugins"}).to route_to(:controller => "admin/plugins/plugins", :action => "index")
+      expect(plugins_listing_path).to eq("/admin/plugins")
     end
 
     it "should resolve_the_route_for_upload" do
-      {:post => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "upload")
-      upload_plugin_path.should == "/admin/plugins"
+      expect({:post => "/admin/plugins"}).to route_to(:controller => "admin/plugins/plugins", :action => "upload")
+      expect(upload_plugin_path).to eq("/admin/plugins")
     end
 
     it "should resolve_the_route_for_get plugin settings" do
-      {:get => "/admin/plugins/settings/plugin.id"}.should route_to(:controller => "admin/plugins/plugins", :action => "edit_settings", :plugin_id => "plugin.id")
-      edit_settings_path(:plugin_id => 'plugin.id').should == "/admin/plugins/settings/plugin.id"
+      expect({:get => "/admin/plugins/settings/plugin.id"}).to route_to(:controller => "admin/plugins/plugins", :action => "edit_settings", :plugin_id => "plugin.id")
+      expect(edit_settings_path(:plugin_id => 'plugin.id')).to eq("/admin/plugins/settings/plugin.id")
     end
 
     it "should resolve_the_route_for_update plugin settings" do
-      {:post => "/admin/plugins/settings/plugin.id"}.should route_to(:controller => "admin/plugins/plugins", :action => "update_settings", :plugin_id => "plugin.id")
-      update_settings_path(:plugin_id => 'plugin.id').should == "/admin/plugins/settings/plugin.id"
+      expect({:post => "/admin/plugins/settings/plugin.id"}).to route_to(:controller => "admin/plugins/plugins", :action => "update_settings", :plugin_id => "plugin.id")
+      expect(update_settings_path(:plugin_id => 'plugin.id')).to eq("/admin/plugins/settings/plugin.id")
     end
   end
 
   describe :upload do
     it "should show success message when upload is successful" do
-      @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
+      expect(@plugin_manager).to receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
         .and_return(@plugin_response = double('upload_response'))
-      @plugin_response.should_receive(:isSuccess).and_return(true)
-      @plugin_response.should_receive(:success).and_return("successfully uploaded!")
+      expect(@plugin_response).to receive(:isSuccess).and_return(true)
+      expect(@plugin_response).to receive(:success).and_return("successfully uploaded!")
       file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
 
       post :upload, :plugin => file
@@ -60,10 +60,10 @@ describe Admin::Plugins::PluginsController do
     end
 
     it "should show error message when upload is unsuccessful" do
-      @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
+      expect(@plugin_manager).to receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
         .and_return(@plugin_response = double('upload_response'))
-      @plugin_response.should_receive(:isSuccess).and_return(false)
-      @plugin_response.should_receive(:errors).and_return({415 => "invalid file"})
+      expect(@plugin_response).to receive(:isSuccess).and_return(false)
+      expect(@plugin_response).to receive(:errors).and_return({415 => "invalid file"})
       file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
 
       post :upload, :plugin => file
@@ -72,7 +72,7 @@ describe Admin::Plugins::PluginsController do
     end
 
     it "should show error message when no file is selected" do
-      @plugin_manager.should_not_receive(:addPlugin)
+      expect(@plugin_manager).not_to receive(:addPlugin)
 
       post :upload, :plugin => nil
 
@@ -80,19 +80,19 @@ describe Admin::Plugins::PluginsController do
     end
 
     it "should redirect to #index" do
-      @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
+      expect(@plugin_manager).to receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
         .and_return(@plugin_response = double('upload_response'))
-      @plugin_response.should_receive(:isSuccess).and_return(true)
-      @plugin_response.should_receive(:success).and_return("successfully uploaded!")
+      expect(@plugin_response).to receive(:isSuccess).and_return(true)
+      expect(@plugin_response).to receive(:success).and_return("successfully uploaded!")
       file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
 
       post :upload, :plugin => file
 
-      response.should redirect_to "/admin/plugins"
+      expect(response).to redirect_to "/admin/plugins"
     end
 
     it "should refuse to upload when feature is turned off" do
-      @system_environment.should_receive(:isPluginUploadEnabled).and_return(false)
+      expect(@system_environment).to receive(:isPluginUploadEnabled).and_return(false)
 
       post :upload, :plugin => nil
 
@@ -110,47 +110,47 @@ describe Admin::Plugins::PluginsController do
       @plugin_4 = plugin("Yum-id", "Yum Exec Plugin")
       @plugin_5 = plugin("Another-id", nil)
       @plugin_6 = plugin("plugin.jar", nil)
-      @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
-      @system_environment.should_receive(:isPluginUploadEnabled).and_return(true)
+      expect(@system_environment).to receive(:getExternalPluginAbsolutePath).and_return("some_path")
+      expect(@system_environment).to receive(:isPluginUploadEnabled).and_return(true)
     end
 
     it "should populate the tab name" do
-      @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
+      expect(@plugin_manager).to receive(:plugins).and_return([@plugin_1, @plugin_2])
 
       get :index
 
-      assigns[:tab_name].should == "plugins-listing"
+      expect(assigns[:tab_name]).to eq("plugins-listing")
       assert_template layout: "admin"
     end
 
     it "should populate the current list of plugins and the external plugins path" do
-      @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
+      expect(@plugin_manager).to receive(:plugins).and_return([@plugin_1, @plugin_2])
 
       get :index
 
-      assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_2)]
-      assigns[:external_plugin_location].should == "some_path"
+      expect(assigns[:plugin_descriptors]).to eq([plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_2)])
+      expect(assigns[:external_plugin_location]).to eq("some_path")
     end
 
     it "should populate the current list of plugins in case insensitive alphabetical order when plugin names are given" do
-      @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2, @plugin_3, @plugin_4])
+      expect(@plugin_manager).to receive(:plugins).and_return([@plugin_1, @plugin_2, @plugin_3, @plugin_4])
 
       get :index
 
-      assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)]
+      expect(assigns[:plugin_descriptors]).to eq([plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)])
     end
 
     it "should populate the current list of plugins in case insensitive alphabetical order when plugin names are not given" do
-      @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2, @plugin_3, @plugin_4, @plugin_5, @plugin_6])
+      expect(@plugin_manager).to receive(:plugins).and_return([@plugin_1, @plugin_2, @plugin_3, @plugin_4, @plugin_5, @plugin_6])
 
       get :index
 
-      assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_5), plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_6), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)]
+      expect(assigns[:plugin_descriptors]).to eq([plugin_descriptors(@plugin_5), plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_6), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)])
     end
 
     it "should populate the feature toggle flag for upload plugin" do
 
-      @plugin_manager.should_receive(:plugins).and_return([])
+      expect(@plugin_manager).to receive(:plugins).and_return([])
 
       get :index
 
@@ -175,8 +175,8 @@ describe Admin::Plugins::PluginsController do
     it "should render settings template with required data" do
       get :edit_settings, :plugin_id => 'plugin.id'
 
-      assigns[:meta_data_store].should == PluginSettingsMetadataStore.getInstance()
-      assigns[:plugin_settings].should == @plugin_settings
+      expect(assigns[:meta_data_store]).to eq(PluginSettingsMetadataStore.getInstance())
+      expect(assigns[:plugin_settings]).to eq(@plugin_settings)
       assert_template "admin/plugins/plugins/settings"
       assert_template layout: false
     end
@@ -193,8 +193,8 @@ describe Admin::Plugins::PluginsController do
 
       post :update_settings, :plugin_id => 'plugin.id'
 
-      assigns[:meta_data_store].should == PluginSettingsMetadataStore.getInstance()
-      assigns[:plugin_settings].should == @plugin_settings
+      expect(assigns[:meta_data_store]).to eq(PluginSettingsMetadataStore.getInstance())
+      expect(assigns[:plugin_settings]).to eq(@plugin_settings)
       assert_template "admin/plugins/plugins/settings"
       assert_template layout: false
     end
@@ -205,8 +205,8 @@ describe Admin::Plugins::PluginsController do
 
       post :update_settings, :plugin_id => 'plugin.id'
 
-      response.body.should == 'Saved successfully'
-      URI.parse(response.location).path.should == plugins_listing_path
+      expect(response.body).to eq('Saved successfully')
+      expect(URI.parse(response.location).path).to eq(plugins_listing_path)
     end
   end
 
@@ -216,44 +216,44 @@ describe Admin::Plugins::PluginsController do
       @secuity_service = double('security_service')
       @user = 'user'
 
-      controller.stub(:meta_data_store) { @meta_data_store }
-      controller.stub(:security_service) { @secuity_service }
-      controller.stub(:current_user) { @user }
+      allow(controller).to receive(:meta_data_store) { @meta_data_store }
+      allow(controller).to receive(:security_service) { @secuity_service }
+      allow(controller).to receive(:current_user) { @user }
     end
 
     it 'should be editable for admin user if metadata store has plugin settings with a view template' do
       preference = double('preference')
 
-      @secuity_service.should_receive(:isUserAdmin).with(@user).and_return(true)
-      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(true)
-      @meta_data_store.should_receive(:preferenceFor).with('plugin_id').and_return(preference)
-      preference.should_receive(:getTemplate).and_return('view_template')
+      expect(@secuity_service).to receive(:isUserAdmin).with(@user).and_return(true)
+      expect(@meta_data_store).to receive(:hasPlugin).with('plugin_id').and_return(true)
+      expect(@meta_data_store).to receive(:preferenceFor).with('plugin_id').and_return(preference)
+      expect(preference).to receive(:getTemplate).and_return('view_template')
 
-      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_true
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_truthy
     end
 
     it 'should not be editable in absence of plugin settings in store' do
-      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(false)
+      expect(@meta_data_store).to receive(:hasPlugin).with('plugin_id').and_return(false)
 
-      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_false
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_falsey
     end
 
     it 'should not be editable for a non admin user' do
-      @secuity_service.should_receive(:isUserAdmin).with(@user).and_return(false)
-      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(true)
+      expect(@secuity_service).to receive(:isUserAdmin).with(@user).and_return(false)
+      expect(@meta_data_store).to receive(:hasPlugin).with('plugin_id').and_return(true)
 
-      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_false
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_falsey
     end
 
     it 'should not be editable in absence of template in plugin settings' do
       preference = double('preference')
 
-      @secuity_service.should_receive(:isUserAdmin).with(@user).and_return(true)
-      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(true)
-      @meta_data_store.should_receive(:preferenceFor).with('plugin_id').and_return(preference)
-      preference.should_receive(:getTemplate).and_return(nil)
+      expect(@secuity_service).to receive(:isUserAdmin).with(@user).and_return(true)
+      expect(@meta_data_store).to receive(:hasPlugin).with('plugin_id').and_return(true)
+      expect(@meta_data_store).to receive(:preferenceFor).with('plugin_id').and_return(preference)
+      expect(preference).to receive(:getTemplate).and_return(nil)
 
-      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_false
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_falsey
     end
   end
 end

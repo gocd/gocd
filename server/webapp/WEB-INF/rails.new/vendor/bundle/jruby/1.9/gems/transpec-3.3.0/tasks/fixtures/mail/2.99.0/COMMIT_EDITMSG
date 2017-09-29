@@ -1,0 +1,86 @@
+Convert specs to RSpec 2.99.0.beta2 syntax with Transpec
+
+This conversion is done by Transpec 2.2.5 with the following command:
+    transpec --force
+
+* 2161 conversions
+    from: obj.should
+      to: expect(obj).to
+
+* 173 conversions
+    from: obj.should_not
+      to: expect(obj).not_to
+
+* 56 conversions
+    from: obj.should_receive(:message)
+      to: expect(obj).to receive(:message)
+
+* 32 conversions
+    from: == expected
+      to: eq(expected)
+
+* 26 conversions
+    from: =~ /pattern/
+      to: match(/pattern/)
+
+* 21 conversions
+    from: pending
+      to: skip
+
+* 20 conversions
+    from: be_true
+      to: be_truthy
+
+* 15 conversions
+    from: it { should ... }
+      to: it { is_expected.to ... }
+
+* 15 conversions
+    from: lambda { }.should
+      to: expect { }.to
+
+* 12 conversions
+    from: it { should_not ... }
+      to: it { is_expected.not_to ... }
+
+* 9 conversions
+    from: obj.should_not_receive(:message)
+      to: expect(obj).not_to receive(:message)
+
+* 9 conversions
+    from: obj.stub!(:message)
+      to: allow(obj).to receive(:message)
+
+* 7 conversions
+    from: < expected
+      to: be < expected
+
+* 6 conversions
+    from: be_false
+      to: be_falsey
+
+* 5 conversions
+    from: expect { }.not_to raise_error(SpecificErrorClass)
+      to: expect { }.not_to raise_error
+
+* 2 conversions
+    from: collection.should have(n).items
+      to: expect(collection.size).to eq(n)
+
+* 2 conversions
+    from: mock('something')
+      to: double('something')
+
+* 1 conversion
+    from: === expected
+      to: be === expected
+
+* 1 conversion
+    from: lambda { }.should_not
+      to: expect { }.not_to
+
+* 1 conversion
+    from: obj.stub!(:message)
+      to: obj.stub(:message)
+
+For more details: https://github.com/yujinakayama/transpec#supported-conversions

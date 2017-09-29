@@ -63,19 +63,30 @@ RSpec.configure do |config|
   config.after(:each) do
     ServiceCacheStrategy.instance.clear_services
   end
+
+  # rspec-rails 3 will no longer automatically infer an example group's spec type
+  # from the file location. You can explicitly opt-in to the feature using this
+  # config option.
+  # To explicitly tag specs without using automatic inference, set the `:type`
+  # metadata manually:
+  #
+  #     describe ThingsController, :type => :controller do
+  #       # Equivalent to being in spec/controllers
+  #     end
+  config.infer_spec_type_from_file_location!
 end
 
 ApplicationController.class_eval do
   def should_receive_render_with(*expected)
-    self.should_receive(:render).with(*expected) do |*actual|
-      actual.should == expected
+    expect(self).to receive(:render).with(*expected) do |*actual|
+      expect(actual).to eq(expected)
       @performed_render = true
     end
   end
 
   def should_receive_redirect_to(expected_url)
-    self.should_receive(:redirect_to).with(expected_url) do |actual_url|
-      actual_url.should =~ expected_url
+    expect(self).to receive(:redirect_to).with(expected_url) do |actual_url|
+      expect(actual_url).to match(expected_url)
       @performed_redirect = true
     end
   end
@@ -83,7 +94,7 @@ end
 
 def stub_localized_result
   result = com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.new
-  com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.stub(:new).and_return(result)
+  allow(com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult).to receive(:new).and_return(result)
   result
 end
 

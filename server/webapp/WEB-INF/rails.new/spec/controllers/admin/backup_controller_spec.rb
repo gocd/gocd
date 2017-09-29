@@ -19,69 +19,69 @@ require 'spec_helper'
 describe Admin::BackupController do
 
   before :each do
-    controller.stub(:backup_service).and_return(@backup_service = double('backup_server'))
+    allow(controller).to receive(:backup_service).and_return(@backup_service = double('backup_server'))
   end
 
   describe :routes do
 
     it "should resolve the route to the backup admin ui page" do
-      {:get => "/admin/backup"}.should route_to(:controller => "admin/backup", :action => "index")
-      backup_server_path.should == "/admin/backup"
+      expect({:get => "/admin/backup"}).to route_to(:controller => "admin/backup", :action => "index")
+      expect(backup_server_path).to eq("/admin/backup")
     end
 
     it "should resolve the route for the server backup" do
-      {:post => "/admin/backup"}.should route_to(:controller => "admin/backup", :action => "perform_backup")
-      perform_backup_path.should == "/admin/backup"
+      expect({:post => "/admin/backup"}).to route_to(:controller => "admin/backup", :action => "perform_backup")
+      expect(perform_backup_path).to eq("/admin/backup")
     end
   end
 
   describe :index do
 
     before :each do
-      @backup_service.should_receive(:lastBackupTime).and_return(@time = java.util.Date.new)
-      @backup_service.should_receive(:backupLocation).and_return(@location = "/var/lib/go-server/logs/server-backups")
-      @backup_service.should_receive(:availableDiskSpace).and_return(@space = "424242")
-      @backup_service.should_receive(:lastBackupUser).and_return(@user = "loser")
+      expect(@backup_service).to receive(:lastBackupTime).and_return(@time = java.util.Date.new)
+      expect(@backup_service).to receive(:backupLocation).and_return(@location = "/var/lib/go-server/logs/server-backups")
+      expect(@backup_service).to receive(:availableDiskSpace).and_return(@space = "424242")
+      expect(@backup_service).to receive(:lastBackupUser).and_return(@user = "loser")
     end
 
     it "should populate the tab name" do
       get "index"
 
-      assigns[:tab_name].should == "backup"
+      expect(assigns[:tab_name]).to eq("backup")
       assert_template layout: "admin"
     end
 
     it "should populate the backup location" do
       get :index
 
-      assigns[:backup_location].should == @location
+      expect(assigns[:backup_location]).to eq(@location)
     end
 
     it "should populate the last backup time" do
       get :index
 
-      assigns[:last_backup_time].should == @time
+      expect(assigns[:last_backup_time]).to eq(@time)
     end
 
     it "should populate the user that triggered the last backup" do
       get :index
 
-      assigns[:last_backup_user].should == @user
+      expect(assigns[:last_backup_user]).to eq(@user)
     end
 
     it "should populate available disk space on artifact directory" do
       get :index
 
-      assigns[:available_disk_space_on_artifacts_directory].should == @space
+      expect(assigns[:available_disk_space_on_artifacts_directory]).to eq(@space)
     end
   end
 
   describe :perform_backup do
 
     it "should return success if the backup is successful" do
-      controller.stub(:backup_service).and_return(backup_service = double("backup_service"))
+      allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))
 
-      backup_service.should_receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |u, r|
+      expect(backup_service).to receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |u, r|
         r.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"))
       end
 
@@ -91,9 +91,9 @@ describe Admin::BackupController do
     end
 
     it "should return error if the backup has failed" do
-      controller.stub(:backup_service).and_return(backup_service = double("backup_service"))
+      allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))
 
-      backup_service.should_receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |user, result|
+      expect(backup_service).to receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |user, result|
         result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", ["Ran out of disk space"].to_java(java.lang.String)))
       end
 

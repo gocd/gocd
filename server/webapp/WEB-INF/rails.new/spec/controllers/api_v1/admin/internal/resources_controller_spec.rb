@@ -17,12 +17,13 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::ResourcesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before(:each) do
     @go_config_service = double("go_config_service")
-    controller.stub("go_config_service").and_return(@go_config_service)
-    @go_config_service.stub(:checkConfigFileValid).and_return(GoConfigValidity::valid())
+    allow(controller).to receive("go_config_service").and_return(@go_config_service)
+    allow(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity::valid())
   end
 
   describe :security do
@@ -65,7 +66,7 @@ describe ApiV1::Admin::Internal::ResourcesController do
       it 'should fetch all the resources' do
         login_as_admin
         resources_list = %w(linux windows)
-        @go_config_service.should_receive(:getResourceList).and_return(resources_list)
+        expect(@go_config_service).to receive(:getResourceList).and_return(resources_list)
 
         get_with_api_header :index
 
@@ -76,7 +77,7 @@ describe ApiV1::Admin::Internal::ResourcesController do
       it 'should not recompute the resources list when not modified and etag provided' do
         login_as_admin
         resources_list = %w(linux windows).sort
-        @go_config_service.should_receive(:getResourceList).and_return(resources_list)
+        expect(@go_config_service).to receive(:getResourceList).and_return(resources_list)
         controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(resources_list.join('/'))
 
         get_with_api_header :index
@@ -88,7 +89,7 @@ describe ApiV1::Admin::Internal::ResourcesController do
       it 'should recompute the resources list when it is modified and stale etag provided' do
         login_as_admin
         resources_list = %w(linux windows).sort
-        @go_config_service.should_receive(:getResourceList).and_return(resources_list)
+        expect(@go_config_service).to receive(:getResourceList).and_return(resources_list)
         controller.request.env['HTTP_IF_NONE_MATCH'] = 'stale-etag'
 
         get_with_api_header :index

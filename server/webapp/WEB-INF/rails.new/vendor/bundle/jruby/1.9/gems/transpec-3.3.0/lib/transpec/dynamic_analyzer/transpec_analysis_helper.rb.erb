@@ -1,0 +1,75 @@
+module <%= ANALYSIS_MODULE %>
+  @base_path = Dir.pwd
+
+  module_function
+
+  def data
+    @data ||= {}
+  end
+
+  def ephemeral_data
+    @ephemeral_data ||= {}
+  end
+
+  def <%= ANALYSIS_METHOD %>(object, context, node_id, analysis_codes)
+    node_data = {}
+
+    analysis_codes.each do |key, (target_type, code)|
+      target = case target_type
+               when :object  then object
+               when :context then context
+               end
+
+      begin
+        node_data[key] = target.instance_eval(code)
+      rescue Exception
+      end
+    end
+
+    data[node_id] = node_data
+
+    object
+  end
+
+  def validate_rspec_configuration!(config)
+    deprecation_stream_name = config.deprecation_stream.class.name
+
+    if deprecation_stream_name.start_with?('RSpec::Core::Formatters::DeprecationFormatter')
+      message = 'Aborted dynamic analysis. ' \
+                'Disable `RSpec.configure { |c| c.raise_errors_for_deprecations! }` ' \
+                "in your spec because it interferes with Transpec's dynamic analysis."
+      fail_with_message!(message)
+    end
+  end
+
+  def fail_with_message!(message)
+    data[<%= RUNTIME_DATA_ERROR_MESSAGE_KEY.inspect %>] = message
+    save_result
+    exit!(1)
+  end
+
+  def save_result
+    # Use JSON rather than Marshal so that:
+    # * Unknown third-party class information won't be serialized.
+    #   (Such objects are stored as a string.)
+    # * Singleton method information won't be serialized.
+    #   (With Marshal.load, `singleton can't be dumped (TypeError)` will be raised.)
+    require 'json'
+
+    path = File.join(@base_path, '<%= RESULT_FILE %>')
+
+    File.open(path, 'w') do |file|
+      JSON.dump(data, file)
+    end
+  end
+
+  at_exit do
+    save_result
+  end
+end
+
+RSpec.configure do |config|
+  config.before(:suite) do
+    Transpec.validate_rspec_configuration!(config)
+  end
+end

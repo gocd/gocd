@@ -1,0 +1,38 @@
+Convert specs to RSpec 2.99.0.beta2 syntax with Transpec
+
+This conversion is done by Transpec 2.2.5 with the following command:
+    transpec --force
+
+* 899 conversions
+    from: obj.should
+      to: expect(obj).to
+
+* 61 conversions
+    from: be_false
+      to: be_falsey
+
+* 37 conversions
+    from: be_true
+      to: be_truthy
+
+* 11 conversions
+    from: lambda { }.should
+      to: expect { }.to
+
+* 4 conversions
+    from: =~ /pattern/
+      to: match(/pattern/)
+
+* 3 conversions
+    from: == expected
+      to: eq(expected)
+
+* 2 conversions
+    from: obj.should_not
+      to: expect(obj).not_to
+
+* 2 conversions
+    from: obj.stub!(:message)
+      to: allow(obj).to receive(:message)
+
+For more details: https://github.com/yujinakayama/transpec#supported-conversions

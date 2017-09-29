@@ -19,7 +19,7 @@ require 'spec_helper'
 describe Api::Internal::PluggableTaskController do
 
   before :each do
-    controller.stub(:task_view_service).and_return(@task_view_service = double('task_view_service'))
+    allow(controller).to receive(:task_view_service).and_return(@task_view_service = double('task_view_service'))
   end
 
   describe :route do

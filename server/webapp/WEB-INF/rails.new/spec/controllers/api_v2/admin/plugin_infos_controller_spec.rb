@@ -21,7 +21,7 @@ describe ApiV2::Admin::PluginInfosController do
 
   before(:each) do
     @plugin_service = double('plugin_service')
-    controller.stub('plugin_service').and_return(@plugin_service)
+    allow(controller).to receive('plugin_service').and_return(@plugin_service)
   end
 
   describe :security do
@@ -80,7 +80,7 @@ describe ApiV2::Admin::PluginInfosController do
     it 'should list all plugin_infos' do
       plugin_info = PluginInfo.new('plugin_id', 'plugin_name','plugin_version', 'plugin_type', nil, nil, nil)
 
-      @plugin_service.should_receive(:pluginInfos).with(nil).and_return([plugin_info])
+      expect(@plugin_service).to receive(:pluginInfos).with(nil).and_return([plugin_info])
 
       get_with_api_header :index
 
@@ -91,7 +91,7 @@ describe ApiV2::Admin::PluginInfosController do
     it 'should filter plugin_infos by type' do
       plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, nil)
 
-      @plugin_service.should_receive(:pluginInfos).with('scm').and_return([plugin_info])
+      expect(@plugin_service).to receive(:pluginInfos).with('scm').and_return([plugin_info])
 
       get_with_api_header :index, type: 'scm'
 
@@ -100,7 +100,7 @@ describe ApiV2::Admin::PluginInfosController do
     end
 
     it 'should be a unprocessible entity for a invalid plugin type' do
-      @plugin_service.should_receive(:pluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
+      expect(@plugin_service).to receive(:pluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
 
       get_with_api_header :index, type: 'invalid_type'
 
@@ -136,7 +136,7 @@ describe ApiV2::Admin::PluginInfosController do
     it 'should fetch a plugin_info for the given id' do
       plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, nil)
 
-      @plugin_service.should_receive(:pluginInfo).with('plugin_id').and_return(plugin_info)
+      expect(@plugin_service).to receive(:pluginInfo).with('plugin_id').and_return(plugin_info)
 
       get_with_api_header :show, id: 'plugin_id'
 
@@ -145,7 +145,7 @@ describe ApiV2::Admin::PluginInfosController do
     end
 
     it 'should return 404 in absence of plugin_info' do
-      @plugin_service.should_receive(:pluginInfo).with('plugin_id').and_return(nil)
+      expect(@plugin_service).to receive(:pluginInfo).with('plugin_id').and_return(nil)
 
       get_with_api_header :show, id: 'plugin_id'
 

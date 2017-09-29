@@ -138,13 +138,13 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).all(".material_detail dt").tap do |dts|
-      dts[0].text.should == "Subversion"
-      dts[1].text.should == "Dest:"
-      dts[2].text.should == "Date:"
-      dts[3].text.should == "User:"
-      dts[4].text.should == "Comment:"
-      dts[5].text.should == "Last run with:"
-      dts[6].text.should == "Revision to trigger with:"
+      expect(dts[0].text).to eq("Subversion")
+      expect(dts[1].text).to eq("Dest:")
+      expect(dts[2].text).to eq("Date:")
+      expect(dts[3].text).to eq("User:")
+      expect(dts[4].text).to eq("Comment:")
+      expect(dts[5].text).to eq("Last run with:")
+      expect(dts[6].text).to eq("Revision to trigger with:")
     end
   end
 
@@ -326,27 +326,27 @@ describe "/pipelines/show_for_trigger.html.erb" do
   end
 
   it "should render process material revision comment for display" do
-    view.should_receive(:render_simple_comment).with("comment").and_return("simplified")
+    expect(view).to receive(:render_simple_comment).with("comment").and_return("simplified")
 
     assign(:pipeline, pipeline_instance = double("pipeline instance"))
-    pipeline_instance.should_receive(:getName).at_least(:once).and_return("pipeline_name")
-    pipeline_instance.should_receive(:getMaterials).at_least(:once).and_return([material = double("material")])
-    pipeline_instance.should_receive(:findCurrentMaterialRevisionForUI).at_least(:once).and_return(revision = double("revision"))
-    pipeline_instance.should_receive(:getLatestMaterialRevision).at_least(:once).and_return(revision)
-    pipeline_instance.should_receive(:canRun).at_least(:once).and_return(true)
+    expect(pipeline_instance).to receive(:getName).at_least(:once).and_return("pipeline_name")
+    expect(pipeline_instance).to receive(:getMaterials).at_least(:once).and_return([material = double("material")])
+    expect(pipeline_instance).to receive(:findCurrentMaterialRevisionForUI).at_least(:once).and_return(revision = double("revision"))
+    expect(pipeline_instance).to receive(:getLatestMaterialRevision).at_least(:once).and_return(revision)
+    expect(pipeline_instance).to receive(:canRun).at_least(:once).and_return(true)
 
-    revision.should_receive(:getLatestRevisionString).at_least(:once).and_return("1234")
-    revision.should_receive(:getLatestShortRevision).at_least(:once).and_return("1234")
-    revision.should_receive(:getDateOfLatestModification).at_least(:once).and_return(java.util.Date.new())
-    revision.should_receive(:getLatestUser).at_least(:once).and_return("user")
-    revision.should_receive(:getLatestComment).at_least(:once).and_return("comment")
-    revision.should_receive(:hasModifications).at_least(:once).and_return(false)
+    expect(revision).to receive(:getLatestRevisionString).at_least(:once).and_return("1234")
+    expect(revision).to receive(:getLatestShortRevision).at_least(:once).and_return("1234")
+    expect(revision).to receive(:getDateOfLatestModification).at_least(:once).and_return(java.util.Date.new())
+    expect(revision).to receive(:getLatestUser).at_least(:once).and_return("user")
+    expect(revision).to receive(:getLatestComment).at_least(:once).and_return("comment")
+    expect(revision).to receive(:hasModifications).at_least(:once).and_return(false)
 
-    material.should_receive(:getPipelineUniqueFingerprint).at_least(:once).and_return("fingerprint")
-    material.should_receive(:getDisplayName).at_least(:once).and_return("package material")
-    material.should_receive(:getTruncatedDisplayName).at_least(:once).and_return("p1")
-    material.should_receive(:getTypeForDisplay).at_least(:once).and_return("PACKAGE")
-    material.should_receive(:getFolder).at_least(:once).and_return("f2")
+    expect(material).to receive(:getPipelineUniqueFingerprint).at_least(:once).and_return("fingerprint")
+    expect(material).to receive(:getDisplayName).at_least(:once).and_return("package material")
+    expect(material).to receive(:getTruncatedDisplayName).at_least(:once).and_return("p1")
+    expect(material).to receive(:getTypeForDisplay).at_least(:once).and_return("PACKAGE")
+    expect(material).to receive(:getFolder).at_least(:once).and_return("f2")
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 

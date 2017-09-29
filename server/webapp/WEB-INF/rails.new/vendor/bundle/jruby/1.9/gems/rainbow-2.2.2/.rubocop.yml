@@ -1,0 +1,14 @@
+Documentation:
+  Enabled: false
+
+EmptyLinesAroundBody:
+  Enabled: false
+
+HashSyntax:
+  Enabled: false
+
+MethodName:
+  Enabled: false
+
+StringLiterals:
+  Enabled: false

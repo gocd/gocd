@@ -17,13 +17,14 @@
 require 'spec_helper'
 
 describe ApiV1::Elastic::ProfilesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @elastic_profile_service = double('elastic_profile_service')
     @entity_hashing_service = double('entity_hashing_service')
-    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-    controller.stub(:elastic_profile_service).and_return(@elastic_profile_service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(controller).to receive(:elastic_profile_service).and_return(@elastic_profile_service)
   end
 
   describe :index do
@@ -67,7 +68,7 @@ describe ApiV1::Elastic::ProfilesController do
         login_as_admin
 
         profile = ElasticProfile.new('foo', 'docker')
-        @elastic_profile_service.should_receive(:listAll).and_return({'foo' => profile})
+        expect(@elastic_profile_service).to receive(:listAll).and_return({'foo' => profile})
 
         get_with_api_header :index
 
@@ -100,7 +101,7 @@ describe ApiV1::Elastic::ProfilesController do
   describe :show do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
 
       it 'should allow all with security disabled' do
@@ -145,8 +146,8 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should render the profile of specified name' do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).and_return('md5')
-        @elastic_profile_service.should_receive(:findProfile).with('unit-test.docker').and_return(profile)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).and_return('md5')
+        expect(@elastic_profile_service).to receive(:findProfile).with('unit-test.docker').and_return(profile)
 
         get_with_api_header :show, profile_id: 'unit-test.docker'
 
@@ -155,7 +156,7 @@ describe ApiV1::Elastic::ProfilesController do
       end
 
       it 'should return 404 if the profile does not exist' do
-        @elastic_profile_service.should_receive(:findProfile).with('non-existent-profile').and_return(nil)
+        expect(@elastic_profile_service).to receive(:findProfile).with('non-existent-profile').and_return(nil)
 
         get_with_api_header :show, profile_id: 'non-existent-profile'
 
@@ -241,8 +242,8 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should deserialize profile from given parameters' do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:etag_for).and_return('some-md5')
-        @elastic_profile_service.should_receive(:create).with(anything, an_instance_of(ElasticProfile), an_instance_of(HttpLocalizedOperationResult))
+        allow(controller).to receive(:etag_for).and_return('some-md5')
+        expect(@elastic_profile_service).to receive(:create).with(anything, an_instance_of(ElasticProfile), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, profile: profile_hash
 
         expect(response).to be_ok
@@ -251,11 +252,11 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should fail to save if there are validation errors' do
         result = double('HttpLocalizedOperationResult')
-        HttpLocalizedOperationResult.stub(:new).and_return(result)
-        result.stub(:isSuccessful).and_return(false)
-        result.stub(:message).with(anything()).and_return('Save failed')
-        result.stub(:httpCode).and_return(422)
-        @elastic_profile_service.should_receive(:create).with(anything, an_instance_of(ElasticProfile), result)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+        allow(result).to receive(:isSuccessful).and_return(false)
+        allow(result).to receive(:message).with(anything()).and_return('Save failed')
+        allow(result).to receive(:httpCode).and_return(422)
+        expect(@elastic_profile_service).to receive(:create).with(anything, an_instance_of(ElasticProfile), result)
 
         post_with_api_header :create, profile: profile_hash
 
@@ -284,8 +285,8 @@ describe ApiV1::Elastic::ProfilesController do
   describe :update do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -327,8 +328,8 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should not allow rename of profile id' do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:load_entity_from_config).and_return(profile)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(profile)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
 
         put_with_api_header :update, profile_id: 'foo', profile: profile_hash
 
@@ -337,8 +338,8 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should fail update if etag does not match' do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:load_entity_from_config).and_return(profile)
-        controller.stub(:etag_for).and_return('another-etag')
+        allow(controller).to receive(:load_entity_from_config).and_return(profile)
+        allow(controller).to receive(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = 'some-etag'
 
         put_with_api_header :update, profile_id: 'unit-test.docker', profile: profile_hash
@@ -349,10 +350,10 @@ describe ApiV1::Elastic::ProfilesController do
       it 'should proceed with update if etag matches' do
         controller.request.env['HTTP_IF_MATCH'] = %Q{"#{Digest::MD5.hexdigest('md5')}"}
         profile = ElasticProfile.new('unit-test.docker', 'docker')
-        controller.stub(:load_entity_from_config).twice.and_return(profile)
+        allow(controller).to receive(:load_entity_from_config).twice.and_return(profile)
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).exactly(3).times.and_return('md5')
-        @elastic_profile_service.should_receive(:update).with(anything, 'md5', an_instance_of(ElasticProfile), anything)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).exactly(3).times.and_return('md5')
+        expect(@elastic_profile_service).to receive(:update).with(anything, 'md5', an_instance_of(ElasticProfile), anything)
 
         put_with_api_header :update, profile_id: 'unit-test.docker', profile: profile_hash
 
@@ -398,7 +399,7 @@ describe ApiV1::Elastic::ProfilesController do
   describe :destroy do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -439,7 +440,7 @@ describe ApiV1::Elastic::ProfilesController do
       end
 
       it 'should raise an error if profile is not found' do
-        @elastic_profile_service.should_receive(:findProfile).and_return(nil)
+        expect(@elastic_profile_service).to receive(:findProfile).and_return(nil)
 
         delete_with_api_header :destroy, profile_id: 'foo'
 
@@ -448,9 +449,9 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should render the success message on deleting a profile' do
         profile = ElasticProfile.new('foo', 'docker')
-        @elastic_profile_service.should_receive(:findProfile).and_return(profile)
+        expect(@elastic_profile_service).to receive(:findProfile).and_return(profile)
         result = HttpLocalizedOperationResult.new
-        @elastic_profile_service.stub(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
+        allow(@elastic_profile_service).to receive(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
           result.setMessage(LocalizedMessage::string('RESOURCE_DELETE_SUCCESSFUL', 'profile', 'foo'))
         end
         delete_with_api_header :destroy, profile_id: 'foo'
@@ -460,9 +461,9 @@ describe ApiV1::Elastic::ProfilesController do
 
       it 'should render the validation errors on failure to delete' do
         profile = ElasticProfile.new('foo', 'docker')
-        @elastic_profile_service.should_receive(:findProfile).and_return(profile)
+        expect(@elastic_profile_service).to receive(:findProfile).and_return(profile)
         result = HttpLocalizedOperationResult.new
-        @elastic_profile_service.stub(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
+        allow(@elastic_profile_service).to receive(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
           result.unprocessableEntity(LocalizedMessage::string('SAVE_FAILED_WITH_REASON', 'Validation failed'))
         end
         delete_with_api_header :destroy, profile_id: 'foo'

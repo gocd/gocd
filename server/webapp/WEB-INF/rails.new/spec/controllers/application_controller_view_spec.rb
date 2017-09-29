@@ -52,9 +52,9 @@ describe NonApiController do
     end
 
     it "should fail with double_render error when not rendering error" do
-      lambda do
+      expect do
         get :double_render_without_error
-      end.should raise_error
+      end.to raise_error
     end
   end
 
@@ -133,7 +133,7 @@ describe Api::TestController do
     end
 
     it "should render a pretty payload with message" do
-      @controller.stub(:url_for).and_return("foo/bar")
+      allow(@controller).to receive(:url_for).and_return("foo/bar")
       get :unresolved
       expect(response.body).to have_selector("h3", :text=>"The url you are trying to reach appears to be incorrect.")
     end
@@ -144,7 +144,7 @@ describe Api::TestController do
     end
 
     it "should show the status in the response" do
-      @controller.stub(:url_for).and_return("foo/bar")
+      allow(@controller).to receive(:url_for).and_return("foo/bar")
       get :unresolved
       expect(response.body).to have_selector("div.biggest", :text=>":(")
     end

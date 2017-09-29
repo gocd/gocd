@@ -44,8 +44,8 @@ describe "list.html.erb" do
     @packageToPipelineMap.put("pid3",packageThreePipelines)
 
     assign(:cruise_config, @cruise_config = double("cruise config"))
-    @cruise_config.stub(:canDeletePackageRepository).with(anything).and_return(true)
-    @cruise_config.stub(:getMd5).and_return("abc")
+    allow(@cruise_config).to receive(:canDeletePackageRepository).with(anything).and_return(true)
+    allow(@cruise_config).to receive(:getMd5).and_return("abc")
   end
 
   describe "list.html" do
@@ -204,9 +204,9 @@ describe "list.html.erb" do
       repo1 = mock_repo('repo1')
       repo2 = mock_repo('repo2')
       cruise_config = double('cruise_config')
-      cruise_config.should_receive(:canDeletePackageRepository).with(repo1).and_return(true)
-      cruise_config.should_receive(:canDeletePackageRepository).with(repo2).and_return(false)
-      cruise_config.should_receive(:getMd5).and_return("abc")
+      expect(cruise_config).to receive(:canDeletePackageRepository).with(repo1).and_return(true)
+      expect(cruise_config).to receive(:canDeletePackageRepository).with(repo2).and_return(false)
+      expect(cruise_config).to receive(:getMd5).and_return("abc")
       assign(:cruise_config, cruise_config)
 
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => [repo1, repo2]}}
@@ -222,9 +222,9 @@ describe "list.html.erb" do
   private
   def mock_repo(repoId, packages = Packages.new())
     repo1 = double(repoId)
-    repo1.should_receive(:getPackages).at_least(:once).and_return(packages)
-    repo1.should_receive(:getId).at_least(:once).and_return(repoId)
-    repo1.should_receive(:getName).at_least(:once).and_return(repoId)
+    expect(repo1).to receive(:getPackages).at_least(:once).and_return(packages)
+    expect(repo1).to receive(:getId).at_least(:once).and_return(repoId)
+    expect(repo1).to receive(:getName).at_least(:once).and_return(repoId)
     repo1
   end
 end

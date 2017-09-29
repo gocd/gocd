@@ -22,8 +22,8 @@ describe ApiV1::VersionInfosController do
   before :each do
     @version_info_service = double('version_info_service')
     @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
-    controller.stub(:version_info_service).and_return(@version_info_service)
-    controller.stub(:system_environment).and_return(@system_environment)
+    allow(controller).to receive(:version_info_service).and_return(@version_info_service)
+    allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
   describe :as_user do
@@ -37,11 +37,11 @@ describe ApiV1::VersionInfosController do
         @result = double('HttpLocalizedOperationResult')
         @go_latest_version = double('go_latest_version')
 
-        ApiV1::GoLatestVersion.stub(:new).and_return(@go_latest_version)
-        HttpLocalizedOperationResult.stub(:new).and_return(@result)
-        @result.stub(:isSuccessful).and_return(true);
-        @go_latest_version.stub(:valid?).and_return(true)
-        @go_latest_version.stub(:latest_version).and_return("16.1.0-123")
+        allow(ApiV1::GoLatestVersion).to receive(:new).and_return(@go_latest_version)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
+        allow(@result).to receive(:isSuccessful).and_return(true);
+        allow(@go_latest_version).to receive(:valid?).and_return(true)
+        allow(@go_latest_version).to receive(:latest_version).and_return("16.1.0-123")
       end
 
       it 'should update the latest version for a go server' do
@@ -54,9 +54,9 @@ describe ApiV1::VersionInfosController do
                                 :signing_public_key => signing_public_key,
                                 :signing_public_key_signature => signing_public_key_signature }
 
-        ApiV1::GoLatestVersion.stub(:new).with(latest_version_hash, @system_environment).and_return(@go_latest_version)
-        @go_latest_version.should_receive(:valid?).and_return(true)
-        @version_info_service.should_receive(:updateServerLatestVersion).with('16.1.0-123', @result).and_return(@model)
+        allow(ApiV1::GoLatestVersion).to receive(:new).with(latest_version_hash, @system_environment).and_return(@go_latest_version)
+        expect(@go_latest_version).to receive(:valid?).and_return(true)
+        expect(@version_info_service).to receive(:updateServerLatestVersion).with('16.1.0-123', @result).and_return(@model)
 
         patch_with_api_header :update_server, :message => @message, :message_signature => @message_signature, :signing_public_key => @signing_public_key, :signing_public_key_signature => @signing_public_key_signature
 
@@ -71,7 +71,7 @@ describe ApiV1::VersionInfosController do
       end
 
       it 'should be bad request if message is tampered' do
-        @go_latest_version.should_receive(:valid?).and_return(false)
+        expect(@go_latest_version).to receive(:valid?).and_return(false)
 
         patch_with_api_header :update_server, message: 'message', :signature => 'signature'
 
@@ -82,9 +82,9 @@ describe ApiV1::VersionInfosController do
         bad_message = %Q({\n  "latest-version": "15.ABC-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
         error_result = double('error_result', :isSuccessful => false, :httpCode => 400, :message => 'error')
 
-        @go_latest_version.stub(:latest_version).and_return('15.ABC-123')
-        HttpLocalizedOperationResult.stub(:new).and_return(error_result)
-        @version_info_service.should_receive(:updateServerLatestVersion).with('15.ABC-123', error_result).and_return(nil)
+        allow(@go_latest_version).to receive(:latest_version).and_return('15.ABC-123')
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(error_result)
+        expect(@version_info_service).to receive(:updateServerLatestVersion).with('15.ABC-123', error_result).and_return(nil)
 
         patch_with_api_header :update_server, message: bad_message, :signature => 'signature'
 
@@ -99,8 +99,8 @@ describe ApiV1::VersionInfosController do
         @version_info_service = double('version_info_service')
         @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
 
-        controller.stub(:version_info_service).and_return(@version_info_service)
-        controller.stub(:system_environment).and_return(@system_environment)
+        allow(controller).to receive(:version_info_service).and_return(@version_info_service)
+        allow(controller).to receive(:system_environment).and_return(@system_environment)
       end
 
       it 'should return the version_info which requires update' do
@@ -108,7 +108,7 @@ describe ApiV1::VersionInfosController do
         latest_version = GoVersion.new('5.6.7-1')
         version_info = VersionInfo.new('go_server', installed_version, latest_version, nil)
 
-        @version_info_service.should_receive(:getStaleVersionInfo).and_return(version_info)
+        expect(@version_info_service).to receive(:getStaleVersionInfo).and_return(version_info)
 
         get_with_api_header :stale
 
@@ -117,7 +117,7 @@ describe ApiV1::VersionInfosController do
       end
 
       it 'should return an empty response if there are no version_infos for update' do
-        @version_info_service.should_receive(:getStaleVersionInfo).and_return(nil)
+        expect(@version_info_service).to receive(:getStaleVersionInfo).and_return(nil)
 
         get_with_api_header :stale
 

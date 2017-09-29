@@ -29,6 +29,6 @@ describe ApiV4::Admin::Templates::TemplatesConfigRepresenter do
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#template-config')
     actual_json.delete(:_links)
 
-    actual_json.fetch(:_embedded).should == {templates: [ApiV4::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)]}
+    expect(actual_json.fetch(:_embedded)).to eq({templates: [ApiV4::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)]})
   end
 end

@@ -191,8 +191,8 @@ describe "admin/materials/index.html.erb" do
     SCMMetadataStore.getInstance().clear()
 
     scm_view = double('SCMView')
-    scm_view.stub(:displayValue).and_return('Display Name')
-    scm_view.stub(:template).and_return('Plugin Template')
+    allow(scm_view).to receive(:displayValue).and_return('Display Name')
+    allow(scm_view).to receive(:template).and_return('Plugin Template')
     SCMMetadataStore.getInstance().addMetadataFor('plugin', SCMConfigurations.new, scm_view)
   end
 end

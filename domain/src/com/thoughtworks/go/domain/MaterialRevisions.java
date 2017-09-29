@@ -395,6 +395,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
                     //do nothing
                 } else if (material instanceof TfsMaterial) {
                     TfsMaterialUpdater updater = new TfsMaterialUpdater((TfsMaterial) material);
+                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
                 } else if (material instanceof P4Material) {
                     P4MaterialUpdater updater = new P4MaterialUpdater((P4Material) material);
                     commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));

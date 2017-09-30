@@ -133,7 +133,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Deprecated
     // This is only used in test for legacy purpose.
     // Please call pipelineService.save(aPipeline) instead
-    public Stage saveWithJobs(Pipeline pipeline, Stage stage) {
+    public Stage saveWithJobs(Pipeline pipeline, Stage stage)  {
         if (stage.getState() == null) {
             stage.building();
         }
@@ -145,13 +145,11 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             buildInstanceDao.save(stage.getId(), job);
         }
 
-        for (JobInstance jobInstance : jobInstances) {
-            jobInstance.setIdentifier(new JobIdentifier(pipeline, stage, jobInstance));
-        }
+        jobInstances.forEach(jobInstance -> {
+jobInstance.setIdentifier(new JobIdentifier(pipeline, stage, jobInstance));
+});
         return stage;
-    }
-
-    public int getMaxStageCounter(long pipelineId, String stageName) {
+    }public int getMaxStageCounter(long pipelineId, String stageName) {
         Map<String, Object> toGet = arguments("pipelineId", pipelineId).and("name", stageName).asMap();
         Integer maxCounter = (Integer) getSqlMapClientTemplate().queryForObject("getMaxStageCounter", toGet);
         return maxCounter == null ? 0 : maxCounter;

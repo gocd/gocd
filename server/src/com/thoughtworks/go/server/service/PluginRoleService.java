@@ -40,30 +40,22 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
         pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
 
-    public void updatePluginRoles(String pluginId, String username, List<CaseInsensitiveString> pluginRolesName) {
+    public void updatePluginRoles(String pluginId, String username, List<CaseInsensitiveString> pluginRolesName)  {
         pluginRoleUsersStore.revokeAllRolesFor(username);
 
         Map<CaseInsensitiveString, PluginRoleConfig> pluginRoles = getPluginRoles(pluginId);
-        for (CaseInsensitiveString pluginRoleName : pluginRolesName) {
-            PluginRoleConfig pluginRoleConfig = pluginRoles.get(pluginRoleName);
-
-            if (pluginRoleConfig != null) {
+        pluginRolesName.stream().map(pluginRoleConfig -> pluginRoles.get(pluginRoleName)).filter(pluginRoleConfig -> pluginRoleConfig != null).forEach(pluginRoleConfig -> {
                 pluginRoleUsersStore.assignRole(username, pluginRoleConfig);
-            }
-        }
-    }
-
-    public void register(PluginRoleChangeListener listener) {
+            });
+    }public void register(PluginRoleChangeListener listener) {
         listeners.add(listener);
     }
 
-    private void notifyListeners() {
-        for (PluginRoleChangeListener listener : listeners) {
-            listener.onPluginRoleChange();
-        }
-    }
-
-    public void invalidateRolesFor(String pluginId) {
+    private void notifyListeners()  {
+        listeners.forEach(listener -> {
+listener.onPluginRoleChange();
+});
+    }public void invalidateRolesFor(String pluginId) {
         List<PluginRoleConfig> pluginRoles = goConfigService.security().getPluginRoles(pluginId);
 
         if (!pluginRoles.isEmpty()) {
@@ -91,18 +83,16 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
         return goConfigService.security().getRoles().findPluginRoleByName(new CaseInsensitiveString(roleName));
     }
 
-    private Map<CaseInsensitiveString, PluginRoleConfig> getPluginRoles(String pluginId) {
+    private Map<CaseInsensitiveString, PluginRoleConfig> getPluginRoles(String pluginId)  {
         Map<CaseInsensitiveString, PluginRoleConfig> result = new HashMap<>();
 
         List<PluginRoleConfig> pluginRoles = goConfigService.security().getPluginRoles(pluginId);
 
-        for (PluginRoleConfig pluginRole : pluginRoles) {
-            result.put(pluginRole.getName(), pluginRole);
-        }
+        pluginRoles.forEach(pluginRole -> {
+result.put(pluginRole.getName(), pluginRole);
+});
         return result;
-    }
-
-    @Override
+    }@Override
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
 //        do nothing
     }

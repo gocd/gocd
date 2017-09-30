@@ -52,15 +52,13 @@ public class MaterialExpansionService {
         addTheExpandedMaterialsHere.addAll(materialConfigConverter.toMaterials(materialConfigs));
     }
 
-    public MaterialConfigs expandMaterialConfigsForScheduling(MaterialConfigs materialConfigsToBeExpanded) {
+    public MaterialConfigs expandMaterialConfigsForScheduling(MaterialConfigs materialConfigsToBeExpanded)  {
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs();
-        for (MaterialConfig materialConfig : materialConfigsToBeExpanded) {
-            expandForScheduling(materialConfig, knownMaterialConfigs);
-        }
+        materialConfigsToBeExpanded.forEach(materialConfig -> {
+expandForScheduling(materialConfig, knownMaterialConfigs);
+});
         return knownMaterialConfigs;
-    }
-
-    public void expandForScheduling(MaterialConfig configuredMaterial, MaterialConfigs addTheExpandedMaterialConfigsHere) {
+    }public void expandForScheduling(MaterialConfig configuredMaterial, MaterialConfigs addTheExpandedMaterialConfigsHere) {
         addTheExpandedMaterialConfigsHere.add(configuredMaterial);
         if(configuredMaterial instanceof SvnMaterialConfig) {
             expandForSchedulingForSvnMaterial(configuredMaterial, addTheExpandedMaterialConfigsHere);
@@ -71,21 +69,20 @@ public class MaterialExpansionService {
         expandExternals(configuredMaterial, expandedMaterials);
     }
 
-    private void expandExternals(MaterialConfig configuredMaterial, MaterialConfigs expandedMaterials) {
+    private void expandExternals(MaterialConfig configuredMaterial, MaterialConfigs expandedMaterials)  {
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) configuredMaterial;
         if (!svnMaterialConfig.isCheckExternals()) {
             return;
         }
 
         List<SvnExternal> urLs = svn(svnMaterialConfig).getAllExternalURLs();
-        for (SvnExternal externalUrl : urLs) {
-            SvnMaterialConfig svnMaterial = new SvnMaterialConfig(externalUrl.getURL(), svnMaterialConfig.getUserName(), svnMaterialConfig.getPassword(), true, svnMaterialConfig.folderFor(externalUrl.getFolder()));
-            svnMaterial.setFilter(svnMaterialConfig.filter());
-            expandedMaterials.add(svnMaterial);
-        }
-    }
-
-    private Subversion svn(SvnMaterialConfig svnMaterialConfig) {
+        urLs.stream().map(svnMaterial -> new SvnMaterialConfig(externalUrl.getURL(), svnMaterialConfig.getUserName(), svnMaterialConfig.getPassword(), true, svnMaterialConfig.folderFor(externalUrl.getFolder()))).map(svnMaterial -> {
+svnMaterial.setFilter(svnMaterialConfig.filter());
+return svnMaterial;
+}).forEach(svnMaterial -> {
+expandedMaterials.add(svnMaterial);
+});
+    }private Subversion svn(SvnMaterialConfig svnMaterialConfig) {
         String cacheKey = cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint());
         Subversion svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
         if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().forCommandline().equals(svnMaterialConfig.getUrl())) {

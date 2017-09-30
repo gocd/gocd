@@ -54,15 +54,13 @@ public class BuilderFactory {
         taskBuilderMap.put(NullTask.class, nullTaskBuilder);
     }
 
-    public List<Builder> buildersForTasks(Pipeline pipeline, List<Task> tasks, UpstreamPipelineResolver resolver) {
+    public List<Builder> buildersForTasks(Pipeline pipeline, List<Task> tasks, UpstreamPipelineResolver resolver)  {
         ArrayList<Builder> builders = new ArrayList<>();
-        for (Task task : tasks) {
-            builders.add(builderFor(task, pipeline, resolver));
-        }
+        tasks.forEach(task -> {
+builders.add(builderFor(task, pipeline, resolver));
+});
         return builders;
-    }
-
-    public Builder builderFor(Task task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
+    }public Builder builderFor(Task task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
         return getBuilderImplementation(task).createBuilder(this, task, pipeline, resolver);
     }
 

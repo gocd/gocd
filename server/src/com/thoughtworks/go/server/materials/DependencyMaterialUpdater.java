@@ -58,29 +58,24 @@ public class DependencyMaterialUpdater implements MaterialUpdater {
         }
     }
 
-    private void insertRevisionsForParentStagesAfter(DependencyMaterial dependencyMaterial, Modifications list) {
+    private void insertRevisionsForParentStagesAfter(DependencyMaterial dependencyMaterial, Modifications list)  {
         Pagination pagination = Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE);
         List<Modification> modifications = null;
         do {
             modifications = dependencyMaterialSourceDao.getPassedStagesAfter(list.last().getRevision(), dependencyMaterial, pagination);
-            for (Modification modification : modifications) {
-                MaterialRevision revision = new MaterialRevision(dependencyMaterial, modification);
-                materialRepository.saveMaterialRevision(revision);
-            }
+            modifications.stream().map(revision -> new MaterialRevision(dependencyMaterial, modification)).forEach(revision -> {
+materialRepository.saveMaterialRevision(revision);
+});
             pagination = Pagination.pageStartingAt(pagination.getOffset() + pagination.getPageSize(), null, pagination.getPageSize());
         } while (!modifications.isEmpty());
-    }
-
-    private void insertRevisionsForAllParentStageInstances(DependencyMaterial dependencyMaterial) {
+    }private void insertRevisionsForAllParentStageInstances(DependencyMaterial dependencyMaterial)  {
         Pagination pagination = Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE);
         List<Modification> modifications;
         do {
             modifications = dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial, pagination);
-            for (Modification modification : modifications) {
-                MaterialRevision revision = new MaterialRevision(dependencyMaterial, modification);
-                materialRepository.saveMaterialRevision(revision);
-            }
+            modifications.stream().map(revision -> new MaterialRevision(dependencyMaterial, modification)).forEach(revision -> {
+materialRepository.saveMaterialRevision(revision);
+});
             pagination = Pagination.pageStartingAt(pagination.getOffset() + pagination.getPageSize(), null, pagination.getPageSize());
         } while (!modifications.isEmpty());
-    }
-}
+    }}

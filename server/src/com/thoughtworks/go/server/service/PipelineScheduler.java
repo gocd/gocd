@@ -197,7 +197,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                 HealthStateType.invalidLicense(HealthStateScope.GLOBAL)));
     }
 
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
+    public void onConfigChange(CruiseConfig newCruiseConfig)  {
         synchronized (pipelines) {
             newCruiseConfig.accept(new PiplineConfigVisitor() {
                 public void visit(PipelineConfig pipelineConfig) {
@@ -212,13 +212,11 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                 }
             }
 
-            for (String pipelineName : deletedPipeline) {
-                pipelines.remove(pipelineName);
-            }
+            deletedPipeline.forEach(pipelineName -> {
+pipelines.remove(pipelineName);
+});
         }
-    }
-
-    private void addPipelineIfNotPresent(PipelineConfig pipelineConfig, Map<String, ScheduleCheckState> pipelines) {
+    }private void addPipelineIfNotPresent(PipelineConfig pipelineConfig, Map<String, ScheduleCheckState> pipelines) {
         if (!pipelines.containsKey(CaseInsensitiveString.str(pipelineConfig.name()))) {
             pipelines.put(CaseInsensitiveString.str(pipelineConfig.name()), ScheduleCheckState.IDLE);
             LOGGER.debug("[Configuration Changed] Marking new pipeline {} as IDLE", pipelineConfig.name());

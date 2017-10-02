@@ -62,8 +62,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.helper.ConfigFileFixture.pipelineWithAttributes;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.readToEnd;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -1452,42 +1454,17 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldConvertIsLockedAttributeToATristateNamedLockBehavior() throws Exception {
-        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        String placeholder = "__PIPELINE_ATTRIBUTES__";
-        String pipelineWithPlaceholder = "  <pipeline " + placeholder + ">\n" +
-                "    <materials>\n" +
-                "      <git url=\"git1\"/>\n" +
-                "    </materials>\n" +
-                "    <stage name=\"stage1\">\n" +
-                "      <jobs>\n" +
-                "        <job name=\"job1\">\n" +
-                "          <tasks>\n" +
-                "            <ant/>\n" +
-                "          </tasks>\n" +
-                "        </job>\n" +
-                "      </jobs>\n" +
-                "    </stage>\n" +
-                "  </pipeline>\n";
+        String defaultPipeline = pipelineWithAttributes("name=\"default1\"", 97);
+        String lockedPipeline = pipelineWithAttributes("name=\"locked1\" isLocked=\"true\"", 97);
+        String unLockedPipeline = pipelineWithAttributes("name=\"unlocked1\" isLocked=\"false\"", 97);
 
-        String defaultPipeline = pipelineWithPlaceholder.replace(placeholder, "name=\"default1\"");
-        String lockedPipeline = pipelineWithPlaceholder.replace(placeholder, "name=\"locked1\" isLocked=\"true\"");
-        String unLockedPipeline = pipelineWithPlaceholder.replace(placeholder, "name=\"unlocked1\" isLocked=\"false\"");
+        String defaultPipelineAfterMigration = pipelineWithAttributes("name=\"default1\"", 98);
+        String lockedPipelineAfterMigration = pipelineWithAttributes("name=\"locked1\" lockBehavior=\"lockOnFailure\"", 98);
+        String unLockedPipelineAfterMigration = pipelineWithAttributes("name=\"unlocked1\" lockBehavior=\"none\"", 98);
 
-        String defaultPipelineAfterMigration = defaultPipeline;
-        String lockedPipelineAfterMigration = pipelineWithPlaceholder.replace(placeholder, "name=\"locked1\" lockBehavior=\"lockOnFailure\"");
-        String unLockedPipelineAfterMigration = pipelineWithPlaceholder.replace(placeholder, "name=\"unlocked1\" lockBehavior=\"none\"");
-
-        String configXmlBeforeMigration = xmlDeclaration + "<cruise schemaVersion=\"97\">\n<pipelines>\n"
-                + defaultPipeline + lockedPipeline + unLockedPipeline
-                + "</pipelines>\n</cruise>";
-
-        String expectedMigratedConfig = xmlDeclaration + "<cruise schemaVersion=\"98\">\n<pipelines>\n"
-                + defaultPipelineAfterMigration + lockedPipelineAfterMigration + unLockedPipelineAfterMigration
-                + "</pipelines>\n</cruise>";
-
-        String actualContentAfterMigration = migrateXmlString(configXmlBeforeMigration, 97);
-
-        assertStringsIgnoringCarriageReturnAreEqual(expectedMigratedConfig, actualContentAfterMigration);
+        assertStringsIgnoringCarriageReturnAreEqual(defaultPipelineAfterMigration, migrateXmlString(defaultPipeline, 97));
+        assertStringsIgnoringCarriageReturnAreEqual(lockedPipelineAfterMigration, migrateXmlString(lockedPipeline, 97));
+        assertStringsIgnoringCarriageReturnAreEqual(unLockedPipelineAfterMigration, migrateXmlString(unLockedPipeline, 97));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

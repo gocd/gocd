@@ -334,7 +334,15 @@
                     </xsd:sequence>
                     <xsd:attribute name="name" type="nameType" use="required"/>
                     <xsd:attribute name="labeltemplate" type="labelType"/>
-                    <xsd:attribute name="lockBehavior" type="xsd:string"/>
+                    <xsd:attribute name="lockBehavior">
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:enumeration value="lockOnFailure"/>
+                                <xsd:enumeration value="unlockWhenFinished"/>
+                                <xsd:enumeration value="none"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:attribute>
                     <xsd:attribute name="template" type="nameType" use="optional"/>
                 </xsd:complexType>
             </xsd:element>

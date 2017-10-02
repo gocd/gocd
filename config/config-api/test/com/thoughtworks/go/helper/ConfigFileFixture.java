@@ -2004,4 +2004,25 @@ public final class ConfigFileFixture {
     public static String configWithArtifactSourceAs(String artifactSource) {
         return String.format(CONFIG_WITH_ARTIFACT_SRC, artifactSource);
     }
+
+    public static String pipelineWithAttributes(String pipelineTagAttributes, int schemaVersion) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruise schemaVersion=\"" + schemaVersion + "\">\n" +
+                "<pipelines>\n" +
+                "  <pipeline " + pipelineTagAttributes + ">\n" +
+                "    <materials>\n" +
+                "      <git url=\"git1\"/>\n" +
+                "    </materials>\n" +
+                "    <stage name=\"stage1\">\n" +
+                "      <jobs>\n" +
+                "        <job name=\"job1\">\n" +
+                "          <tasks>\n" +
+                "            <ant/>\n" +
+                "          </tasks>\n" +
+                "        </job>\n" +
+                "      </jobs>\n" +
+                "    </stage>\n" +
+                "  </pipeline>\n" +
+                "</pipelines>\n" +
+                "</cruise>";
+    }
 }

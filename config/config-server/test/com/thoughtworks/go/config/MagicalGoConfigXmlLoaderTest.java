@@ -731,7 +731,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToExplicitlyLockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" isLocked=\"true\">\n"
+                "<pipeline name=\"pipeline\" lockBehavior=\"lockOnFailure\">\n"
                         + "  <materials>\n"
                         + "    <hg url=\"/hgrepo\"/>\n"
                         + "  </materials>\n"
@@ -754,7 +754,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToExplicitlyUnlockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" isLocked=\"false\">\n"
+                "<pipeline name=\"pipeline\" lockBehavior=\"none\">\n"
                         + "  <materials>\n"
                         + "    <hg url=\"/hgrepo\"/>\n"
                         + "  </materials>\n"
@@ -1016,7 +1016,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicateUsersInARole() throws Exception {
-        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_USER, "User 'ps' already exists in 'admin'.", RuntimeException.class);
+        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_USER, "User 'ps' already exists in 'admin'.", GoConfigInvalidException.class);
     }
 
     /**
@@ -3812,6 +3812,17 @@ public class MagicalGoConfigXmlLoaderTest {
                 "The content of element 'jobs' is not complete. One of '{job}' is expected.");
     }
 
+    @Test
+    public void shouldAllowOnlyThreeValuesForLockBehavior() throws Exception {
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p1\" lockBehavior=\"lockOnFailure\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p2\" lockBehavior=\"unlockWhenFinished\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p3\" lockBehavior=\"none\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"pipelineWithNoLockBehaviorDefined\"", CONFIG_SCHEMA_VERSION));
+
+        assertXsdFailureDuringLoad(pipelineWithAttributes("name=\"pipelineWithWrongLockBehavior\" lockBehavior=\"some-random-value\"", CONFIG_SCHEMA_VERSION),
+                "Value 'some-random-value' is not facet-valid with respect to enumeration '[lockOnFailure, unlockWhenFinished, none]'. It must be a value from the enumeration.");
+    }
+
     private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {
         assertFailureDuringLoad(configXML, expectedMessage, XsdValidationException.class);
     }
@@ -3821,7 +3832,7 @@ public class MagicalGoConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(configXML);
             fail("Should have failed with an exception of type: " + expectedExceptionClass.getSimpleName());
         } catch (Exception e) {
-            String message = "\nExpected: " + expectedExceptionClass.getSimpleName() + "\nActual  : " + e.getClass().getSimpleName();
+            String message = "\nExpected: " + expectedExceptionClass.getSimpleName() + "\nActual  : " + e.getClass().getSimpleName() + " with message: " + e.getMessage();
             assertTrue(message, e.getClass().equals(expectedExceptionClass));
             assertThat(e.getMessage(), is(expectedMessage));
         }

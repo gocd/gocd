@@ -1450,6 +1450,46 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, containsString("pluginId=\"json.config.plugin\""));
     }
 
+    @Test
+    public void shouldConvertIsLockedAttributeToATristateNamedLockBehavior() throws Exception {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        String placeholder = "__PIPELINE_ATTRIBUTES__";
+        String pipelineWithPlaceholder = "  <pipeline " + placeholder + ">\n" +
+                "    <materials>\n" +
+                "      <git url=\"git1\"/>\n" +
+                "    </materials>\n" +
+                "    <stage name=\"stage1\">\n" +
+                "      <jobs>\n" +
+                "        <job name=\"job1\">\n" +
+                "          <tasks>\n" +
+                "            <ant/>\n" +
+                "          </tasks>\n" +
+                "        </job>\n" +
+                "      </jobs>\n" +
+                "    </stage>\n" +
+                "  </pipeline>\n";
+
+        String defaultPipeline = pipelineWithPlaceholder.replace(placeholder, "name=\"default1\"");
+        String lockedPipeline = pipelineWithPlaceholder.replace(placeholder, "name=\"locked1\" isLocked=\"true\"");
+        String unLockedPipeline = pipelineWithPlaceholder.replace(placeholder, "name=\"unlocked1\" isLocked=\"false\"");
+
+        String defaultPipelineAfterMigration = defaultPipeline;
+        String lockedPipelineAfterMigration = pipelineWithPlaceholder.replace(placeholder, "name=\"locked1\" lockBehavior=\"lockOnFailure\"");
+        String unLockedPipelineAfterMigration = pipelineWithPlaceholder.replace(placeholder, "name=\"unlocked1\" lockBehavior=\"none\"");
+
+        String configXmlBeforeMigration = xmlDeclaration + "<cruise schemaVersion=\"97\">\n<pipelines>\n"
+                + defaultPipeline + lockedPipeline + unLockedPipeline
+                + "</pipelines>\n</cruise>";
+
+        String expectedMigratedConfig = xmlDeclaration + "<cruise schemaVersion=\"98\">\n<pipelines>\n"
+                + defaultPipelineAfterMigration + lockedPipelineAfterMigration + unLockedPipelineAfterMigration
+                + "</pipelines>\n</cruise>";
+
+        String actualContentAfterMigration = migrateXmlString(configXmlBeforeMigration, 97);
+
+        assertStringsIgnoringCarriageReturnAreEqual(expectedMigratedConfig, actualContentAfterMigration);
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

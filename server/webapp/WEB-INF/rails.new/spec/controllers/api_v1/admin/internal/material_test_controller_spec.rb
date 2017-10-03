@@ -20,8 +20,8 @@ describe ApiV1::Admin::Internal::MaterialTestController do
   include ApiHeaderSetupTeardown
   include ApiV1::ApiVersionHelper
 
-  describe :test do
-    describe :security do
+  describe "test" do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:post, :test)
@@ -140,18 +140,18 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
     end
 
-    describe :route do
+    describe "route" do
       before :each do
         @go_config_service = double('go_config_service')
         allow(controller).to receive(:go_config_service).and_return(@go_config_service)
       end
-      describe :with_header do
+      describe "with_header" do
 
         it 'should route to test action of the material_test controller' do
           expect(:post => 'api/admin/internal/material_test').to route_to(action: 'test', controller: 'api_v1/admin/internal/material_test')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

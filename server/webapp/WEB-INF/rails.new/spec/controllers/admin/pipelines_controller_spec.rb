@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe Admin::PipelinesController do
   before do
-    allow(controller).to receive(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
+    allow(controller).to receive(:pipeline_pause_service).with(no_args).and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
   end
 
   include ConfigSaveStubbing
@@ -27,7 +27,7 @@ describe Admin::PipelinesController do
   before(:each) do
     @user = Username.new(CaseInsensitiveString.new("loser"))
     allow(controller).to receive(:current_user).and_return(@user)
-    allow(controller).to receive(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
+    allow(controller).to receive(:go_config_service).with(no_args).and_return(@go_config_service = double('Go Config Service'))
     @template_config_service = double('Template Config Service')
     allow(controller).to receive(:template_config_service).and_return(@template_config_service)
     allow(controller).to receive(:security_service).and_return(@security_service = double('Security Service'))
@@ -35,7 +35,7 @@ describe Admin::PipelinesController do
 
     allow(controller).to receive(:pluggable_task_service).and_return(@pluggable_task_service)
     allow(controller).to receive(:task_view_service).and_return(@task_view_service = double('Task View Service'))
-    allow(controller).to receive(:package_definition_service).with().and_return(@package_definition_service = StubPackageDefinitionService.new)
+    allow(controller).to receive(:package_definition_service).with(no_args).and_return(@package_definition_service = StubPackageDefinitionService.new)
   end
 
   describe "routes" do
@@ -724,7 +724,7 @@ describe Admin::PipelinesController do
   describe "clone" do
 
     before :each do
-      allow(controller).to receive(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
+      allow(controller).to receive(:go_config_service).with(no_args).and_return(@go_config_service = double('Go Config Service'))
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       allow(controller).to receive(:security_service).and_return(@security_service = double('Security Service'))
       @cruise_config = BasicCruiseConfig.new

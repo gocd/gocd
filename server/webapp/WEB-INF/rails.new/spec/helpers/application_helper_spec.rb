@@ -17,8 +17,8 @@
 require 'spec_helper'
 
 describe ApplicationHelper do
-  include ApplicationHelper
   include RailsLocalizer
+  include ApplicationHelper
 
   it "should generate a label tag with required asterisk" do
     mock_form = double(:form)
@@ -88,7 +88,7 @@ describe ApplicationHelper do
     expect(config_md5_field).to eq('<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="foo_bar_baz" />')
   end
 
-  describe :tab_for do
+  describe "tab_for" do
     before do
       allow(self).to receive(:url_for).and_return("/go/quux")
       allow(self).to receive(:root_path).and_return("/go/quux")
@@ -508,7 +508,7 @@ describe ApplicationHelper do
     end
   end
 
-  describe :is_user_a_template_admin do
+  describe "is_user_a_template_admin" do
     before :each do
       @security_service = double('security service')
     end
@@ -521,7 +521,7 @@ describe ApplicationHelper do
     end
   end
 
-  describe :link_to_remote_new do
+  describe "link_to_remote_new" do
     it 'should return anchor tag with on success function' do
       expected = %q|<a href="#"  class="link_as_button" onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){Modalbox.show(alert('hi')}}); return false;">link name</a>|
       actual = link_to_remote_new('link name',{:method=>:get, :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
@@ -563,7 +563,7 @@ describe ApplicationHelper do
 
   end
 
-  describe :form_remote_tag_new do
+  describe "form_remote_tag_new" do
 
    it 'should generate form tag with on complete for ajax update' do
      expected = %q|<form accept-charset="UTF-8" action="/admin/users/search" method="post" onsubmit="jQuery('#search_id').addClass('ac_loading'); new Ajax.Updater({success:'search_results_container'}, '/admin/users/search', {asynchronous:true, evalScripts:true, onComplete:function(request){jQuery('#search_id').removeClass('ac_loading');}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
@@ -588,7 +588,7 @@ describe ApplicationHelper do
    end
   end
 
-  describe :go_update do
+  describe "go_update" do
     it 'should fetch the new go release' do
       expect(version_info_service).to receive(:getGoUpdate).and_return("1.2.3-1")
 
@@ -596,7 +596,7 @@ describe ApplicationHelper do
     end
   end
 
-  describe :check_go_updates? do
+  describe "check_go_updates?" do
     it 'should return true if go version update check is enabled' do
       expect(version_info_service).to receive(:isGOUpdateCheckEnabled).and_return(true)
 

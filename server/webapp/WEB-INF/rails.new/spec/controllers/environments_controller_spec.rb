@@ -361,7 +361,7 @@ describe EnvironmentsController do
     end
   end
 
-  describe :edit do
+  describe "edit" do
     render_views
 
     before(:each) do
@@ -453,7 +453,7 @@ describe EnvironmentsController do
     end
   end
 
-  describe :show do
+  describe "show" do
     render_views
 
     before do

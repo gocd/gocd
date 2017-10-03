@@ -42,7 +42,7 @@ describe "/shared/_flash_message.html.erb" do
       flash = double('flash')
       expect(flash).to receive(:flashClass).and_return('error')
       expect(flash).to receive(:to_s).and_return('some random message')
-      allow(template).to receive(:load_flash_message).with('flash_key').and_return(flash)
+      allow(view).to receive(:load_flash_message).with('flash_key').and_return(flash)
       assign(:flash_help_link, "<a href='foo'>Foo</a>")
 
       render :partial => "shared/flash_message.html.erb"
@@ -57,7 +57,7 @@ describe "/shared/_flash_message.html.erb" do
       flash = double('flash')
       expect(flash).to receive(:flashClass).and_return('error')
       expect(flash).to receive(:to_s).and_return('some random message')
-      allow(template).to receive(:load_flash_message).with('flash_key').and_return(flash)
+      allow(view).to receive(:load_flash_message).with('flash_key').and_return(flash)
       assign(:flash_help_link, nil)
 
       render :partial => "shared/flash_message.html.erb"

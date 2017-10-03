@@ -80,14 +80,14 @@ describe Api::TestController do
     draw_test_controller_route
   end
 
-  describe :disable_auto_refresh do
+  describe "disable_auto_refresh" do
     it "should propagate autoRefresh=false" do
       get :auto_refresh, "autoRefresh" => "false"
       expect(response.body).to eq("http://test.host/?autoRefresh=false")
     end
   end
 
-  describe :render_operation_result do
+  describe "render_operation_result" do
     it "should render 404 responses in error template" do
       get :not_found_action, :no_layout=>true
       expect(response.status).to eq(404)
@@ -101,7 +101,7 @@ describe Api::TestController do
     end
   end
 
-  describe :render_operation_result_if_failure do
+  describe "render_operation_result_if_failure" do
     it "should render 404 responses in error template" do
       get :another_not_found_action, :no_layout => true
       expect(response.status).to eq(404)
@@ -127,7 +127,7 @@ describe Api::TestController do
     expect(response.body).to eq(" ")
   end
 
-  describe :unresolved do
+  describe "unresolved" do
     it "should resolve as action for any unmatched url" do
       expect(:get => "/cruise/foo/bar/baz/quux/hell/yeah?random=junk").to route_to({:controller => 'application', :action => "unresolved", :url => "cruise/foo/bar/baz/quux/hell/yeah", :random => "junk"})
     end

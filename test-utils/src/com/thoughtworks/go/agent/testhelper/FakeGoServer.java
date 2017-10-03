@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent.testhelper;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -30,12 +31,14 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.EnumSet;
 import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
-import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
 public class FakeGoServer extends ExternalResource {
     public enum TestResource {
@@ -51,8 +54,14 @@ public class FakeGoServer extends ExternalResource {
         }
 
         public String getMd5() throws IOException {
-            try (InputStream in = source.getInputStream()) {
-                return md5DigestOfStream(in);
+            try (InputStream input = source.getInputStream()) {
+                MessageDigest digester = MessageDigest.getInstance("MD5");
+                try (DigestInputStream digest = new DigestInputStream(input, digester)) {
+                    IOUtils.copy(digest, new NullOutputStream());
+                }
+                return DatatypeConverter.printHexBinary(digester.digest()).toLowerCase();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
 

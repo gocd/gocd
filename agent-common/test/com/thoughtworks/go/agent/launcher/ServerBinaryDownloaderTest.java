@@ -22,6 +22,8 @@ import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -30,12 +32,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.UnknownHostException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 
-import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -61,8 +65,12 @@ public class ServerBinaryDownloaderTest {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-        try(BufferedInputStream stream = new BufferedInputStream(new FileInputStream(DownloadableFile.AGENT.getLocalFile()))) {
-            assertThat(downloader.getMd5(), is(md5DigestOfStream(stream)));
+        MessageDigest digester = MessageDigest.getInstance("MD5");
+        try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(DownloadableFile.AGENT.getLocalFile()))) {
+            try (DigestInputStream digest = new DigestInputStream(stream, digester)) {
+                IOUtils.copy(digest, new NullOutputStream());
+            }
+            assertThat(downloader.getMd5(), is(DatatypeConverter.printHexBinary(digester.digest()).toLowerCase()));
         }
         assertThat(downloader.getSslPort(), is(String.valueOf(server.getSecurePort())));
     }

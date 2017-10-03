@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -141,13 +141,9 @@ public class AgentRegistrationController {
     }
 
     private String getChecksumFor(final InputStreamSrc src) throws IOException {
-        InputStream inputStream = null;
-        String checksum = null;
-        try {
-            inputStream = src.invoke();
-            checksum = md5DigestOfStream(inputStream);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+        String checksum;
+        try (InputStream inputStream = src.invoke()) {
+            checksum = DigestUtils.md5Hex(inputStream);
         }
         assert (checksum != null);
         return checksum;

@@ -22,8 +22,8 @@ describe Admin::StagesController do
   include TaskMother
 
   before do
-    allow(controller).to receive(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
-    allow(controller).to receive(:task_view_service).with().and_return(@task_view_service = double('task_view_service'))
+    allow(controller).to receive(:pipeline_pause_service).with(no_args).and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
+    allow(controller).to receive(:task_view_service).with(no_args).and_return(@task_view_service = double('task_view_service'))
     allow(controller).to receive(:set_current_user)
   end
   include ConfigSaveStubbing

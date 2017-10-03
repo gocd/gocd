@@ -12,10 +12,4 @@ module ExtraSpecAssertions
     expect(response.status).to eq(302)
     expect(response.redirect_url).to match(%r{#{url}})
   end
-
-  RSpec::Matchers.define :be_nil_or_empty do
-    match do |actual|
-      actual.nil? or actual.size == 0
-    end
-  end
 end

@@ -85,21 +85,8 @@ RSpec.configure do |config|
   #       # Equivalent to being in spec/controllers
   #     end
   config.infer_spec_type_from_file_location!
-end
-
-ApplicationController.class_eval do
-  def should_receive_render_with(*expected)
-    expect(self).to receive(:render).with(*expected) do |*actual|
-      expect(actual).to eq(expected)
-      @performed_render = true
-    end
-  end
-
-  def should_receive_redirect_to(expected_url)
-    expect(self).to receive(:redirect_to).with(expected_url) do |actual_url|
-      expect(actual_url).to match(expected_url)
-      @performed_redirect = true
-    end
+  config.mock_with :rspec do |mocks|
+    mocks.yield_receiver_to_any_instance_implementation_blocks = true
   end
 end
 
@@ -132,3 +119,4 @@ include FixtureTestHelpers
 include ExtraSpecAssertions
 include CacheTestHelpers
 include MiscSpecExtensions
+include GoCDCustomMatchers

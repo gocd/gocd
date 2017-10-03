@@ -31,14 +31,14 @@ task bumpSchemaVersion {
       out.write(goConstantsContents.replaceAll(/(.*)CONFIG_SCHEMA_VERSION\s*=\s*.*/, "\$1CONFIG_SCHEMA_VERSION = ${nextVersion};"))
     }
 
-    originalXSDFile.withWriter { out ->
-      out.println(xsdContents.replaceAll("""<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${currentVersion}"/>""", """<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${nextVersion}"/>"""))
-    }
-
     copy {
       from originalXSDFile
       into project(':config-server').file("resources/schemas")
       rename "cruise-config.xsd", "${currentVersion}_cruise-config.xsd"
+    }
+
+    originalXSDFile.withWriter { out ->
+      out.println(xsdContents.replaceAll("""<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${currentVersion}"/>""", """<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${nextVersion}"/>"""))
     }
 
     def xslFile = project(':config-server').file("resources/upgrades/${nextVersion}.xsl")

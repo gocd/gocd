@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe "environments/edit_pipelines.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+  include FormUI
+  include ReflectiveUtil
 
   before do
     @environment = EnvironmentConfigMother.environment("env")

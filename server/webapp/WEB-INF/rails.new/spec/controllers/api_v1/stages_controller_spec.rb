@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::StagesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))

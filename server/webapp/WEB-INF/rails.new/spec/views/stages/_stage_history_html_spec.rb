@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "_stage_history.html.erb" do
-  include StageModelMother, GoUtil
+  include StageModelMother
+  include GoUtil
 
   before(:each) do
     stages = StageInstanceModels.new

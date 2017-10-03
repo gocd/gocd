@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "admin/jobs/index.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
 
   before(:each) do
     @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-1", "job-2", "job-3"].to_java(java.lang.String))

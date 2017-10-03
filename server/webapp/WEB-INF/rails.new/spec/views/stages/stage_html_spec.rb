@@ -19,7 +19,11 @@ load File.join(File.dirname(__FILE__), "..",  "auto_refresh_examples.rb")
 
 describe 'stages/stage.html.erb' do
 
-  include StageModelMother, GoUtil, JobMother, PipelineModelMother, ApplicationHelper
+  include StageModelMother
+  include GoUtil
+  include JobMother
+  include PipelineModelMother
+  include ApplicationHelper
 
   before(:each) do
     allow(view).to receive(:is_user_an_admin?).and_return(true)

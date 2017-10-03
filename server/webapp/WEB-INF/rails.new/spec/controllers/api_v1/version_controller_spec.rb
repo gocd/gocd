@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::VersionController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   describe :show do
     it 'should render the current gocd server version for admins' do

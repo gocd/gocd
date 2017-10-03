@@ -18,7 +18,9 @@ require 'spec_helper'
 require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
 
 describe 'pipelines/_pipeline_stage_bar.html.erb' do
-  include JobMother, GoUtil, ReflectiveUtil
+  include JobMother
+  include GoUtil
+  include ReflectiveUtil
 
   before :each do
     @sim = double('stage_instance_model')

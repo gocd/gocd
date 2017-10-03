@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "layouts/pipelines.html.eb" do
-  include GoUtil, StageModelMother
+  include GoUtil
+  include StageModelMother
 
   before do
     @layout_name = 'layouts/pipelines'

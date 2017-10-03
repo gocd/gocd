@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV2::Admin::EnvironmentsController do
-  include ApiHeaderSetupTeardown, ApiV2::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV2::ApiVersionHelper
 
   describe :index do
     describe :for_admins do

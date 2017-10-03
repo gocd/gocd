@@ -74,7 +74,7 @@ describe Admin::Materials::PackageController do
 
     describe "create" do
       it "should add new material with new package definition" do
-        allow(controller).to receive(:package_definition_service).with().and_return(StubPackageDefinitionService.new)
+        allow(controller).to receive(:package_definition_service).with(no_args).and_return(StubPackageDefinitionService.new)
         stub_save_for_success
         allow(controller).to receive(:populate_config_validity)
 
@@ -96,7 +96,7 @@ describe Admin::Materials::PackageController do
       end
 
       it "should update existing material with new package definition" do
-        allow(controller).to receive(:package_definition_service).with().and_return(StubPackageDefinitionService.new)
+        allow(controller).to receive(:package_definition_service).with(no_args).and_return(StubPackageDefinitionService.new)
         stub_save_for_success
 
         expect(@pipeline.materialConfigs().size).to eq(1)

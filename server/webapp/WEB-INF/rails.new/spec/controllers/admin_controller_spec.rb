@@ -79,23 +79,23 @@ describe AdminController do
       expect(controller.send(:assert_load, :junk, "junk_value")).to be_truthy
       expect(controller.instance_variable_get('@junk')).to eq("junk_value")
     end
-
+    
     it "should error out on null assignment" do
       expect(controller).to receive(:action_has_layout?).and_return(true)
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
       expect(controller.send(:assert_load, :junk, nil)).to be_falsey
       expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should not render error page layout when action doesn't have one" do
       expect(controller).to receive(:action_has_layout?).and_return(false)
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
       expect(controller.send(:assert_load, :junk, nil)).to be_falsey
       expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should allow caller to use custom error message and status" do
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
       expect(controller.send(:assert_load, :junk, nil, "callers custom message", 409)).to be_falsey
       expect(controller.instance_variable_get('@message')).to eq("callers custom message")
     end
@@ -109,7 +109,7 @@ describe AdminController do
 
     it "should render error when result of evaluation is null" do
       expect(controller).to receive(:action_has_layout?).and_return(true)
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
       expect(controller.send(:assert_load_eval, :junk) do
         nil
       end).to be_falsey
@@ -129,7 +129,7 @@ describe AdminController do
 
     it "should catch exceptions and render error when eval_loading fails" do
       expect(controller).to receive(:action_has_layout?).and_return(true)
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
       expect(controller.send(:assert_load_eval, :junk) do
         raise "foo bar"
       end).to be_falsey
@@ -138,7 +138,7 @@ describe AdminController do
 
     it "should use custom message and status when evaluation is null" do
       expect(controller).to receive(:action_has_layout?).and_return(true)
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 407})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 407})
       expect(controller.send(:assert_load_eval, :junk, "custom message", 407) do
         nil
       end).to be_falsey
@@ -148,7 +148,7 @@ describe AdminController do
     it "should not render layout for error page if should_not_render_layout is explicitly set on the controller" do
       expect(controller).to receive(:action_has_layout?).and_return(true)
       controller.instance_variable_set(:@should_not_render_layout, true)
-      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
+      expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
       expect(controller.send(:assert_load, :junk, nil)).to be_falsey
       expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
@@ -174,7 +174,7 @@ describe AdminController do
   end
 
   it "should report 'Bad Request' when no status override given" do
-    controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+    expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
     controller.send(:assert_load, :foo, nil)
   end
 
@@ -184,7 +184,7 @@ describe AdminController do
     end
     allow(controller).to receive(:response).and_return(response = double('response'))
     allow(response).to receive(:headers).and_return({})
-    controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
+    expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
 
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
       assert_load(:foo, nil)
@@ -222,7 +222,7 @@ describe AdminController do
 
   it "should use flash-message to report successful save" do
     stub_save_for_success
-    controller.should_receive_redirect_to(/http:\/\/foo.bar\?fm=#{uuid_pattern}/)
+    expect(controller).to receive_redirect_to(/http:\/\/foo.bar\?fm=#{uuid_pattern}/)
     controller.send(:save_page, "md5", "http://foo.bar", {:action => "foo", :controller => "bar"}, UpdateCommand.new) {}
   end
 

@@ -1,0 +1,22 @@
+@charset "UTF-8";
+
+/// Strips the unit from a number.
+///
+/// @param {Number (With Unit)} $value
+///
+/// @example scss - Usage
+///   $dimension: strip-units(10em);
+///
+/// @example css - CSS Output
+///   $dimension: 10;
+///
+/// @return {Number (Unitless)}
+
+@function strip-units($value) {
+  @if $output-bourbon-deprecation-warnings == true {
+    @warn "[Bourbon] [Deprecation] `strip-units` is deprecated and will be " +
+    "removed in 5.0.0 and replaced by the `strip-unit` function.";
+  }
+
+  @return ($value / ($value * 0 + 1));
+}

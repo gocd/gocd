@@ -23,7 +23,7 @@ describe Admin::PackageDefinitionsController do
   before :each do
     allow(controller).to receive(:populate_config_validity)
     @go_config_service = stub_service(:go_config_service)
-    allow(controller).to receive(:package_definition_service).with().and_return(@package_definition_service= double('Package Definition Service'))
+    allow(controller).to receive(:package_definition_service).with(no_args).and_return(@package_definition_service= double('Package Definition Service'))
   end
 
   describe "routes" do

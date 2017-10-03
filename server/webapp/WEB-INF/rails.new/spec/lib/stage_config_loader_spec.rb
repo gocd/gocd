@@ -51,7 +51,7 @@ describe StageConfigLoader do
     @controller.params = {:pipeline_name => "foo-pipeline", :stage_name => "quux-stage"}
     expect(@controller.stage).to be_nil
 
-    @controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+    expect(@controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
 
     expect(@controller.send(@klass.filter_names.last)).to eq(false)
 

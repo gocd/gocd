@@ -1,0 +1,45 @@
+/// Applies basic transition settings to an element.
+/// @param {Duration} $duration [null] - Length (speed) of the transition.
+/// @param {Keyword|Function} $timing [null] - Easing of the transition.
+/// @param {Duration} $delay [null] - Delay in seconds or milliseconds before the transition starts.
+@mixin transition-basics(
+  $duration: null,
+  $timing: null,
+  $delay: null
+) {
+  @extend %mui-defaults;
+  transition-duration: $duration;
+  transition-timing-function: $timing;
+  transition-delay: $delay;
+}
+
+/// Wraps the content in the setup class for a transition.
+/// @param {Keyword} $dir - State to setup for transition.
+@mixin transition-start($dir) {
+  $selector: -mui-build-selector(map-get($motion-ui-states, $dir));
+
+  @at-root {
+    #{$selector} {
+      @content;
+    }
+  }
+}
+
+/// Wraps the content in the active class for a transition.
+/// @param {Keyword} $dir - State to activate a transition on.
+@mixin transition-end($dir) {
+  $selector: -mui-build-selector(map-get($motion-ui-states, $dir), true);
+
+  @at-root {
+    #{$selector} {
+      @content;
+    }
+  }
+}
+
+/// Adds styles for a stagger animation, which can be used with Angular's `ng-repeat`.
+/// @param {Duration} $delay-amount - Amount of time in seconds or milliseconds to add between each item's animation.
+@mixin stagger($delay-amount) {
+  transition-delay: $delay-amount;
+  transition-duration: 0; // Prevent accidental CSS inheritance
+}

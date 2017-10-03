@@ -1,0 +1,37 @@
+// Return vendor-prefixed property names if appropriate
+// Example: transition-property-names((transform, color, background), moz) -> -moz-transform, color, background
+//************************************************************************//
+@function transition-property-names($props, $vendor: false) {
+  @if $output-bourbon-deprecation-warnings == true {
+    @warn "[Bourbon] [Deprecation] `transition-property-names` is deprecated " +
+    "and will be removed in 5.0.0.";
+  }
+
+  $user-deprecation-warnings-setting: $output-bourbon-deprecation-warnings;
+  $output-bourbon-deprecation-warnings: false !global;
+
+  $new-props: ();
+
+  @each $prop in $props {
+    $new-props: append($new-props, transition-property-name($prop, $vendor), comma);
+  }
+
+  $output-bourbon-deprecation-warnings: $user-deprecation-warnings-setting !global;
+
+  @return $new-props;
+}
+
+@function transition-property-name($prop, $vendor: false) {
+  @if $output-bourbon-deprecation-warnings == true {
+    @warn "[Bourbon] [Deprecation] `transition-property-name` is deprecated " +
+    "and will be removed in 5.0.0.";
+  }
+
+  // put other properties that need to be prefixed here aswell
+  @if $vendor and $prop == transform {
+    @return unquote('-'+$vendor+'-'+$prop);
+  }
+  @else {
+    @return $prop;
+  }
+}

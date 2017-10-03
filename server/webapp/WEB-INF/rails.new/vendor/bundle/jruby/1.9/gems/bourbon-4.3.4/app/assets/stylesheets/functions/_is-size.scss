@@ -1,0 +1,23 @@
+@charset "UTF-8";
+
+/// Checks for a valid CSS size.
+///
+/// @param {String} $value
+///
+/// @require {function} contains
+/// @require {function} is-length
+
+@function is-size($value) {
+  @if $output-bourbon-deprecation-warnings == true {
+    @warn "[Bourbon] [Deprecation] `is-size` is deprecated and will be " +
+    "removed in 5.0.0.";
+  }
+
+  $user-deprecation-warnings-setting: $output-bourbon-deprecation-warnings;
+  $output-bourbon-deprecation-warnings: false !global;
+
+  @return is-length($value)
+          or contains("fill" "fit-content" "min-content" "max-content", $value);
+
+  $output-bourbon-deprecation-warnings: $user-deprecation-warnings-setting !global;
+}

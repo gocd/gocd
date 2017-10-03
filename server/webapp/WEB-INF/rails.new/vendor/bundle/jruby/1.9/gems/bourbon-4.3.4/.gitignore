@@ -1,0 +1,8 @@
+*gem
+*swp
+.DS_store
+.sass-cache
+_site
+Gemfile.lock
+npm-debug.log
+tmp/

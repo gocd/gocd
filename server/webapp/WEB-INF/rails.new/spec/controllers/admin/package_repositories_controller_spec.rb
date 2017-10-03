@@ -23,7 +23,7 @@ describe Admin::PackageRepositoriesController do
   before :each do
     @go_config_service = double('go config service')
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
-    allow(controller).to receive(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+    allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
   end
 
   describe :routes do

@@ -1,0 +1,33 @@
+{
+  "name": "bourbon",
+  "version": "4.3.4",
+  "description": "A simple and lightweight mixin library for Sass.",
+  "keywords": [
+    "css",
+    "eyeglass-module",
+    "mixins",
+    "sass",
+    "scss"
+  ],
+  "homepage": "http://bourbon.io",
+  "bugs": {
+    "url": "https://github.com/thoughtbot/bourbon/issues"
+  },
+  "eyeglass": {
+    "needs": "*",
+    "exports": "eyeglass-exports.js"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "thoughtbot",
+    "url": "http://thoughtbot.com"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thoughtbot/bourbon.git"
+  },
+  "scripts": {
+    "test": "echo \"No test specified\""
+  }
+}

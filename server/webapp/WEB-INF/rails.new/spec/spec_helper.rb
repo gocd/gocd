@@ -85,8 +85,8 @@ RSpec.configure do |config|
   #       # Equivalent to being in spec/controllers
   #     end
   config.infer_spec_type_from_file_location!
-  config.mock_with :rspec do |mocks|
-    mocks.yield_receiver_to_any_instance_implementation_blocks = true
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
   end
 end
 

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe com.thoughtworks.go.config.CaseInsensitiveString do
   it "should exhibit usual string behaviour" do

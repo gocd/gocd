@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::HgController do

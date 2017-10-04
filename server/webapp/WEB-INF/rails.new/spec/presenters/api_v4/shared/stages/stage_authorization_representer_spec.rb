@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::Shared::Stages::StageAuthorizationRepresenter do
   it 'should render stage authorization with hal representation' do

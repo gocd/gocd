@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
 
 

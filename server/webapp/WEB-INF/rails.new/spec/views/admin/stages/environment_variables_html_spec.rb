@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), "..", "environment_variables_form_example.rb")
 
 describe "admin/stages/environment_variables.html.erb" do

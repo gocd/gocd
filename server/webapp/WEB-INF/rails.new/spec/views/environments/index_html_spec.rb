@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 load File.expand_path(File.dirname(__FILE__) + '/../auto_refresh_examples.rb')
 

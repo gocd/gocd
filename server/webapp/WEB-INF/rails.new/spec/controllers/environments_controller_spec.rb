@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def assert_flash_message_and_class(flash, message, class_name)
   expect(flash.to_s).to eq(message)

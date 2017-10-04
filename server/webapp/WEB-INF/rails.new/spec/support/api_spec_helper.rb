@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module ApiSpecHelper
 
+module ApiSpecHelper
   def current_api_accept_header
     @controller.class.default_accepts_header
   end

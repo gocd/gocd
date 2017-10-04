@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::Internal::ResourcesController do
   include ApiHeaderSetupTeardown

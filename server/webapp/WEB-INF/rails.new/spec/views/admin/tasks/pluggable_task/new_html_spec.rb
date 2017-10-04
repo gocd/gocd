@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 # This tests "admin/tasks/pluggable_task/new.html.erb" through the plugin task template.
 describe "admin/tasks/plugin/new.html.erb" do

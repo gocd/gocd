@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Oauth2Provider::ClientsController, type: :controller do
   it "should set the tab_name" do

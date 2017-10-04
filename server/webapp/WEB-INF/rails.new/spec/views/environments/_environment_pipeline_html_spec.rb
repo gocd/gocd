@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def render_environment(pipeline_model)
   render :partial => "environments/environment_pipeline", :locals=>{:scope => {:pipeline_model => pipeline_model}}

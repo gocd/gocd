@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def with_listItem ul, class_name, key, value
   ul.find("li.#{class_name}").tap do |li|

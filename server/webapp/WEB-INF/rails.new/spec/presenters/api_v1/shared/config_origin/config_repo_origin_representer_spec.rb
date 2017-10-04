@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
   it 'should render remote config origin with hal representation' do

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::CommandSnippetRepresenter do
   it 'renders a command snippet with hal representation' do

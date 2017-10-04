@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 include GoUtil, FormUI
 
 describe "admin/package_definitions/show_with_repository_list.html.erb" do

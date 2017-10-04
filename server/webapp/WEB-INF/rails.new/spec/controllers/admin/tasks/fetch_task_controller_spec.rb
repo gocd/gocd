@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'task_controller_examples.rb')
 load File.join(File.dirname(__FILE__), 'fetch_task_controller_example.rb')
 

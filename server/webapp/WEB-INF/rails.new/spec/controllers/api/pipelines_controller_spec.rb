@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def schedule_options(specified_revisions, variables, secure_variables = {})
   ScheduleOptions.new(HashMap.new(specified_revisions), LinkedHashMap.new(variables), HashMap.new(secure_variables))

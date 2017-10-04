@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/users/_user_results_table.html.erb" do  
   it "should replace . in username with _dot_" do

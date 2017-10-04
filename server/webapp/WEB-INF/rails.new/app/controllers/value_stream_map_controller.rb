@@ -33,12 +33,17 @@ class ValueStreamMapController < ApplicationController
 
   def show_material
     respond_to do |format|
-      format.html
+      format.html {@material_display_name = material_display_name}
       format.json {render :json => generate_material_vsm_json}
     end
   end
 
   private
+
+  def material_display_name()
+    material_config = material_config_service.getMaterialConfig(current_user.getUsername().toString(), params[:material_fingerprint], HttpOperationResult.new)
+    material_config.getDisplayName() unless material_config.nil?
+  end
 
   def generate_vsm_json
     result = HttpLocalizedOperationResult.new

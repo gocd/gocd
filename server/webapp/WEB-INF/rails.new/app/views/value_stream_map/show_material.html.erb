@@ -1,10 +1,15 @@
 <% @view_title = "Value Stream Map of #{params[:material_fingerprint]}" -%>
 
 <div class="page_header">
-    <ul class="entity_title">
-        <li class="name"><%= params[:material_fingerprint] %></li>
-        <li class="last"><h1><%= params[:revision] %></h1></li>
-    </ul>
+  <span class="page_name">Value Stream Map</span>
+  <ul class="entity_title">
+    <li class="name">
+      <span class="label">Material</span>
+      <%= @material_display_name %></li>
+    <li class="last">
+      <span class="label">Revision</span>
+      <h1><%= params[:revision] %> </h1></li>
+  </ul>
 </div>
 
 <div class="content">

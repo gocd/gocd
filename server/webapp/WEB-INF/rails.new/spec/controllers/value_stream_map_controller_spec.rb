@@ -21,9 +21,11 @@ describe ValueStreamMapController do
   before(:each)  do
     @value_stream_map_service = double('value_stream_map_service')
     @pipeline_service = double('pipeline_service')
+    @material_config_service = double('material_config_service')
 
     allow(controller).to receive(:value_stream_map_service).and_return(@value_stream_map_service)
     allow(controller).to receive(:pipeline_service).and_return(@pipeline_service)
+    allow(controller).to receive(:material_config_service).and_return(@material_config_service)
     @result = HttpLocalizedOperationResult.new
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     @user = double('some user')
@@ -360,9 +362,25 @@ describe ValueStreamMapController do
 
     describe "render html" do
       it "should render html when html format" do
-        get :show_material, material_fingerprint: "fingerprint", revision: 'revision'
+        material_config = GitMaterialConfig.new('http://some.repo')
+
+        expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
+        expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(material_config)
+
+        get :show_material, material_fingerprint: 'fingerprint', revision: 'revision'
 
         assert_template "show_material"
+        expect(assigns(:material_display_name)).to eq('http://some.repo')
+      end
+
+      it 'should not assign material_display_name in absence of material for a given fingerprint' do
+        expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
+        expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(nil)
+
+        get :show_material, material_fingerprint: 'fingerprint', revision: 'revision'
+
+        assert_template "show_material"
+        expect(assigns(:material_display_name)).to be_nil
       end
     end
   end

@@ -328,6 +328,9 @@ Graph_Renderer = function (container) {
             }
         }
         if(instance.locator.trim() != "") {
+            var duration =  pipelineRunCompleted(instance) ? pipelineRunDuration(instance) : 'In Progress';
+            gui += '<span class="duration">Duration: ' + duration + '</span>';
+
             gui += '<ul class="stages">';
             stagesCount = instance.stages.length;
             for (var i = 0; i < stagesCount; i++) {
@@ -356,6 +359,24 @@ Graph_Renderer = function (container) {
 
         gui += '</li>';
         return gui;
+    }
+
+    function pipelineRunCompleted(instance) {
+      for(var i = 0; i < instance.stages.length; i++) {
+        if(['PASSED', 'FAILED', 'CANCELLED', 'UNKNOWN'].indexOf(instance.stages[i].status.toUpperCase()) < 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function pipelineRunDuration(instance) {
+      var stages = instance.stages;
+      var duration = 0;
+      for (var i = 0; i < stages.length; ++i) {
+        duration += stages[i].duration
+      }
+      return moment.duration(duration, 's').humanizeForGoCD()
     }
 
     function renderDummyEntity(node) {

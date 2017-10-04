@@ -2590,7 +2590,7 @@ li.task_property {
     border-radius: 4px;
     width: 190px;
     height: 110px;
-    padding: 10px;
+    padding: 10px 10px 30px 10px;
 }
 
 
@@ -2650,18 +2650,27 @@ li.task_property {
 
 .vsm-entity .show-more {
     text-align: center;
-    border-top: 1px solid #CCC;
     margin: 3px 0px;
+    position:relative;
+    &:before {
+        content: "";
+        border-top: 1px solid #ccc;
+        height: 1px;
+        display: block;
+        position: absolute;
+        width: 100%;
+        top: 7px;
+    }
 }
 
 .vsm-entity .show-more a {
     font-size: 11px;
-    height: 13px;
-    line-height: 13px;
     padding: 0px 5px;
-    margin: -8px 50px 0px;
     background: #FFF;
     display: block;
+    width: 60px;
+    margin: 0 auto;
+    position: relative;
 }
 
 .vsm-entity.current {
@@ -2692,7 +2701,6 @@ li.task_property {
 }
 
 .vsm-entity .actions {
-    background: #F8F8F8;
     height: 30px;
     position: absolute;
     bottom: 5px;
@@ -2729,7 +2737,7 @@ li.task_property {
 }
 
 .vsm-entity.pipeline.expanded {
-    height: 156px;
+    height: 195px;
     z-index: 1000;
     -webkit-box-shadow:  2px 2px 3px 3px rgba(128, 128, 128, 0.2);
     box-shadow:  2px 2px 3px 3px rgba(128, 128, 128, 0.2);
@@ -2737,29 +2745,31 @@ li.task_property {
 }
 
 .vsm-entity.pipeline.expanded .instances {
-    height: 92px;
+    height: 143px;
     overflow-y: auto;
 }
 
 .vsm-entity.pipeline.expanded.l {
-    height: 202px;
+    height: 270px;
 }
 
 .vsm-entity.pipeline.expanded.l .instances {
-    height: 138px;
+    height: 215px;
 }
 
 .vsm-entity.pipeline.expanded.xl {
-    height: 202px;
-    width: 210px;
+    //height: 340px;
+    height: 263px;
+    width:  210px;
 }
 
-.vsm-entity.pipeline.expanded.xl .actions {
-    width: 220px;
+.vsm-entity.pipeline.expanded.xl .instance {
+    width: 193px;
 }
 
 .vsm-entity.pipeline.expanded.xl .instances {
-    height: 138px;
+    //height: 285px;
+    height: 212px;
     overflow: auto;
     overflow-x: hidden;
 }

@@ -2709,6 +2709,16 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
 }
 
 .vsm-entity.pipeline ul.instances {
+  height: 61px;
+  .instance {
+    margin-top: 0px;
+  }
+  ul.stages {
+    margin-top: 10px;
+  }
+  .duration {
+    font-size: 11px;
+  }
   .message {
     padding: 0 7px;
   }
@@ -3846,7 +3856,7 @@ ul.entity_title {
 }
 
 .pipeline_run_label {
-  font-size:     13px;
+  font-size:     12px;
   display:       block;
   margin-bottom: 5px;
   font-weight:   600;

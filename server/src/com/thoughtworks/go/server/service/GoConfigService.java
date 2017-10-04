@@ -154,7 +154,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         } catch (PipelineNotFoundException e) {
             return false;
         }
-        return pipelineConfig != null && pipelineConfig.getOrigin().canEdit() && isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(pipelineConfig.name()));
+        return pipelineConfig != null && pipelineConfig.isLocal() && isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(pipelineConfig.name()));
     }
 
     public boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {

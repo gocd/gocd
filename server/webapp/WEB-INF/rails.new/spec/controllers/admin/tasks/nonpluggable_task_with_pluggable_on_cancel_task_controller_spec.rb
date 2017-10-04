@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe Admin::TasksController do
-  include ConfigSaveStubbing, TaskMother, FormUI
+  include ConfigSaveStubbing
+  include TaskMother
+  include FormUI
 
   before :all do
     set_up_registry

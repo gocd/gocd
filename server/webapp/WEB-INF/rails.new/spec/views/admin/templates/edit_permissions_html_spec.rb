@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "admin/templates/edit_permissions.html.erb" do
-  include GoUtil, ReflectiveUtil
+  include GoUtil
+  include ReflectiveUtil
 
   before(:each) do
     @cruise_config = BasicCruiseConfig.new

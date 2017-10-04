@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ComparisonHelper do
-  include ComparisonHelper, ReflectiveUtil
+  include ComparisonHelper
+  include ReflectiveUtil
 
   describe "pipeline_compare_href" do
     it "should construct url for the given pipeline compare parameters" do

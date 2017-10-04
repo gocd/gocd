@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::UsersController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @user_service = double('user service')

@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::EnvironmentsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before(:each) do
     @environment_config_service = double("environment_config_service")

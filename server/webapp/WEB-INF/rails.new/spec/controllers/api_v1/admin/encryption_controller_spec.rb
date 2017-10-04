@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::EncryptionController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   describe :security do
     it 'should allow anyone, with security disabled' do

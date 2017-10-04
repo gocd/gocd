@@ -17,7 +17,8 @@
 require "spec_helper"
 
 describe ApiV1::NotificationFiltersController do
-  include ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV4::ApiVersionHelper
 
   before(:each) do
     login_as_user

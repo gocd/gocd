@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "/admin/materials/pluggable_scm/edit.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
 
   SCM_PLUGIN_ID = 'my.scm.plugin'
   SCM_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"

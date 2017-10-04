@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Security::AuthConfigsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @security_auth_config_service = double('security_auth_config_service')

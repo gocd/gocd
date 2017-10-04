@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::MergedEnvironmentsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   describe :index do
     before(:each) do

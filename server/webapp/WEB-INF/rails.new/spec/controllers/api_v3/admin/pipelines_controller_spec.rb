@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV3::Admin::PipelinesController do
-  include ApiHeaderSetupTeardown, ApiV3::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV3::ApiVersionHelper
 
   before(:each) do
     @pipeline_md5 = 'md5'

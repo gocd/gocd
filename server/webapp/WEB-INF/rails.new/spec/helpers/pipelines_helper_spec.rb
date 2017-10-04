@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe PipelinesHelper do
-  include PipelinesHelper, PipelineModelMother, GoUtil
+  include PipelinesHelper
+  include PipelineModelMother
+  include GoUtil
 
   before do
     @now = org.joda.time.DateTime.new

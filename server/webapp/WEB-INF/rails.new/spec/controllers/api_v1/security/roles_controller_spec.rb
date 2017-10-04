@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Security::RolesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @service = double('role_config_service')

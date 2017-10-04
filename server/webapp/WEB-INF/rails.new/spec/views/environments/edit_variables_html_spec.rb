@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe "environments/edit_variables.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+  include FormUI
+  include ReflectiveUtil
 
   before do
     @environment = BasicEnvironmentConfig.new()

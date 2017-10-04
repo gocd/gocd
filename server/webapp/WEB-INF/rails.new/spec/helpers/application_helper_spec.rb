@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApplicationHelper do
-  include ApplicationHelper, RailsLocalizer
+  include ApplicationHelper
+  include RailsLocalizer
 
   it "should generate a label tag with required asterisk" do
     mock_form = double(:form)

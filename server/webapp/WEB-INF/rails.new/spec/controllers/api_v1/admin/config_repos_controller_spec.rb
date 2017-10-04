@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::ConfigReposController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @material_config = GitMaterialConfig.new('git://foo', 'master')

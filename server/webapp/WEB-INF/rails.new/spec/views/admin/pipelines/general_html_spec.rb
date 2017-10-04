@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "admin/pipelines/general.html.erb" do
-  include GoUtil, ReflectiveUtil
+  include GoUtil
+  include ReflectiveUtil
 
   before(:each) do
     @pipeline = PipelineConfigMother.pipelineConfigWithTimer("pipeline-name", "1 1 1 1 1 1 1")

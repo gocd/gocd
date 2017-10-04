@@ -21,7 +21,8 @@ def vm_template_for task
 end
 
 shared_examples_for :task_controller  do
-  include ConfigSaveStubbing, TaskMother
+  include ConfigSaveStubbing
+  include TaskMother
 
   describe "routes" do
     describe "index" do

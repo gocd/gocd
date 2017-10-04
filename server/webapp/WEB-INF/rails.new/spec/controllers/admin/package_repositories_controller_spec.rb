@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe Admin::PackageRepositoriesController do
-  include MockRegistryModule, ConfigSaveStubbing
+  include MockRegistryModule
+  include ConfigSaveStubbing
 
   before :each do
     @go_config_service = double('go config service')

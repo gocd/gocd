@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe StagesHelper do
-  include StagesHelper, GoUtil
+  include StagesHelper
+  include GoUtil
 
   before do
     @stage = StageMother.scheduledStage("cruise", 10, "dev", 5, "unit")

@@ -19,7 +19,9 @@ require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
 
 
 describe 'stages/_jobs.html.erb' do
-  include JobMother, GoUtil, ReflectiveUtil
+  include JobMother
+  include GoUtil
+  include ReflectiveUtil
 
   before :each do
     stage = StageMother.completedStageInstanceWithTwoPlans("bar_stage")

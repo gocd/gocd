@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "admin/materials/pluggable_scm/show_existing.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
 
   PLUGIN_ID = 'my.scm.plugin'
 

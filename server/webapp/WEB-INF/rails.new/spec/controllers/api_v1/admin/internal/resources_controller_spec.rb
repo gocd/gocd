@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::ResourcesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before(:each) do
     @go_config_service = double("go_config_service")

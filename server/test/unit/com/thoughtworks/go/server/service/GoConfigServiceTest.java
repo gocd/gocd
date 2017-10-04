@@ -1211,13 +1211,13 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToEditAExistentPipelineWithAdminPrivileges() throws Exception {
+    public void shouldBeAbleToEditAnExistentLocalPipelineWithAdminPrivileges() throws Exception {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("pipeline1");
+        pipeline.setOrigin(null);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        PipelineConfig pipeline = new PipelineConfig();
-        pipeline.setOrigin(new FileConfigOrigin());
-        pipeline.setName("pipeline1");
         when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
         when(cruiseConfig.getGroups()).thenReturn(new GoConfigMother().cruiseConfigWithOnePipelineGroup().getGroups());
         when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
@@ -1238,11 +1238,10 @@ public class GoConfigServiceTest {
     @Test
     public void shouldNotBeAbleToEditPipelineIfUserDoesNotHaveSufficientPermissions() throws Exception {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("pipeline1");
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        PipelineConfig pipeline = new PipelineConfig();
-        pipeline.setOrigin(new FileConfigOrigin());
-        pipeline.setName("pipeline1");
         when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"))).thenReturn(pipeline);
         BasicCruiseConfig basicCruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
         when(cruiseConfig.getGroups()).thenReturn(basicCruiseConfig.getGroups());

@@ -20,7 +20,7 @@ describe ApiV1::VersionController do
   include ApiHeaderSetupTeardown
   include ApiV1::ApiVersionHelper
 
-  describe :show do
+  describe "show" do
     it 'HEAD should should render the current gocd server version for admins' do
       actual_json = {go_version: '16.6.0', go_build_number: '235', git_sha: '69ef4921709a84831913d9fa7e750fbf840f213c'}
       allow(ApiV1::VersionRepresenter).to receive(:version).and_return(OpenStruct.new(actual_json))
@@ -40,7 +40,7 @@ describe ApiV1::VersionController do
     end
   end
 
-  describe :routing do
+  describe "routing" do
     describe 'with header' do
       it 'should route to show action of version controller' do
         expect(:get => 'api/version').to route_to(action: 'show', controller: 'api_v1/version')

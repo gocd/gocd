@@ -153,7 +153,7 @@ describe "admin/materials/index.html.erb" do
     end
   end
 
-  describe :package_material do
+  describe "package_material" do
     it "should list package material in the add new material dropdown" do
       render
 
@@ -166,7 +166,7 @@ describe "admin/materials/index.html.erb" do
     end
   end
 
-  describe :pluggable_scm_material do
+  describe "pluggable_scm_material" do
     it "should list pluggable SCM material in the add new material dropdown" do
       render
 

@@ -22,7 +22,7 @@ describe Admin::GarageController do
     allow(@controller).to receive(:garage_service).and_return(@garage_service)
   end
 
-  describe :route do
+  describe "route" do
     it "should resolve index" do
       expect({:get => "/admin/garage"}).to route_to(:controller => "admin/garage", :action => "index")
       expect(garage_index_path).to eq("/admin/garage")
@@ -34,7 +34,7 @@ describe Admin::GarageController do
     end
   end
 
-  describe :index do
+  describe "index" do
     it 'should query garage service for data' do
       expect(@garage_service).to receive(:getData).and_return('data')
 
@@ -45,7 +45,7 @@ describe Admin::GarageController do
     end
   end
 
-  describe :gc do
+  describe "gc" do
     before :each do
       @result = stub_localized_result
     end

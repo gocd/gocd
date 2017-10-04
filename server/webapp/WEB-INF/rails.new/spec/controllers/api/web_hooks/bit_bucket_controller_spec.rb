@@ -25,7 +25,7 @@ describe Api::WebHooks::BitBucketController do
     allow(controller).to receive(:server_config_service).and_return(@server_config_service)
   end
 
-  describe :notify do
+  describe "notify" do
     it 'should return 400 [bad request] if the request is missing basic auth header' do
       post :notify
       expect(response.status).to eq(400)

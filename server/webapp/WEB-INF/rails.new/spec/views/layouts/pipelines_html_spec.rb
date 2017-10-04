@@ -109,7 +109,7 @@ describe "layouts/pipelines.html.eb" do
       allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with(anything, anything).and_return(false)
     end
 
-    describe :other_stage_runs do
+    describe "other_stage_runs" do
 
       it "should add javascript to initialize other stage runs microcontent" do
         assign(:show_stage_status_bar,true)

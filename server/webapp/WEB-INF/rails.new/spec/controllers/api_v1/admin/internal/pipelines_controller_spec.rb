@@ -25,8 +25,8 @@ describe ApiV1::Admin::Internal::PipelinesController do
     allow(controller).to receive('pipeline_config_service').and_return(@pipeline_config_service)
   end
 
-  describe :security do
-    describe :index do
+  describe "security" do
+    describe "index" do
       it 'should allow anyone, with security disabled' do
         disable_security
 
@@ -54,12 +54,12 @@ describe ApiV1::Admin::Internal::PipelinesController do
     end
   end
 
-  describe :action do
+  describe "action" do
     before :each do
       enable_security
     end
 
-    describe :index do
+    describe "index" do
       it 'should fetch all the pipelines for the user' do
         login_as_admin
         pipeline_configs = BasicPipelineConfigs.new(PipelineConfigMother.createPipelineConfigWithStages('regression', 'fetch', 'run'))
@@ -73,13 +73,13 @@ describe ApiV1::Admin::Internal::PipelinesController do
         expected_response = expected_response(pipeline_configs_list, ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter)
         expect(actual_response).to eq(expected_response)
       end
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
           it 'should route to index action of the internal pipelines controller' do
             expect(:get => 'api/admin/internal/pipelines').to route_to(action: 'index', controller: 'api_v1/admin/internal/pipelines')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end

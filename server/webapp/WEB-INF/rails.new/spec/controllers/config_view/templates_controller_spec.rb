@@ -18,7 +18,7 @@ require 'rails_helper'
 
 describe ConfigView::TemplatesController do
 
-  describe :routes do
+  describe "routes" do
     it "should resolve & generate route for viewing templates" do
       expect(:get => "/config_view/templates/template.name").to route_to(:controller => "config_view/templates", :action => "show", :name => "template.name")
       expect(config_view_templates_show_path(:name => "template.name")).to eq("/config_view/templates/template.name")
@@ -68,7 +68,7 @@ describe ConfigView::TemplatesController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before :each do
       login_as_admin
       allow(controller).to receive(:is_user_authorized_to_view_template)

@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::GoLatestVersion do
-  describe :valid? do
+  describe "valid?" do
     before(:each) do
       @public_key_path = 'update_server_public_key_path'
       @public_key = 'public_key'
@@ -77,7 +77,7 @@ describe ApiV1::GoLatestVersion do
       expect(latest_version.valid?).to be(false)
     end
   end
-  describe :latest_version do
+  describe "latest_version" do
     it 'should return the latest_version'do
       latest_version_hash = {:message => %Q({\n  "latest-version": "16.1.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n}),
                               :message_signature => 'message_signature',

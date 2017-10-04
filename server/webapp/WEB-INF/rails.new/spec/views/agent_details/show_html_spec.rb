@@ -24,7 +24,7 @@ describe "/agent_details/show.html.erb" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
 
-  describe :tabs do
+  describe "tabs" do
 
     it "should have details and job history tabs" do
       assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => uuid = "UUID_host1"))
@@ -54,7 +54,7 @@ describe "/agent_details/show.html.erb" do
     end
   end
 
-  describe :details do
+  describe "details" do
 
     it "should show agent details" do
       assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :uuid => uuid = "UUID_host1", :space => 10*1024*1024*1024, :operating_system => "Linux",

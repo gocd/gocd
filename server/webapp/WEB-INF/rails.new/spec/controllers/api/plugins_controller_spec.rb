@@ -39,7 +39,7 @@ describe Api::PluginsController do
     expect(response.body).to eq("enabled")
   end
 
-  describe :route do
+  describe "route" do
     it 'should route to status action of the plugins controller' do
       expect(:get => 'api/plugins/status').to route_to(no_layout: true, controller: 'api/plugins', action: 'status')
     end

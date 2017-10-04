@@ -88,7 +88,7 @@ describe Admin::ConfigurationController do
     end
   end
 
-  describe :show do
+  describe "show" do
     it "should render view with config" do
       config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
       expect(@admin_service).to receive(:populateModel).with(anything).and_return(config)
@@ -105,7 +105,7 @@ describe Admin::ConfigurationController do
     end
   end
 
-  describe :edit do
+  describe "edit" do
     it "should render edit" do
       config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
       expect(@admin_service).to receive(:configurationMapForSourceXml).and_return(config)
@@ -122,7 +122,7 @@ describe Admin::ConfigurationController do
     end
   end
 
-  describe :update do
+  describe "update" do
     it "should update the configuration" do
       param_map = {"content" => "config_content", "md5" => "md5"}
       expect(@admin_service).to receive(:updateConfig).with(param_map, an_instance_of(HttpLocalizedOperationResult)).and_return(GoConfigValidity::valid())
@@ -197,7 +197,7 @@ describe Admin::ConfigurationController do
     end
   end
 
-  describe :switch_to_split_pane? do
+  describe "switch_to_split_pane?" do
     it "should return false when config validity is valid" do
       config_validity = double('config validity')
       expect(config_validity).to receive(:isValid).and_return(true)

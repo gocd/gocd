@@ -59,7 +59,7 @@ describe StagesController do
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
   end
 
-  describe :stage do
+  describe "stage" do
 
     before do
       @stage_summary_model = StageSummaryModel.new(stage = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
@@ -74,7 +74,7 @@ describe StagesController do
       allow(@status).to receive(:canContinue).and_return(true)
     end
 
-    describe :tabs do
+    describe "tabs" do
       before do
         stub_current_config
       end
@@ -105,7 +105,7 @@ describe StagesController do
       expect(assigns(:stage)).to eq @stage_summary_model
     end
 
-    describe :rerun_jobs do
+    describe "rerun_jobs" do
       before(:each) do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
         expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
@@ -392,7 +392,7 @@ describe StagesController do
     end
   end
 
-  describe :history do
+  describe "history" do
     before do
       allow(@stage_service).to receive(:findStageHistoryPageByNumber).and_return(:stage_history_page)
     end
@@ -438,7 +438,7 @@ describe StagesController do
 
   end
 
-  describe :config_change do
+  describe "config_change" do
 
     it "should route to action" do
       expect(:get => "/config_change/between/md5_value_2/and/md5_value_1").to route_to({:controller => "stages", :action => "config_change", :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"})
@@ -475,7 +475,7 @@ describe StagesController do
     end
   end
 
-  describe :stage_duration_chart do
+  describe "stage_duration_chart" do
 
     before :each do
       stub_current_config
@@ -617,7 +617,7 @@ describe StagesController do
     end
   end
 
-  describe :config_tab do
+  describe "config_tab" do
     before do
       scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
@@ -646,7 +646,7 @@ describe StagesController do
     end
   end
 
-  describe :stage_settings_link do
+  describe "stage_settings_link" do
     before :each do
       expect(@pipeline_history_service).to receive(:validate).and_return(nil)
       @security_service = double('stage service')

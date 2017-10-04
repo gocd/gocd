@@ -32,8 +32,8 @@ describe ApiV3::Admin::PluginInfosController do
 
   end
 
-  describe :security do
-    describe :show do
+  describe "security" do
+    describe "show" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :show)
@@ -56,7 +56,7 @@ describe ApiV3::Admin::PluginInfosController do
       end
     end
 
-    describe :index do
+    describe "index" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -80,7 +80,7 @@ describe ApiV3::Admin::PluginInfosController do
     end
   end
 
-  describe :index do
+  describe "index" do
     before(:each) do
       login_as_group_admin
     end
@@ -146,14 +146,14 @@ describe ApiV3::Admin::PluginInfosController do
       expect(json[:message]).to eq('Your request could not be processed. Invalid plugins type - `invalid_type` !')
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to the index action of plugin_infos controller' do
           expect(:get => 'api/admin/plugin_info').to route_to(action: 'index', controller: 'api_v3/admin/plugin_infos')
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -165,7 +165,7 @@ describe ApiV3::Admin::PluginInfosController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before(:each) do
       login_as_group_admin
     end
@@ -212,8 +212,8 @@ describe ApiV3::Admin::PluginInfosController do
       expect(json[:message]).to eq('Either the resource you requested was not found, or you are not authorized to perform this action.')
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to the show action of plugin_infos controller for alphanumeric plugin id' do
           expect(:get => 'api/admin/plugin_info/foo123bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo123bar')
@@ -236,7 +236,7 @@ describe ApiV3::Admin::PluginInfosController do
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

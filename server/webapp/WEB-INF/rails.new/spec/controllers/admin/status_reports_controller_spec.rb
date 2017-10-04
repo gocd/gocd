@@ -18,14 +18,14 @@ require 'rails_helper'
 
 describe Admin::StatusReportsController do
 
-  describe :routes do
+  describe "routes" do
     it 'should route to show' do
       expect({:get => '/admin/status_reports/pluginId'}).to route_to(:controller => 'admin/status_reports', :action => 'show', :plugin_id => 'pluginId')
       expect(admin_status_report_path(:plugin_id => 'com.tw.myplugin')).to eq('/admin/status_reports/com.tw.myplugin')
     end
   end
 
-  describe :security do
+  describe "security" do
     before :each do
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil))
@@ -56,7 +56,7 @@ describe Admin::StatusReportsController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before :each do
       login_as_admin
     end

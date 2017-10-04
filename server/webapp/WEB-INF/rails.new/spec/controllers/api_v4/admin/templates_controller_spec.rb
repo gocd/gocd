@@ -30,8 +30,8 @@ describe ApiV4::Admin::TemplatesController do
     allow(controller).to receive(:security_service).and_return(@security_service)
   end
 
-  describe :index do
-    describe :security do
+  describe "index" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -89,13 +89,13 @@ describe ApiV4::Admin::TemplatesController do
         expect(actual_response).to eq(expected_response([templates], ApiV4::Admin::Templates::TemplatesConfigRepresenter))
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to index action of templates controller' do
           expect(:get => 'api/admin/templates').to route_to(action: 'index', controller: 'api_v4/admin/templates')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -108,8 +108,8 @@ describe ApiV4::Admin::TemplatesController do
 
   end
 
-  describe :show do
-    describe :security do
+  describe "show" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_template).and_return(nil)
       end
@@ -181,8 +181,8 @@ describe ApiV4::Admin::TemplatesController do
 
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of templates controller for alphanumeric template name' do
           expect(:get => 'api/admin/templates/foo123').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'foo123')
         end
@@ -203,7 +203,7 @@ describe ApiV4::Admin::TemplatesController do
           expect(:get => 'api/admin/templates/FOO').to route_to(action: 'show', controller: 'api_v4/admin/templates', template_name: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -216,8 +216,8 @@ describe ApiV4::Admin::TemplatesController do
 
   end
 
-  describe :create do
-    describe :security do
+  describe "create" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -286,13 +286,13 @@ describe ApiV4::Admin::TemplatesController do
         expect(response).to have_api_message_response(422, "Save failed")
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to create action of templates controller' do
           expect(:post => 'api/admin/templates').to route_to(action: 'create', controller: 'api_v4/admin/templates')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -305,8 +305,8 @@ describe ApiV4::Admin::TemplatesController do
 
   end
 
-  describe :update do
-    describe :security do
+  describe "update" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_template).and_return(nil)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
@@ -414,8 +414,8 @@ describe ApiV4::Admin::TemplatesController do
         expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to update action of templates controller for alphanumeric template name' do
           expect(:put => 'api/admin/templates/foo123').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'foo123')
         end
@@ -436,7 +436,7 @@ describe ApiV4::Admin::TemplatesController do
           expect(:put => 'api/admin/templates/FOO').to route_to(action: 'update', controller: 'api_v4/admin/templates', template_name: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -448,8 +448,8 @@ describe ApiV4::Admin::TemplatesController do
     end
   end
 
-  describe :destroy do
-    describe :security do
+  describe "destroy" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_template).and_return(nil)
       end
@@ -522,8 +522,8 @@ describe ApiV4::Admin::TemplatesController do
         expect(response).to have_api_message_response(422, "Save failed. Validation failed")
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to destroy action of templates controller for alphanumeric template name' do
           expect(:delete => 'api/admin/templates/foo123').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'foo123')
         end
@@ -544,7 +544,7 @@ describe ApiV4::Admin::TemplatesController do
           expect(:delete => 'api/admin/templates/FOO').to route_to(action: 'destroy', controller: 'api_v4/admin/templates', template_name: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

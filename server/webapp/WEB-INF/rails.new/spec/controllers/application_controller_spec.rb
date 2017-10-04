@@ -42,7 +42,7 @@ describe ApplicationController do
     end
   end
 
-  describe :java_routes do
+  describe "java_routes" do
     it "should generate run stage url" do
       expect(run_stage_path(pipeline_name: "pipeline_name", stage_name: "stage_name",
                             pipeline_counter: 10)).to eq("/run/pipeline_name/10/stage_name")
@@ -135,7 +135,7 @@ describe ApplicationController do
     end
   end
 
-  describe :default_as_empty_list do
+  describe "default_as_empty_list" do
     it "should default given params as empty list only if not given" do
       @controller.params = HashWithIndifferentAccess.new
       @controller.params[:default_as_empty_list] = ["foo", "bar>baz", "quux>bang>boom", "user>name", "hello"]

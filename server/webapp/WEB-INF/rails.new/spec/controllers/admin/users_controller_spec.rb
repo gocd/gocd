@@ -138,7 +138,7 @@ describe Admin::UsersController do
 
   end
 
-  describe :roles do
+  describe "roles" do
     it "should load all roles" do
       roles = [ TriStateSelection.new('admin', 'remove') ]
       go_admin = TriStateSelection.new('Go Admin', 'add')

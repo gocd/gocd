@@ -24,7 +24,7 @@ describe Api::ConfigurationController do
     allow(controller).to receive(:config_repository).and_return(@config_repository = double("config_repository"))
   end
 
-  describe :config_revisions do
+  describe "config_revisions" do
     it "should route to list_revisions" do
       expect(:get => '/api/config/revisions').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '0', :no_layout => true)
       expect(:get => '/api/config/revisions/1').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '1', :no_layout => true)
@@ -53,7 +53,7 @@ describe Api::ConfigurationController do
     end
   end
 
-  describe :diff do
+  describe "diff" do
     it "should route to list_revisions" do
       expect(:get => '/api/config/diff/a/b').to route_to(:controller => "api/configuration", :action => "config_diff", :from_revision => 'a', :to_revision => 'b', :no_layout => true)
     end

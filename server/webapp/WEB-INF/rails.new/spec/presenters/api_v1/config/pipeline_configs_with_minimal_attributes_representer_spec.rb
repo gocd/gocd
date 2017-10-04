@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter do
-  describe :serialize do
+  describe "serialize" do
     it 'should render pipelines with hal representation' do
       pipeline_config = PipelineConfigMother.createPipelineConfigWithStages('regression', 'fetch', 'run')
       pipeline_configs_list = Arrays.asList(BasicPipelineConfigs.new(pipeline_config))

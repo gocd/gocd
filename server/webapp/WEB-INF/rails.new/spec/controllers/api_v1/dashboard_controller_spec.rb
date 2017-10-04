@@ -29,7 +29,7 @@ describe ApiV1::DashboardController do
     allow(controller).to receive(:populate_config_validity)
   end
 
-  describe :dashboard do
+  describe "dashboard" do
     it 'should get dashboard json' do
       @pipeline_group_models.add(PipelineGroupModel.new("bla"))
       expect(@go_config_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
@@ -49,14 +49,14 @@ describe ApiV1::DashboardController do
       expect(actual_response).to eq(expected_response(@pipeline_group_models, ApiV1::Dashboard::PipelineGroupsRepresenter))
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to dashboard action of the dashboard controller' do
           expect(:get => 'api/dashboard').to route_to(action: 'dashboard', controller: 'api_v1/dashboard')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

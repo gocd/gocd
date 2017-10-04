@@ -23,7 +23,7 @@ end
 describe Api::PipelineGroupsController do
   include APIModelMother
 
-  describe :list_pipeline_group_configs do
+  describe "list_pipeline_group_configs" do
     before :each do
       allow(controller).to receive(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
     end

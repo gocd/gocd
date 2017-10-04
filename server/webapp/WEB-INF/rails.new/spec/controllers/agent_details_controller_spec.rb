@@ -26,7 +26,7 @@ describe AgentDetailsController do
     allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = Object.new)
   end
 
-  describe :routes do
+  describe "routes" do
     it "should resolve the route to an agent" do
       expect(:get => "/agents/uuid").to route_to({:controller => "agent_details", :action => 'show',:uuid => "uuid"})
       expect(controller.send(:agent_detail_path,:uuid=>"uuid")).to eq("/agents/uuid")
@@ -39,7 +39,7 @@ describe AgentDetailsController do
   end
 
 
-  describe :agent_details do
+  describe "agent_details" do
     include AgentMother
 
     before :each do

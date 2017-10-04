@@ -28,7 +28,7 @@ describe "/shared/_application_nav.html.erb" do
   end
 
   partial_page = "shared/application_nav.html.erb"
-  describe :header do
+  describe "header" do
     before :each do
       allow(view).to receive(:url_for_path).and_return('url_for_path')
       allow(view).to receive(:url_for).and_return('url_for')
@@ -153,7 +153,7 @@ describe "/shared/_application_nav.html.erb" do
     end
   end
 
-  describe :admin_dropdown do
+  describe "admin_dropdown" do
     before :each do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
       allow(view).to receive(:is_plugin_spa_toggle_enabled?).and_return(false)

@@ -85,7 +85,7 @@ describe Api::JobsController do
     expect(assigns[:doc]).to eq(:dom)
   end
 
-  describe :history do
+  describe "history" do
     include APIModelMother
 
     it "should render history json" do
@@ -113,13 +113,13 @@ describe Api::JobsController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
+    describe "route" do
       it "should route to history" do
         expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
         expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
       end
 
-      describe :with_pipeline_name_contraint do
+      describe "with_pipeline_name_contraint" do
         it 'should route to history action of stages controller having dots in pipeline name' do
           expect(:get => 'api/jobs/some.thing/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar', job_name: 'jobName', offset: '0')
         end
@@ -145,7 +145,7 @@ describe Api::JobsController do
         end
       end
 
-      describe :with_stage_name_constraint do
+      describe "with_stage_name_constraint" do
         it 'should route to history action of stages controller having dots in stage name' do
           expect(:get => 'api/jobs/foo/some.thing/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'some.thing', job_name: 'jobName', offset: '0')
         end
@@ -171,7 +171,7 @@ describe Api::JobsController do
         end
       end
 
-      describe :with_job_name_constraint do
+      describe "with_job_name_constraint" do
         it 'should route to history action of stages controller having dots in stage name' do
           expect(:get => 'api/jobs/foo/bar/some.thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some.thing',  offset: '0')
         end

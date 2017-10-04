@@ -36,7 +36,7 @@ describe Admin::MaterialsController do
     end
   end
 
-  describe :index do
+  describe "index" do
     before :each do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_name = "pipeline-name"

@@ -37,7 +37,7 @@ describe Admin::Materials::PackageController do
     end
   end
 
-  describe :action do
+  describe "action" do
     before :each do
       allow(controller).to receive(:populate_config_validity)
 

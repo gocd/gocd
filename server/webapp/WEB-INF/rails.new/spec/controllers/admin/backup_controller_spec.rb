@@ -22,7 +22,7 @@ describe Admin::BackupController do
     allow(controller).to receive(:backup_service).and_return(@backup_service = double('backup_server'))
   end
 
-  describe :routes do
+  describe "routes" do
 
     it "should resolve the route to the backup admin ui page" do
       expect({:get => "/admin/backup"}).to route_to(:controller => "admin/backup", :action => "index")
@@ -35,7 +35,7 @@ describe Admin::BackupController do
     end
   end
 
-  describe :index do
+  describe "index" do
 
     before :each do
       expect(@backup_service).to receive(:lastBackupTime).and_return(@time = java.util.Date.new)
@@ -76,7 +76,7 @@ describe Admin::BackupController do
     end
   end
 
-  describe :perform_backup do
+  describe "perform_backup" do
 
     it "should return success if the backup is successful" do
       allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))

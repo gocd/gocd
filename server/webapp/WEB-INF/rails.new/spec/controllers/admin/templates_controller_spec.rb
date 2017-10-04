@@ -71,7 +71,7 @@ describe Admin::TemplatesController do
     end
   end
 
-  describe :action do
+  describe "action" do
     before :each do
       login_as_admin
       @pipeline = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
@@ -112,7 +112,7 @@ describe Admin::TemplatesController do
       end
     end
 
-    describe :edit_permissions do
+    describe "edit_permissions" do
       before(:each) do
         expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
         @user_service = stub_service(:user_service)
@@ -147,7 +147,7 @@ describe Admin::TemplatesController do
       end
     end
 
-    describe :update_permissions do
+    describe "update_permissions" do
       before(:each) do
         @user_service = stub_service(:user_service)
         allow(@user_service).to receive(:allUsernames).and_return(["foo", "bar", "baz"])

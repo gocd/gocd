@@ -105,13 +105,13 @@ describe ApiV1::Admin::PluginSettingsController do
 
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of plugin_settings controller for plugin id with dots' do
           expect(:get => 'api/admin/plugin_settings/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/plugin_settings', plugin_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -206,13 +206,13 @@ describe ApiV1::Admin::PluginSettingsController do
 
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of plugin_settings controller for plugin id with dots' do
           expect(:post => 'api/admin/plugin_settings').to route_to(action: 'create', controller: 'api_v1/admin/plugin_settings')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -331,13 +331,13 @@ describe ApiV1::Admin::PluginSettingsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of plugin_settings controller for plugin id with dots' do
           expect(:put => 'api/admin/plugin_settings/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/plugin_settings', plugin_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

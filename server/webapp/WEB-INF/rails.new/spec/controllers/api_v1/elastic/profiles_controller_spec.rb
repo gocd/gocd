@@ -27,8 +27,8 @@ describe ApiV1::Elastic::ProfilesController do
     allow(controller).to receive(:elastic_profile_service).and_return(@elastic_profile_service)
   end
 
-  describe :index do
-    describe :security do
+  describe "index" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -77,14 +77,14 @@ describe ApiV1::Elastic::ProfilesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to index action of controller' do
           expect(:get => 'api/elastic/profiles').to route_to(action: 'index', controller: 'api_v1/elastic/profiles')
         end
       end
-      describe :without_header do
+      describe "without_header" do
 
         before :each do
           teardown_header
@@ -98,8 +98,8 @@ describe ApiV1::Elastic::ProfilesController do
     end
   end
 
-  describe :show do
-    describe :security do
+  describe "show" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
@@ -164,8 +164,8 @@ describe ApiV1::Elastic::ProfilesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to show action of controller for alphanumeric identifier' do
           expect(:get => 'api/elastic/profiles/foo123').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
@@ -187,7 +187,7 @@ describe ApiV1::Elastic::ProfilesController do
           expect(:get => 'api/elastic/profiles/FOO').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -200,8 +200,8 @@ describe ApiV1::Elastic::ProfilesController do
 
   end
 
-  describe :create do
-    describe :security do
+  describe "create" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -263,13 +263,13 @@ describe ApiV1::Elastic::ProfilesController do
         expect(response).to have_api_message_response(422, 'Save failed')
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to create action of controller' do
           expect(:post => 'api/elastic/profiles').to route_to(action: 'create', controller: 'api_v1/elastic/profiles')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -282,8 +282,8 @@ describe ApiV1::Elastic::ProfilesController do
 
   end
 
-  describe :update do
-    describe :security do
+  describe "update" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_entity_from_config).and_return(nil)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
@@ -362,8 +362,8 @@ describe ApiV1::Elastic::ProfilesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to update action of controller for alphanumeric identifier' do
           expect(:put => 'api/elastic/profiles/foo123').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
         end
@@ -384,7 +384,7 @@ describe ApiV1::Elastic::ProfilesController do
           expect(:put => 'api/elastic/profiles/FOO').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -396,8 +396,8 @@ describe ApiV1::Elastic::ProfilesController do
     end
   end
 
-  describe :destroy do
-    describe :security do
+  describe "destroy" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
@@ -472,8 +472,8 @@ describe ApiV1::Elastic::ProfilesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to destroy action of controller for alphanumeric identifier' do
           expect(:delete => 'api/elastic/profiles/foo123').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
@@ -496,7 +496,7 @@ describe ApiV1::Elastic::ProfilesController do
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

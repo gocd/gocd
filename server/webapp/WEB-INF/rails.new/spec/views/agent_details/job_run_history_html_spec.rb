@@ -44,7 +44,7 @@ describe "/agent_details/job_run_history.html.erb" do
     end
   end
 
-  describe :tabs do
+  describe "tabs" do
 
     it "should have details and job history tabs" do
 
@@ -63,7 +63,7 @@ describe "/agent_details/job_run_history.html.erb" do
     end
   end
 
-  describe :job_run_history do
+  describe "job_run_history" do
 
     it "should show table for job history" do
       render

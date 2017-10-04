@@ -47,7 +47,7 @@ describe "comparison/show.html.erb" do
     expect(response_body).to have_selector("##{parent_id} div.information span.prompt a[href='http://foo.bar?baz=quux']", :text => "Continue")
   end
 
-  describe :on_revisions_tab do
+  describe "on_revisions_tab" do
     it "should show message prompting user about showing revisions for bisect on to_pipeline" do
       set(@to_pipeline, "naturalOrder", 1.2)
       ensure_show_bisect_message_is_shown "tab-content-of-checkins"

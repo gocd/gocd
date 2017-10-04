@@ -27,8 +27,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
     allow(controller).to receive(:security_auth_config_service).and_return(@security_auth_config_service)
   end
 
-  describe :index do
-    describe :security do
+  describe "index" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -76,15 +76,15 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to index action of controller' do
           expect(:get => 'api/admin/security/auth_configs').to route_to(action: 'index', controller: 'api_v1/admin/security/auth_configs')
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
 
         before :each do
           teardown_header
@@ -98,8 +98,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
     end
   end
 
-  describe :show do
-    describe :security do
+  describe "show" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
@@ -164,8 +164,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to show action of controller for alphanumeric identifier' do
           expect(:get => 'api/admin/security/auth_configs/foo123').to route_to(action: 'show', controller: 'api_v1/admin/security/auth_configs', auth_config_id: 'foo123')
@@ -187,7 +187,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
           expect(:get => 'api/admin/security/auth_configs/FOO').to route_to(action: 'show', controller: 'api_v1/admin/security/auth_configs', auth_config_id: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -200,8 +200,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
   end
 
-  describe :create do
-    describe :security do
+  describe "create" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -263,13 +263,13 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         expect(response).to have_api_message_response(422, 'Save failed')
       end
     end
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to create action of controller' do
           expect(:post => 'api/admin/security/auth_configs').to route_to(action: 'create', controller: 'api_v1/admin/security/auth_configs')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -282,8 +282,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
   end
 
-  describe :update do
-    describe :security do
+  describe "update" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_entity_from_config).and_return(nil)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
@@ -360,8 +360,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to update action of controller for alphanumeric identifier' do
           expect(:put => 'api/admin/security/auth_configs/foo123').to route_to(action: 'update', controller: 'api_v1/admin/security/auth_configs', auth_config_id: 'foo123')
         end
@@ -382,7 +382,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
           expect(:put => 'api/admin/security/auth_configs/FOO').to route_to(action: 'update', controller: 'api_v1/admin/security/auth_configs', auth_config_id: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -394,8 +394,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
     end
   end
 
-  describe :destroy do
-    describe :security do
+  describe "destroy" do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
@@ -466,8 +466,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to destroy action of controller for alphanumeric identifier' do
           expect(:delete => 'api/admin/security/auth_configs/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/security/auth_configs', auth_config_id: 'foo123')
@@ -490,7 +490,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -502,8 +502,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
     end
   end
 
-  describe :verify_connection do
-    describe :security do
+  describe "verify_connection" do
+    describe "security" do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -537,14 +537,14 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to verify_connection action of controller' do
           expect(:post => 'api/admin/internal/security/auth_configs/verify_connection').to route_to(action: 'verify_connection', controller: 'api_v1/admin/security/auth_configs')
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -556,7 +556,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
     end
 
-    describe :as_admin do
+    describe "as_admin" do
       before(:each) do
         enable_security
         login_as_admin

@@ -36,8 +36,8 @@ describe ApiV1::Admin::ConfigReposController do
     allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
   end
 
-  describe :show do
-    describe :for_admins do
+  describe "show" do
+    describe "for_admins" do
       before(:each) do
         enable_security
         login_as_admin
@@ -57,7 +57,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_config_repo).and_return(nil)
       end
@@ -84,8 +84,8 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of config repo controller for specified repo id' do
           expect(:get => 'api/admin/config_repos/foo').to route_to(action: 'show', controller: 'api_v1/admin/config_repos', id: 'foo')
         end
@@ -94,7 +94,7 @@ describe ApiV1::Admin::ConfigReposController do
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -106,8 +106,8 @@ describe ApiV1::Admin::ConfigReposController do
     end
   end
 
-  describe :index do
-    describe :for_admins do
+  describe "index" do
+    describe "for_admins" do
       before :each do
         enable_security
         login_as_admin
@@ -123,7 +123,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -146,14 +146,14 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to index action of config repos controller' do
           expect(:get => 'api/admin/config_repos').to route_to(action: 'index', controller: 'api_v1/admin/config_repos')
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -166,8 +166,8 @@ describe ApiV1::Admin::ConfigReposController do
     end
   end
 
-  describe :destroy do
-    describe :for_admins do
+  describe "destroy" do
+    describe "for_admins" do
       before(:each) do
         enable_security
         login_as_admin
@@ -190,7 +190,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(@config_repo_service).to receive(:getConfigRepo).and_return(@config_repo)
       end
@@ -218,8 +218,8 @@ describe ApiV1::Admin::ConfigReposController do
 
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to destroy action of config repo controller for specified repo id' do
           expect(:delete => 'api/admin/config_repos/foo').to route_to(action: 'destroy', controller: 'api_v1/admin/config_repos', id: 'foo')
         end
@@ -228,7 +228,7 @@ describe ApiV1::Admin::ConfigReposController do
           expect(:delete => 'api/admin/config_repos/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/config_repos', id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -240,8 +240,8 @@ describe ApiV1::Admin::ConfigReposController do
     end
   end
 
-  describe :create do
-    describe :for_admins do
+  describe "create" do
+    describe "for_admins" do
       before(:each) do
         enable_security
         login_as_admin
@@ -266,7 +266,7 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:create, :create)
@@ -289,13 +289,13 @@ describe ApiV1::Admin::ConfigReposController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to create action of config repo controller' do
           expect(:post => 'api/admin/config_repos').to route_to(action: 'create', controller: 'api_v1/admin/config_repos')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -307,8 +307,8 @@ describe ApiV1::Admin::ConfigReposController do
     end
   end
 
-  describe :update do
-    describe :for_admins do
+  describe "update" do
+    describe "for_admins" do
       before(:each) do
         enable_security
         login_as_admin
@@ -356,7 +356,7 @@ describe ApiV1::Admin::ConfigReposController do
       
     end
 
-    describe :security do
+    describe "security" do
       before(:each) do
         allow(@config_repo_service).to receive(:getConfigRepo).and_return(@config_repo_id)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
@@ -385,8 +385,8 @@ describe ApiV1::Admin::ConfigReposController do
 
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to update action of config repo controller for specified package id' do
           expect(:put => 'api/admin/config_repos/foo123').to route_to(action: 'update', controller: 'api_v1/admin/config_repos', id: 'foo123')
         end
@@ -394,7 +394,7 @@ describe ApiV1::Admin::ConfigReposController do
           expect(:put => 'api/admin/config_repos/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/config_repos', id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

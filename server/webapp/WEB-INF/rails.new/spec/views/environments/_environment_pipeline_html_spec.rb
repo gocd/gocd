@@ -258,7 +258,7 @@ describe "/environments/_environment_pipeline.html.erb" do
     expect(rendered).to match("PIPELINE_PARTIAL")
   end
 
-  describe :deployed_revisions do
+  describe "deployed_revisions" do
 
     def environments_partial
       {:partial => "environments/environment_pipeline", :locals=>{:scope => {:pipeline_model => @pipeline_model}}}

@@ -95,7 +95,7 @@ describe Admin::PipelineGroupsController do
     end
   end
 
-  describe :actions do
+  describe "actions" do
     before(:each) do
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       allow(@security_service).to receive(:isUserAdminOfGroup).and_return(true)
@@ -111,7 +111,7 @@ describe Admin::PipelineGroupsController do
       @config = nil
     end
 
-    describe :new do
+    describe "new" do
       it "should return a new pipeline group" do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
 
@@ -122,7 +122,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :create do
+    describe "create" do
 
       before do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
@@ -150,7 +150,7 @@ describe Admin::PipelineGroupsController do
 
     end
 
-    describe :index do
+    describe "index" do
       before(:each) do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         expect(@pipeline_config_service).to receive(:canDeletePipelines).and_return({
@@ -195,7 +195,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :destroy do
+    describe "destroy" do
 
       before :each do
         @pipeline = @groups.get(0).get(0)
@@ -247,7 +247,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :edit do
+    describe "edit" do
       before do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         @group = @groups.get(0)
@@ -272,7 +272,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :show do
+    describe "show" do
       before do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         @group = @groups.get(0)
@@ -296,7 +296,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :update do
+    describe "update" do
       before(:each) do
         allow(controller).to receive(:autocomplete_for_permissions_and_tab).and_return(nil)
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
@@ -330,7 +330,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :move do
+    describe "move" do
       before do
         @result = stub_localized_result
         @pipeline = @groups.get(0).get(0)
@@ -362,7 +362,7 @@ describe Admin::PipelineGroupsController do
       end
     end
 
-    describe :destroy_group do
+    describe "destroy_group" do
 
       before :each do
         @empty_group = PipelineConfigMother.createGroup("empty_group", [].to_java(java.lang.String))
@@ -388,7 +388,7 @@ describe Admin::PipelineGroupsController do
 
     end
 
-    describe :possible_groups do
+    describe "possible_groups" do
       it "should render possible groups for given pipeline" do
         expect(@go_config_service).to receive(:getMergedConfigForEditing).and_return(@config)
         expect(@go_config_service).to receive(:doesMd5Match).with("my_md5").and_return(true)

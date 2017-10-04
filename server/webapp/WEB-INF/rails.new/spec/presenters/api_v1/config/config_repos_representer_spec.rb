@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Config::ConfigReposRepresenter do
-  describe :serialize do
+  describe "serialize" do
     it 'should render config repos with hal representation' do
       config_repo_config = ConfigRepoConfig.new(GitMaterialConfig.new('git://foo', 'master'), 'config-repo-json-plugin', 'repo-1')
       config_repos_list = Arrays.asList(config_repo_config)

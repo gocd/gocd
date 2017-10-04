@@ -27,7 +27,7 @@ describe ::ConfigUpdate::LoadConfig do
     @cruise_config.addTemplate(@template)
   end
 
-  describe :load_pipeline_group do
+  describe "load_pipeline_group" do
     it "should load pipeline group for a given pipeline" do
       params[:pipeline_name] = "pipeline1"
       expect(load_pipeline_group(@cruise_config)).to eq("group1")

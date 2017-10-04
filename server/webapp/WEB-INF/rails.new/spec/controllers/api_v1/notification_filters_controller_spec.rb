@@ -28,7 +28,7 @@ describe ApiV1::NotificationFiltersController do
     allow(@user_service).to receive(:load).with(@user.id).and_return(@user)
   end
 
-  describe :index do
+  describe "index" do
     it("returns a list of filters serialized to JSON") do
       allow(@user).to receive(:notificationFilters).and_return([
         filter_for("pipeline1", "defaultStage", "Fails", true, 1),
@@ -46,7 +46,7 @@ describe ApiV1::NotificationFiltersController do
     end
   end
 
-  describe :create do
+  describe "create" do
     it("creates a filter to match any commit") do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
       expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
@@ -75,7 +75,7 @@ describe ApiV1::NotificationFiltersController do
     end
   end
 
-  describe :destroy do
+  describe "destroy" do
     it("destroys a filter") do
       allow(@user).to receive(:notificationFilters).and_return([]) # really don't care
       expect(@user_service).to receive(:removeNotificationFilter).with(@user.id, 5)

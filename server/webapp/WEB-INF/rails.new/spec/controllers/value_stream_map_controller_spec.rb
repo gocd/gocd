@@ -47,7 +47,7 @@ describe ValueStreamMapController do
     @pipeline_edit_path_quick_edit = proc { |pipeline_name | edit_admin_pipeline_config_path(:pipeline_name => pipeline_name) }
   end
 
-  describe :redirect_to_stage_pdg_if_ie8 do
+  describe "redirect_to_stage_pdg_if_ie8" do
     before :each do
       @pipeline_history_service = double('pipeline history service')
       allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service)

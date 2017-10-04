@@ -27,8 +27,8 @@ describe ApiV1::VersionInfosController do
     allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
-  describe :as_user do
-    describe :update_server do
+  describe "as_user" do
+    describe "update_server" do
       before(:each) do
         login_as_user
 
@@ -93,7 +93,7 @@ describe ApiV1::VersionInfosController do
       end
     end
 
-    describe :stale do
+    describe "stale" do
       before(:each) do
         login_as_user
 
@@ -128,13 +128,13 @@ describe ApiV1::VersionInfosController do
     end
   end
 
-  describe :as_anonymous_user do
+  describe "as_anonymous_user" do
     before(:each) do
       enable_security
       login_as_anonymous
     end
 
-    describe :update_server do
+    describe "update_server" do
       it 'should return a 404' do
         patch_with_api_header :update_server, message: 'message', :signature => 'signature'
 
@@ -142,7 +142,7 @@ describe ApiV1::VersionInfosController do
       end
     end
 
-    describe :stale do
+    describe "stale" do
       it 'should return a 404' do
         get_with_api_header :stale
 
@@ -151,8 +151,8 @@ describe ApiV1::VersionInfosController do
     end
   end
 
-  describe :route do
-    describe :with_header do
+  describe "route" do
+    describe "with_header" do
 
       it 'should route to stale action of version_infos controller' do
         expect(:get => 'api/version_infos/stale').to route_to(action: 'stale', controller: 'api_v1/version_infos')
@@ -162,7 +162,7 @@ describe ApiV1::VersionInfosController do
         expect(:patch => 'api/version_infos/go_server').to route_to(action: 'update_server', controller: 'api_v1/version_infos')
       end
     end
-    describe :without_header do
+    describe "without_header" do
       before :each do
         teardown_header
       end

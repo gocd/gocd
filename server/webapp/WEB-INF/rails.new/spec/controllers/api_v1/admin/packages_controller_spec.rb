@@ -34,8 +34,8 @@ describe ApiV1::Admin::PackagesController do
     allow(controller).to receive(:package_definition_service).and_return(@package_definition_service)
   end
 
-  describe :index do
-    describe :for_admins do
+  describe "index" do
+    describe "for_admins" do
       before :each do
         enable_security
         login_as_admin
@@ -54,7 +54,7 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -82,13 +82,13 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to index action of packages controller' do
           expect(:get => 'api/admin/packages').to route_to(action: 'index', controller: 'api_v1/admin/packages')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -100,13 +100,13 @@ describe ApiV1::Admin::PackagesController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before(:each) do
       enable_security
       login_as_admin
     end
 
-    describe :for_admins do
+    describe "for_admins" do
       it 'should render the package' do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         get_with_api_header :show, package_id: @package_id
@@ -121,7 +121,7 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_package).and_return(nil)
       end
@@ -153,8 +153,8 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of packages controller for specified package id' do
           expect(:get => 'api/admin/packages/foo').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo')
         end
@@ -162,7 +162,7 @@ describe ApiV1::Admin::PackagesController do
           expect(:get => 'api/admin/packages/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -174,13 +174,13 @@ describe ApiV1::Admin::PackagesController do
     end
   end
 
-  describe :destroy do
+  describe "destroy" do
     before(:each) do
       enable_security
       login_as_admin
     end
 
-    describe :for_admins do
+    describe "for_admins" do
       it 'should allow deleting package' do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         expect(@package_definition_service).to receive(:deletePackage).with(@package, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
@@ -198,7 +198,7 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_package).and_return(nil)
       end
@@ -230,8 +230,8 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to destroy action of packages controller for specified package id' do
           expect(:delete => 'api/admin/packages/foo').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo')
         end
@@ -240,7 +240,7 @@ describe ApiV1::Admin::PackagesController do
           expect(:delete => 'api/admin/packages/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -252,7 +252,7 @@ describe ApiV1::Admin::PackagesController do
     end
   end
 
-  describe :create do
+  describe "create" do
     before(:each) do
       enable_security
       login_as_admin
@@ -262,7 +262,7 @@ describe ApiV1::Admin::PackagesController do
     end
 
 
-    describe :for_admins do
+    describe "for_admins" do
       it 'should render 200 created when package is created' do
         expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
         expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
@@ -298,7 +298,7 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(controller).to receive(:check_for_repository).and_return(nil)
       end
@@ -329,13 +329,13 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to create action of packages controller' do
           expect(:post => 'api/admin/packages').to route_to(action: 'create', controller: 'api_v1/admin/packages')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -347,7 +347,7 @@ describe ApiV1::Admin::PackagesController do
     end
   end
 
-  describe :update do
+  describe "update" do
     before(:each) do
       enable_security
       login_as_admin
@@ -362,7 +362,7 @@ describe ApiV1::Admin::PackagesController do
       allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
     end
 
-    describe :for_admins do
+    describe "for_admins" do
       it 'should allow updating package' do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         result = HttpLocalizedOperationResult.new
@@ -415,7 +415,7 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before(:each) do
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         allow(controller).to receive(:check_for_repository).and_return(nil)
@@ -448,8 +448,8 @@ describe ApiV1::Admin::PackagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to update action of package controller for specified package id' do
           expect(:put => 'api/admin/packages/foo123').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo123')
         end
@@ -457,7 +457,7 @@ describe ApiV1::Admin::PackagesController do
           expect(:put => 'api/admin/packages/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

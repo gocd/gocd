@@ -24,8 +24,8 @@ describe ApiV1::StagesController do
     allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
   end
 
-  describe :show do
-    describe :security do
+  describe "show" do
+    describe "security" do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -66,10 +66,10 @@ describe ApiV1::StagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
-        describe :with_pipeline_name_contraint do
+        describe "with_pipeline_name_contraint" do
           it 'should route to show action of stages controller having dots in pipeline name' do
             expect(:get => 'api/stages/some.thing/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'some.thing', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
           end
@@ -95,7 +95,7 @@ describe ApiV1::StagesController do
           end
         end
 
-        describe :with_stage_name_constraint do
+        describe "with_stage_name_constraint" do
           it 'should route to show action of stages controller' do
             expect(:get => 'api/stages/foo/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
           end
@@ -125,20 +125,20 @@ describe ApiV1::StagesController do
           end
         end
 
-        describe :with_pipeline_counter_constraint do
+        describe "with_pipeline_counter_constraint" do
           it 'should not route to show action of stages controller for invalid pipeline counter' do
             expect(:get => 'api/stages/some.thing/fo$%#@6/bar/2').to_not be_routable
           end
         end
 
-        describe :with_stage_counter_constraint do
+        describe "with_stage_counter_constraint" do
           it 'should not route to show action of stages controller for invalid stage counter' do
             expect(:get => 'api/stages/some.thing/1/bar/fo$%#@6').to_not be_routable
           end
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -150,8 +150,8 @@ describe ApiV1::StagesController do
     end
   end
 
-  describe :history do
-    describe :security do
+  describe "history" do
+    describe "security" do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -194,10 +194,10 @@ describe ApiV1::StagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
-        describe :with_pipeline_name_contraint do
+        describe "with_pipeline_name_contraint" do
           it 'should route to history action of stages controller having dots in pipeline name' do
             expect(:get => 'api/stages/some.thing/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar')
           end
@@ -223,7 +223,7 @@ describe ApiV1::StagesController do
           end
         end
 
-        describe :with_stage_name_constraint do
+        describe "with_stage_name_constraint" do
           it 'should route to history action of stages controller' do
             expect(:get => 'api/stages/foo/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'bar')
           end
@@ -254,7 +254,7 @@ describe ApiV1::StagesController do
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

@@ -26,7 +26,7 @@ describe AgentsHelper do
     stub_context_path self
   end
 
-  describe :agent_selector do
+  describe "agent_selector" do
     before(:each) do
       @selected = ['uuid']
     end
@@ -54,7 +54,7 @@ describe AgentsHelper do
     expect(cell_with_title("foo", "class", "bar")).to eq("<td class='class' title='bar'><span>foo</span></td>")
   end
 
-  describe :piped_cell do
+  describe "piped_cell" do
     it "should create pipe seperated cell" do
       expect(self).to receive(:cell_with_title).with("foo | bar", "blah-title")
       piped_cell(["foo","bar"],"default value" ,"blah-title")
@@ -67,7 +67,7 @@ describe AgentsHelper do
 
   end
 
-  describe :agent_status_cell do
+  describe "agent_status_cell" do
     before do
       @time = java.util.Date.new
     end

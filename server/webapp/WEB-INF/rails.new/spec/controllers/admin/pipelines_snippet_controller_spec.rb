@@ -27,7 +27,7 @@ describe Admin::PipelinesSnippetController do
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
   end
 
-  describe :routes do
+  describe "routes" do
     it "should resolve the route to partial config page" do
       expect({:get => "/admin/pipelines/snippet"}).to route_to(:controller => "admin/pipelines_snippet", :action => "index")
       expect(pipelines_snippet_path).to eq("/admin/pipelines/snippet")
@@ -49,7 +49,7 @@ describe Admin::PipelinesSnippetController do
     end
   end
 
-  describe :actions do
+  describe "actions" do
     before :each do
       expect(controller).to receive(:populate_config_validity).and_return(true)
       expect(controller).to receive(:load_context)
@@ -58,7 +58,7 @@ describe Admin::PipelinesSnippetController do
     end
 
 
-    describe :index do
+    describe "index" do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
         allow(controller).to receive(:current_user).and_return(@user)
@@ -71,7 +71,7 @@ describe Admin::PipelinesSnippetController do
       end
     end
 
-    describe :show do
+    describe "show" do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
         allow(controller).to receive(:current_user).and_return(@user)
@@ -106,7 +106,7 @@ describe Admin::PipelinesSnippetController do
       end
     end
 
-    describe :edit do
+    describe "edit" do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
         allow(controller).to receive(:current_user).and_return(@user)
@@ -146,7 +146,7 @@ describe Admin::PipelinesSnippetController do
 
     end
 
-    describe :update do
+    describe "update" do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
         allow(controller).to receive(:current_user).and_return(@user)

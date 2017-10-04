@@ -24,7 +24,7 @@ describe Admin::Plugins::PluginsController do
     allow(controller).to receive(:plugin_service).and_return(@plugin_service = double('plugin service'))
   end
 
-  describe :routes do
+  describe "routes" do
     it "should resolve the route_for_index" do
       expect({:get => "/admin/plugins"}).to route_to(:controller => "admin/plugins/plugins", :action => "index")
       expect(plugins_listing_path).to eq("/admin/plugins")
@@ -46,7 +46,7 @@ describe Admin::Plugins::PluginsController do
     end
   end
 
-  describe :upload do
+  describe "upload" do
     it "should show success message when upload is successful" do
       expect(@plugin_manager).to receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
         .and_return(@plugin_response = double('upload_response'))
@@ -102,7 +102,7 @@ describe Admin::Plugins::PluginsController do
 
   end
 
-  describe :index do
+  describe "index" do
     before :each do
       @plugin_1 = plugin("id", "name")
       @plugin_2 = plugin("yum", "yum plugin")
@@ -167,7 +167,7 @@ describe Admin::Plugins::PluginsController do
     end
   end
 
-  describe :edit_settings do
+  describe "edit_settings" do
     before :each do
       expect(@plugin_service).to receive(:getPluginSettingsFor).with('plugin.id').and_return(@plugin_settings = double('plugin settings'))
     end
@@ -182,7 +182,7 @@ describe Admin::Plugins::PluginsController do
     end
   end
 
-  describe :update_settings do
+  describe "update_settings" do
     before :each do
       expect(@plugin_service).to receive(:getPluginSettingsFor).with('plugin.id', anything()).and_return(@plugin_settings = double('plugin settings'))
       expect(@plugin_service).to receive(:validatePluginSettingsFor).with(@plugin_settings)
@@ -210,7 +210,7 @@ describe Admin::Plugins::PluginsController do
     end
   end
 
-  describe :can_edit_plugin_settings? do
+  describe "can_edit_plugin_settings?" do
     before :each do
       @meta_data_store = double('meta_data_store')
       @secuity_service = double('security_service')

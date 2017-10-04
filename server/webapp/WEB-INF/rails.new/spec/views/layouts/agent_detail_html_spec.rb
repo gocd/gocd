@@ -39,7 +39,7 @@ describe "/layouts/agent_detail" do
     stub_context_path(view)
   end
 
-  describe :header do
+  describe "header" do
 
     it "should set the page title" do
       assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1"))

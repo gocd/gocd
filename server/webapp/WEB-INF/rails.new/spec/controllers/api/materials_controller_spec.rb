@@ -19,7 +19,7 @@ require 'rails_helper'
 describe Api::MaterialsController do
   include APIModelMother
 
-  describe :notify do
+  describe "notify" do
     before :each do
       @material_update_service = double('Material Update Service')
       @user = Username.new(CaseInsensitiveString.new('loser'))
@@ -62,7 +62,7 @@ describe Api::MaterialsController do
     end
   end
 
-  describe :list_materials_config do
+  describe "list_materials_config" do
     before :each do
       allow(controller).to receive(:material_config_service).and_return(@material_config_service = double('material_config_service'))
     end
@@ -82,7 +82,7 @@ describe Api::MaterialsController do
     end
   end
 
-  describe :list_material_modifications do
+  describe "list_material_modifications" do
     before :each do
       allow(controller).to receive(:material_config_service).and_return(@material_config_service = double('material_config_service'))
       allow(controller).to receive(:material_service).and_return(@material_service = double('material_service'))

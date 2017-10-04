@@ -30,7 +30,7 @@ describe PipelinesController do
     allow(controller).to receive(:populate_config_validity)
   end
 
-  describe :show_for_trigger do
+  describe "show_for_trigger" do
 
     it "should render trigger with options with pegged revisions" do
       @yesterday = org.joda.time.DateTime.new.minusDays(1).toDate()

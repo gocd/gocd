@@ -53,7 +53,7 @@ describe Api::PipelinesController do
     expect(api_pipeline_action_path(:pipeline_name => "pipeline", :action => "schedule")).to eq("/api/pipelines/pipeline/schedule")
   end
 
-  describe :history do
+  describe "history" do
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
@@ -80,13 +80,13 @@ describe Api::PipelinesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
+    describe "route" do
       it "should route to history" do
         expect(:get => '/api/pipelines/up42/history').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '0', :no_layout => true)
         expect(:get => '/api/pipelines/up42/history/1').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '1', :no_layout => true)
       end
 
-      describe :with_pipeline_name_contraint do
+      describe "with_pipeline_name_contraint" do
         it 'should route to history action of pipelines controller having dots in pipeline name' do
           expect(:get => 'api/pipelines/some.thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some.thing', :offset => '0')
         end
@@ -115,7 +115,7 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :instance_by_counter do
+  describe "instance_by_counter" do
 
     it "should render instance json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
@@ -140,8 +140,8 @@ describe Api::PipelinesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
-      describe :with_pipeline_name_contraint do
+    describe "route" do
+      describe "with_pipeline_name_contraint" do
         it 'should route to instance_by_counter action of pipelines controller having dots in pipeline name' do
           expect(:get => 'api/pipelines/some.thing/instance/1').to route_to(no_layout: true, controller: 'api/pipelines', action: 'instance_by_counter', pipeline_name: 'some.thing',  pipeline_counter: '1')
         end
@@ -167,7 +167,7 @@ describe Api::PipelinesController do
         end
       end
 
-      describe :with_pipeline_counter_constraint do
+      describe "with_pipeline_counter_constraint" do
         it 'should not route to instance_by_counter action of pipelines controller for invalid pipeline counter' do
           expect(:get => 'api/pipelines/some.thing/instance/fo$%#@6/2').to_not be_routable
         end
@@ -175,7 +175,7 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :status do
+  describe "status" do
 
     it "should render status json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
@@ -200,12 +200,12 @@ describe Api::PipelinesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
+    describe "route" do
       it "should route to status" do
         expect(:get => '/api/pipelines/up42/status').to route_to(:controller => "api/pipelines", :action => "status", :pipeline_name => 'up42', :no_layout => true)
       end
 
-      describe :with_pipeline_name_contraint do
+      describe "with_pipeline_name_contraint" do
         it 'should route to status action of pipelines controller having dots in pipeline name' do
           expect(:get => 'api/pipelines/some.thing/status').to route_to(no_layout: true, controller: 'api/pipelines', action: 'status', pipeline_name: 'some.thing')
         end
@@ -234,7 +234,7 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :schedule do
+  describe "schedule" do
     before(:each) do
       allow(com.thoughtworks.go.server.service.result.HttpOperationResult).to receive(:new).and_return(@status)
     end
@@ -338,12 +338,12 @@ describe Api::PipelinesController do
       post 'schedule', :pipeline_name => 'downstream', "material_fingerprint" => {svn => ""}, "original_fingerprint" => {svn => "30"}, :no_layout => true
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
         end
-        describe :with_pipeline_name_constraint do
+        describe "with_pipeline_name_constraint" do
           it 'should route to schedule action of pipelines controller having dots in pipeline name' do
             expect(post: 'api/pipelines/some.thing/schedule').to route_to(no_layout: true, controller: 'api/pipelines', action: 'schedule', pipeline_name: 'some.thing')
           end
@@ -369,7 +369,7 @@ describe Api::PipelinesController do
           end
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
         end
@@ -381,7 +381,7 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :pipeline_instance do
+  describe "pipeline_instance" do
     it "should load pipeline by id" do
       pipeline = PipelineInstanceModel.createPipeline("pipeline", 1, "label", BuildCause.createWithEmptyModifications(), stage_history_for("blah-stage"))
       expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(pipeline)
@@ -410,9 +410,9 @@ describe Api::PipelinesController do
       expect(:get => "/api/pipelines/pipeline.com/10.xml?foo=bar").to route_to(:controller => 'api/pipelines', :action => 'pipeline_instance', :name => "pipeline.com", :id => "10", :format => "xml", :foo  => "bar", :no_layout => true)
     end
 
-    describe :route do
+    describe "route" do
 
-      describe :with_pipeline_name_contraint do
+      describe "with_pipeline_name_contraint" do
         it 'should route to pipeline_instance action of pipelines controller having dots in pipeline name' do
           expect(:get => 'api/pipelines/some.thing/1.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipeline_instance', name: 'some.thing', id: '1')
         end
@@ -441,21 +441,21 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :pipelines do
+  describe "pipelines" do
     it "should assign pipeline_configs and latest instance of each pipeline configured" do
       expect(@pipeline_history_service).to receive(:latestInstancesForConfiguredPipelines).with("user").and_return(:pipeline_instance)
       get :pipelines, :format => "xml", :no_layout => true
       expect(assigns[:pipelines]).to eq(:pipeline_instance)
     end
 
-    describe :route do
+    describe "route" do
       it 'should resolve route to pipelines action' do
         expect(get: 'api/pipelines.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipelines')
       end
     end
   end
 
-  describe :stage_feed do
+  describe "stage_feed" do
     before :each do
       controller.go_cache.clear
       allow(controller).to receive(:set_locale)
@@ -529,9 +529,9 @@ describe Api::PipelinesController do
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'does_not_exist'
     end
 
-    describe :route do
+    describe "route" do
 
-      describe :with_pipeline_name_contraint do
+      describe "with_pipeline_name_contraint" do
         it 'should route to stage_feed action of pipelines controller having dots in pipeline name' do
           expect(:get => 'api/pipelines/some.thing/stages.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'stage_feed', name: 'some.thing')
         end
@@ -560,7 +560,7 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :releaseLock do
+  describe "releaseLock" do
     it "should call service and render operation result" do
       expect(@pipeline_unlock_api_service).to receive(:unlock).with('pipeline-name', @user, anything) do |name, user, operation_result|
         operation_result.notAcceptable("done", HealthStateType.general(HealthStateScope::GLOBAL))
@@ -572,12 +572,12 @@ describe Api::PipelinesController do
       post :releaseLock, :pipeline_name => 'pipeline-name', :no_layout => true
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
         end
-        describe :with_pipeline_name_constraint do
+        describe "with_pipeline_name_constraint" do
           it 'should route to releaseLock action of pipelines controller having dots in pipeline name' do
             expect(post: 'api/pipelines/some.thing/releaseLock').to route_to(no_layout: true, controller: 'api/pipelines', action: 'releaseLock', pipeline_name: 'some.thing')
           end
@@ -603,7 +603,7 @@ describe Api::PipelinesController do
           end
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
         end
@@ -615,19 +615,19 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :pause do
+  describe "pause" do
     it "should pause the pipeline" do
       expect(@pipeline_pause_service).to receive(:pause).with("foo.bar", "wait for next checkin", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
       allow(@controller).to receive(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
       post :pause, {:pipeline_name => "foo.bar", :no_layout => true, :pauseCause => "wait for next checkin"}
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
         end
-        describe :with_pipeline_name_constraint do
+        describe "with_pipeline_name_constraint" do
           it 'should route to pause action of pipelines controller having dots in pipeline name' do
             expect(post: 'api/pipelines/some.thing/pause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'pause', pipeline_name: 'some.thing')
           end
@@ -653,7 +653,7 @@ describe Api::PipelinesController do
           end
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
         end
@@ -665,19 +665,19 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :unpause do
+  describe "unpause" do
     it "should pause the pipeline" do
       expect(@pipeline_pause_service).to receive(:unpause).with("foo.bar", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
       allow(@controller).to receive(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
       post :unpause, {:pipeline_name => "foo.bar", :no_layout => true}
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
         end
-        describe :with_pipeline_name_constraint do
+        describe "with_pipeline_name_constraint" do
           it 'should route to unpause action of pipelines controller having dots in pipeline name' do
             expect(post: 'api/pipelines/some.thing/unpause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'unpause', pipeline_name: 'some.thing')
           end
@@ -703,7 +703,7 @@ describe Api::PipelinesController do
           end
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
         end

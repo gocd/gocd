@@ -26,8 +26,8 @@ describe ApiV1::Admin::Internal::ResourcesController do
     allow(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity::valid())
   end
 
-  describe :security do
-    describe :index do
+  describe "security" do
+    describe "index" do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -57,12 +57,12 @@ describe ApiV1::Admin::Internal::ResourcesController do
     end
   end
 
-  describe :action do
+  describe "action" do
     before :each do
       enable_security
     end
 
-    describe :index do
+    describe "index" do
       it 'should fetch all the resources' do
         login_as_admin
         resources_list = %w(linux windows)
@@ -98,13 +98,13 @@ describe ApiV1::Admin::Internal::ResourcesController do
         expect(JSON.parse(response.body)).to eq(resources_list)
       end
 
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
           it 'should route to index action of the internal resources controller' do
             expect(:get => 'api/admin/internal/resources').to route_to(action: 'index', controller: 'api_v1/admin/internal/resources')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end

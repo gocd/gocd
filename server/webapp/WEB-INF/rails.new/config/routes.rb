@@ -213,6 +213,10 @@ Go::Application.routes.draw do
   match "environments(.:format)" => 'environments#index', defaults: {:format => :html}, via: [:post, :get], as: :environments
 
   scope :api, as: :apiv1, format: false do
+    api_version(:module => 'ApiV1', :path => {:value => "v1"}) do
+      get 'health', controller: 'health', action: 'show'
+    end
+
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
 
       get 'current_user', controller: 'current_user', action: 'show'

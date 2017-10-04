@@ -22,12 +22,12 @@ describe PipelinesController do
 
   before(:each) do
     @user = Username.new(CaseInsensitiveString.new("foo"))
-    controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-    controller.stub(:go_config_service).and_return(@go_config_service=double())
-    controller.stub(:pipeline_lock_service).and_return(@pipeline_lock_service=double())
-    controller.stub(:current_user).and_return(@user)
-    @go_config_service.stub(:isSecurityEnabled).and_return(false)
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service=double())
+    allow(controller).to receive(:pipeline_lock_service).and_return(@pipeline_lock_service=double())
+    allow(controller).to receive(:current_user).and_return(@user)
+    allow(@go_config_service).to receive(:isSecurityEnabled).and_return(false)
+    allow(controller).to receive(:populate_config_validity)
   end
 
   describe :show_for_trigger do
@@ -59,8 +59,8 @@ describe PipelinesController do
       pim.setMaterialRevisionsOnBuildCause(revisions)
       pim.setMaterialConfigs(material_configs)
 
-      @pipeline_history_service.should_receive(:latest).with('pipeline-name', @user).and_return(pim)
-      @go_config_service.should_receive(:variablesFor).with("pipeline-name").and_return(EnvironmentVariablesConfig.new())
+      expect(@pipeline_history_service).to receive(:latest).with('pipeline-name', @user).and_return(pim)
+      expect(@go_config_service).to receive(:variablesFor).with("pipeline-name").and_return(EnvironmentVariablesConfig.new())
 
       post 'show_for_trigger', :pipeline_name => 'pipeline-name', "pegged_revisions" =>{svn_material_config.getPipelineUniqueFingerprint() => "hello_world"}
       expect(response.body).to have_selector(".material_summary #material-number-0.updated[title='hello_world']", :text=>"hello_world")

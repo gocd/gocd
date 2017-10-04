@@ -20,8 +20,8 @@ describe Api::ConfigurationController do
   include APIModelMother
 
   before(:each) do
-    controller.stub(:security_service).and_return(@security_service = double("security_service"))
-    controller.stub(:config_repository).and_return(@config_repository = double("config_repository"))
+    allow(controller).to receive(:security_service).and_return(@security_service = double("security_service"))
+    allow(controller).to receive(:config_repository).and_return(@config_repository = double("config_repository"))
   end
 
   describe :config_revisions do
@@ -32,9 +32,9 @@ describe Api::ConfigurationController do
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @security_service.should_receive(:isUserAdmin).with(loser).and_return(true)
-      @config_repository.should_receive(:getCommits).with(10, 0).and_return([create_config_revision_model])
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(true)
+      expect(@config_repository).to receive(:getCommits).with(10, 0).and_return([create_config_revision_model])
 
       get :config_revisions, :no_layout => true
 
@@ -43,8 +43,8 @@ describe Api::ConfigurationController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @security_service.should_receive(:isUserAdmin).with(loser).and_return(false)
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(false)
 
       get :config_revisions, :no_layout => true
 
@@ -60,9 +60,9 @@ describe Api::ConfigurationController do
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @security_service.should_receive(:isUserAdmin).with(loser).and_return(true)
-      @config_repository.should_receive(:configChangesForCommits).with('a', 'b').and_return('text')
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(true)
+      expect(@config_repository).to receive(:configChangesForCommits).with('a', 'b').and_return('text')
 
       get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
 
@@ -72,8 +72,8 @@ describe Api::ConfigurationController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @security_service.should_receive(:isUserAdmin).with(loser).and_return(false)
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(false)
 
       get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
 

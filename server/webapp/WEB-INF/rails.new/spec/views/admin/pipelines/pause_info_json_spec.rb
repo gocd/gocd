@@ -22,14 +22,14 @@ describe 'admin/pipelines/pause_info.json.erb' do
     pause_info = double('some pause info')
     assign(:pause_info, pause_info)
     pipeline = double('pipeline')
-    pipeline.should_receive(:name).and_return('mingle')
+    expect(pipeline).to receive(:name).and_return('mingle')
     assign(:pipeline, pipeline)
 
-    view.should_receive(:render_json).with(:partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => pause_info, :pipeline_name => 'mingle'}}).and_return("\"pause_fragment\"")
+    expect(view).to receive(:render_json).with(:partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => pause_info, :pipeline_name => 'mingle'}}).and_return("\"pause_fragment\"")
 
     render
 
-    response.body.should == <<EOF.strip
+    expect(response.body).to eq <<EOF.strip
 {
     "pause_info_and_controls": {"html" : "pause_fragment"}
 }

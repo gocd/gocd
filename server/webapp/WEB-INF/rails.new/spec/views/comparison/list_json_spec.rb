@@ -23,7 +23,7 @@ describe "comparison/list.json.erb" do
     pipeline_instances = PipelineInstanceModels.createPipelineInstanceModels()
     pipeline_instances.add(pipeline)
     assign(:pipeline_instances, pipeline_instances)
-    view.should_receive(:render_json).with(:partial=>'pipeline_autocomplete_list_entry.html.erb', :locals => {:scope => {:pipeline => pipeline}}).and_return("\"abc\"")
+    expect(view).to receive(:render_json).with(:partial=>'pipeline_autocomplete_list_entry.html.erb', :locals => {:scope => {:pipeline => pipeline}}).and_return("\"abc\"")
     render :template => "comparison/list.json.erb"
 
     json = JSON.parse(response.body)

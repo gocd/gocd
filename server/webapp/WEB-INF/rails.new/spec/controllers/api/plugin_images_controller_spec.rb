@@ -20,12 +20,12 @@ describe Api::PluginImagesController do
 
   before :each do
     @default_plugin_info_finder = double('default_plugin_info_finder')
-    controller.stub('default_plugin_info_finder').and_return(@default_plugin_info_finder)
+    allow(controller).to receive('default_plugin_info_finder').and_return(@default_plugin_info_finder)
   end
 
   it 'should render an image with a hash and a long lived cache header' do
     image = com.thoughtworks.go.plugin.domain.common.Image.new('image/foo', Base64.strict_encode64('some-image-data'), SecureRandom.hex(32))
-    @default_plugin_info_finder.should_receive(:getImage).with('foo', image.getHash).and_return(image)
+    expect(@default_plugin_info_finder).to receive(:getImage).with('foo', image.getHash).and_return(image)
 
     get :show, plugin_id: 'foo', hash: image.getHash
     expect(response).to be_ok
@@ -36,7 +36,7 @@ describe Api::PluginImagesController do
 
   it 'renders 404 when plugin or hash does not match up' do
     hash = SecureRandom.hex(32)
-    @default_plugin_info_finder.should_receive(:getImage).with('foo', hash).and_return(nil)
+    expect(@default_plugin_info_finder).to receive(:getImage).with('foo', hash).and_return(nil)
 
     get :show, plugin_id: 'foo', hash: hash
     expect(response).to be_not_found

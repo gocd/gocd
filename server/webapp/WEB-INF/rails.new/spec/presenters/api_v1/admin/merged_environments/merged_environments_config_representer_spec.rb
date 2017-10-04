@@ -30,10 +30,10 @@ describe ApiV1::Admin::MergedEnvironments::MergedEnvironmentsConfigRepresenter d
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/environments/merged')
       expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#merged-environment-config')
 
-      actual_json.fetch(:_embedded).should == {
+      expect(actual_json.fetch(:_embedded)).to eq({
         :environments => [ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter.new(environment_config_one).to_hash(url_builder: UrlBuilder.new),
                           ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter.new(environment_config_two).to_hash(url_builder: UrlBuilder.new)]
-      }
+      })
 
     end
   end

@@ -22,17 +22,17 @@ describe ApiV1::DashboardController do
   before do
     @user                  = Username.new(CaseInsensitiveString.new("foo"))
     @pipeline_group_models = java.util.ArrayList.new
-    controller.stub(:current_user).and_return(@user)
-    controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-    controller.stub(:go_config_service).and_return(@go_config_service=double())
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:current_user).and_return(@user)
+    allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service=double())
+    allow(controller).to receive(:populate_config_validity)
   end
 
   describe :dashboard do
     it 'should get dashboard json' do
       @pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
-      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
+      expect(@go_config_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
       expect(response).to be_ok
@@ -40,8 +40,8 @@ describe ApiV1::DashboardController do
     end
 
     it 'should get empty json when dashboard is empty' do
-      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
-      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
+      expect(@go_config_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
       expect(response).to be_ok

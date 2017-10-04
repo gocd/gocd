@@ -44,13 +44,13 @@ module ConfigSaveStubbing
   end
 
   def assert_save_arguments md5 = "1234abcd"
-    from_thd(:assertion_map).should == {:md5 => md5, :user => @user, :result => @result}
+    expect(from_thd(:assertion_map)).to eq({:md5 => md5, :user => @user, :result => @result})
   end
 
   def assert_update_command type, *includes
     command = from_thd(:update_command)
-    command.kind_of?(type).should be_true
-    command.class.included_modules.should include(*includes)
+    expect(command.kind_of?(type)).to be_truthy
+    expect(command.class.included_modules).to include(*includes)
   end
 
   private
@@ -64,7 +64,7 @@ module ConfigSaveStubbing
 
   def stub_for_config_save_blah(cruise_config, options, subject_partial, update_partial, &blk)
     assertion_map = Thread.current[:assertion_map] = {}
-    @go_config_service.should_receive(:updateConfigFromUI) do |update_command, md5, user, result|
+    expect(@go_config_service).to receive(:updateConfigFromUI) do |update_command, md5, user, result|
       assertion_map[:md5] = md5
       assertion_map[:user] = user
       assertion_map[:result] = result

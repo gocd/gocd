@@ -62,115 +62,115 @@ describe AdminController do
     stub_save_for_success
     controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.",proc {}) {}
 
-    controller.instance_variable_get('@cruise_config').should == @cruise_config
-    controller.instance_variable_get('@node').should == @cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1'))
-    controller.instance_variable_get('@subject').should == @cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1'))
+    expect(controller.instance_variable_get('@cruise_config')).to eq(@cruise_config)
+    expect(controller.instance_variable_get('@node')).to eq(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1')))
+    expect(controller.instance_variable_get('@subject')).to eq(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1')))
   end
 
   it "should capture config before and after update" do
     stub_save_for_success
     controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", proc {}) {}
 
-    controller.instance_variable_get('@config_after').pipelineConfigByName(CaseInsensitiveString.new("pipeline1")).getLabelTemplate().should == "foo-${COUNT}"
+    expect(controller.instance_variable_get('@config_after').pipelineConfigByName(CaseInsensitiveString.new("pipeline1")).getLabelTemplate()).to eq("foo-${COUNT}")
   end
 
   describe "assert_load" do
     it "should assign variable" do
-      controller.send(:assert_load, :junk, "junk_value").should be_true
-      controller.instance_variable_get('@junk').should == "junk_value"
+      expect(controller.send(:assert_load, :junk, "junk_value")).to be_truthy
+      expect(controller.instance_variable_get('@junk')).to eq("junk_value")
     end
 
     it "should error out on null assignment" do
-      controller.should_receive(:action_has_layout?).and_return(true)
+      expect(controller).to receive(:action_has_layout?).and_return(true)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
-      controller.send(:assert_load, :junk, nil).should be_false
-      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+      expect(controller.send(:assert_load, :junk, nil)).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should not render error page layout when action doesn't have one" do
-      controller.should_receive(:action_has_layout?).and_return(false)
+      expect(controller).to receive(:action_has_layout?).and_return(false)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
-      controller.send(:assert_load, :junk, nil).should be_false
-      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+      expect(controller.send(:assert_load, :junk, nil)).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should allow caller to use custom error message and status" do
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
-      controller.send(:assert_load, :junk, nil, "callers custom message", 409).should be_false
-      controller.instance_variable_get('@message').should == "callers custom message"
+      expect(controller.send(:assert_load, :junk, nil, "callers custom message", 409)).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("callers custom message")
     end
 
     it "should load the result of evaluation" do
-      controller.send(:assert_load_eval, :junk) do
+      expect(controller.send(:assert_load_eval, :junk) do
         "junk_value"
-      end.should be_true
-      controller.instance_variable_get('@junk').should == "junk_value"
+      end).to be_truthy
+      expect(controller.instance_variable_get('@junk')).to eq("junk_value")
     end
 
     it "should render error when result of evaluation is null" do
-      controller.should_receive(:action_has_layout?).and_return(true)
+      expect(controller).to receive(:action_has_layout?).and_return(true)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
-      controller.send(:assert_load_eval, :junk) do
+      expect(controller.send(:assert_load_eval, :junk) do
         nil
-      end.should be_false
-      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+      end).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should NOT render error twice in same flow, when an error occurs" do
-      controller.should_receive(:action_has_layout?).and_return(true)
+      expect(controller).to receive(:action_has_layout?).and_return(true)
 
-      controller.should_receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+      expect(controller).to receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 404})
 
       controller.send(:assert_load, :foo, nil)
       controller.send(:assert_load, :bar, nil)
 
-      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+      expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should catch exceptions and render error when eval_loading fails" do
-      controller.should_receive(:action_has_layout?).and_return(true)
+      expect(controller).to receive(:action_has_layout?).and_return(true)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
-      controller.send(:assert_load_eval, :junk) do
+      expect(controller.send(:assert_load_eval, :junk) do
         raise "foo bar"
-      end.should be_false
-      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+      end).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
 
     it "should use custom message and status when evaluation is null" do
-      controller.should_receive(:action_has_layout?).and_return(true)
+      expect(controller).to receive(:action_has_layout?).and_return(true)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 407})
-      controller.send(:assert_load_eval, :junk, "custom message", 407) do
+      expect(controller.send(:assert_load_eval, :junk, "custom message", 407) do
         nil
-      end.should be_false
-      controller.instance_variable_get('@message').should == "custom message"
+      end).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("custom message")
     end
 
     it "should not render layout for error page if should_not_render_layout is explicitly set on the controller" do
-      controller.should_receive(:action_has_layout?).and_return(true)
+      expect(controller).to receive(:action_has_layout?).and_return(true)
       controller.instance_variable_set(:@should_not_render_layout, true)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
-      controller.send(:assert_load, :junk, nil).should be_false
-      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+      expect(controller.send(:assert_load, :junk, nil)).to be_falsey
+      expect(controller.instance_variable_get('@message')).to eq("Error occurred while trying to complete your request.")
     end
   end
 
   it "should render error response for exceptions in after update block" do
     stub_save_for_success
     exception = nil
-    Rails.logger.should_receive(:error) do |ex|
+    expect(Rails.logger).to receive(:error) do |ex|
       exception = ex
     end
-    controller.should_receive(:render_assertion_failure).with({})
+    expect(controller).to receive(:render_assertion_failure).with({})
     controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", proc do
       raise "random exception"
     end) {}
-    exception.message.should == "random exception"
+    expect(exception.message).to eq("random exception")
   end
 
   it "should use config_errors page for rendering errors" do
-    controller._process_action_callbacks.select { |c| c.kind == :before }.map(&:filter).should include(:enable_admin_error_template)
+    expect(controller._process_action_callbacks.select { |c| c.kind == :before }.map(&:filter)).to include(:enable_admin_error_template)
     controller.send(:enable_admin_error_template)
-    controller.error_template_for_request.should == "shared/config_error"
+    expect(controller.error_template_for_request).to eq("shared/config_error")
   end
 
   it "should report 'Bad Request' when no status override given" do
@@ -182,8 +182,8 @@ describe AdminController do
     stub_save_for_validation_error do |result, _, _|
       result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", ["message"].to_java(java.lang.String)))
     end
-    controller.stub(:response).and_return(response = double('response'))
-    response.stub(:headers).and_return({})
+    allow(controller).to receive(:response).and_return(response = double('response'))
+    allow(response).to receive(:headers).and_return({})
     controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
 
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
@@ -194,11 +194,11 @@ describe AdminController do
 
   it "should NOT continue and do render or redirect when assert_load fails during save_page but update was successful" do
     stub_save_for_success
-    controller.stub(:response).and_return(response = double('response'))
+    allow(controller).to receive(:response).and_return(response = double('response'))
 
-    response.should_not_receive(:headers)
-    controller.should_receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
-    controller.should_not_receive(:redirect_to)
+    expect(response).not_to receive(:headers)
+    expect(controller).to receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
+    expect(controller).not_to receive(:redirect_to)
 
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
       assert_load(:foo, nil)
@@ -208,11 +208,11 @@ describe AdminController do
 
   it "should NOT continue and do render or redirect when assert_load fails during save_popup but update was successful" do
     stub_save_for_success
-    controller.stub(:response).and_return(response = double('response'))
+    allow(controller).to receive(:response).and_return(response = double('response'))
 
-    response.should_not_receive(:headers)
-    controller.should_receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
-    controller.should_not_receive(:render).with(:text => "Saved successfully")
+    expect(response).not_to receive(:headers)
+    expect(controller).to receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
+    expect(controller).not_to receive(:render).with(:text => "Saved successfully")
 
     controller.send(:save_popup, "md5", UpdateCommand.new, {:action => "foo", :controller => "bar"}) do
       assert_load(:foo, nil)
@@ -232,7 +232,7 @@ describe AdminController do
     controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", Proc.new{}) do |message|
       final_success_message = message
     end
-    final_success_message.should == "Saved successfully. The configuration was modified by someone else, but your changes were merged successfully."
+    expect(final_success_message).to eq("Saved successfully. The configuration was modified by someone else, but your changes were merged successfully.")
   end
 
   it "should retain successful message when configuration is only updated" do
@@ -241,7 +241,7 @@ describe AdminController do
     controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", Proc.new{}) do |message|
       final_success_message = message
     end
-    final_success_message.should == "Saved successfully."
+    expect(final_success_message).to eq("Saved successfully.")
   end
 
   it "should flatten and give unique error messages" do
@@ -256,7 +256,7 @@ describe AdminController do
     errors.add(e2)
     errors.add(e3)
     flattened_errors = controller.send(:flatten_all_errors, errors)
-    flattened_errors.size().should == 2
-    flattened_errors.should include("m1", "m2")
+    expect(flattened_errors.size()).to eq(2)
+    expect(flattened_errors).to include("m1", "m2")
   end
 end

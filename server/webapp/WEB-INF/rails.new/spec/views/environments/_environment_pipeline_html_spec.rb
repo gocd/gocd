@@ -102,8 +102,8 @@ describe "/environments/_environment_pipeline.html.erb" do
     Capybara.string(response.body).all(".stages a .stage_bar") do |stages|
       second_stage = stages[1]
       expect(second_stage["class"]).to match("Passed")
-      second_stage.attributes["class"].should_not include("last_run_stage")
-      second_stage.attributes["style"].should include("width: 9.9167em")
+      expect(second_stage.attributes["class"]).not_to include("last_run_stage")
+      expect(second_stage.attributes["style"]).to include("width: 9.9167em")
     end
   end
 

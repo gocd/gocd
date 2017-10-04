@@ -20,7 +20,7 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   before :each do
-    controller.stub(:command_repository_service).and_return(@command_repository_service = double('command_repository_service'))
+    allow(controller).to receive(:command_repository_service).and_return(@command_repository_service = double('command_repository_service'))
   end
 
   describe :index do
@@ -61,7 +61,7 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
         presenter   = ApiV1::CommandSnippetsRepresenter.new([snippet])
         snippet_hash = presenter.to_hash(url_builder: controller, prefix: 'rake')
 
-        @command_repository_service.should_receive(:lookupCommand).with('rake').and_return([snippet])
+        expect(@command_repository_service).to receive(:lookupCommand).with('rake').and_return([snippet])
 
         get_with_api_header :index, prefix: 'rake'
 

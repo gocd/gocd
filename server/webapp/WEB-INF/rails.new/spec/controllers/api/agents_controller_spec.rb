@@ -18,8 +18,8 @@ require 'spec_helper'
 
 describe Api::AgentsController do
   before do
-    controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
-    controller.stub(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
+    allow(controller).to receive(:agent_service).and_return(@agent_service = double('agent-service'))
+    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
     login_as_user
     login_as_admin
   end
@@ -33,8 +33,8 @@ describe Api::AgentsController do
     end
 
     it "should render job run history json" do
-      @job_instance_service.should_receive(:totalCompletedJobsCountOn).with('uuid').and_return(10)
-      @job_instance_service.should_receive(:completedJobsOnAgent).with('uuid', anything, anything, anything).and_return(create_agent_job_run_history_model)
+      expect(@job_instance_service).to receive(:totalCompletedJobsCountOn).with('uuid').and_return(10)
+      expect(@job_instance_service).to receive(:completedJobsOnAgent).with('uuid', anything, anything, anything).and_return(create_agent_job_run_history_model)
 
       get :job_run_history, :uuid => 'uuid', :offset => '5', :no_layout => true
 

@@ -20,6 +20,6 @@ describe ConfigUpdate::SaveAsPipelineOrTemplateAdmin do
 
   it "should check if user can edit pipeline or template" do
     save = ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin.new(nil, nil, nil)
-    save.class.included_modules.should include(::ConfigUpdate::CheckCanEditPipelineOrTemplate)
+    expect(save.class.included_modules).to include(::ConfigUpdate::CheckCanEditPipelineOrTemplate)
   end
 end

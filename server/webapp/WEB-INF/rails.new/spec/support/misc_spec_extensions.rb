@@ -5,7 +5,7 @@ module MiscSpecExtensions
 
   def current_user
     @user ||= com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("some-user"), "display name")
-    @controller.stub(:current_user).and_return(@user)
+    allow(@controller).to receive(:current_user).and_return(@user)
     @user
   end
 
@@ -33,14 +33,14 @@ module MiscSpecExtensions
 
   def stub_service(service_getter)
     service = double(service_getter.to_s.camelize)
-    controller.stub(service_getter).and_return(service)
+    allow(controller).to receive(service_getter).and_return(service)
     ServiceCacheStrategy.instance.replace_service(service_getter.to_s, service)
     service
   end
 
   def stub_localized_result
     result = com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.new
-    com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.stub(:new).and_return(result)
+    allow(com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult).to receive(:new).and_return(result)
     result
   end
 end

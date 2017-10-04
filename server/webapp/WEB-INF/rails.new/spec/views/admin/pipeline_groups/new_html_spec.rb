@@ -25,7 +25,7 @@ describe "admin/pipeline_groups/new.html.erb" do
     assign(:user, Username.new(CaseInsensitiveString.new("loser")))
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
-    view.stub(:pipeline_group_create_path).and_return("pipeline_group_create_path")
+    allow(view).to receive(:pipeline_group_create_path).and_return("pipeline_group_create_path")
   end
 
   it "should display form to create a new template" do

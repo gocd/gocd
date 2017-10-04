@@ -42,24 +42,24 @@ describe StageConfigLoader do
 
   it "should load stage if exists" do
     @controller.params = {:pipeline_name => "foo-pipeline", :stage_name => "bar-stage"}
-    @controller.stage.should be_nil
-    @controller.send(@klass.filter_names.last).should == true
-    @controller.stage.name().should == CaseInsensitiveString.new("bar-stage")
+    expect(@controller.stage).to be_nil
+    expect(@controller.send(@klass.filter_names.last)).to eq(true)
+    expect(@controller.stage.name()).to eq(CaseInsensitiveString.new("bar-stage"))
   end
 
   it "should render error when no stage exists" do
     @controller.params = {:pipeline_name => "foo-pipeline", :stage_name => "quux-stage"}
-    @controller.stage.should be_nil
+    expect(@controller.stage).to be_nil
 
     @controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
 
-    @controller.send(@klass.filter_names.last).should == false
+    expect(@controller.send(@klass.filter_names.last)).to eq(false)
 
-    @controller.instance_variable_get('@message').should == "No stage named 'quux-stage' exists for pipeline 'foo-pipeline'."
-    @controller.stage.should be_nil
+    expect(@controller.instance_variable_get('@message')).to eq("No stage named 'quux-stage' exists for pipeline 'foo-pipeline'.")
+    expect(@controller.stage).to be_nil
   end
 
   it "should hookup load_pipeline before load_stage" do
-    @klass.filter_names.should == [:load_pipeline, :load_pause_info, :load_stage]
+    expect(@klass.filter_names).to eq([:load_pipeline, :load_pause_info, :load_stage])
   end
 end

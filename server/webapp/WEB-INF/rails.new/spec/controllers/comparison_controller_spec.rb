@@ -20,8 +20,8 @@ describe ComparisonController do
   include StageModelMother
 
   before :each do
-    controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
-    controller.stub(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
+    allow(controller).to receive(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
+    allow(controller).to receive(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
   end
 
   describe "routes" do
@@ -56,22 +56,22 @@ describe ComparisonController do
 
   describe "comparison_controller" do
     before :each do
-      controller.stub(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
+      allow(controller).to receive(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
     end
 
     describe "show" do
       before :each do
-        @mingle_service.stub(:mingleConfigForPipelineNamed)
+        allow(@mingle_service).to receive(:mingleConfigForPipelineNamed)
         @result = HttpOperationResult.new
-        HttpOperationResult.stub(:new).and_return(@result)
+        allow(HttpOperationResult).to receive(:new).and_return(@result)
       end
 
       it "should load from and to pipeline instances and cruise_config" do
         to_pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 17, "some-label", BuildCause.createWithEmptyModifications(), stage_history_for("dev", "prod"))
-        @phs.should_receive(:findPipelineInstance).with("some_pipeline", 17, @loser, @result).and_return(to_pipeline)
+        expect(@phs).to receive(:findPipelineInstance).with("some_pipeline", 17, @loser, @result).and_return(to_pipeline)
 
         from_pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 10, "some-label", BuildCause.createWithEmptyModifications(), stage_history_for("dev", "prod"))
-        @phs.should_receive(:findPipelineInstance).with("some_pipeline", 10, @loser, @result).and_return(from_pipeline)
+        expect(@phs).to receive(:findPipelineInstance).with("some_pipeline", 10, @loser, @result).and_return(from_pipeline)
 
         pipeline_instances = PipelineInstanceModels.createPipelineInstanceModels()
         (1..10).each do |i|
@@ -99,8 +99,8 @@ describe ComparisonController do
     describe "list" do
       it "should get list of pipeline instances" do
         result = HttpLocalizedOperationResult.new
-        HttpLocalizedOperationResult.stub(:new).and_return(result)
-        @phs.should_receive(:findMatchingPipelineInstances).with("some_pipeline", "query", 10, @loser, result).and_return(:from_pipeline)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+        expect(@phs).to receive(:findMatchingPipelineInstances).with("some_pipeline", "query", 10, @loser, result).and_return(:from_pipeline)
         get :list, :pipeline_name => "some_pipeline", :other_pipeline_counter => 10, :q => "query", :format => "json"
         expect(assigns[:pipeline_instances]).to eq(:from_pipeline)
       end
@@ -108,7 +108,7 @@ describe ComparisonController do
 
     describe "timeline" do
       it "should get pipeline history" do
-        @phs.should_receive(:findPipelineInstancesByPageNumber).with("pipeline_up", 5, 10, "loser").and_return(:some_pipeline_instances)
+        expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("pipeline_up", 5, 10, "loser").and_return(:some_pipeline_instances)
         get :timeline, :pipeline_name => "pipeline_up", :page => "5"
         expect(assigns[:pipeline_instances]).to eq(:some_pipeline_instances)
       end

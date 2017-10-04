@@ -20,88 +20,88 @@ describe Admin::PipelinesSnippetController do
 
   before :each do
     @security_service = double("Security Service")
-    controller.stub(:security_service).and_return(@security_service)
+    allow(controller).to receive(:security_service).and_return(@security_service)
     @pipeline_configs_service = double('Pipelines Configs Service')
     @go_config_service = double('Go Config Service')
-    controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service)
-    controller.stub(:go_config_service).and_return(@go_config_service)
+    allow(controller).to receive(:pipeline_configs_service).and_return(@pipeline_configs_service)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service)
   end
 
   describe :routes do
     it "should resolve the route to partial config page" do
-      {:get => "/admin/pipelines/snippet"}.should route_to(:controller => "admin/pipelines_snippet", :action => "index")
-      pipelines_snippet_path.should == "/admin/pipelines/snippet"
+      expect({:get => "/admin/pipelines/snippet"}).to route_to(:controller => "admin/pipelines_snippet", :action => "index")
+      expect(pipelines_snippet_path).to eq("/admin/pipelines/snippet")
     end
 
     it "should resolve route to get group xml" do
-      {:get => "/admin/pipelines/snippet/foo.bar"}.should route_to(:controller => "admin/pipelines_snippet", :action => "show", :group_name => "foo.bar")
-      pipelines_snippet_show_path(:group_name => 'foo.bar').should == "/admin/pipelines/snippet/foo.bar"
+      expect({:get => "/admin/pipelines/snippet/foo.bar"}).to route_to(:controller => "admin/pipelines_snippet", :action => "show", :group_name => "foo.bar")
+      expect(pipelines_snippet_show_path(:group_name => 'foo.bar')).to eq("/admin/pipelines/snippet/foo.bar")
     end
 
     it "should resolve route to save group xml" do
-      {:put => "/admin/pipelines/snippet/foo.bar"}.should route_to(:controller => "admin/pipelines_snippet", :action => "update", :group_name => "foo.bar")
-      pipelines_snippet_update_path(:group_name => 'foo.bar').should == "/admin/pipelines/snippet/foo.bar"
+      expect({:put => "/admin/pipelines/snippet/foo.bar"}).to route_to(:controller => "admin/pipelines_snippet", :action => "update", :group_name => "foo.bar")
+      expect(pipelines_snippet_update_path(:group_name => 'foo.bar')).to eq("/admin/pipelines/snippet/foo.bar")
     end
 
     it "should resolve route to edit group xml" do
-      {:get => "/admin/pipelines/snippet/foo.bar/edit"}.should route_to(:controller => "admin/pipelines_snippet", :action => "edit", :group_name => "foo.bar")
-      pipelines_snippet_edit_path(:group_name => 'foo.bar').should == "/admin/pipelines/snippet/foo.bar/edit"
+      expect({:get => "/admin/pipelines/snippet/foo.bar/edit"}).to route_to(:controller => "admin/pipelines_snippet", :action => "edit", :group_name => "foo.bar")
+      expect(pipelines_snippet_edit_path(:group_name => 'foo.bar')).to eq("/admin/pipelines/snippet/foo.bar/edit")
     end
   end
 
   describe :actions do
     before :each do
-      controller.should_receive(:populate_config_validity).and_return(true)
-      controller.should_receive(:load_context)
+      expect(controller).to receive(:populate_config_validity).and_return(true)
+      expect(controller).to receive(:load_context)
       @result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(@result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     end
 
 
     describe :index do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub(:current_user).and_return(@user)
+        allow(controller).to receive(:current_user).and_return(@user)
       end
 
       it "should display first group by default" do
-        @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["first", "second"])
+        expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["first", "second"])
         get :index
-        response.should redirect_to pipelines_snippet_show_path(:group_name => "first")
+        expect(response).to redirect_to pipelines_snippet_show_path(:group_name => "first")
       end
     end
 
     describe :show do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub(:current_user).and_return(@user)
-        @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
+        allow(controller).to receive(:current_user).and_return(@user)
+        expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
       end
 
       it "should return a group xml for a valid group" do
-        @result.should_receive(:is_successful).and_return(true)
-        @pipeline_configs_service.should_receive(:getXml).with("valid_group", @user, @result).and_return("some valid xml as string")
+        expect(@result).to receive(:is_successful).and_return(true)
+        expect(@pipeline_configs_service).to receive(:getXml).with("valid_group", @user, @result).and_return("some valid xml as string")
 
         get :show, {:group_name => "valid_group"}
 
-        assigns[:group_as_xml].should == "some valid xml as string"
-        assigns[:group_name].should == "valid_group"
-        assigns[:modifiable_groups].size.should == 1
-        assigns[:modifiable_groups].should include "foo"
-        response.should render_template :show
+        expect(assigns[:group_as_xml]).to eq("some valid xml as string")
+        expect(assigns[:group_name]).to eq("valid_group")
+        expect(assigns[:modifiable_groups].size).to eq(1)
+        expect(assigns[:modifiable_groups]).to include "foo"
+        expect(response).to render_template :show
         assert_template layout: "admin"
       end
 
       it "should return unauthorized error if the user does not have access to the group" do
-        @result.should_receive(:is_successful).and_return(false)
-        @result.should_receive(:httpCode).and_return(401)
-        @result.should_receive(:message).with(anything).and_return("Unauthorized")
+        expect(@result).to receive(:is_successful).and_return(false)
+        expect(@result).to receive(:httpCode).and_return(401)
+        expect(@result).to receive(:message).with(anything).and_return("Unauthorized")
         @config = BasicCruiseConfig.new
         group = "valid_group"
-        @pipeline_configs_service.should_receive(:getXml).with(group, @user, @result).and_return(nil)
+        expect(@pipeline_configs_service).to receive(:getXml).with(group, @user, @result).and_return(nil)
         get :show, {:group_name => group}
 
-        response.should render_template 'shared/config_error'
+        expect(response).to render_template 'shared/config_error'
         assert_response 401
       end
     end
@@ -109,38 +109,38 @@ describe Admin::PipelinesSnippetController do
     describe :edit do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub(:current_user).and_return(@user)
-        @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
+        allow(controller).to receive(:current_user).and_return(@user)
+        expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
       end
 
       it "should display the group xml" do
         group = "group"
-        @pipeline_configs_service.should_receive(:getXml).with(group, @user, @result).and_return("some valid xml as string")
+        expect(@pipeline_configs_service).to receive(:getXml).with(group, @user, @result).and_return("some valid xml as string")
         @config = BasicCruiseConfig.new
-        @config.should_receive(:getMd5).and_return('md5_value_for_configuration')
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@config)
+        expect(@config).to receive(:getMd5).and_return('md5_value_for_configuration')
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@config)
         get :edit, {:group_name => group}
 
-        assigns[:group_name].should == group
-        assigns[:group_as_xml].should == "some valid xml as string"
-        assigns[:config_md5].should == 'md5_value_for_configuration'
-        assigns[:modifiable_groups].size.should == 1
-        assigns[:modifiable_groups].should include "foo"
-        response.should render_template :edit
+        expect(assigns[:group_name]).to eq(group)
+        expect(assigns[:group_as_xml]).to eq("some valid xml as string")
+        expect(assigns[:config_md5]).to eq('md5_value_for_configuration')
+        expect(assigns[:modifiable_groups].size).to eq(1)
+        expect(assigns[:modifiable_groups]).to include "foo"
+        expect(response).to render_template :edit
         assert_template layout: "admin"
       end
 
       it "should return unauthorized error if the user does not have access to the group" do
-        @result.should_receive(:is_successful).and_return(false)
-        @result.should_receive(:httpCode).and_return(401)
-        @result.should_receive(:message).with(anything).and_return("Unauthorized")
+        expect(@result).to receive(:is_successful).and_return(false)
+        expect(@result).to receive(:httpCode).and_return(401)
+        expect(@result).to receive(:message).with(anything).and_return("Unauthorized")
         @config = BasicCruiseConfig.new
         group = "valid_group"
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@config)
-        @pipeline_configs_service.should_receive(:getXml).with(group, @user, @result).and_return(nil)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@config)
+        expect(@pipeline_configs_service).to receive(:getXml).with(group, @user, @result).and_return(nil)
         get :edit, {:group_name => group}
 
-        response.should render_template 'shared/config_error'
+        expect(response).to render_template 'shared/config_error'
         assert_response 401
       end
 
@@ -149,85 +149,85 @@ describe Admin::PipelinesSnippetController do
     describe :update do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub(:current_user).and_return(@user)
+        allow(controller).to receive(:current_user).and_return(@user)
         @result = HttpLocalizedOperationResult.new
-        HttpLocalizedOperationResult.stub(:new).and_return(@result)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       end
 
       it "should persist group xml and redirect to show" do
         @result.setMessage(LocalizedMessage.string("SAVED_SUCCESSFULLY"))
-        controller.should_receive(:set_flash_message).with("Saved successfully.","success").and_return("Success!")
+        expect(controller).to receive(:set_flash_message).with("Saved successfully.","success").and_return("Success!")
         pipeline_configs = double(PipelineConfigs.class)
-        pipeline_configs.stub(:get_group).and_return("renamed_group")
+        allow(pipeline_configs).to receive(:get_group).and_return("renamed_group")
         updated_xml = "updated pipelines xml"
-        @result.should_receive(:is_successful).and_return(true)
+        expect(@result).to receive(:is_successful).and_return(true)
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
-        cruise_config_operational_response.should_receive(:getConfigElement).and_return(pipeline_configs)
+        expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(pipeline_configs)
         validity = double('validity')
-        validity.should_receive(:errorMessage).never
-        validity.should_receive(:isMergeConflict).and_return(false)
-        validity.should_receive(:isPostValidationError).and_return(false)
-        cruise_config_operational_response.should_receive(:getValidity).and_return(validity)
-        @pipeline_configs_service.should_receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
+        expect(validity).to receive(:errorMessage).never
+        expect(validity).to receive(:isMergeConflict).and_return(false)
+        expect(validity).to receive(:isPostValidationError).and_return(false)
+        expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
+        expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
 
-        response.should redirect_to pipelines_snippet_show_path("renamed_group", :fm => "Success!")
+        expect(response).to redirect_to pipelines_snippet_show_path("renamed_group", :fm => "Success!")
       end
 
       it "should render global error if update failed due to merge error or post validation error" do
-        @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
+        expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
         updated_xml = "updated pipelines xml"
-        @result.should_receive(:is_successful).and_return(false)
-        @result.should_receive(:message).with(anything).and_return("failed")
+        expect(@result).to receive(:is_successful).and_return(false)
+        expect(@result).to receive(:message).with(anything).and_return("failed")
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
-        cruise_config_operational_response.should_receive(:getConfigElement).and_return(nil)
+        expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(nil)
         validity = double('validity')
-        validity.should_receive(:errorMessage).and_return('error message')
-        validity.should_receive(:isValid).never
-        validity.should_receive(:isMergeConflict).and_return(true)
-        validity.should_receive(:isPostValidationError).never
-        cruise_config_operational_response.should_receive(:getValidity).and_return(validity)
-        @pipeline_configs_service.should_receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
+        expect(validity).to receive(:errorMessage).and_return('error message')
+        expect(validity).to receive(:isValid).never
+        expect(validity).to receive(:isMergeConflict).and_return(true)
+        expect(validity).to receive(:isPostValidationError).never
+        expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
+        expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
 
-        response.should render_template 'edit'
-        assigns[:config_md5].should == "md5"
-        assigns[:group_name].should == group_name
-        assigns[:group_as_xml].should == updated_xml
-        assigns[:modifiable_groups].size.should == 1
-        assigns[:modifiable_groups].should include "foo"
-        assigns[:errors].should == ['error message']
-        flash.now[:error].should == "failed"
+        expect(response).to render_template 'edit'
+        expect(assigns[:config_md5]).to eq("md5")
+        expect(assigns[:group_name]).to eq(group_name)
+        expect(assigns[:group_as_xml]).to eq(updated_xml)
+        expect(assigns[:modifiable_groups].size).to eq(1)
+        expect(assigns[:modifiable_groups]).to include "foo"
+        expect(assigns[:errors]).to eq(['error message'])
+        expect(flash.now[:error]).to eq("failed")
         assert_template layout: "admin"
       end
 
       it "should render error on flash pane for pre merge validation errors or other errors" do
-        @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
+        expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
         updated_xml = "updated pipelines xml"
-        @result.should_receive(:is_successful).and_return(false)
-        @result.should_receive(:message).with(anything).and_return("failed")
+        expect(@result).to receive(:is_successful).and_return(false)
+        expect(@result).to receive(:message).with(anything).and_return("failed")
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
-        cruise_config_operational_response.should_receive(:getConfigElement).and_return(nil)
+        expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(nil)
         validity = double('validity')
-        validity.should_receive(:isValid).never
-        validity.should_receive(:errorMessage).never
-        validity.should_receive(:isPostValidationError).and_return(false)
-        validity.should_receive(:isMergeConflict).and_return(false)
-        cruise_config_operational_response.should_receive(:getValidity).and_return(validity)
-        @pipeline_configs_service.should_receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
+        expect(validity).to receive(:isValid).never
+        expect(validity).to receive(:errorMessage).never
+        expect(validity).to receive(:isPostValidationError).and_return(false)
+        expect(validity).to receive(:isMergeConflict).and_return(false)
+        expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
+        expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
 
-        response.should render_template 'edit'
-        assigns[:config_md5].should == "md5"
-        assigns[:group_name].should == group_name
-        assigns[:group_as_xml].should == updated_xml
-        assigns[:modifiable_groups].size.should == 1
-        assigns[:modifiable_groups].should include "foo"
-        assigns[:errors].should == nil
-        flash.now[:error].should == 'failed'
+        expect(response).to render_template 'edit'
+        expect(assigns[:config_md5]).to eq("md5")
+        expect(assigns[:group_name]).to eq(group_name)
+        expect(assigns[:group_as_xml]).to eq(updated_xml)
+        expect(assigns[:modifiable_groups].size).to eq(1)
+        expect(assigns[:modifiable_groups]).to include "foo"
+        expect(assigns[:errors]).to eq(nil)
+        expect(flash.now[:error]).to eq('failed')
       end
     end
   end

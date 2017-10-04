@@ -21,7 +21,7 @@ describe ApiV1::Admin::Internal::PipelinesController do
 
   before(:each) do
     @pipeline_config_service = double('pipeline_config_service')
-    controller.stub('pipeline_config_service').and_return(@pipeline_config_service)
+    allow(controller).to receive('pipeline_config_service').and_return(@pipeline_config_service)
   end
 
   describe :security do
@@ -64,7 +64,7 @@ describe ApiV1::Admin::Internal::PipelinesController do
         pipeline_configs = BasicPipelineConfigs.new(PipelineConfigMother.createPipelineConfigWithStages('regression', 'fetch', 'run'))
         pipeline_configs_list = Arrays.asList(pipeline_configs)
 
-        @pipeline_config_service.should_receive(:viewableOrOperatableGroupsFor).with(controller.current_user).and_return(pipeline_configs_list)
+        expect(@pipeline_config_service).to receive(:viewableOrOperatableGroupsFor).with(controller.current_user).and_return(pipeline_configs_list)
 
         get_with_api_header :index
 

@@ -33,7 +33,7 @@ describe ApiV1::StageRepresenter do
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#get-stage-instance')
 
     actual_json.delete(:_links)
-    actual_json.fetch(:_embedded).should == {:jobs => stage_model.getJobInstances().collect { |j| ApiV1::JobSummaryRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) }}
+    expect(actual_json.fetch(:_embedded)).to eq({:jobs => stage_model.getJobInstances().collect { |j| ApiV1::JobSummaryRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) }})
     actual_json.delete(:_embedded)
     expect(actual_json).to eq(stage_hash(stage_model))
   end

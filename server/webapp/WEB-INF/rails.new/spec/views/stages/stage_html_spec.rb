@@ -22,8 +22,8 @@ describe 'stages/stage.html.erb' do
   include StageModelMother, GoUtil, JobMother, PipelineModelMother, ApplicationHelper
 
   before(:each) do
-    view.stub(:is_user_an_admin?).and_return(true)
-    view.stub(:config_change_path)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:config_change_path)
 
     in_params :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 3
     @stage_history_page = stage_history_page(10)
@@ -32,7 +32,7 @@ describe 'stages/stage.html.erb' do
     @revisions = MaterialRevisions.new( empty_material_revision_arr)
     @revisions.addAll(ModificationsMother.multipleModifications())
     @revisions.addAll(ModificationsMother.multipleModifications(MaterialsMother.hgMaterial()))
-    view.stub(:render_comment).and_return("link to traker")
+    allow(view).to receive(:render_comment).and_return("link to traker")
     assign :pipeline, @pipeline =  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false, @revisions).getLatestPipelineInstance()
     assign :current_tab,  "overview"
     assign :fbh_pipeline_instances, []
@@ -61,7 +61,7 @@ describe 'stages/stage.html.erb' do
   describe "overview_tab" do
     before(:each) do
       params[:action] = "overview"
-      view.stub(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
       assign :user, Username.new(CaseInsensitiveString.new("bob"))
     end
 
@@ -71,7 +71,7 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_tab_path)
+        allow(view).to receive(:stage_detail_tab_path)
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
 
@@ -167,11 +167,11 @@ describe 'stages/stage.html.erb' do
 
         it "should show links to other stage runs" do
           in_params :action => 'foo'
-          view.stub(:stage_detail_tab_path).with(instance_of(Hash)).and_return do |params|
+          allow(view).to receive(:stage_detail_tab_path).with(instance_of(Hash)) do |params|
             "url_for_#{params[:pipeline_counter]}_run_#{params[:stage_counter]}"
           end
-          view.should_receive(:stage_detail_tab_path).with(:stage_counter => 1, :action => "foo").and_return("url_to_1")
-          view.should_receive(:stage_detail_tab_path).with(:stage_counter => 3, :action => "foo").and_return("url_to_3")
+          expect(view).to receive(:stage_detail_tab_path).with(:stage_counter => 1, :action => "foo").and_return("url_to_1")
+          expect(view).to receive(:stage_detail_tab_path).with(:stage_counter => 3, :action => "foo").and_return("url_to_3")
           render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
 
           Capybara.string(response.body).find(".other_runs").tap do |other_runs|
@@ -195,7 +195,7 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_tab_path)
+        allow(view).to receive(:stage_detail_tab_path)
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
         assign(:stage, stage_with_all_jobs_passed())
       end
@@ -219,7 +219,7 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_tab_path)
+        allow(view).to receive(:stage_detail_tab_path)
 
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
@@ -236,17 +236,17 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should render urls" do
-        view.stub(:stage_detail_tab_path).with(instance_of(Hash)).and_return do |params|
+        allow(view).to receive(:stage_detail_tab_path).with(instance_of(Hash)) do |params|
           "url_for_#{params[:pipeline_counter]}_run_#{params[:stage_counter]}"
         end
 
-        view.stub(:stage_detail_tab_path).with({:action=>"overview"}).and_return("overview_link")
-        view.stub(:stage_detail_tab_path).with({:action=>"pipeline"}).and_return("pipeline_link")
-        view.stub(:stage_detail_tab_path).with({:action=>"jobs"}).and_return("jobs_link")
-        view.stub(:stage_detail_tab_path).with({:action=>"materials"}).and_return("materials_link")
-        view.stub(:stage_detail_tab_path).with({:action=>"tests"}).and_return("fbh_link")
-        view.stub(:stage_detail_tab_path).with({:action=>"stage_config"}).and_return("config_link")
-        view.should_receive(:stage_detail_tab_path).with(:format => 'json', :action=>'jobs').and_return("link_to_json")
+        allow(view).to receive(:stage_detail_tab_path).with({:action=>"overview"}).and_return("overview_link")
+        allow(view).to receive(:stage_detail_tab_path).with({:action=>"pipeline"}).and_return("pipeline_link")
+        allow(view).to receive(:stage_detail_tab_path).with({:action=>"jobs"}).and_return("jobs_link")
+        allow(view).to receive(:stage_detail_tab_path).with({:action=>"materials"}).and_return("materials_link")
+        allow(view).to receive(:stage_detail_tab_path).with({:action=>"tests"}).and_return("fbh_link")
+        allow(view).to receive(:stage_detail_tab_path).with({:action=>"stage_config"}).and_return("config_link")
+        expect(view).to receive(:stage_detail_tab_path).with(:format => 'json', :action=>'jobs').and_return("link_to_json")
         in_params :action => 'jobs'
         assign :jobs, []
         render
@@ -273,7 +273,7 @@ describe 'stages/stage.html.erb' do
 
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_tab_path)
+        allow(view).to receive(:stage_detail_tab_path)
 
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
@@ -388,7 +388,7 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should render unsupported message if IE8" do
-        view.stub(:is_ie8?).and_return(true)
+        allow(view).to receive(:is_ie8?).and_return(true)
         render
 
         Capybara.string(response.body).find("div.vsm_not_supported.notification").tap do |f|
@@ -397,7 +397,7 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should not render unsupported message if IE9 or Firefox or Chrome or Safari or Opera" do
-        view.stub(:is_ie8?).and_return(false)
+        allow(view).to receive(:is_ie8?).and_return(false)
         render
 
         expect(response).to_not have_selector "div.vsm_not_supported.notification"
@@ -408,7 +408,7 @@ describe 'stages/stage.html.erb' do
     describe "fbh tab" do
       before(:each) do
         params[:action] = 'tests'
-        view.stub(:failure_details_path).and_return("/path/to/failures")
+        allow(view).to receive(:failure_details_path).and_return("/path/to/failures")
       end
       describe :failingTestsWithMultiplePipelines do
         before(:each) do
@@ -453,10 +453,10 @@ describe 'stages/stage.html.erb' do
             failing_stage.calculateResult()
 
             assign :stage, stage_model_for(failing_stage)
-            view.stub(:view_cache_key).and_return(key = double('view_cache_key'))
-            key.should_receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
-            key.should_receive(:forFailedBuildHistoryStage).with(failing_stage, "html").and_return("stage_fbh_html_key")
-            view.should_receive(:cache).with("pipeline_id_based_key", :subkey => "stage_fbh_html_key", :skip_digest=>true)
+            allow(view).to receive(:view_cache_key).and_return(key = double('view_cache_key'))
+            expect(key).to receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
+            expect(key).to receive(:forFailedBuildHistoryStage).with(failing_stage, "html").and_return("stage_fbh_html_key")
+            expect(view).to receive(:cache).with("pipeline_id_based_key", :subkey => "stage_fbh_html_key", :skip_digest=>true)
             render
           end
         end
@@ -672,7 +672,7 @@ describe 'stages/stage.html.erb' do
       before(:each) do
         params[:action] = "stage_config"
         assign :ran_with_config_revision,  GoConfigRevision.new("config-xml", "my-md5", "loser", "2.3.0", TimeProvider.new);
-        view.stub(:is_user_an_admin?).and_return(true)
+        allow(view).to receive(:is_user_an_admin?).and_return(true)
       end
 
       it "should render Config tab" do
@@ -681,7 +681,7 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should render Config tab with message if user is not admin" do
-        view.stub(:is_user_an_admin?).and_return(false)
+        allow(view).to receive(:is_user_an_admin?).and_return(false)
         render
 
         Capybara.string(response.body).find("#ran_with_config .config").tap do |f|

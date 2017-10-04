@@ -55,7 +55,7 @@ describe 'stages/_jobs.html.erb' do
     end
 
     it "should not display form and checkbox next to job names when stage is active" do
-      @stage.getState().stub(:completed).and_return(false)
+      allow(@stage.getState()).to receive(:completed).and_return(false)
       render :partial => "stages/jobs", :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => true}}
 
       expect(response.body).to_not have_selector("form")

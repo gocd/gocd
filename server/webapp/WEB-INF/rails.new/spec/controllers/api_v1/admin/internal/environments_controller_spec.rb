@@ -21,7 +21,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
 
   before(:each) do
     @environment_config_service = double("environment_config_service")
-    controller.stub("environment_config_service").and_return(@environment_config_service)
+    allow(controller).to receive("environment_config_service").and_return(@environment_config_service)
   end
 
   describe :security do
@@ -57,7 +57,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
       it 'should fetch all the environments' do
         login_as_admin
         environments_list = %w(dev production)
-        @environment_config_service.should_receive(:environmentNames).and_return(environments_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(environments_list)
 
         get_with_api_header :index
 
@@ -68,7 +68,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
       it 'should not recompute the environments list when not modified and etag provided' do
         login_as_admin
         environments_list = %w(dev production).sort
-        @environment_config_service.should_receive(:environmentNames).and_return(environments_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(environments_list)
         controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(environments_list.join('/'))
 
         get_with_api_header :index
@@ -80,7 +80,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
       it 'should recompute the environments list when it is modified and stale etag provided' do
         login_as_admin
         environments_list = %w(dev production)
-        @environment_config_service.should_receive(:environmentNames).and_return(environments_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(environments_list)
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = 'stale-etag'
 

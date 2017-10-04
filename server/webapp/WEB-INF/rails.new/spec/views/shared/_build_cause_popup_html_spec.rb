@@ -52,7 +52,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
   it "should not display modified files if the flag is not set" do
     allow(view).to receive(:go_config_service).and_return(config_service = double('go_config_service'))
-    config_service.stub(:getCommentRendererFor).with(PIPELINE_NAME).and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
+    allow(config_service).to receive(:getCommentRendererFor).with(PIPELINE_NAME).and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
 
     render :partial => "shared/build_cause_popup.html", :locals => {:scope => {:pipeline_instance => @pim}}
 
@@ -103,7 +103,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
   it "should html escape all the user entered fields" do
     allow(view).to receive(:go_config_service).and_return(config_service = double('go_config_service'));
-    config_service.stub(:getCommentRendererFor).with(PIPELINE_NAME).and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
+    allow(config_service).to receive(:getCommentRendererFor).with(PIPELINE_NAME).and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
 
     @modification.setComment("<script>alert('Check-in comment')</script>")
     @modification.setUserName("<script>alert('Check-in user')</script>")
@@ -124,7 +124,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
   it "should render user for display in build cause" do
     allow(view).to receive(:go_config_service).and_return(config_service = double('go_config_service'));
-    config_service.stub(:getCommentRendererFor).with(PIPELINE_NAME).and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
+    allow(config_service).to receive(:getCommentRendererFor).with(PIPELINE_NAME).and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
 
     @modification.setUserName("")
 

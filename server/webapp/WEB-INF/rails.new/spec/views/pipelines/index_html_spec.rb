@@ -39,7 +39,7 @@ describe "pipelines/index.html.erb" do
     class << view
       include StagesHelper
     end
-    view.stub(:on_pipeline_dashboard?).and_return(true)
+    allow(view).to receive(:on_pipeline_dashboard?).and_return(true)
     @security_service = stub_service(:security_service)
     allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
@@ -53,7 +53,7 @@ describe "pipelines/index.html.erb" do
   end
 
   it "should render specific groups with links for pipeline group admin" do
-    @security_service.should_receive(:isUserAdmin).and_return(false)
+    expect(@security_service).to receive(:isUserAdmin).and_return(false)
     allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group-1').and_return(false)
     allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group-2').and_return(true)
 
@@ -206,7 +206,7 @@ describe "pipelines/index.html.erb" do
     assign(:pipeline_groups, [pipeline_group_model])
 
     allow(view).to receive(:go_config_service).and_return(config_service = double('go_config_service'))
-    config_service.stub(:getCommentRendererFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
+    allow(config_service).to receive(:getCommentRendererFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
 
     render
 
@@ -242,14 +242,14 @@ describe "pipelines/index.html.erb" do
 
   it "should render pipelines in the group" do
     pipeline_group = double("PipelineGroupModel")
-    pipeline_group.stub(:getPipelineModels).and_return(Arrays.asList([PipelineModel.new("SomeModel", true, true, PipelinePauseInfo.not_paused)].to_java))
-    pipeline_group.stub(:getName).and_return("PipelineGroupName1")
+    allow(pipeline_group).to receive(:getPipelineModels).and_return(Arrays.asList([PipelineModel.new("SomeModel", true, true, PipelinePauseInfo.not_paused)].to_java))
+    allow(pipeline_group).to receive(:getName).and_return("PipelineGroupName1")
 
     stub_template "_pipeline_group.html.erb" => "\"pipeline_group\""
     assign(:pipeline_groups, [pipeline_group])
 
     allow(view).to receive(:go_config_service).and_return(config_service = double('go_config_service'))
-    config_service.stub(:getCommentRendererFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
+    allow(config_service).to receive(:getCommentRendererFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
 
     render
 

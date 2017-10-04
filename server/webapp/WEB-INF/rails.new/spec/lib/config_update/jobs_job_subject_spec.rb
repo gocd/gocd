@@ -26,6 +26,6 @@ describe ::ConfigUpdate::JobsJobSubject do
 
   it "should load job from jobs collection" do
     params[:job_name] = "bar"
-    subject(@jobs).should == @bar
+    expect(subject(@jobs)).to eq(@bar)
   end
 end

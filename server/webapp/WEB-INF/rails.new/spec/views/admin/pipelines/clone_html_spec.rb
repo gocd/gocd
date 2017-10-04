@@ -30,7 +30,7 @@ describe "admin/pipelines/clone.html.erb" do
     assign(:groups_list, ["foo.bar", "some_other_group"])
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     set(@cruise_config, "md5", "abc")
-    view.stub(:is_user_a_group_admin?).and_return(false)
+    allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 
     render
 

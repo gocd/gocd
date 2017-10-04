@@ -22,7 +22,7 @@ describe ApiV1::Admin::RepositoriesController do
   before :each do
     @repo_id = 'npm'
     @package_repository_service = double('package-repository-service')
-    controller.stub(:package_repository_service).and_return(@package_repository_service)
+    allow(controller).to receive(:package_repository_service).and_return(@package_repository_service)
   end
 
   describe :index do
@@ -33,7 +33,7 @@ describe ApiV1::Admin::RepositoriesController do
         pkg_repo.setId('npm')
         all_repos = PackageRepositories.new(pkg_repo)
 
-        @package_repository_service.should_receive(:getPackageRepositories).and_return(all_repos)
+        expect(@package_repository_service).to receive(:getPackageRepositories).and_return(all_repos)
 
         get_with_api_header :index
         expect(response).to be_ok
@@ -96,14 +96,14 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should render the package repository' do
-        @package_repository_service.stub(:getPackageRepository).with(@repo_id).and_return(@package_repo)
+        allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(@package_repo)
         get_with_api_header :show, repo_id: @repo_id
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@package_repo, ApiV1::Config::PackageRepositoryRepresenter))
       end
 
       it 'should render 404 when a package repository does not exist' do
-        @package_repository_service.stub(:getPackageRepository).and_return(nil)
+        allow(@package_repository_service).to receive(:getPackageRepository).and_return(nil)
 
         get_with_api_header :show, repo_id: 'invalid-package-repo-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
@@ -112,7 +112,7 @@ describe ApiV1::Admin::RepositoriesController do
 
     describe :security do
       before :each do
-        controller.stub(:load_package_repository).and_return(nil)
+        allow(controller).to receive(:load_package_repository).and_return(nil)
       end
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -173,8 +173,8 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should allow deleting package repositories' do
-        @package_repository_service.stub(:getPackageRepository).with(@repo_id).and_return(@package_repo)
-        @package_repository_service.should_receive(:deleteRepository).with(an_instance_of(Username), @package_repo, an_instance_of(HttpLocalizedOperationResult)) do |user, repo, result|
+        allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(@package_repo)
+        expect(@package_repository_service).to receive(:deleteRepository).with(an_instance_of(Username), @package_repo, an_instance_of(HttpLocalizedOperationResult)) do |user, repo, result|
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'package repository', @package_repo.getId()))
         end
 
@@ -183,7 +183,7 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should render 404 when a package repository does not exist' do
-        @package_repository_service.stub(:getPackageRepository).with(@repo_id).and_return(nil)
+        allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(nil)
 
         delete_with_api_header :destroy, repo_id: @repo_id
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
@@ -192,7 +192,7 @@ describe ApiV1::Admin::RepositoriesController do
 
     describe :security do
       before :each do
-        controller.stub(:load_package_repository).and_return(nil)
+        allow(controller).to receive(:load_package_repository).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -251,8 +251,8 @@ describe ApiV1::Admin::RepositoriesController do
         @package_repo = PackageRepository.new(@repo_id, @repo_id, PluginConfiguration.new('npm', '1'), Configuration.new())
       end
       it 'should render 200 created when package repository is created' do
-        @package_repository_service.should_receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
-        @package_repository_service.stub(:getPackageRepository).and_return(@package_repo)
+        expect(@package_repository_service).to receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
+        allow(@package_repository_service).to receive(:getPackageRepository).and_return(@package_repo)
 
         post_with_api_header :create, :repository => {repo_id: @repo_id, name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []}
         expect(response).to be_ok
@@ -260,15 +260,15 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should generate id if id is not provided by user' do
-        @package_repository_service.should_receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
-        @package_repository_service.stub(:getPackageRepository).and_return(@package_repo)
+        expect(@package_repository_service).to receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
+        allow(@package_repository_service).to receive(:getPackageRepository).and_return(@package_repo)
 
         post_with_api_header :create, :repository => {name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []}
         expect(actual_response).to have_key(:repo_id)
       end
 
       it 'should render the error occurred while creating a package repository' do
-        @package_repository_service.should_receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |repo, user, result|
+        expect(@package_repository_service).to receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |repo, user, result|
           result.unprocessableEntity(LocalizedMessage.string("PLUGIN_ID_INVALID", 'invalid_id'));
         end
 
@@ -330,17 +330,17 @@ describe ApiV1::Admin::RepositoriesController do
       before :each do
         login_as_admin
         @entity_hashing_service = double('entity-hashing-service')
-        controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
+        allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
         @package_repo = PackageRepository.new(@repo_id, @repo_id, PluginConfiguration.new('some-id', '1'), Configuration.new())
         @md5 = 'some-digest'
       end
       it 'should allow updating package repository' do
         result = HttpLocalizedOperationResult.new
-        @package_repository_service.stub(:getPackageRepository).exactly(2).times.and_return(@package_repo)
-        controller.stub(:check_for_stale_request).and_return(nil)
-        @entity_hashing_service.stub(:md5ForEntity).and_return('md5')
+        allow(@package_repository_service).to receive(:getPackageRepository).exactly(2).times.and_return(@package_repo)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
+        allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
 
-        @package_repository_service.should_receive(:updatePackageRepository).with(an_instance_of(PackageRepository), anything, anything, result, anything)
+        expect(@package_repository_service).to receive(:updatePackageRepository).with(an_instance_of(PackageRepository), anything, anything, result, anything)
         hash = {repo_id: @repo_id, name: @repo_id, plugin_metadata: {id: 'some-id', version: '1'}, configuration: []}
 
         put_with_api_header :update, :repo_id => @repo_id, :repository => hash
@@ -349,10 +349,10 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should not update package repository if etag passed does not match the one on server' do
-        controller.stub(:load_package_repository).and_return(@package_repo)
+        allow(controller).to receive(:load_package_repository).and_return(@package_repo)
 
         controller.request.env['HTTP_IF_MATCH'] = 'old-etag'
-        @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
+        allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
 
         hash = {repo_id: @repo_id, name: "foo", plugin_metadata: {id: 'npm', version: '1'}, configuration: [{key: 'REPO_URL', value: 'https://foo.bar'}]}
         put_with_api_header :update, :repo_id => @repo_id, :repository => hash
@@ -361,8 +361,8 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should not update package repository if no etag is passed' do
-        controller.stub(:load_package_repository).and_return(@package_repo)
-        @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
+        allow(controller).to receive(:load_package_repository).and_return(@package_repo)
+        allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
 
         hash = {repo_id: @repo_id, name: "foo", plugin_metadata: {id: 'npm', version: '1'}, configuration: [{key: 'REPO_URL', value: 'https://foo.bar'}]}
         put_with_api_header :update, :repo_id => @repo_id, :repository => hash
@@ -371,8 +371,8 @@ describe ApiV1::Admin::RepositoriesController do
       end
 
       it 'should render 404 when a package repository does not exist' do
-        controller.stub(:check_for_stale_request).and_return(nil)
-        @package_repository_service.stub(:getPackageRepository).with('non-existing-repo-id').and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
+        allow(@package_repository_service).to receive(:getPackageRepository).with('non-existing-repo-id').and_return(nil)
         hash = {repo_id: 'non-existing-repo-id', name: "foo", plugin_metadata: {id: 'npm', version: '1'}, configuration: [{key: 'REPO_URL', value: 'https://foo.bar'}]}
 
         put_with_api_header :update, :repo_id => 'non-existing-repo-id', :repository => hash
@@ -383,8 +383,8 @@ describe ApiV1::Admin::RepositoriesController do
 
     describe :security do
       before(:each) do
-        controller.stub(:load_package_repository).and_return(nil)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:load_package_repository).and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do

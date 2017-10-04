@@ -23,8 +23,8 @@ describe ApiV1::CurrentUserController do
     login_as_user
     @user_obj = User.new(@user.username.to_s, 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
 
-    controller.stub(:user_service).and_return(@user_service = double('user-service'))
-    @user_service.stub(:findUserByName).and_return(@user_obj)
+    allow(controller).to receive(:user_service).and_return(@user_service = double('user-service'))
+    allow(@user_service).to receive(:findUserByName).and_return(@user_obj)
   end
 
   describe :show do
@@ -37,7 +37,7 @@ describe ApiV1::CurrentUserController do
 
   describe :update do
     it("allows updating user and returns a JSON representation of the user") do
-      @user_service.should_receive(:save).with(@user_obj, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@user_obj)
+      expect(@user_service).to receive(:save).with(@user_obj, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@user_obj)
 
       patch_with_api_header :update, login_name: @user_obj.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
 

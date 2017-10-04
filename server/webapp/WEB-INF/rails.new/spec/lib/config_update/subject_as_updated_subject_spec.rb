@@ -21,6 +21,6 @@ describe ::ConfigUpdate::SubjectAsUpdatedSubject do
 
   it "should return node as updated node" do
     should_receive(:subject).with("node").and_return(:dummy_subject)
-    updatedSubject("node").should == :dummy_subject
+    expect(updatedSubject("node")).to eq(:dummy_subject)
   end
 end

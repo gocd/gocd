@@ -21,8 +21,8 @@ describe Api::WebHooks::GitLabController do
   before :each do
     @material_update_service = double('Material Update Service')
     @server_config_service = double('Server Config Service')
-    controller.stub(:material_update_service).and_return(@material_update_service)
-    controller.stub(:server_config_service).and_return(@server_config_service)
+    allow(controller).to receive(:material_update_service).and_return(@material_update_service)
+    allow(controller).to receive(:server_config_service).and_return(@server_config_service)
   end
 
   describe :notify do
@@ -35,7 +35,7 @@ describe Api::WebHooks::GitLabController do
     describe 'with json' do
       it 'should call the material update service upon receiving a good request and respond with 202 [accepted]' do
         token = SecureRandom.hex
-        @server_config_service.should_receive(:getWebhookSecret).and_return(token)
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return(token)
 
         params = {
           ref: 'refs/heads/branch',
@@ -47,7 +47,7 @@ describe Api::WebHooks::GitLabController do
 
         params_string = params.to_json
 
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new(params_string)
         end
 
@@ -56,7 +56,7 @@ describe Api::WebHooks::GitLabController do
                                  'Content-Type' => 'application/json'
                                })
 
-        controller.stub(:allow_only_push_event)
+        allow(controller).to receive(:allow_only_push_event)
         all_matching_repos = %w(
                             https://gitlab.example.com/org/repo
                             https://gitlab.example.com/org/repo/
@@ -75,8 +75,8 @@ describe Api::WebHooks::GitLabController do
                             git@gitlab.example.com:org/repo.git
                             git@gitlab.example.com:org/repo.git/)
 
-        @material_update_service
-          .should_receive(:updateGitMaterial)
+        expect(@material_update_service)
+          .to receive(:updateGitMaterial)
           .with('branch', all_matching_repos)
           .and_return(true)
 
@@ -86,10 +86,10 @@ describe Api::WebHooks::GitLabController do
       end
 
       it 'should return 400 [bad request] if the signature does not match our signed payload' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {}
         params_string = params.to_json
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new(params_string)
         end
 

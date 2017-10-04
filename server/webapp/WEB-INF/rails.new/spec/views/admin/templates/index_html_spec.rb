@@ -28,13 +28,13 @@ describe "admin/templates/index.html.erb" do
       "template3" => to_list([])
     })
     assign(:user, Username.new(CaseInsensitiveString.new("loser")))
-    view.stub(:tab_with_display_name).and_return("tab_link")
-    view.stub(:mycruise_available?).and_return(false)
-    view.stub(:can_view_admin_page?).and_return(true)
-    view.stub(:is_user_a_template_admin_for_template?).and_return(false)
-    view.stub(:is_user_an_admin?).and_return(true)
-    view.stub(:is_quick_edit_page_default?).and_return(false)
-    view.stub(:is_pipeline_config_spa_enabled?).and_return(false)
+    allow(view).to receive(:tab_with_display_name).and_return("tab_link")
+    allow(view).to receive(:mycruise_available?).and_return(false)
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(false)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_quick_edit_page_default?).and_return(false)
+    allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(false)
 
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
@@ -99,8 +99,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display links in pipelines pointing to quick edit page if the associated toggles are turned on" do
-    view.stub(:is_quick_edit_page_default?).and_return(true)
-    view.stub(:is_pipeline_config_spa_enabled?).and_return(true)
+    allow(view).to receive(:is_quick_edit_page_default?).and_return(true)
+    allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(true)
 
     render
 
@@ -151,8 +151,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display the list of all the templates and the pipelines in it if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
 
     render
 
@@ -208,9 +208,9 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display names of pipelines using this template if user is a template admin" do
-    view.stub(:has_admin_permissions_for_pipeline?).and_return(false)
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:has_admin_permissions_for_pipeline?).and_return(false)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
 
     render
 
@@ -257,9 +257,9 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display names and edit pipeline link of pipelines using this template if user is a template admin" do
-    view.stub(:has_admin_permissions_for_pipeline?).and_return(true)
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:has_admin_permissions_for_pipeline?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
 
     render
 
@@ -312,8 +312,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display edit link to template admins that points to quick edit page if required toggles are turned on" do
-    view.stub(:is_quick_edit_page_default?).and_return(true)
-    view.stub(:is_pipeline_config_spa_enabled?).and_return(true)
+    allow(view).to receive(:is_quick_edit_page_default?).and_return(true)
+    allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(true)
 
     render
 
@@ -353,8 +353,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should not display a link to create a new template when running enterprise mode for a template admin" do
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {})
 
     render
@@ -365,8 +365,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a link to create a new template when running enterprise mode if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     assign(:template_to_pipelines, {})
 
     render
@@ -426,8 +426,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display the delete button next to the template name for template admin" do
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {"unused_template" => to_list([])})
 
     render
@@ -448,7 +448,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it 'should disable the delete button if user not not a template admin or super admin' do
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {"unused_template" => to_list([])})
 
     render
@@ -462,8 +462,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a delete button next to the template name if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
 
     assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 
@@ -488,9 +488,9 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should disable the edit permissions link next to the template name for template admin and not super admin" do
-    view.stub(:has_admin_permissions_for_pipeline?).and_return(false)
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:has_admin_permissions_for_pipeline?).and_return(false)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
 
     assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
 
@@ -505,8 +505,8 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should enable the edit permissions link next to the template name if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin_for_template?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
 
     assign(:template_to_pipelines, {"used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 

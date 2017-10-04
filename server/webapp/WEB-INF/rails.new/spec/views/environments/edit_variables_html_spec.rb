@@ -24,8 +24,8 @@ describe "environments/edit_variables.html.erb" do
     @environment.addEnvironmentVariable("plain_name", "plain_value")
     assign(:environment, @environment)
 
-    view.stub(:environment_update_path).and_return("update_path")
-    view.stub(:cruise_config_md5).and_return("foo_bar_baz")
+    allow(view).to receive(:environment_update_path).and_return("update_path")
+    allow(view).to receive(:cruise_config_md5).and_return("foo_bar_baz")
 
     render
   end

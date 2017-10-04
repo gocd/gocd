@@ -177,7 +177,7 @@ RSpec::Matchers.define :allow_action do |verb, expected_action, params={}, heade
     @reached_controller && !@exception
   end
 
-  failure_message_for_should do |controller|
+  failure_message do |controller|
     messages = []
     if !@reached_controller
       messages << "expected `#{controller}` to reach action #{verb.to_s.upcase} :#{expected_action.to_sym}, but did not."
@@ -229,7 +229,7 @@ RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, he
     !failed
   end
 
-  failure_message_for_should do |controller|
+  failure_message do |controller|
     messages = []
     if @reached_controller
       messages << "expected `#{controller}` to not reach action #{verb.to_s.upcase} :#{expected_action.to_sym}."
@@ -253,7 +253,7 @@ end
 
 RSpec::Matchers.define :have_api_message_response do |expected_status, expected_message|
 
-  failure_message_for_should do |response|
+  failure_message do |response|
     unless @status_matched
       @message = @status_matcher.failure_message_for_should
     end
@@ -286,11 +286,11 @@ end
 
 RSpec::Matchers.define :have_links do |*link_names|
 
-  failure_message_for_should do |hal_json|
+  failure_message do |hal_json|
     @matcher.failure_message_for_should
   end
 
-  failure_message_for_should_not do |hal_json|
+  failure_message_when_negated do |hal_json|
     @matcher.failure_message_for_should_not
   end
 
@@ -356,11 +356,11 @@ RSpec::Matchers.define :have_link do |link_name|
     @match
   end
 
-  failure_message_for_should_not do |hal_json|
+  failure_message_when_negated do |hal_json|
     @failure_message_for_should_not
   end
 
-  failure_message_for_should do |hal_json|
+  failure_message do |hal_json|
     @failure_message_for_should
   end
 end

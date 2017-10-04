@@ -33,7 +33,7 @@ describe Admin::Materials::GitController do
     git_material_config = GitMaterialConfig.new("new-url", "some-branch")
     git_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     git_material_config.setConfigAttributes({GitMaterialConfig::FOLDER => "folder"})
-    @pipeline.materialConfigs().get(1).should == git_material_config
+    expect(@pipeline.materialConfigs().get(1)).to eq(git_material_config)
   end
 
   def update_payload
@@ -41,8 +41,8 @@ describe Admin::Materials::GitController do
   end
 
   def assert_successful_update
-    @pipeline.materialConfigs().get(0).getUrl().should == "new-url"
-    @pipeline.materialConfigs().get(0).getName().should == CaseInsensitiveString.new("new-some-kinda-material")
+    expect(@pipeline.materialConfigs().get(0).getUrl()).to eq("new-url")
+    expect(@pipeline.materialConfigs().get(0).getName()).to eq(CaseInsensitiveString.new("new-some-kinda-material"))
   end
 
   def setup_other_form_objects

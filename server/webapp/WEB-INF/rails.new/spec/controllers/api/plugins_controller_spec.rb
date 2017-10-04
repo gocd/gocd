@@ -20,7 +20,7 @@ describe Api::PluginsController do
 
   before :each do
     @system_environment = double('system_environment')
-    controller.stub(:system_environment).and_return(@system_environment)
+    allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
   it "should answer to /api/plugins/status" do
@@ -28,13 +28,13 @@ describe Api::PluginsController do
   end
 
   it "should return plugin status as false when not set" do
-    @system_environment.should_receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_FALSE)
+    expect(@system_environment).to receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_FALSE)
     get :status, {:no_layout => true}
     expect(response.body).to eq("disabled")
     end
 
   it "should return plugin status as true when set" do
-    @system_environment.should_receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_TRUE)
+    expect(@system_environment).to receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_TRUE)
     get :status, {:no_layout => true}
     expect(response.body).to eq("enabled")
   end

@@ -27,7 +27,7 @@ describe "admin/materials/pluggable_scm/show_existing.html.erb" do
     assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, 'md5', 'md5-1')
 
-    view.stub(:admin_pluggable_scm_choose_existing_path).and_return('admin_pluggable_scm_choose_existing_path')
+    allow(view).to receive(:admin_pluggable_scm_choose_existing_path).and_return('admin_pluggable_scm_choose_existing_path')
 
     scm = SCMMother.create('scm-id', 'scm-name', PLUGIN_ID, '1', Configuration.new)
     scms = com.thoughtworks.go.domain.scm.SCMs.new

@@ -21,9 +21,9 @@ describe ApiV1::BackupsController do
 
   before :each do
     @backup_service = double('backup service')
-    controller.stub(:backup_service).and_return(@backup_service)
+    allow(controller).to receive(:backup_service).and_return(@backup_service)
     @user_service = double('user service')
-    controller.stub(:user_service).and_return(@user_service)
+    allow(controller).to receive(:user_service).and_return(@user_service)
   end
 
   describe :create do
@@ -33,9 +33,9 @@ describe ApiV1::BackupsController do
         john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
         backup = com.thoughtworks.go.server.domain.ServerBackup.new("file_path", java.util.Date.new, "jdoe")
 
-        @user_service.stub(:findUserByName).and_return(john)
+        allow(@user_service).to receive(:findUserByName).and_return(john)
 
-        @backup_service.should_receive(:startBackup).with(@user, instance_of(HttpLocalizedOperationResult)) do |user, result|
+        expect(@backup_service).to receive(:startBackup).with(@user, instance_of(HttpLocalizedOperationResult)) do |user, result|
           result.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"));
           backup
         end
@@ -51,9 +51,9 @@ describe ApiV1::BackupsController do
         john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
         backup = com.thoughtworks.go.server.domain.ServerBackup.new("file_path", java.util.Date.new, "jdoe")
 
-        @user_service.stub(:findUserByName).and_return(john)
+        allow(@user_service).to receive(:findUserByName).and_return(john)
 
-        @backup_service.stub(:startBackup).with(@user, instance_of(HttpLocalizedOperationResult)) do |user, result|
+        allow(@backup_service).to receive(:startBackup).with(@user, instance_of(HttpLocalizedOperationResult)) do |user, result|
           result.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"));
           backup
         end

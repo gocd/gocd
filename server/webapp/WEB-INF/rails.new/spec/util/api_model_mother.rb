@@ -17,175 +17,175 @@
 module APIModelMother
   def create_pagination_model
     @pagination_view_model = double('PaginationViewModel')
-    @pagination_view_model.stub(:getPageSize).and_return(10)
-    @pagination_view_model.stub(:getOffset).and_return(1)
-    @pagination_view_model.stub(:getTotal).and_return(100)
+    allow(@pagination_view_model).to receive(:getPageSize).and_return(10)
+    allow(@pagination_view_model).to receive(:getOffset).and_return(1)
+    allow(@pagination_view_model).to receive(:getTotal).and_return(100)
     @pagination_view_model
   end
 
   def create_empty_pagination_model
     @pagination_view_model = double('PaginationViewModel')
-    @pagination_view_model.stub(:getPageSize).and_return(nil)
-    @pagination_view_model.stub(:getOffset).and_return(nil)
-    @pagination_view_model.stub(:getTotal).and_return(nil)
+    allow(@pagination_view_model).to receive(:getPageSize).and_return(nil)
+    allow(@pagination_view_model).to receive(:getOffset).and_return(nil)
+    allow(@pagination_view_model).to receive(:getTotal).and_return(nil)
     @pagination_view_model
   end
 
   def create_material_view_model
     @material_view_model = double('MaterialViewModel')
-    @material_view_model.stub(:getId).and_return(2)
-    @material_view_model.stub(:getFingerprint).and_return('fingerprint')
-    @material_view_model.stub(:getTypeForDisplay).and_return('git')
-    @material_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
+    allow(@material_view_model).to receive(:getId).and_return(2)
+    allow(@material_view_model).to receive(:getFingerprint).and_return('fingerprint')
+    allow(@material_view_model).to receive(:getTypeForDisplay).and_return('git')
+    allow(@material_view_model).to receive(:getLongDescription).and_return('URL: http://test.com Branch: master')
     @material_view_model
   end
 
   def create_empty_material_view_model
     @material_view_model = double('MaterialViewModel')
-    @material_view_model.stub(:getId).and_return(nil)
-    @material_view_model.stub(:getFingerprint).and_return(nil)
-    @material_view_model.stub(:getTypeForDisplay).and_return(nil)
-    @material_view_model.stub(:getLongDescription).and_return(nil)
+    allow(@material_view_model).to receive(:getId).and_return(nil)
+    allow(@material_view_model).to receive(:getFingerprint).and_return(nil)
+    allow(@material_view_model).to receive(:getTypeForDisplay).and_return(nil)
+    allow(@material_view_model).to receive(:getLongDescription).and_return(nil)
     @material_view_model
   end
 
   def create_modified_file_view_model
     @modified_file_view_model = double('ModifiedFileViewModel')
-    @modified_file_view_model.stub(:getFileName).and_return('file-name')
-    @modified_file_view_model.stub(:getAction).and_return('add')
+    allow(@modified_file_view_model).to receive(:getFileName).and_return('file-name')
+    allow(@modified_file_view_model).to receive(:getAction).and_return('add')
     @modified_file_view_model
   end
 
   def create_empty_modified_file_view_model
     @modified_file_view_model = double('ModifiedFileViewModel')
-    @modified_file_view_model.stub(:getFileName).and_return(nil)
-    @modified_file_view_model.stub(:getAction).and_return(nil)
+    allow(@modified_file_view_model).to receive(:getFileName).and_return(nil)
+    allow(@modified_file_view_model).to receive(:getAction).and_return(nil)
     @modified_file_view_model
   end
 
   def create_modification_view_model
     @modification_view_model = double('ModificationViewModel')
-    @modification_view_model.stub(:getId).and_return(321)
-    @modification_view_model.stub(:getRevision).and_return('revision')
+    allow(@modification_view_model).to receive(:getId).and_return(321)
+    allow(@modification_view_model).to receive(:getRevision).and_return('revision')
     time = double('time')
-    time.stub(:getTime).and_return(12345678)
-    @modification_view_model.stub(:getModifiedTime).and_return(time)
-    @modification_view_model.stub(:getUserName).and_return('user name')
-    @modification_view_model.stub(:getComment).and_return('comment')
-    @modification_view_model.stub(:getEmailAddress).and_return('test@test.com')
-    @modification_view_model.stub(:getModifiedFiles).and_return([create_modified_file_view_model])
+    allow(time).to receive(:getTime).and_return(12345678)
+    allow(@modification_view_model).to receive(:getModifiedTime).and_return(time)
+    allow(@modification_view_model).to receive(:getUserName).and_return('user name')
+    allow(@modification_view_model).to receive(:getComment).and_return('comment')
+    allow(@modification_view_model).to receive(:getEmailAddress).and_return('test@test.com')
+    allow(@modification_view_model).to receive(:getModifiedFiles).and_return([create_modified_file_view_model])
     @modification_view_model
   end
 
   def create_empty_modification_view_model
     @modification_view_model = double('ModificationViewModel')
-    @modification_view_model.stub(:getId).and_return(nil)
-    @modification_view_model.stub(:getRevision).and_return(nil)
-    @modification_view_model.stub(:getModifiedTime).and_return(nil)
-    @modification_view_model.stub(:getUserName).and_return(nil)
-    @modification_view_model.stub(:getComment).and_return(nil)
-    @modification_view_model.stub(:getEmailAddress).and_return(nil)
-    @modification_view_model.stub(:getModifiedFiles).and_return([create_empty_modified_file_view_model])
+    allow(@modification_view_model).to receive(:getId).and_return(nil)
+    allow(@modification_view_model).to receive(:getRevision).and_return(nil)
+    allow(@modification_view_model).to receive(:getModifiedTime).and_return(nil)
+    allow(@modification_view_model).to receive(:getUserName).and_return(nil)
+    allow(@modification_view_model).to receive(:getComment).and_return(nil)
+    allow(@modification_view_model).to receive(:getEmailAddress).and_return(nil)
+    allow(@modification_view_model).to receive(:getModifiedFiles).and_return([create_empty_modified_file_view_model])
     @modification_view_model
   end
 
   def create_material_revision_view_model
     @material_revisions_view_model = double('MaterialRevisionsViewModel')
-    @material_revisions_view_model.stub(:getMaterial).and_return(create_material_view_model)
-    @material_revisions_view_model.stub(:isChanged).and_return(true)
-    @material_revisions_view_model.stub(:getModifications).and_return([create_modification_view_model])
+    allow(@material_revisions_view_model).to receive(:getMaterial).and_return(create_material_view_model)
+    allow(@material_revisions_view_model).to receive(:isChanged).and_return(true)
+    allow(@material_revisions_view_model).to receive(:getModifications).and_return([create_modification_view_model])
     @material_revisions_view_model
   end
 
   def create_empty_material_revision_view_model
     @material_revisions_view_model = double('MaterialRevisionsViewModel')
-    @material_revisions_view_model.stub(:getMaterial).and_return(create_empty_material_view_model)
-    @material_revisions_view_model.stub(:isChanged).and_return(nil)
-    @material_revisions_view_model.stub(:getModifications).and_return([create_empty_modification_view_model])
+    allow(@material_revisions_view_model).to receive(:getMaterial).and_return(create_empty_material_view_model)
+    allow(@material_revisions_view_model).to receive(:isChanged).and_return(nil)
+    allow(@material_revisions_view_model).to receive(:getModifications).and_return([create_empty_modification_view_model])
     @material_revisions_view_model
   end
 
   def create_build_cause_model
     @build_cause_view_model = double('BuildCauseViewModel')
-    @build_cause_view_model.stub(:getBuildCauseMessage).and_return('message')
-    @build_cause_view_model.stub(:isForced).and_return(true)
-    @build_cause_view_model.stub(:getApprover).and_return('me')
-    @build_cause_view_model.stub(:getMaterialRevisions).and_return([create_material_revision_view_model])
+    allow(@build_cause_view_model).to receive(:getBuildCauseMessage).and_return('message')
+    allow(@build_cause_view_model).to receive(:isForced).and_return(true)
+    allow(@build_cause_view_model).to receive(:getApprover).and_return('me')
+    allow(@build_cause_view_model).to receive(:getMaterialRevisions).and_return([create_material_revision_view_model])
     @build_cause_view_model
   end
 
   def create_empty_build_cause_model
     @build_cause_view_model = double('BuildCauseViewModel')
-    @build_cause_view_model.stub(:getBuildCauseMessage).and_return(nil)
-    @build_cause_view_model.stub(:isForced).and_return(nil)
-    @build_cause_view_model.stub(:getApprover).and_return(nil)
-    @build_cause_view_model.stub(:getMaterialRevisions).and_return([create_empty_material_revision_view_model])
+    allow(@build_cause_view_model).to receive(:getBuildCauseMessage).and_return(nil)
+    allow(@build_cause_view_model).to receive(:isForced).and_return(nil)
+    allow(@build_cause_view_model).to receive(:getApprover).and_return(nil)
+    allow(@build_cause_view_model).to receive(:getMaterialRevisions).and_return([create_empty_material_revision_view_model])
     @build_cause_view_model
   end
 
   def create_job_history_model
     @job_view_model = double('JobViewModel')
-    @job_view_model.stub(:getId).and_return(543)
-    @job_view_model.stub(:getName).and_return('job name')
-    @job_view_model.stub(:getState).and_return('state')
-    @job_view_model.stub(:getResult).and_return('result')
+    allow(@job_view_model).to receive(:getId).and_return(543)
+    allow(@job_view_model).to receive(:getName).and_return('job name')
+    allow(@job_view_model).to receive(:getState).and_return('state')
+    allow(@job_view_model).to receive(:getResult).and_return('result')
     time = double('time')
-    time.stub(:getTime).and_return(12345678)
-    @job_view_model.stub(:getScheduledDate).and_return(time)
+    allow(time).to receive(:getTime).and_return(12345678)
+    allow(@job_view_model).to receive(:getScheduledDate).and_return(time)
     @job_view_model
   end
 
   def create_empty_job_history_model
     @job_view_model = double('JobViewModel')
-    @job_view_model.stub(:getId).and_return(nil)
-    @job_view_model.stub(:getName).and_return(nil)
-    @job_view_model.stub(:getState).and_return(nil)
-    @job_view_model.stub(:getResult).and_return(nil)
-    @job_view_model.stub(:getScheduledDate).and_return(nil)
+    allow(@job_view_model).to receive(:getId).and_return(nil)
+    allow(@job_view_model).to receive(:getName).and_return(nil)
+    allow(@job_view_model).to receive(:getState).and_return(nil)
+    allow(@job_view_model).to receive(:getResult).and_return(nil)
+    allow(@job_view_model).to receive(:getScheduledDate).and_return(nil)
     @job_view_model
   end
 
   def create_job_state_transition_model
     @job_state_transition_view_model = double('JobStateTransitionViewModel')
-    @job_state_transition_view_model.stub(:getId).and_return(987)
-    @job_state_transition_view_model.stub(:getCurrentState).and_return('building')
+    allow(@job_state_transition_view_model).to receive(:getId).and_return(987)
+    allow(@job_state_transition_view_model).to receive(:getCurrentState).and_return('building')
     time = double('time')
-    time.stub(:getTime).and_return(12345678)
-    @job_state_transition_view_model.stub(:getStateChangeTime).and_return(time)
+    allow(time).to receive(:getTime).and_return(12345678)
+    allow(@job_state_transition_view_model).to receive(:getStateChangeTime).and_return(time)
     @job_state_transition_view_model
   end
 
   def create_empty_job_state_transition_model
     @job_state_transition_view_model = double('JobStateTransitionViewModel')
-    @job_state_transition_view_model.stub(:getId).and_return(nil)
-    @job_state_transition_view_model.stub(:getCurrentState).and_return(nil)
-    @job_state_transition_view_model.stub(:getStateChangeTime).and_return(nil)
+    allow(@job_state_transition_view_model).to receive(:getId).and_return(nil)
+    allow(@job_state_transition_view_model).to receive(:getCurrentState).and_return(nil)
+    allow(@job_state_transition_view_model).to receive(:getStateChangeTime).and_return(nil)
     @job_state_transition_view_model
   end
 
   def create_job_model
     @job_view_model = create_job_history_model
-    @job_view_model.stub(:isRerun).and_return(false)
-    @job_view_model.stub(:getOriginalJobId).and_return(0)
-    @job_view_model.stub(:getAgentUuid).and_return('uuid')
-    @job_view_model.stub(:getPipelineName).and_return('pipeline')
-    @job_view_model.stub(:getPipelineCounter).and_return(123)
-    @job_view_model.stub(:getStageName).and_return('stage')
-    @job_view_model.stub(:getStageCounter).and_return('1')
-    @job_view_model.stub(:getTransitions).and_return([create_job_state_transition_model])
+    allow(@job_view_model).to receive(:isRerun).and_return(false)
+    allow(@job_view_model).to receive(:getOriginalJobId).and_return(0)
+    allow(@job_view_model).to receive(:getAgentUuid).and_return('uuid')
+    allow(@job_view_model).to receive(:getPipelineName).and_return('pipeline')
+    allow(@job_view_model).to receive(:getPipelineCounter).and_return(123)
+    allow(@job_view_model).to receive(:getStageName).and_return('stage')
+    allow(@job_view_model).to receive(:getStageCounter).and_return('1')
+    allow(@job_view_model).to receive(:getTransitions).and_return([create_job_state_transition_model])
     @job_view_model
   end
 
   def create_empty_job_model
     @job_view_model = create_empty_job_history_model
-    @job_view_model.stub(:isRerun).and_return(nil)
-    @job_view_model.stub(:getOriginalJobId).and_return(nil)
-    @job_view_model.stub(:getAgentUuid).and_return(nil)
-    @job_view_model.stub(:getPipelineName).and_return(nil)
-    @job_view_model.stub(:getPipelineCounter).and_return(nil)
-    @job_view_model.stub(:getStageName).and_return(nil)
-    @job_view_model.stub(:getStageCounter).and_return(nil)
-    @job_view_model.stub(:getTransitions).and_return([create_empty_job_state_transition_model])
+    allow(@job_view_model).to receive(:isRerun).and_return(nil)
+    allow(@job_view_model).to receive(:getOriginalJobId).and_return(nil)
+    allow(@job_view_model).to receive(:getAgentUuid).and_return(nil)
+    allow(@job_view_model).to receive(:getPipelineName).and_return(nil)
+    allow(@job_view_model).to receive(:getPipelineCounter).and_return(nil)
+    allow(@job_view_model).to receive(:getStageName).and_return(nil)
+    allow(@job_view_model).to receive(:getStageCounter).and_return(nil)
+    allow(@job_view_model).to receive(:getTransitions).and_return([create_empty_job_state_transition_model])
     @job_view_model
   end
 
@@ -193,7 +193,7 @@ module APIModelMother
     @job_view_model = create_job_model
 
     @job_history_view_model = double('JobHistoryViewModel')
-    @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
+    allow(@job_history_view_model).to receive(:getJobInstances).and_return([@job_view_model])
     @job_history_view_model
   end
 
@@ -201,102 +201,102 @@ module APIModelMother
     @job_view_model = create_empty_job_model
 
     @job_history_view_model = double('JobHistoryViewModel')
-    @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
+    allow(@job_history_view_model).to receive(:getJobInstances).and_return([@job_view_model])
     @job_history_view_model
   end
 
   def create_stage_model
     @stage_view_model = double('StageViewModel')
-    @stage_view_model.stub(:getId).and_return(456)
-    @stage_view_model.stub(:getName).and_return('stage name')
-    @stage_view_model.stub(:getCounter).and_return('1')
-    @stage_view_model.stub(:isScheduled).and_return(false)
-    @stage_view_model.stub(:getApprovalType).and_return('manual')
-    @stage_view_model.stub(:getApprovedBy).and_return('me')
-    @stage_view_model.stub(:getResult).and_return('passed')
-    @stage_view_model.stub(:getRerunOfCounter).and_return(1)
-    @stage_view_model.stub(:hasOperatePermission).and_return('yes')
-    @stage_view_model.stub(:getCanRun).and_return(true)
-    @stage_view_model.stub(:getBuildHistory).and_return([create_job_history_model])
-    @stage_view_model.stub(:getIdentifier).and_return('random')
-    @stage_view_model.stub(:getPipelineName).and_return('pipeline')
-    @stage_view_model.stub(:getPipelineCounter).and_return(1)
+    allow(@stage_view_model).to receive(:getId).and_return(456)
+    allow(@stage_view_model).to receive(:getName).and_return('stage name')
+    allow(@stage_view_model).to receive(:getCounter).and_return('1')
+    allow(@stage_view_model).to receive(:isScheduled).and_return(false)
+    allow(@stage_view_model).to receive(:getApprovalType).and_return('manual')
+    allow(@stage_view_model).to receive(:getApprovedBy).and_return('me')
+    allow(@stage_view_model).to receive(:getResult).and_return('passed')
+    allow(@stage_view_model).to receive(:getRerunOfCounter).and_return(1)
+    allow(@stage_view_model).to receive(:hasOperatePermission).and_return('yes')
+    allow(@stage_view_model).to receive(:getCanRun).and_return(true)
+    allow(@stage_view_model).to receive(:getBuildHistory).and_return([create_job_history_model])
+    allow(@stage_view_model).to receive(:getIdentifier).and_return('random')
+    allow(@stage_view_model).to receive(:getPipelineName).and_return('pipeline')
+    allow(@stage_view_model).to receive(:getPipelineCounter).and_return(1)
     @stage_view_model
   end
 
   def create_stage_model_for_instance
     @stage_identifier_view_model = double('StageIdentifierModel')
-    @stage_identifier_view_model.stub(:getPipelineName).and_return('pipeline name')
-    @stage_identifier_view_model.stub(:getPipelineCounter).and_return(1)
+    allow(@stage_identifier_view_model).to receive(:getPipelineName).and_return('pipeline name')
+    allow(@stage_identifier_view_model).to receive(:getPipelineCounter).and_return(1)
 
     @stage_view_model = double('StageInstanceViewModel')
-    @stage_view_model.stub(:getId).and_return(456)
-    @stage_view_model.stub(:getName).and_return('stage name')
-    @stage_view_model.stub(:getCounter).and_return('1')
-    @stage_view_model.stub(:getApprovalType).and_return('manual')
-    @stage_view_model.stub(:getApprovedBy).and_return('me')
-    @stage_view_model.stub(:getResult).and_return('passed')
-    @stage_view_model.stub(:getRerunOfCounter).and_return(1)
-    @stage_view_model.stub(:shouldFetchMaterials).and_return(true)
-    @stage_view_model.stub(:shouldCleanWorkingDir).and_return(true)
-    @stage_view_model.stub(:isArtifactsDeleted).and_return(true)
-    @stage_view_model.stub(:getJobInstances).and_return([create_job_model])
-    @stage_view_model.stub(:getIdentifier).and_return(@stage_identifier_view_model)
+    allow(@stage_view_model).to receive(:getId).and_return(456)
+    allow(@stage_view_model).to receive(:getName).and_return('stage name')
+    allow(@stage_view_model).to receive(:getCounter).and_return('1')
+    allow(@stage_view_model).to receive(:getApprovalType).and_return('manual')
+    allow(@stage_view_model).to receive(:getApprovedBy).and_return('me')
+    allow(@stage_view_model).to receive(:getResult).and_return('passed')
+    allow(@stage_view_model).to receive(:getRerunOfCounter).and_return(1)
+    allow(@stage_view_model).to receive(:shouldFetchMaterials).and_return(true)
+    allow(@stage_view_model).to receive(:shouldCleanWorkingDir).and_return(true)
+    allow(@stage_view_model).to receive(:isArtifactsDeleted).and_return(true)
+    allow(@stage_view_model).to receive(:getJobInstances).and_return([create_job_model])
+    allow(@stage_view_model).to receive(:getIdentifier).and_return(@stage_identifier_view_model)
     @stage_view_model
   end
 
   def create_empty_stage_model
     @stage_view_model = double('StageViewModel')
-    @stage_view_model.stub(:getId).and_return(nil)
-    @stage_view_model.stub(:getName).and_return(nil)
-    @stage_view_model.stub(:getCounter).and_return(nil)
-    @stage_view_model.stub(:isScheduled).and_return(nil)
-    @stage_view_model.stub(:getApprovalType).and_return(nil)
-    @stage_view_model.stub(:getApprovedBy).and_return(nil)
-    @stage_view_model.stub(:getResult).and_return(nil)
-    @stage_view_model.stub(:getRerunOfCounter).and_return(nil)
-    @stage_view_model.stub(:hasOperatePermission).and_return(nil)
-    @stage_view_model.stub(:getCanRun).and_return(nil)
-    @stage_view_model.stub(:getBuildHistory).and_return([create_empty_job_history_model])
-    @stage_view_model.stub(:getIdentifier).and_return(nil)
-    @stage_view_model.stub(:getPipelineName).and_return('not-required')
-    @stage_view_model.stub(:getPipelineCounter).and_return('not-required')
+    allow(@stage_view_model).to receive(:getId).and_return(nil)
+    allow(@stage_view_model).to receive(:getName).and_return(nil)
+    allow(@stage_view_model).to receive(:getCounter).and_return(nil)
+    allow(@stage_view_model).to receive(:isScheduled).and_return(nil)
+    allow(@stage_view_model).to receive(:getApprovalType).and_return(nil)
+    allow(@stage_view_model).to receive(:getApprovedBy).and_return(nil)
+    allow(@stage_view_model).to receive(:getResult).and_return(nil)
+    allow(@stage_view_model).to receive(:getRerunOfCounter).and_return(nil)
+    allow(@stage_view_model).to receive(:hasOperatePermission).and_return(nil)
+    allow(@stage_view_model).to receive(:getCanRun).and_return(nil)
+    allow(@stage_view_model).to receive(:getBuildHistory).and_return([create_empty_job_history_model])
+    allow(@stage_view_model).to receive(:getIdentifier).and_return(nil)
+    allow(@stage_view_model).to receive(:getPipelineName).and_return('not-required')
+    allow(@stage_view_model).to receive(:getPipelineCounter).and_return('not-required')
     @stage_view_model
   end
 
   def create_pipeline_model
     @pipeline_view_model = double('PipelineViewModel')
-    @pipeline_view_model.stub(:getId).and_return(321)
-    @pipeline_view_model.stub(:getName).and_return('pipeline name')
-    @pipeline_view_model.stub(:getCounter).and_return(123)
-    @pipeline_view_model.stub(:getLabel).and_return('label')
-    @pipeline_view_model.stub(:getNaturalOrder).and_return(1.0)
-    @pipeline_view_model.stub(:getCanRun).and_return(true)
-    @pipeline_view_model.stub(:isPreparingToSchedule).and_return(false)
-    @pipeline_view_model.stub(:isCurrentlyLocked).and_return(false)
-    @pipeline_view_model.stub(:isLockable).and_return(true)
-    @pipeline_view_model.stub(:canUnlock).and_return(false)
-    @pipeline_view_model.stub(:getBuildCause).and_return(create_build_cause_model)
-    @pipeline_view_model.stub(:getStageHistory).and_return([create_stage_model])
-    @pipeline_view_model.stub(:getComment).and_return('pipeline comment')
+    allow(@pipeline_view_model).to receive(:getId).and_return(321)
+    allow(@pipeline_view_model).to receive(:getName).and_return('pipeline name')
+    allow(@pipeline_view_model).to receive(:getCounter).and_return(123)
+    allow(@pipeline_view_model).to receive(:getLabel).and_return('label')
+    allow(@pipeline_view_model).to receive(:getNaturalOrder).and_return(1.0)
+    allow(@pipeline_view_model).to receive(:getCanRun).and_return(true)
+    allow(@pipeline_view_model).to receive(:isPreparingToSchedule).and_return(false)
+    allow(@pipeline_view_model).to receive(:isCurrentlyLocked).and_return(false)
+    allow(@pipeline_view_model).to receive(:isLockable).and_return(true)
+    allow(@pipeline_view_model).to receive(:canUnlock).and_return(false)
+    allow(@pipeline_view_model).to receive(:getBuildCause).and_return(create_build_cause_model)
+    allow(@pipeline_view_model).to receive(:getStageHistory).and_return([create_stage_model])
+    allow(@pipeline_view_model).to receive(:getComment).and_return('pipeline comment')
     @pipeline_view_model
   end
 
   def create_empty_pipeline_model
     @pipeline_view_model = double('PipelineViewModel')
-    @pipeline_view_model.stub(:getId).and_return(nil)
-    @pipeline_view_model.stub(:getName).and_return(nil)
-    @pipeline_view_model.stub(:getCounter).and_return(nil)
-    @pipeline_view_model.stub(:getLabel).and_return(nil)
-    @pipeline_view_model.stub(:getNaturalOrder).and_return(nil)
-    @pipeline_view_model.stub(:getCanRun).and_return(nil)
-    @pipeline_view_model.stub(:isPreparingToSchedule).and_return(nil)
-    @pipeline_view_model.stub(:isCurrentlyLocked).and_return(nil)
-    @pipeline_view_model.stub(:isLockable).and_return(nil)
-    @pipeline_view_model.stub(:canUnlock).and_return(nil)
-    @pipeline_view_model.stub(:getBuildCause).and_return(create_empty_build_cause_model)
-    @pipeline_view_model.stub(:getStageHistory).and_return([create_empty_stage_model])
-    @pipeline_view_model.stub(:getComment).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getId).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getName).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getCounter).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getLabel).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getNaturalOrder).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getCanRun).and_return(nil)
+    allow(@pipeline_view_model).to receive(:isPreparingToSchedule).and_return(nil)
+    allow(@pipeline_view_model).to receive(:isCurrentlyLocked).and_return(nil)
+    allow(@pipeline_view_model).to receive(:isLockable).and_return(nil)
+    allow(@pipeline_view_model).to receive(:canUnlock).and_return(nil)
+    allow(@pipeline_view_model).to receive(:getBuildCause).and_return(create_empty_build_cause_model)
+    allow(@pipeline_view_model).to receive(:getStageHistory).and_return([create_empty_stage_model])
+    allow(@pipeline_view_model).to receive(:getComment).and_return(nil)
     @pipeline_view_model
   end
 
@@ -312,97 +312,97 @@ module APIModelMother
 
   def create_agent_model
     @agent_view_model = double('AgentViewModel')
-    @agent_view_model.stub(:getUuid).and_return("uuid3")
-    @agent_view_model.stub(:getHostname).and_return("CCeDev01")
-    @agent_view_model.stub(:getIpAddress).and_return("127.0.0.1")
-    @agent_view_model.stub(:getLocation).and_return("/var/lib/go-server")
-    @agent_view_model.stub(:getStatusForDisplay).and_return("Idle")
-    @agent_view_model.stub(:buildLocator).and_return("/pipeline/1/stage/1/job")
-    @agent_view_model.stub(:getOperatingSystem).and_return("Linux")
+    allow(@agent_view_model).to receive(:getUuid).and_return("uuid3")
+    allow(@agent_view_model).to receive(:getHostname).and_return("CCeDev01")
+    allow(@agent_view_model).to receive(:getIpAddress).and_return("127.0.0.1")
+    allow(@agent_view_model).to receive(:getLocation).and_return("/var/lib/go-server")
+    allow(@agent_view_model).to receive(:getStatusForDisplay).and_return("Idle")
+    allow(@agent_view_model).to receive(:buildLocator).and_return("/pipeline/1/stage/1/job")
+    allow(@agent_view_model).to receive(:getOperatingSystem).and_return("Linux")
     disk_space = DiskSpace.new(0)
-    @agent_view_model.stub(:freeDiskSpace).and_return(disk_space)
-    @agent_view_model.stub(:getResources).and_return(["java"])
-    @agent_view_model.stub(:getEnvironments).and_return(["foo"])
+    allow(@agent_view_model).to receive(:freeDiskSpace).and_return(disk_space)
+    allow(@agent_view_model).to receive(:getResources).and_return(["java"])
+    allow(@agent_view_model).to receive(:getEnvironments).and_return(["foo"])
     @agent_view_model
   end
 
   def create_empty_agent_model
     @agent_view_model = double('AgentViewModel')
-    @agent_view_model.stub(:getUuid).and_return(nil)
-    @agent_view_model.stub(:getHostname).and_return(nil)
-    @agent_view_model.stub(:getIpAddress).and_return(nil)
-    @agent_view_model.stub(:getLocation).and_return(nil)
-    @agent_view_model.stub(:getStatusForDisplay).and_return(nil)
-    @agent_view_model.stub(:buildLocator).and_return(nil)
-    @agent_view_model.stub(:getOperatingSystem).and_return(nil)
-    @agent_view_model.stub(:freeDiskSpace).and_return(nil)
-    @agent_view_model.stub(:getResources).and_return(nil)
-    @agent_view_model.stub(:getEnvironments).and_return(nil)
+    allow(@agent_view_model).to receive(:getUuid).and_return(nil)
+    allow(@agent_view_model).to receive(:getHostname).and_return(nil)
+    allow(@agent_view_model).to receive(:getIpAddress).and_return(nil)
+    allow(@agent_view_model).to receive(:getLocation).and_return(nil)
+    allow(@agent_view_model).to receive(:getStatusForDisplay).and_return(nil)
+    allow(@agent_view_model).to receive(:buildLocator).and_return(nil)
+    allow(@agent_view_model).to receive(:getOperatingSystem).and_return(nil)
+    allow(@agent_view_model).to receive(:freeDiskSpace).and_return(nil)
+    allow(@agent_view_model).to receive(:getResources).and_return(nil)
+    allow(@agent_view_model).to receive(:getEnvironments).and_return(nil)
     @agent_view_model
   end
 
   def create_config_revision_model
     @config_revision_view_model = double('config_revision_view_model')
-    @config_revision_view_model.stub(:getMd5).and_return('md5')
-    @config_revision_view_model.stub(:getUsername).and_return('user name')
-    @config_revision_view_model.stub(:getGoVersion).and_return('version')
+    allow(@config_revision_view_model).to receive(:getMd5).and_return('md5')
+    allow(@config_revision_view_model).to receive(:getUsername).and_return('user name')
+    allow(@config_revision_view_model).to receive(:getGoVersion).and_return('version')
     time = double('time')
-    time.stub(:getTime).and_return(12345678)
-    @config_revision_view_model.stub(:getTime).and_return(time)
-    @config_revision_view_model.stub(:getSchemaVersion).and_return('schema')
-    @config_revision_view_model.stub(:getCommitSHA).and_return('commit')
+    allow(time).to receive(:getTime).and_return(12345678)
+    allow(@config_revision_view_model).to receive(:getTime).and_return(time)
+    allow(@config_revision_view_model).to receive(:getSchemaVersion).and_return('schema')
+    allow(@config_revision_view_model).to receive(:getCommitSHA).and_return('commit')
     @config_revision_view_model
   end
 
   def create_empty_config_revision_model
     @config_revision_view_model = double('config_revision_view_model')
-    @config_revision_view_model.stub(:getMd5).and_return(nil)
-    @config_revision_view_model.stub(:getUsername).and_return(nil)
-    @config_revision_view_model.stub(:getGoVersion).and_return(nil)
-    @config_revision_view_model.stub(:getTime).and_return(nil)
-    @config_revision_view_model.stub(:getSchemaVersion).and_return(nil)
-    @config_revision_view_model.stub(:getCommitSHA).and_return(nil)
+    allow(@config_revision_view_model).to receive(:getMd5).and_return(nil)
+    allow(@config_revision_view_model).to receive(:getUsername).and_return(nil)
+    allow(@config_revision_view_model).to receive(:getGoVersion).and_return(nil)
+    allow(@config_revision_view_model).to receive(:getTime).and_return(nil)
+    allow(@config_revision_view_model).to receive(:getSchemaVersion).and_return(nil)
+    allow(@config_revision_view_model).to receive(:getCommitSHA).and_return(nil)
     @config_revision_view_model
   end
 
   def create_pipeline_status_model
     @pipeline_status_model = double('PipelineStatusViewModel')
-    @pipeline_status_model.stub(:isPaused).and_return(true)
-    @pipeline_status_model.stub(:pausedCause).and_return('Pausing it for some reason')
-    @pipeline_status_model.stub(:pausedBy).and_return('admin')
-    @pipeline_status_model.stub(:isPaused).and_return(true)
-    @pipeline_status_model.stub(:isLocked).and_return(true)
-    @pipeline_status_model.stub(:isSchedulable).and_return(true)
+    allow(@pipeline_status_model).to receive(:isPaused).and_return(true)
+    allow(@pipeline_status_model).to receive(:pausedCause).and_return('Pausing it for some reason')
+    allow(@pipeline_status_model).to receive(:pausedBy).and_return('admin')
+    allow(@pipeline_status_model).to receive(:isPaused).and_return(true)
+    allow(@pipeline_status_model).to receive(:isLocked).and_return(true)
+    allow(@pipeline_status_model).to receive(:isSchedulable).and_return(true)
     @pipeline_status_model
   end
 
   def create_stage_config_model
     @stage_config_view_model = double('StageConfigViewModel')
-    @stage_config_view_model.stub(:name).and_return('stage name')
+    allow(@stage_config_view_model).to receive(:name).and_return('stage name')
     @stage_config_view_model
   end
 
   def create_material_config_model
     @material_config_view_model = double('MaterialConfigViewModel')
-    @material_config_view_model.stub(:getFingerprint).and_return('fingerprint')
-    @material_config_view_model.stub(:getTypeForDisplay).and_return('git')
-    @material_config_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
+    allow(@material_config_view_model).to receive(:getFingerprint).and_return('fingerprint')
+    allow(@material_config_view_model).to receive(:getTypeForDisplay).and_return('git')
+    allow(@material_config_view_model).to receive(:getLongDescription).and_return('URL: http://test.com Branch: master')
     @material_config_view_model
   end
 
   def create_pipeline_config_model
     @pipeline_config_view_model = double('PipelineConfigViewModel')
-    @pipeline_config_view_model.stub(:name).and_return('pipeline name')
-    @pipeline_config_view_model.stub(:getLabelTemplate).and_return('label')
-    @pipeline_config_view_model.stub(:materialConfigs).and_return([create_material_config_model])
-    @pipeline_config_view_model.stub(:getStages).and_return([create_stage_config_model])
+    allow(@pipeline_config_view_model).to receive(:name).and_return('pipeline name')
+    allow(@pipeline_config_view_model).to receive(:getLabelTemplate).and_return('label')
+    allow(@pipeline_config_view_model).to receive(:materialConfigs).and_return([create_material_config_model])
+    allow(@pipeline_config_view_model).to receive(:getStages).and_return([create_stage_config_model])
     @pipeline_config_view_model
   end
 
   def create_pipeline_group_config_model
     @pipeline_group_config_view_model = double('PipelineGroupConfigViewModel')
-    @pipeline_group_config_view_model.stub(:getGroup).and_return('pipeline group name')
-    @pipeline_group_config_view_model.stub(:getPipelines).and_return([create_pipeline_config_model])
+    allow(@pipeline_group_config_view_model).to receive(:getGroup).and_return('pipeline group name')
+    allow(@pipeline_group_config_view_model).to receive(:getPipelines).and_return([create_pipeline_config_model])
     @pipeline_group_config_view_model
   end
 end

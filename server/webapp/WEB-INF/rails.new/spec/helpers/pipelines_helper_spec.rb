@@ -76,7 +76,7 @@ describe PipelinesHelper do
 
       message = trigger_message(triggered_date, pim)
 
-      expect(message.blank?).to be_true
+      expect(message.blank?).to be_truthy
     end
 
     it "should display the trigger message with the time and username" do

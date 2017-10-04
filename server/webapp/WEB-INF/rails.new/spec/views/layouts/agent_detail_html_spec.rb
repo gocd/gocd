@@ -24,7 +24,7 @@ describe "/layouts/agent_detail" do
   before do
     @layout_name = 'layouts/agent_detail'
     assign(:user, @user = Object.new)
-    @user.stub(:anonymous?).and_return(true)
+    allow(@user).to receive(:anonymous?).and_return(true)
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)

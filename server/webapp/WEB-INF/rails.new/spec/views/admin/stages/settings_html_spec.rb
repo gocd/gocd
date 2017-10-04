@@ -31,8 +31,8 @@ describe "admin/stages/settings.html.erb" do
 
     in_params(:pipeline_name => "pipeline", :stage_name => "stage", :action => "settings", :controller => "admin/stages")
 
-    view.stub(:admin_stage_update_path).and_return("admin_stage_update_url")
-    view.stub(:admin_stage_edit_path).and_return("admin_stage_edit_url")
+    allow(view).to receive(:admin_stage_update_path).and_return("admin_stage_update_url")
+    allow(view).to receive(:admin_stage_edit_path).and_return("admin_stage_edit_url")
   end
 
   describe "stage approval" do

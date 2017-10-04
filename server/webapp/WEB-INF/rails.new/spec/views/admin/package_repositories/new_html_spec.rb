@@ -22,7 +22,7 @@ describe "admin/package_repositories/new.html.erb" do
   include MockRegistryModule
 
   before(:each) do
-    view.stub(:package_repositories_create_path).and_return("create_package_repositories_path")
+    allow(view).to receive(:package_repositories_create_path).and_return("create_package_repositories_path")
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     set(@cruise_config, "md5", "abc")
     assign(:package_repository, PackageRepository.new)
@@ -55,7 +55,7 @@ describe "admin/package_repositories/new.html.erb" do
     end
 
     it "should have add package repository form" do
-      view.stub(:package_material_plugins).and_return([["[Select]", ""], "pluginid"])
+      allow(view).to receive(:package_material_plugins).and_return([["[Select]", ""], "pluginid"])
 
       render
 
@@ -80,7 +80,7 @@ describe "admin/package_repositories/new.html.erb" do
     end
 
     it "should display message next to select box if no plugins found" do
-      view.stub(:package_material_plugins).and_return([["[Select]", ""]])
+      allow(view).to receive(:package_material_plugins).and_return([["[Select]", ""]])
 
       render
 

@@ -19,7 +19,7 @@ require 'spec_helper'
 describe Oauth2Provider::ClientsController, type: :controller do
   it "should set the tab_name" do
     controller.send(:set_tab_name)
-    controller.instance_variable_get("@tab_name").should == "oauth-clients"
+    expect(controller.instance_variable_get("@tab_name")).to eq("oauth-clients")
   end
 
   it "should use set tab as a before filter" do
@@ -28,7 +28,7 @@ describe Oauth2Provider::ClientsController, type: :controller do
 
   it "should set the view_title" do
     controller.send(:set_view_title)
-    controller.instance_variable_get("@view_title").should == "Administration"
+    expect(controller.instance_variable_get("@view_title")).to eq("Administration")
   end
 
   it "should use set the view title as a before filter" do

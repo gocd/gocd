@@ -21,8 +21,8 @@ describe Api::WebHooks::GitHubController do
   before :each do
     @material_update_service = double('Material Update Service')
     @server_config_service = double('Server Config Service')
-    controller.stub(:material_update_service).and_return(@material_update_service)
-    controller.stub(:server_config_service).and_return(@server_config_service)
+    allow(controller).to receive(:material_update_service).and_return(@material_update_service)
+    allow(controller).to receive(:server_config_service).and_return(@server_config_service)
   end
 
   describe :notify do
@@ -34,7 +34,7 @@ describe Api::WebHooks::GitHubController do
 
     describe 'with json' do
       it 'should call the material update service upon receiving a good request and respond with 202 [accepted]' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {
           ref: 'refs/heads/branch',
           repository: {
@@ -45,7 +45,7 @@ describe Api::WebHooks::GitHubController do
 
         params_string = params.to_json
 
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new(params_string)
         end
 
@@ -56,8 +56,8 @@ describe Api::WebHooks::GitHubController do
                                  'Content-Type' => 'application/json'
                                })
 
-        controller.stub(:prempt_ping_call)
-        controller.stub(:allow_only_push_event)
+        allow(controller).to receive(:prempt_ping_call)
+        allow(controller).to receive(:allow_only_push_event)
         all_matching_repos = %w(
                             https://github.com/org/repo
                             https://github.com/org/repo/
@@ -76,8 +76,8 @@ describe Api::WebHooks::GitHubController do
                             git@github.com:org/repo.git
                             git@github.com:org/repo.git/)
 
-        @material_update_service
-          .should_receive(:updateGitMaterial)
+        expect(@material_update_service)
+          .to receive(:updateGitMaterial)
           .with('branch', all_matching_repos
           )
           .and_return(true)
@@ -88,10 +88,10 @@ describe Api::WebHooks::GitHubController do
       end
 
       it 'should return 400 [bad request] if the signature does not match our signed payload' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {}
         params_string = params.to_json
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new(params_string)
         end
 
@@ -106,10 +106,10 @@ describe Api::WebHooks::GitHubController do
       end
 
       it 'should respond with 202 [accepted] upon receiving a GitHub ping event' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {zen: 'some github zen'}
         params_string = params.to_json
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new(params_string)
         end
         signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request.body.read)
@@ -131,7 +131,7 @@ describe Api::WebHooks::GitHubController do
 
     describe 'with form post' do
       it 'should call the material update service upon receiving a good request and respond with 202 [accepted]' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {
           ref: 'refs/heads/branch',
           repository: {
@@ -142,7 +142,7 @@ describe Api::WebHooks::GitHubController do
 
         params_string = CGI.escape(params.to_json)
 
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new("payload=#{params_string}")
         end
 
@@ -153,8 +153,8 @@ describe Api::WebHooks::GitHubController do
                                  'Content-Type' => 'application/x-www-form-urlencoded'
                                })
 
-        controller.stub(:prempt_ping_call)
-        controller.stub(:allow_only_push_event)
+        allow(controller).to receive(:prempt_ping_call)
+        allow(controller).to receive(:allow_only_push_event)
         all_matching_repos = %w(
                             https://github.com/org/repo
                             https://github.com/org/repo/
@@ -173,8 +173,8 @@ describe Api::WebHooks::GitHubController do
                             git@github.com:org/repo.git
                             git@github.com:org/repo.git/)
 
-        @material_update_service
-          .should_receive(:updateGitMaterial)
+        expect(@material_update_service)
+          .to receive(:updateGitMaterial)
           .with('branch', all_matching_repos
           )
           .and_return(true)
@@ -185,11 +185,11 @@ describe Api::WebHooks::GitHubController do
       end
 
       it 'should return 400 [bad request] if the signature does not match our signed payload' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {}
         params_string = CGI.escape(params.to_json)
 
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new("payload=#{params_string}")
         end
 
@@ -204,11 +204,11 @@ describe Api::WebHooks::GitHubController do
       end
 
       it 'should respond with 202 [accepted] upon receiving a GitHub ping event' do
-        @server_config_service.should_receive(:getWebhookSecret).and_return('secret')
+        expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {zen: 'some github zen'}
         params_string = CGI.escape(params.to_json)
 
-        request.stub(:body) do
+        allow(request).to receive(:body) do
           StringIO.new("payload=#{params_string}")
         end
 

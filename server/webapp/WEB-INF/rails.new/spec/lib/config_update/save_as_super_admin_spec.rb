@@ -20,6 +20,6 @@ describe ConfigUpdate::SaveAsSuperAdmin do
 
   it "should check if user is super amdin" do
     save = ::ConfigUpdate::SaveAsSuperAdmin.new(nil, nil, nil)
-    save.class.included_modules.should include(::ConfigUpdate::CheckIsSuperAdmin)
+    expect(save.class.included_modules).to include(::ConfigUpdate::CheckIsSuperAdmin)
   end
 end

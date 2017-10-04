@@ -34,7 +34,7 @@ describe Admin::Materials::P4Controller do
     p4_material_config.setName(CaseInsensitiveString.new("new-some-kinda-material"))
     p4_material_config.setAutoUpdate(true)
     p4_material_config.setConfigAttributes({P4MaterialConfig::FOLDER => "folder", P4MaterialConfig::USE_TICKETS => 'true'})
-    @pipeline.materialConfigs().get(1).should == p4_material_config
+    expect(@pipeline.materialConfigs().get(1)).to eq(p4_material_config)
   end
 
   def update_payload
@@ -42,9 +42,9 @@ describe Admin::Materials::P4Controller do
   end
 
   def assert_successful_update
-    @pipeline.materialConfigs().get(0).getServerAndPort().should == "tele.port:8154"
-    @pipeline.materialConfigs().get(0).getView().should == "through_window"
-    @pipeline.materialConfigs().get(0).getName().should == CaseInsensitiveString.new("new-some-kinda-material")
+    expect(@pipeline.materialConfigs().get(0).getServerAndPort()).to eq("tele.port:8154")
+    expect(@pipeline.materialConfigs().get(0).getView()).to eq("through_window")
+    expect(@pipeline.materialConfigs().get(0).getName()).to eq(CaseInsensitiveString.new("new-some-kinda-material"))
   end
 
   def setup_other_form_objects

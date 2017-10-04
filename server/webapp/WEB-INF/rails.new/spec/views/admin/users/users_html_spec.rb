@@ -40,7 +40,7 @@ describe "/admin/users/users.html.erb" do
 
   it "should have title" do
     render
-    view.instance_variable_get('@view_title').should == "Administration"
+    expect(view.instance_variable_get('@view_title')).to eq("Administration")
   end
 
   it "should render user details" do

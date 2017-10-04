@@ -27,7 +27,7 @@ describe "/layouts/pipeline_admin" do
     assign(:user,@user = Object.new)
     assign(:error_count,0)
     assign(:warning_count,0)
-    @user.stub(:anonymous?).and_return(true)
+    allow(@user).to receive(:anonymous?).and_return(true)
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)

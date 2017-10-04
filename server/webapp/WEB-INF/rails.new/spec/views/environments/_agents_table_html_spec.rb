@@ -23,8 +23,8 @@ describe "Environments agents table" do
     @agent1 = idle_agent(:hostname => 'host1', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1")
     @agent2 = disabled_agent
     assign(:agents, AgentsViewModel.new([@agent1, @agent2].to_java(AgentViewModel)))
-    view.stub(:has_operate_permission_for_agents?).and_return(true)
-    view.stub(:url_for).and_return("url")
+    allow(view).to receive(:has_operate_permission_for_agents?).and_return(true)
+    allow(view).to receive(:url_for).and_return("url")
   end
 
   it "should not link to agent details for a pending agent" do

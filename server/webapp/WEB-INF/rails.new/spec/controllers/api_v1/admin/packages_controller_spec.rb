@@ -30,7 +30,7 @@ describe ApiV1::Admin::PackagesController do
     @package.setRepository(@package_repository)
 
     @package_definition_service = double('package-definition-service')
-    controller.stub(:package_definition_service).and_return(@package_definition_service)
+    allow(controller).to receive(:package_definition_service).and_return(@package_definition_service)
   end
 
   describe :index do
@@ -45,7 +45,7 @@ describe ApiV1::Admin::PackagesController do
         pkg2 = PackageDefinition.new("2", "express", Configuration.new)
         packages = Packages.new(pkg1, pkg2)
 
-        @package_definition_service.should_receive(:getPackages).and_return(packages)
+        expect(@package_definition_service).to receive(:getPackages).and_return(packages)
 
         get_with_api_header :index
         expect(response).to be_ok
@@ -107,14 +107,14 @@ describe ApiV1::Admin::PackagesController do
 
     describe :for_admins do
       it 'should render the package' do
-        @package_definition_service.stub(:find).with(@package_id).and_return(@package)
+        allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         get_with_api_header :show, package_id: @package_id
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response({package: @package}, ApiV1::Config::PackageRepresenter))
       end
 
       it 'should render 404 when a package with specified id does not exist' do
-        @package_definition_service.stub(:find).with('invalid-package-id').and_return(nil)
+        allow(@package_definition_service).to receive(:find).with('invalid-package-id').and_return(nil)
         get_with_api_header :show, package_id: 'invalid-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -122,7 +122,7 @@ describe ApiV1::Admin::PackagesController do
 
     describe :security do
       before :each do
-        controller.stub(:load_package).and_return(nil)
+        allow(controller).to receive(:load_package).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -181,8 +181,8 @@ describe ApiV1::Admin::PackagesController do
 
     describe :for_admins do
       it 'should allow deleting package' do
-        @package_definition_service.stub(:find).with(@package_id).and_return(@package)
-        @package_definition_service.should_receive(:deletePackage).with(@package, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
+        allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
+        expect(@package_definition_service).to receive(:deletePackage).with(@package, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, user, result|
           result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'package definition', @package.getId))
         end
 
@@ -191,7 +191,7 @@ describe ApiV1::Admin::PackagesController do
       end
 
       it 'should render 404 when package does not exist' do
-        @package_definition_service.stub(:find).with('invalid-package-id').and_return(nil)
+        allow(@package_definition_service).to receive(:find).with('invalid-package-id').and_return(nil)
         delete_with_api_header :destroy, package_id: 'invalid-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -199,7 +199,7 @@ describe ApiV1::Admin::PackagesController do
 
     describe :security do
       before :each do
-        controller.stub(:load_package).and_return(nil)
+        allow(controller).to receive(:load_package).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -256,15 +256,15 @@ describe ApiV1::Admin::PackagesController do
       enable_security
       login_as_admin
       @package_repository_service = double('package-repository-service')
-      controller.stub(:package_repository_service).and_return(@package_repository_service)
+      allow(controller).to receive(:package_repository_service).and_return(@package_repository_service)
 
     end
 
 
     describe :for_admins do
       it 'should render 200 created when package is created' do
-        @package_repository_service.should_receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
-        @package_definition_service.should_receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
+        expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
+        expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
 
         expect(response.status).to be(200)
@@ -272,8 +272,8 @@ describe ApiV1::Admin::PackagesController do
       end
 
       it 'should generate id if id is not provided by user' do
-        @package_repository_service.should_receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
-        @package_definition_service.should_receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
+        expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
+        expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, :package => {name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
 
         expect(actual_response).to have_key(:id)
@@ -281,8 +281,8 @@ describe ApiV1::Admin::PackagesController do
 
       it 'should render the error occurred while creating a package' do
 
-        @package_repository_service.should_receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
-        @package_definition_service.should_receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, repo_id, user, result|
+        expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
+        expect(@package_definition_service).to receive(:createPackage).with(an_instance_of(PackageDefinition), anything, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |pkg, repo_id, user, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
@@ -291,7 +291,7 @@ describe ApiV1::Admin::PackagesController do
       end
 
       it 'should render error when the repository to which the package belongs is not found' do
-        @package_repository_service.should_receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
+        expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
         post_with_api_header :create, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
         expect(response).to have_api_message_response(422, "Could not find the repository with id '#{@package_repo_id}'. It might have been deleted.")
       end
@@ -299,7 +299,7 @@ describe ApiV1::Admin::PackagesController do
 
     describe :security do
       before :each do
-        controller.stub(:check_for_repository).and_return(nil)
+        allow(controller).to receive(:check_for_repository).and_return(nil)
       end
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -351,22 +351,22 @@ describe ApiV1::Admin::PackagesController do
       enable_security
       login_as_admin
       @md5 = 'some-digest'
-      @package_definition_service.stub(:find).with(@package_id).and_return(@package)
+      allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
 
       @package_repository_service = double('package-repository-service')
-      controller.stub(:package_repository_service).and_return(@package_repository_service)
+      allow(controller).to receive(:package_repository_service).and_return(@package_repository_service)
 
       @entity_hashing_service = double('entity-hashing-service')
-      controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-      @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
+      allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
     end
 
     describe :for_admins do
       it 'should allow updating package' do
-        @package_definition_service.stub(:find).with(@package_id).and_return(@package)
+        allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         result = HttpLocalizedOperationResult.new
-        @package_repository_service.should_receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
-        @package_definition_service.should_receive(:updatePackage).with(@package_id, an_instance_of(PackageDefinition), @md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(result)
+        expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(@package_repository)
+        expect(@package_definition_service).to receive(:updatePackage).with(@package_id, an_instance_of(PackageDefinition), @md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(result)
         hash = {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
@@ -377,8 +377,8 @@ describe ApiV1::Admin::PackagesController do
       end
 
       it 'should not update package config if etag passed does not match the one on server' do
-        controller.stub(:load_package).and_return(nil)
-        controller.stub(:check_for_repository).and_return(nil)
+        allow(controller).to receive(:load_package).and_return(nil)
+        allow(controller).to receive(:check_for_repository).and_return(nil)
         controller.request.env['HTTP_IF_MATCH'] = 'old-etag'
         hash = {name: @package_name, configuration:[ {key: "PACKAGE_ID", value:"prettyjson"}]}
 
@@ -389,8 +389,8 @@ describe ApiV1::Admin::PackagesController do
       end
 
       it 'should not update package config if no etag is passed' do
-        controller.stub(:load_package).and_return(nil)
-        controller.stub(:check_for_repository).and_return(nil)
+        allow(controller).to receive(:load_package).and_return(nil)
+        allow(controller).to receive(:check_for_repository).and_return(nil)
         hash = {name: @package_name, configuration:[ {key: "PACKAGE_ID", value:"prettyjson"}]}
 
         put_with_api_header :update, package_id: @package_id, :package => hash
@@ -400,15 +400,15 @@ describe ApiV1::Admin::PackagesController do
       end
 
       it 'should render 404 when a package does not exist' do
-        @package_definition_service.stub(:find).with('non-existent-package-id').and_return(nil)
+        allow(@package_definition_service).to receive(:find).with('non-existent-package-id').and_return(nil)
         put_with_api_header :update, package_id: 'non-existent-package-id'
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
       it 'should render error when the repository to which the package belongs is not found' do
-        @package_definition_service.stub(:find).with(@package_id).and_return(@package)
-        controller.stub(:check_for_stale_request).and_return(nil)
-        @package_repository_service.should_receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
+        allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
+        expect(@package_repository_service).to receive(:getPackageRepository).with(@package_repo_id).and_return(nil)
         put_with_api_header :update, package_id: @package_id, :package => {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
         expect(response).to have_api_message_response(422, "Could not find the repository with id '#{@package_repo_id}'. It might have been deleted.")
       end
@@ -416,8 +416,8 @@ describe ApiV1::Admin::PackagesController do
 
     describe :security do
       before(:each) do
-        controller.stub(:check_for_stale_request).and_return(nil)
-        controller.stub(:check_for_repository).and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:check_for_repository).and_return(nil)
       end
 
       it 'should allow anyone, with security disabled' do

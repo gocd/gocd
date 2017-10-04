@@ -21,7 +21,7 @@ describe "/agent_details/show.html.erb" do
   include AgentMother
 
   before do
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
 
   describe :tabs do

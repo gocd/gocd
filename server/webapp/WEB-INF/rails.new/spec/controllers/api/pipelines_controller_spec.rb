@@ -33,33 +33,33 @@ describe Api::PipelinesController do
     @changeset_service = double("changeset_service")
     @pipeline_pause_service = double("pipeline_pause_service")
     @status="status"
-    controller.stub(:changeset_service).and_return(@changeset_service)
-    controller.stub(:pipeline_scheduler).and_return(@pipeline_service)
-    controller.stub(:pipeline_unlock_api_service).and_return(@pipeline_unlock_api_service)
-    controller.stub(:pipeline_history_service).and_return(@pipeline_history_service)
-    controller.stub(:go_config_service).and_return(@go_config_service)
-    controller.stub(:current_user).and_return(@user = "user")
-    controller.stub(:pipeline_service).and_return(@pipeline_service)
-    controller.stub(:pipeline_pause_service).and_return(@pipeline_pause_service)
+    allow(controller).to receive(:changeset_service).and_return(@changeset_service)
+    allow(controller).to receive(:pipeline_scheduler).and_return(@pipeline_service)
+    allow(controller).to receive(:pipeline_unlock_api_service).and_return(@pipeline_unlock_api_service)
+    allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service)
+    allow(controller).to receive(:current_user).and_return(@user = "user")
+    allow(controller).to receive(:pipeline_service).and_return(@pipeline_service)
+    allow(controller).to receive(:pipeline_pause_service).and_return(@pipeline_pause_service)
 
     @material_config = double('material_config')
     @fingerprint = '123456'
-    @material_config.stub(:getPipelineUniqueFingerprint).and_return(@fingerprint)
-    controller.stub(:populate_config_validity)
+    allow(@material_config).to receive(:getPipelineUniqueFingerprint).and_return(@fingerprint)
+    allow(controller).to receive(:populate_config_validity)
     setup_base_urls
   end
 
   it "should return only the path to a pipeline api" do
-    api_pipeline_action_path(:pipeline_name => "pipeline", :action => "schedule").should == "/api/pipelines/pipeline/schedule"
+    expect(api_pipeline_action_path(:pipeline_name => "pipeline", :action => "schedule")).to eq("/api/pipelines/pipeline/schedule")
   end
 
   describe :history do
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_history_service.should_receive(:totalCount).and_return(10)
-      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, loser, anything).and_return(create_pipeline_history_model)
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:totalCount).and_return(10)
+      expect(@pipeline_history_service).to receive(:loadMinimalData).with('up42', anything, loser, anything).and_return(create_pipeline_history_model)
 
       get :history, :pipeline_name => 'up42', :offset => '5', :no_layout => true
 
@@ -68,9 +68,9 @@ describe Api::PipelinesController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_history_service.should_receive(:totalCount).and_return(10)
-      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, loser, anything) do |pipeline_name, pagination, username, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:totalCount).and_return(10)
+      expect(@pipeline_history_service).to receive(:loadMinimalData).with('up42', anything, loser, anything) do |pipeline_name, pagination, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
@@ -119,8 +119,8 @@ describe Api::PipelinesController do
 
     it "should render instance json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with('up42', 1, loser, anything).and_return(create_pipeline_model)
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('up42', 1, loser, anything).and_return(create_pipeline_model)
 
       get :instance_by_counter, :pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true
 
@@ -129,8 +129,8 @@ describe Api::PipelinesController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with('up42', 1, loser, anything) do |pipeline_name, pipeline_counter, username, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('up42', 1, loser, anything) do |pipeline_name, pipeline_counter, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
@@ -179,8 +179,8 @@ describe Api::PipelinesController do
 
     it "should render status json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_history_service.should_receive(:getPipelineStatus).with('up42', "loser", anything).and_return(create_pipeline_status_model)
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:getPipelineStatus).with('up42', "loser", anything).and_return(create_pipeline_status_model)
 
       get :status, :pipeline_name => 'up42', :no_layout => true
 
@@ -189,8 +189,8 @@ describe Api::PipelinesController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_history_service.should_receive(:getPipelineStatus).with('up42', "loser", anything) do |pipeline_name, username, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:getPipelineStatus).with('up42', "loser", anything) do |pipeline_name, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
@@ -236,15 +236,15 @@ describe Api::PipelinesController do
 
   describe :schedule do
     before(:each) do
-      com.thoughtworks.go.server.service.result.HttpOperationResult.stub(:new).and_return(@status)
+      allow(com.thoughtworks.go.server.service.result.HttpOperationResult).to receive(:new).and_return(@status)
     end
 
     it "should return 404 when I try to trigger a pipeline that does not exist" do
       message = "pipeline idonotexist does not exist"
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('idonotexist',anything(), schedule_options({}, {}), @status)
-      @status.stub(:httpCode).and_return(404)
-      @status.stub(:detailedMessage).and_return(message)
-      controller.should_receive(:render_if_error).with(message, 404).and_return(true)
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('idonotexist',anything(), schedule_options({}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(404)
+      allow(@status).to receive(:detailedMessage).and_return(message)
+      expect(controller).to receive(:render_if_error).with(message, 404).and_return(true)
       fake_template_presence "api/pipelines/schedule.erb", "dummy"
 
       post 'schedule', :pipeline_name => 'idonotexist', :no_layout => true
@@ -252,55 +252,55 @@ describe Api::PipelinesController do
 
     it "should return 404 when material does not exist" do
       message = "material does not exist"
-      @go_config_service.should_receive(:findMaterialWithName).with(CaseInsensitiveString.new('pipeline'), CaseInsensitiveString.new('material_does_not_exist')).and_return(nil)
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('pipeline', anything(), schedule_options({"material_does_not_exist" => "foo"}, {}), @status)
-      @status.stub(:httpCode).and_return(404)
-      @status.stub(:detailedMessage).and_return(message)
+      expect(@go_config_service).to receive(:findMaterialWithName).with(CaseInsensitiveString.new('pipeline'), CaseInsensitiveString.new('material_does_not_exist')).and_return(nil)
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('pipeline', anything(), schedule_options({"material_does_not_exist" => "foo"}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(404)
+      allow(@status).to receive(:detailedMessage).and_return(message)
 
-      controller.should_receive(:render_if_error).with(message, 404).and_return(true)
+      expect(controller).to receive(:render_if_error).with(message, 404).and_return(true)
       fake_template_presence "api/pipelines/schedule.erb", "dummy"
 
       post 'schedule', :pipeline_name => 'pipeline', "materials" => {'material_does_not_exist' => "foo"}, :no_layout => true
     end
 
     it "should be able to specify a particular revision from a upstream pipeline" do
-      @go_config_service.should_receive(:findMaterialWithName).with(CaseInsensitiveString.new('downstream'), CaseInsensitiveString.new('downstream')).and_return(@material_config)
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream',anything(), schedule_options({@fingerprint => "downstream/10/blah-stage/2"}, {}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@go_config_service).to receive(:findMaterialWithName).with(CaseInsensitiveString.new('downstream'), CaseInsensitiveString.new('downstream')).and_return(@material_config)
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream',anything(), schedule_options({@fingerprint => "downstream/10/blah-stage/2"}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "materials" => {"downstream" => "downstream/10/blah-stage/2"}, :no_layout => true
     end
 
     it "should return 202 when I trigger a pipeline successfully" do
       message = "accepted request to schedule pipeline badger"
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('badger',anything(),schedule_options({}, {}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return(message)
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('badger',anything(),schedule_options({}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return(message)
       post 'schedule', :pipeline_name => 'badger', :no_layout => true
       expect(response.response_code).to eq(202)
       expect(response.body).to eq(message + "\n")
     end
 
     it "should fix empty revisions if necessary" do
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({@fingerprint => "downstream/10/blah-stage/2"}, {}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({@fingerprint => "downstream/10/blah-stage/2"}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "materials" => {"downstream" => ""}, "original_fingerprint" => {@fingerprint => "downstream/10/blah-stage/2"}, :no_layout => true
     end
 
     it "should respect materials name material map over originalMaterials" do
       svn_material_config = double('svn_material_config')
       svn_fingerprint = 'svn_123456'
-      svn_material_config.stub(:getPipelineUniqueFingerprint).and_return(svn_fingerprint)
+      allow(svn_material_config).to receive(:getPipelineUniqueFingerprint).and_return(svn_fingerprint)
 
       svn2_fingerprint = 'svn2_123456'
 
-      @go_config_service.should_receive(:findMaterialWithName).with(CaseInsensitiveString.new('downstream'), CaseInsensitiveString.new('downstream')).and_return(@material_config)
-      @go_config_service.should_receive(:findMaterialWithName).with(CaseInsensitiveString.new('downstream'), CaseInsensitiveString.new('svn')).and_return(svn_material_config)
+      expect(@go_config_service).to receive(:findMaterialWithName).with(CaseInsensitiveString.new('downstream'), CaseInsensitiveString.new('downstream')).and_return(@material_config)
+      expect(@go_config_service).to receive(:findMaterialWithName).with(CaseInsensitiveString.new('downstream'), CaseInsensitiveString.new('svn')).and_return(svn_material_config)
 
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({@fingerprint => "downstream/10/blah-stage/5", svn_fingerprint => "20", svn2_fingerprint => "45"}, {}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({@fingerprint => "downstream/10/blah-stage/5", svn_fingerprint => "20", svn2_fingerprint => "45"}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "materials" => {"downstream" => "downstream/10/blah-stage/5", "svn" => "20"}, "original_fingerprint" => {@fingerprint => "downstream/10/blah-stage/2", svn_fingerprint => "30", svn2_fingerprint => "45"}, :no_layout => true
     end
 
@@ -308,33 +308,33 @@ describe Api::PipelinesController do
       downstream = "0942094a"
       svn = "875c3261"
       svn_2 = "98143abd"
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({downstream => "downstream/10/blah-stage/5", svn => "20", svn_2 => "45"}, {}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({downstream => "downstream/10/blah-stage/5", svn => "20", svn_2 => "45"}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "material_fingerprint" => {downstream => "downstream/10/blah-stage/5", svn => "20"}, "original_fingerprint" => {downstream => "downstream/10/blah-stage/2", svn => "30", svn_2 => "45"}, :no_layout => true
     end
 
     it "should support using schedule time environment variable values while scheduling a pipeline" do
       downstream = "0942094a"
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({downstream => "downstream/10/blah-stage/5"}, {'foo' => 'foo_value', 'bar' => 'bar_value'}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({downstream => "downstream/10/blah-stage/5"}, {'foo' => 'foo_value', 'bar' => 'bar_value'}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "material_fingerprint" => {downstream => "downstream/10/blah-stage/5"}, 'variables' => {'foo' => 'foo_value', 'bar' => 'bar_value'}, :no_layout => true
     end
 
     it "should support using schedule time environment variable values while scheduling a pipeline" do
       downstream = "0942094a"
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream', anything(), schedule_options({downstream => "downstream/10/blah-stage/5"}, {'foo' => 'foo_value', 'bar' => 'bar_value'}, {'secure_name' => 'secure_value'}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream', anything(), schedule_options({downstream => "downstream/10/blah-stage/5"}, {'foo' => 'foo_value', 'bar' => 'bar_value'}, {'secure_name' => 'secure_value'}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "material_fingerprint" => {downstream => "downstream/10/blah-stage/5"}, 'variables' => {'foo' => 'foo_value', 'bar' => 'bar_value'}, 'secure_variables' => {'secure_name' => 'secure_value'}, :no_layout => true
     end
 
     it "should support empty material_fingerprints" do
       svn = "875c3261"
-      @pipeline_service.should_receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({svn => "30"}, {}), @status)
-      @status.stub(:httpCode).and_return(202)
-      @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
+      expect(@pipeline_service).to receive(:manualProduceBuildCauseAndSave).with('downstream',anything(),schedule_options({svn => "30"}, {}), @status)
+      allow(@status).to receive(:httpCode).and_return(202)
+      allow(@status).to receive(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "material_fingerprint" => {svn => ""}, "original_fingerprint" => {svn => "30"}, :no_layout => true
     end
 
@@ -384,14 +384,14 @@ describe Api::PipelinesController do
   describe :pipeline_instance do
     it "should load pipeline by id" do
       pipeline = PipelineInstanceModel.createPipeline("pipeline", 1, "label", BuildCause.createWithEmptyModifications(), stage_history_for("blah-stage"))
-      @pipeline_history_service.should_receive(:load).with(10, "user", anything).and_return(pipeline)
+      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(pipeline)
       get :pipeline_instance, :id => '10', :name => "pipeline", :format => "xml", :no_layout => true
       context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, nil)
       expect(assigns[:doc].asXML()).to eq(PipelineXmlViewModel.new(pipeline).toXml(context).asXML())
     end
 
     it "should respond with 404 when pipeline not found" do
-      @pipeline_history_service.should_receive(:load).with(10, "user", anything).and_return(nil) do |id, user, result|
+      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil) do |id, user, result|
         result.notFound("Not Found", "", nil)
       end
       get :pipeline_instance, :id => '10', :name => "pipeline", :format => "xml", :no_layout => true
@@ -399,7 +399,7 @@ describe Api::PipelinesController do
     end
 
     it "should respond with 401 when user does not have view permission" do
-      @pipeline_history_service.should_receive(:load).with(10, "user", anything).and_return(nil) do |id, user, result|
+      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil) do |id, user, result|
         result.unauthorized("Unauthorized", "", nil)
       end
       get :pipeline_instance, :id => '10', :format => "xml", :name => "pipeline", :no_layout => true
@@ -443,7 +443,7 @@ describe Api::PipelinesController do
 
   describe :pipelines do
     it "should assign pipeline_configs and latest instance of each pipeline configured" do
-      @pipeline_history_service.should_receive(:latestInstancesForConfiguredPipelines).with("user").and_return(:pipeline_instance)
+      expect(@pipeline_history_service).to receive(:latestInstancesForConfiguredPipelines).with("user").and_return(:pipeline_instance)
       get :pipelines, :format => "xml", :no_layout => true
       expect(assigns[:pipelines]).to eq(:pipeline_instance)
     end
@@ -458,7 +458,7 @@ describe Api::PipelinesController do
   describe :stage_feed do
     before :each do
       controller.go_cache.clear
-      controller.stub(:set_locale)
+      allow(controller).to receive(:set_locale)
     end
 
     it "should return the url to the feed" do
@@ -475,36 +475,36 @@ describe Api::PipelinesController do
     end
 
     it "should set the stage feed from the java side" do
-      Feed.should_receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'pipeline'
       expect(assigns[:feed]).to eq(:stage_feed)
     end
 
     it "should set content type as application/atom+xml" do
-      Feed.should_receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'pipeline'
       expect(response.content_type).to eq("application/atom+xml")
     end
 
     it "should honor after if present" do
-      Feed.should_receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:after)).and_return(:stage_feed)
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:after)).and_return(:stage_feed)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
       get 'stage_feed', :after => 10, :format => "xml", :no_layout => true, :name => 'pipeline'
       expect(assigns[:feed]).to eq(:stage_feed)
     end
 
     it "should honor before if present" do
-      Feed.should_receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:before)).and_return(:stage_feed)
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:before)).and_return(:stage_feed)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
       get 'stage_feed', :before => 10, :format => "xml", :no_layout => true, :name => 'pipeline'
       expect(assigns[:feed]).to eq(:stage_feed)
     end
 
     it "should assign title"do
-      Feed.should_receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'pipeline'
       expect(assigns[:title]).to eq("pipeline")
     end
@@ -515,17 +515,17 @@ describe Api::PipelinesController do
     end
 
     it "should return 404 if the pipeline does not exist" do
-      controller.should_receive(:render_error_response).with("Pipeline not found", 404, true)
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('does_not_exist')).and_return(false)
+      expect(controller).to receive(:render_error_response).with("Pipeline not found", 404, true)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('does_not_exist')).and_return(false)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'does_not_exist'
     end
 
     it "should render the error if there is any" do
-      Feed.should_receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed) do |a, b, c, d|
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed) do |a, b, c, d|
         c.notFound(LocalizedMessage.string('Screwed'), HealthStateType.invalidConfig())
       end
-      controller.should_receive(:render_localized_operation_result).with(an_instance_of(HttpLocalizedOperationResult))
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('does_not_exist')).and_return(true)
+      expect(controller).to receive(:render_localized_operation_result).with(an_instance_of(HttpLocalizedOperationResult))
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('does_not_exist')).and_return(true)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'does_not_exist'
     end
 
@@ -562,12 +562,12 @@ describe Api::PipelinesController do
 
   describe :releaseLock do
     it "should call service and render operation result" do
-      @pipeline_unlock_api_service.should_receive(:unlock).with('pipeline-name', @user, anything) do |name, user, operation_result|
+      expect(@pipeline_unlock_api_service).to receive(:unlock).with('pipeline-name', @user, anything) do |name, user, operation_result|
         operation_result.notAcceptable("done", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
       fake_template_presence 'api/pipelines/releaseLock.erb', 'dummy'
-      controller.should_receive(:render_if_error).with("done\n", 406).and_return(true)
+      expect(controller).to receive(:render_if_error).with("done\n", 406).and_return(true)
 
       post :releaseLock, :pipeline_name => 'pipeline-name', :no_layout => true
     end
@@ -617,8 +617,8 @@ describe Api::PipelinesController do
 
   describe :pause do
     it "should pause the pipeline" do
-      @pipeline_pause_service.should_receive(:pause).with("foo.bar", "wait for next checkin", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
-      @controller.stub(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
+      expect(@pipeline_pause_service).to receive(:pause).with("foo.bar", "wait for next checkin", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
+      allow(@controller).to receive(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
       post :pause, {:pipeline_name => "foo.bar", :no_layout => true, :pauseCause => "wait for next checkin"}
     end
 
@@ -667,8 +667,8 @@ describe Api::PipelinesController do
 
   describe :unpause do
     it "should pause the pipeline" do
-      @pipeline_pause_service.should_receive(:unpause).with("foo.bar", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
-      @controller.stub(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
+      expect(@pipeline_pause_service).to receive(:unpause).with("foo.bar", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
+      allow(@controller).to receive(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
       post :unpause, {:pipeline_name => "foo.bar", :no_layout => true}
     end
 

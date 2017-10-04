@@ -5,24 +5,24 @@ module CacheTestHelpers
 
     yield obj1
     obj_1_not_cached_body = response.body
-    ActionController::Base.cache_store.writes.length.should == 0
+    expect(ActionController::Base.cache_store.writes.length).to eq(0)
     allow_double_render
-    ActionController::Base.cache_store.read(*cache_key_proc[obj2]).should be_nil
+    expect(ActionController::Base.cache_store.read(*cache_key_proc[obj2])).to be_nil
     ActionController::Base.perform_caching = true
 
     yield obj2
-    ActionController::Base.cache_store.read(*cache_key_proc[obj2]).should_not be_nil
-    ActionController::Base.cache_store.writes.length.should == 1
+    expect(ActionController::Base.cache_store.read(*cache_key_proc[obj2])).not_to be_nil
+    expect(ActionController::Base.cache_store.writes.length).to eq(1)
     allow_double_render
 
     yield obj2
-    ActionController::Base.cache_store.writes.length.should == 1
+    expect(ActionController::Base.cache_store.writes.length).to eq(1)
     allow_double_render
 
-    ActionController::Base.cache_store.read(*cache_key_proc[obj1]).should be_nil
+    expect(ActionController::Base.cache_store.read(*cache_key_proc[obj1])).to be_nil
     yield obj1
-    ActionController::Base.cache_store.writes.length.should == 2
-    ActionController::Base.cache_store.read(*cache_key_proc[obj1]).should_not be_nil
+    expect(ActionController::Base.cache_store.writes.length).to eq(2)
+    expect(ActionController::Base.cache_store.read(*cache_key_proc[obj1])).not_to be_nil
     assert_equal obj_1_not_cached_body, response.body
   ensure
     ActionController::Base.perform_caching = false

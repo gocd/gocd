@@ -1,7 +1,7 @@
 module ExtraSpecAssertions
   def assert_redirected_with_flash(url, msg, flash_class, params = [])
     assert_redirect(url)
-    params.each { |param| response.redirect_url.should =~ /#{param}/ }
+    params.each { |param| expect(response.redirect_url).to match(/#{param}/) }
     flash_guid = $1 if response.redirect_url =~ /[?&]fm=([\w-]+)?(&.+){0,}$/
     flash = controller.flash_message_service.get(flash_guid)
     expect(flash.to_s).to eq(msg)

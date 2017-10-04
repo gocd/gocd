@@ -25,10 +25,10 @@ describe ApiV1::Config::PackageRepositoriesRepresenter do
     presenter   = ApiV1::Config::PackageRepositoriesRepresenter.new(all_repos)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
-    actual_json.fetch(:_embedded).should == {
+    expect(actual_json.fetch(:_embedded)).to eq({
       :package_repositories => [ ApiV1::Config::PackageRepositoryRepresenter.new(npm_repo).to_hash(url_builder: UrlBuilder.new),
                          ApiV1::Config::PackageRepositoryRepresenter.new(maven_repo).to_hash(url_builder: UrlBuilder.new),]
-    }
+    })
 
   end
 end

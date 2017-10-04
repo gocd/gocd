@@ -21,15 +21,15 @@ describe ApiV1::NotificationFiltersController do
 
   before(:each) do
     login_as_user
-    controller.stub(:user_service).and_return(@user_service = double('user-service'))
-    @user_service.stub(:findUserByName).and_return(@user = double('user'))
-    @user.stub(:id).and_return(1000)
-    @user_service.stub(:load).with(@user.id).and_return(@user)
+    allow(controller).to receive(:user_service).and_return(@user_service = double('user-service'))
+    allow(@user_service).to receive(:findUserByName).and_return(@user = double('user'))
+    allow(@user).to receive(:id).and_return(1000)
+    allow(@user_service).to receive(:load).with(@user.id).and_return(@user)
   end
 
   describe :index do
     it("returns a list of filters serialized to JSON") do
-      @user.stub(:notificationFilters).and_return([
+      allow(@user).to receive(:notificationFilters).and_return([
         filter_for("pipeline1", "defaultStage", "Fails", true, 1),
         filter_for("[Any Pipeline]", "[Any Stage]", "Breaks", false, 2),
       ])
@@ -47,8 +47,8 @@ describe ApiV1::NotificationFiltersController do
 
   describe :create do
     it("creates a filter to match any commit") do
-      @user.stub(:notificationFilters).and_return([]) # not verifying this
-      @user_service.should_receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
+      allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
+      expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
 
       post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks")
 
@@ -56,8 +56,8 @@ describe ApiV1::NotificationFiltersController do
     end
 
     it("creates a filter to match a user's own commits") do
-      @user.stub(:notificationFilters).and_return([]) # not verifying this
-      @user_service.should_receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
+      allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
+      expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
 
       post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks", match_commits: true)
 
@@ -65,7 +65,7 @@ describe ApiV1::NotificationFiltersController do
     end
 
     it("validates input") do
-      @user.stub(:notificationFilters).and_return([]) # not verifying this
+      allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
 
       post_with_api_header(:create, pipeline: "foo", event: "Breaks", match_commits: true)
 
@@ -76,8 +76,8 @@ describe ApiV1::NotificationFiltersController do
 
   describe :destroy do
     it("destroys a filter") do
-      @user.stub(:notificationFilters).and_return([]) # really don't care
-      @user_service.should_receive(:removeNotificationFilter).with(@user.id, 5)
+      allow(@user).to receive(:notificationFilters).and_return([]) # really don't care
+      expect(@user_service).to receive(:removeNotificationFilter).with(@user.id, 5)
 
       delete_with_api_header(:destroy, id: "5")
       assert_equal 200, response.status

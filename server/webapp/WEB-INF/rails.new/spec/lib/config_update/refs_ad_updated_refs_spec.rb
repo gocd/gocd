@@ -20,6 +20,6 @@ describe ::ConfigUpdate::RefsAsUpdatedRefs do
   include ::ConfigUpdate::RefsAsUpdatedRefs
 
   it "should return node as updated node" do
-    self.class.included_modules.should include(::ConfigUpdate::NodeAsUpdatedNode, ::ConfigUpdate::SubjectAsUpdatedSubject)
+    expect(self.class.included_modules).to include(::ConfigUpdate::NodeAsUpdatedNode, ::ConfigUpdate::SubjectAsUpdatedSubject)
   end
 end

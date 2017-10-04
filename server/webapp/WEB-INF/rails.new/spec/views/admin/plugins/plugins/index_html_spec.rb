@@ -26,7 +26,7 @@ end
 describe "admin/plugins/plugins/index.html.erb" do
   before :each do
     assign(:meta_data_store, @meta_data_store = double('metadata store'))
-    view.stub(:can_edit_plugin_settings?).and_return(true)
+    allow(view).to receive(:can_edit_plugin_settings?).and_return(true)
   end
 
   it "should have a form to upload plugins" do
@@ -131,7 +131,7 @@ describe "admin/plugins/plugins/index.html.erb" do
 
     render
 
-    description.status().messages().length.should be 0
+    expect(description.status().messages().length).to be 0
 
     Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
       plugins_listing.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
@@ -188,7 +188,7 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should not add settings icon if settings is not available" do
-    view.should_receive(:can_edit_plugin_settings?).and_return(false)
+    expect(view).to receive(:can_edit_plugin_settings?).and_return(false)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render
@@ -203,7 +203,7 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should not add settings icon if user cannot edit the plugin settings" do
-    view.should_receive(:can_edit_plugin_settings?).and_return(false)
+    expect(view).to receive(:can_edit_plugin_settings?).and_return(false)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render
@@ -218,8 +218,8 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should display status report link if user is an admin" do
-    view.should_receive(:plugin_supports_status_report?).and_return(true)
-    view.should_receive(:is_user_an_admin?).and_return(true)
+    expect(view).to receive(:plugin_supports_status_report?).and_return(true)
+    expect(view).to receive(:is_user_an_admin?).and_return(true)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render
@@ -234,8 +234,8 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should not display status report link if user is not an admin" do
-    view.should_receive(:plugin_supports_status_report?).and_return(true)
-    view.should_receive(:is_user_an_admin?).and_return(false)
+    expect(view).to receive(:plugin_supports_status_report?).and_return(true)
+    expect(view).to receive(:is_user_an_admin?).and_return(false)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render

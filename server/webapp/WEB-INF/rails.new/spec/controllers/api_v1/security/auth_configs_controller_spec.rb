@@ -22,8 +22,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
   before :each do
     @security_auth_config_service = double('security_auth_config_service')
     @entity_hashing_service = double('entity_hashing_service')
-    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-    controller.stub(:security_auth_config_service).and_return(@security_auth_config_service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(controller).to receive(:security_auth_config_service).and_return(@security_auth_config_service)
   end
 
   describe :index do
@@ -66,7 +66,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         login_as_admin
 
         auth_config = SecurityAuthConfig.new('foo', 'cd.go.ldap')
-        @security_auth_config_service.should_receive(:listAll).and_return({'foo' => auth_config})
+        expect(@security_auth_config_service).to receive(:listAll).and_return({'foo' => auth_config})
 
         get_with_api_header :index
 
@@ -100,7 +100,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
   describe :show do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
 
       it 'should allow all with security disabled' do
@@ -145,8 +145,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should render the security auth config of specified name' do
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SecurityAuthConfig)).and_return('md5')
-        @security_auth_config_service.should_receive(:findProfile).with('ldap').and_return(auth_config)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SecurityAuthConfig)).and_return('md5')
+        expect(@security_auth_config_service).to receive(:findProfile).with('ldap').and_return(auth_config)
 
         get_with_api_header :show, auth_config_id: 'ldap'
 
@@ -155,7 +155,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
 
       it 'should return 404 if the security auth config does not exist' do
-        @security_auth_config_service.should_receive(:findProfile).with('non-existent-security-auth-config').and_return(nil)
+        expect(@security_auth_config_service).to receive(:findProfile).with('non-existent-security-auth-config').and_return(nil)
 
         get_with_api_header :show, auth_config_id: 'non-existent-security-auth-config'
 
@@ -241,8 +241,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should deserialize auth config from given parameters' do
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
-        controller.stub(:etag_for).and_return('some-md5')
-        @security_auth_config_service.should_receive(:create).with(anything, an_instance_of(SecurityAuthConfig), an_instance_of(HttpLocalizedOperationResult))
+        allow(controller).to receive(:etag_for).and_return('some-md5')
+        expect(@security_auth_config_service).to receive(:create).with(anything, an_instance_of(SecurityAuthConfig), an_instance_of(HttpLocalizedOperationResult))
         post_with_api_header :create, auth_config: auth_config_hash
 
         expect(response).to be_ok
@@ -251,11 +251,11 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should fail to save if there are validation errors' do
         result = double('HttpLocalizedOperationResult')
-        HttpLocalizedOperationResult.stub(:new).and_return(result)
-        result.stub(:isSuccessful).and_return(false)
-        result.stub(:message).with(anything()).and_return('Save failed')
-        result.stub(:httpCode).and_return(422)
-        @security_auth_config_service.should_receive(:create).with(anything, an_instance_of(SecurityAuthConfig), result)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+        allow(result).to receive(:isSuccessful).and_return(false)
+        allow(result).to receive(:message).with(anything()).and_return('Save failed')
+        allow(result).to receive(:httpCode).and_return(422)
+        expect(@security_auth_config_service).to receive(:create).with(anything, an_instance_of(SecurityAuthConfig), result)
 
         post_with_api_header :create, auth_config: auth_config_hash
 
@@ -284,9 +284,9 @@ describe ApiV1::Admin::Security::AuthConfigsController do
   describe :update do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
-        controller.stub(:check_for_stale_request).and_return(nil)
-        controller.stub(:check_for_attempted_rename).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:check_for_attempted_rename).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -325,8 +325,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should not allow rename of auth config id' do
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
-        controller.stub(:load_entity_from_config).and_return(auth_config)
-        controller.stub(:check_for_stale_request).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(auth_config)
+        allow(controller).to receive(:check_for_stale_request).and_return(nil)
 
         put_with_api_header :update, auth_config_id: 'foo', auth_config: auth_config_hash
 
@@ -335,8 +335,8 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should fail update if etag does not match' do
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
-        controller.stub(:load_entity_from_config).and_return(auth_config)
-        controller.stub(:etag_for).and_return('another-etag')
+        allow(controller).to receive(:load_entity_from_config).and_return(auth_config)
+        allow(controller).to receive(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = 'some-etag'
 
         put_with_api_header :update, auth_config_id: 'ldap', auth_config: auth_config_hash
@@ -347,10 +347,10 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       it 'should proceed with update if etag matches' do
         controller.request.env['HTTP_IF_MATCH'] = %Q{"#{Digest::MD5.hexdigest('md5')}"}
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
-        controller.stub(:load_entity_from_config).twice.and_return(auth_config)
+        allow(controller).to receive(:load_entity_from_config).twice.and_return(auth_config)
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SecurityAuthConfig)).exactly(3).times.and_return('md5')
-        @security_auth_config_service.should_receive(:update).with(anything, 'md5', an_instance_of(SecurityAuthConfig), anything)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SecurityAuthConfig)).exactly(3).times.and_return('md5')
+        expect(@security_auth_config_service).to receive(:update).with(anything, 'md5', an_instance_of(SecurityAuthConfig), anything)
 
         put_with_api_header :update, auth_config_id: 'ldap', auth_config: auth_config_hash
 
@@ -396,7 +396,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
   describe :destroy do
     describe :security do
       before :each do
-        controller.stub(:load_entity_from_config).and_return(nil)
+        allow(controller).to receive(:load_entity_from_config).and_return(nil)
       end
       it 'should allow all with security disabled' do
         disable_security
@@ -433,7 +433,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
 
       it 'should raise an error if auth_config is not found' do
-        @security_auth_config_service.should_receive(:findProfile).and_return(nil)
+        expect(@security_auth_config_service).to receive(:findProfile).and_return(nil)
 
         delete_with_api_header :destroy, auth_config_id: 'foo'
 
@@ -442,9 +442,9 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should render the success message on deleting a auth_config' do
         auth_config = SecurityAuthConfig.new('foo', 'cd.go.ldap')
-        @security_auth_config_service.should_receive(:findProfile).and_return(auth_config)
+        expect(@security_auth_config_service).to receive(:findProfile).and_return(auth_config)
         result = HttpLocalizedOperationResult.new
-        @security_auth_config_service.stub(:delete).with(anything, an_instance_of(SecurityAuthConfig), result) do |user, auth_config, result|
+        allow(@security_auth_config_service).to receive(:delete).with(anything, an_instance_of(SecurityAuthConfig), result) do |user, auth_config, result|
           result.setMessage(LocalizedMessage::string('RESOURCE_DELETE_SUCCESSFUL', 'auth_config', 'foo'))
         end
         delete_with_api_header :destroy, auth_config_id: 'foo'
@@ -454,9 +454,9 @@ describe ApiV1::Admin::Security::AuthConfigsController do
 
       it 'should render the validation errors on failure to delete' do
         auth_config = SecurityAuthConfig.new('foo', 'cd.go.ldap')
-        @security_auth_config_service.should_receive(:findProfile).and_return(auth_config)
+        expect(@security_auth_config_service).to receive(:findProfile).and_return(auth_config)
         result = HttpLocalizedOperationResult.new
-        @security_auth_config_service.stub(:delete).with(anything, an_instance_of(SecurityAuthConfig), result) do |user, auth_config, result|
+        allow(@security_auth_config_service).to receive(:delete).with(anything, an_instance_of(SecurityAuthConfig), result) do |user, auth_config, result|
           result.unprocessableEntity(LocalizedMessage::string('SAVE_FAILED_WITH_REASON', 'Validation failed'))
         end
         delete_with_api_header :destroy, auth_config_id: 'foo'
@@ -565,7 +565,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
         verify_response = VerifyConnectionResponse.new('success', 'Connection check passed', nil)
 
-        @security_auth_config_service.should_receive(:verify_connection).with(auth_config).and_return(verify_response)
+        expect(@security_auth_config_service).to receive(:verify_connection).with(auth_config).and_return(verify_response)
         post_with_api_header :verify_connection, {auth_config: auth_config_hash}
 
         expect(response).to be_ok
@@ -579,7 +579,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
         verify_response = VerifyConnectionResponse.new('failure', 'Connection check failed', nil)
 
-        @security_auth_config_service.should_receive(:verify_connection).with(auth_config).and_return(verify_response)
+        expect(@security_auth_config_service).to receive(:verify_connection).with(auth_config).and_return(verify_response)
         post_with_api_header :verify_connection, {auth_config: auth_config_hash}
 
         expect(response.code).to eq('422')

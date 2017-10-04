@@ -29,7 +29,7 @@ describe ApiV1::UsersRepresenter do
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#users')
     expect(actual_json).to have_link(:current_user).with_url('http://test.host/api/current_user')
 
-    actual_json.fetch(:_embedded).should == { :users => [ApiV1::UserRepresenter.new(user).to_hash(url_builder: UrlBuilder.new)] }
+    expect(actual_json.fetch(:_embedded)).to eq({ :users => [ApiV1::UserRepresenter.new(user).to_hash(url_builder: UrlBuilder.new)] })
   end
 
 end

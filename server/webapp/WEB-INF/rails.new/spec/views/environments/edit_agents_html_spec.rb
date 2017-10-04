@@ -24,7 +24,7 @@ describe "environments/edit_agents.html.erb" do
     @environment.addEnvironmentVariable("plain_name", "plain_value")
     assign(:environment, @environment)
 
-    view.stub(:cruise_config_md5).and_return("foo_bar_baz")
+    allow(view).to receive(:cruise_config_md5).and_return("foo_bar_baz")
   end
 
   it "should have cruise_config_md5 as part of output" do

@@ -19,12 +19,12 @@ require 'spec_helper'
 describe "admin/garage/index.html.erb" do
   before :each do
     @garage_data = double('garage data')
-    view.should_receive(:garage_gc_path).and_return('garage_gc_path')
+    expect(view).to receive(:garage_gc_path).and_return('garage_gc_path')
   end
 
   it 'should show config.git details' do
     size = "42MB"
-    @garage_data.should_receive(:getConfigRepositorySize).and_return(size)
+    expect(@garage_data).to receive(:getConfigRepositorySize).and_return(size)
     assign(:garage_data, @garage_data)
 
     render
@@ -40,10 +40,10 @@ describe "admin/garage/index.html.erb" do
 
   it 'should show config.git flash messages' do
     size = "42MB"
-    @garage_data.should_receive(:getConfigRepositorySize).and_return(size)
+    expect(@garage_data).to receive(:getConfigRepositorySize).and_return(size)
     assign(:garage_data, @garage_data)
     flash = {:notice => {:gc => "notice"}, :error => {:gc => "error"}}
-    view.should_receive(:flash).at_least(:once).and_return(flash)
+    expect(view).to receive(:flash).at_least(:once).and_return(flash)
 
     render
 

@@ -42,23 +42,23 @@ describe JobConfigLoader do
 
   it "should load stage if exists" do
     @controller.params = {:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job"}
-    @controller.job.should be_nil
-    @controller.send(@klass.filter_names.last).should == true
-    @controller.job.name().should == CaseInsensitiveString.new("baz-job")
+    expect(@controller.job).to be_nil
+    expect(@controller.send(@klass.filter_names.last)).to eq(true)
+    expect(@controller.job.name()).to eq(CaseInsensitiveString.new("baz-job"))
   end
 
   it "should render error when no stage exists" do
     @controller.params = {:pipeline_name => "foo-pipeline", :stage_name => "quux-stage", :job_name => "bang-job"}
-    @controller.job.should be_nil
+    expect(@controller.job).to be_nil
     @controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
 
-    @controller.send(@klass.filter_names.last).should == false
+    expect(@controller.send(@klass.filter_names.last)).to eq(false)
 
-    @controller.instance_variable_get('@message').should == "No job named 'bang-job' exists for stage 'bar-stage' of pipeline 'foo-pipeline'."
-    @controller.job.should be_nil
+    expect(@controller.instance_variable_get('@message')).to eq("No job named 'bang-job' exists for stage 'bar-stage' of pipeline 'foo-pipeline'.")
+    expect(@controller.job).to be_nil
   end
 
   it "should hookup pipeline loader and stage loader before job loader" do
-    @klass.filter_names.should == [:load_pipeline, :load_pause_info, :load_stage, :load_job]
+    expect(@klass.filter_names).to eq([:load_pipeline, :load_pause_info, :load_stage, :load_job])
   end
 end

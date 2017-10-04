@@ -62,7 +62,7 @@ describe ConfigView::TemplatesController do
 
     it 'should allow template view users, with security enabled' do
       enable_security
-      @security_service.stub(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
+      allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
 
       expect(controller).to allow_action(:get, :show)
     end
@@ -71,32 +71,32 @@ describe ConfigView::TemplatesController do
   describe :show do
     before :each do
       login_as_admin
-      controller.stub(:is_user_authorized_to_view_template)
+      allow(controller).to receive(:is_user_authorized_to_view_template)
       @template_config_service = double('template config service')
-      controller.stub(:template_config_service).and_return(@template_config_service)
+      allow(controller).to receive(:template_config_service).and_return(@template_config_service)
     end
 
     it "should return a template object of the given name" do
       template_config = 'template config'
-      @template_config_service.should_receive(:loadForView).with('template.name', an_instance_of(HttpLocalizedOperationResult)).and_return(template_config)
+      expect(@template_config_service).to receive(:loadForView).with('template.name', an_instance_of(HttpLocalizedOperationResult)).and_return(template_config)
       get :show, {:name => 'template.name'}
       expect(assigns[:template_config]).to eq(template_config)
     end
 
     it "should return nil for template config when template name does not exist" do
-      @template_config_service.should_receive(:loadForView).with('template.name', an_instance_of(HttpLocalizedOperationResult)).and_return(nil)
+      expect(@template_config_service).to receive(:loadForView).with('template.name', an_instance_of(HttpLocalizedOperationResult)).and_return(nil)
       get :show, {:name => 'template.name'}
       expect(assigns[:template_config]).to eq(nil)
     end
 
     it "should render error when template config service returns bad operation result" do
       result = HttpLocalizedOperationResult.new()
-      result.should_receive(:isSuccessful).and_return(false)
-      result.should_receive(:httpCode).and_return(404)
-      result.should_receive(:message).with(anything).and_return("Template Not found")
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      expect(result).to receive(:isSuccessful).and_return(false)
+      expect(result).to receive(:httpCode).and_return(404)
+      expect(result).to receive(:message).with(anything).and_return("Template Not found")
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       template_name = 'template.name'
-      @template_config_service.should_receive(:loadForView).with(template_name, result).and_return(nil)
+      expect(@template_config_service).to receive(:loadForView).with(template_name, result).and_return(nil)
       get :show, {:name => template_name}
       expect(assigns[:template_config]).to eq(nil)
       expect(response).to render_template("shared/config_error")

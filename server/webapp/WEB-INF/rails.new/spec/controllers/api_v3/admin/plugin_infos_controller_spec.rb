@@ -21,10 +21,10 @@ describe ApiV3::Admin::PluginInfosController do
 
   before(:each) do
     @default_plugin_info_finder = double('default_plugin_info_finder')
-    controller.stub('default_plugin_info_finder').and_return(@default_plugin_info_finder)
+    allow(controller).to receive('default_plugin_info_finder').and_return(@default_plugin_info_finder)
 
     @default_plugin_manager = double('default_plugin_manager')
-    controller.stub('default_plugin_manager').and_return(@default_plugin_manager)
+    allow(controller).to receive('default_plugin_manager').and_return(@default_plugin_manager)
     notification_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
     metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
     @plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], notification_view)
@@ -91,7 +91,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
-      @default_plugin_info_finder.should_receive(:allPluginInfos).with(nil).and_return([plugin_info])
+      expect(@default_plugin_info_finder).to receive(:allPluginInfos).with(nil).and_return([plugin_info])
 
       get_with_api_header :index
 
@@ -112,8 +112,8 @@ describe ApiV3::Admin::PluginInfosController do
 
       bad_plugin_info = com.thoughtworks.go.plugin.domain.common.BadPluginInfo.new(bad_plugin)
 
-      @default_plugin_manager.should_receive(:plugins).and_return([bad_plugin, good_plugin])
-      @default_plugin_info_finder.should_receive(:allPluginInfos).with(nil).and_return([good_plugin_info])
+      expect(@default_plugin_manager).to receive(:plugins).and_return([bad_plugin, good_plugin])
+      expect(@default_plugin_info_finder).to receive(:allPluginInfos).with(nil).and_return([good_plugin_info])
 
       get_with_api_header :index, include_bad: true
       expect(response).to be_ok
@@ -127,7 +127,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
-      @default_plugin_info_finder.should_receive(:allPluginInfos).with('scm').and_return([plugin_info])
+      expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([plugin_info])
 
       get_with_api_header :index, type: 'scm'
 
@@ -136,7 +136,7 @@ describe ApiV3::Admin::PluginInfosController do
     end
 
     it 'should be a unprocessible entity for a invalid plugin type' do
-      @default_plugin_info_finder.should_receive(:allPluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
+      expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
 
       get_with_api_header :index, type: 'invalid_type'
 
@@ -176,7 +176,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
 
-      @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin_id').and_return(plugin_info)
+      expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin_id').and_return(plugin_info)
 
       get_with_api_header :show, id: 'plugin_id'
 
@@ -192,8 +192,8 @@ describe ApiV3::Admin::PluginInfosController do
 
       bad_plugin_info = com.thoughtworks.go.plugin.domain.common.BadPluginInfo.new(bad_plugin)
 
-      @default_plugin_info_finder.should_receive(:pluginInfoFor).with('bad.plugin').and_return(nil)
-      @default_plugin_manager.should_receive(:getPluginDescriptorFor).with('bad.plugin').and_return(bad_plugin)
+      expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('bad.plugin').and_return(nil)
+      expect(@default_plugin_manager).to receive(:getPluginDescriptorFor).with('bad.plugin').and_return(bad_plugin)
 
       get_with_api_header :show, id: 'bad.plugin'
       expect(response).to be_ok
@@ -201,8 +201,8 @@ describe ApiV3::Admin::PluginInfosController do
     end
 
     it 'should return 404 in absence of plugin_info' do
-      @default_plugin_info_finder.should_receive(:pluginInfoFor).with('plugin_id').and_return(nil)
-      @default_plugin_manager.should_receive(:getPluginDescriptorFor).with('plugin_id').and_return(nil)
+      expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin_id').and_return(nil)
+      expect(@default_plugin_manager).to receive(:getPluginDescriptorFor).with('plugin_id').and_return(nil)
 
       get_with_api_header :show, id: 'plugin_id'
 

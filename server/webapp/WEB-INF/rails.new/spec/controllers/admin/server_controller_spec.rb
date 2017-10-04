@@ -20,7 +20,7 @@ describe Admin::ServerController do
   include MockRegistryModule
 
   before do
-    controller.stub(:set_current_user)
+    allow(controller).to receive(:set_current_user)
   end
 
   before(:each) do
@@ -36,25 +36,25 @@ describe Admin::ServerController do
     @server_configuration_form = ServerConfigurationForm.new(@valid_server_params)
 
 
-    controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
-    controller.stub(:user_service).and_return(@user_service = Object.new)
-    controller.stub(:system_service).and_return(@system_service = Object.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
+    allow(controller).to receive(:user_service).and_return(@user_service = Object.new)
+    allow(controller).to receive(:system_service).and_return(@system_service = Object.new)
 
-    @user_service.stub(:canUserTurnOffAutoLogin).and_return(true)
-    @go_config_service.stub(:getMailHost).and_return(@mail_host)
-    @go_config_service.stub(:security).and_return(@security_config)
+    allow(@user_service).to receive(:canUserTurnOffAutoLogin).and_return(true)
+    allow(@go_config_service).to receive(:getMailHost).and_return(@mail_host)
+    allow(@go_config_service).to receive(:security).and_return(@security_config)
 
     @cruise_config = com.thoughtworks.go.config.BasicCruiseConfig.new()
     @cruise_config.setServerConfig(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
     @cruise_config.server().setJobTimeout("42")
     @cruise_config.server().setCommandRepositoryLocation("foo")
-    @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
+    allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
 
-    controller.stub(:populate_config_validity)
-    @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-    controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
+    allow(controller).to receive(:populate_config_validity)
+    allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+    allow(controller).to receive(:server_config_service).and_return(@server_config_service = Object.new)
 
-    controller.stub(:l).and_return(localizer = Class.new do
+    allow(controller).to receive(:l).and_return(localizer = Class.new do
       def method_missing method, *args
         com.thoughtworks.go.i18n.LocalizedMessage.string(args[0], args[1..-1].to_java(java.lang.Object)).localize(Spring.bean("localizer"))
       end
@@ -63,38 +63,38 @@ describe Admin::ServerController do
 
   describe "index" do
     it "should resolve route to server config" do
-      {:get => "/admin/config/server"}.should route_to(:controller => "admin/server", :action => "index")
+      expect({:get => "/admin/config/server"}).to route_to(:controller => "admin/server", :action => "index")
     end
 
     it "should assign server config details" do
       get :index
 
-      assigns[:server_configuration_form].should == @server_configuration_form
-      assigns[:tab_name].should == "server_configuration"
-      assigns[:allow_user_to_turn_off_auto_login].should == true
+      expect(assigns[:server_configuration_form]).to eq(@server_configuration_form)
+      expect(assigns[:tab_name]).to eq("server_configuration")
+      expect(assigns[:allow_user_to_turn_off_auto_login]).to eq(true)
       assert_template layout: "admin"
     end
 
     it "should assign retrieve jobTimeout for index" do
       get :index
 
-      assigns[:server_configuration_form].jobTimeout.should == "42"
-      assigns[:server_configuration_form].timeoutType.should == com.thoughtworks.go.config.ServerConfig::OVERRIDE_TIMEOUT
+      expect(assigns[:server_configuration_form].jobTimeout).to eq("42")
+      expect(assigns[:server_configuration_form].timeoutType).to eq(com.thoughtworks.go.config.ServerConfig::OVERRIDE_TIMEOUT)
     end
 
     it "should assign configured command repository location" do
       get :index
 
-      assigns[:server_configuration_form].commandRepositoryLocation.should == "foo"
+      expect(assigns[:server_configuration_form].commandRepositoryLocation).to eq("foo")
     end
 
     it "should assign command repo base directory location" do
-      controller.stub(:system_environment).and_return(@system_environment = Object.new)
-      @system_environment.should_receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
+      allow(controller).to receive(:system_environment).and_return(@system_environment = Object.new)
+      expect(@system_environment).to receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
 
       get :index
 
-      assigns[:command_repository_base_dir_location].should == "foo/"
+      expect(assigns[:command_repository_base_dir_location]).to eq("foo/")
     end
 
     describe "with view" do
@@ -102,18 +102,18 @@ describe Admin::ServerController do
 
       before do
         user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("foo"))
-        controller.stub(:set_current_user) do
+        allow(controller).to receive(:set_current_user) do
           controller.instance_variable_set :@user, user
         end
-        controller.stub(:current_user).and_return(user)
-        controller.stub(:security_service).and_return(@security_service = Object.new)
-        @go_config_service.stub(:isSecurityEnabled).and_return(true)
-        @security_service.stub(:canViewAdminPage).with(user).and_return(true)
-        @security_service.stub(:isUserAdmin).with(user).and_return(true)
+        allow(controller).to receive(:current_user).and_return(user)
+        allow(controller).to receive(:security_service).and_return(@security_service = Object.new)
+        allow(@go_config_service).to receive(:isSecurityEnabled).and_return(true)
+        allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
+        allow(@security_service).to receive(:isUserAdmin).with(user).and_return(true)
       end
 
       it "should assign server config details in view" do
-        controller.stub(:cruise_config_md5).and_return('foo_bar_baz')
+        allow(controller).to receive(:cruise_config_md5).and_return('foo_bar_baz')
 
         get :index
 
@@ -124,12 +124,12 @@ describe Admin::ServerController do
 
   describe "update" do
     it "should resolve route to server config" do
-      {:post => "/admin/config/server/update"}.should route_to(:controller => "admin/server", :action => "update")
+      expect({:post => "/admin/config/server/update"}).to route_to(:controller => "admin/server", :action => "update")
     end
 
     it "should render success message returned by service while updating server config" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
-      @server_config_service.should_receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
+      expect(@server_config_service).to receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       end
 
@@ -139,7 +139,7 @@ describe Admin::ServerController do
     end
 
     it "should assign server config details" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(@mail_host, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_server_params, :cruise_config_md5 => "foo_bar_baz"
@@ -165,7 +165,7 @@ describe Admin::ServerController do
     end
 
     it "should skip validating mailHost params if all of them are empty" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),   "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting), :cruise_config_md5 => "foo_bar_baz"
@@ -174,7 +174,7 @@ describe Admin::ServerController do
     end
 
     it "should drop purge-values when purging turned off" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),   "newArtifactDir", nil, nil, nil, @should_allow_auto_login, nil, nil,nil,  localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never"), :cruise_config_md5 => "foo_bar_baz"
@@ -183,7 +183,7 @@ describe Admin::ServerController do
     end
 
     it "should send '0' for never terminate hung job" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),   "newArtifactDir", nil, nil, '0', @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never", :timeoutType => 'neverTimeout'), :cruise_config_md5 => "foo_bar_baz"
@@ -192,7 +192,7 @@ describe Admin::ServerController do
     end
 
     it "should send overridden jobTimeout for terminate hung job" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),   "newArtifactDir", nil, nil, '42', @should_allow_auto_login, nil, nil, nil,localized_success_message, "foo_bar_baz")
 
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never", :timeoutType => 'overrideTimeout', :jobTimeout => '42'), :cruise_config_md5 => "foo_bar_baz"
@@ -201,7 +201,7 @@ describe Admin::ServerController do
     end
 
     it "should update the server site url and secure site url" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new),   "newArtifactDir", nil, nil, nil, @should_allow_auto_login, "http://site_url", "https://secure_site_url", nil, localized_success_message, "foo_bar_baz")
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never", :siteUrl => "http://site_url", :secureSiteUrl => "https://secure_site_url"), :cruise_config_md5 => "foo_bar_baz"
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success')
@@ -209,7 +209,7 @@ describe Admin::ServerController do
 
     it "should render error message if there is an error reported by the service" do
       result = nil
-      @server_config_service.should_receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
+      expect(@server_config_service).to receive(:updateServerConfig) do |mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, null, operation_result|
         operation_result.notAcceptable(LocalizedMessage.string("INVALID_FROM_ADDRESS"))
         result = operation_result
       end
@@ -220,7 +220,7 @@ describe Admin::ServerController do
     end
 
     it "should update command repository location" do
-      @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
+      allow(@server_config_service).to receive(:siteUrlFor) { |url, forceSsl| url }
       stub_update_server_config(@mail_host,   "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, "value",localized_success_message, nil)
       post :update, :server_configuration_form => @valid_server_params.merge(:commandRepositoryLocation => "value")
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success')
@@ -228,19 +228,19 @@ describe Admin::ServerController do
 
     describe "during concurrent edit" do
       it "on validation failure, should set cruise_config_md5 to old-md5 sent in request instead of latest md5" do
-        @cruise_config.stub(:getMd5).and_return "new-md5"
+        allow(@cruise_config).to receive(:getMd5).and_return "new-md5"
 
         post :update, :server_configuration_form => @valid_server_params.merge(:port => "abcd"), :cruise_config_md5 => "old-md5"
 
-        assigns[:cruise_config_md5].should == "old-md5"
+        expect(assigns[:cruise_config_md5]).to eq("old-md5")
       end
     end
 
     def assert_index_rendered_with_error(msg)
       flash = session[:notice]
-      flash.to_s.should == msg
-      flash.flashClass().should == 'error'
-      assigns[:tab_name].should == "server_configuration"
+      expect(flash.to_s).to eq(msg)
+      expect(flash.flashClass()).to eq('error')
+      expect(assigns[:tab_name]).to eq("server_configuration")
     end
 
     def localized_success_message
@@ -248,17 +248,17 @@ describe Admin::ServerController do
     end
 
     def stub_update_server_config(mailhost, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, repo_location, localizable_message,md5)
-      @server_config_service.should_receive(:updateServerConfig) do |actual_mailhost, actual_artifact_dir, actual_purgeStart, actual_purgeEnd, actual_jobTimeout, actual_should_allow_auto_login, actual_siteUrl, actual_secureSiteUrl, actual_repo_location, actual_operation_result,actual_md5|
-        actual_mailhost.should == mailhost
-        actual_artifact_dir.should == artifact_dir
-        actual_purgeStart.should == purgeStart
-        actual_purgeEnd.should == purgeEnd
-        actual_jobTimeout.should == jobTimeout
-        actual_should_allow_auto_login.should == should_allow_auto_login
-        actual_siteUrl.should == siteUrl
-        actual_secureSiteUrl.should == secureSiteUrl
-        actual_repo_location.should == repo_location
-        actual_md5.should == md5
+      expect(@server_config_service).to receive(:updateServerConfig) do |actual_mailhost, actual_artifact_dir, actual_purgeStart, actual_purgeEnd, actual_jobTimeout, actual_should_allow_auto_login, actual_siteUrl, actual_secureSiteUrl, actual_repo_location, actual_operation_result,actual_md5|
+        expect(actual_mailhost).to eq(mailhost)
+        expect(actual_artifact_dir).to eq(artifact_dir)
+        expect(actual_purgeStart).to eq(purgeStart)
+        expect(actual_purgeEnd).to eq(purgeEnd)
+        expect(actual_jobTimeout).to eq(jobTimeout)
+        expect(actual_should_allow_auto_login).to eq(should_allow_auto_login)
+        expect(actual_siteUrl).to eq(siteUrl)
+        expect(actual_secureSiteUrl).to eq(secureSiteUrl)
+        expect(actual_repo_location).to eq(repo_location)
+        expect(actual_md5).to eq(md5)
         actual_operation_result.setMessage(localizable_message)
       end
     end
@@ -272,69 +272,69 @@ describe Admin::ServerController do
 
     it "should resolve /admin/config/server/validate" do
       expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      {:post => "/admin/config/server/validate"}.should route_to(:controller => "admin/server", :action => "validate")
+      expect({:post => "/admin/config/server/validate"}).to route_to(:controller => "admin/server", :action => "validate")
     end
 
     it "should validate email" do
       @default_localized_result.invalid("INVALID_EMAIL", ["@foo.com"].to_java(java.lang.String))
-      @server_config_service.should_receive(:validateEmail).with("@foo.com").and_return(@default_localized_result)
+      expect(@server_config_service).to receive(:validateEmail).with("@foo.com").and_return(@default_localized_result)
 
       get :validate, :email => "@foo.com"
 
-      assigns[:result].should == @default_localized_result
+      expect(assigns[:result]).to eq(@default_localized_result)
     end
 
     it "should validate port" do
       @default_localized_result.invalid("INVALID_PORT", ["-1"].to_java(java.lang.String))
-      @server_config_service.should_receive(:validatePort).with(-1).and_return(@default_localized_result)
+      expect(@server_config_service).to receive(:validatePort).with(-1).and_return(@default_localized_result)
 
       get :validate, :port => "-1"
 
-      assigns[:result].should == @default_localized_result
+      expect(assigns[:result]).to eq(@default_localized_result)
     end
 
     it "should validate hostname" do
-      @server_config_service.should_receive(:validateHostName).with("foo.com").and_return(@default_localized_result)
+      expect(@server_config_service).to receive(:validateHostName).with("foo.com").and_return(@default_localized_result)
 
       get :validate, :hostName => "foo.com"
 
-      assigns[:result].should == @default_localized_result
+      expect(assigns[:result]).to eq(@default_localized_result)
     end
 
     it "should return success if valid" do
-      @server_config_service.should_receive(:validatePort).with(-1).and_return(@default_localized_result)
+      expect(@server_config_service).to receive(:validatePort).with(-1).and_return(@default_localized_result)
       @default_localized_result.invalid("INVALID_PORT", [].to_java(java.lang.Object))
 
       get :validate, :port => "-1"
 
       json = JSON.parse(response.body)
-      json["error"].should == "Invalid port."
-      json["success"].should == nil
+      expect(json["error"]).to eq("Invalid port.")
+      expect(json["success"]).to eq(nil)
     end
 
     it "should return error if invalid" do
-      @server_config_service.should_receive(:validateHostName).with("foo.com").and_return(@default_localized_result)
+      expect(@server_config_service).to receive(:validateHostName).with("foo.com").and_return(@default_localized_result)
 
       get :validate, :hostName => "foo.com"
 
       json = JSON.parse(response.body)
-      json["error"].should == nil
-      json["success"].should == "Valid"
+      expect(json["error"]).to eq(nil)
+      expect(json["success"]).to eq("Valid")
     end
   end
 
   describe "test_email" do
 
     it "should resolve admin/config/server/test_email" do
-      {:post => "/admin/config/server/test_email"}.should route_to(:controller => "admin/server", :action => "test_email")
+      expect({:post => "/admin/config/server/test_email"}).to route_to(:controller => "admin/server", :action => "test_email")
     end
 
     it "should return error if sendTestEmail fails" do
-      controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
+      allow(controller).to receive(:server_config_service).and_return(@server_config_service = Object.new)
       mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       res = nil
-      @server_config_service.should_receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult)) do |mail_host, op_result|
+      expect(@server_config_service).to receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult)) do |mail_host, op_result|
         op_result.badRequest(LocalizedMessage.string('INVALID_PORT'))
         res = op_result
       end
@@ -342,28 +342,28 @@ describe Admin::ServerController do
       post :test_email, :server_configuration_form => @valid_mail_host_params
 
       json = JSON.parse(response.body)
-      json["error"].should == "Invalid port."
-      json["success"].should == nil
+      expect(json["error"]).to eq("Invalid port.")
+      expect(json["success"]).to eq(nil)
     end
 
     it "should validate port" do
       post :test_email, :server_configuration_form => @valid_mail_host_params.except(:port)
 
       json = JSON.parse(response.body)
-      json["error"].should == "Port is required."
-      json["success"].should == nil
+      expect(json["error"]).to eq("Port is required.")
+      expect(json["success"]).to eq(nil)
     end
 
     it "should send the test email by using the service" do
       mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
-      @server_config_service.should_receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult))
+      expect(@server_config_service).to receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult))
 
       post :test_email, :server_configuration_form => @valid_mail_host_params
 
       json = JSON.parse(response.body)
-      json["error"].should == nil
-      json["success"].should == "Sent test email successfully."
+      expect(json["error"]).to eq(nil)
+      expect(json["success"]).to eq("Sent test email successfully.")
     end
   end
 end

@@ -59,8 +59,8 @@ describe AdminController, "integration test" do
     end) do
       save_successful = true
     end
-    stage.name().should == CaseInsensitiveString.new("new-stage-name")
-    save_successful.should be_true
+    expect(stage.name()).to eq(CaseInsensitiveString.new("new-stage-name"))
+    expect(save_successful).to be_truthy
   end
 
 end

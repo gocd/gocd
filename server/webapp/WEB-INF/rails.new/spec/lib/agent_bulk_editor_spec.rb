@@ -25,7 +25,7 @@ describe "agent_bulk_editor" do
   end
 
   it "should enable selected agents" do
-    @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
+    expect(@agent_service).to receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Accepted")
     end
 
@@ -35,7 +35,7 @@ describe "agent_bulk_editor" do
   end
 
   it "should disable selected agents" do
-    @agent_service.should_receive(:disableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
+    expect(@agent_service).to receive(:disableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Accepted")
     end
 
@@ -45,7 +45,7 @@ describe "agent_bulk_editor" do
   end
 
   it "should delete selected agents" do
-    @agent_service.should_receive(:deleteAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
+    expect(@agent_service).to receive(:deleteAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Accepted")
     end
 
@@ -56,7 +56,7 @@ describe "agent_bulk_editor" do
 
   it "should add resources to selected agents" do
     selections = [TriStateSelection.new("new-resource", 'add')]
-    @agent_service.should_receive(:modifyResources).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
+    expect(@agent_service).to receive(:modifyResources).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
       result.ok("Accepted")
     end
 
@@ -67,7 +67,7 @@ describe "agent_bulk_editor" do
 
   it "should add multiple resources to selected agents" do
     selections = [TriStateSelection.new("new-resource", 'add'), TriStateSelection.new("old-resource", 'remove')]
-    @agent_service.should_receive(:modifyResources).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
+    expect(@agent_service).to receive(:modifyResources).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
       result.ok("Accepted")
     end
 
@@ -78,7 +78,7 @@ describe "agent_bulk_editor" do
 
   it "should add/remove agents from environments" do
     selections = [TriStateSelection.new("uat", 'add'), TriStateSelection.new("prod", 'remove')]
-    @agent_service.should_receive(:modifyEnvironments).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
+    expect(@agent_service).to receive(:modifyEnvironments).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
       result.ok("Accepted")
     end
 
@@ -88,7 +88,7 @@ describe "agent_bulk_editor" do
   end
 
   it "should show message if there is a problem" do
-    @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
+    expect(@agent_service).to receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.notAcceptable("Error message", HealthStateType.general(HealthStateScope::GLOBAL))
     end
 
@@ -98,7 +98,7 @@ describe "agent_bulk_editor" do
   end
 
   it "should show message for a successful bulk_edit" do
-    @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
+    expect(@agent_service).to receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Enabled 3 agent(s)")
     end
 

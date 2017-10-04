@@ -41,7 +41,7 @@ describe ApiV4::AgentsRepresenter do
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/agents')
     expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#agents')
     actual_json.delete(:_links)
-    actual_json.fetch(:_embedded).should == { :agents => [ApiV4::AgentRepresenter.new({agent: idle_agent, environments: %w(uat load_test), security_service: @security_service, current_user: @current_user}).to_hash(url_builder: UrlBuilder.new)] }
+    expect(actual_json.fetch(:_embedded)).to eq({ :agents => [ApiV4::AgentRepresenter.new({agent: idle_agent, environments: %w(uat load_test), security_service: @security_service, current_user: @current_user}).to_hash(url_builder: UrlBuilder.new)] })
   end
 
 end

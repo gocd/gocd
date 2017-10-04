@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::CommandSnippetsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     allow(controller).to receive(:command_repository_service).and_return(@command_repository_service = double('command_repository_service'))

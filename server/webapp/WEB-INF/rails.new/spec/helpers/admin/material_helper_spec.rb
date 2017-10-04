@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe Admin::MaterialHelper do
-  include Admin::MaterialHelper, RailsLocalizer
+  include Admin::MaterialHelper
+  include RailsLocalizer
 
   describe "material options in new pipeline wizard" do
     it "should populate options correctly" do

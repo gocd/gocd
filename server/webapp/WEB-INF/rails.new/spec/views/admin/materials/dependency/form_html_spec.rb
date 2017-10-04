@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "_form.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
 
   before(:each) do
     @material_config = DependencyMaterialConfig.new(CaseInsensitiveString.new("up-pipeline"), CaseInsensitiveString.new("up-stage"))

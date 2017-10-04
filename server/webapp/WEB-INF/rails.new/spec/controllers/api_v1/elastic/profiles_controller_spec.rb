@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Elastic::ProfilesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @elastic_profile_service = double('elastic_profile_service')

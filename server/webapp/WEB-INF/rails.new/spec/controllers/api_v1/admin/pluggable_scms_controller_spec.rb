@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PluggableScmsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @scm = SCM.new("1", PluginConfiguration.new("some-plugin", "1"),

@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::DashboardController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before do
     @user                  = Username.new(CaseInsensitiveString.new("foo"))

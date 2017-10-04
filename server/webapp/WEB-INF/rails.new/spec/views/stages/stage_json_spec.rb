@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe 'stages/stage.json.erb' do
-  include StageModelMother, PipelineModelMother
+  include StageModelMother
+  include PipelineModelMother
 
   before do
     allow(view).to receive(:is_user_an_admin?).and_return(true)

@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::BackupsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @backup_service = double('backup service')

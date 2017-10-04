@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "admin/plugins/plugins/settings.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
 
   SETTINGS_PLUGIN_ID = 'my.scm.plugin'
   SETTINGS_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"

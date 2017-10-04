@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe FailuresHelper do
-  include FailuresHelper, RailsLocalizer
+  include FailuresHelper
+  include RailsLocalizer
 
   describe :fbh_details_link do
     it "should ensure uniqueness" do

@@ -17,7 +17,10 @@
 require 'spec_helper'
 
 describe Admin::TasksController do
-  include MockRegistryModule, TaskMother, ReflectiveUtil, ConfigSaveStubbing
+  include MockRegistryModule
+  include TaskMother
+  include ReflectiveUtil
+  include ConfigSaveStubbing
 
   describe "increment" do
 

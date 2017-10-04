@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "_form.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
 
   before(:each) do
     @material_config = P4MaterialConfig.new("p4:5000", "through_window", "loser")

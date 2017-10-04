@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV4::Admin::TemplatesController do
-  include ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV4::ApiVersionHelper
 
   before :each do
     @template = PipelineTemplateConfig.new(CaseInsensitiveString.new('some-template'), StageConfig.new(CaseInsensitiveString.new('stage'), JobConfigs.new(JobConfig.new(CaseInsensitiveString.new('job')))))

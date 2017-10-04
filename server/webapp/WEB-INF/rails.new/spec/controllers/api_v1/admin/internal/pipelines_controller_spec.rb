@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::PipelinesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before(:each) do
     @pipeline_config_service = double('pipeline_config_service')

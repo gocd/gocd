@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV2::Admin::PluginInfosController do
-  include ApiHeaderSetupTeardown, ApiV2::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV2::ApiVersionHelper
 
   before(:each) do
     @plugin_service = double('plugin_service')

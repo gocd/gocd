@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe "admin/package_repositories/new.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+  include FormUI
+  include ReflectiveUtil
   include Admin::ConfigContextHelper
   include MockRegistryModule
 

@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe "_form.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+  include FormUI
+  include ReflectiveUtil
 
   before(:each) do
     @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")

@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV3::Admin::PluginInfosController do
-  include ApiHeaderSetupTeardown, ApiV3::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV3::ApiVersionHelper
 
   before(:each) do
     @default_plugin_info_finder = double('default_plugin_info_finder')

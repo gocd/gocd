@@ -18,7 +18,9 @@ require 'spec_helper'
 
 
 describe "admin/tasks/nant/new.html.erb" do
-  include GoUtil, TaskMother, FormUI
+  include GoUtil
+  include TaskMother
+  include FormUI
   include Admin::TaskHelper
 
   before :each do

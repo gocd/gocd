@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe "comparison/show.html.erb" do
-  include GoUtil, ReflectiveUtil, PipelineModelMother
+  include GoUtil
+  include ReflectiveUtil
+  include PipelineModelMother
 
   before :each do
     dependency_material_revision = ModificationsMother.changedDependencyMaterialRevision("up_pipeline", 10, "label-10", "up_stage", 5, Time.now)

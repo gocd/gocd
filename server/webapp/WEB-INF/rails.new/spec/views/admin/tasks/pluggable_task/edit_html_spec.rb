@@ -18,7 +18,9 @@ require 'spec_helper'
 
 # This tests "admin/tasks/pluggable_task/edit.html.erb" through the plugin task template.
 describe "admin/tasks/plugin/edit.html.erb" do
-  include GoUtil, TaskMother, FormUI
+  include GoUtil
+  include TaskMother
+  include FormUI
 
   TASK_PLUGIN_ID = "my.curl.plugin"
   TASK_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"

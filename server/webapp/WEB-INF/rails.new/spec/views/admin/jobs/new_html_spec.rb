@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe "admin/jobs/new.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+  include FormUI
   include Admin::AdminHelper
   include Admin::ConfigContextHelper
   include MockRegistryModule

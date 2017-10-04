@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PluginSettingsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @plugin_settings = PluginSettings.new("plugin.id.1")

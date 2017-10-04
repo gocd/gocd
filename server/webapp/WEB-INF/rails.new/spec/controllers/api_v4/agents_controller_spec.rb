@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe ApiV4::AgentsController do
-  include AgentInstanceFactory, ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
+  include AgentInstanceFactory
+  include ApiHeaderSetupTeardown
+  include ApiV4::ApiVersionHelper
 
   before do
     allow(controller).to receive(:agent_service).and_return(@agent_service = double('agent-service'))

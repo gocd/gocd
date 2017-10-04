@@ -17,7 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PackagesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+  include ApiV1::ApiVersionHelper
 
   before :each do
     @package_id = SecureRandom.hex

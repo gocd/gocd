@@ -17,7 +17,9 @@
 require 'spec_helper'
 
 describe "admin/tasks/index.html.erb" do
-  include GoUtil, TaskMother, FormUI
+  include GoUtil
+  include TaskMother
+  include FormUI
 
   before(:each) do
     @pipeline = PipelineConfigMother.createPipelineConfig("pipeline.name", "stage.name", ["job.1", "job.2", "job.3"].to_java(java.lang.String))
@@ -182,7 +184,9 @@ describe "admin/tasks/index.html.erb" do
   end
 
   describe "with plugin tasks" do
-    include GoUtil, TaskMother, FormUI
+    include GoUtil
+    include TaskMother
+    include FormUI
 
     describe "show tasks" do
       before(:each) do

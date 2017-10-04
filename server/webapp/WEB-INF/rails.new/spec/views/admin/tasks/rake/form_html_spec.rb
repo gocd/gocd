@@ -18,7 +18,9 @@ require 'spec_helper'
 
 
 describe "admin/tasks/rake/new.html.erb" do
-  include GoUtil, TaskMother, FormUI
+  include GoUtil
+  include TaskMother
+  include FormUI
 
   before :each do
     assign(:cruise_config, config = BasicCruiseConfig.new)

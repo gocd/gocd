@@ -151,11 +151,12 @@ describe Admin::UsersController do
 
   describe "search" do
     before do
-      @user_search_service = Object.new
-      @result = HttpLocalizedOperationResult.new
+      @user_search_service = double('user_search_service')
+      @result = double(HttpLocalizedOperationResult)
 
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       allow(controller).to receive(:user_search_service).and_return(@user_search_service)
+      allow(@result).to receive(:hasMessage).with(no_args).and_return(false)
     end
 
     it "should match /users/search to" do
@@ -196,7 +197,8 @@ describe Admin::UsersController do
     end
 
     it "should warn user if search results in warnings and show the results" do
-      @result.conflict(LocalizedMessage.string("LDAP_ERROR"))
+      allow(@result).to receive(:hasMessage).with(no_args).and_return(true)
+      allow(@result).to receive(:message).with(any_args).and_return("some ldap error")
 
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
       allow(controller).to receive(:current_user).and_return(current_user_name)
@@ -210,7 +212,7 @@ describe Admin::UsersController do
       post :search, :no_layout => true, :search_text => search_text
 
       expect(assigns[:users]).to eq(user_search_models)
-      assigns[:warning_message] = "Ldap search failed, please contact the administrator."
+      expect(assigns[:warning_message]).to eq("some ldap error")
     end
   end
 
@@ -228,7 +230,7 @@ describe Admin::UsersController do
 
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.com"), UserSourceType::PLUGIN),
                             UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PLUGIN)]
-      result = Object.new
+      result = double(HttpLocalizedOperationResult)
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       expect(user_service).to receive(:create).with(user_search_models, result)
       expect(user_service).to receive(:allUsersForDisplay).with(UserService::SortableColumn::USERNAME, UserService::SortDirection::ASC).and_return(['foo', 'Bar'])
@@ -242,10 +244,10 @@ describe Admin::UsersController do
     end
 
     it "should handle no user selections" do
-      user_service = Object.new
+      user_service = double('user_service')
       allow(controller).to receive(:user_service).and_return(user_service)
 
-      result = Object.new
+      result = double(HttpLocalizedOperationResult)
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       expect(result).to receive(:isSuccessful).and_return(false)
 
@@ -261,12 +263,12 @@ describe Admin::UsersController do
     end
 
     it "should render error message when user is not created" do
-      user_service = Object.new
+      user_service = double('user_service')
       allow(controller).to receive(:user_service).and_return(user_service)
 
       params_selections = []
       user_search_models = []
-      result = Object.new
+      result = double(HttpLocalizedOperationResult)
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
 
       expect(user_service).to receive(:create).with(user_search_models, result)

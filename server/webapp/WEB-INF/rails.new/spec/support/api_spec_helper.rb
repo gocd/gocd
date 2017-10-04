@@ -299,8 +299,9 @@ RSpec::Matchers.define :have_links do |*link_names|
   end
 
   match do |hal_json|
-    @matcher = RSpec::Matchers::BuiltIn::MatchArray.new(link_names.collect(&:to_sym))
-    @matcher.matches?((hal_json[:_links] || {}).keys.collect(&:to_sym))
+    expect((hal_json[:_links] || {}).keys.collect(&:to_sym)).to match_array(link_names.collect(&:to_sym))
+    # @matcher = RSpec::Matchers::BuiltIn::MatchArray.new(link_names.collect(&:to_sym))
+    # @matcher.matches?((hal_json[:_links] || {}).keys.collect(&:to_sym))
   end
 end
 

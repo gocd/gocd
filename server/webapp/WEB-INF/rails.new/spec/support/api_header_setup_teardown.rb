@@ -14,6 +14,8 @@
 # limitations under the License.
 ##########################################################################
 
+$rack_default_headers = Rack::MockRequest::DEFAULT_ENV.dup
+
 module ApiHeaderSetupTeardown
 
   def setup_header
@@ -24,7 +26,6 @@ module ApiHeaderSetupTeardown
   def teardown_header
     Rack::MockRequest::DEFAULT_ENV.replace($rack_default_headers.dup)
   end
-
 
   def self.included(klass)
     klass.class_eval do
@@ -37,10 +38,3 @@ module ApiHeaderSetupTeardown
     end
   end
 end
-
-# before :each do
-#   Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-# end
-# after :each do
-#   Rack::MockRequest::DEFAULT_ENV = {}
-# end

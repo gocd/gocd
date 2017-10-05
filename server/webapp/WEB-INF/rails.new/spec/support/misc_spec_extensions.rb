@@ -43,4 +43,20 @@ module MiscSpecExtensions
     allow(com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult).to receive(:new).and_return(result)
     result
   end
+
+  def uuid_pattern
+    hex = "[a-f0-9]"
+    "#{hex}{8}-#{hex}{4}-#{hex}{4}-#{hex}{4}-#{hex}{12}"
+  end
+
+  def with_caching(perform_caching)
+    old_perform_caching = ActionController::Base.perform_caching
+    begin
+      ActionController::Base.perform_caching = perform_caching
+      yield
+    ensure
+      ActionController::Base.perform_caching = old_perform_caching
+    end
+  end
+
 end

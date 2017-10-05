@@ -120,7 +120,6 @@ GEM
     rspec-expectations (3.6.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.6.0)
-    rspec-extra-formatters (1.0.0)
     rspec-mocks (3.6.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.6.0)
@@ -133,6 +132,8 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
+    rspec_junit_formatter (0.3.0)
+      rspec-core (>= 2, < 4, != 2.12.0)
     ruby-debug-base (0.10.6-java)
     ruby-debug-ide (0.6.0)
       rake (>= 0.8.1)
@@ -201,8 +202,8 @@ DEPENDENCIES
   rails (= 4.0.4)
   rails-dev-tweaks (~> 1.1)
   roar
-  rspec-extra-formatters
   rspec-rails (= 3.6.0)
+  rspec_junit_formatter
   ruby-debug-base
   ruby-debug-ide
   sass-rails

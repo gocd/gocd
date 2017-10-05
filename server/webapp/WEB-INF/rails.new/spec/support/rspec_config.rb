@@ -5,7 +5,7 @@ RSpec.configure do |config|
   config.default_formatter = "doc"
 
   config.add_formatter :documentation
-  # config.formatter :documentation
+  config.add_formatter RspecJunitFormatter, File.join(ENV['REPORTS_DIR'] || Rails.root.join('tmp/reports'), 'spec_full_report.xml')
   config.include ApiSpecHelper
   config.include MiscSpecExtensions
 

@@ -1139,6 +1139,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public boolean isPipelineUnlockableWhenFinished(String pipelineName) {
+        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isPipelineUnlockableWhenFinished();
+    }
+
+    @Override
     public Set<Resource> getAllResources() {
         final HashSet<Resource> resources = new HashSet<>();
         accept(new JobConfigVisitor() {

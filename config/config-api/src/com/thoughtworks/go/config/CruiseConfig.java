@@ -176,6 +176,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     Boolean isPipelineLockable(String pipelineName);
 
+    boolean isPipelineUnlockableWhenFinished(String pipelineName);
+
     Set<Resource> getAllResources();
 
     TemplatesConfig getTemplates();

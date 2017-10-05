@@ -76,6 +76,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -731,7 +734,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToExplicitlyLockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" lockBehavior=\"lockOnFailure\">\n"
+                "<pipeline name=\"pipeline\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\">\n"
                         + "  <materials>\n"
                         + "    <hg url=\"/hgrepo\"/>\n"
                         + "  </materials>\n"
@@ -754,7 +757,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToExplicitlyUnlockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" lockBehavior=\"none\">\n"
+                "<pipeline name=\"pipeline\" lockBehavior=\"" + PipelineConfig.LOCK_VALUE_NONE + "\">\n"
                         + "  <materials>\n"
                         + "    <hg url=\"/hgrepo\"/>\n"
                         + "  </materials>\n"
@@ -3814,9 +3817,9 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowOnlyThreeValuesForLockBehavior() throws Exception {
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p1\" lockBehavior=\"lockOnFailure\"", CONFIG_SCHEMA_VERSION));
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p2\" lockBehavior=\"unlockWhenFinished\"", CONFIG_SCHEMA_VERSION));
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p3\" lockBehavior=\"none\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p1\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p2\" lockBehavior=\"" + LOCK_VALUE_UNLOCK_WHEN_FINISHED + "\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p3\" lockBehavior=\"" + LOCK_VALUE_NONE + "\"", CONFIG_SCHEMA_VERSION));
         xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"pipelineWithNoLockBehaviorDefined\"", CONFIG_SCHEMA_VERSION));
 
         assertXsdFailureDuringLoad(pipelineWithAttributes("name=\"pipelineWithWrongLockBehavior\" lockBehavior=\"some-random-value\"", CONFIG_SCHEMA_VERSION),

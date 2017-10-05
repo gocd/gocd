@@ -76,7 +76,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     private static final Pattern LABEL_TEMPLATE_FORMAT_REGEX = Pattern.compile(String.format("^(%s)$", LABEL_TEMPLATE_FORMAT));
     public static final Pattern LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN = Pattern.compile(LABEL_TEMPLATE_ZERO_TRUNC_BLOCK);
     public static final String TEMPLATE_NAME = "templateName";
+
     public static final String LOCK = "lock";
+    public static final String LOCK_VALUE_LOCK_ON_FAILURE = "lockOnFailure";
+    public static final String LOCK_VALUE_UNLOCK_WHEN_FINISHED = "unlockWhenFinished";
+    public static final String LOCK_VALUE_NONE = "none";
+
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
     public static final String CONFIGURATION_TYPE_TEMPLATE = "configurationType_template";
@@ -534,11 +539,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void lockExplicitly() {
-        this.lock = Boolean.TRUE.toString();
+        this.lock = LOCK_VALUE_LOCK_ON_FAILURE;
     }
 
     public void unlockExplicitly() {
-        lock = Boolean.FALSE.toString();
+        lock = LOCK_VALUE_NONE;
     }
 
     public boolean hasExplicitLock() {
@@ -554,9 +559,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean isLockable() {
-        return Boolean.parseBoolean(lock);
+        return LOCK_VALUE_LOCK_ON_FAILURE.equals(lock) || isPipelineUnlockableWhenFinished();
     }
 
+    public boolean isPipelineUnlockableWhenFinished() {
+        return LOCK_VALUE_UNLOCK_WHEN_FINISHED.equals(lock);
+    }
 
     public void setVariables(EnvironmentVariablesConfig variables) {
         this.variables = variables;
@@ -717,7 +725,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             timer = TimerConfig.createTimer(attributeMap.get(TIMER_CONFIG));
         }
         if (attributeMap.containsKey(LOCK)) {
-            lock = "1".equals(attributeMap.get(LOCK)) ? "true" : "false";
+            lock = "1".equals(attributeMap.get(LOCK)) ? LOCK_VALUE_LOCK_ON_FAILURE : LOCK_VALUE_NONE;
         }
         if (attributeMap.containsKey(INTEGRATION_TYPE)) {
             setIntegrationType(attributeMap);

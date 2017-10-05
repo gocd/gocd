@@ -16,7 +16,7 @@
 
 require 'rails_helper'
 
-load File.expand_path(File.dirname(__FILE__) + '/../auto_refresh_examples.rb')
+require_relative '../auto_refresh_examples'
 
 describe 'environments/index.html.erb' do
   before do
@@ -27,7 +27,6 @@ describe 'environments/index.html.erb' do
   it "should render partial 'environment' for each environment" do
     assign(:environments, [@foo, @bar])
     assign(:show_add_environments, true)
-    allow(view).to receive(:environments_allowed?).and_return(true)
 
     stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
 
@@ -39,7 +38,6 @@ describe 'environments/index.html.erb' do
 
   it "should display 'no environments configured' message with link to configuration when there are no environments and using enterprise license" do
     assign(:environments, [])
-    allow(view).to receive(:environments_allowed?).and_return(true)
 
     render
 
@@ -52,7 +50,6 @@ describe 'environments/index.html.erb' do
       @ajax_refresher = /DashboardAjaxRefresher/
       assign(:environments, [@foo, @bar])
       assign(:show_add_environments, true)
-      allow(view).to receive(:environments_allowed?).and_return(true)
 
       stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
     end

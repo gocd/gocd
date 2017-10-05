@@ -18,6 +18,8 @@ require 'rails_helper'
 
 describe Admin::BackupController do
 
+  include ExtraSpecAssertions
+
   before :each do
     allow(controller).to receive(:backup_service).and_return(@backup_service = double('backup_server'))
   end

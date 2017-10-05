@@ -18,6 +18,7 @@ require 'rails_helper'
 
 describe "/api/feeds/index" do
   before(:each) do
+    view.extend Api::PipelinesHelper
     allow(view).to receive(:page_url).and_return("http://test.host/pipelines/pipeline-name/1/stage-name/1")
   end
 

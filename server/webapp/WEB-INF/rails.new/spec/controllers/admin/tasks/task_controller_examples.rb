@@ -14,15 +14,10 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-
-def vm_template_for task
-  return vm_for task unless (task.instance_of? PluggableTask)
-  PluggableTaskViewModelFactory.new().viewModelFor(task, "edit")
-end
-
 shared_examples_for :task_controller  do
   include ConfigSaveStubbing
   include TaskMother
+  include MiscSpecExtensions
 
   describe "routes" do
     describe "index" do
@@ -121,7 +116,6 @@ shared_examples_for :task_controller  do
 
     end
   end
-
   describe "action implementation" do
     before(:each) do
       allow(controller).to receive(:populate_config_validity)
@@ -228,8 +222,8 @@ shared_examples_for :task_controller  do
 
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
-          @cruise_config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
+          config.errors().add("base", "someError")
         end
         task_view_service = stub_service(:task_view_service)
         expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
@@ -298,9 +292,10 @@ shared_examples_for :task_controller  do
 
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
-          @cruise_config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
+          config.errors().add("base", "someError")
         end
+
         expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
         expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
@@ -317,5 +312,10 @@ shared_examples_for :task_controller  do
         expect(response.status).to eq(400)
       end
     end
+  end
+
+  def vm_template_for task
+    return vm_for task unless (task.instance_of? PluggableTask)
+    PluggableTaskViewModelFactory.new().viewModelFor(task, "edit")
   end
 end

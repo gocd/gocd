@@ -73,13 +73,14 @@ describe Admin::MaterialsController do
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
       allow(controller).to receive(:current_user).and_return(@user)
-      @result = stub_localized_result
+
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should delete an existing material" do
+      stub_localized_result
       stub_save_for_success
 
       @pipeline.addMaterialConfig(hg = HgMaterialConfig.new("url", nil))
@@ -93,6 +94,7 @@ describe Admin::MaterialsController do
     end
 
     it "should assign config_errors for display when delete fails due to validation errors" do
+      stub_localized_result
       stub_save_for_validation_error do |result, config, node|
         config.errors().add("base", "someError")
         result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))

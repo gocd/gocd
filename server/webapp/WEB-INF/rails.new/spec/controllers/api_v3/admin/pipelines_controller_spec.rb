@@ -39,9 +39,9 @@ describe ApiV3::Admin::PipelinesController do
     allow(@go_config_service).to receive(:getCurrentConfig).and_return(go_config)
     allow(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity::valid())
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(@group)
-    @pipeline_groups = com.thoughtworks.go.domain.PipelineGroups.new
+    @pipeline_groups = double(com.thoughtworks.go.domain.PipelineGroups)
     allow(@go_config_service).to receive(:groups).and_return(@pipeline_groups)
-    allow(@pipeline_groups).to receive(:hasGroup).and_return(true)
+    allow(@pipeline_groups).to receive(:hasGroup).with(any_args).and_return(true)
     allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@pipeline_md5)
     @latest_etag = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
   end

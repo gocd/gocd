@@ -123,10 +123,10 @@ RSpec::Matchers.define :have_api_message_response do |expected_status, expected_
 
   failure_message do |response|
     unless @status_matched
-      @message = @status_matcher.failure_message_for_should
+      @message = @status_matcher.failure_message
     end
     unless @message_matched
-      @message = @message_matcher.failure_message_for_should
+      @message = @message_matcher.failure_message
     end
     @message
   end

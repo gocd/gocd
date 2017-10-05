@@ -19,9 +19,9 @@ require 'rails_helper'
 describe AgentAutocompleteController do
 
   before :each do
-    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
-    allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = Object.new)
-    allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = double("go_config_service"))
+    allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double("environment_config_service"))
+    allow(controller).to receive(:agent_service).and_return(@agent_service = double("agent_service"))
   end
 
   describe "routes" do

@@ -16,23 +16,20 @@
 
 require 'rails_helper'
 
-def schedule_options(specified_revisions, variables, secure_variables = {})
-  ScheduleOptions.new(HashMap.new(specified_revisions), LinkedHashMap.new(variables), HashMap.new(secure_variables))
-end
-
 describe Api::PipelinesController do
   include StageModelMother
   include GoUtil
   include APIModelMother
 
   before :each do
-    @pipeline_service = Object.new
+    @pipeline_service = double('pipeline_service')
     @pipeline_history_service = double('pipeline_history_service')
     @pipeline_unlock_api_service = double('pipeline_unlock_api_service')
     @go_config_service = double('go_config_service')
     @changeset_service = double("changeset_service")
     @pipeline_pause_service = double("pipeline_pause_service")
-    @status="status"
+    @status = double()
+    allow(HttpOperationResult).to receive(:new).and_return(@status)
     allow(controller).to receive(:changeset_service).and_return(@changeset_service)
     allow(controller).to receive(:pipeline_scheduler).and_return(@pipeline_service)
     allow(controller).to receive(:pipeline_unlock_api_service).and_return(@pipeline_unlock_api_service)
@@ -47,6 +44,8 @@ describe Api::PipelinesController do
     allow(@material_config).to receive(:getPipelineUniqueFingerprint).and_return(@fingerprint)
     allow(controller).to receive(:populate_config_validity)
     setup_base_urls
+    allow(@status).to receive(:canContinue).and_return(true)
+    allow(@status).to receive(:httpCode).and_return(200)
   end
 
   it "should return only the path to a pipeline api" do
@@ -67,12 +66,14 @@ describe Api::PipelinesController do
     end
 
     it "should render error correctly" do
+      expect(@status).to receive(:canContinue).and_return(false)
+      expect(@status).to receive(:detailedMessage).and_return("Not Acceptable")
+      expect(@status).to receive(:httpCode).and_return(406)
+
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@pipeline_history_service).to receive(:totalCount).and_return(10)
-      expect(@pipeline_history_service).to receive(:loadMinimalData).with('up42', anything, loser, anything) do |pipeline_name, pagination, username, result|
-        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
-      end
+      expect(@pipeline_history_service).to receive(:loadMinimalData).with('up42', anything, loser, @status)
 
       get :history, :pipeline_name => 'up42', :no_layout => true
 
@@ -128,12 +129,12 @@ describe Api::PipelinesController do
     end
 
     it "should render error correctly" do
+      expect(@status).to receive(:canContinue).and_return(false)
+      expect(@status).to receive(:detailedMessage).and_return("Not Acceptable")
+      expect(@status).to receive(:httpCode).and_return(406)
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
-      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('up42', 1, loser, anything) do |pipeline_name, pipeline_counter, username, result|
-        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
-      end
-
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('up42', 1, loser, @status)
       get :instance_by_counter, :pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true
 
       expect(response.status).to eq(406)
@@ -188,11 +189,12 @@ describe Api::PipelinesController do
     end
 
     it "should render error correctly" do
+      expect(@status).to receive(:canContinue).and_return(false)
+      expect(@status).to receive(:detailedMessage).and_return("Not Acceptable")
+      expect(@status).to receive(:httpCode).and_return(406)
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
-      expect(@pipeline_history_service).to receive(:getPipelineStatus).with('up42', "loser", anything) do |pipeline_name, username, result|
-        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
-      end
+      expect(@pipeline_history_service).to receive(:getPipelineStatus).with('up42', "loser", @status)
 
       get :status, :pipeline_name => 'up42', :no_layout => true
 
@@ -391,17 +393,19 @@ describe Api::PipelinesController do
     end
 
     it "should respond with 404 when pipeline not found" do
-      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil) do |id, user, result|
-        result.notFound("Not Found", "", nil)
-      end
+      expect(@status).to receive(:canContinue).and_return(false)
+      expect(@status).to receive(:detailedMessage).and_return("Not Found")
+      allow(@status).to receive(:httpCode).and_return(404)
+      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil)
       get :pipeline_instance, :id => '10', :name => "pipeline", :format => "xml", :no_layout => true
       expect(response.status).to eq(404)
     end
 
     it "should respond with 401 when user does not have view permission" do
-      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil) do |id, user, result|
-        result.unauthorized("Unauthorized", "", nil)
-      end
+      expect(@status).to receive(:canContinue).and_return(false)
+      expect(@status).to receive(:detailedMessage).and_return("Unauthorized")
+      allow(@status).to receive(:httpCode).and_return(401)
+      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(nil)
       get :pipeline_instance, :id => '10', :format => "xml", :name => "pipeline", :no_layout => true
       expect(response.status).to eq(401)
     end
@@ -458,7 +462,6 @@ describe Api::PipelinesController do
   describe "stage_feed" do
     before :each do
       controller.go_cache.clear
-      allow(controller).to receive(:set_locale)
     end
 
     it "should return the url to the feed" do
@@ -521,10 +524,13 @@ describe Api::PipelinesController do
     end
 
     it "should render the error if there is any" do
-      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed) do |a, b, c, d|
-        c.notFound(LocalizedMessage.string('Screwed'), HealthStateType.invalidConfig())
-      end
-      expect(controller).to receive(:render_localized_operation_result).with(an_instance_of(HttpLocalizedOperationResult))
+      http_localized_operation_result = double(HttpLocalizedOperationResult)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(http_localized_operation_result)
+
+      allow(http_localized_operation_result).to receive(:message).and_return("Screwed")
+      allow(http_localized_operation_result).to receive(:isSuccessful).and_return(false)
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), http_localized_operation_result, have_key(:controller)).and_return(:stage_feed)
+      expect(controller).to receive(:render_localized_operation_result).with(http_localized_operation_result)
       expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('does_not_exist')).and_return(true)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'does_not_exist'
     end
@@ -562,12 +568,12 @@ describe Api::PipelinesController do
 
   describe "releaseLock" do
     it "should call service and render operation result" do
-      expect(@pipeline_unlock_api_service).to receive(:unlock).with('pipeline-name', @user, anything) do |name, user, operation_result|
-        operation_result.notAcceptable("done", HealthStateType.general(HealthStateScope::GLOBAL))
-      end
+      expect(@status).to receive(:detailedMessage).and_return("done")
+      expect(@status).to receive(:httpCode).and_return(406)
+      expect(@pipeline_unlock_api_service).to receive(:unlock).with('pipeline-name', @user, @status)
 
       fake_template_presence 'api/pipelines/releaseLock.erb', 'dummy'
-      expect(controller).to receive(:render_if_error).with("done\n", 406).and_return(true)
+      expect(controller).to receive(:render_if_error).with("done", 406).and_return(true)
 
       post :releaseLock, :pipeline_name => 'pipeline-name', :no_layout => true
     end
@@ -714,4 +720,9 @@ describe Api::PipelinesController do
       end
     end
   end
+
+  def schedule_options(specified_revisions, variables, secure_variables = {})
+    ScheduleOptions.new(HashMap.new(specified_revisions), LinkedHashMap.new(variables), HashMap.new(secure_variables))
+  end
+
 end

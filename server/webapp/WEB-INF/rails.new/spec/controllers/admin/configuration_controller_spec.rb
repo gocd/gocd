@@ -17,6 +17,7 @@
 require 'rails_helper'
 
 describe Admin::ConfigurationController do
+  include ExtraSpecAssertions
 
   before(:each) do
     @admin_service = double("admin_service")

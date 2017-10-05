@@ -19,18 +19,21 @@ require 'rails_helper'
 describe ::ConfigUpdate::JobsNode do
   include ::ConfigUpdate::JobsNode
 
+  def params
+    @params ||= {}
+  end
+
   before(:each) do
-    allow(self).to receive(:params).and_return(@params = {})
     @cruise_config = BasicCruiseConfig.new
     @cruise_config.addPipeline("go-group", pipeline = PipelineConfigMother.createPipelineConfig("pipeline", "stage", ["foo", "bar", "baz"].to_java(java.lang.String)))
     @jobs = pipeline.getStage(CaseInsensitiveString.new("stage")).getJobs()
   end
 
   it "should load job from jobs collection" do
-    @params[:stage_parent] = "pipelines"
-    @params[:pipeline_name] = "pipeline"
-    @params[:stage_name] = "stage"
-    @params[:job_name] = "bar"
+    params[:stage_parent] = "pipelines"
+    params[:pipeline_name] = "pipeline"
+    params[:stage_name] = "stage"
+    params[:job_name] = "bar"
     expect(node(@cruise_config)).to eq(@jobs)
   end
 end

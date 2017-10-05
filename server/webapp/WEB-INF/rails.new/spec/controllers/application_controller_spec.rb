@@ -307,6 +307,9 @@ describe ApplicationController do
 
       it "should cache the url if options is an active-record object" do
         obj = TestObject.new
+        def controller.test_object_url(*args)
+          raise 'should not invoke this, because it is stubbed!'
+        end
         expect(controller).to receive(:test_object_url).with(obj).and_return("some-url")
         expect(controller.url_for(obj)).to eq("some-url")
       end

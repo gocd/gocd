@@ -20,10 +20,9 @@ require 'rails_helper'
 describe AgentDetailsController do
 
   before do
-    allow(controller).to receive(:set_locale)
     allow(controller).to receive(:populate_config_validity)
-    allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
-    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = Object.new)
+    allow(controller).to receive(:agent_service).and_return(@agent_service = instance_double('com.thoughtworks.go.server.service.AgentService'))
+    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = instance_double('com.thoughtworks.go.server.service.JobInstanceService'))
   end
 
   describe "routes" do

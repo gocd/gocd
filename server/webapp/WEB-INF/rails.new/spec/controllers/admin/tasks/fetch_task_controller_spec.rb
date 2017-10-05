@@ -15,8 +15,8 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'task_controller_examples.rb')
-load File.join(File.dirname(__FILE__), 'fetch_task_controller_example.rb')
+require_relative 'task_controller_examples'
+require_relative 'fetch_task_controller_example'
 
 describe Admin::TasksController, "fetch task" do
   include TaskMother

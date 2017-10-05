@@ -31,16 +31,16 @@ module MiscSpecExtensions
     controller.prepend_view_path(ActionView::FixtureResolver.new(file_path => content))
   end
 
-  def stub_service(service_getter)
+  def stub_service(service_getter, thing=controller)
     service = double(service_getter.to_s.camelize)
-    allow(controller).to receive(service_getter).and_return(service)
+    allow(thing).to receive(service_getter).and_return(service)
     ServiceCacheStrategy.instance.replace_service(service_getter.to_s, service)
     service
   end
 
   def stub_localized_result
-    result = com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.new
-    allow(com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult).to receive(:new).and_return(result)
+    result = HttpLocalizedOperationResult.new
+    allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
     result
   end
 

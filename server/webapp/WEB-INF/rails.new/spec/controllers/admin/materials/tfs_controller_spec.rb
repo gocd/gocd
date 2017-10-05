@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
+require_relative 'material_controller_examples'
 
 describe Admin::Materials::TfsController do
 

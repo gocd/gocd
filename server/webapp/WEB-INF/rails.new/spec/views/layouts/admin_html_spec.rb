@@ -15,15 +15,16 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
+require_relative 'layout_html_examples'
 
 describe "/layouts/admin" do
   include EngineUrlHelper
+  it_should_behave_like :layout
 
   before do
     @layout_name = 'layouts/admin'
     @admin_url = "/admin/pipelines"
-    @user = User.new('anonymous')
+    @user = Username::ANONYMOUS
     assign(:user, @user)
     assign(:error_count, 0)
     assign(:warning_count, 0)
@@ -47,8 +48,6 @@ describe "/layouts/admin" do
     stub_routes_for_main_app main_app
     allow(view).to receive(:main_app).and_return(main_app)
   end
-
-  it_should_behave_like :layout
 
   it "should display only pipeline configurations and pipeline groups tab when the user is a group admin" do
     allow(view).to receive(:is_user_an_admin?).and_return(false)

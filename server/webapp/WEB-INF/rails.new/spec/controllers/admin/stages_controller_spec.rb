@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'stages_controller_examples.rb')
+require_relative 'stages_controller_examples'
 
 describe Admin::StagesController do
   include MockRegistryModule
@@ -372,7 +372,7 @@ describe Admin::StagesController do
       end
 
       it "should load stage, pipeline_group, autocomplete_users and autocomplete_roles" do
-        allow(controller).to receive(:user_service).and_return(user_service = Object.new)
+        allow(controller).to receive(:user_service).and_return(user_service = instance_double('com.thoughtworks.go.server.service.UserService'))
 
         expect(user_service).to receive(:rolesThatCanOperateOnStage).and_return(["role1", "role2", "role3"])
         expect(user_service).to receive(:usersThatCanOperateOnStage).and_return(["user1", "user2", "user3"])
@@ -399,7 +399,7 @@ describe Admin::StagesController do
       end
 
       it "should assign all users and all roles when loading permissions autocomplete for a template" do
-        allow(controller).to receive(:user_service).and_return(user_service = Object.new)
+        allow(controller).to receive(:user_service).and_return(user_service = instance_double('com.thoughtworks.go.server.service.UserService'))
         expect(user_service).to receive(:allRoleNames).and_return(["role1", "role2", "role3", "role4"])
         expect(user_service).to receive(:allUsernames).and_return(["user1", "user2", "user3", "user4"])
 

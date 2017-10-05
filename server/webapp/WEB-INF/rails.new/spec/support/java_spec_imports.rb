@@ -117,4 +117,12 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.PipelineEditabilityInfo unless defined? PipelineEditabilityInfo
   java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString
   java_import com.thoughtworks.go.server.domain.PluginSettings unless defined? PluginSettings
+  java_import com.thoughtworks.go.server.service.SecurityService unless defined? SecurityService
+  java_import com.thoughtworks.go.server.service.GoConfigService unless defined? GoConfigService
+  java_import com.thoughtworks.go.server.service.SystemService unless defined? SystemService
+  java_import com.thoughtworks.go.server.service.ServerConfigService unless defined? ServerConfigService
+  java_import com.thoughtworks.go.domain.materials.ValidationBean unless defined? ValidationBean
+  java_import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor unless defined? ConfigParamPreprocessor
+  java_import com.thoughtworks.go.config.PipelineConfig unless defined? PipelineConfig
+  java_import com.thoughtworks.go.server.service.MaterialConfigConverter unless defined? MaterialConfigConverter
 end

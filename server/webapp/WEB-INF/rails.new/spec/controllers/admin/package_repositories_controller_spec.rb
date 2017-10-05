@@ -314,7 +314,7 @@ describe Admin::PackageRepositoriesController do
     describe "check connection" do
 
       before(:each) do
-        @result = HttpLocalizedOperationResult.new
+        @result = double(HttpLocalizedOperationResult)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       end
 

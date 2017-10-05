@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), "..", "environment_variables_form_example.rb")
+require_relative '../environment_variables_form_example'
 
 describe "admin/jobs/tabs.html.erb" do
   include GoUtil

@@ -21,7 +21,7 @@ describe Api::StagesController do
   describe "index" do
     before :each do
       allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
-      allow(controller).to receive(:set_locale)
+      # allow(controller).to receive(:set_locale)
       allow(controller).to receive(:populate_config_validity)
     end
 

@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
+require_relative '../auto_refresh_examples'
 
 
 describe 'stages/_jobs.html.erb' do

@@ -19,17 +19,15 @@ require 'rails_helper'
 describe ConfigUpdate::TemplatesTemplateSubject do
   include ::ConfigUpdate::TemplatesTemplateSubject
 
-  before do
-    allow(self).to receive(:params).and_return(@params = {})
-  end
-
   it "should return template from template collection" do
-    @params[:pipeline_name] = "template1"
+    allow(self).to receive(:template_name).and_return('template1')
     templates = TemplatesConfig.new()
     expectedTemplate = PipelineTemplateConfig.new(CaseInsensitiveString.new("template1"), [com.thoughtworks.go.helper.StageConfigMother.manual_stage("some_stage")].to_java(StageConfig))
     templates.add(expectedTemplate)
     templates.add(PipelineTemplateConfig.new(CaseInsensitiveString.new("template2"), [com.thoughtworks.go.helper.StageConfigMother.manual_stage("some_stage")].to_java(StageConfig)))
+
     actualTemplate = subject(templates)
+
     expect(actualTemplate).to eq(expectedTemplate)
   end
 end

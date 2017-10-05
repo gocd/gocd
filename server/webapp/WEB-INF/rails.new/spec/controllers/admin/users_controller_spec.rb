@@ -18,6 +18,7 @@ require 'rails_helper'
 
 describe Admin::UsersController do
   include MockRegistryModule
+  include ExtraSpecAssertions
   before :each do
     @user_service = double('user_service')
     allow(controller).to receive(:user_service).and_return(@user_service)

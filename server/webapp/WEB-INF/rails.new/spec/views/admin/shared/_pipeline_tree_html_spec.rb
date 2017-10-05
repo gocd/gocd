@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'stage_parent_tree_examples.rb')
+require_relative 'stage_parent_tree_examples'
 
 describe "template_tree" do
   include TaskMother

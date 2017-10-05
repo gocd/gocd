@@ -17,7 +17,8 @@
 class Admin::Plugins::PluginsController < AdminController
 
   before_filter :set_tab_name
-  helper_method :can_edit_plugin_settings?
+  helper ::Admin::Plugins::PluginsHelper
+  include ::Admin::Plugins::PluginsHelper
 
   def index
     @plugin_descriptors = default_plugin_manager.plugins()
@@ -63,10 +64,6 @@ class Admin::Plugins::PluginsController < AdminController
       plugin_service.savePluginSettingsFor(plugin_settings)
       render(:text => 'Saved successfully', :location => url_options_with_flash(l.string('SAVED_SUCCESSFULLY'), {:action => :index, :class => 'success'}))
     end
-  end
-
-  def can_edit_plugin_settings?(plugin_id)
-    meta_data_store.hasPlugin(plugin_id) && is_admin_user? && !meta_data_store.preferenceFor(plugin_id).getTemplate().blank?
   end
 
   private

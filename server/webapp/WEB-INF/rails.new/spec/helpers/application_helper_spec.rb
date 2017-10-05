@@ -89,9 +89,11 @@ describe ApplicationHelper do
   end
 
   describe "tab_for" do
-    before do
-      allow(self).to receive(:url_for).and_return("/go/quux")
-      allow(self).to receive(:root_path).and_return("/go/quux")
+    def root_path
+      "/go/quux"
+    end
+    def url_for(opts=nil)
+      "/go/quux"
     end
 
     describe 'with link enabled' do
@@ -146,20 +148,20 @@ describe ApplicationHelper do
   end
 
   it "should understand if mycruise link tab is supposed to be enabled" do
-    should_receive(:go_config_service).and_return(go_config_service = Object.new)
+    should_receive(:go_config_service).and_return(go_config_service = double("go_config_service"))
     expect(go_config_service).to receive(:isSecurityEnabled).and_return(true)
     expect(mycruise_available?).to eq(true)
   end
 
   it "should ask security service whether user is an admin" do
-    should_receive(:security_service).and_return(security_service = Object.new)
+    should_receive(:security_service).and_return(security_service = double("security_service"))
     should_receive(:current_user).and_return(:user)
     expect(security_service).to receive(:canViewAdminPage).with(:user).and_return(:is_admin?)
     expect(can_view_admin_page?).to eq(:is_admin?)
   end
 
   it "should ask security service whether user has agent operate permission" do
-    should_receive(:security_service).and_return(security_service = Object.new)
+    should_receive(:security_service).and_return(security_service = double("security_service"))
     should_receive(:current_user).and_return(:user)
     expect(security_service).to receive(:hasOperatePermissionForAgents).with(:user).and_return(:is_admin?)
     expect(has_operate_permission_for_agents?).to eq(:is_admin?)

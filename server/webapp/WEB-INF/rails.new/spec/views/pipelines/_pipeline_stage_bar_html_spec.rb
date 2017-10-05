@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
+require_relative '../auto_refresh_examples'
 
 describe 'pipelines/_pipeline_stage_bar.html.erb' do
   include JobMother

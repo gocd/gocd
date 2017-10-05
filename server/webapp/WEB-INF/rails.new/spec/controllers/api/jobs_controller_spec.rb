@@ -25,7 +25,6 @@ describe Api::JobsController do
     allow(controller).to receive(:job_instance_service).and_return(@job_instance_service)
     allow(controller).to receive(:xml_api_service).and_return(@xml_api_service = double(":xml_api_service"))
 
-    allow(controller).to receive(:set_locale)
     allow(controller).to receive(:populate_config_validity)
   end
 

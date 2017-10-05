@@ -26,14 +26,15 @@ describe ValueStreamMapController do
     allow(controller).to receive(:value_stream_map_service).and_return(@value_stream_map_service)
     allow(controller).to receive(:pipeline_service).and_return(@pipeline_service)
     allow(controller).to receive(:material_config_service).and_return(@material_config_service)
-    @result = HttpLocalizedOperationResult.new
+    @result = double(HttpLocalizedOperationResult)
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     @user = double('some user')
     allow(controller).to receive(:current_user).and_return(@user)
     allow(controller).to receive(:is_ie8?).and_return(false)
     allow(controller).to receive(:is_quick_edit_page_default?).and_return(false)
     allow(controller).to receive(:is_pipeline_config_spa_enabled?).and_return(false)
-
+    allow(@result).to receive(:isSuccessful).and_return(true)
+    allow(@result).to receive(:message).and_return(nil)
     @vsm_path_partial = proc do |name, counter|
       vsm_show_path(name, counter)
     end

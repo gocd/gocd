@@ -295,7 +295,7 @@ describe Admin::PackageDefinitionsController do
 
     describe "check_connection" do
       before(:each) do
-        @result = HttpLocalizedOperationResult.new
+        @result = double(HttpLocalizedOperationResult)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       end
 
@@ -324,9 +324,10 @@ describe Admin::PackageDefinitionsController do
         cruise_config = double("cruise config")
         expect(cruise_config).to receive(:getPackageRepositories).and_return(repositories)
         expect(@go_config_service).to receive(:getCurrentConfig).and_return(cruise_config)
-        expect(@package_definition_service).to receive(:check_connection).with(package_definition, an_instance_of(HttpLocalizedOperationResult)) do |p, r|
+        expect(@package_definition_service).to receive(:check_connection).with(package_definition, @result) do |p, r|
           # we don't really care about the error itself. Just the fact that an error occurred. Hence the PACKAGE_CHECK_FAILED error being used here. (Sachin)
-          r.badRequest(LocalizedMessage.string("PACKAGE_CHECK_FAILED", "foo"))
+          allow(r).to receive(:message).and_return("Package check Failed. Reason(s): foo")
+          allow(r).to receive(:isSuccessful).and_return(false)
         end
 
         get :check_connection, :material => pkg_params

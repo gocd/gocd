@@ -1,4 +1,4 @@
-<td><%= link_to_function(scope[:tvm].getTypeForDisplay(), nil, :onclick => modify_onclick_callback) -%></td>
+<td><%= link_to(scope[:tvm].getTypeForDisplay(), '#', :onclick => modify_onclick_callback) -%></td>
 <!-- SBD: TODO: Move this to tvm? -->
 <td class="run_ifs"><%= scope[:task_config].getConditionsForDisplay() %></td>
 <td class="properties">

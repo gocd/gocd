@@ -39,9 +39,7 @@ describe "/agent_details/job_run_history.html.erb" do
     job3 = JobInstanceMother.rescheduled("third", "uuid")
 
     assign(:job_instances,JobInstancesModel.new(JobInstances.new([job1, job2, job3].to_java(JobInstance)), Pagination.pageByNumber(6, 40, 2)))
-    class << view
-      include AgentsHelper
-    end
+    view.extend AgentsHelper
   end
 
   describe "tabs" do

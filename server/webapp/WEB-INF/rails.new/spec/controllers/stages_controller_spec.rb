@@ -37,9 +37,9 @@ describe StagesController do
     @cruise_config = BasicCruiseConfig.new
     @go_config_service = double("go config service")
     @user = Username.new(CaseInsensitiveString.new("foo"))
-    @status = "status"
+    @status = double(HttpOperationResult)
     allow(HttpOperationResult).to receive(:new).and_return(@status)
-    @localized_result = HttpLocalizedOperationResult.new
+    @localized_result = double(HttpLocalizedOperationResult)
     @subsection_result = SubsectionLocalizedOperationResult.new
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@localized_result)
     allow(controller).to receive(:current_user).and_return(@user)
@@ -57,6 +57,7 @@ describe StagesController do
     allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
     allow(controller).to receive(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
+    allow(@localized_result).to receive(:isSuccessful).and_return(true)
   end
 
   describe "stage" do
@@ -271,7 +272,6 @@ describe StagesController do
       before :each do
         @security_service = double('security_service')
         allow(controller).to receive(:security_service).and_return(@security_service)
-        allow(controller).to receive(:get_stage_detail_link).and_return(nil)
       end
 
       it "should get the job instance models from the stage" do

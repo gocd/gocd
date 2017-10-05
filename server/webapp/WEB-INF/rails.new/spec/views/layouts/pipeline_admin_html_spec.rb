@@ -15,19 +15,19 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
-
+require_relative 'layout_html_examples'
 
 describe "/layouts/pipeline_admin" do
   include EngineUrlHelper
+  it_should_behave_like :layout
 
   before do
     @layout_name = "layouts/pipeline_admin"
     @admin_url = "/admin/pipelines"
-    assign(:user,@user = Object.new)
+    @user = Username::ANONYMOUS
+    assign(:user, @user)
     assign(:error_count,0)
     assign(:warning_count,0)
-    allow(@user).to receive(:anonymous?).and_return(true)
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
@@ -47,8 +47,6 @@ describe "/layouts/pipeline_admin" do
     stub_routes_for_main_app main_app
     allow(view).to receive(:main_app).and_return(main_app)
   end
-
-  it_should_behave_like :layout
 
   it "should wire-up ajax_refresher for pause_info" do
     render :inline => 'body', :layout => @layout_name

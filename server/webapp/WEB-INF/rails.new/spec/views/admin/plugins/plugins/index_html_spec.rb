@@ -172,6 +172,7 @@ describe "admin/plugins/plugins/index.html.erb" do
 
   it "should add settings icon if settings is available" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
+    
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render
@@ -188,6 +189,7 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should not add settings icon if settings is not available" do
+    view.extend ::Admin::Plugins::PluginsHelper
     expect(view).to receive(:can_edit_plugin_settings?).and_return(false)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 

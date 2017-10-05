@@ -19,8 +19,11 @@ require 'rails_helper'
 describe ::ConfigUpdate::LoadConfig do
   include ::ConfigUpdate::LoadConfig
 
+  def params
+    @params
+  end
   before(:each) do
-    allow(self).to receive(:params).and_return(@params = {})
+    @params = {}
     cruise_config_mother = com.thoughtworks.go.helper.GoConfigMother.new
     @cruise_config = cruise_config_mother.cruiseConfigWithOnePipelineGroup()
     @template = PipelineTemplateConfig.new(CaseInsensitiveString.new("my_template"), [StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job")].to_java(StageConfig))
@@ -29,17 +32,17 @@ describe ::ConfigUpdate::LoadConfig do
 
   describe "load_pipeline_group" do
     it "should load pipeline group for a given pipeline" do
-      params[:pipeline_name] = "pipeline1"
+      @params[:pipeline_name] = "pipeline1"
       expect(load_pipeline_group(@cruise_config)).to eq("group1")
     end
 
     it "should load pipeline group for a given pipeline" do
-      params[:group_name] = "group1"
+      @params[:group_name] = "group1"
       expect(load_pipeline_group(@cruise_config)).to eq("group1")
     end
 
     it "should fail when trying to load a group which does not exist" do
-      params[:group_name] = "group_which_cannot_be_found"
+      @params[:group_name] = "group_which_cannot_be_found"
       expect{load_pipeline_group(@cruise_config)}.to raise_error("Unable to find group: group_which_cannot_be_found")
     end
   end
@@ -50,13 +53,13 @@ describe ::ConfigUpdate::LoadConfig do
   end
 
   it "should load pipeline group" do
-    params[:group_name] = "group1"
+    @params[:group_name] = "group1"
     group = load_pipeline_group_config(@cruise_config)
     expect(group.getGroup()).to eq("group1")
   end
 
   it "should return nil if pipeline group not found" do
-    params[:group_name] = "some_random_group"
+    @params[:group_name] = "some_random_group"
     group = load_pipeline_group_config(@cruise_config)
     expect(group).to eq(nil)
   end

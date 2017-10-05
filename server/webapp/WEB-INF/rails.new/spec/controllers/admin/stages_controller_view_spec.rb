@@ -25,7 +25,6 @@ describe Admin::StagesController, "view" do
 
     before do
       allow(controller).to receive(:populate_config_validity)
-      allow(controller).to receive(:checkConfigFileValid)
 
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new

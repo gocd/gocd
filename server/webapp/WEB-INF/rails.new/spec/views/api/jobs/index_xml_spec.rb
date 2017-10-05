@@ -48,10 +48,8 @@ describe "/api/jobs" do
 
     @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
-    class << view
-      include ApplicationHelper
-      include Api::FeedsHelper
-    end
+    
+    view.extend Api::FeedsHelper
   end
 
   it "should have a self referencing link" do

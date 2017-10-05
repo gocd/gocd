@@ -8,6 +8,7 @@ RSpec.configure do |config|
   config.add_formatter RspecJunitFormatter, File.join(ENV['REPORTS_DIR'] || Rails.root.join('tmp/reports'), 'spec_full_report.xml')
   config.include ApiSpecHelper
   config.include MiscSpecExtensions
+  config.include CacheTestHelpers
 
 # clear flash messages for every spec
   config.before(:each) do
@@ -18,6 +19,8 @@ RSpec.configure do |config|
   config.after(:each) do
     ServiceCacheStrategy.instance.clear_services
   end
+
+  config.example_status_persistence_file_path = Rails.root.join('tmp/rspec_failures.txt')
 end
 
 include JavaSpecImports

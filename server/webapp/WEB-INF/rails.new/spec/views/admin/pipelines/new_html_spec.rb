@@ -50,6 +50,7 @@ describe "admin/pipelines/new.html.erb" do
     allow(view).to receive(:is_user_a_group_admin?).and_return(false)
     job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"))].to_java(JobConfig))
     stage_config = StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)
+    view.extend Admin::PipelinesHelper
     allow(view).to receive(:default_stage_config).and_return(stage_config)
   end
 

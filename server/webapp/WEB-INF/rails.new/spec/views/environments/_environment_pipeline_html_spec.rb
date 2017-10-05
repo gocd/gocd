@@ -28,9 +28,7 @@ describe "/environments/_environment_pipeline.html.erb" do
   include PipelineModelMother
 
   before do
-    class << view
-      include StagesHelper
-    end
+    view.extend StagesHelper
     allow(view).to receive(:is_user_an_admin?).and_return(false)
   end
 

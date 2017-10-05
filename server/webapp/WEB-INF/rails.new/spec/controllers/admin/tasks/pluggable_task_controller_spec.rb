@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'rails_helper'
-load File.join(File.dirname(__FILE__), 'task_controller_examples.rb')
+require_relative 'task_controller_examples'
 
 describe Admin::TasksController do
   include TaskMother
@@ -87,8 +87,9 @@ describe Admin::TasksController do
         end
 
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
         end
+
         expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
         expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
@@ -111,7 +112,7 @@ describe Admin::TasksController do
         end
 
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
         end
         task_view_service = stub_service(:task_view_service)
         expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
@@ -131,5 +132,10 @@ describe Admin::TasksController do
   end
 
   def controller_specific_setup task_view_service
+  end
+
+  def vm_template_for task
+    return vm_for task unless (task.instance_of? PluggableTask)
+    PluggableTaskViewModelFactory.new().viewModelFor(task, "edit")
   end
 end

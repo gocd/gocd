@@ -20,9 +20,6 @@ describe "/shared/_application_nav.html.erb" do
   include GoUtil
 
   before do
-    class << view
-      include ApplicationHelper
-    end
     assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
   end

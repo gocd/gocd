@@ -96,7 +96,7 @@ describe Admin::TasksController do
         end
 
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
         end
         expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
@@ -122,7 +122,7 @@ describe Admin::TasksController do
         end
 
         stub_save_for_validation_error do |result, config, node|
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE"))
         end
         expect(@task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))

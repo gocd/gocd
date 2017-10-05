@@ -71,7 +71,6 @@ describe ConfigView::TemplatesController do
   describe "show" do
     before :each do
       login_as_admin
-      allow(controller).to receive(:is_user_authorized_to_view_template)
       @template_config_service = double('template config service')
       allow(controller).to receive(:template_config_service).and_return(@template_config_service)
     end
@@ -90,7 +89,7 @@ describe ConfigView::TemplatesController do
     end
 
     it "should render error when template config service returns bad operation result" do
-      result = HttpLocalizedOperationResult.new()
+      result = double(HttpLocalizedOperationResult)
       expect(result).to receive(:isSuccessful).and_return(false)
       expect(result).to receive(:httpCode).and_return(404)
       expect(result).to receive(:message).with(anything).and_return("Template Not found")

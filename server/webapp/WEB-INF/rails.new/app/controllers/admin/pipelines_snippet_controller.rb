@@ -22,12 +22,12 @@ class Admin::PipelinesSnippetController < AdminController
 
   def show
     set_group_data
-    render_localized_operation_result @result and return unless @result.is_successful
+    render_localized_operation_result @result and return unless @result.isSuccessful
   end
 
   def edit
     set_group_data
-    render_localized_operation_result @result and return unless @result.is_successful
+    render_localized_operation_result @result and return unless @result.isSuccessful
     @config_md5 = @cruise_config.getMd5()
   end
 
@@ -44,7 +44,7 @@ class Admin::PipelinesSnippetController < AdminController
     @errors = [validity.errorMessage()] if (validity.isMergeConflict() || validity.isPostValidationError())
     localizer = Spring.bean('localizer')
 
-    redirect_to pipelines_snippet_show_path(pipeline_configs.get_group, :fm => set_flash_message(result.message(localizer),'success')) and return if result.is_successful()
+    redirect_to pipelines_snippet_show_path(pipeline_configs.get_group, :fm => set_flash_message(result.message(localizer),'success')) and return if result.isSuccessful()
 
     flash.now[:error] = result.message(localizer)
     @modifiable_groups = security_service.modifiableGroupsForUser(current_user)

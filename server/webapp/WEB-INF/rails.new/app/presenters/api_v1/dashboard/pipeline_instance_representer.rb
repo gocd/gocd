@@ -47,7 +47,7 @@ module ApiV1
       property :getLabel, as: :label
       property :getScheduledDate, as: :schedule_at
       property :getApprovedBy, as: :triggered_by
-      collection :stages, embedded: true, exec_context: :decorator, decorator: StageRepresenter
+      collection :stages, embedded: true, exec_context: :decorator, decorator: ApiV1::Dashboard::StageRepresenter
 
       def stages
         pipeline_instance.getStageHistory().collect do |stage|

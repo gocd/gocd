@@ -20,21 +20,25 @@ describe ::ConfigUpdate::PipelineOrTemplateNode do
   include ::ConfigUpdate::PipelineOrTemplateNode
 
   before(:each) do
-    allow(self).to receive(:params).and_return(@params = {})
     @cruise_config = BasicCruiseConfig.new
     @cruise_config.addPipeline("foo-group", @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-bar", "stage-baz", ["job-foo"].to_java(java.lang.String)))
     @cruise_config.addTemplate(@template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template-bar"), [StageConfigMother.stageConfig("stage-baz")].to_java(StageConfig)))
+    @params = {}
+  end
+
+  def params
+    @params
   end
 
   it "should load pipeline" do
-    params[:stage_parent] = "pipelines"
-    params[:pipeline_name] = "pipeline-bar"
+    @params[:stage_parent] = "pipelines"
+    @params[:pipeline_name] = "pipeline-bar"
     expect(node(@cruise_config)).to eq(@pipeline)
   end
 
   it "should load template" do
-    params[:stage_parent] = "templates"
-    params[:pipeline_name] = "template-bar"
+    @params[:stage_parent] = "templates"
+    @params[:pipeline_name] = "template-bar"
     expect(node(@cruise_config)).to eq(@template)
   end
 end

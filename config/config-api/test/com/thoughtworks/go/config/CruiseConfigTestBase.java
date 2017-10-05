@@ -326,7 +326,7 @@ public abstract class CruiseConfigTestBase {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline-1");
         EnvironmentConfig env = config.addEnvironment("environment");
         env.addPipeline(new CaseInsensitiveString("pipeline-1"));
-        assertThat(config.isPipelineLocked("pipeline-1"), is(false));
+        assertThat(config.isPipelineLockable("pipeline-1"), is(false));
     }
 
     @Test
@@ -334,7 +334,7 @@ public abstract class CruiseConfigTestBase {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline-1");
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.lockExplicitly();
-        assertThat(config.isPipelineLocked("pipeline-1"), is(true));
+        assertThat(config.isPipelineLockable("pipeline-1"), is(true));
     }
 
     @Test

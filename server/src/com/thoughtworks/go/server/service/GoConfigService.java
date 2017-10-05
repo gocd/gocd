@@ -635,7 +635,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isLockable(String pipelineName) {
-        return getCurrentConfig().isPipelineLocked(pipelineName);
+        return getCurrentConfig().isPipelineLockable(pipelineName);
     }
 
 

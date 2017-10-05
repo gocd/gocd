@@ -383,7 +383,7 @@ public class PipelineConfigTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isLock(), is(false));
+        assertThat(pipelineConfig.isLockable(), is(false));
     }
 
     @Test
@@ -393,7 +393,15 @@ public class PipelineConfigTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isLock(), is(true));
+        assertThat(pipelineConfig.isLockable(), is(true));
+    }
+
+    @Test
+    public void isNotLockableWhenLockValueHasNotBeenSet() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+
+        assertThat(pipelineConfig.hasExplicitLock(), is(false));
+        assertThat(pipelineConfig.isLockable(), is(false));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,9 +136,9 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(true);
-        when(cruiseConfig.isPipelineLocked("mingle")).thenReturn(true);
+        when(cruiseConfig.isPipelineLockable("mingle")).thenReturn(true);
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
-        when(cruiseConfig.isPipelineLocked("twist")).thenReturn(false);
+        when(cruiseConfig.isPipelineLockable("twist")).thenReturn(false);
 
         pipelineLockService.onConfigChange(cruiseConfig);
 
@@ -152,9 +152,9 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);
-        when(cruiseConfig.isPipelineLocked("mingle")).thenThrow(new PipelineNotFoundException("mingle not there"));
+        when(cruiseConfig.isPipelineLockable("mingle")).thenThrow(new PipelineNotFoundException("mingle not there"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
-        when(cruiseConfig.isPipelineLocked("twist")).thenReturn(false);
+        when(cruiseConfig.isPipelineLockable("twist")).thenReturn(false);
 
         pipelineLockService.onConfigChange(cruiseConfig);
 
@@ -178,7 +178,7 @@ public class PipelineLockServiceTest {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("locked_pipeline", "other_pipeline"));
-        when(pipelineConfig.isLock()).thenReturn(false);
+        when(pipelineConfig.isLockable()).thenReturn(false);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
         changedListener.onEntityConfigChange(pipelineConfig);
@@ -193,7 +193,7 @@ public class PipelineLockServiceTest {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("locked_pipeline"));
-        when(pipelineConfig.isLock()).thenReturn(true);
+        when(pipelineConfig.isLockable()).thenReturn(true);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
         changedListener.onEntityConfigChange(pipelineConfig);
@@ -203,9 +203,6 @@ public class PipelineLockServiceTest {
 
     @Test
     public void shouldRegisterItselfAsAConfigChangeListener() throws Exception {
-        GoConfigService mockGoConfigService = mock(GoConfigService.class);
-        PipelineLockService service = new PipelineLockService(mockGoConfigService, pipelineStateDao);
-        service.initialize();
-        verify(mockGoConfigService).register(service);
+        verify(goConfigService).register(pipelineLockService);
     }
 }

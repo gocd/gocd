@@ -122,15 +122,6 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldBeAbleToRemoveAnExplicitLockOnAPipeline() throws Exception {
-        CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
-        config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
-        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).removeExplicitLocks();
-        xmlWriter.write(config, output, false);
-        assertThat(output.toString(), not(containsString("isLocked=")));
-    }
-
-    @Test
     public void shouldWriteServerConfig() throws Exception {
         String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(xml))).config;

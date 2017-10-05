@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class PipelineLockService implements ConfigChangedListener {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 for (String lockedPipeline : pipelineStateDao.lockedPipelines()) {
-                    if (pipelineConfig.name().equals(new CaseInsensitiveString(lockedPipeline)) && !pipelineConfig.isLock()) {
+                    if (pipelineConfig.name().equals(new CaseInsensitiveString(lockedPipeline)) && !pipelineConfig.isLockable()) {
                         unlock(lockedPipeline);
                         break;
                     }
@@ -95,7 +95,7 @@ public class PipelineLockService implements ConfigChangedListener {
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         for (String lockedPipeline : pipelineStateDao.lockedPipelines()) {
-            if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(lockedPipeline)) || !newCruiseConfig.isPipelineLocked(lockedPipeline)) {
+            if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(lockedPipeline)) || !newCruiseConfig.isPipelineLockable(lockedPipeline)) {
                 unlock(lockedPipeline);
             }
         }

@@ -174,7 +174,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void addEnvironment(BasicEnvironmentConfig config);
 
-    Boolean isPipelineLocked(String pipelineName);
+    Boolean isPipelineLockable(String pipelineName);
 
     Set<Resource> getAllResources();
 

@@ -23,11 +23,10 @@ describe "/layouts/admin" do
   before do
     @layout_name = 'layouts/admin'
     @admin_url = "/admin/pipelines"
-    @user = Object.new
+    @user = User.new('anonymous')
     assign(:user, @user)
     assign(:error_count, 0)
     assign(:warning_count, 0)
-    allow(@user).to receive(:anonymous?).and_return(true)
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_a_group_admin?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)

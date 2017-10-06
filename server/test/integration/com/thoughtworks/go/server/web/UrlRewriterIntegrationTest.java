@@ -223,10 +223,6 @@ public class UrlRewriterIntegrationTest {
     public static ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job/file", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=file", METHOD.PUT, true);
 
     @DataPoint
-    public static ResponseAssertion ADMIN_GARAGE_INDEX = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/garage", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage");
-    @DataPoint
-    public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", METHOD.POST);
-    @DataPoint
     public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", METHOD.GET);
     @DataPoint
     public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/materials/value_stream_map/fingerprint/revision", "http://127.1.1.1:" + HTTP + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);

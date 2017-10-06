@@ -776,7 +776,6 @@
     <entry key="TEMPLATE_USED_IN_PIPELINES">There are ''{0}'' pipelines using this template.</entry>
     <entry key="APACHE_LICENSE_2_0">Apache License, Version 2.0</entry>
     <entry key="THIRD_PARTY_SOFTWARE">third-party software</entry>
-    <entry key="GARAGE_MESSAGE">{0}</entry>
     <entry key="GLOBAL_SCM_WARNING">This is a global copy. All pipelines using this SCM will be affected.</entry>
     <entry key="SCM_USED_IN_PIPELINES_LINK">Show pipelines using this SCM</entry>
     <entry key="STALE_RESOURCE_CONFIG">Someone has modified the configuration for {0} ''{1}''. Please update your copy of the config with the changes.</entry>

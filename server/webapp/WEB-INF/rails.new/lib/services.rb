@@ -31,7 +31,7 @@ module Services
            :pipeline_unlock_api_service, :properties_service, :security_service, :server_config_service, :server_health_service, :stage_service, :system_environment, :user_service, :user_search_service, :failure_service,
            :mingle_config_service, :schedule_service, :flash_message_service, :template_config_service, :shine_dao, :xml_api_service, :pipeline_pause_service, :luau_service,
            :task_view_service, :server_status_service, :pipeline_configs_service, :pipeline_service, :material_update_service,
-           :system_service, :default_plugin_manager, :command_repository_service, :value_stream_map_service, :admin_service, :config_repository, :package_repository_service, :package_definition_service, :pipeline_sql_map_dao, :pluggable_task_service, :garage_service,
+           :system_service, :default_plugin_manager, :command_repository_service, :value_stream_map_service, :admin_service, :config_repository, :package_repository_service, :package_definition_service, :pipeline_sql_map_dao, :pluggable_task_service,
            :material_config_service, :feature_toggle_service, :cc_tray_service, :pluggable_scm_service, :cc_tray_status_service, :plugin_service, :artifacts_dir_holder, :version_info_service, :entity_hashing_service,
            :elastic_profile_service, :password_deserializer, :default_plugin_info_finder, :security_auth_config_service, :role_config_service, :config_repo_service, :elastic_agent_extension
   )

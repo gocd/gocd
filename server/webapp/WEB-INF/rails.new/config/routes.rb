@@ -106,9 +106,6 @@ Go::Application.routes.draw do
   put "admin/config_xml" => "admin/configuration#update", as: :config_update
   get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit
 
-  get "admin/garage" => "admin/garage#index", as: :garage_index
-  post "admin/garage/gc" => "admin/garage#gc", as: :garage_gc
-
   get "admin/config/server" => "admin/server#index", as: :edit_server_config
   post "admin/config/server/update" => "admin/server#update", as: :update_server_config
   post "admin/config/server/validate" => "admin/server#validate", as: :validate_server_config_params, constraints: HeaderConstraint.new

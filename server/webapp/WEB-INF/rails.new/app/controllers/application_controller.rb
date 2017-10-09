@@ -83,6 +83,10 @@ class ApplicationController < ActionController::Base
     flash_message_service.add(FlashMessageModel.new(msg, klass))
   end
 
+  def set_error_flash(msg, *args)
+    set_flash_message(l.string(msg, args.to_java(java.lang.Object)), "error")
+  end
+
   def local_access_only
     LOCAL_ONLY_ACTIONS[params[:controller]].include?(params[:action]) ? allow_local_only : true
   end

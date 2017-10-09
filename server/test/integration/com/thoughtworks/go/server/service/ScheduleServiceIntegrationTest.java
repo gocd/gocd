@@ -421,6 +421,20 @@ public class ScheduleServiceIntegrationTest {
         assertThat(stageService.findLatestStage(pipelineName, secondStage), is(notNullValue()));
     }
 
+    // This could happen during race condition between rescheduleHungJobs and rescheduleAbandonedBuildIfNecessary.
+    // The threads coud have run the queries and gotten the same jobid from the corresponding queries, but waiting to
+    // acquire a lock on one of the synchronized objects in rescheduleJob
+    @Test
+    public void shouldNotRescheduleAJobWhichHasAlreadyBeenRescheduled() {
+        PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "s1"));
+        Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), new TimeProvider());
+        scheduleService.rescheduleJob(pipeline.getFirstStage().getFirstJob());
+        int scheduledJobsCountOriginal = jobInstanceDao.orderedScheduledBuilds().size();
+        scheduleService.rescheduleJob(pipeline.getFirstStage().getFirstJob());
+        int scheduledJobsCountAfterSecondReschedule = jobInstanceDao.orderedScheduledBuilds().size();
+        assertThat(scheduledJobsCountOriginal, is(scheduledJobsCountAfterSecondReschedule));
+    }
+
     private Pipeline runAndPass(PipelineConfig pipelineConfig, int counter) {
         BuildCause buildCause = ModificationsMother.modifySomeFiles(pipelineConfig);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());

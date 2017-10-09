@@ -86,7 +86,7 @@ public class TemplateConfigService {
                 TemplateToPipelines templateToPipelines = new TemplateToPipelines(templateName, securityService.isAuthorizedToEditTemplate(templateName, username), securityService.isUserAdmin(username));
                 templateToPipelinesForUser.add(templateToPipelines);
                 for (CaseInsensitiveString pipelineName : pipelinesWithAuthorization.keySet()) {
-                    templateToPipelines.add(new PipelineWithAuthorization(pipelineName, canAuthorizedTemplateUserEditPipeline(username, roles, pipelinesWithAuthorization.get(pipelineName))));
+                    templateToPipelines.add(new PipelineEditabilityInfo(pipelineName, canAuthorizedTemplateUserEditPipeline(username, roles, pipelinesWithAuthorization.get(pipelineName)), goConfigService.isPipelineEditable(pipelineName)));
                 }
             }
         }

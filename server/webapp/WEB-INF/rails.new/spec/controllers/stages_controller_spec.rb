@@ -51,7 +51,8 @@ describe StagesController do
     allow(controller).to receive(:populate_config_validity)
 
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(nil)
-    allow(@go_config_service).to receive(:isPipelineEditableViaUI)
+    allow(@go_config_service).to receive(:isPipelineEditable)
+
     @pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
     allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
     allow(controller).to receive(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
@@ -650,11 +651,10 @@ describe StagesController do
       expect(@pipeline_history_service).to receive(:validate).and_return(nil)
       @security_service = double('stage service')
       allow(controller).to receive(:security_service).and_return(@security_service)
-
       allow(controller).to receive(:can_continue).and_return(nil)
       allow(controller).to receive(:load_stage_history).and_return(nil)
       allow(controller).to receive(:load_current_config_version).and_return(nil)
-      allow(@go_config_service).to receive(:isPipelineEditableViaUI).and_return(true)
+      allow(@go_config_service).to receive(:isPipelineEditable).and_return(true)
       expect(@go_config_service).to receive(:findGroupNameByPipeline).and_return('group')
     end
     it 'should return false for normal users' do
@@ -680,7 +680,7 @@ describe StagesController do
     it 'should return false for admin users when pipeline is not editable from UI' do
       login_as_admin
 
-      expect(@go_config_service).to receive(:isPipelineEditableViaUI).and_return(false)
+      expect(@go_config_service).to receive(:isPipelineEditable).and_return(false)
       expect(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
 
       get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"

@@ -252,6 +252,6 @@ class StagesController < ApplicationController
   def can_view_settings?
     group_name = go_config_service.findGroupNameByPipeline(CaseInsensitiveString.new(params[:pipeline_name]))
     permission = !group_name.blank? && security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
-    go_config_service.isPipelineEditableViaUI(params[:pipeline_name]) && permission
+    go_config_service.isPipelineEditable(params[:pipeline_name]) && permission
   end
 end

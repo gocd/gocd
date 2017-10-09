@@ -23,7 +23,7 @@ import java.util.*;
  */
 
 public class TemplateToPipelines {
-    private  List<PipelineWithAuthorization> pipelines = new ArrayList<>();
+    private  List<PipelineEditabilityInfo> pipelines = new ArrayList<>();
     private CaseInsensitiveString templateName;
     private boolean canEdit;
     private boolean isAdmin;
@@ -34,11 +34,11 @@ public class TemplateToPipelines {
         this.isAdmin = isAdmin;
     }
 
-    public void add(PipelineWithAuthorization pipelineWithAuthorization) {
-        pipelines.add(pipelineWithAuthorization);
+    public void add(PipelineEditabilityInfo pipelineEditabilityInfo) {
+        pipelines.add(pipelineEditabilityInfo);
     }
 
-    public List<PipelineWithAuthorization> getPipelines() {
+    public List<PipelineEditabilityInfo> getPipelines() {
         return pipelines;
     }
 

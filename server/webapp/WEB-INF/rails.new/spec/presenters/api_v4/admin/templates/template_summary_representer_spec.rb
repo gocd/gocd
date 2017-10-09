@@ -20,8 +20,8 @@ describe ApiV4::Admin::Templates::TemplateSummaryRepresenter do
 
   it 'should render a template name and its associated pipelines in hal representation' do
     templates = TemplateToPipelines.new(CaseInsensitiveString.new("template-name"), true, true)
-    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline2"), false))
-    templates.add(PipelineWithAuthorization.new(CaseInsensitiveString.new("pipeline1"), true))
+    templates.add(PipelineEditabilityInfo.new(CaseInsensitiveString.new("pipeline2"), false, true))
+    templates.add(PipelineEditabilityInfo.new(CaseInsensitiveString.new("pipeline1"), true, true))
 
 
     actual_json = ApiV4::Admin::Templates::TemplateSummaryRepresenter.new(templates).to_hash(url_builder: UrlBuilder.new)

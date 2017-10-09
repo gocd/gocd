@@ -61,17 +61,17 @@
               <% pipelines.each do |pipeline| %>
                   <tr class="pipeline">
                     <td class="name">
-                      <%- if has_admin_permissions_for_pipeline?(pipeline) %>
+                      <%- if is_pipeline_editable?(pipeline) && has_admin_permissions_for_pipeline?(pipeline) %>
                           <%= link_to pipeline, edit_path_for_pipeline(pipeline) %>
                       <%- else %>
                           <span><%= pipeline %></span>
                       <% end %>
                     </td>
                     <td>
-                      <%- if has_admin_permissions_for_pipeline?(pipeline) %>
+                      <%- if is_pipeline_editable?(pipeline) && has_admin_permissions_for_pipeline?(pipeline) %>
                           <%= action_icon({:type => "edit", :text => l.string("EDIT"), :href => edit_path_for_pipeline(pipeline)}) %>
                       <%- else %>
-                          <%= action_icon({:type => "edit", :text => l.string("EDIT"), :title => l.string("UNAUTHORIZED_TO_EDIT_PIPELINE", pipeline), :disabled => true}) %>
+                          <%= action_icon({:type => "edit", :text => l.string("EDIT"), :title => l.string("CANNOT_EDIT_PIPELINE", pipeline), :disabled => true}) %>
                       <% end %>
                     </td>
                   </tr>

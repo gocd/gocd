@@ -1155,7 +1155,7 @@ public class GoConfigServiceTest {
         pipelineConfig.setOrigin(new RepoConfigOrigin());
         group.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(group));
-        assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(false));
+        assertThat(goConfigService.isPipelineEditable("pipeline"), is(false));
     }
 
     @Test
@@ -1164,7 +1164,7 @@ public class GoConfigServiceTest {
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(group));
-        assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(true));
+        assertThat(goConfigService.isPipelineEditable("pipeline"), is(true));
     }
 
     @Test

@@ -42,7 +42,7 @@ module ApiV4
         end
 
         def can_edit
-          represented.canUserEditPipeline()
+          represented.isOriginLocal && represented.canUserEditPipeline
         end
       end
     end

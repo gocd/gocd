@@ -668,6 +668,7 @@
     <entry key="CANNOT_EXTRACT_TEMPLATE">This pipeline is already using a template.</entry>
     <entry key="CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE">This pipeline is defined in configuration repository.</entry>
     <entry key="CANNOT_EDIT_REMOTE_PIPELINE">Cannot edit pipeline defined in configuration repository.</entry>
+    <entry key="CANNOT_EDIT_PIPELINE">Cannot edit pipeline {0}. Either you are unauthorized to edit the pipeline or the pipeline is defined in configuration repository.</entry>
     <entry key="CANNOT_CLONE_REMOTE_PIPELINE">Cannot clone pipeline defined in configuration repository.</entry>
     <entry key="THIS_PIPELINE_WILL_NOW_START_USING_NEWLY_CREATED_TEMPLATE">This pipeline will now start using the newly created template.</entry>
     <entry key="STAGE_CANCELLED_SUCCESSFULLY">Stage cancelled successfully.</entry>

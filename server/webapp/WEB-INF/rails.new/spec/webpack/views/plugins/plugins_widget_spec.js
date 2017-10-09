@@ -157,16 +157,18 @@ describe("PluginsWidget", () => {
   };
 
   const allPluginInfosJSON = [githubAuthPluginInfoJSON, githubScmPluginInfoJSON, yumPluginInfoJSON];
-  const allPluginInfos     = Stream(PluginInfos.fromJSON([]));
+  const pluginInfos     = Stream(PluginInfos.fromJSON([]));
+  const isUserAnAdmin      = Stream('true' === 'true');
 
   beforeEach(() => {
     jasmine.Ajax.install();
-    allPluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
+    pluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
 
     m.mount(root, {
       view() {
         return m(PluginsWidget, {
-          pluginInfos: allPluginInfos
+          pluginInfos,
+          isUserAnAdmin
         });
       }
     });

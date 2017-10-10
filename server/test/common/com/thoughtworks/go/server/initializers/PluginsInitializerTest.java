@@ -53,6 +53,11 @@ public class PluginsInitializerTest {
         pluginManager = mock(PluginManager.class);
         pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil()) {
             @Override
+            public void startDaemon() {
+
+            }
+
+            @Override
             ZipInputStream getPluginsZipStream() {
                 try {
                     return new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")));
@@ -72,6 +77,11 @@ public class PluginsInitializerTest {
     public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
         pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil) {
+            @Override
+            public void startDaemon() {
+
+            }
+
             @Override
             ZipInputStream getPluginsZipStream() {
                 try {

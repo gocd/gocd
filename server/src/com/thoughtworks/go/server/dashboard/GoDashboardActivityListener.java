@@ -79,6 +79,10 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         stageService.addStageStatusListener(stageStatusChangedListener());
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
+    }
+
+    @Override
+    public void startDaemon() {
         processor.start();
     }
 

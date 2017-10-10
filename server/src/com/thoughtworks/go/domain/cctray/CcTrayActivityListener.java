@@ -64,6 +64,10 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
         goConfigService.register(securityConfigChangeListener());
+    }
+
+    @Override
+    public void startDaemon() {
         processor.start();
     }
 

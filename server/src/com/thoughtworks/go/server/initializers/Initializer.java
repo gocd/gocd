@@ -17,5 +17,10 @@
 package com.thoughtworks.go.server.initializers;
 
 public interface Initializer {
+/*initialize() should be typically used to for things like registering listeners */
     void initialize();
+
+/*startDaemon() should be used to control the start of daemons,
+ daemons are not started in case of integration tests since the daemons can affect state during the tests*/
+    void startDaemon();
 }

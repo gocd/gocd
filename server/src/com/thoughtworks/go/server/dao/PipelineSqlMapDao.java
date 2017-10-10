@@ -105,6 +105,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
+    @Override
+    public void startDaemon() {
+
+    }
+
     public Pipeline save(final Pipeline pipeline) {
         return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {

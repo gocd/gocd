@@ -59,6 +59,7 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml",
+        "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-pages-servlet.xml"
 })
 public class AgentRegistrationControllerIntegrationTest {

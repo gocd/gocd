@@ -17,10 +17,15 @@
 package com.thoughtworks.go.server.initializers;
 
 public interface Initializer {
-/*initialize() should be typically used to for things like registering listeners */
+    /**
+     * Register listeners, etc. Do not start background processing threads if any. If registered callbacks do any
+     * processing, stop them from doing so till startDaemon() is called.
+     */
     void initialize();
 
-/*startDaemon() should be used to control the start of daemons,
- daemons are not started in case of integration tests since the daemons can affect state during the tests*/
+    /**
+     * Start any background processing threads if necessary. Allow registered callbacks to process events. This is
+     * not called automatically in case of integration tests.
+     */
     void startDaemon();
 }

@@ -251,7 +251,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldNotReRegisterAgentIfAgentAutoRegistrationKeyIsNotProvided() throws Exception {
+    public void shouldNotRegisterAgentIfAutoRegistrationKeyIsNotProvided_forAlreadyRegisteredAgent() throws Exception {
         final String uuid = "uuid";
         final ServerConfig serverConfig = mock(ServerConfig.class);
 
@@ -267,22 +267,21 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldReRegisterAgentIfAgentAutoRegistrationKeyIsProvided() throws Exception {
+    public void shouldProcessAgentRegistrationIfAgentAutoRegistrationKeyIsProvided_forAlreadyRegisteredAgent() throws Exception {
         final String uuid = "uuid";
         final ServerConfig serverConfig = mock(ServerConfig.class);
+        final Username username = new Username("some-agent-login-name");
 
         when(goConfigService.hasAgent(uuid)).thenReturn(true);
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(serverConfig.shouldAutoRegisterAgentWith("some-key")).thenReturn(true);
-        when(agentService.agentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
-        when(agentConfigService.updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(new Username("some-agent-login-name"))))
-                .thenReturn(new AgentConfig(uuid, "host", request.getRemoteAddr()));
+        when(agentService.agentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(username);
 
         controller.agentRequest("host", uuid, "location", "233232",
                 "osx", "some-key", "", "",
                 "", "", "", false, request);
 
-        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false, timeProvider));
-        verify(agentConfigService).updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(new Username("some-agent-login-name")));
+        verify(agentService).requestRegistration(username, AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false, timeProvider));
+        verify(agentConfigService, times(0)).updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(username));
     }
 }

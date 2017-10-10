@@ -24,7 +24,8 @@ module ApiV1
             'svn' => SvnMaterialConfig,
             'hg' => HgMaterialConfig,
             'p4' => P4MaterialConfig,
-            'tfs' => TfsMaterialConfig
+            'tfs' => TfsMaterialConfig,
+            'plugin' => PluggableSCMMaterialConfig
           }
 
           MATERIAL_TO_TYPE_MAP = TYPE_TO_MATERIAL_MAP.invert
@@ -34,27 +35,22 @@ module ApiV1
             SvnMaterialConfig => SvnMaterialRepresenter,
             HgMaterialConfig => HgMaterialRepresenter,
             P4MaterialConfig => PerforceMaterialRepresenter,
-            TfsMaterialConfig => TfsMaterialRepresenter
+            TfsMaterialConfig => TfsMaterialRepresenter,
+            PluggableSCMMaterialConfig => PluggableScmMaterialRepresenter
           }
           alias_method :material_config, :represented
 
           error_representer({
                               "materialName" => "name",
-                              "folder" => "destination",
-                              "autoUpdate" => "auto_update",
-                              "filterAsString" => "filter",
-                              "checkexternals" => "check_externals",
                               "serverAndPort" => "port",
                               "useTickets" => "use_tickets",
-                              "pipelineName" => "pipeline",
-                              "stageName" => "stage",
-                              "pipelineStageName" => "pipeline",
-                              "packageId" => "ref",
-                              "scmId" => "ref",
                               "password" => "password",
                               "encryptedPassword" => "encrypted_password",
-                            }
-          )
+                              "checkexternals" => "check_externals",
+                              "autoUpdate" => "auto_update",
+                              "packageId" => "ref",
+                              "scmId" => "ref"
+                            })
 
           property :type, getter: lambda { |options| MATERIAL_TO_TYPE_MAP[self.class] }, skip_parse: true
 

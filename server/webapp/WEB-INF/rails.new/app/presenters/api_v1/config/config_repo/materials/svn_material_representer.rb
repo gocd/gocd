@@ -29,9 +29,7 @@ module ApiV1
                    skip_parse: true
 
           property :encrypted_password, skip_nil: true, skip_parse: true
-
         end
-
       end
     end
   end

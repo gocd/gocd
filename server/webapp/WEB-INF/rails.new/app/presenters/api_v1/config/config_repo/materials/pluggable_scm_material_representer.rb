@@ -18,20 +18,14 @@ module ApiV1
   module Config
     module ConfigRepo
       module Materials
-        class FilterRepresenter < BaseRepresenter
-          alias_method :filter, :represented
+        class PluggableScmMaterialRepresenter < BaseRepresenter
+          alias_method :material_config, :represented
 
-          collection :ignore, exec_context: :decorator
-
-          def to_hash(*options)
-            ignored_files=filter.map { |item| item.getPattern() }
-            {ignore: ignored_files} if !ignored_files.empty?
-          end
-
-          def ignore=(value)
-            filter.clear()
-            value.each { |pattern| filter.add(IgnoredFiles.new(pattern)) }
-          end
+          property :scmId, as: :ref, setter: lambda { |value, options|
+            scm = options[:go_config].getSCMs().find(value)
+            self.setSCMConfig(scm)
+            self.setScmId(value)
+          }
         end
       end
     end

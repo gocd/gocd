@@ -27,8 +27,6 @@ module ApiV1
                    setter: lambda { |value, options|
                      value.blank? ? self.setBranch('master') : self.setBranch(value)
                    }
-          property :submodule_folder
-          property :shallow_clone
         end
       end
     end

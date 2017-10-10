@@ -22,13 +22,6 @@ module ApiV1
           alias_method :material_config, :represented
 
           property :url
-          property :folder, as: :destination, skip_parse: SkipParseOnBlank
-          property :filter,
-                   decorator: FilterRepresenter,
-                   class: com.thoughtworks.go.config.materials.Filter,
-                   skip_parse: SkipParseOnBlank
-          property :invert_filter,
-                   skip_parse: SkipParseOnBlank
           property :name, case_insensitive_string: true, skip_parse: SkipParseOnBlank
           property :auto_update
 

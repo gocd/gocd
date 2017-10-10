@@ -27,7 +27,7 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         expect(actual_json).to eq(expected_material_hash)
       end
 
-      it "should render errors" do
+      it 'should render errors' do
         presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(existing_material_with_errors)
         actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
         expected_material_hash = expected_material_hash_with_errors
@@ -40,7 +40,6 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         new_material = material_type.new
         presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(new_material)
         presenter.from_hash(ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(existing_material).to_hash(url_builder: UrlBuilder.new))
-        expect(new_material.autoUpdate).to eq(existing_material.autoUpdate)
         expect(new_material.name).to eq(existing_material.name)
         expect(new_material).to eq(existing_material)
       end
@@ -52,7 +51,7 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     it_should_behave_like 'materials'
 
     def existing_material
-      MaterialConfigsMother.gitMaterialConfig
+      MaterialConfigsMother.gitMaterialConfig('http://user:password@funk.com/blank')
     end
 
     def material_type
@@ -60,10 +59,8 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      git_config = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
-      dup_git_material = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
-      material_configs = MaterialConfigs.new(git_config);
-      material_configs.add(dup_git_material)
+      git_config = GitMaterialConfig.new(UrlArgument.new(''), '', 'dest', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      material_configs = MaterialConfigs.new(git_config)
 
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
@@ -85,52 +82,15 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     it "should deserialize material without name" do
       presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
       deserialized_object = presenter.from_hash({
-                                                  type: 'git',
-                                                  attributes: {
-                                                    url: "http://user:password@funk.com/blank",
-                                                    branch: "master",
-                                                    auto_update: true,
-                                                    name: nil
+                                                  :type => 'git',
+                                                  :attributes => {
+                                                    :url => "http://user:password@funk.com/blank",
+                                                    :branch => "master",
+                                                    :name => nil
                                                   }
                                                 })
       expected = GitMaterialConfig.new("http://user:password@funk.com/blank")
-      expect(deserialized_object.autoUpdate).to eq(expected.autoUpdate)
       expect(deserialized_object.name.to_s).to eq("")
-      expect(deserialized_object).to eq(expected)
-    end
-
-    it "should deserialize material without invert_filter" do
-      presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
-      deserialized_object = presenter.from_hash({
-                                                  type: 'git',
-                                                  attributes: {
-                                                    url: "http://user:password@funk.com/blank",
-                                                    branch: "master",
-                                                    auto_update: true,
-                                                    name: nil,
-                                                    invert_filter: nil
-                                                  }
-                                                })
-      expected = GitMaterialConfig.new("http://user:password@funk.com/blank")
-      expect(deserialized_object.invertFilter).to eq(expected.invertFilter)
-      expect(deserialized_object).to eq(expected)
-    end
-
-    it "should deserialize material with invert_filter" do
-      presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
-      deserialized_object = presenter.from_hash({
-                                                  type: 'git',
-                                                  attributes: {
-                                                    url: "http://user:password@funk.com/blank",
-                                                    branch: "master",
-                                                    auto_update: true,
-                                                    name: nil,
-                                                    invert_filter: true
-                                                  }
-                                                })
-      expected = GitMaterialConfig.new("http://user:password@funk.com/blank")
-      expected.setInvertFilter(true)
-      expect(deserialized_object.invertFilter).to eq(expected.invertFilter)
       expect(deserialized_object).to eq(expected)
     end
 
@@ -141,7 +101,6 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
                                                   attributes: {
                                                     url: "http://user:password@funk.com/blank",
                                                     branch: "",
-                                                    auto_update: true,
                                                     name: nil
                                                   }
                                                 })
@@ -149,22 +108,7 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     end
 
     def material_hash
-      {
-        type: 'git',
-        attributes: {
-          url: "http://user:password@funk.com/blank",
-          destination: "destination",
-          filter: {
-            ignore: %w(**/*.html **/foobar/)
-          },
-          invert_filter: false,
-          branch: 'branch',
-          submodule_folder: 'sub_module_folder',
-          shallow_clone: true,
-          name: 'AwesomeGitMaterial',
-          auto_update: false
-        }
-      }
+      git_material_basic_hash()
     end
 
     def git_material_basic_hash
@@ -172,14 +116,9 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: 'git',
         attributes: {
           url: "http://user:password@funk.com/blank",
-          destination: nil,
-          filter: nil,
-          invert_filter: false,
           name: nil,
-          auto_update: true,
           branch: "master",
-          submodule_folder: nil,
-          shallow_clone: false
+          auto_update: true
         }
       }
     end
@@ -189,18 +128,12 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: "git",
         attributes: {
           url: "",
-          destination: "",
-          filter: nil,
-          invert_filter: false,
           name: "!nV@l!d",
-          auto_update: true,
           branch: "master",
-          submodule_folder: "",
-          shallow_clone: false
+          auto_update: true
         },
         errors: {
-          name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-          destination: ["Destination directory is required when specifying multiple scm materials"],
+          name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
           url: ["URL cannot be blank"]
         }
       }
@@ -212,7 +145,10 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     it_should_behave_like 'materials'
 
     def existing_material
-      MaterialConfigsMother.svnMaterialConfig
+      material = MaterialConfigsMother.svnMaterialConfig
+      material.setFolder(nil)
+      material.setCheckExternals(false)
+      material
     end
 
     def material_type
@@ -221,7 +157,7 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
 
     def existing_material_with_errors
       svn_config = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'))
-      material_configs = MaterialConfigs.new(svn_config);
+      material_configs = MaterialConfigs.new(svn_config)
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
     end
@@ -231,16 +167,9 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: 'svn',
         attributes: {
           url: "url",
-          destination: "svnDir",
-          filter: {
-            ignore: [
-              "*.doc"
-            ]
-          },
-          invert_filter: false,
           name: "svn-material",
+          check_externals: false,
           auto_update: false,
-          check_externals: true,
           username: "user",
           encrypted_password: GoCipher.new.encrypt("pass")
         }
@@ -252,12 +181,9 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: "svn",
         attributes: {
           url: "",
-          destination: "",
-          filter: nil,
-          invert_filter: false,
           name: "!nV@l!d",
-          auto_update: true,
           check_externals: true,
+          auto_update: true,
           username: ""
         },
         errors: {
@@ -272,7 +198,9 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     it_should_behave_like 'materials'
 
     def existing_material
-      MaterialConfigsMother.hgMaterialConfigFull
+      material = MaterialConfigsMother.hgMaterialConfigFull
+      material.setFolder(nil)
+      material
     end
 
     def material_type
@@ -280,7 +208,7 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      hg_config = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
+      hg_config = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, false, nil, CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
@@ -291,11 +219,6 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: 'hg',
         attributes: {
           url: "http://user:pass@domain/path##branch",
-          destination: "dest-folder",
-          filter: {
-            ignore: %w(**/*.html **/foobar/)
-          },
-          invert_filter: false,
           name: "hg-material",
           auto_update: true
         }
@@ -307,15 +230,11 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: "hg",
         attributes: {
           url: "",
-          destination: "/dest/",
-          filter: nil,
-          invert_filter: false,
           name: "!nV@l!d",
           auto_update: true
         },
         errors: {
           name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-          destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
           url: ["URL cannot be blank"]
         }
       }
@@ -327,7 +246,10 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     it_should_behave_like 'materials'
 
     def existing_material
-      MaterialConfigsMother.tfsMaterialConfig
+      material = MaterialConfigsMother.tfsMaterialConfig
+      material.setFilter(nil)
+      material.setFolder(nil)
+      material
     end
 
     def material_type
@@ -346,11 +268,6 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         type: 'tfs',
         attributes: {
           url: "http://10.4.4.101:8080/tfs/Sample",
-          destination: "dest-folder",
-          filter: {
-            ignore: %w(**/*.html **/foobar/)
-          },
-          invert_filter: false,
           domain: "some_domain",
           username: "loser",
           encrypted_password: com.thoughtworks.go.security.GoCipher.new.encrypt("passwd"),
@@ -366,14 +283,11 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
         :type => "tfs",
         :attributes => {
           url: "",
-          destination: nil,
-          filter: nil,
-          invert_filter: false,
           name: nil,
-          auto_update: true,
           domain: "",
           username: "",
-          project_path: "/some-path/"
+          project_path: "/some-path/",
+          auto_update: true
         },
         errors:
           {
@@ -389,7 +303,11 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     it_should_behave_like 'materials'
 
     def existing_material
-      MaterialConfigsMother.p4MaterialConfigFull
+      material = MaterialConfigsMother.p4MaterialConfigFull
+      material.setFolder(nil)
+      material.setFilter(nil)
+      material.setUseTickets(false)
+      material
     end
 
     def material_type
@@ -397,8 +315,8 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      p4_config = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, '/dest/')
-      material_configs = MaterialConfigs.new(p4_config);
+      p4_config = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, 'dest/')
+      material_configs = MaterialConfigs.new(p4_config)
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.first()
     end
@@ -407,16 +325,11 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
       {
         type: 'p4',
         attributes: {
-          destination: "dest-folder",
-          filter: {
-            ignore: %w(**/*.html **/foobar/)
-          },
-          invert_filter: false,
           port: "host:9876",
           username: "user",
           encrypted_password: GoCipher.new.encrypt("password"),
-          use_tickets: true,
           view: "view",
+          use_tickets: false,
           name: "p4-material",
           auto_update: true
         }
@@ -427,23 +340,82 @@ describe ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter do
       {
         type: "p4",
         attributes: {
-          destination: "/dest/",
-          filter: nil,
-          invert_filter: false,
           name: "",
-          auto_update: true,
           port: "",
           username: "",
-          use_tickets: false,
-          view: ""
+          view: "",
+          auto_update: true,
+          use_tickets: false
         },
         errors: {
           view: ["P4 view cannot be empty."],
-          destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
           port: ["P4 port cannot be empty."]
         }
       }
     end
 
+  end
+
+  describe :pluggable do
+    before :each do
+      @go_config = BasicCruiseConfig.new
+
+    end
+    it "should represent a pluggable scm material" do
+      pluggable_scm_material = MaterialConfigsMother.pluggableSCMMaterialConfig()
+      presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.prepare(pluggable_scm_material)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json).to eq(pluggable_scm_material_hash)
+    end
+
+    it "should deserialize" do
+      scm= SCMMother.create("scm-id")
+      @go_config.getSCMs().add(scm)
+
+      presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
+      expect(deserialized_object.getScmId).to eq("scm-id")
+      expect(deserialized_object.getSCMConfig).to eq(scm)
+    end
+
+    it "should set scmId during deserialisation if matching package definition is not present in config" do
+      presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+
+      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
+      expect(deserialized_object.getScmId).to eq("scm-id")
+      expect(deserialized_object.getSCMConfig).to eq(nil)
+    end
+
+    it "should render errors" do
+      pluggable_scm_material = PluggableSCMMaterialConfig.new(CaseInsensitiveString.new(''), nil, nil, nil)
+      material_configs = MaterialConfigs.new(pluggable_scm_material)
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
+
+      presenter = ApiV1::Config::ConfigRepo::Materials::MaterialRepresenter.new(material_configs.first())
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expected_material_hash = expected_material_hash_with_errors
+      expect(actual_json).to eq(expected_material_hash)
+    end
+
+    def pluggable_scm_material_hash
+      {
+        type: 'plugin',
+        attributes: {
+          ref: "scm-id"
+        }
+      }
+    end
+
+    def expected_material_hash_with_errors
+      {
+        type: "plugin",
+        attributes: {
+          ref: nil
+        },
+        errors: {
+          ref: ["Please select a SCM"]
+        }
+      }
+    end
   end
 end

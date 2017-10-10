@@ -18,7 +18,7 @@
 <xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <xsd:annotation>
         <xsd:documentation xml:lang="en">
-            Configuration schema for Go. Copyright (c) 2017 ThoughtWorks, Inc.
+            Configuration schema for Go. Copyright (c) 2016 ThoughtWorks, Inc.
             www.thoughtworks.com. All rights reserved.
         </xsd:documentation>
     </xsd:annotation>
@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="99"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="98"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -143,63 +143,19 @@
     <xsd:complexType name="configRepoType">
         <xsd:sequence>
             <xsd:choice minOccurs="1" maxOccurs="1">
-                <xsd:element name="svn" type="configRepoSvnType"/>
-                <xsd:element name="p4" type="configRepoP4Type"/>
-                <xsd:element name="git" type="configRepoGitType"/>
-                <xsd:element name="hg" type="configRepoHgType"/>
-                <xsd:element name="tfs" type="configRepoTfsType"/>
-                <xsd:element name="scm" type="configRepoScmReferenceType"/>
+                <xsd:element name="svn" type="svnType"/>
+                <xsd:element name="hg" type="hgType"/>
+                <xsd:element name="p4" type="p4Type"/>
+                <xsd:element name="git" type="gitType"/>
+                <xsd:element name="tfs" type="tfsType"/>
+                <xsd:element name="scm" type="scmReferenceType"/>
             </xsd:choice>
             <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
         </xsd:sequence>
         <xsd:attribute type="nameType" name="id" use="required"/>
         <xsd:attribute type="nameType" name="pluginId" use="optional"/>
     </xsd:complexType>
-    <xsd:complexType name="configRepoSvnType">
-        <xsd:attribute name="url" type="xsd:string" use="required"/>
-        <xsd:attribute name="username" type="xsd:string"/>
-        <xsd:attribute name="password" type="xsd:string"/>
-        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="checkexternals" type="xsd:boolean"/>
-        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
-        <xsd:attribute name="materialName" type="nameType" use="optional"/>
-    </xsd:complexType>
-    <xsd:complexType name="configRepoP4Type">
-        <xsd:sequence>
-            <xsd:element name="view" minOccurs="1" maxOccurs="1"/>
-        </xsd:sequence>
-        <xsd:attribute name="port" type="xsd:string" use="required"/>
-        <xsd:attribute name="username" type="xsd:string"/>
-        <xsd:attribute name="password" type="xsd:string"/>
-        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
-        <xsd:attribute name="useTickets" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="materialName" type="nameType" use="optional"/>
-    </xsd:complexType>
-    <xsd:complexType name="configRepoGitType">
-        <xsd:attribute name="url" type="xsd:string" use="required"/>
-        <xsd:attribute name="branch" type="xsd:string" use="optional"/>
-        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="materialName" type="nameType" use="optional"/>
-    </xsd:complexType>
-    <xsd:complexType name="configRepoHgType">
-        <xsd:attribute name="url" type="xsd:string" use="required"/>
-        <xsd:attribute name="materialName" type="nameType" use="optional"/>
-        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-    </xsd:complexType>
-    <xsd:complexType name="configRepoTfsType">
-        <xsd:attribute name="url" type="xsd:string" use="required"/>
-        <xsd:attribute name="username" type="xsd:string" use="required"/>
-        <xsd:attribute name="domain" type="xsd:string"/>
-        <xsd:attribute name="password" type="xsd:string"/>
-        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
-        <xsd:attribute name="projectPath" type="xsd:string" use="required"/>
-        <xsd:attribute name="materialName" type="nameType" use="optional"/>
-    </xsd:complexType>
-    <xsd:complexType name="configRepoScmReferenceType">
-        <xsd:attribute name="ref" type="xsd:string" use="required" />
-    </xsd:complexType>
+
     <xsd:complexType name="scmsType">
         <xsd:sequence>
             <xsd:element name="scm" minOccurs="0" maxOccurs="unbounded" type="scmType"/>

@@ -48,7 +48,8 @@ import static org.hamcrest.core.IsNot.not;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-acegi-security.xml"
+        "classpath:WEB-INF/applicationContext-acegi-security.xml",
+        "classpath:testPropertyConfigurer.xml"
 })
 public class ResourceRepositoryIntegrationTest {
     private static final String JOB_NAME = "functional";

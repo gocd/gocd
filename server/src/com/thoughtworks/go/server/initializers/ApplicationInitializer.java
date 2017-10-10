@@ -40,6 +40,7 @@ import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -84,6 +85,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Autowired private SCMMaterialSource scmMaterialSource;
     @Autowired private ResourceMonitoring resourceMonitoring;
+    @Value("${cruise.daemons.enabled}")
+    private boolean daemonsEnabled;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -142,6 +145,19 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
 
             dependencyMaterialUpdateNotifier.initialize();
             scmMaterialSource.initialize();
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+
+        if (this.daemonsEnabled) {
+            startDaemons();
+        }
+    }
+
+    private void startDaemons() {
+        try {
+            dashboardActivityListener.startDaemon();
+            ccTrayActivityListener.startDaemon();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

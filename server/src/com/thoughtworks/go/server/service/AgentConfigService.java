@@ -240,15 +240,14 @@ public class AgentConfigService {
         EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(agentInstances, username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             goConfigService.updateConfig(agentsEntityConfigUpdateCommand, username);
-            if(result.isSuccessful()){
+            if (result.isSuccessful()) {
                 result.setMessage(successMessage);
             }
         } catch (Exception e) {
             LOGGER.error("There was an error bulk updating agents", e);
-            if(e instanceof GoConfigInvalidException && !result.hasMessage()) {
+            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
                 result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", Agents.class.getAnnotation(ConfigTag.class).value(), uuids, e.getMessage()));
-            }
-            else if(!result.hasMessage()) {
+            } else if (!result.hasMessage()) {
                 result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
             }
         }

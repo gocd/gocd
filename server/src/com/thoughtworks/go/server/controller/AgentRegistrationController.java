@@ -192,36 +192,29 @@ public class AgentRegistrationController {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         Registration keyEntry;
-        String preferredHostname = hostname;
 
         try {
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
-                preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
-                LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-            } else {
-                if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
-                    throw new RuntimeException(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId));
-                }
-            }
+            final boolean shouldAutoRegisterAgent = goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey);
+            final boolean registeredAlready = goConfigService.hasAgent(uuid);
+
+            validateAgentRegistrationRequest(uuid, shouldAutoRegisterAgent, registeredAlready, elasticAgentId, elasticPluginId);
+
+            final String preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
 
             AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
-
-            if (partialElasticAgentAutoregistrationInfo(elasticAgentId, elasticPluginId)) {
-                throw new RuntimeException("Elastic agents must submit both elasticAgentId and elasticPluginId");
-            }
-
-            if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
+            if (isElasticAgent(elasticAgentId, elasticPluginId)) {
                 agentConfig.setElasticAgentId(elasticAgentId);
                 agentConfig.setElasticPluginId(elasticPluginId);
             }
 
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
+            if (shouldAutoRegisterAgent && !registeredAlready) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new AgentConfigService.AddAgentCommand(agentConfig),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
                 );
+
                 HttpOperationResult result = new HttpOperationResult();
                 agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, agentService.agentUsername(uuid, ipAddress, preferredHostname));
                 if (!result.isSuccess()) {
@@ -235,22 +228,42 @@ public class AgentRegistrationController {
                 }
             }
 
-            boolean registeredAlready = goConfigService.hasAgent(uuid);
-            long usablespace = Long.parseLong(usablespaceAsString);
+            final long usableSpace = Long.parseLong(usablespaceAsString);
 
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usablespace, operatingSystem, supportsBuildCommandProtocol, timeProvider);
+            AgentRuntimeInfo agentRuntimeInfo = null;
 
-            if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
+            if (isElasticAgent(elasticAgentId, elasticPluginId)) {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId, timeProvider);
+            } else {
+                agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, goConfigService.hasAgent(uuid), location, usableSpace, operatingSystem, supportsBuildCommandProtocol, timeProvider);
             }
 
             keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);
         } catch (Exception e) {
             keyEntry = Registration.createNullPrivateKeyEntry();
-            LOG.error("Error occured during agent registration process: ", e);
+            LOG.error("Error occurred during agent registration process: ", e);
         }
 
         return render(keyEntry);
+    }
+
+    private void validateAgentRegistrationRequest(String agentUUID, boolean shouldAutoRegisterAgent, boolean registeredAlready, String elasticAgentId, String elasticPluginId) {
+
+        if (registeredAlready && !shouldAutoRegisterAgent) {
+            throw new RuntimeException(String.format("Agent [%s] is already registered with server. Agent registration requires an auto-register key and it must match the auto-register key setup on the server.", agentUUID));
+        }
+
+        if (partialElasticAgentInfo(elasticAgentId, elasticAgentId)) {
+            throw new RuntimeException("Elastic agents must submit both elasticAgentId and elasticPluginId");
+        }
+
+        if (isElasticAgent(elasticAgentId, elasticPluginId) && !shouldAutoRegisterAgent) {
+            throw new RuntimeException(String.format("Elastic agent registration requires an auto-register key and it must match the auto-register key setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId));
+        }
+    }
+
+    private boolean isElasticAgent(String elasticAgentId, String elasticPluginId) {
+        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
     }
 
     private ModelAndView render(final Registration registration) {
@@ -276,12 +289,8 @@ public class AgentRegistrationController {
         }
     }
 
-    private boolean partialElasticAgentAutoregistrationInfo(String elasticAgentId, String elasticPluginId) {
+    private boolean partialElasticAgentInfo(String elasticAgentId, String elasticPluginId) {
         return (isBlank(elasticAgentId) && isNotBlank(elasticPluginId)) || (isNotBlank(elasticAgentId) && isBlank(elasticPluginId));
-    }
-
-    private boolean elasticAgentAutoregistrationInfoPresent(String elasticAgentId, String elasticPluginId) {
-        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
     }
 
     private String getPreferredHostname(String agentAutoRegisterHostname, String hostname) {

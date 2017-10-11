@@ -32,7 +32,9 @@ group :development, :test do
   gem 'rspec-rails', '3.6.0'
   gem 'rspec_junit_formatter'
 
-  gem 'capybara', '2.2.1'
+  # newer version of addressable version requires ruby >=2.0. Remove after upgrading jruby
+  gem 'addressable', '2.4.0'
+  gem 'capybara', '2.15.4'
   gem 'ruby-debug-base'
   gem 'ruby-debug-ide'
 end

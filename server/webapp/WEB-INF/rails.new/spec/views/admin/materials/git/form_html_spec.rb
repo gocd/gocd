@@ -37,8 +37,8 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/git/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
-    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", {visible: :hidden})
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']", {visible: :hidden})
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Git Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{GitMaterialConfig::URL}]'][value='git://foo']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{GitMaterialConfig::BRANCH}]'][value='master']")

@@ -40,7 +40,7 @@ describe "environments/edit_variables.html.erb" do
   end
 
   it "should have cruise_config_md5 as part of output" do
-    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']", visible: :hidden)
   end
 
   it "should have a template for newly added environment variables" do

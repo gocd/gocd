@@ -36,7 +36,7 @@ describe "admin/templates/new.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[name='config_md5'][value='abcd1234']", visible: :hidden)
       expect(form).to have_selector("input[name='pipeline[template][name]']")
     end
   end
@@ -49,7 +49,7 @@ describe "admin/templates/new.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']", visible: :hidden)
       expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector']")
       expect(form).to have_selector("label[for='pipeline_useExistingPipeline']", :text => "Extract From Pipeline")
 
@@ -76,7 +76,7 @@ describe "admin/templates/new.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']", visible: :hidden)
       expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector']")
       expect(form).to have_selector("label[for='pipeline_useExistingPipeline']", :text => "Extract From Pipeline")
 
@@ -95,7 +95,7 @@ describe "admin/templates/new.html.erb" do
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
       expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='No pipelines available for extracting template. Either all pipelines use templates already or no pipelines exists.']")
 
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']", visible: :hidden)
       expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
       expect(form).to have_selector("label[for='pipeline_useExistingPipeline'][class='disabled']", :text => "Extract From Pipeline")
     end
@@ -109,12 +109,12 @@ describe "admin/templates/new.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='1']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='1']", visible: :hidden)
       expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
       expect(form).to have_selector("label[for='pipeline_useExistingPipeline'][class='disabled']", :text => "Extract From Pipeline")
 
       expect(form).to have_selector("select[disabled='disabled'][name='pipeline[pipelineNames]'][id='pipeline_pipelineNames']")
-      expect(form).to have_selector("input#pipeline_selectedPipelineName[type='hidden'][value='pipeline1'][name='pipeline[selectedPipelineName]']")
+      expect(form).to have_selector("input#pipeline_selectedPipelineName[type='hidden'][value='pipeline1'][name='pipeline[selectedPipelineName]']", visible: :hidden)
     end
   end
 end

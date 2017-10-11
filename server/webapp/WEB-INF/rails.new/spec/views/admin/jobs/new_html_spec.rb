@@ -51,7 +51,7 @@ describe "admin/jobs/new.html.erb" do
     render
 
     Capybara.string(response.body).find("form[method='post'][action='url_for_new_job']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='current_tab'][value='jobs']")
+      expect(form).to have_selector("input[type='hidden'][name='current_tab'][value='jobs']", visible: :hidden)
     end
 
     Capybara.string(response.body).all("#new_job_container .form_item_block").tap do |blocks|

@@ -103,7 +103,7 @@ describe "admin/pipeline_groups/index.html.erb" do
           end
           table.find("tbody").tap do |tbody|
             tbody.first("tr.pipeline").tap do |tr|
-              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
+              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", :text => "pipeline_in_group_foo")
               tr.find("td.actions").tap do |td|
                 td.find("ul").tap do |ul|
                   expect(ul).to have_selector("li span.delete_parent")
@@ -111,7 +111,7 @@ describe "admin/pipeline_groups/index.html.erb" do
               end
             end
             table.all("tr.pipeline")[2].tap do |tr|
-              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
+              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", :text => "pipeline_2_in_group_foo")
               tr.find("td.actions").tap do |td|
                 td.find("ul") do |ul|
                   expect(ul).to have_selector("li span.delete_parent")
@@ -135,10 +135,10 @@ describe "admin/pipeline_groups/index.html.erb" do
         groups[0].find("table").tap do |table|
           table.find("tbody").tap do |tbody|
             tbody.first("tr.pipeline").tap do |tr|
-              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_in_group_foo")}']", "pipeline_in_group_foo")
+              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_in_group_foo")}']", :text => "pipeline_in_group_foo")
             end
             table.all("tr.pipeline")[2].tap do |tr|
-              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_2_in_group_foo")}']", "pipeline_2_in_group_foo")
+              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_2_in_group_foo")}']", :text => "pipeline_2_in_group_foo")
             end
           end
         end
@@ -150,15 +150,13 @@ describe "admin/pipeline_groups/index.html.erb" do
     it "should display delete link next to an empty pipeline group" do
       assign(:groups, [BasicPipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       render
-
       Capybara.string(response.body).find('div.group_pipelines').tap do |div|
         div.find("div.group") do |group|
           expect(group).to have_selector("h2.group_name", :text => "empty_group")
           group.find("form[id='delete_group_empty_group'][method='post'][action='#{pipeline_group_delete_path(:group_name => 'empty_group')}'][title='Delete this pipeline group']") do |form|
-            expect(form).to have_selector("input[name='_method'][value='delete']")
+            expect(form).to have_selector("input[name='_method'][value='delete']", visible: :hidden)
             expect(form).to have_selector("span#trigger_delete_group_empty_group")
-            expect(form).to have_selector("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_group_empty_group #warning_prompt'\)/)
-            expect(form).to have_selector("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the pipeline group 'empty_group' \?/)
+            expect(form).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the pipeline group 'empty_group' \?/, visible: :hidden)
           end
         end
       end
@@ -178,10 +176,9 @@ describe "admin/pipeline_groups/index.html.erb" do
       render
 
       Capybara.string(response.body).find('div.group_pipelines').tap do |div|
-        div.all("div.group") do |groups|
+        div.all("div.group").tap do |groups|
           expect(groups[0]).to have_selector("h2.group_name", :text => "group_foo")
           expect(groups[0]).to have_selector("span.delete_icon_disabled[title='Move or Delete all pipelines within this group in order to delete it.']")
-
           expect(groups[0]).not_to have_selector("form[id='delete_group_group_foo'][method='post'][action='#{pipeline_group_delete_path(:group_name => 'group_foo')}']")
         end
       end
@@ -210,8 +207,8 @@ describe "admin/pipeline_groups/index.html.erb" do
       render
 
       Capybara.string(response.body).find('div.group_pipelines').tap do |div|
-        div.all("div.group") do |groups|
-          expect(groups[0]).to have_selector("h2.group_name", "group_foo")
+        div.all("div.group").tap do |groups|
+          expect(groups[0]).to have_selector("h2.group_name", :text => "group_foo")
           expect(groups[0]).to have_selector("a[href='#{pipeline_group_edit_path(:group_name => "group_foo")}']")
           groups[0].find("table") do |table|
             table.find("thead tr.pipeline") do |tr|
@@ -219,29 +216,28 @@ describe "admin/pipeline_groups/index.html.erb" do
               expect(tr).to have_selector("th.actions", :text => "Actions")
             end
             table.find("tbody") do |tbody|
-              tbody.find("tr.pipeline") do |tr|
-                expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
-                tr.find("td.actions") do |td|
+              tbody.all("tr.pipeline").tap do |trs|
+                expect(trs[0]).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", :text => "pipeline_in_group_foo")
+                trs[0].find("td.actions") do |td|
                   td.find("ul") do |ul|
                     expect(ul).to have_selector("li span.delete_parent")
                   end
                 end
-              end
 
-              tbody.find("tr.pipeline") do |tr|
-                expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
-                tr.find("td.actions") do |td|
+                expect(trs[1]).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", :text => "pipeline_2_in_group_foo")
+                trs[1].find("td.actions") do |td|
                   td.find("ul") do |ul|
                     expect(ul).to have_selector("li span.delete_parent")
                   end
                 end
+
               end
             end
           end
         end
 
-        expect(div).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']", "pipeline_in_group_bar")
-        expect(div).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']", "pipeline_2_in_group_bar")
+        expect(div).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']", :text => "pipeline_in_group_bar")
+        expect(div).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']", :text => "pipeline_2_in_group_bar")
       end
     end
 
@@ -250,7 +246,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']").tap do |form|
         expect(form).to have_selector("span.delete_parent")
-        expect(form).to have_selector("input[name='_method'][value='delete']")
+        expect(form).to have_selector("input[name='_method'][value='delete']", visible: :hidden)
       end
       expect(response.body).to have_selector("form[action='/admin/pipelines/pipeline_2_in_group_foo'] span.delete_parent")
 

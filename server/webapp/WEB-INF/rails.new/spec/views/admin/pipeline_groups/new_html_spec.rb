@@ -35,7 +35,7 @@ describe "admin/pipeline_groups/new.html.erb" do
 
     Capybara.string(response.body).find("form[action='pipeline_group_create_path'][method='post']").tap do |form|
       expect(form).to have_selector("label", :text => "Pipeline Group Name*")
-      expect(form).to have_selector("input[name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[name='config_md5'][value='abcd1234']", visible: :hidden)
       expect(form).to have_selector("input[name='group[group]']")
     end
   end

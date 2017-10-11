@@ -81,7 +81,7 @@ describe 'stages/stage.html.erb' do
 
       it "should render stage history" do
         render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
-        expect(response).to have_selector "#stage-history-page[type='hidden'][value='" + @stage_history_page.currentPage().to_s() +"']"
+        expect(response).to have_selector("#stage-history-page[type='hidden'][value='" + @stage_history_page.currentPage().to_s() +"']", visible: :hidden)
         expect(response).to have_selector "#stage_history"
       end
 

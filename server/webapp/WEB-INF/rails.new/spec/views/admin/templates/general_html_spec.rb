@@ -33,8 +33,8 @@ describe "admin/templates/general.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='#{template_update_path(:pipeline_name => 'template1', :current_tab => "general", :stage_parent => "templates")}'][method='post'][id='template_edit_form']").tap do |form|
-      expect(form).to have_selector("input[name='_method'][type='hidden'][value='put']")
-      expect(form).to have_selector("input[name='config_md5'][value='abc']")
+      expect(form).to have_selector("input[name='_method'][type='hidden'][value='put']", {visible: :hidden})
+      expect(form).to have_selector("input[name='config_md5'][value='abc']",  {visible: :hidden})
       expect(form).to have_selector("input[name='template[name]'][value='template1'][readonly='readonly'][disabled='disabled']")
     end
 

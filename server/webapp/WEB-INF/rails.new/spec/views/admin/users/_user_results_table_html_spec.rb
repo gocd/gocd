@@ -47,8 +47,8 @@ describe "admin/users/_user_results_table.html.erb" do
                                               "([\"#{expected_name_field_id}\",\"#{expected_full_name_field_id}\",\"#{expected_email_field_id}\"]));")
 
     expect(response.body).to have_selector("input[type='radio'][name='selection'][id='#{expected_selection_id}']")
-    expect(response.body).to have_selector("input[type='hidden'][name='selections[][name]'][id='#{expected_name_field_id}']")
-    expect(response.body).to have_selector("input[type='hidden'][name='selections[][full_name]'][id='#{expected_full_name_field_id}']")
-    expect(response.body).to have_selector("input[type='hidden'][name='selections[][email]'][id='#{expected_email_field_id}']")
+    expect(response.body).to have_selector("input[type='hidden'][name='selections[][name]'][id='#{expected_name_field_id}']", visible: :hidden)
+    expect(response.body).to have_selector("input[type='hidden'][name='selections[][full_name]'][id='#{expected_full_name_field_id}']", visible: :hidden)
+    expect(response.body).to have_selector("input[type='hidden'][name='selections[][email]'][id='#{expected_email_field_id}']", visible: :hidden)
   end
 end

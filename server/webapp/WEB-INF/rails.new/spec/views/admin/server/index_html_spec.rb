@@ -42,11 +42,11 @@ describe "admin/server/index.html.erb" do
           end
           fieldset.all(".form_item").tap do |form_items|
             expect(form_items[1]).to have_selector("label", :text => "Auto delete old artifacts:")
-            form_items[1].all(".checkbox_row") do |checkbox_rows|
+            form_items[1].all(".checkbox_row").tap do |checkbox_rows|
               expect(checkbox_rows[0]).to have_selector("input[type='radio'][name='server_configuration_form[purgeArtifacts]'][value='Never'][id='never_delete_artifacts']")
               expect(checkbox_rows[0]).to have_selector("label[for='never_delete_artifacts']", :text => "Never")
             end
-            form_items[1].all(".checkbox_row") do |checkbox_rows|
+            form_items[1].all(".checkbox_row").tap do |checkbox_rows|
               expect(checkbox_rows[1]).to have_selector("input[type='radio'][id='select_artifact_purge_size'][name='server_configuration_form[purgeArtifacts]'][value='Size'][checked='checked']")
               expect(checkbox_rows[1]).to have_selector("span.checkbox_label", :text => /^When available disk space is less than/)
               expect(checkbox_rows[1]).to have_selector("input[name='server_configuration_form[purgeStart]'][value='10.5']")
@@ -200,7 +200,7 @@ describe "admin/server/index.html.erb" do
       render
 
       Capybara.string(response.body).find('#user_management').tap do |div|
-        div.find("input[name='server_configuration_form[allow_auto_login]'][type='hidden'][value='false']").tap do |hidden_value_for_checkbox|
+        div.find("input[name='server_configuration_form[allow_auto_login]'][type='hidden'][value='false']", visible: :hidden).tap do |hidden_value_for_checkbox|
           expect(hidden_value_for_checkbox).to_not be_disabled
         end
         div.find("input#server_configuration_form_allow_auto_login[name='server_configuration_form[allow_auto_login]'][type='checkbox'][value='true']").tap do |checkbox|
@@ -218,7 +218,7 @@ describe "admin/server/index.html.erb" do
       render
 
       Capybara.string(response.body).find('#user_management').tap do |div|
-        div.find("input[name='server_configuration_form[allow_auto_login]'][type='hidden'][value='false']").tap do |hidden_value_for_checkbox|
+        div.find("input[name='server_configuration_form[allow_auto_login]'][type='hidden'][value='false']", visible: :hidden).tap do |hidden_value_for_checkbox|
           expect(hidden_value_for_checkbox).to_not be_disabled
         end
         div.find("input#server_configuration_form_allow_auto_login[name='server_configuration_form[allow_auto_login]'][type='checkbox'][value='true']").tap do |checkbox|

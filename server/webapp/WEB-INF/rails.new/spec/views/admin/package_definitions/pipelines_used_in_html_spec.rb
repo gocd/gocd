@@ -55,12 +55,12 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
       render
 
-      Capybara.string(response.body).find("table[class='list_table']").tap do |table|
-        table.all("tr") do |trs|
-          trs[0].find("td") do |td|
-            expect(td).to have_selector("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
+      Capybara.string(response.body).find("table[class='list_table'] tbody").tap do |table|
+        table.all("tr").tap do |trs|
+          trs[0].all("td").tap do |tds|
+                  expect(tds[0]).to have_selector("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
+                  expect(tds[1]).to have_content(@group_one.getGroup())
           end
-          expect(trs[1]).to have_selector("td", :text => @group_one.getGroup())
         end
       end
     end
@@ -70,12 +70,12 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
       render
 
-      Capybara.string(response.body).find("table[class='list_table']").tap do |table|
-        table.all("tr") do |trs|
-          trs[0].find("td") do |td|
-            expect(td).to have_selector("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
+      Capybara.string(response.body).find("table[class='list_table'] tbody").tap do |table|
+        table.all("tr").tap do |trs|
+          trs[0].all("td").tap do |tds|
+            expect(tds[0]).to have_selector("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
+            expect(tds[1]).to have_content(@group_one.getGroup())
           end
-          expect(trs[1]).to have_selector("td", :text => @group_one.getGroup())
         end
       end
     end
@@ -85,10 +85,12 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
       render
 
-      Capybara.string(response.body).find("table[class='list_table']").tap do |table|
-        table.all("tr") do |trs|
-          expect(trs[0]).to have_selector("td", :text => @pipeline_config.name().toString())
-          expect(trs[1]).to have_selector("td", :text => @group_one.getGroup())
+      Capybara.string(response.body).find("table[class='list_table'] tbody").tap do |table|
+        table.all("tr").tap do |trs|
+          trs[0].all("td").tap do |tds|
+            expect(tds[0]).to have_content(@pipeline_config.name().toString())
+            expect(tds[1]).to have_content(@group_one.getGroup())
+          end
         end
       end
       expect(response.body).not_to have_selector("a")

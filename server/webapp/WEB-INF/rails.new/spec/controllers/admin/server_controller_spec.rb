@@ -117,8 +117,7 @@ describe Admin::ServerController do
         allow(controller).to receive(:cruise_config_md5).and_return('foo_bar_baz')
 
         get :index
-
-        expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+        expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']", visible: :hidden)
       end
     end
   end

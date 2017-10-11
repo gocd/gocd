@@ -96,11 +96,11 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    Capybara.string(response.body).all(".stages a .stage_bar") do |stages|
+    Capybara.string(response.body).all(".stages a .stage_bar").tap do |stages|
       second_stage = stages[1]
       expect(second_stage["class"]).to match("Passed")
-      expect(second_stage.attributes["class"]).not_to include("last_run_stage")
-      expect(second_stage.attributes["style"]).to include("width: 9.9167em")
+      expect(second_stage["class"]).not_to include("last_run_stage")
+      expect(second_stage["style"]).to include("width: 9.9167em")
     end
   end
 

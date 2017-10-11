@@ -55,13 +55,13 @@ describe "list.html.erb" do
 
       Capybara.string(response.body).find('ul.repositories').tap do |ul|
         # assertions for repo one
-        ul.all("li") do |lis|
+        ul.all("li").tap do |lis|
           expect(lis[0]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
         end
 
         # assertions for repo two
-        ul.all("li") do |lis|
-          expect(lis[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
+        ul.all("li").tap do |lis|
+          expect(lis[3]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
         end
       end
 
@@ -78,8 +78,8 @@ describe "list.html.erb" do
         end
 
         # assertions for repo two
-        ul.all("li") do |lis|
-          expect(lis[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
+        ul.all("li").tap do |lis|
+          expect(lis[3]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
         end
       end
 
@@ -91,29 +91,29 @@ describe "list.html.erb" do
 
       Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
         #assertions for repo one
-        ul_1.all("li") do |li_1s|
+        ul_1.all("li").tap do |li_1s|
           expect(li_1s[0]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
 
           li_1s[0].find("ul.packages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']", :text => 'pname1')
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[0]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']", :text => 'pname1')
             end
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']", :text => 'pname2')
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[1]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']", :text => 'pname2')
             end
           end
         end
 
         # assertions for repo two
-        ul_1.all("li") do |li_1s|
-          expect(li_1s[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
+        ul_1.all("li").tap do |li_1s|
+          expect(li_1s[3]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
 
-          li_1s[1].find("ul.packages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']", :text => 'pname3')
+          li_1s[3].find("ul.packages") do |ul_2|
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[0]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']", :text => 'pname3')
             end
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']", :text => 'pname4')
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[1]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']", :text => 'pname4')
             end
           end
         end
@@ -132,22 +132,22 @@ describe "list.html.erb" do
             ul_2.find("li.selected") do |li_2|
               expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']", :text => 'pname1')
             end
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']", :text => 'pname2')
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[1]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']", :text => 'pname2')
             end
           end
         end
 
         # assertions for repo two
-        ul_1.all("li") do |li_1s|
-          expect(li_1s[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
+        ul_1.all("li").tap do |li_1s|
+          expect(li_1s[3]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
 
-          li_1s[1].find("ul.packages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']", :text => 'pname3')
+          li_1s[3].find("ul.packages") do |ul_2|
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[0]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']", :text => 'pname3')
             end
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']", :text => 'pname4')
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[1]).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']", :text => 'pname4')
             end
           end
         end
@@ -158,12 +158,12 @@ describe "list.html.erb" do
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
       Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
-        ul_1.all("li") do |li_1s|
+        ul_1.all("li").tap do |li_1s|
           expect(li_1s[0]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
 
           li_1s[0].find("ul.packages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("form button[title='This package is being used in one or more pipeline(s), cannot delete the package'][disabled='disabled']")
+            ul_2.all("li").tap do |li_2|
+              expect(li_2[0]).to have_selector("form button[title='This package is being used in one or more pipeline(s), cannot delete the package'][disabled='disabled']")
             end
           end
         end
@@ -174,16 +174,16 @@ describe "list.html.erb" do
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
       Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
-        ul_1.all("li") do |li_1s|
-          li_1s[0].find("ul.packages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              li_2.find("form[action='#{package_definition_delete_path(:repo_id => 'id2', :package_id => 'pid4')}'][id='delete_package_pid4'][method='post']") do |form|
-                expect(form).to have_selector("input[name='_method'][type='hidden'][value='delete']")
-                expect(form).to have_selector("input[name='config_md5'][type='hidden'][value='abc']")
+        ul_1.all("li").tap do |li_1s|
+          li_1s[3].find("ul.packages") do |ul_2|
+            ul_2.all("li").tap do |li_2|
+              li_2[1].find("form[action='#{package_definition_delete_path(:repo_id => 'id2', :package_id => 'pid4')}'][id='delete_package_pid4'][method='post']") do |form|
+                expect(form).to have_selector("input[name='_method'][type='hidden'][value='delete']", visible: :hidden)
+                expect(form).to have_selector("input[name='config_md5'][type='hidden'][value='abc']", visible: :hidden)
                 form.find("span[id='package_delete_from_tree_pid4']") do |span|
                   expect(span).to have_selector("button[id='delete_button_from_tree_pid4']")
-                  span.find("div[id='warning_prompt']") do |div|
-                    expect(div).to have_selector("p","You are about to delete package pname4")
+                  span.find("div[id='warning_prompt']", visible: :hidden) do |div|
+                    expect(div).to have_selector("p","You are about to delete package pname4", visible: :hidden)
                   end
                 end
               end

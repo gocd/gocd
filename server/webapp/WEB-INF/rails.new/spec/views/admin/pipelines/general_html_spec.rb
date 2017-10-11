@@ -35,7 +35,7 @@ describe "admin/pipelines/general.html.erb" do
     render
 
     Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']", visible: :hidden)
 
       expect(form).to have_selector("div[class='contextual_help has_go_tip_right']")
       expect(form).to have_selector("input[type='text'][name='pipeline[#{PipelineConfig::NAME}]'][value='pipeline-name']")
@@ -61,7 +61,7 @@ describe "admin/pipelines/general.html.erb" do
     render
 
     Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[approval][type]'][value='manual']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[approval][type]'][value='manual']", visible: :hidden)
       expect(form).to have_selector("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked'][value='success']")
       expect(form).to have_selector("label[for='pipeline_approval_type']", :text => "Automatic pipeline scheduling")
       expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")
@@ -78,7 +78,7 @@ describe "admin/pipelines/general.html.erb" do
     Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
       expect(form).not_to have_selector("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked']")
 
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[approval][type]'][value='manual']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[approval][type]'][value='manual']", visible: :hidden)
       expect(form).to have_selector("input[type='checkbox'][name='pipeline[approval][type]'][value='success']")
       expect(form).to have_selector("label[for='pipeline_approval_type']", :text => "Automatic pipeline scheduling")
       expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")

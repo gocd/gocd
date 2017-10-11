@@ -164,7 +164,7 @@ describe Admin::StagesController, "view" do
     def assert_has_new_form
       Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline-name/stages']").tap do |form|
         expect(form).to have_selector("input[type='text'][name='stage[name]']")
-        expect(form).to have_selector("input[type='hidden'][name='config_md5'][id='config_md5'][value='1234abcd']")
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][id='config_md5'][value='1234abcd']", {visible: :hidden})
       end
     end
   end

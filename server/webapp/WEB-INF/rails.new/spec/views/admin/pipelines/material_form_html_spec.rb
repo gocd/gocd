@@ -258,7 +258,7 @@ describe "admin/pipelines/new.html.erb" do
         render
 
         Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .PackageMaterial").tap do |form|
-          expect(form).to have_selector("input[type='hidden'][name='material_type'][value='#{com.thoughtworks.go.config.materials.PackageMaterialConfig::TYPE}']")
+          expect(form).to have_selector("input[type='hidden'][name='material_type'][value='#{com.thoughtworks.go.config.materials.PackageMaterialConfig::TYPE}']", visible: :hidden)
           expect(form).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
           expect(form).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
           form.find("select.required[name='material[package_definition[repositoryId]]']") do |select|
@@ -276,7 +276,7 @@ describe "admin/pipelines/new.html.erb" do
 
         render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
-        expect(response.body).to have_selector("input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
+        expect(response.body).to have_selector("input[type='hidden'][name='material_type'][value='#{@material.getType()}']", visible: :hidden)
         expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
         expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
 

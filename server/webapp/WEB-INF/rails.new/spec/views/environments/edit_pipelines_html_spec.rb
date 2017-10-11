@@ -32,6 +32,6 @@ describe "environments/edit_pipelines.html.erb" do
   it "should have cruise_config_md5 as part of output" do
     stub_template "environments/_edit_pipelines.html.erb" => "DUMMY"
     render
-    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']", visible: :hidden)
   end
 end

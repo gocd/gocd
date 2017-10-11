@@ -36,9 +36,9 @@ describe "admin/pipeline_groups/edit.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='/admin/pipeline_group/group1'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='_method'][value='PUT']")
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='PUT']", {visible: :hidden})
 
-      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']", {visible: :hidden})
 
       expect(form).to have_selector("label[for='group_group']", :text => "Pipeline Group Name*")
       expect(form).to have_selector("input[type='text'][name='group[group]'][value='group1'][id='group_group']")
@@ -77,7 +77,7 @@ describe "admin/pipeline_groups/edit.html.erb" do
   def match_row form, name, type, admin, operate, view
     form.find("tr##{type}_#{name}") do |tr|
       expect(tr).to have_selector("input[type='text'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::NAME}]'][value='#{name}']")
-      expect(tr).to have_selector("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']")
+      expect(tr).to have_selector("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']", {visible: :hidden})
 
       match_privilege tr, admin, Authorization::PresentationElement::ADMIN_PRIVILEGE
       match_privilege tr, operate, Authorization::PresentationElement::OPERATE_PRIVILEGE
@@ -86,7 +86,7 @@ describe "admin/pipeline_groups/edit.html.erb" do
   end
 
   def match_privilege tr, privilege_state, privilege_type
-    expect(tr).to have_selector("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{privilege_type}]'][value='#{privilege_state}']")
+    expect(tr).to have_selector("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{privilege_type}]'][value='#{privilege_state}']", {visible: :hidden})
     expect(tr).to have_selector("input[type='checkbox'][name='#{privilege_type}']")
   end
 end

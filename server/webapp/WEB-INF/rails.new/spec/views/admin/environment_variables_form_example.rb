@@ -24,14 +24,14 @@ shared_examples_for :environment_variables_form do
 
     Capybara.string(response.body).find('form').tap do |form|
       expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='env-name']")
-      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='env-name']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='env-name']", {visible: :hidden})
       expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val']")
 
       expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='env-name2']")
-      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='env-name2']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='env-name2']", {visible: :hidden})
       expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val2']")
 
-      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
+      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']", {visible: :hidden})
     end
   end
 
@@ -71,11 +71,11 @@ shared_examples_for :secure_environment_variables_form do
 
     Capybara.string(response.body).find('form').tap do |form|
       expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='password']")
-      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='password']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='password']", {visible: :hidden})
       expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password']")
-      expect(form).to have_selector("input[name='#{@object_name}[variables][][secure]'][value='true']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][secure]'][value='true']", {visible: :hidden})
 
-      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
+      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']", {visible: :hidden})
     end
   end
 
@@ -94,8 +94,8 @@ shared_examples_for :secure_environment_variables_form do
 
     Capybara.string(response.body).find('form').tap do |form|
       expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password'][readonly='readonly']")
-      expect(form).to have_selector("input[name='#{@object_name}[variables][][originalValue]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='hidden']")
-      expect(form).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='false']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][originalValue]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='hidden']", {visible: :hidden})
+      expect(form).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='false']", {visible: :hidden})
       expect(form).to have_selector("a.edit.skip_dirty_stop", text: "Edit")
       expect(form).to have_selector("a.reset.hidden.skip_dirty_stop", text: "Reset")
     end

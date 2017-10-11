@@ -39,8 +39,8 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/p4/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
-    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", visible: :hidden)
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']", visible: :hidden)
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='P4 Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{P4MaterialConfig::SERVER_AND_PORT}]'][value='p4:5000']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{P4MaterialConfig::USERNAME}]'][value='loser']")

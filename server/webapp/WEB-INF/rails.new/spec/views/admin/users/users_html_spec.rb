@@ -89,7 +89,7 @@ describe "/admin/users/users.html.erb" do
   it "should have a hidden field for operation for IE7 fix" do
     render
     Capybara.string(response.body).find("form#users_form").tap do |form|
-      expect(form).to have_selector("input#operation[name='operation']")
+      expect(form).to have_selector("input#operation[name='operation']", {visible: :hidden})
     end
    end
 end

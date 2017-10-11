@@ -116,8 +116,8 @@ describe "/shared/_build_cause_popup.html.erb" do
         expect(svn_material).to have_selector("#material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed", text: "Subversion - #{SVN_MATERIAL_NAME}")
       end
       build_cause.find("##{@svn_material_id}_0.change.changed") do |first_svn_material_modification|
-        expect(first_svn_material_modification).to have_selector(".modified_by", text: "&lt;script&gt;alert('Check-in user')&lt;/script&gt;#{@date.iso8601}")
-        expect(first_svn_material_modification.find(".comment").text.strip).to eq("&lt;script&gt;alert('Check-in comment')&lt;/script&gt;")
+        expect(first_svn_material_modification.find(".modified_by").text.strip).to eq("<script>alert('Check-in user')</script>#{@date.iso8601}")
+        expect(first_svn_material_modification.find(".comment").text.strip).to eq("<script>alert('Check-in comment')</script>")
       end
     end
   end

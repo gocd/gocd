@@ -59,7 +59,7 @@ describe "admin/configuration/split_pane.html.erb" do
       end
       div.find("div.current_content").tap do |current_content|
         current_content.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |conflicted_content|
-          expect(current_content).to have_selector("input[name='_method'][value='put']")
+          expect(current_content).to have_selector("input[name='_method'][value='put']", visible: :hidden)
           current_content.find("div.form_heading").tap do |form_heading|
             expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: #{difference} by Ali")
             expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: #{difference} by Ali']")
@@ -68,7 +68,7 @@ describe "admin/configuration/split_pane.html.erb" do
               expect(buttons_group).to have_selector("a#cancel_edit[class='link_as_button'][href='config_view_path']", :text => "Cancel")
             end
           end
-          expect(current_content).to have_selector("input[type='hidden'][name='go_config[md5]'][value='current-md5']")
+          expect(current_content).to have_selector("input[type='hidden'][name='go_config[md5]'][value='current-md5']", visible: :hidden)
           expect(current_content).to have_selector("textarea#content[name='go_config[content]']", :text => "current-content")
         end
       end

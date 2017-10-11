@@ -56,7 +56,7 @@ describe "admin/package_repositories/new.html.erb" do
       end
     end
 
-    it "should have add package repository form" do
+    it "should render package repository form with installed plugin" do
       allow(view).to receive(:package_material_plugins).and_return([["[Select]", ""], "pluginid"])
 
       render
@@ -69,8 +69,8 @@ describe "admin/package_repositories/new.html.erb" do
 
         expect(form).to have_selector "label[for='package_repository_pluginConfiguration_id']"
         form.find("select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']") do |select|
-          expect(select).not_to have_selector("option[value='']", :text => "[Select]")
-          expect(select).not_to have_selector("option[value='pluginid']", :text => "pluginid")
+          expect(select).to have_selector("option[value='']", :text => "[Select]")
+          expect(select).to have_selector("option[value='pluginid']", :text => "pluginid")
         end
         expect(form).not_to have_selector("div .information", :text => "No plugins found. To configure a package repository you must have plugin(s) installed.")
 
@@ -81,7 +81,7 @@ describe "admin/package_repositories/new.html.erb" do
       end
     end
 
-    it "should display message next to select box if no plugins found" do
+    it "should display message when no package repository plugin installed" do
       allow(view).to receive(:package_material_plugins).and_return([["[Select]", ""]])
 
       render

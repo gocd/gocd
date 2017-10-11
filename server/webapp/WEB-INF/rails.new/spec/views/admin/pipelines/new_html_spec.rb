@@ -168,7 +168,7 @@ describe "admin/pipelines/new.html.erb" do
       render
 
       Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
-        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']", visible: :hidden)
       end
     end
   end

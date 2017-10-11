@@ -212,9 +212,9 @@ describe ComparisonController, "view" do
         timeline_container.find("form").find("div.results").find("div.pipeline_instance_details").tap do |pipeline_instance_details|
           pipeline_instance_details.find("div#pim_details_0").tap do |pim_0|
             expect(pim_0.find("div.pipeline").all("div.stages")[0].find("div.pipeline_counter")).to have_selector("h3", :text => "some-label")
-            expect(pim_0).to have_selector("input[value='/compare/some_pipeline/1/with/3']")
+            expect(pim_0).to have_selector("input[value='/compare/some_pipeline/1/with/3']", visible: :hidden)
           end
-          expect(pipeline_instance_details.find("div#pim_details_4")).to have_selector("input[value='/compare/some_pipeline/5/with/3']")
+          expect(pipeline_instance_details.find("div#pim_details_4")).to have_selector("input[value='/compare/some_pipeline/5/with/3']", visible: :hidden)
         end
       end
 
@@ -228,8 +228,8 @@ describe ComparisonController, "view" do
 
       Capybara.string(response.body).find("div#modal_timeline_container").find("div.modal_timeline").tap do |timeline_container|
         timeline_container.find("form").find("div.results").find("div.pipeline_instance_details").tap do |pipeline_instance_details|
-          expect(pipeline_instance_details.find("div#pim_details_4")).to have_selector("input[value='/compare/some_pipeline/3/with/5']")
-          expect(pipeline_instance_details.find("div#pim_details_0")).to have_selector("input[value='/compare/some_pipeline/3/with/1']")
+          expect(pipeline_instance_details.find("div#pim_details_4")).to have_selector("input[value='/compare/some_pipeline/3/with/5']", visible: :hidden)
+          expect(pipeline_instance_details.find("div#pim_details_0")).to have_selector("input[value='/compare/some_pipeline/3/with/1']", visible: :hidden)
         end
       end
     end

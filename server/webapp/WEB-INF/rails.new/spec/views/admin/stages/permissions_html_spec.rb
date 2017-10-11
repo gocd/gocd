@@ -58,7 +58,7 @@ describe "admin/stages/permissions.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']") #Check the md5
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']", {visible: :hidden}) #Check the md5
       form.find(".form_item.security_mode") do |form_item|
         expect(form_item).to have_selector("span", :text => "For this stage:")
         expect(form_item).to have_selector("label[for='inherit_permissions']", :text => "Inherit from the pipeline group")
@@ -75,12 +75,12 @@ describe "admin/stages/permissions.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all(".form_item.security_mode") do |form_items| #check that inherit radio is selected
+      form.all(".form_item.security_mode").tap do |form_items| #check that inherit radio is selected
         expect(form_items[0]).to have_selector("span", :text => "For this stage:")
         expect(form_items[0]).to have_selector("label[for='inherit_permissions']", :text => "Inherit from the pipeline group")
         expect(form_items[0]).to have_selector("input[id='inherit_permissions'][name='stage[securityMode]'][type='radio'][value='inherit'][checked='checked']")
       end
-      form.all(".form_item") do |form_items| #check that there is a message
+      form.all(".form_item").tap do |form_items| #check that there is a message
         form_items[1].find(".inherited_permissions") do |inherited_permissions|
           expect(inherited_permissions).to have_selector(".no_permissions_message", :text => "There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage.")
         end
@@ -96,12 +96,12 @@ describe "admin/stages/permissions.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all(".form_item.security_mode") do |form_items|
+      form.all(".form_item.security_mode").tap do |form_items|
         expect(form_items[0]).to have_selector("span", :text => "For this stage:")
         expect(form_items[0]).to have_selector("label[for='define_permissions']", :text => "Specify locally")
         expect(form_items[0]).to have_selector("input[id='define_permissions'][name='stage[securityMode]'][type='radio'][value='define'][checked='checked']")
       end
-      form.all(".form_item") do |form_items|
+      form.all(".form_item").tap do |form_items|
         expect(form_items[1]).to have_selector(".inherited_permissions.hidden")
         form_items[1].find(".stage_permissions .users") do |users|
           expect(users).to have_selector("input[type='text'][value='user1'][name='stage[operateUsers][][name]']")
@@ -127,12 +127,12 @@ describe "admin/stages/permissions.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all(".form_item.security_mode") do |form_items|
+      form.all(".form_item.security_mode").tap do |form_items|
         expect(form_items[0]).to have_selector("span", :text => "For this stage:")
         expect(form_items[0]).to have_selector("label[for='define_permissions']", :text => "Specify locally")
         expect(form_items[0]).to have_selector("input[id='define_permissions'][name='stage[securityMode]'][type='radio'][value='define'][checked='checked']")
       end
-      form.all(".form_item") do |form_items|
+      form.all(".form_item").tap do |form_items|
         expect(form_items[1]).to have_selector(".inherited_permissions.hidden")
         form_items[1].find(".stage_permissions .users") do |users|
           expect(users).to have_selector("input[type='text'][value='user1'][name='stage[operateUsers][][name]']")
@@ -155,12 +155,12 @@ describe "admin/stages/permissions.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all(".form_item.security_mode") do |form_items|
+      form.all(".form_item.security_mode").tap do |form_items|
         expect(form_items[0]).to have_selector("span", :text => "For this stage:")
         expect(form_items[0]).to have_selector("label[for='define_permissions']", :text => "Specify locally")
         expect(form_items[0]).to have_selector("input[id='inherit_permissions'][name='stage[securityMode]'][type='radio'][value='inherit'][checked='checked']")
       end
-      form.all(".form_item") do |form_items|
+      form.all(".form_item").tap do |form_items|
         expect(form_items[1]).to have_selector(".inherited_permissions")
         form_items[1].find(".stage_permissions.hidden .users") do |users|
           expect(users).to have_selector("input[type='text'][value='user1'][name='stage[operateUsers][][name]']")
@@ -183,12 +183,12 @@ describe "admin/stages/permissions.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all(".form_item.security_mode") do |form_items|
+      form.all(".form_item.security_mode").tap do |form_items|
         expect(form_items[0]).to have_selector("span", :text => "For this stage:")
         expect(form_items[0]).to have_selector("label[for='define_permissions']", :text => "Specify locally")
         expect(form_items[0]).to have_selector("input[id='inherit_permissions'][name='stage[securityMode]'][type='radio'][value='inherit'][checked='checked']")
       end
-      form.all(".form_item") do |form_items|
+      form.all(".form_item").tap do |form_items|
         expect(form_items[1]).not_to have_selector(".inherited_permissions .no_permissions_message")
         form_items[1].find(".inherited_permissions .users") do |users|
           expect(users).to have_selector("input[type='text'][value='user1'][name='stage[operateUsers][][name]'][disabled='disabled']")

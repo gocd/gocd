@@ -40,10 +40,10 @@ describe "_form.html.erb" do
     in_params(:pipeline_name => "pipeline-name")
     render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", visible: :hidden)
     expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
     expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
-    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']", visible: :hidden)
     Capybara.string(response.body).find("select[name='material[package_definition[repositoryId]]']").tap do |select|
       expect(select).not_to have_selector("option")
     end
@@ -59,8 +59,8 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
-    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", visible: :hidden)
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']", visible: :hidden)
     expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
     expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
     Capybara.string(response.body).find("select[name='material[package_definition[repositoryId]]']").tap do |select|

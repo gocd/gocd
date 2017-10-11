@@ -103,7 +103,7 @@ describe "/environments/_environment.html.erb" do
     end
 
     it "should display run Label for pipeline" do
-      expect(response).to have_selector(".pipelines .status .pipeline_run_label", :text => /Run:\s+1/)
+      expect(response).to have_selector(".pipelines .status .pipeline_run_label", :text => /Instance:\s+1/)
     end
 
     it "should display link to VSM for the pipeline run" do

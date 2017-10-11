@@ -74,7 +74,7 @@ describe "pipelines/index.html.erb" do
         first_pipeline_in_group_1 = all_pipelines_in_group_1[0]
 
         expect(first_pipeline_in_group_1).to have_selector(".title a", :text => "pipeline-1")
-        expect(first_pipeline_in_group_1).to have_selector(".status .pipeline_run_label", :text => /Run:\s+label-1/)
+        expect(first_pipeline_in_group_1).to have_selector(".status .pipeline_run_label", :text => /Instance:\s+label-1/)
         expect(first_pipeline_in_group_1).to have_selector(".status .vsm_link_wrapper a[href='/pipelines/value_stream_map/pipeline-1/5']", :text => "VSM")
           first_pipeline_in_group_1.find(".stages").tap do |stages|
           expect(stages).to have_selector(".latest_stage", :text => "Passed: cruise")
@@ -89,7 +89,7 @@ describe "pipelines/index.html.erb" do
         second_pipeline_in_group_1 = all_pipelines_in_group_1[1]
 
         expect(second_pipeline_in_group_1).to have_selector(".title a", :text => "pipeline-2")
-        expect(second_pipeline_in_group_1).to have_selector(".status .pipeline_run_label", :text => /Run:\s+label-2/)
+        expect(second_pipeline_in_group_1).to have_selector(".status .pipeline_run_label", :text => /Instance:\s+label-2/)
         expect(second_pipeline_in_group_1).to have_selector(".status .vsm_link_wrapper a[href='/pipelines/value_stream_map/pipeline-2/5']", :text => "VSM")
         second_pipeline_in_group_1.find(".stages").tap do |stages|
           expect(stages).to have_selector(".latest_stage", :text => "Building: cruise")
@@ -131,7 +131,7 @@ describe "pipelines/index.html.erb" do
       all_groups[0].all(".pipelines .pipeline .pipeline_instance").tap do |all_pipelines_in_group_1|
         second_pipeline_in_group_1 = all_pipelines_in_group_1[1]
 
-        expect(second_pipeline_in_group_1).to have_selector(".status .pipeline_run_label", :text => /Run:\s+label-2/)
+        expect(second_pipeline_in_group_1).to have_selector(".status .pipeline_run_label", :text => /Instance:\s+label-2/)
         second_pipeline_in_group_1.find(".previously").tap do |previously|
           expect(previously).to have_selector(".label", :text => "Previously:")
           expect(previously).to have_selector("a.result[href='/pipelines/pipeline-2/3/cruise/2'][title='label-007']", :text => "Failed")

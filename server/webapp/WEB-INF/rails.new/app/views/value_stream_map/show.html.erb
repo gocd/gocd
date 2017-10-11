@@ -7,8 +7,8 @@
           <span class="label">Pipeline</span>
           <%=link_to params[:pipeline_name], url_for_pipeline(params[:pipeline_name]) %></li>
         <li class="last">
-          <span class="label">Run</span>
-          <h1><%= @pipeline!=nil ? @pipeline.getLabel() : params[:pipeline_counter] %> VSM</h1></li>
+          <span class="label">Instance</span>
+          <h1><%= @pipeline!=nil ? @pipeline.getLabel() : params[:pipeline_counter] %> </h1></li>
     </ul>
 </div>
 

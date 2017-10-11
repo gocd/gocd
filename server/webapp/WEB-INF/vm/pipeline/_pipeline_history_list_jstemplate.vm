@@ -67,7 +67,7 @@
     <table class="pipeline-history-group" cellpadding="0" cellspacing="0" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
         <thead>
             <tr>
-                <th class="pipeline-run-header" scope="col">Run</th>
+                <th class="pipeline-instance-header" scope="col">Instance</th>
                 {for stage in group.config.stages}
                 <th class="column-header{if stage_index == group.config.stages.length - 1} last-stage{/if}" scope="col">
                     <span>${% stage.name %}</span>

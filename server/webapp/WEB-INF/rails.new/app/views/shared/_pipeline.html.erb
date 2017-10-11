@@ -64,7 +64,7 @@
                 <% end -%>
                 <span class="separator">&nbsp;</span>
                 <span class="vsm_link_wrapper">
-                    <a href="<%= url_for_pipeline_value_stream_map(active_pipeline_in_pipeline) -%>" title="VSM for Run: <%= active_pipeline_in_pipeline.getLabel()%>">VSM</a>
+                    <a href="<%= url_for_pipeline_value_stream_map(active_pipeline_in_pipeline) -%>" title="VSM for Pipeline Instance: <%= active_pipeline_in_pipeline.getLabel()%>">VSM</a>
                 </span>
                 <%= render :partial=> 'pipelines/pipeline_instance_details.html', :locals => {:scope =>{:active_pipeline_in_pipeline => active_pipeline_in_pipeline}} %>
             </div>

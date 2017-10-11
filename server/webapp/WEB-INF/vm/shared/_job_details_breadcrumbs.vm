@@ -25,7 +25,7 @@
            title="View this pipeline's activity">$presenter.pipelineName</a>
       </li>
       <li class="pipeline_label">
-        <span class="label">Run</span>
+        <span class="label">Instance</span>
         <span class="run_no">$presenter.pipelineLabel</span>
         <a href="$req.getContextPath()/pipelines/value_stream_map/$presenter.pipelineName/$presenter.pipelineCounter"
            title="View this stage's jobs summary">VSM</a>

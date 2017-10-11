@@ -51,7 +51,7 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    expect(response.body).to have_selector(" .status .pipeline_run_label", :text => /Run:\s+1/)
+    expect(response.body).to have_selector(" .status .pipeline_run_label", :text => /Instance:\s+1/)
     expect(response).to have_selector(".status .vsm_link_wrapper a[href='/pipelines/value_stream_map/pipeline/1']", :text => "VSM")
     expect(response.body).to have_selector(".status .schedule_time[title='Server Time: #{now.toDate().to_long_display_date_time}']")
     expect(response.body).to have_selector(".status .schedule_time span.time[data='#{now.toDate().getTime()}']")

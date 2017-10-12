@@ -23,10 +23,7 @@ import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.domain.materials.tfs.TFSJarDetector;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -36,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -283,5 +281,30 @@ public class AgentRegistrationControllerTest {
 
         verify(agentService).requestRegistration(username, AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false, timeProvider));
         verify(agentConfigService, times(0)).updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(username));
+    }
+
+    @Test
+    public void shouldRegisterElasticAgent() throws Exception {
+        final String uuid = "uuid";
+        final ServerConfig serverConfig = mock(ServerConfig.class);
+        final Username username = new Username("some-agent-login-name");
+
+        when(goConfigService.hasAgent(uuid)).thenReturn(true);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(serverConfig.shouldAutoRegisterAgentWith("some-key")).thenReturn(true);
+        when(agentService.agentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(username);
+
+        controller.agentRequest("host", uuid, "location", "233232",
+                "osx", "some-key", "", "",
+                "", "1a2dffb-4832-4fdf-b9e4-5d598cc48c8e", "cd.go.contrib.docker-swarm", false, request);
+
+        final ArgumentCaptor<ElasticAgentRuntimeInfo> argumentCaptor = ArgumentCaptor.forClass(ElasticAgentRuntimeInfo.class);
+
+        verify(agentService).requestRegistration(eq(username), argumentCaptor.capture());
+        verify(agentConfigService, times(0)).updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(username));
+
+        final ElasticAgentRuntimeInfo agentRuntimeInfo = argumentCaptor.getValue();
+        assertThat(agentRuntimeInfo.getElasticAgentId(), is("1a2dffb-4832-4fdf-b9e4-5d598cc48c8e"));
+        assertThat(agentRuntimeInfo.getElasticPluginId(), is("cd.go.contrib.docker-swarm"));
     }
 }

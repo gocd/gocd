@@ -230,12 +230,10 @@ public class AgentRegistrationController {
 
             final long usableSpace = Long.parseLong(usablespaceAsString);
 
-            AgentRuntimeInfo agentRuntimeInfo = null;
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, goConfigService.hasAgent(uuid), location, usableSpace, operatingSystem, supportsBuildCommandProtocol, timeProvider);
 
             if (isElasticAgent(elasticAgentId, elasticPluginId)) {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId, timeProvider);
-            } else {
-                agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, goConfigService.hasAgent(uuid), location, usableSpace, operatingSystem, supportsBuildCommandProtocol, timeProvider);
             }
 
             keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);

@@ -16,14 +16,14 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
+describe ApiV5::Shared::Stages::Tasks::TaskRepresenter do
   include TaskMother
 
   shared_examples_for 'tasks' do
 
     describe :serialize do
       it 'should render task with hal representation' do
-        presenter          = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(existing_task)
+        presenter          = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(existing_task)
         actual_json        = presenter.to_hash(url_builder: UrlBuilder.new)
         expected_task_hash = task_hash
         expect(actual_json).to eq(expected_task_hash)
@@ -31,7 +31,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
 
       it 'should render task with hal representation with run_if' do
         run_if_config                            = [RunIfConfig::PASSED, RunIfConfig::FAILED, RunIfConfig::ANY].sample
-        presenter                                = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(with_run_if(run_if_config, existing_task))
+        presenter                                = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(with_run_if(run_if_config, existing_task))
         actual_json                              = presenter.to_hash(url_builder: UrlBuilder.new)
         expected_task_hash                       = task_hash
         expected_task_hash[:attributes][:run_if] = [run_if_config.to_s]
@@ -41,10 +41,10 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       it 'should render task with hal representation with oncancel' do
         on_cancel_task = ant_task('build.xml', 'package', 'hero/ka/directory')
         existing_task.setCancelTask(on_cancel_task)
-        presenter                                   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(existing_task)
+        presenter                                   = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(existing_task)
         actual_json                                 = presenter.to_hash(url_builder: UrlBuilder.new)
         expected_task_hash                          = task_hash
-        expected_task_hash[:attributes][:on_cancel] = ApiV4::Shared::Stages::Tasks::OnCancelRepresenter.new(existing_task.getOnCancelConfig).to_hash(url_builder: UrlBuilder.new)
+        expected_task_hash[:attributes][:on_cancel] = ApiV5::Shared::Stages::Tasks::OnCancelRepresenter.new(existing_task.getOnCancelConfig).to_hash(url_builder: UrlBuilder.new)
         expect(actual_json).to eq(expected_task_hash)
       end
     end
@@ -53,8 +53,8 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       it 'should convert hash to Task' do
         new_task = task_type.new
 
-        presenter = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(new_task)
-        presenter.from_hash(ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(existing_task).to_hash(url_builder: UrlBuilder.new))
+        presenter = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(new_task)
+        presenter.from_hash(ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(existing_task).to_hash(url_builder: UrlBuilder.new))
         expect(new_task).to eq(existing_task)
       end
 
@@ -64,8 +64,8 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
         run_if_config    = [RunIfConfig::PASSED, RunIfConfig::FAILED, RunIfConfig::ANY].sample
         task_with_run_if = with_run_if(run_if_config, existing_task)
 
-        presenter = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(new_task)
-        presenter.from_hash(ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task_with_run_if).to_hash(url_builder: UrlBuilder.new))
+        presenter = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(new_task)
+        presenter.from_hash(ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task_with_run_if).to_hash(url_builder: UrlBuilder.new))
 
         expect(new_task).to eq(task_with_run_if)
       end
@@ -76,8 +76,8 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
 
         new_task = task_type.new
 
-        presenter = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(new_task)
-        presenter.from_hash(ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(existing_task).to_hash(url_builder: UrlBuilder.new))
+        presenter = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(new_task)
+        presenter.from_hash(ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(existing_task).to_hash(url_builder: UrlBuilder.new))
 
         expect(new_task).to eq(existing_task)
       end
@@ -119,7 +119,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
-      presenter   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task)
+      presenter   = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(errors_hash)
       expect(errors_hash[:errors].keys.size).to eq(task.errors.size)
@@ -183,7 +183,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
-      presenter   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task)
+      presenter   = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(errors_hash)
       expect(errors_hash[:errors].keys.size).to eq(task.errors.size)
@@ -191,8 +191,8 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
 
     it 'should represent the ant task attributes as null if blank' do
       task = AntTask.new
-      ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task).from_hash(default_task_hash)
-      actual_json = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task).to_hash(url_builder: UrlBuilder.new)
+      ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task).from_hash(default_task_hash)
+      actual_json = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task).to_hash(url_builder: UrlBuilder.new)
       expect(task.getTarget).to eq(nil)
       expect(task.getBuildFile).to eq(nil)
       expect(task.workingDirectory).to eq(nil)
@@ -260,7 +260,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
-      presenter   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task)
+      presenter   = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(errors_hash)
       expect(errors_hash[:errors].keys.size).to eq(task.errors.size)
@@ -268,8 +268,8 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
 
     it 'should represent the nant task attributes as null if blank' do
       task = NantTask.new
-      ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task).from_hash(default_task_hash)
-      actual_json = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task).to_hash(url_builder: UrlBuilder.new)
+      ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task).from_hash(default_task_hash)
+      actual_json = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task).to_hash(url_builder: UrlBuilder.new)
       expect(task.getTarget).to eq(nil)
       expect(task.getBuildFile).to eq(nil)
       expect(task.workingDirectory).to eq(nil)
@@ -336,7 +336,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
-      presenter   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task)
+      presenter   = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(errors_hash)
       expect(errors_hash[:errors].keys.size).to eq(task.errors.size)
@@ -344,8 +344,8 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
 
     it 'should represent the rake task attributes as null if not provided' do
       task = RakeTask.new
-      ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task).from_hash(default_task_hash)
-      actual_json = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(task).to_hash(url_builder: UrlBuilder.new)
+      ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task).from_hash(default_task_hash)
+      actual_json = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(task).to_hash(url_builder: UrlBuilder.new)
       expect(task.getTarget).to eq(nil)
       expect(task.getBuildFile).to eq(nil)
       expect(task.workingDirectory).to eq(nil)
@@ -388,7 +388,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
       validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
       fetch_task.validateTree(validation_context)
 
-      presenter   = ApiV4::Shared::Stages::Tasks::TaskRepresenter.new(fetch_task)
+      presenter   = ApiV5::Shared::Stages::Tasks::TaskRepresenter.new(fetch_task)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(errors_hash)
       expect(errors_hash[:errors].keys.size).to eq(fetch_task.errors.size)
@@ -483,7 +483,7 @@ describe ApiV4::Shared::Stages::Tasks::TaskRepresenter do
 
   it 'should raise error when de-serializing a type that does not exist' do
     expect do
-      ApiV4::Shared::Stages::Tasks::TaskRepresenter.from_hash({type: :foo})
-    end.to raise_error(ApiV4::UnprocessableEntity, /Invalid task type 'foo'. It has to be one of/)
+      ApiV5::Shared::Stages::Tasks::TaskRepresenter.from_hash({type: :foo})
+    end.to raise_error(ApiV5::UnprocessableEntity, /Invalid task type 'foo'. It has to be one of/)
   end
 end

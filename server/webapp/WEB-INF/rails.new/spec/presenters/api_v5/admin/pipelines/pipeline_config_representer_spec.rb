@@ -16,11 +16,11 @@
 
 require 'spec_helper'
 
-describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
+describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
 
   describe :serialize do
     it 'renders a pipeline with hal representation' do
-      presenter = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(get_pipeline_config)
+      presenter = ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(get_pipeline_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_links(:self, :find, :doc)
@@ -33,7 +33,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
 
     it 'should serialize pipeline with template' do
       pipeline_config = pipeline_with_template
-      presenter = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
+      presenter = ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
       expect(actual_json).to eq(pipeline_with_template_hash)
@@ -51,7 +51,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
         template: 'template1',
         parameters: [],
         environment_variables: [],
-        materials: pipeline_with_template.materialConfigs().collect { |j| ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
+        materials: pipeline_with_template.materialConfigs().collect { |j| ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
         stages: nil,
         tracking_tool: nil,
         timer: nil
@@ -71,7 +71,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
     it 'should convert from minimal json to PipelineConfig' do
       pipeline_config = PipelineConfig.new
 
-      ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash(pipeline_hash_basic)
+      ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash(pipeline_hash_basic)
       expect(pipeline_config.name.to_s).to eq('wunderbar')
       expect(pipeline_config.getParams.isEmpty).to eq(true)
       expect(pipeline_config.variables.isEmpty).to eq(true)
@@ -137,13 +137,13 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
           }
         ]
 
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({environment_variables: environment_variables})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({environment_variables: environment_variables})
         expect(pipeline_config.variables.map(&:name)).to eq(['plain', 'secure'])
       end
 
       it 'should convert pipeline hash with empty environment variables  to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({environment_variables: []})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({environment_variables: []})
         expect(pipeline_config.variables.size).to eq(0)
       end
     end
@@ -151,7 +151,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
     describe :pipeline_with_parmas do
       it 'should convert pipeline hash with parameters to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({parameters: [{
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({parameters: [{
                                                                                                           name: 'command',
                                                                                                           value: 'echo'
                                                                                                         }, {
@@ -163,7 +163,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
 
       it 'should convert pipeline hash with empty parmas to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({parameters: nil})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({parameters: nil})
         expect(pipeline_config.getParams.size).to eq(0)
       end
     end
@@ -171,7 +171,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
     describe :pipeline_with_materials do
       it 'should convert pipeline hash with materials  to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({materials: [
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({materials: [
           {
             type: 'git',
             attributes: {
@@ -209,7 +209,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
 
       it 'should convert pipeline hash with empty materials  to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({materials: nil})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({materials: nil})
         expect(pipeline_config.materialConfigs.size).to eq(0)
       end
 
@@ -219,8 +219,8 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
         pipeline_config = PipelineConfig.new
 
         expect do
-          ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash(hash)
-        end.to raise_error(ApiV4::UnprocessableEntity, /Invalid material type 'bad-material-type'. It has to be one of/)
+          ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash(hash)
+        end.to raise_error(ApiV5::UnprocessableEntity, /Invalid material type 'bad-material-type'. It has to be one of/)
       end
 
     end
@@ -260,7 +260,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
                           }]
                  }]
 
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({stages: stages})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({stages: stages})
         expect(pipeline_config.getStages.map(&:name).map(&:to_s)).to eq(['stage1'])
         expect(pipeline_config.getStages.first.getJobs.map(&:name).map(&:to_s)).to eq(['some-job'])
         expect(pipeline_config.getStages.first.variables.map(&:name)).to eq(['plain', 'secure'])
@@ -269,7 +269,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
 
       it 'should convert pipeline hash with empty stages  to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({stages: nil})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({stages: nil})
         expect(pipeline_config.getStages.size).to eq(0)
       end
 
@@ -278,7 +278,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
     describe :pipeline_with_tracking_tool do
       it 'should convert pipeline hash with tracking tool  to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({tracking_tool: {
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({tracking_tool: {
           type: 'generic',
           attributes: {
             url_pattern: 'link',
@@ -292,14 +292,14 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
       it 'should raise exception when passing invalid tracking tool type' do
         pipeline_config = PipelineConfig.new
         expect do
-          ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({tracking_tool: {
+          ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({tracking_tool: {
             type: 'bad-tracking-tool',
             attributes: {
               link: 'link',
               regex: 'regex'
             }
           }})
-        end.to raise_error(ApiV4::UnprocessableEntity, /Invalid Tracking Tool type 'bad-tracking-tool'. It has to be one of/)
+        end.to raise_error(ApiV5::UnprocessableEntity, /Invalid Tracking Tool type 'bad-tracking-tool'. It has to be one of/)
       end
 
 
@@ -308,7 +308,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
     it 'should convert from full blown document to PipelineConfig' do
       pipeline_config = PipelineConfig.new
       pipeline_config.setOrigin(FileConfigOrigin.new)
-      ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash(pipeline_hash)
+      ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash(pipeline_hash)
       expect(pipeline_config).to eq(get_pipeline_config)
     end
 
@@ -316,7 +316,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
     describe :pipeline_with_timer do
       it 'should convert pipeline hash with timer  to PipelineConfig' do
         pipeline_config = PipelineConfig.new
-        ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({timer: {spec: '0 0 22 ? * MON-FRI', only_on_changes: true}})
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({timer: {spec: '0 0 22 ? * MON-FRI', only_on_changes: true}})
         expect(pipeline_config.getTimer.getOnlyOnChanges).to eq(true)
       end
     end
@@ -328,7 +328,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
 
       pipeline_config.validateTree(com.thoughtworks.go.config.PipelineConfigSaveValidationContext::forChain(true, 'grp', config, pipeline_config))
 
-      presenter = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
+      presenter = ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
       expect(actual_json).to eq(expected_hash_with_errors)
@@ -339,7 +339,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
       config = BasicCruiseConfig.new(BasicPipelineConfigs.new('grp', Authorization.new, get_pipeline_config))
       pipeline_config.validateTree(com.thoughtworks.go.config.PipelineConfigSaveValidationContext::forChain(true, 'grp', config, pipeline_config))
 
-      presenter = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
+      presenter = ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
       expect(actual_json).to eq(expected_hash_with_nested_errors)
@@ -456,12 +456,12 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
         file: 'cruise-config.xml'
       },
       template: nil,
-      parameters: get_pipeline_config.getParams().collect { |j| ApiV4::Admin::Pipelines::ParamRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
-      environment_variables: get_pipeline_config.variables().collect { |j| ApiV4::Shared::EnvironmentVariableRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
-      materials: get_pipeline_config.materialConfigs().collect { |j| ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
-      stages: get_pipeline_config.getStages().collect { |j| ApiV4::Shared::Stages::StageRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
-      tracking_tool: ApiV4::Admin::Pipelines::TrackingTool::TrackingToolRepresenter.new(get_pipeline_config.getTrackingTool).to_hash(url_builder: UrlBuilder.new),
-      timer: ApiV4::Admin::Pipelines::TimerRepresenter.new(get_pipeline_config.getTimer).to_hash(url_builder: UrlBuilder.new)
+      parameters: get_pipeline_config.getParams().collect { |j| ApiV5::Admin::Pipelines::ParamRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
+      environment_variables: get_pipeline_config.variables().collect { |j| ApiV5::Shared::EnvironmentVariableRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
+      materials: get_pipeline_config.materialConfigs().collect { |j| ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
+      stages: get_pipeline_config.getStages().collect { |j| ApiV5::Shared::Stages::StageRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
+      tracking_tool: ApiV5::Admin::Pipelines::TrackingTool::TrackingToolRepresenter.new(get_pipeline_config.getTrackingTool).to_hash(url_builder: UrlBuilder.new),
+      timer: ApiV5::Admin::Pipelines::TimerRepresenter.new(get_pipeline_config.getTimer).to_hash(url_builder: UrlBuilder.new)
     }
   end
 

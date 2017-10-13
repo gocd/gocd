@@ -16,13 +16,13 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
+describe ApiV5::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
   it 'should render remote config origin' do
     git_material = GitMaterialConfig.new('https://github.com/config-repos/repo', 'master')
     config_repo = RepoConfigOrigin.new(ConfigRepoConfig.new(git_material, 'json-plugin'), 'revision1')
 
-    actual_json = ApiV4::Shared::ConfigOrigin::ConfigRepoOriginRepresenter.new(config_repo).to_hash(url_builder: UrlBuilder.new)
-    material_json = ApiV4::Admin::Pipelines::Materials::GitMaterialRepresenter.new(git_material).to_hash(url_builder: UrlBuilder.new)
+    actual_json = ApiV5::Shared::ConfigOrigin::ConfigRepoOriginRepresenter.new(config_repo).to_hash(url_builder: UrlBuilder.new)
+    material_json = ApiV5::Admin::Pipelines::Materials::GitMaterialRepresenter.new(git_material).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(expected_json)
   end

@@ -16,9 +16,9 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::Stages::StageAuthorizationRepresenter do
+describe ApiV5::Shared::Stages::StageAuthorizationRepresenter do
   it 'should render stage authorization with hal representation' do
-    presenter = ApiV4::Shared::Stages::StageAuthorizationRepresenter.new(get_admins_config)
+    presenter = ApiV5::Shared::Stages::StageAuthorizationRepresenter.new(get_admins_config)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(stage_authorization_hash)
@@ -27,7 +27,7 @@ describe ApiV4::Shared::Stages::StageAuthorizationRepresenter do
   it "should convert from document to AdminsConfig" do
     admins_config = com.thoughtworks.go.config.AdminsConfig.new
 
-    ApiV4::Shared::Stages::StageAuthorizationRepresenter.new(admins_config).from_hash(stage_authorization_hash)
+    ApiV5::Shared::Stages::StageAuthorizationRepresenter.new(admins_config).from_hash(stage_authorization_hash)
 
     expected = get_admins_config
     expect(admins_config).to eq(expected)

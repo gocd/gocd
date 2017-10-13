@@ -16,10 +16,10 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::Stages::StageRepresenter do
+describe ApiV5::Shared::Stages::StageRepresenter do
   describe :serialize do
     it 'should render stage with hal representation' do
-      presenter   = ApiV4::Shared::Stages::StageRepresenter.new(get_stage_config)
+      presenter   = ApiV5::Shared::Stages::StageRepresenter.new(get_stage_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(stage_hash)
     end
@@ -49,7 +49,7 @@ describe ApiV4::Shared::Stages::StageRepresenter do
                                      value:  'This has very <complex> data'
                                    }
                                  ],
-        jobs:                    get_stage_config.getJobs().collect { |j| ApiV4::Shared::Stages::JobRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) }
+        jobs:                    get_stage_config.getJobs().collect { |j| ApiV5::Shared::Stages::JobRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) }
       }
     end
 
@@ -59,7 +59,7 @@ describe ApiV4::Shared::Stages::StageRepresenter do
     it 'should convert basic hash to StageConfig' do
       stage_config = StageConfig.new
 
-      ApiV4::Shared::Stages::StageRepresenter.new(stage_config).from_hash({name:                    'stage1',
+      ApiV5::Shared::Stages::StageRepresenter.new(stage_config).from_hash({name:                    'stage1',
                                                                    fetch_materials:         true,
                                                                    clean_working_directory: false,
                                                                    never_cleanup_artifacts: false, })
@@ -70,7 +70,7 @@ describe ApiV4::Shared::Stages::StageRepresenter do
     it 'should convert basic hash with Approval to StageConfig' do
       stage_config = StageConfig.new
 
-      ApiV4::Shared::Stages::StageRepresenter.new(stage_config).from_hash({approval: {
+      ApiV5::Shared::Stages::StageRepresenter.new(stage_config).from_hash({approval: {
                                                                     type:          "manual",
                                                                     authorization: {
                                                                       roles: ["role1", "role2"],
@@ -99,14 +99,14 @@ describe ApiV4::Shared::Stages::StageRepresenter do
                                                         value:  'This has very <complex> data'
                                                       }
                                                     ]}
-      ApiV4::Shared::Stages::StageRepresenter.new(stage_config).from_hash(environment_variables)
+      ApiV5::Shared::Stages::StageRepresenter.new(stage_config).from_hash(environment_variables)
       expect(stage_config.variables.map(&:name)).to eq(%w(MULTIPLE_LINES COMPLEX))
     end
 
     it 'should convert basic hash with Jobs to StageConfig' do
       stage_config = StageConfig.new
 
-      ApiV4::Shared::Stages::StageRepresenter.new(stage_config).from_hash({jobs: [job_hash]})
+      ApiV5::Shared::Stages::StageRepresenter.new(stage_config).from_hash({jobs: [job_hash]})
       expect(stage_config.getJobs.first).to eq(com.thoughtworks.go.helper.JobConfigMother.jobConfig())
     end
 
@@ -143,7 +143,7 @@ describe ApiV4::Shared::Stages::StageRepresenter do
     stage_config = StageConfigMother.stageConfigWithEnvironmentVariable("stage#1")
     stage_config.getJobs().get(0).setTasks(com.thoughtworks.go.config.Tasks.new(FetchTask.new(CaseInsensitiveString.new(""),CaseInsensitiveString.new(""), CaseInsensitiveString.new(""),nil, nil )))
     stage_config.addError('name','Invalid stage name')
-    presenter = ApiV4::Shared::Stages::StageRepresenter.new(stage_config)
+    presenter = ApiV5::Shared::Stages::StageRepresenter.new(stage_config)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(stage_hash_with_errors(stage_config))
@@ -175,7 +175,7 @@ describe ApiV4::Shared::Stages::StageRepresenter do
                                    value:  "This has very <complex> data"
                                  }
                                ],
-      jobs:                    stage_config.getJobs().collect { |j| ApiV4::Shared::Stages::JobRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
+      jobs:                    stage_config.getJobs().collect { |j| ApiV5::Shared::Stages::JobRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },
       errors:                  {
         name: ["Invalid stage name"]
       }

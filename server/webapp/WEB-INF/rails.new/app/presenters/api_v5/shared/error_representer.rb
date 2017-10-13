@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
+module ApiV5
   module Shared
     class ErrorRepresenter < BaseRepresenter
       alias_method :errors, :represented

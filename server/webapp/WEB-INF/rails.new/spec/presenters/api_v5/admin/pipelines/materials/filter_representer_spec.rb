@@ -16,10 +16,10 @@
 
 require 'spec_helper'
 
-describe ApiV4::Admin::Pipelines::Materials::FilterRepresenter do
+describe ApiV5::Admin::Pipelines::Materials::FilterRepresenter do
   it 'should serialize' do
     filter      = com.thoughtworks.go.config.materials.Filter.new(IgnoredFiles.new('**/*.html'), IgnoredFiles.new('**/foobar/'))
-    presenter   = ApiV4::Admin::Pipelines::Materials::FilterRepresenter.prepare(filter)
+    presenter   = ApiV5::Admin::Pipelines::Materials::FilterRepresenter.prepare(filter)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(filter_hash)
   end
@@ -27,20 +27,20 @@ describe ApiV4::Admin::Pipelines::Materials::FilterRepresenter do
   it 'should deserialize' do
     expected_filter = com.thoughtworks.go.config.materials.Filter.new(IgnoredFiles.new('**/*.html'), IgnoredFiles.new('**/foobar/'))
     actual_filter   = com.thoughtworks.go.config.materials.Filter.new
-    presenter       = ApiV4::Admin::Pipelines::Materials::FilterRepresenter.prepare(actual_filter)
+    presenter       = ApiV5::Admin::Pipelines::Materials::FilterRepresenter.prepare(actual_filter)
     presenter.from_hash(filter_hash)
     expect(actual_filter).to eq(expected_filter)
   end
   it 'should serialize to nil when ignored is empty' do
     filter      = com.thoughtworks.go.config.materials.Filter.new()
-    presenter   = ApiV4::Admin::Pipelines::Materials::FilterRepresenter.prepare(filter)
+    presenter   = ApiV5::Admin::Pipelines::Materials::FilterRepresenter.prepare(filter)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(nil)
   end
 
   it 'should deserialize to nil when no ignored files' do
     actual_filter   = com.thoughtworks.go.config.materials.Filter.new
-    presenter       = ApiV4::Admin::Pipelines::Materials::FilterRepresenter.prepare(actual_filter)
+    presenter       = ApiV5::Admin::Pipelines::Materials::FilterRepresenter.prepare(actual_filter)
     presenter.from_hash(empty_filter_hash)
     expect(actual_filter).to eq(com.thoughtworks.go.config.materials.Filter.new)
   end

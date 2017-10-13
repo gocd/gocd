@@ -16,16 +16,16 @@
 
 require 'spec_helper'
 
-describe ApiV4::Admin::Pipelines::ParamRepresenter do
+describe ApiV5::Admin::Pipelines::ParamRepresenter do
 
   it "should represent a param" do
-    presenter = ApiV4::Admin::Pipelines::ParamRepresenter.new(ParamConfig.new("command","echo"))
+    presenter = ApiV5::Admin::Pipelines::ParamRepresenter.new(ParamConfig.new("command","echo"))
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(param_hash)
   end
 
   it "should deserialize" do
-    presenter = ApiV4::Admin::Pipelines::ParamRepresenter.new(ParamConfig.new)
+    presenter = ApiV5::Admin::Pipelines::ParamRepresenter.new(ParamConfig.new)
     deserialized_object = presenter.from_hash(param_hash)
     expected = ParamConfig.new("command","echo")
     expect(deserialized_object).to eq(expected)

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
+module ApiV5
   module Admin
     module Pipelines
       class PipelineConfigRepresenter < BaseRepresenter
@@ -28,7 +28,7 @@ module ApiV4
                           })
 
         link :self do |opts|
-          opts[:url_builder].apiv4_admin_pipeline_url(pipeline_name: pipeline.name) if pipeline.errors().isEmpty()
+          opts[:url_builder].apiv5_admin_pipeline_url(pipeline_name: pipeline.name) if pipeline.errors().isEmpty()
         end
 
         link :doc do |opts|
@@ -36,7 +36,7 @@ module ApiV4
         end
 
         link :find do |opts|
-          opts[:url_builder].apiv4_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
+          opts[:url_builder].apiv5_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
         end
 
         property :label_template

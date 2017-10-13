@@ -16,19 +16,19 @@
 
 require 'spec_helper'
 default_branch = 'master'
-describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
+describe ApiV5::Admin::Pipelines::Materials::MaterialRepresenter do
   shared_examples_for 'materials' do
 
     describe :serialize do
       it 'should render material with hal representation' do
-        presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(existing_material)
+        presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(existing_material)
         actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
         expected_material_hash = material_hash
         expect(actual_json).to eq(expected_material_hash)
       end
 
       it "should render errors" do
-        presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(existing_material_with_errors)
+        presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(existing_material_with_errors)
         actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
         expected_material_hash = expected_material_hash_with_errors
         expect(actual_json).to eq(expected_material_hash)
@@ -38,8 +38,8 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     describe :deserialize do
       it 'should convert hash to Material' do
         new_material = material_type.new
-        presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(new_material)
-        presenter.from_hash(ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(existing_material).to_hash(url_builder: UrlBuilder.new))
+        presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(new_material)
+        presenter.from_hash(ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(existing_material).to_hash(url_builder: UrlBuilder.new))
         expect(new_material.autoUpdate).to eq(existing_material.autoUpdate)
         expect(new_material.name).to eq(existing_material.name)
         expect(new_material).to eq(existing_material)
@@ -70,20 +70,20 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should serialize material without name" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank"))
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank"))
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(git_material_basic_hash)
     end
 
 
     it "should serialize material with blank branch" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank", ""))
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank", ""))
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(git_material_basic_hash)
     end
 
     it "should deserialize material without name" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -100,7 +100,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material without invert_filter" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -117,7 +117,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material with invert_filter" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -135,7 +135,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material with blank branch" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -499,13 +499,13 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
 
   describe :package do
     it "should represent a package material" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.prepare(MaterialConfigsMother.packageMaterialConfig())
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.prepare(MaterialConfigsMother.packageMaterialConfig())
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(package_material_hash)
     end
 
     it "should deserialize" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
       go_config = BasicCruiseConfig.new
       repo = PackageRepositoryMother.create("repoid")
       go_config.getPackageRepositories().add(repo)
@@ -516,7 +516,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should set packageId during deserialisation if matching package definition is not present in config" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
       go_config = BasicCruiseConfig.new
 
       deserialized_object = presenter.from_hash(package_material_hash("package-name"), {go_config: go_config})
@@ -529,7 +529,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
       material_configs = MaterialConfigs.new(package_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
 
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(material_configs.first())
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(material_configs.first())
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expected_material_hash = expected_material_hash_with_errors
       expect(actual_json).to eq(expected_material_hash)
@@ -565,7 +565,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
     it "should represent a pluggable scm material" do
       pluggable_scm_material = MaterialConfigsMother.pluggableSCMMaterialConfig()
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.prepare(pluggable_scm_material)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.prepare(pluggable_scm_material)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(pluggable_scm_material_hash)
     end
@@ -574,7 +574,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
       scm= SCMMother.create("scm-id")
       @go_config.getSCMs().add(scm)
 
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
       deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
       expect(deserialized_object.getScmId).to eq("scm-id")
       expect(deserialized_object.getSCMConfig).to eq(scm)
@@ -583,7 +583,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should set scmId during deserialisation if matching package definition is not present in config" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
 
       deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
       expect(deserialized_object.getScmId).to eq("scm-id")
@@ -591,7 +591,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize pluggable scm material with nulls" do
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
       deserialized_object = presenter.from_hash({
                                                   type: "plugin",
                                                   attributes: {
@@ -611,7 +611,7 @@ describe ApiV4::Admin::Pipelines::Materials::MaterialRepresenter do
       material_configs = MaterialConfigs.new(pluggable_scm_material);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
 
-      presenter = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(material_configs.first())
+      presenter = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(material_configs.first())
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expected_material_hash = expected_material_hash_with_errors
       expect(actual_json).to eq(expected_material_hash)

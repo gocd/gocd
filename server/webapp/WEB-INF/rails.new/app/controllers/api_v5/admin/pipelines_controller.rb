@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
+module ApiV5
   module Admin
     class PipelinesController < BaseController
       before_action :check_pipeline_group_admin_user_and_401

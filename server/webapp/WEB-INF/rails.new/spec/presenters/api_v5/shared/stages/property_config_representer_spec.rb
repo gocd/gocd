@@ -16,13 +16,13 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::Stages::PropertyConfigRepresenter do
+describe ApiV5::Shared::Stages::PropertyConfigRepresenter do
   before :each do
     @property = com.thoughtworks.go.config.ArtifactPropertiesGenerator.new('foo', 'target/emma/coverage.xml', 'substring-before(//report/data/all/coverage[starts-with(@type,class)]/@value, %)')
   end
 
   it 'should serialize property' do
-    presenter = ApiV4::Shared::Stages::PropertyConfigRepresenter.new(@property)
+    presenter = ApiV5::Shared::Stages::PropertyConfigRepresenter.new(@property)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(property_hash)
@@ -30,7 +30,7 @@ describe ApiV4::Shared::Stages::PropertyConfigRepresenter do
 
   it 'should deserialize test artifact' do
     actual    = com.thoughtworks.go.config.ArtifactPropertiesGenerator.new
-    presenter = ApiV4::Shared::Stages::PropertyConfigRepresenter.new(actual)
+    presenter = ApiV5::Shared::Stages::PropertyConfigRepresenter.new(actual)
     presenter.from_hash(property_hash)
     expect(actual.getSrc).to eq(@property.getSrc)
     expect(actual.getName).to eq(@property.getName)
@@ -41,7 +41,7 @@ describe ApiV4::Shared::Stages::PropertyConfigRepresenter do
   it 'should map errors' do
     @property.setName('')
     @property.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g", PipelineConfig.new, StageConfig.new, JobConfig.new))
-    presenter   = ApiV4::Shared::Stages::PropertyConfigRepresenter.new(@property)
+    presenter   = ApiV5::Shared::Stages::PropertyConfigRepresenter.new(@property)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(property_with_errors)

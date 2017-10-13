@@ -16,9 +16,9 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
+describe ApiV5::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
   it 'should render local config origin' do
-    presenter = ApiV4::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(get_config_xml_origin)
+    presenter = ApiV5::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(get_config_xml_origin)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(expected_json)
   end

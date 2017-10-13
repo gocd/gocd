@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
+module ApiV5
   module Shared
     class EnvironmentVariableRepresenter < BaseRepresenter
       alias_method :environment_variable, :represented

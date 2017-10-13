@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
+module ApiV5
   module Shared
     module ConfigOrigin
       class ConfigRepoOriginRepresenter < BaseRepresenter
@@ -28,7 +28,7 @@ module ApiV4
         end
 
         def repo
-          material = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(config_repo.getMaterial).to_hash(url_builder: self)
+          material = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(config_repo.getMaterial).to_hash(url_builder: self)
           material[:revision] = config_repo.getRevision()
           material
         end

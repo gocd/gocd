@@ -16,13 +16,13 @@
 
 require 'spec_helper'
 
-describe ApiV4::Admin::Pipelines::TimerRepresenter do
+describe ApiV5::Admin::Pipelines::TimerRepresenter do
 
   it "should represent a timer" do
     timer = com.thoughtworks.go.config.TimerConfig.new("0 0 7 ? * MON", false)
     timer.validateTree(nil)
 
-    presenter   = ApiV4::Admin::Pipelines::TimerRepresenter.new(timer)
+    presenter   = ApiV5::Admin::Pipelines::TimerRepresenter.new(timer)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(timer_hash)
   end
@@ -30,13 +30,13 @@ describe ApiV4::Admin::Pipelines::TimerRepresenter do
   it "should represent validation errors" do
     timer = com.thoughtworks.go.config.TimerConfig.new("SOME JUNK TIMER SPEC", false)
     timer.validateTree(nil)
-    presenter   = ApiV4::Admin::Pipelines::TimerRepresenter.new(timer)
+    presenter   = ApiV5::Admin::Pipelines::TimerRepresenter.new(timer)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(timer_hash_with_error)
   end
 
   it "should deserialize" do
-    presenter           = ApiV4::Admin::Pipelines::TimerRepresenter.new(com.thoughtworks.go.config.TimerConfig.new)
+    presenter           = ApiV5::Admin::Pipelines::TimerRepresenter.new(com.thoughtworks.go.config.TimerConfig.new)
     deserialized_object = presenter.from_hash(timer_hash)
     expected            = com.thoughtworks.go.config.TimerConfig.new("0 0 7 ? * MON", false)
     expect(deserialized_object).to eq(expected)

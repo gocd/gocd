@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module ApiV4
+module ApiV5
   class BaseController < ::ApplicationController
 
     class BadRequest < StandardError
@@ -22,7 +22,7 @@ module ApiV4
 
     include AuthenticationHelper
 
-    FORMATS                = [:json_hal_v4]
+    FORMATS                = [:json_hal_v5]
     DEFAULT_FORMAT         = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 

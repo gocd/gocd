@@ -16,36 +16,36 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::EnvironmentVariableRepresenter do
+describe ApiV5::Shared::EnvironmentVariableRepresenter do
   it 'should render plain environment variable with hal representation' do
-    presenter   = ApiV4::Shared::EnvironmentVariableRepresenter.new(get_plain_variable)
+    presenter   = ApiV5::Shared::EnvironmentVariableRepresenter.new(get_plain_variable)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(get_plain_text_hash)
   end
 
   it 'should render secure environment variable with hal representation' do
-    presenter   = ApiV4::Shared::EnvironmentVariableRepresenter.new(get_secure_variable)
+    presenter   = ApiV5::Shared::EnvironmentVariableRepresenter.new(get_secure_variable)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(get_secure_hash_with_encrypted_value)
   end
 
   it 'should convert from secure hash with encrypted value to EnvironmentVariableConfig' do
     config    = EnvironmentVariableConfig.new
-    presenter = ApiV4::Shared::EnvironmentVariableRepresenter.new(config)
+    presenter = ApiV5::Shared::EnvironmentVariableRepresenter.new(config)
     presenter.from_hash(get_secure_hash_with_encrypted_value)
     expect(config).to eq(get_secure_variable)
   end
 
   it 'should convert from secure hash with clear text value to EnvironmentVariableConfig' do
     config    = EnvironmentVariableConfig.new
-    presenter = ApiV4::Shared::EnvironmentVariableRepresenter.new(config)
+    presenter = ApiV5::Shared::EnvironmentVariableRepresenter.new(config)
     presenter.from_hash(secure_hash_with_clear_text_value)
     expect(config).to eq(get_secure_variable)
   end
 
   it 'should deserialize an ambiguous encrypted variable (with both value and encrypted_value) to a variable with errors' do
     config    = EnvironmentVariableConfig.new
-    presenter = ApiV4::Shared::EnvironmentVariableRepresenter.new(config)
+    presenter = ApiV5::Shared::EnvironmentVariableRepresenter.new(config)
     config = presenter.from_hash(name: 'PASSWORD', secure: true, value: 'plainText', encrypted_value: 'c!ph3rt3xt')
     expect(config.errors.getAllOn('value').to_a).to eq(['You may only specify `value` or `encrypted_value`, not both!'])
     expect(config.errors.getAllOn('encryptedValue').to_a).to eq(['You may only specify `value` or `encrypted_value`, not both!'])
@@ -53,12 +53,12 @@ describe ApiV4::Shared::EnvironmentVariableRepresenter do
 
   it 'should deserialize an unambiguous encrypted variable (with either value or encrypted_value) to a variable without errors' do
     config    = EnvironmentVariableConfig.new
-    presenter = ApiV4::Shared::EnvironmentVariableRepresenter.new(config)
+    presenter = ApiV5::Shared::EnvironmentVariableRepresenter.new(config)
     config = presenter.from_hash(name: 'PASSWORD', secure: true, value: 'plainText')
     expect(config.errors).to be_empty
 
     config    = EnvironmentVariableConfig.new
-    presenter = ApiV4::Shared::EnvironmentVariableRepresenter.new(config)
+    presenter = ApiV5::Shared::EnvironmentVariableRepresenter.new(config)
     config = presenter.from_hash(name: 'PASSWORD', secure: true, encrypted_value: 'c!ph3rt3xt')
     expect(config.errors).to be_empty
   end

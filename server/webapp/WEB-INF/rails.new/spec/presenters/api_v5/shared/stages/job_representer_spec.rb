@@ -16,12 +16,12 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::Stages::JobRepresenter do
+describe ApiV5::Shared::Stages::JobRepresenter do
 
   describe :serialize do
     it 'should render job with hal representation' do
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(com.thoughtworks.go.helper.JobConfigMother.jobConfig())
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(com.thoughtworks.go.helper.JobConfigMother.jobConfig())
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to eq(job_hash)
@@ -31,7 +31,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
       job_config.setRunInstanceCount(10)
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:run_instance_count]).to be(10)
     end
@@ -40,7 +40,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
       job_config.setRunOnAllAgents(true)
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:run_instance_count]).to eq('all')
     end
@@ -48,7 +48,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
     it 'should serialize run_instance_count with value `nil` when runOnAllAgents is false and eunInstanceCount is unset' do
       job_config = JobConfig.new
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:run_instance_count]).to be(nil)
     end
@@ -57,7 +57,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
       job_config.setTimeout('10')
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:timeout]).to be(10)
     end
@@ -66,7 +66,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
       job_config.setTimeout('0')
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:timeout]).to eq('never')
     end
@@ -75,7 +75,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
       job_config.setTimeout(nil)
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:timeout]).to eq(nil)
     end
@@ -84,7 +84,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
       job_config.setElasticProfileId('docker.unit-test')
 
-      presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+      presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:elastic_profile_id]).to eq('docker.unit-test')
     end
@@ -119,7 +119,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
   describe :deserialize do
     it 'should convert basic hash to Job' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({
                                                                 name:    'some-job',
                                                                 timeout: '100',
                                                               })
@@ -129,49 +129,49 @@ describe ApiV4::Shared::Stages::JobRepresenter do
 
     it 'should convert attribute run_instance_count with value `all` to Job' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: 'all')
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: 'all')
       expect(job_config.run_on_all_agents).to eq(true)
       expect(job_config.run_instance_count).to eq(nil)
     end
 
     it 'should convert attribute run_instance_count with value `nil` to Job' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: nil)
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: nil)
       expect(job_config.run_on_all_agents).to eq(false)
       expect(job_config.run_instance_count).to eq(nil)
     end
 
     it 'should convert attribute run_instance_count with integer value `nil` to Job' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: '10')
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: '10')
       expect(job_config.run_on_all_agents).to eq(false)
       expect(job_config.run_instance_count).to eq('10')
 
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: 10)
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(run_instance_count: 10)
       expect(job_config.run_on_all_agents).to eq(false)
       expect(job_config.run_instance_count).to eq('10')
     end
 
     it 'should convert attribute timeout with value `never` to Job with timeout `0`' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: 'never')
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: 'never')
       expect(job_config.timeout).to eq('0')
     end
 
     it 'should convert attribute timeout with value `nil` to Job with timeout `nil`' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: nil)
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: nil)
       expect(job_config.timeout).to eq(nil)
     end
 
     it 'should convert attribute timeout with integer value `10` to Job with timeout `10`' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: '10')
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: '10')
       expect(job_config.timeout).to eq('10')
 
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: 10)
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash(timeout: 10)
       expect(job_config.timeout).to eq('10')
     end
 
@@ -190,21 +190,21 @@ describe ApiV4::Shared::Stages::JobRepresenter do
         }
       ]
 
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ environment_variables: environment_variables })
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ environment_variables: environment_variables })
       expect(job_config.variables.map(&:name)).to eq(%w(USERNAME API_KEY))
     end
 
     it 'should convert basic hash with resources to Job' do
       job_config = JobConfig.new
 
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ resources: %w(java linux) })
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ resources: %w(java linux) })
       expect(job_config.resources.map(&:name)).to eq(%w(java linux))
     end
 
     it 'should convert basic hash with task to Job' do
       job_config = JobConfig.new
       task_hash  = { type: 'ant', attributes: { working_directory: 'working-directory', build_file: 'build-file', target: 'target' } }
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ tasks: [task_hash] })
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ tasks: [task_hash] })
       expect(job_config.tasks.size).to eq(1)
       expect(job_config.tasks.first.getTaskType).to eq('ant')
       expect(job_config.tasks.first.getBuildFile).to eq('build-file')
@@ -213,8 +213,8 @@ describe ApiV4::Shared::Stages::JobRepresenter do
     it 'should  raise exception when invalid task type is passed' do
       expect do
         job_config = JobConfig.new
-        ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ tasks: [{ type: 'invalid' }] })
-      end.to raise_error(ApiV4::UnprocessableEntity, /Invalid task type 'invalid'. It has to be one of /)
+        ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ tasks: [{ type: 'invalid' }] })
+      end.to raise_error(ApiV5::UnprocessableEntity, /Invalid task type 'invalid'. It has to be one of /)
     end
 
     it 'should convert basic hash with tabs to Job' do
@@ -224,7 +224,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
           name: 'coverage', path: 'Jcoverage/index.html' },
         { name: 'something', path: 'something/path.html' }
       ]
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ tabs: tab_hash })
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ tabs: tab_hash })
       expect(job_config.getTabs.map(&:name)).to eq(%w(coverage something))
     end
 
@@ -235,7 +235,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
         { source: nil, destination: 'testoutput', type: 'test' }
       ]
 
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ artifacts: artifacts })
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ artifacts: artifacts })
       expect(job_config.artifactPlans.map(&:dest)).to eq(%w(pkg testoutput))
       expect(job_config.artifactPlans.map(&:getArtifactType).map(&:to_s)).to eq(%w(file unit))
     end
@@ -243,8 +243,8 @@ describe ApiV4::Shared::Stages::JobRepresenter do
     it 'should raise exception when invalid artifact type is passed' do
       expect do
         job_config = JobConfig.new
-        ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ artifacts: [{ type: 'invalid' }] })
-      end.to raise_error(ApiV4::UnprocessableEntity, /Invalid Artifact type: 'invalid'. It has to be one of/)
+        ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ artifacts: [{ type: 'invalid' }] })
+      end.to raise_error(ApiV5::UnprocessableEntity, /Invalid Artifact type: 'invalid'. It has to be one of/)
     end
 
     it 'should convert basic hash with properties to Job' do
@@ -257,20 +257,20 @@ describe ApiV4::Shared::Stages::JobRepresenter do
         }
       ]
 
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({ properties: properties })
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ properties: properties })
       expect(job_config.getProperties.map(&:name)).to eq(['coverage.class'])
     end
 
     it 'should convert attribute elastic_profile_id to Job with elastic_profile_id' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({elastic_profile_id: 'docker.unit-test'})
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({elastic_profile_id: 'docker.unit-test'})
 
       expect(job_config.getElasticProfileId).to eq('docker.unit-test')
     end
 
     it 'should convert attribute elastic_profile_id to Job with `nil` elastic_profile_id' do
       job_config = JobConfig.new
-      ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({})
+      ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({})
 
       expect(job_config.getElasticProfileId).to eq(nil)
     end
@@ -285,7 +285,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
     job_config.setTasks(com.thoughtworks.go.config.Tasks.new(FetchTask.new(CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), nil, nil)))
     job_config.setTabs(com.thoughtworks.go.config.Tabs.new(com.thoughtworks.go.config.Tab.new('coverage#1', '/Jcoverage/index.html'), com.thoughtworks.go.config.Tab.new('coverage#1', '/Jcoverage/path.html')))
     job_config.validateTree(PipelineConfigSaveValidationContext.forChain(true, "grp", PipelineConfig.new, StageConfig.new, job_config))
-    presenter   = ApiV4::Shared::Stages::JobRepresenter.new(job_config)
+    presenter   = ApiV5::Shared::Stages::JobRepresenter.new(job_config)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(job_hash_with_errors)

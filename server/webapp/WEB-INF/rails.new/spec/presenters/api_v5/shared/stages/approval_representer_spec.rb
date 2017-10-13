@@ -16,10 +16,10 @@
 
 require 'spec_helper'
 
-describe ApiV4::Shared::Stages::ApprovalRepresenter do
+describe ApiV5::Shared::Stages::ApprovalRepresenter do
   it 'renders approval with hal representation' do
     approval = get_approval
-    presenter = ApiV4::Shared::Stages::ApprovalRepresenter.new(approval)
+    presenter = ApiV5::Shared::Stages::ApprovalRepresenter.new(approval)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(approval_hash)
   end
@@ -27,7 +27,7 @@ describe ApiV4::Shared::Stages::ApprovalRepresenter do
   it 'should convert basic hash to Approval object' do
     approval = Approval.new()
 
-    ApiV4::Shared::Stages::ApprovalRepresenter.new(approval).from_hash(approval_hash)
+    ApiV5::Shared::Stages::ApprovalRepresenter.new(approval).from_hash(approval_hash)
     expect(approval.getType).to eq(get_approval.getType)
   end
 
@@ -40,7 +40,7 @@ describe ApiV4::Shared::Stages::ApprovalRepresenter do
     auth_config.addError("name", "error")
     approval.addError("type", "You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'.")
 
-    presenter = ApiV4::Shared::Stages::ApprovalRepresenter.new(approval)
+    presenter = ApiV5::Shared::Stages::ApprovalRepresenter.new(approval)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to eq(approval_hash_with_errors)
   end
@@ -53,7 +53,7 @@ describe ApiV4::Shared::Stages::ApprovalRepresenter do
     expected = Approval.new(auth_config)
 
     approval = Approval.new
-    ApiV4::Shared::Stages::ApprovalRepresenter.new(approval).from_hash(approval_hash)
+    ApiV5::Shared::Stages::ApprovalRepresenter.new(approval).from_hash(approval_hash)
     expect(approval).to eq(expected)
   end
 

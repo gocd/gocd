@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ require 'roar/decorator'
 require 'roar/json'
 require 'roar/json/hal'
 
-module ApiV4
+module ApiV5
   class BaseRepresenter < Roar::Decorator
     include Representable::Hash
     include Representable::Hash::AllowSymbols
@@ -58,7 +58,7 @@ module ApiV4
             elsif fragment.nil?
               true
         else
-              raise ApiV4::UnprocessableEntity, "Expected #{name} to contain an object, got a #{fragment.class} instead!"
+              raise ApiV5::UnprocessableEntity, "Expected #{name} to contain an object, got a #{fragment.class} instead!"
         end
           }
         end
@@ -71,7 +71,7 @@ module ApiV4
       end
 
       def error_representer(error_translation_map={}, &blk)
-        self.property :errors, exec_context: :decorator, decorator: ApiV4::Shared::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
+        self.property :errors, exec_context: :decorator, decorator: ApiV5::Shared::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
         class_attribute :error_translation_map
         self.error_translation_map = block_given? ? blk : error_translation_map
 

@@ -49,7 +49,7 @@
                 /cctray.xml=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
                 /api/**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
                 /files/**=modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
-                /**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,oauthProcessingFilter,webBasedAuthFilter,preAuthenticationFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
+                /**=modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,disallowExternalReAuthenticationFilter,removeAdminPermissionFilter,oauthProcessingFilter,webBasedAuthFilter,preAuthenticationFilter,basicProcessingFilter,authenticationProcessingFilter,reAuthenticationFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,denyGoCDAccessForArtifactsFilter,sessionFixationProtectionFilter,filterInvocationInterceptor,flashLoader,urlRewriter
             </value>
         </property>
     </bean>
@@ -89,6 +89,8 @@
         p:invalidateSessionOnSuccessfulAuthentication="true"/>
 
     <bean id="webBasedAuthFilter" class="com.thoughtworks.go.server.security.WebBasedAuthenticationFilter"/>
+
+    <bean id="disallowExternalReAuthenticationFilter" class="com.thoughtworks.go.server.security.DisallowExternalReAuthenticationFilter"/>
 
     <bean id="preAuthenticatedAuthenticationProvider" class="com.thoughtworks.go.server.security.providers.PreAuthenticatedAuthenticationProvider" autowire="autodetect"/>
 

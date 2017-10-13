@@ -220,13 +220,12 @@
 }
 
 .pipeline-schedule {
-  label {
-    font-weight: bold;
-    margin-top:  25px;
-  }
-  span {
-    margin-top: 25px;
-  }
+  font-weight: bold;
+  margin-top:  25px;
+}
+
+.pipeline-schedule-run-on-new-material {
+  margin-top: 10px;
 }
 
 .page-save-in-progress {

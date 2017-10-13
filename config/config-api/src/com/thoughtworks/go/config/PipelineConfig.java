@@ -77,7 +77,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final Pattern LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN = Pattern.compile(LABEL_TEMPLATE_ZERO_TRUNC_BLOCK);
     public static final String TEMPLATE_NAME = "templateName";
 
-    public static final String LOCK = "lock";
+    public static final String LOCK_BEHAVIOR = "lockBehavior";
     public static final String LOCK_VALUE_LOCK_ON_FAILURE = "lockOnFailure";
     public static final String LOCK_VALUE_UNLOCK_WHEN_FINISHED = "unlockWhenFinished";
     public static final String LOCK_VALUE_NONE = "none";
@@ -115,8 +115,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigSubtag(optional = false)
     private MaterialConfigs materialConfigs = new MaterialConfigs();
 
-    @ConfigAttribute(value = "isLocked", optional = true, allowNull = true)
-    private String lock;
+    @ConfigAttribute(value = "lockBehavior", optional = true, allowNull = true)
+    private String lockBehavior;
 
     @SkipParameterResolution
     @ConfigAttribute(value = "template", optional = true, allowNull = true)
@@ -539,15 +539,15 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void lockExplicitly() {
-        this.lock = LOCK_VALUE_LOCK_ON_FAILURE;
+        this.lockBehavior = LOCK_VALUE_LOCK_ON_FAILURE;
     }
 
     public void unlockExplicitly() {
-        lock = LOCK_VALUE_NONE;
+        lockBehavior = LOCK_VALUE_NONE;
     }
 
     public boolean hasExplicitLock() {
-        return lock != null;
+        return lockBehavior != null;
     }
 
     public Boolean explicitLock() {
@@ -559,11 +559,28 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean isLockable() {
-        return LOCK_VALUE_LOCK_ON_FAILURE.equals(lock) || isPipelineUnlockableWhenFinished();
+        return isLockableOnFailure() || isPipelineUnlockableWhenFinished();
+    }
+
+    public boolean isLockableOnFailure() {
+        return LOCK_VALUE_LOCK_ON_FAILURE.equals(lockBehavior);
     }
 
     public boolean isPipelineUnlockableWhenFinished() {
-        return LOCK_VALUE_UNLOCK_WHEN_FINISHED.equals(lock);
+        return LOCK_VALUE_UNLOCK_WHEN_FINISHED.equals(lockBehavior);
+    }
+
+    public String getLockBehavior() {
+        return lockBehavior == null ? LOCK_VALUE_NONE : lockBehavior;
+    }
+
+    public void setLockBehaviorIfNecessary(String newLockBehavior) {
+        boolean oldBehaviorWasEmpty = !hasExplicitLock();
+        boolean newBehaviorIsNone = LOCK_VALUE_NONE.equals(newLockBehavior);
+        boolean doNotSet = oldBehaviorWasEmpty && newBehaviorIsNone;
+        if (!doNotSet) {
+            lockBehavior = newLockBehavior;
+        }
     }
 
     public void setVariables(EnvironmentVariablesConfig variables) {
@@ -724,8 +741,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (attributeMap.containsKey(TIMER_CONFIG)) {
             timer = TimerConfig.createTimer(attributeMap.get(TIMER_CONFIG));
         }
-        if (attributeMap.containsKey(LOCK)) {
-            lock = "1".equals(attributeMap.get(LOCK)) ? LOCK_VALUE_LOCK_ON_FAILURE : LOCK_VALUE_NONE;
+        if (attributeMap.containsKey(LOCK_BEHAVIOR)) {
+            setLockBehaviorIfNecessary((String) attributeMap.get(LOCK_BEHAVIOR));
         }
         if (attributeMap.containsKey(INTEGRATION_TYPE)) {
             setIntegrationType(attributeMap);

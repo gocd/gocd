@@ -377,9 +377,9 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldNotSetLockStatusOnPipelineConfigWhenLockIs0() {
+    public void shouldNotSetLockStatusOnPipelineConfigWhenValueIsNone() {
         Map configMap = new HashMap();
-        configMap.put(PipelineConfig.LOCK, "0");
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_NONE);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
@@ -387,13 +387,23 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldSetLockStatusOnPipelineConfigWhenLockIs1() {
+    public void shouldSetLockStatusOnPipelineConfigWhenValueIsLockOnFailure() {
         Map configMap = new HashMap();
-        configMap.put(PipelineConfig.LOCK, "1");
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
         assertThat(pipelineConfig.isLockable(), is(true));
+    }
+
+    @Test
+    public void shouldSetLockStatusOnPipelineConfigWhenValueIsUnlockWhenFinished() {
+        Map configMap = new HashMap();
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED);
+
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setConfigAttributes(configMap);
+        assertThat(pipelineConfig.isPipelineUnlockableWhenFinished(), is(true));
     }
 
     @Test

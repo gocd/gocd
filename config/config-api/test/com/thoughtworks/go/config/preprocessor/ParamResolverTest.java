@@ -63,8 +63,8 @@ public class ParamResolverTest {
     public void shouldResolveTopLevelAttribute() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}");
-        setField(pipelineConfig, "lock", "#{bool}ue");
-        new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bool", "tr"), param("COUNT", "quux"))), fieldCache).resolve(pipelineConfig);
+        setField(pipelineConfig, PipelineConfig.LOCK_BEHAVIOR, "#{partial}Finished");
+        new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("partial", "unlockWhen"), param("COUNT", "quux"))), fieldCache).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}"));
         assertThat(pipelineConfig.explicitLock(), is(true));
     }

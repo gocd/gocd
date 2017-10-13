@@ -3440,10 +3440,12 @@ a.add_item {
     position: relative;
     top:      5px;
   }
+  .radio_button_row .contextual_help {
+    top: 0px;
+  }
 }
 
 .config-env-variables {
-
 }
 
 .config-job-settings {

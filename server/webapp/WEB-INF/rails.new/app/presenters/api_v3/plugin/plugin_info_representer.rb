@@ -59,7 +59,7 @@ module ApiV3
       property :plugin_file_location, exec_context: :decorator
       property :isBundledPlugin, as: :bundled_plugin, exec_context: :decorator
 
-      property :about, exec_context: :decorator do
+      property :about, skip_nil: true, exec_context: :decorator do
         property :name
         property :version
         property :target_go_version

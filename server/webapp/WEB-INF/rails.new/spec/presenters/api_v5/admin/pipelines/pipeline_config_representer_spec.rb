@@ -42,7 +42,7 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
     def pipeline_with_template_hash
       {
         label_template: '${COUNT}',
-        enable_pipeline_locking: false,
+        lock_behavior: 'none',
         name: 'wunderbar',
         origin: {
           type: 'local',
@@ -80,7 +80,7 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
     def pipeline_hash_basic
       {
         label_template: 'foo-1.0.${COUNT}-${svn}',
-        enable_pipeline_locking: false,
+        lock_behavior: 'none',
         name: 'wunderbar',
         materials: [
           {
@@ -148,7 +148,7 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
       end
     end
 
-    describe :pipeline_with_parmas do
+    describe :pipeline_with_params do
       it 'should convert pipeline hash with parameters to PipelineConfig' do
         pipeline_config = PipelineConfig.new
         ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({parameters: [{
@@ -301,8 +301,6 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
           }})
         end.to raise_error(ApiV5::UnprocessableEntity, /Invalid Tracking Tool type 'bad-tracking-tool'. It has to be one of/)
       end
-
-
     end
 
     it 'should convert from full blown document to PipelineConfig' do
@@ -318,6 +316,24 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
         pipeline_config = PipelineConfig.new
         ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({timer: {spec: '0 0 22 ? * MON-FRI', only_on_changes: true}})
         expect(pipeline_config.getTimer.getOnlyOnChanges).to eq(true)
+      end
+    end
+
+    describe :pipeline_with_locks do
+      it 'should convert pipeline hash with lock to PipelineConfig' do
+        pipeline_config = PipelineConfig.new
+        ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config).from_hash({lock_behavior: PipelineConfig::LOCK_VALUE_LOCK_ON_FAILURE})
+        expect(pipeline_config.isLockableOnFailure).to eq(true)
+      end
+
+      it 'should convert a pipeline config with a lock to a hash' do
+        pipeline_config = PipelineConfig.new(CaseInsensitiveString.new('wunderbar'), '${COUNT}', nil, true, MaterialConfigsMother.defaultMaterialConfigs(), ArrayList.new)
+        pipeline_config.setLockBehaviorIfNecessary(PipelineConfig::LOCK_VALUE_UNLOCK_WHEN_FINISHED)
+
+        presenter = ApiV5::Admin::Pipelines::PipelineConfigRepresenter.new(pipeline_config)
+        actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+
+        expect(actual_json[:lock_behavior]).to eq(PipelineConfig::LOCK_VALUE_UNLOCK_WHEN_FINISHED)
       end
     end
 
@@ -350,7 +366,7 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
   def expected_hash_with_errors
     {
       label_template: '',
-      enable_pipeline_locking: false,
+      lock_behavior: 'none',
       name: 'wunderbar',
       origin: {
         type: 'local',
@@ -374,7 +390,7 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
   def expected_hash_with_nested_errors
     {
       label_template: 'foo-1.0.${COUNT}-${svn}',
-      enable_pipeline_locking: false,
+      lock_behavior: 'none',
       name: 'wunderbar',
       origin: {
         type: 'local',
@@ -449,7 +465,7 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
   def pipeline_hash
     {
       label_template: 'foo-1.0.${COUNT}-${svn}',
-      enable_pipeline_locking: false,
+      lock_behavior: 'none',
       name: 'wunderbar',
       origin: {
         type: 'local',

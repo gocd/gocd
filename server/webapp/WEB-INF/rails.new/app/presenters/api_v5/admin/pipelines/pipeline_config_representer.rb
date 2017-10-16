@@ -40,9 +40,9 @@ module ApiV5
         end
 
         property :label_template
-        property :enable_pipeline_locking,
-                 getter: lambda { |options| self.isLockableOnFailure },
-                 setter: lambda { |val, options| val ? self.lockExplicitly : self.unlockExplicitly }
+        property :lock_behavior,
+                 getter: lambda { |_| self.getLockBehavior },
+                 setter: lambda { |val, _| self.setLockBehaviorIfNecessary(val) }
 
         property :name, case_insensitive_string: true
         property :template_name, as: :template, case_insensitive_string: true

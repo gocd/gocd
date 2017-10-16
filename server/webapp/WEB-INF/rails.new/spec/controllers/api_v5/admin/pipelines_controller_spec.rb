@@ -670,7 +670,7 @@ describe ApiV5::Admin::PipelinesController do
 
     def expected_data_with_validation_errors
       {
-        enable_pipeline_locking: false,
+        lock_behavior: "none",
         errors: {label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]},
         label_template: "${COUNT}",
         materials: [{type: "svn", attributes: {url: "http://some/svn/url", destination: "svnDir", filter: nil, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil}}],
@@ -691,7 +691,7 @@ describe ApiV5::Admin::PipelinesController do
     def invalid_pipeline
       {
         label_template: "${COUNT}",
-        enable_pipeline_locking: false,
+        lock_behavior: "none",
         name: "pipeline1",
         materials: [
           {
@@ -714,7 +714,7 @@ describe ApiV5::Admin::PipelinesController do
     end
 
     def pipeline (pipeline_name="pipeline1", material_type="hg", task_type="exec")
-      {label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: pipeline_name, template_name: nil, parameters: [], environment_variables: [], materials: [{type: material_type, attributes: {url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: {ignore: []}}, name: "dummyhg", auto_update: true}], stages: [{name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: {type: "success", authorization: {roles: [], users: []}}, environment_variables: [], jobs: [{name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{type: task_type, attributes: {command: "ls", working_dir: nil}, run_if: []}], tabs: [], artifacts: [], properties: []}]}], mingle: {base_url: nil, project_identifier: nil, mql_grouping_conditions: nil}}
+      {label_template: "Jyoti-${COUNT}", lock_behavior: "none", name: pipeline_name, template_name: nil, parameters: [], environment_variables: [], materials: [{type: material_type, attributes: {url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: {ignore: []}}, name: "dummyhg", auto_update: true}], stages: [{name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: {type: "success", authorization: {roles: [], users: []}}, environment_variables: [], jobs: [{name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{type: task_type, attributes: {command: "ls", working_dir: nil}, run_if: []}], tabs: [], artifacts: [], properties: []}]}], mingle: {base_url: nil, project_identifier: nil, mql_grouping_conditions: nil}}
     end
 
     def pipeline_with_pluggable_material (pipeline_name, material_type, ref)

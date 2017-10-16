@@ -44,10 +44,8 @@ const PluginWidget = {
 
     if (pluginInfo.imageUrl()) {
       image = <img src={pluginInfo.imageUrl()}/>;
-    } else if (pluginInfo.isBundled()) {
-      image = <img src="../assets/andare/icon-plugin-default-bundled.png" class="unknown-plugin-icon-bundled"/>;
     } else {
-      image = <img src="../assets/andare/icon-plugin-default.png" class="unknown-plugin-icon-default"/>;
+      image = <span class="unknown-plugin-icon"/>;
     }
 
     const statusReport = pluginInfo.capabilities && pluginInfo.capabilities().supportsStatusReport && pluginInfo.capabilities().supportsStatusReport();

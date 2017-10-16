@@ -125,9 +125,48 @@ describe("PipelineConfigWidget", () => {
     });
   });
 
-  it("should render enablePipelineLocking checkbox", () => {
-    expect(inputFieldFor('enablePipelineLocking')).toBeChecked();
-    expect(pipeline.enablePipelineLocking()).toBe(true);
+  it("should render pipeline lock behavior radio buttons", () => {
+    const lockBehaviorUnlockWhenFinished = $root.find('.pipeline input#lockBehavior-unlockWhenFinished');
+    const lockBehaviorLockOnFailure = $root.find('.pipeline input#lockBehavior-lockOnFailure');
+    const lockBehaviorNone = $root.find('.pipeline input#lockBehavior-none');
+
+    expect(lockBehaviorUnlockWhenFinished).not.toBeChecked();
+    expect(lockBehaviorLockOnFailure).not.toBeChecked();
+    expect(lockBehaviorNone).toBeChecked();
+    expect(pipeline.lockBehavior()).toBe("none");
+  });
+
+  it("should select the correct pipeline lock behavior radio button", () => {
+    const lockBehaviorUnlockWhenFinished = $root.find('.pipeline input#lockBehavior-unlockWhenFinished');
+    const lockBehaviorLockOnFailure = $root.find('.pipeline input#lockBehavior-lockOnFailure');
+    const lockBehaviorNone = $root.find('.pipeline input#lockBehavior-none');
+
+    pipeline.lockBehavior("none");
+    m.redraw();
+    expect(lockBehaviorNone).toBeChecked();
+
+    pipeline.lockBehavior("lockOnFailure");
+    m.redraw();
+    expect(lockBehaviorLockOnFailure).toBeChecked();
+
+    pipeline.lockBehavior("unlockWhenFinished");
+    m.redraw();
+    expect(lockBehaviorUnlockWhenFinished).toBeChecked();
+  });
+
+  it("should set pipeline lock behavior attribute", () => {
+    const lockBehaviorUnlockWhenFinished = $root.find('.pipeline input#lockBehavior-unlockWhenFinished');
+    const lockBehaviorLockOnFailure = $root.find('.pipeline input#lockBehavior-lockOnFailure');
+    const lockBehaviorNone = $root.find('.pipeline input#lockBehavior-none');
+
+    lockBehaviorUnlockWhenFinished.get(0).click();
+    expect(pipeline.lockBehavior()).toBe("unlockWhenFinished");
+
+    lockBehaviorLockOnFailure.get(0).click();
+    expect(pipeline.lockBehavior()).toBe("lockOnFailure");
+
+    lockBehaviorNone.get(0).click();
+    expect(pipeline.lockBehavior()).toBe("none");
   });
 
   it("should render the pipeline scheduling type in the pipeline settings view", () => {
@@ -136,12 +175,6 @@ describe("PipelineConfigWidget", () => {
 
   it("should show tooltip message for automatic pipeline scheduling", () => {
     expect($root.find('.pipeline-schedule')).toContainText("This pipeline is automatically triggered as the first stage of this pipeline is set to 'success'.");
-  });
-
-  it("should toggle pipeline enablePipelineLocking attribute", () => {
-    const lockedCheckBox = inputFieldFor('enablePipelineLocking').get(0);
-    lockedCheckBox.click();
-    expect(pipeline.enablePipelineLocking()).toBe(false);
   });
 
   it("should render value of timer", () => {
@@ -193,7 +226,7 @@ describe("PipelineConfigWidget", () => {
     return {
       name:                    "yourproject",
       label_template:          "foo-1.0.${COUNT}-${svn}",
-      enable_pipeline_locking: true,
+      lock_behavior:           "none",
       template_name:           null,
       timer:                   {
         spec:            "0 0 22 ? * MON-FRI",

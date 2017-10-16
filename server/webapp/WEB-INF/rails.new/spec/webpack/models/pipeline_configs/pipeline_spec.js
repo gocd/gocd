@@ -216,7 +216,7 @@ describe("Pipeline Model", () => {
           responseText:    JSON.stringify(samplePipelineJSON()),
           status:          200,
           responseHeaders: {
-            'Content-Type': 'application/vnd.go.cd.v3+json'
+            'Content-Type': 'application/vnd.go.cd.v4+json'
           }
         });
 

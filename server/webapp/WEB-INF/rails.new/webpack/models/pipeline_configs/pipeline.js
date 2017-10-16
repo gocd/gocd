@@ -77,7 +77,7 @@ const Pipeline = function (data) {
   this.update = function (etag, extract) {
     const config = (xhr) => {
       xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.setRequestHeader("Accept", "application/vnd.go.cd.v3+json");
+      xhr.setRequestHeader("Accept", "application/vnd.go.cd.v4+json");
       xhr.setRequestHeader("If-Match", etag);
     };
 
@@ -88,7 +88,7 @@ const Pipeline = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PUT',
-        url:         Routes.apiv3AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
+        url:         Routes.apiv4AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
         timeout:     mrequest.timeout,
         beforeSend:  config,
         data:        JSON.stringify(entity, s.snakeCaser),
@@ -152,7 +152,7 @@ Pipeline.Timer.fromJSON = (data) => {
   }
 };
 
-Pipeline.API_VERSION = 'v3';
+Pipeline.API_VERSION = 'v4';
 
 Pipeline.find = (url, extract) => $.Deferred(() => {
 

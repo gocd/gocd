@@ -6,6 +6,6 @@
         <%= render_comment(scope[:modification], scope[:pipeline_name]) %>
     </td>
     <td class="revision">
-        <span class="wrapped_word"><%= scope[:modification].getRevision() -%></span> - <%= link_to('vsm', vsm_show_material_path(:material_fingerprint => scope[:material].getFingerprint(), :revision => scope[:modification].getRevision())) -%>
+        <span class="wrapped_word"><%= scope[:modification].getRevision() -%></span> - <%= link_to('VSM', vsm_show_material_path(:material_fingerprint => scope[:material].getFingerprint(), :revision => scope[:modification].getRevision())) -%>
     </td>
 </tr>

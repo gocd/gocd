@@ -3855,6 +3855,8 @@ ul.entity_title {
   }
 }
 
+//Dashboard
+
 .pipeline_run_label {
   font-size:     12px;
   display:       block;
@@ -3862,7 +3864,8 @@ ul.entity_title {
   font-weight:   600;
   color:         #333;
   .vsm-entity & {
-    float: left;
+    float:     left;
+    font-size: 11px;
   }
 }
 
@@ -3870,8 +3873,19 @@ ul.entity_title {
   margin-left: 5px;
   font-size:   11px;
   .vsm-entity & {
-    float: right;
-    font-weight:   600;
-    margin-top:    1px;
+    font-weight: 600;
+    margin-top:  1px;
+    float:       right;
   }
+}
+
+.dashboard_pipeline_instance {
+  margin-bottom: 5px;
+  .pipeline_run_label {
+    display: inline-block;
+  }
+}
+
+.status.details a {
+  text-decoration: underline;
 }

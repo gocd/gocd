@@ -26,22 +26,24 @@ describe "/value_stream_map/show_material.html.erb" do
   end
 
   describe "render html" do
-    it "should render material fingerprint & revision for VSM page breadcrumb when it is available" do
+    it "should render material name & revision for VSM page breadcrumb when it is available" do
+      assign :material_display_name, "material_name"
       render
 
       Capybara.string(response.body).find("ul.entity_title").tap do |div|
-        expect(div).to have_selector("li.name", :text=> "fingerprint")
+        expect(div).to have_selector("li.name", :text=> "\n      Material\n      material_name")
         expect(div).to have_selector("li.last", :text=> "revision")
       end
     end
 
     it "should give VSM page a title with VSM of material-fingerprint" do
       assign(:user, double('username', :anonymous? => true))
+      assign :material_display_name, "material_name"
 
       render :template => "value_stream_map/show_material.html.erb", :layout => 'layouts/value_stream_map'
 
       page = Capybara::Node::Simple.new(response.body)
-      expect(page.title).to include("Value Stream Map of fingerprint")
+      expect(page.title).to include("Value Stream Map for material_name")
     end
   end
 end

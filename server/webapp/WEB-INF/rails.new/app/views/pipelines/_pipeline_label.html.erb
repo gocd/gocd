@@ -1,10 +1,13 @@
 <% scope[:rendering_gadget] ||= false %>
 
-<span class="pipeline_run_label">Instance:<%
-       #check to see if we are currently waiting on scheduling (aka loading)
-       if scope[:active_pipeline_in_pipeline].getLabel() == 'TBD' -%>
-        <img src="<%=image_path('new/ajax_loader_small.gif')%>" alt="Scheduling..."/>
+<div class="dashboard_pipeline_instance">
+  <span class="pipeline_run_label">Instance:
+    <%
+           #check to see if we are currently waiting on scheduling (aka loading)
+           if scope[:active_pipeline_in_pipeline].getLabel() == 'TBD' -%>
+        <img src="<%= image_path('new/ajax_loader_small.gif') %>" alt="Scheduling..."/>
     <% else -%>
-        <%= truncate(scope[:active_pipeline_in_pipeline].getLabel(), :length => 40) -%>
+        <%= truncate(scope[:active_pipeline_in_pipeline].getLabel(), :length => 20) -%>
     <% end -%>
-</span>
+  </span>
+</div>

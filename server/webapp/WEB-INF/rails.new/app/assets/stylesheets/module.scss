@@ -2721,11 +2721,11 @@ li.task_property {
 }
 
 .vsm-entity.pipeline .instance {
-    overflow: hidden;
-    margin: 0px -3px 10px;
+    overflow:       hidden;
+    margin:         0px -3px 10px;
     padding-bottom: 5px;
-    width: 192px;
-    padding-left: 2px;
+    width:          192px;
+    padding-left:   2px;
 }
 
 .vsm-entity.pipeline.current .instance {
@@ -2737,15 +2737,15 @@ li.task_property {
 }
 
 .vsm-entity.pipeline.expanded {
-    height: 195px;
-    z-index: 1000;
-    -webkit-box-shadow:  2px 2px 3px 3px rgba(128, 128, 128, 0.2);
-    box-shadow:  2px 2px 3px 3px rgba(128, 128, 128, 0.2);
-    border: 1px solid #AAA;
+    height:             195px;
+    z-index:            1000;
+    -webkit-box-shadow: 2px 2px 3px 3px rgba(128, 128, 128, 0.2);
+    box-shadow:         2px 2px 3px 3px rgba(128, 128, 128, 0.2);
+    border:             1px solid #aaa;
 }
 
 .vsm-entity.pipeline.expanded .instances {
-    height: 143px;
+    height:     143px;
     overflow-y: auto;
 }
 
@@ -2758,7 +2758,6 @@ li.task_property {
 }
 
 .vsm-entity.pipeline.expanded.xl {
-    //height: 340px;
     height: 263px;
     width:  210px;
 }
@@ -2768,9 +2767,8 @@ li.task_property {
 }
 
 .vsm-entity.pipeline.expanded.xl .instances {
-    //height: 285px;
-    height: 212px;
-    overflow: auto;
+    height:     212px;
+    overflow:   auto;
     overflow-x: hidden;
 }
 
@@ -2858,15 +2856,16 @@ li.task_property {
     padding-right: 0;
 
 }
+
 #vsm-container > .instances li {
-    border-bottom: 1px solid #CCCCCC;
-    float: none;
-    font-size: 11px;
-    overflow: hidden;
-    padding: 7px;
+    border-bottom: 1px solid #ccc;
+    float:         none;
+    font-size:     11px;
+    overflow:      hidden;
+    padding:       7px;
     text-overflow: ellipsis;
-    &.instance{
-        border-left: 2px solid #94399E;
+    &.instance {
+        border-left: 2px solid #94399e;
     }
 }
 
@@ -2878,8 +2877,8 @@ li.task_property {
 }
 
 #vsm-container > .instances > .material_revision_header {
-    border: 0 none;
-    font-weight: bold;
+    border:           0 none;
+    font-weight:      bold;
     background-color: #eee;
 }
 
@@ -2902,9 +2901,10 @@ li.task_property {
 
 .vsm-entity.material {
     border-radius: 70px;
-    height: 110px;
-    width: 110px;
+    height: 140px;
+    width: 140px;
     overflow: hidden;
+    box-sizing: border-box;
     z-index: 1;
 }
 
@@ -2917,7 +2917,7 @@ li.task_property {
 .vsm-entity.material .actions {
     bottom: 0 ;
     text-align: center;
-    width: inherit;
+    width: 117px;
     margin: 0;
     height: 30px;
 }
@@ -2969,6 +2969,10 @@ li.task_property {
 }
 .instances .revision{
     background-position: 0 -20px;
+    span {
+        font-weight: 600;
+        color:       #333 !important;
+    }
 }
 
 

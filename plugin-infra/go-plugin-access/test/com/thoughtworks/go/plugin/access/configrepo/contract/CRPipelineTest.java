@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -39,7 +40,6 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         customPipeline = new CRPipeline("pipe2","group1",veryCustomGit, null, buildStage);
         customPipeline.addMaterial(new CRDependencyMaterial("pipe1","pipe1","build"));
         customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
-        customPipeline.setIsLocked(true);
         customPipeline.setMingle( new CRMingle("http://mingle.example.com","my_project"));
         customPipeline.setTimer(new CRTimer("0 15 10 * * ? *"));
 
@@ -159,7 +159,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
     public void shouldAddAnErrorIfNeitherTemplateOrStagesAreDefined() throws Exception {
         ArrayList<CRMaterial> materials = new ArrayList<>();
         materials.add(veryCustomGit);
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", true, null, null, null, new ArrayList<>(), materials, new ArrayList<>(), null, new ArrayList<>());
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, new ArrayList<>(), materials, new ArrayList<>(), null, new ArrayList<>());
         ErrorCollection errorCollection = new ErrorCollection();
         crPipeline.getErrors(errorCollection, "TEST");
 
@@ -174,7 +174,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         ArrayList<CRParameter> crParameters = new ArrayList<>();
         crParameters.add(new CRParameter("param1", "value1"));
         crParameters.add(new CRParameter("param1", "value2"));
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", true, null, null, null, new ArrayList<>(), materials, null, "t1", crParameters);
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, new ArrayList<>(), materials, null, "t1", crParameters);
         ErrorCollection errors = new ErrorCollection();
         crPipeline.getErrors(errors, "TEST");
 
@@ -189,7 +189,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         ArrayList<CREnvironmentVariable> crEnvironmentVariables = new ArrayList<>();
         crEnvironmentVariables.add(new CREnvironmentVariable("env1", "value1"));
         crEnvironmentVariables.add(new CREnvironmentVariable("env1", "value2"));
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", true, null, null, null, crEnvironmentVariables, materials, null, "t1", new ArrayList<>());
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, crEnvironmentVariables, materials, null, "t1", new ArrayList<>());
         ErrorCollection errors = new ErrorCollection();
         crPipeline.getErrors(errors, "TEST");
 

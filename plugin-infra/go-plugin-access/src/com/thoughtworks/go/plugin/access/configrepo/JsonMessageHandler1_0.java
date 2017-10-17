@@ -29,12 +29,14 @@ import java.util.Collection;
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
-    private static final int CURRENT_CONTRACT_VERSION = 1;
+    static final int CURRENT_CONTRACT_VERSION = 2;
 
     private final GsonCodec codec;
+    private final ConfigRepoMigrator migrator;
 
-    public JsonMessageHandler1_0() {
-        codec = new GsonCodec();
+    public JsonMessageHandler1_0(GsonCodec gsonCodec, ConfigRepoMigrator configRepoMigrator) {
+        codec = gsonCodec;
+        migrator = configRepoMigrator;
     }
 
     @Override
@@ -73,8 +75,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 int version = responseMap.target_version;
 
                 while (version < CURRENT_CONTRACT_VERSION) {
-                    migrate(responseBody, version);
                     version++;
+                    responseBody = migrate(responseBody, version);
                 }
                 // after migration, json should match contract
                 parseDirectoryResponseMessage = codec.getGson().fromJson(responseBody, ParseDirectoryResponseMessage.class);
@@ -90,12 +92,15 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             builder.append(ex);
             // "location" of error is runtime. This is what user will see in config repo errors list.
             errors.addError("runtime", builder.toString());
+            LOGGER.error(builder.toString(), ex);
             return new CRParseResult(errors);
         }
     }
 
-    private void migrate(String responseBody, int targetVersion) {
-        if (targetVersion > 1)
+    private String migrate(String responseBody, int targetVersion) {
+        if (targetVersion > CURRENT_CONTRACT_VERSION)
             throw new RuntimeException(String.format("Migration to %s is not supported", targetVersion));
+
+        return migrator.migrate(responseBody, targetVersion);
     }
 }

@@ -1,0 +1,28 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#2": "&1" // Set target version to 2.
+      },
+      "pipelines": {
+        "*": {
+          "enable_pipeline_locking": {
+            "true": {
+              "@2": {
+                "#lockOnFailure": "&5.[&4].lock_behavior"
+              }
+            },
+            "false": {
+              "@2": {
+                "#none": "&5.[&4].lock_behavior"
+              }
+            }
+          },
+          "*": "&2.[&1].&"
+        }
+      },
+      "*": "&"
+    }
+  }
+]

@@ -28,7 +28,7 @@ public class CRPipeline extends CRBase {
     private String group;
     private String name;
     private String label_template;
-    private boolean enable_pipeline_locking;
+    private String lock_behavior;
     private CRTrackingTool tracking_tool;
     private CRMingle mingle;
     private CRTimer timer;
@@ -48,13 +48,13 @@ public class CRPipeline extends CRBase {
         this.stages = Arrays.asList(stages);
     }
 
-    public CRPipeline(String name, String groupName, String labelTemplate, boolean isLocked, CRTrackingTool trackingTool,
+    public CRPipeline(String name, String groupName, String labelTemplate, String lockBehavior, CRTrackingTool trackingTool,
                       CRMingle mingle, CRTimer timer, Collection<CREnvironmentVariable> environmentVariables,
                       Collection<CRMaterial> materials, List<CRStage> stages, String template, Collection<CRParameter> parameters) {
         this.name = name;
         this.group = groupName;
         this.label_template = labelTemplate;
-        this.enable_pipeline_locking = isLocked;
+        this.lock_behavior = lockBehavior;
         this.tracking_tool = trackingTool;
         this.mingle = mingle;
         this.timer = timer;
@@ -81,12 +81,8 @@ public class CRPipeline extends CRBase {
         this.label_template = labelTemplate;
     }
 
-    public boolean isLocked() {
-        return enable_pipeline_locking;
-    }
-
-    public void setIsLocked(boolean isLocked) {
-        this.enable_pipeline_locking = isLocked;
+    public String lockBehavior() {
+        return lock_behavior;
     }
 
     public CRTrackingTool getTrackingTool() {

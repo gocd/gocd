@@ -591,7 +591,7 @@ public class ConfigConverter {
             params.add(toParamConfig(crParameter));
         }
 
-        pipelineConfig.setLock(crPipeline.isLocked());
+        pipelineConfig.setLockBehaviorIfNecessary(crPipeline.lockBehavior());
 
         return pipelineConfig;
     }

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -46,7 +47,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public ConfigRepoExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME),EXTENSION_NAME);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
-        messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
     }
 
     @Override

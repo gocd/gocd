@@ -50,6 +50,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -288,7 +289,6 @@ public class ConfigConverterTest {
         assertThat(result.getSrc(), is("src"));
         assertThat(result.isSourceAFile(), is(true));
     }
-
 
     @Test
     public void shouldConvertFetchArtifactTaskWhenSourceIsDirectory() {
@@ -874,8 +874,8 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertPipeline()
     {
-        CRPipeline crPipeline = new CRPipeline("pipename","group1","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters);
+        CRPipeline crPipeline = new CRPipeline("pipename", "group1", "label", LOCK_VALUE_LOCK_ON_FAILURE,
+                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline,context);
         assertThat(pipelineConfig.name().toLower(),is("pipename"));
@@ -885,6 +885,7 @@ public class ConfigConverterTest {
         assertThat(pipelineConfig.trackingTool().getLink(),is("link"));
         assertThat(pipelineConfig.getTimer().getTimerSpec(),is("timer"));
         assertThat(pipelineConfig.getLabelTemplate(),is("label"));
+        assertThat(pipelineConfig.isLockableOnFailure(), is(true));
     }
     @Test
     public void shouldConvertMinimalPipeline()
@@ -921,8 +922,8 @@ public class ConfigConverterTest {
     public void shouldConvertPipelineGroup()
     {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename","group","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters));
+        pipelines.add(new CRPipeline("pipename", "group", "label", LOCK_VALUE_LOCK_ON_FAILURE,
+                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put("group",pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -934,8 +935,8 @@ public class ConfigConverterTest {
     public void shouldConvertPipelineGroupWhenNoName()
     {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename",null,"label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters));
+        pipelines.add(new CRPipeline("pipename", null, "label", LOCK_VALUE_LOCK_ON_FAILURE,
+                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put(null,pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -947,8 +948,8 @@ public class ConfigConverterTest {
     public void shouldConvertPipelineGroupWhenEmptyName()
     {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename","","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages, null, parameters));
+        pipelines.add(new CRPipeline("pipename", "", "label", LOCK_VALUE_LOCK_ON_FAILURE,
+                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put("",pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -960,7 +961,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertPartialConfigWithGroupsAndEnvironments()
     {
-        CRPipeline pipeline = new CRPipeline("pipename", "group", "label", true,
+        CRPipeline pipeline = new CRPipeline("pipename", "group", "label", LOCK_VALUE_LOCK_ON_FAILURE,
                 trackingTool, null, timer, environmentVariables, materials, stages, null, parameters);
         ArrayList<String> agents = new ArrayList<>();
         agents.add("12");
@@ -1011,14 +1012,14 @@ public class ConfigConverterTest {
     public void shouldConvertParametersWhenPassed() throws Exception {
         Collection<CRParameter> parameters = new ArrayList<>();
         parameters.add(new CRParameter("param", "value"));
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", true, null, null, null, environmentVariables, materials, null, "t1", parameters);
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, environmentVariables, materials, null, "t1", parameters);
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
         assertThat(pipeline.getParams(), is(new ParamsConfig(new ParamConfig("param", "value"))));
     }
 
     @Test
     public void shouldConvertTemplateNameWhenGiven() throws Exception {
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", true, null, null, null, environmentVariables, materials, null, "t1", parameters);
+        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, environmentVariables, materials, null, "t1", parameters);
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
         assertThat(pipeline.isEmpty(), is(true));
         assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("t1")));

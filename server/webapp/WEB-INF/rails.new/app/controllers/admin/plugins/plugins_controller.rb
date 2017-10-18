@@ -17,7 +17,6 @@
 class Admin::Plugins::PluginsController < AdminController
 
   before_filter :set_tab_name
-  helper ::Admin::Plugins::PluginsHelper
   include ::Admin::Plugins::PluginsHelper
 
   def index
@@ -67,16 +66,8 @@ class Admin::Plugins::PluginsController < AdminController
   end
 
   private
-  def is_admin_user?
-    security_service.isUserAdmin(current_user)
-  end
-
   def set_tab_name
     @tab_name = 'plugins-listing'
-  end
-
-  def meta_data_store
-    PluginSettingsMetadataStore.getInstance()
   end
 
   def render_settings_page(plugin_settings, status_code)

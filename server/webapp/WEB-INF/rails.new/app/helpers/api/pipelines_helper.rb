@@ -1,6 +1,8 @@
 
 module Api
   module PipelinesHelper
+    include JavaImports
+
     def url(params={})#FIXME: we should not have such common method names(we work with all helpers mixed in each response, which means we need to be have more specific method names to avoid conflicts)
       api_pipeline_stage_feed_url(params)
     end

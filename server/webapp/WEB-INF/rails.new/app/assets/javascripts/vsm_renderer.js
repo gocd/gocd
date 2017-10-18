@@ -321,10 +321,10 @@ Graph_Renderer = function (container) {
         gui += '<li class="instance">';
         if (instance.label != '') {
             if (isCurrent) {
-                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance:' + instance.label + '</span></h4>';
+                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance: ' + instance.label + '</span></h4>';
             }
             else {
-                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance:' + instance.label + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">' + 'VSM' + '</a></span></h4>';
+                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance: ' + instance.label + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">' + 'VSM' + '</a></span></h4>';
             }
         }
         if(instance.locator.trim() != "") {

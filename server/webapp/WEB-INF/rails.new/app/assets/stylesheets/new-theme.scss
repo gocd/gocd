@@ -3864,8 +3864,14 @@ ul.entity_title {
   font-weight:   600;
   color:         #333;
   .vsm-entity & {
-    float:     left;
-    font-size: 11px;
+    float:         left;
+    font-size:     11px;
+    width:         160px;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+  }
+  .vsm-entity.current & {
+    width: 230px;
   }
 }
 
@@ -3876,6 +3882,9 @@ ul.entity_title {
     font-weight: 600;
     margin-top:  1px;
     float:       right;
+  }
+  a {
+    text-decoration: underline;
   }
 }
 

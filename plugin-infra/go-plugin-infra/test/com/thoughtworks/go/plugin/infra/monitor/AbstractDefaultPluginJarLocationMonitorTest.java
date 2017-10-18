@@ -21,11 +21,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
+
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
+    public static final File TEMP_SOURCE = new File("temp-file-in-plugin-monitor-test");
+
     protected void waitAMoment() throws InterruptedException {
         Thread.yield();
         Thread.sleep(2000);
@@ -33,7 +38,11 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
 
     protected void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
         URL resource = getClass().getClassLoader().getResource("defaultFiles/descriptor-aware-test-plugin.jar");
-        FileUtils.copyURLToFile(resource, new File(pluginDir, destinationFilenameOfPlugin));
+
+        FileUtils.copyURLToFile(resource, TEMP_SOURCE);
+
+        File destination = new File(pluginDir, destinationFilenameOfPlugin);
+        Files.move(TEMP_SOURCE.toPath(), destination.toPath(), ATOMIC_MOVE);
     }
 
     protected void updateFileContents(File someFile) {
@@ -50,5 +59,12 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
 
     protected PluginFileDetails pluginFileDetails(File directory, String pluginFile, boolean bundledPlugin) {
         return new PluginFileDetails(new File(directory, pluginFile), bundledPlugin);
+    }
+
+    public void setUp() throws Exception {
+    }
+
+    public void tearDown() throws Exception {
+        FileUtils.deleteQuietly(TEMP_SOURCE);
     }
 }

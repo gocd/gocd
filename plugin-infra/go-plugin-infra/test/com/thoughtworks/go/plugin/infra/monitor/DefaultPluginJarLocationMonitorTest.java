@@ -50,6 +50,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
 
     @Before
     public void setUp() throws Exception {
+        super.setUp();
         initMocks(this);
         if (WINDOWS.satisfy()) {
             return;
@@ -78,6 +79,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         monitor.stop();
         FileUtils.deleteQuietly(BUNDLED_PLUGIN_DIR);
         FileUtils.deleteQuietly(PLUGIN_EXTERNAL_DIR);
+        super.tearDown();
     }
 
     @Test

@@ -54,6 +54,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
     @Before
     public void setUp() throws Exception {
+        super.setUp();
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -84,6 +85,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.stop();
         FileUtils.deleteQuietly(PLUGIN_BUNDLED_DIR);
         FileUtils.deleteQuietly(PLUGIN_EXTERNAL_DIR);
+        super.tearDown();
     }
 
     @Test

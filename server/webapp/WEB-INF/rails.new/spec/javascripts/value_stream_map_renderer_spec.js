@@ -322,14 +322,14 @@ describe("value_stream_map_renderer", function () {
             /*
              first commit
              */
-            assertEquals("first revision is not populated correctly.", "revision1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim());
+            assertEquals("first revision is not populated correctly.", "Revision: revision1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim());
             assertEquals("first comment is not populated correctly.", "comment1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim());
             assertEquals("first user is not populated correctly.", "user1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim());
             assertEquals("first modified_time is populated correctly.", "modified_time1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text());
             /*
              second commit
              */
-            assertEquals("second revision is not populated correctly.", "revision2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim());
+            assertEquals("second revision is not populated correctly.", "Revision: revision2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim());
             assertEquals("second comment is not populated correctly.", "comment2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim());
             assertEquals("second user is not populated correctly.", "user2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim());
             assertEquals("second modified_time is populated correctly.", "modified_time2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text());
@@ -357,7 +357,7 @@ describe("value_stream_map_renderer", function () {
         var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
         var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
-        assertEquals("first revision is not populated correctly.", "go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
+        assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
         assertEquals("first comment is not populated correctly.", 'Built on server.<br>Trackback: <a href="google.com">google.com</a>',
             jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html());
         assertEquals("Brief comment is not correct", 'Built on server.<br>Trackback: <a href="google.com">google.com</a>',
@@ -388,7 +388,7 @@ describe("value_stream_map_renderer", function () {
         var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
         var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
-        assertEquals("first revision is not populated correctly.", "go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
+        assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
         assertEquals("first comment is not populated correctly.", 'Trackback: Not Provided',
             jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html());
         assertEquals("Brief comment is not correct", 'Trackback: Not Provided',
@@ -469,6 +469,40 @@ describe("value_stream_map_renderer", function () {
         assertEquals("pipeline should show all instance details.", "1 less...", jQuery("#downstream .show-more").find("a").text());
     });
 
+    it("shouldShowThePipelineRunDurationForACompeltedPipeline", function() {
+      var completedPipeline = '{"stages": [{"locator": "/go/pipelines/current/1/defaultStage/1","status": "Passed","name": "defaultStage", "duration": 63},' +
+        '{"locator": "/go/pipelines/current/1/NextStage/1","status": "Failed","name": "NextStage", "duration": 63},' +
+        '{"locator": "/go/pipelines/current/1/ManualStage/1","status": "Unknown","name": "manualStage", "duration": null}],' +
+        '"locator": "/go/pipelines/value_stream_map/current/1","counter": 1,"label": "1" }';
+
+      var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
+        '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+        '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
+
+      var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/tab/pipeline/history/p1", '[' + completedPipeline + ']');
+
+      var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
+      new Graph_Renderer("#vsm-container").invoke(vsm);
+
+      assertEquals("Duration: 2m 6.0s", jQuery("#p1 .duration").text());
+    });
+
+  it("shouldShowThePipelineRunAsInProgressForAPipelineWhichIsInProgress", function() {
+    var inProgressPipeline = '{"stages": [{"locator": "/go/pipelines/current/1/defaultStage/1","status": "Completed","name": "defaultStage", "duration": 63},' +
+      '{"locator": "/go/pipelines/current/1/nextStage/1","status": "Building","name": "defaultStage", "duration": null}],' +
+      '"locator": "/go/pipelines/value_stream_map/current/1","counter": 1,"label": "1" }';
+
+    var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
+      '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+      '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
+
+    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/tab/pipeline/history/p1", '[' + inProgressPipeline + ']');
+
+    var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
+    new Graph_Renderer("#vsm-container").invoke(vsm);
+
+    assertEquals("Duration: In Progress", jQuery("#p1 .duration").text());
+  });
 
     function assertIfItIsStartNode(nodeId) {
         var nodeIdSelector = "#" + nodeId;

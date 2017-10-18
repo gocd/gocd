@@ -204,7 +204,7 @@ Graph_Renderer = function (container) {
     function renderScmInstance(instance) {
 
         return '<li class="instance">'
-                + '<div title="' + instance.revision + '" class="icon revision">' + '<a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
+                + '<div title="' + instance.revision + '" class="revision"><span>Revision: </span>' + '<a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
                 + '<div class="usercomment wraptext">' + parseComment(instance.comment) + '</div>'
                 + '<div class="author">'
                 + '<p>' + _.escape(instance.user) + ' </p>'
@@ -321,13 +321,16 @@ Graph_Renderer = function (container) {
         gui += '<li class="instance">';
         if (instance.label != '') {
             if (isCurrent) {
-                gui += '<h4 title="' + instance.label + '"><i class="label">Label: </i>' + instance.label + '</h4>';
+                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance: ' + instance.label + '</span></h4>';
             }
             else {
-                gui += '<h4 title="' + instance.label + '"><i class="label">Label: </i><a href="' + instance.locator + '">' + instance.label + '</a></h4>';
+                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance: ' + instance.label + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">' + 'VSM' + '</a></span></h4>';
             }
         }
         if(instance.locator.trim() != "") {
+            var duration =  pipelineRunCompleted(instance) ? pipelineRunDuration(instance) : 'In Progress';
+            gui += '<span class="duration">Duration: ' + duration + '</span>';
+
             gui += '<ul class="stages">';
             stagesCount = instance.stages.length;
             for (var i = 0; i < stagesCount; i++) {
@@ -356,6 +359,24 @@ Graph_Renderer = function (container) {
 
         gui += '</li>';
         return gui;
+    }
+
+    function pipelineRunCompleted(instance) {
+      for(var i = 0; i < instance.stages.length; i++) {
+        if(['PASSED', 'FAILED', 'CANCELLED', 'UNKNOWN'].indexOf(instance.stages[i].status.toUpperCase()) < 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function pipelineRunDuration(instance) {
+      var stages = instance.stages;
+      var duration = 0;
+      for (var i = 0; i < stages.length; ++i) {
+        duration += stages[i].duration
+      }
+      return moment.duration(duration, 's').humanizeForGoCD()
     }
 
     function renderDummyEntity(node) {

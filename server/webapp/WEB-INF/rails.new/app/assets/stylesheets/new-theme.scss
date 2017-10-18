@@ -722,6 +722,10 @@ h1.entity_title {
   width:     auto;
   min-width: 12em;
   max-width: 25em;
+
+  .pipeline-info {
+    display: block;
+  }
 }
 
 .pipeline-history-group .pipeline-info.revision {
@@ -820,6 +824,27 @@ span.pipeline-buttons a.link_as_button {
   }
 
 }
+
+.pipeline-run {
+  display:         flex;
+  margin:          3px 0;
+  align-items:     center;
+  justify-content: space-between;
+
+  .pipeline-label {
+    font-size:     16px;
+    padding-right: 10px;
+  }
+
+  a {
+    font-size: 14px;
+  }
+}
+
+.pipeline-instance-header {
+  font-size:      12px;
+}
+
 
 //stage history
 
@@ -2684,6 +2709,16 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
 }
 
 .vsm-entity.pipeline ul.instances {
+  height: 61px;
+  .instance {
+    margin-top: 0px;
+  }
+  ul.stages {
+    margin-top: 10px;
+  }
+  .duration {
+    font-size: 11px;
+  }
   .message {
     padding: 0 7px;
   }
@@ -3818,4 +3853,48 @@ ul.entity_title {
   .label {
     top: -10px;
   }
+}
+
+//Dashboard
+
+.pipeline_run_label {
+  font-size:     12px;
+  display:       block;
+  margin-bottom: 5px;
+  font-weight:   600;
+  color:         #333;
+  .vsm-entity & {
+    float:         left;
+    font-size:     11px;
+    width:         160px;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+  }
+  .vsm-entity.current & {
+    width: 230px;
+  }
+}
+
+.vsm_link_wrapper {
+  margin-left: 5px;
+  font-size:   11px;
+  .vsm-entity & {
+    font-weight: 600;
+    margin-top:  1px;
+    float:       right;
+  }
+  a {
+    text-decoration: underline;
+  }
+}
+
+.dashboard_pipeline_instance {
+  margin-bottom: 5px;
+  .pipeline_run_label {
+    display: inline-block;
+  }
+}
+
+.status.details a {
+  text-decoration: underline;
 }

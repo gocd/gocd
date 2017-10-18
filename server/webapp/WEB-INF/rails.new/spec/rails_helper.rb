@@ -33,6 +33,7 @@ require 'capybara/rspec'
 # option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
 #
 Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+require 'spec/rspec_config.rb'
 
 RSpec.configure do |config|
   # RSpec Rails can automatically mix in different behaviours to your tests

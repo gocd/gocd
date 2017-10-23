@@ -106,7 +106,7 @@ if [ -z "${GO_CONFIG_DIR}" ]; then
   if [ -d /etc/go ]; then
     GO_CONFIG_DIR=/etc/go
   else
-    GO_CONFIG_DIR=$SERVER_DIR/config
+    GO_CONFIG_DIR=$SERVER_WORK_DIR/config
   fi
 fi
 

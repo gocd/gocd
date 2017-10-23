@@ -140,7 +140,7 @@ RUN_CMD=("$(autoDetectJavaExecutable)" "${SERVER_STARTUP_ARGS[@]}" "-jar" "$SERV
 cd "$SERVER_WORK_DIR"
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup "${RUN_CMD[@]}" &
+    exec nohup "${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE" 2>&1 &
     disown $!
     echo $! >"$PID_FILE"
 else

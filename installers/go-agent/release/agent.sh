@@ -153,7 +153,7 @@ RUN_CMD=("$(autoDetectJavaExecutable)" "${AGENT_BOOTSTRAPPER_JVM_ARGS[@]}" "-jar
 cd "$AGENT_WORK_DIR"
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup "${RUN_CMD[@]}" &
+    exec nohup "${RUN_CMD[@]}" >> "$STDOUT_LOG_FILE" 2>&1 &
     disown $!
     echo $! >"$PID_FILE"
 else

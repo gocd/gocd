@@ -18,6 +18,7 @@ class Api::PipelinesController < Api::ApiController
   include ComparisonHelper
   helper Api::PipelinesHelper
   include Api::PipelinesHelper
+  helper_method :url, :resource_url, :page_url
 
   def history
     pipeline_name = params[:pipeline_name]

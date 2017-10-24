@@ -53,8 +53,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.*;
 
 @Controller
 public class AgentRegistrationController {
@@ -192,19 +191,16 @@ public class AgentRegistrationController {
 
         try {
             final boolean shouldAutoRegisterAgent = goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey);
-            final boolean registeredAlready = goConfigService.hasAgent(uuid);
 
-            validateAgentRegistrationRequest(uuid, shouldAutoRegisterAgent, registeredAlready, elasticAgentId, elasticPluginId);
+            validateAgentRegistrationRequest(uuid, shouldAutoRegisterAgent, elasticAgentId, elasticPluginId);
 
             final String preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
 
             AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
-            if (isElasticAgent(elasticAgentId, elasticPluginId)) {
-                agentConfig.setElasticAgentId(elasticAgentId);
-                agentConfig.setElasticPluginId(elasticPluginId);
-            }
+            agentConfig.setElasticAgentId(stripToNull(elasticAgentId));
+            agentConfig.setElasticPluginId(stripToNull(elasticPluginId));
 
-            if (shouldAutoRegisterAgent && !registeredAlready) {
+            if (shouldAutoRegisterAgent) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new AgentConfigService.AddAgentCommand(agentConfig),
@@ -242,23 +238,24 @@ public class AgentRegistrationController {
         return render(keyEntry);
     }
 
-    private void validateAgentRegistrationRequest(String agentUUID, boolean shouldAutoRegisterAgent, boolean registeredAlready, String elasticAgentId, String elasticPluginId) {
+    private void validateAgentRegistrationRequest(String agentUUID, boolean shouldAutoRegisterAgent, String elasticAgentId, String elasticPluginId) {
 
-        if (registeredAlready && !shouldAutoRegisterAgent) {
+        if (goConfigService.hasAgent(agentUUID) && !shouldAutoRegisterAgent) {
             throw new RuntimeException(String.format("Agent [%s] is already registered with server. Agent registration requires an auto-register key and it must match the auto-register key setup on the server.", agentUUID));
+        }
+
+        if (isElasticAgent(elasticAgentId, elasticPluginId) && !shouldAutoRegisterAgent) {
+            throw new RuntimeException(String.format("Elastic agent registration requires an auto-register key and it must match the auto-register key setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId));
         }
 
         if (partialElasticAgentInfo(elasticAgentId, elasticAgentId)) {
             throw new RuntimeException("Elastic agents must submit both elasticAgentId and elasticPluginId");
         }
 
-        if (isElasticAgent(elasticAgentId, elasticPluginId) && !shouldAutoRegisterAgent) {
-            throw new RuntimeException(String.format("Elastic agent registration requires an auto-register key and it must match the auto-register key setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId));
-        }
     }
 
     private boolean isElasticAgent(String elasticAgentId, String elasticPluginId) {
-        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
+        return isNotBlank(elasticAgentId) || isNotBlank(elasticPluginId);
     }
 
     private ModelAndView render(final Registration registration) {

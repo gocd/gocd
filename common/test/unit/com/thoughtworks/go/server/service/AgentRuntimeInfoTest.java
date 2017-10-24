@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
@@ -28,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
 
 import java.io.File;
 
@@ -36,11 +34,8 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AgentRuntimeInfoTest {
     private static final int OLD_IDX = 0;
@@ -48,12 +43,9 @@ public class AgentRuntimeInfoTest {
     private File pipelinesFolder;
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-    @Mock
-    private TimeProvider timeProvider;
 
     @Before
     public void setup() throws Exception {
-        initMocks(this);
         pipelinesFolder = new File("pipelines");
         pipelinesFolder.mkdirs();
     }
@@ -65,13 +57,13 @@ public class AgentRuntimeInfoTest {
 
     @Test(expected = Exception.class)
     public void should() throws Exception {
-        AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux", false, timeProvider);
+        AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux", false);
     }
 
     @Test
     public void shouldUsingIdleWhenRegistrationRequestIsFromLocalAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux", false, timeProvider);
+                new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux", false);
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), Is.is(AgentRuntimeStatus.Idle));
     }
@@ -79,7 +71,7 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldBeUnknownWhenRegistrationRequestIsFromLocalAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux", false, timeProvider);
+                new AgentConfig("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux", false);
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Unknown));
     }
@@ -87,7 +79,7 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldUsingIdleWhenRegistrationRequestIsFromAlreadyRegisteredAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false, timeProvider);
+                new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
     }
@@ -95,7 +87,7 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldNotifyStatusChangeListenerOnStatusUpdate() {
         final AgentRuntimeStatus[] oldAndNewStatus = new AgentRuntimeStatus[2];
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
         assertThat(oldAndNewStatus[OLD_IDX], is(nullValue()));
@@ -112,7 +104,7 @@ public class AgentRuntimeInfoTest {
 
     @Test
     public void shouldNotUpdateStatusWhenOldValueIsEqualToNewValue() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
         AgentRuntimeStatus.ChangeListener listener = mock(AgentRuntimeStatus.ChangeListener.class);
@@ -123,56 +115,56 @@ public class AgentRuntimeInfoTest {
 
     @Test
     public void shouldNotMatchRuntimeInfosWithDifferentOperatingSystems() {
-        AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false, timeProvider);
-        AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar", false, timeProvider);
+        AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
+        AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar", false);
         assertThat(linux, is(not(osx)));
     }
 
     @Test
     public void shouldInitializeTheFreeSpaceAtAgentSide() {
         AgentIdentifier id = new AgentConfig("uuid", "localhost", "176.19.4.1").getAgentIdentifier();
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
 
         assertThat(agentRuntimeInfo.getUsableSpace(), is(not(0L)));
     }
 
     @Test
     public void shouldNotBeLowDiskSpaceForMissingAgent() {
-        assertThat(AgentRuntimeInfo.initialState(new AgentConfig("uuid"), timeProvider).isLowDiskSpace(10L), is(false));
+        assertThat(AgentRuntimeInfo.initialState(new AgentConfig("uuid")).isLowDiskSpace(10L), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUsableSpaceLessThanLimit() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.initialState(new AgentConfig("uuid"), timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.initialState(new AgentConfig("uuid"));
         agentRuntimeInfo.setUsableSpace(10L);
         assertThat(agentRuntimeInfo.isLowDiskSpace(20L), is(true));
     }
 
     @Test
     public void shouldHaveRelevantFieldsInDebugString() throws Exception {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         assertThat(agentRuntimeInfo.agentInfoDebugString(), is("Agent [localhost, 127.0.0.1, uuid, cookie]"));
     }
 
     @Test
     public void shouldHaveBeautifulPhigureLikeDisplayString() throws Exception {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.setLocation("/nim/appan/mane");
         assertThat(agentRuntimeInfo.agentInfoForDisplay(), is("Agent located at [localhost, 127.0.0.1, /nim/appan/mane]"));
     }
 
     @Test
     public void shouldTellIfHasCookie() throws Exception {
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider).hasDuplicateCookie("cookie"), is(false));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider).hasDuplicateCookie("different"), is(true));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false, timeProvider).hasDuplicateCookie("cookie"), is(false));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider).hasDuplicateCookie(null), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false).hasDuplicateCookie("cookie"), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false).hasDuplicateCookie("different"), is(true));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false).hasDuplicateCookie("cookie"), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false).hasDuplicateCookie(null), is(false));
     }
 
     @Test
     public void shouldUpdateSelfForAnIdleAgent() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false, timeProvider);
-        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         newRuntimeInfo.setBuildingInfo(new AgentBuildingInfo("Idle", ""));
         newRuntimeInfo.setLocation("home");
         newRuntimeInfo.setUsableSpace(10L);
@@ -188,23 +180,8 @@ public class AgentRuntimeInfoTest {
 
     @Test
     public void dataMapEncodingAndDecoding() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", true, timeProvider);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", true);
         AgentRuntimeInfo clonedInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
         assertThat(clonedInfo, is(info));
     }
-
-    @Test
-    public void shouldUpdateLastUpdatedTimeWhenAgentBecomesBusy() throws Exception {
-        when(timeProvider.currentTimeMillis()).thenReturn(1234L).thenReturn(2345L);
-
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", true, timeProvider);
-        Long lastUpdated = info.getLastUpdatedTime();
-
-        info.busy(new AgentBuildingInfo("dfoo", "bar"));
-        Long newlyUpdatedTime = info.getLastUpdatedTime();
-
-        assertNotEquals(lastUpdated, newlyUpdatedTime);
-        assertTrue(lastUpdated < newlyUpdatedTime);
-    }
-
 }

@@ -31,7 +31,6 @@ import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -65,19 +64,17 @@ public class AgentRegistrationController {
     private final SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
     private final AgentConfigService agentConfigService;
-    private TimeProvider timeProvider;
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
     private volatile String tfsSdkChecksum;
 
     @Autowired
-    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService, TimeProvider timeProvider) {
+    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) {
         this.agentService = agentService;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZip = pluginsZip;
         this.agentConfigService = agentConfigService;
-        this.timeProvider = timeProvider;
     }
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
@@ -230,10 +227,10 @@ public class AgentRegistrationController {
 
             final long usableSpace = Long.parseLong(usablespaceAsString);
 
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, goConfigService.hasAgent(uuid), location, usableSpace, operatingSystem, supportsBuildCommandProtocol, timeProvider);
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, goConfigService.hasAgent(uuid), location, usableSpace, operatingSystem, supportsBuildCommandProtocol);
 
             if (isElasticAgent(elasticAgentId, elasticPluginId)) {
-                agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId, timeProvider);
+                agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
             }
 
             keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);

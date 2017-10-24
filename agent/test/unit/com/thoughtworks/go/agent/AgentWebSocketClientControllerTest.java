@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.HttpVersion;
@@ -103,8 +102,7 @@ public class AgentWebSocketClientControllerTest {
     @Mock
     private WebSocketSessionHandler webSocketSessionHandler;
     private String agentUuid = "uuid";
-    @Mock
-    private TimeProvider timeProvider;
+
 
     @After
     public void tearDown() {
@@ -433,7 +431,7 @@ public class AgentWebSocketClientControllerTest {
                 scmExtension,
                 taskExtension,
                 httpService,
-                webSocketClientHandler, webSocketSessionHandler, timeProvider, null);
+                webSocketClientHandler, webSocketSessionHandler, null);
         return controller;
     }
 }

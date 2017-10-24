@@ -25,7 +25,10 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TriState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +56,6 @@ public class AgentConfigServiceIntegrationTest {
     @Autowired private AgentConfigService agentConfigService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
-    @Autowired TimeProvider timeProvider;
     private GoConfigFileHelper configHelper;
     private AgentInstances agentInstances;
 
@@ -63,7 +65,7 @@ public class AgentConfigServiceIntegrationTest {
             @Override
             public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
             }
-        }, timeProvider);
+        });
 
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();

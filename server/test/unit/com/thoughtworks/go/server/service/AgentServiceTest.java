@@ -18,10 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
@@ -35,14 +37,12 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Time;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
@@ -63,11 +63,9 @@ public class AgentServiceTest {
     private ServerHealthService serverHealthService;
     private AgentConfigService agentConfigService;
     AgentConfig agentConfig;
-    private TimeProvider timeProvider;
 
     @Before
     public void setUp() {
-        timeProvider = mock(TimeProvider.class);
         agentInstances = mock(AgentInstances.class);
         agentConfig = new AgentConfig("uuid", "host", "192.168.1.1");
         when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(agentConfig, new SystemEnvironment()));
@@ -82,7 +80,7 @@ public class AgentServiceTest {
 
     @Test
     public void shouldUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat", false, timeProvider);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat", false);
         when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn("pavanIsGreat");
         agentService.updateRuntimeInfo(runtimeInfo);
         verify(agentInstances).updateAgentRuntimeInfo(runtimeInfo);
@@ -90,7 +88,7 @@ public class AgentServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false, timeProvider);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
 
         try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
             try {
@@ -107,9 +105,9 @@ public class AgentServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false, timeProvider);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
         runtimeInfo.setCookie("invalid_cookie");
-        AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false, timeProvider), new SystemEnvironment());
+        AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false), new SystemEnvironment());
 
         try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
             try {
@@ -138,8 +136,8 @@ public class AgentServiceTest {
 
     @Test
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
-        AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false, timeProvider), new SystemEnvironment());
-        AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false, timeProvider), new SystemEnvironment());
+        AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false), new SystemEnvironment());
+        AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false), new SystemEnvironment());
         when(agentInstances.filter(Arrays.asList("uuid-1", "uuid-3"))).thenReturn(Arrays.asList(instance1, instance3));
         AgentsViewModel agents = agentService.filter(Arrays.asList("uuid-1", "uuid-3"));
         AgentViewModel view1 = new AgentViewModel(instance1);

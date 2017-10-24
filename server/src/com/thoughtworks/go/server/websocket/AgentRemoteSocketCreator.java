@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AgentRemoteSocketCreator implements WebSocketCreator {
+
     private AgentRemoteHandler handler;
 
     @Autowired

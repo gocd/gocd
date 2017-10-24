@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
@@ -79,7 +78,6 @@ public class JobInstanceStatusMonitorTest {
     public static TestRepo testRepo;
     private PipelineWithTwoStages fixture;
     private AgentStub agent;
-    @Autowired private TimeProvider timeProvider;
 
     @BeforeClass
     public static void setupRepos() throws IOException {
@@ -125,7 +123,7 @@ public class JobInstanceStatusMonitorTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
         info.setCookie("cookie");
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
@@ -152,7 +150,7 @@ public class JobInstanceStatusMonitorTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false, timeProvider);
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
         info.setCookie("cookie");
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 

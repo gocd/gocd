@@ -29,7 +29,6 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +50,6 @@ public class AgentControllerFactory {
     private final HttpService httpService;
     private final WebSocketClientHandler webSocketClientHandler;
     private final WebSocketSessionHandler sessionHandler;
-    private TimeProvider timeProvider;
     private static final Logger LOG = LoggerFactory.getLogger(AgentControllerFactory.class);
     private final AgentHealthHolder agentHealthHolder;
 
@@ -71,7 +69,6 @@ public class AgentControllerFactory {
             HttpService httpService,
             WebSocketClientHandler webSocketClientHandler,
             WebSocketSessionHandler sessionHandler,
-            TimeProvider timeProvider,
             AgentHealthHolder agentHealthHolder) {
         this.server = server;
         this.manipulator = manipulator;
@@ -88,7 +85,6 @@ public class AgentControllerFactory {
         this.webSocketClientHandler = webSocketClientHandler;
         this.sessionHandler = sessionHandler;
         this.agentHealthHolder = agentHealthHolder;
-        this.timeProvider = timeProvider;
     }
 
     public AgentController createInstance() {
@@ -109,7 +105,6 @@ public class AgentControllerFactory {
                     httpService,
                     webSocketClientHandler,
                     sessionHandler,
-                    timeProvider,
                     agentHealthHolder);
         } else {
             LOG.info("Connecting to server using HTTP(S)");
@@ -125,7 +120,6 @@ public class AgentControllerFactory {
                     packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
-                    timeProvider,
                     agentHealthHolder);
         }
     }

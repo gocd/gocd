@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.BuildAssignmentService;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.work.FakeWork;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -49,11 +48,9 @@ public class WorkFinderTest {
     private WorkFinder finder;
     private IdleAgentTopic idleAgentTopic;
     private WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger;
-    private TimeProvider timeProvider;
 
     @Before
     public void before() {
-        timeProvider = mock(TimeProvider.class);
         context = new ClassMockery();
         workAssigner = context.mock(BuildAssignmentService.class);
         assignedWorkTopic = context.mock(WorkAssignedTopic.class, "assignedWork");
@@ -73,7 +70,7 @@ public class WorkFinderTest {
             will(returnValue(NO_WORK));
             one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
         }});
-        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
     @Test
@@ -83,7 +80,7 @@ public class WorkFinderTest {
             will(returnValue(SOME_WORK));
             one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, SOME_WORK));
         }});
-        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
     @Test
@@ -96,7 +93,7 @@ public class WorkFinderTest {
         }});
 
         try {
-            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider)));
+            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
         } catch (Exception e) {
             assertSame(exception, e);
         }
@@ -108,7 +105,7 @@ public class WorkFinderTest {
         IdleAgentTopic idleTopic = mock(IdleAgentTopic.class);
         WorkAssignedTopic assignedTopic = mock(WorkAssignedTopic.class);
         WorkFinder finder = new WorkFinder(assigner, idleTopic, assignedTopic, workAssignmentPerformanceLogger);
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.initialState(AgentMother.approvedAgent(), timeProvider);
+        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.initialState(AgentMother.approvedAgent());
         when(assigner.assignWorkToAgent(runtimeInfo.getIdentifier())).thenThrow(new OutOfMemoryError("test error for martians"));
         try {
             finder.onMessage(new IdleAgentMessage(runtimeInfo));

@@ -33,7 +33,6 @@ import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +60,8 @@ public class AgentHTTPClientController extends AgentController {
                                      PackageRepositoryExtension packageRepositoryExtension,
                                      SCMExtension scmExtension,
                                      TaskExtension taskExtension,
-                                     TimeProvider timeProvider,
                                      AgentHealthHolder agentHealthHolder) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, timeProvider, agentHealthHolder);
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;

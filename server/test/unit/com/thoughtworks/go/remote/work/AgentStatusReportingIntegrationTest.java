@@ -21,7 +21,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.After;
 import org.junit.Before;
@@ -38,16 +37,14 @@ public class AgentStatusReportingIntegrationTest {
     private GoArtifactsManipulatorStub artifactManipulator;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private AgentRuntimeInfo agentRuntimeInfo;
-    private TimeProvider timeProvider;
 
     @Before
     public void before() {
-        timeProvider = new TimeProvider();
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
-        this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
     }
 
     @After
@@ -59,7 +56,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldReportBuildingWhenAgentRunningBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
         work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null, null, null);
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
     }
@@ -74,7 +71,7 @@ public class AgentStatusReportingIntegrationTest {
     }
 
     private AgentRuntimeInfo expectedAgentRuntimeInfo() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         info.setBuildingInfo(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         info.cancel();
         return info;

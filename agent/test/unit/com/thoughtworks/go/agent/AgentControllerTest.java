@@ -29,6 +29,9 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.util.SubprocessLogger;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Rule;
@@ -89,8 +92,6 @@ public class AgentControllerTest {
     private final int pingInterval = 5000;
     private AgentHealthHolder agentHealthHolder = new AgentHealthHolder(clock, pingInterval);
 
-    @Mock
-    private TimeProvider timeProvider;
     private AgentIdentifier agentIdentifier;
 
     @Before
@@ -139,7 +140,7 @@ public class AgentControllerTest {
 
     private AgentController createAgentController() {
         return new AgentController(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager,
-                subprocessLogger, agentUpgradeService, timeProvider, agentHealthHolder) {
+                subprocessLogger, agentUpgradeService, agentHealthHolder) {
             @Override
             public void ping() {
 

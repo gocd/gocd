@@ -204,7 +204,7 @@ public class AgentRegistrationControllerIntegrationTest {
         assertTrue(goConfigService.hasAgent(uuid));
 
         agentService.updateRuntimeInfo(new AgentRuntimeInfo(
-                agentConfig.getAgentIdentifier(), agentRuntimeStatus, "sandbox", "foo", false, timeProvider)
+                agentConfig.getAgentIdentifier(), agentRuntimeStatus, "sandbox", "foo", false)
         );
 
         assertTrue(agentService.findAgent(uuid).getStatus().getRuntimeStatus().agentState() == agentRuntimeStatus);

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
 import java.io.File;
@@ -36,7 +35,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
     }
 
     public StubGoPublisher(boolean shouldFail) {
-        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent(), new TimeProvider()));
+        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()));
         this.shouldFail = shouldFail;
     }
 

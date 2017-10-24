@@ -24,7 +24,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -176,7 +175,7 @@ public class ArtifactPropertiesGeneratorTest {
                                                                                AgentIdentifier agentIdentifier) {
                     return null;
                 }
-            }, new JobIdentifier(), null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent(), new TimeProvider()));
+            }, new JobIdentifier(), null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()));
             this.sentContents = sentContents;
             this.sentErrors = sentErrors;
         }

@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,11 +40,9 @@ public class AgentConfigServiceTest {
 
     private GoConfigService goConfigService;
     private AgentConfigService agentConfigService;
-    private TimeProvider timeProvider;
 
     @Before
     public void setUp() throws Exception {
-        timeProvider = mock(TimeProvider.class);
         goConfigService = mock(GoConfigService.class);
         agentConfigService = new AgentConfigService(goConfigService);
     }
@@ -54,7 +51,7 @@ public class AgentConfigServiceTest {
     public void shouldEnableAgentWhenPending() {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie", false);
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
         agentConfigService.enableAgents(Username.ANONYMOUS, instance);
         shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(new AgentConfigService.AddAgentCommand(agentConfig)));
@@ -69,7 +66,7 @@ public class AgentConfigServiceTest {
 
     @Test
     public void shouldEnableMultipleAgents() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Unknown, "cookie", false, timeProvider);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Unknown, "cookie", false);
         AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
 
         AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");

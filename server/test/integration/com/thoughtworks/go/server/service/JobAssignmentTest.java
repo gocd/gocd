@@ -23,7 +23,6 @@ import java.util.Set;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.AgentMother;
@@ -31,12 +30,10 @@ import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +55,6 @@ public class JobAssignmentTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao cruiseConfigDao;
     @Autowired private BuildAssignmentService assignmentService;
-    @Autowired private AgentService agentService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
 
@@ -127,26 +123,15 @@ public class JobAssignmentTest {
     private AgentInstance setupRemoteAgent() {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        agentInstance.enable();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(agentInstance.getAgentIdentifier(), AgentRuntimeStatus.Idle, "/", false, new TimeProvider());
-        AgentInstances agents = agentService.agents();
-        agentInstance.update(info);
-        agents.updateAgentRuntimeInfo(info);
-        agents.findAgent(agentInstance.getUuid()).idle();
-        return agentInstance;
+        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        instance.enable();
+        return instance;
     }
 
     private AgentInstance setupLocalAgent() throws UnknownHostException {
         AgentConfig agentConfig = AgentMother.localAgent();
         configHelper.addAgent(agentConfig);
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(agentInstance.getAgentIdentifier(), AgentRuntimeStatus.Idle, "/", false, new TimeProvider());
-        AgentInstances agents = agentService.agents();
-        agentInstance.update(info);
-        agents.updateAgentRuntimeInfo(info);
-        agents.findAgent(agentInstance.getUuid()).idle();
-        return agentInstance;
+        return AgentInstance.createFromConfig(agentConfig, systemEnvironment);
     }
 
 }

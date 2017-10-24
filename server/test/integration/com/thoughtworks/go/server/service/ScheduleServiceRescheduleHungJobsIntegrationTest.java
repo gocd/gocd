@@ -26,13 +26,11 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -61,6 +59,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ScheduleServiceRescheduleHungJobsIntegrationTest {
+
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
@@ -72,9 +71,8 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private AgentService agentService;
-
     @Autowired private InstanceFactory instanceFactory;
+
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
@@ -144,24 +142,15 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         jobInstance.setAgentUuid(agentConfig.getUuid());
         jobInstance.changeState(JobState.Building);
         pipelineDao.saveWithStages(pipeline);
-        markIdle(instance);
+
         buildAssignmentService.onTimer();
         buildAssignmentService.assignWorkToAgent(instance);
-        markIdle(instance);
         buildAssignmentService.onTimer();
         buildAssignmentService.assignWorkToAgent(instance);
 
         final Stage reloadedStage = stageDao.stageById(stage.getId());
         final JobInstance rescheduledJob = reloadedStage.getJobInstances().getByName(jobInstance.getName());
         assertThat(rescheduledJob.getState(), is(JobState.Assigned));
-    }
-
-    private void markIdle(AgentInstance agentInstance) {
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(agentInstance.getAgentIdentifier(), AgentRuntimeStatus.Idle, "/", false, new TimeProvider());
-        AgentInstances agents = agentService.agents();
-        agentInstance.update(info);
-        agents.updateAgentRuntimeInfo(info);
-        agents.findAgent(agentInstance.getUuid()).idle();
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

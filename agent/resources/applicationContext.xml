@@ -50,7 +50,6 @@
     </property>
   </bean>
 
-  <bean id="timeProvider" class="com.thoughtworks.go.util.TimeProvider"/>
   <bean id="urlService" class="com.thoughtworks.go.util.URLService"/>
   <bean id="httpService" class="com.thoughtworks.go.util.HttpService"/>
   <bean id="artifactsManipulator" class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>

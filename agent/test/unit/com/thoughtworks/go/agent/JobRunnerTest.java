@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.work.FakeWork;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +58,6 @@ public class JobRunnerTest {
     private BuildWork buildWork;
     private AgentIdentifier agentIdentifier;
     private UpstreamPipelineResolver resolver;
-    private TimeProvider timeProvider;
 
     public static String withJob(String jobXml) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -87,7 +85,6 @@ public class JobRunnerTest {
 
     @Before
     public void setUp() throws Exception {
-        timeProvider = mock(TimeProvider.class);
         runner = new JobRunner();
         work = new FakeWork();
         consoleOut = new ArrayList<>();
@@ -126,24 +123,24 @@ public class JobRunnerTest {
     @Test
     public void shouldDoNothingWhenJobIsNotCancelled() {
         runner.setWork(work);
-        runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider));
+        runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(work.getCallCount(), is(0));
     }
 
     @Test
     public void shouldCancelOncePerJob() {
         runner.setWork(work);
-        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(work.getCallCount(), is(1));
 
-        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(work.getCallCount(), is(1));
     }
 
     @Test
     public void shouldReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
         assertThat(runner.isJobCancelled(), is(false));
-        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false, timeProvider));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(runner.isJobCancelled(), is(true));
     }
 

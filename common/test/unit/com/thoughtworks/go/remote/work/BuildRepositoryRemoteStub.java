@@ -24,7 +24,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.TimeProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
     }
 
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
-        return getWork(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", isIgnored, new TimeProvider()));
+        return getWork(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", isIgnored));
     }
 
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {

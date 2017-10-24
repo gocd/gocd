@@ -24,7 +24,6 @@ import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,11 +36,9 @@ public class ScheduleServiceRescheduleHungJobsTest {
     private AgentService agentService;
     private ScheduleService scheduleService;
     private ConsoleActivityMonitor consoleActivityMonitor;
-    private TimeProvider timeProvider;
 
     @Before
     public void setUp() {
-        timeProvider = mock(TimeProvider.class);
         agentService = mock(AgentService.class);
         jobInstanceService = mock(JobInstanceService.class);
         consoleActivityMonitor = mock(ConsoleActivityMonitor.class);
@@ -54,7 +51,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
 
     @Test
     public void shouldNotQueryForBuildWhenThereAreNoLiveAgents() {
-        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null, timeProvider));
+        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null));
         scheduleService.rescheduleHungJobs();
         verify(agentService).findRegisteredAgents();
         verify(jobInstanceService, times(0)).findHungJobs(any());
@@ -87,7 +84,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
     }
 
     private AgentInstances activities() {
-        final AgentInstances activities = new AgentInstances(null, timeProvider);
+        final AgentInstances activities = new AgentInstances(null);
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment));
         activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment));

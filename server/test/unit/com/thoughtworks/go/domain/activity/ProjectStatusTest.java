@@ -22,6 +22,7 @@ import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Date;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
@@ -98,7 +99,7 @@ public class ProjectStatusTest {
         assertThat(status.canBeViewedBy("abc"), is(false));
         assertThat(status.canBeViewedBy("def"), is(false));
 
-        status.updateViewers(new AllowedViewers(s("abc", "ghi")));
+        status.updateViewers(new AllowedViewers(s("abc", "ghi"), Collections.emptySet()));
 
         assertThat(status.canBeViewedBy("abc"), is(true));
         assertThat(status.canBeViewedBy("def"), is(false));

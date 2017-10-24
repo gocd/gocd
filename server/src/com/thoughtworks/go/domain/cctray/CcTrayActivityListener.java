@@ -18,10 +18,12 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
@@ -67,6 +69,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     public void initialize() {
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
+        goConfigService.register(securityConfigChangeListener());
         startQueueProcessor();
     }
 
@@ -82,6 +85,21 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
                 });
             }
         };
+    }
+
+    protected SecurityConfigChangeListener securityConfigChangeListener() {
+        return new SecurityConfigChangeListener() {
+            @Override
+            public void onEntityConfigChange(Object entity) {
+                queue.add(new Action() {
+                    @Override
+                    public void call() {
+                        configChangeHandler.call(goConfigService.currentCruiseConfig());
+                    }
+                });
+            }
+        };
+
     }
 
     @Override
@@ -122,6 +140,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
             }
         });
     }
+
 
     private void startQueueProcessor() {
         if (queueProcessor != null) {

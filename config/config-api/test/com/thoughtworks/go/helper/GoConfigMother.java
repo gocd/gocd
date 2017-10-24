@@ -315,4 +315,8 @@ public class GoConfigMother {
         )));
         return cruiseConfig;
     }
+
+    public PluginRoleConfig createPluginRole(String roleName, String pluginId) {
+        return new PluginRoleConfig(roleName, pluginId);
+    }
 }

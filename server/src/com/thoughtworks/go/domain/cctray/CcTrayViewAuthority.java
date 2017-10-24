@@ -61,11 +61,28 @@ public class CcTrayViewAuthority {
                 viewers.addAll(pipelineGroupAdmins);
                 viewers.addAll(pipelineGroupViewers);
 
-                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedViewers(viewers));
+                Set<PluginRoleConfig> roles = new HashSet<>();
+                roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getAdminsConfig().getRoles()));
+                roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getViewConfig().getRoles()));
+
+                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedViewers(viewers, roles));
             }
         });
 
         return pipelinesAndViewers;
+    }
+
+    private Set<PluginRoleConfig> pluginRolesFor(List<AdminRole> roles) {
+        Set<PluginRoleConfig> pluginRoleConfigs = new HashSet<>();
+
+        for (AdminRole role : roles) {
+            PluginRoleConfig pluginRole = goConfigService.security().getPluginRole(role.getName());
+            if (pluginRole != null) {
+                pluginRoleConfigs.add(pluginRole);
+            }
+        }
+
+        return pluginRoleConfigs;
     }
 
     private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Collection<String>> rolesToUsers) {

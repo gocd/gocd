@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
@@ -30,9 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.CoreMatchers.is;
@@ -155,7 +154,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
-        Viewers viewers = viewers("viewer1", "viewer2");
+        Viewers viewers = viewers(Collections.singleton(new PluginRoleConfig("admin", "ldap")),"viewer1", "viewer2");
 
         String projectName = "pipeline :: stage1";
         ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
@@ -209,7 +208,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         return "some-path/pipelines/pipeline/1/" + stageName + "/1";
     }
 
-    private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users));
+    private Viewers viewers(Set<PluginRoleConfig> roles, String... users) {
+        return new AllowedViewers(s(users), roles);
     }
 }

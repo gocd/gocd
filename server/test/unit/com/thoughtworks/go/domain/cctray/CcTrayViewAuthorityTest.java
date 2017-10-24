@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
 import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +29,9 @@ import java.util.Map;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +40,7 @@ public class CcTrayViewAuthorityTest {
     private GoConfigService configService;
     private CcTrayViewAuthority service;
     private CruiseConfig config;
+    private PluginRoleUsersStore pluginRoleUsersStore;
 
     @Before
     public void setUp() throws Exception {
@@ -45,6 +49,12 @@ public class CcTrayViewAuthorityTest {
 
         configMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();
+        pluginRoleUsersStore = PluginRoleUsersStore.instance();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        pluginRoleUsersStore.clearAll();
     }
 
     @Test
@@ -301,6 +311,21 @@ public class CcTrayViewAuthorityTest {
         assertThat(viewersOfGroup.contains("user2"), is(true));
     }
 
+    @Test
+    public void shouldConsiderAUserAsViewerOfGroup_IfUserBelongsToTheConfiguredPluginRole_AndInPresenceOfSuperAdmin() throws Exception {
+        PluginRoleConfig admin = configMother.createPluginRole("go_admin", "ldap");
+
+        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        configMother.addRole(config, admin);
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addRoleAsViewerOfPipelineGroup(config, "go_admin", "group1");
+        pluginRoleUsersStore.assignRole("user", admin);
+
+        Viewers viewersOfGroup = getGroupsAndTheirViewers().get("group1");
+
+        assertTrue(viewersOfGroup.contains("user"));
+    }
+
     private Map<String, Viewers> getGroupsAndTheirViewers() {
         when(configService.security()).thenReturn(config.server().security());
         when(configService.groups()).thenReturn(config.getGroups());
@@ -309,6 +334,6 @@ public class CcTrayViewAuthorityTest {
     }
 
     private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users));
+        return new AllowedViewers(s(users), null);
     }
 }

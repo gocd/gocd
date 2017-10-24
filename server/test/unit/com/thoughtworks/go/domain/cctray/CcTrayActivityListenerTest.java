@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -26,6 +27,7 @@ import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.LogFixture;
 import ch.qos.logback.classic.Level;
@@ -145,6 +147,29 @@ public class CcTrayActivityListenerTest {
         waitForProcessingToHappen();
 
         verify(ccTrayConfigChangeHandler).call(pipelineConfig, "group1");
+    }
+
+    @Test
+    public void shouldInvokeConfigChangeHandlerWhenSecurityConfigChanges() throws InterruptedException {
+        CcTrayConfigChangeHandler ccTrayConfigChangeHandler = mock(CcTrayConfigChangeHandler.class);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class), mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
+
+        listener.initialize();
+
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(2) instanceof SecurityConfigChangeListener, is(true));
+        SecurityConfigChangeListener securityConfigChangeListener = (SecurityConfigChangeListener) listeners.get(2);
+
+        securityConfigChangeListener.onEntityConfigChange(new PluginRoleConfig());
+        waitForProcessingToHappen();
+
+        verify(ccTrayConfigChangeHandler).call(cruiseConfig);
     }
 
     private void waitForProcessingToHappen() throws InterruptedException {

@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.controller;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentConfigStatus;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
@@ -173,24 +172,6 @@ public class AgentRegistrationControllerIntegrationTest {
         assertThat(response.getStatus(), is(202));
         assertThat(response.getContentAsString(), is(RegistrationJSONizer.toJson(Registration.createNullPrivateKeyEntry())));
         assertTrue(agentService.findAgent(uuid).getStatus().getRuntimeStatus().agentState() == AgentRuntimeStatus.LostContact);
-    }
-
-    @Test
-    public void shouldRegisterElasticAgent() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockHttpServletResponse response = new MockHttpServletResponse();
-        final String uuid = UUID.randomUUID().toString();
-
-        final ModelAndView modelAndView = controller.agentRequest("hostname", uuid, "sandbox", "100", null, goConfigService.serverConfig().getAgentAutoRegisterKey(), "", "", null, "1a2dffb-4832-4fdf-b9e4-5d598cc48c8e", "cd.go.contrib.docker-swarm", false, request);
-
-        modelAndView.getView().render(null, null, response);
-        assertTrue(goConfigService.hasAgent(uuid));
-        assertThat(response.getStatus(), is(200));
-        assertTrue(RegistrationJSONizer.fromJson(response.getContentAsString()).isValid());
-
-        final AgentInstance agentInstance = agentService.findAgent(uuid);
-        assertTrue(agentInstance.isElastic());
-        assertTrue(agentInstance.getStatus().getRuntimeStatus().agentState() == AgentRuntimeStatus.Idle);
     }
 
     private String registerAgentWithAgentRuntimeStatus(AgentRuntimeStatus agentRuntimeStatus) throws IOException {

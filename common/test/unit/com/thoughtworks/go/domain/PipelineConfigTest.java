@@ -415,6 +415,29 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldValidateLockBehaviorValues() throws Exception {
+        Map configMap = new HashMap();
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, "someRandomValue");
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
+        pipelineConfig.setConfigAttributes(configMap);
+        pipelineConfig.validate(null);
+
+        assertThat(pipelineConfig.errors().isEmpty(), is(false));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LOCK_BEHAVIOR),
+                containsString("Lock behavior has an invalid value (someRandomValue). Valid values are: "));
+    }
+
+    @Test
+    public void shouldAllowNullForLockBehavior() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
+        pipelineConfig.setLockBehaviorIfNecessary(null);
+        pipelineConfig.validate(null);
+
+        assertThat(pipelineConfig.errors().toString(), pipelineConfig.errors().isEmpty(), is(true));
+    }
+
+    @Test
     public void shouldPopulateEnvironmentVariablesFromAttributeMap() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         HashMap map = new HashMap();

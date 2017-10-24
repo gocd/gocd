@@ -43,12 +43,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
+import static java.util.Arrays.asList;
 import static org.apache.commons.collections.CollectionUtils.select;
 
 /**
@@ -81,6 +83,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String LOCK_VALUE_LOCK_ON_FAILURE = "lockOnFailure";
     public static final String LOCK_VALUE_UNLOCK_WHEN_FINISHED = "unlockWhenFinished";
     public static final String LOCK_VALUE_NONE = "none";
+    public static final List<String> VALID_LOCK_VALUES = asList(LOCK_VALUE_LOCK_ON_FAILURE, LOCK_VALUE_UNLOCK_WHEN_FINISHED, LOCK_VALUE_NONE);
 
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
@@ -169,6 +172,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         validateLabelTemplate();
         validatePipelineName();
         validateStageNameUniqueness();
+        validateLockBehaviorValues();
         if (!hasTemplate() && isEmpty()) {
             addError("pipeline", String.format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
         }
@@ -229,6 +233,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private boolean validateLabelTemplateTruncation(String labelTemplate) {
         return LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN.matcher(labelTemplate).find();
+    }
+
+    private void validateLockBehaviorValues() {
+        if (lockBehavior != null && !VALID_LOCK_VALUES.contains(lockBehavior)) {
+            addError(LOCK_BEHAVIOR, MessageFormat.format("Lock behavior has an invalid value ({0}). Valid values are: {1}",
+                            lockBehavior, VALID_LOCK_VALUES));
+        }
     }
 
     private boolean hasStages(){

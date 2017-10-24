@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.SourceCodeMaterial;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 public class CRPipeline extends CRBase {
@@ -276,7 +279,14 @@ public class CRPipeline extends CRBase {
         }
         validateEnvironmentVariableUniqueness(errors, location);
         validateParamNameUniqueness(errors, location);
+        validateLockBehaviorValue(errors, location);
+    }
 
+    private void validateLockBehaviorValue(ErrorCollection errors, String location) {
+        if (lock_behavior != null && !PipelineConfig.VALID_LOCK_VALUES.contains(lock_behavior)) {
+            errors.addError(location, MessageFormat.format("Lock behavior has an invalid value ({0}). Valid values are: {1}",
+                    lock_behavior, PipelineConfig.VALID_LOCK_VALUES));
+        }
     }
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {

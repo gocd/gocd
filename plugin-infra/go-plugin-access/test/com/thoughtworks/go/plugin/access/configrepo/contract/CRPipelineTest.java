@@ -12,6 +12,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.util.TestUtils.contains;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -211,7 +213,6 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         examples.put("invalidNoGroup",invalidNoGroup);
     }
 
-
     @Test
     public void shouldHandlePolymorphismWhenDeserializingJobs()
     {
@@ -222,5 +223,18 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         CRMaterial git = deserializedValue.getMaterialByName("gitMaterial1");
         assertThat(git instanceof CRGitMaterial,is(true));
         assertThat(((CRGitMaterial)git).getBranch(),is("feature12"));
+    }
+
+    @Test
+    public void shouldAddAnErrorIfLockBehaviorValueIsInvalid() throws Exception {
+        CRPipeline validPipelineWithInvalidLockBehaviorOnly = new CRPipeline("pipe1", "group1", null,
+                "INVALID_LOCK_VALUE", null, null, null, emptyList(), asList(veryCustomGit), asList(buildStage), null, emptyList());
+
+        ErrorCollection errorCollection = new ErrorCollection();
+        validPipelineWithInvalidLockBehaviorOnly.getErrors(errorCollection, "TEST");
+
+        String expectedMessage = "Lock behavior has an invalid value (INVALID_LOCK_VALUE). Valid values are:";
+        assertThat(errorCollection.getErrorCount(), is(1));
+        assertThat(errorCollection.getOrCreateErrorList(validPipelineWithInvalidLockBehaviorOnly.getLocation("TEST")).get(0), contains(expectedMessage));
     }
 }

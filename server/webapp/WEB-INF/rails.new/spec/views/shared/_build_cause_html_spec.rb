@@ -114,7 +114,7 @@ describe "/shared/_build_cause.html.erb" do
           expect(revision).to have_selector("dd a[href='/pipelines/up_pipeline/10/up_stage/5']", :text => "up_pipeline/10/up_stage/5")
         end
         change.find(".label").tap do |label|
-          expect(label).to have_selector("dt", :text => "Label:")
+          expect(label).to have_selector("dt", :text => "Instance:")
           expect(label).to have_selector("dd a[href='/pipelines/up_pipeline/10/up_stage/5/pipeline']", :text => "label-10")
         end
         change.find(".completed_at").tap do |completed_at|

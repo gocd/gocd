@@ -20,6 +20,12 @@ let AngularPlugin     = require('views/shared/angular_plugin');
 const PluginSettingModalBody = {
   view (vnode) {
     let angularPlugin;
+
+    if (!vnode.attrs.newPluginSetting()) {
+      return (
+        <div class="modal-spinner"/>
+      );
+    }
     if (vnode.attrs.pluginInfo && vnode.attrs.newPluginSetting().configuration()) {
       angularPlugin = (<AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo.pluginSettings}
                                       configuration={vnode.attrs.newPluginSetting().configuration}

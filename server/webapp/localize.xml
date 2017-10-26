@@ -136,7 +136,7 @@
     <entry key="TESTS_RUN:_X">Tests Run: {0}</entry>
     <entry key="ORDERED_BY_CHECK-IN/MATERIAL_TIME">ordered by check-in/material time</entry>
     <entry key="PIPELINE_LABEL:">Pipeline Label:</entry>
-    <entry key="LABEL:">Label:</entry>
+    <entry key="LABEL:">Instance:</entry>
     <entry key="MATERIAL_REVISIONS:">Material Revisions:</entry>
     <entry key="SUITE:">Suite:</entry>
     <entry key="DETAILS">Details</entry>
@@ -275,7 +275,7 @@
     <entry key="MODIFIED_BY">Modified by</entry>
     <entry key="COMMENT">Comment</entry>
     <entry key="COMPLETED_AT">Completed at</entry>
-    <entry key="LABEL">Label</entry>
+    <entry key="LABEL">Instance</entry>
     <entry key="SINCE_CREATION">Since pipeline was created</entry>
     <entry key="STAGE_INFORMATION">Stage Information</entry>
     <entry key="STAGE_NAME">Stage Name</entry>

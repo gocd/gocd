@@ -39,10 +39,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -64,7 +62,6 @@ public class GoConfigMigration {
     private final ConfigElementImplementationRegistry registry;
 
     public static final String UPGRADE = "Upgrade";
-    private static List<Integer> riskyMigrations = Arrays.asList(91, 92);
 
     @Autowired
     public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
@@ -222,25 +219,11 @@ public class GoConfigMigration {
 
         for (URL upgradeScript : upgradeScripts) {
             validate(content);
-            backupConfigForRiskyMigrations(content, upgradeScript);
             content = upgrade(content, upgradeScript);
         }
         validate(content);
         LOG.info("Finished upgrading config file");
         return content;
-    }
-
-    private void backupConfigForRiskyMigrations(String content, URL upgradeScript) {
-        for (int riskyMigration : riskyMigrations) {
-            File backup = new File(systemEnvironment.configDir(), String.format("go-config-before-migration-%s.xml", riskyMigration));
-            if (upgradeScript.getFile().endsWith(String.format("/%s.xsl", riskyMigration))) {
-                try {
-                    FileUtils.writeStringToFile(backup, content, Charset.forName("UTF-8"));
-                } catch (IOException e) {
-                    LOG.error("Could not backup file: {}, content", backup.getAbsolutePath());
-                }
-            }
-        }
     }
 
     private void validate(String content) {

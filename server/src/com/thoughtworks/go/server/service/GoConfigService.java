@@ -527,7 +527,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public List<PipelineConfig> getAllPipelineConfigs() {
-        return getCurrentConfig().getAllPipelineConfigs();
+        return cruiseConfig().getAllPipelineConfigs();
     }
 
     /* NOTE: this is called from rails environments controller to build a list of pipelines which user can assign in environment.

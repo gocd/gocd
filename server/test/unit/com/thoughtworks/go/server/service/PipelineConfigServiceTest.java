@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -34,6 +35,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
@@ -63,6 +65,7 @@ public class PipelineConfigServiceTest {
         securityService = mock(SecurityService.class);
         pluggableTaskService = mock(PluggableTaskService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
         pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
@@ -179,5 +182,20 @@ public class PipelineConfigServiceTest {
 
         verify(pluggableTaskService).isValid(xUnit);
         verify(pluggableTaskService).isValid(docker);
+    }
+
+    @Test
+    public void shouldGetPipelinesCount() {
+        assertThat(pipelineConfigService.totalPipelinesCount(), is(this.cruiseConfig.allPipelines().size()));
+    }
+
+    @Test
+    public void pipelineCountShouldIncludeConfigRepoPipelinesAsWell() {
+        CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
+        mergedCruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        when(goConfigService.cruiseConfig()).thenReturn(mergedCruiseConfig);
+        when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
+
+        assertThat(pipelineConfigService.totalPipelinesCount(), is(mergedCruiseConfig.allPipelines().size()));
     }
 }

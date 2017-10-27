@@ -190,4 +190,8 @@ public class PipelineConfigService {
         }
         return tasks;
     }
+
+    public int totalPipelinesCount() {
+        return goConfigService.getAllPipelineConfigs().size();
+    }
 }

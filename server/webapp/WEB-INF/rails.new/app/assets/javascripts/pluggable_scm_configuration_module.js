@@ -16,20 +16,30 @@
 
 var PluggableSCMConfigurationModule = function () {
     var controller_element = null;
+    var data_element = null;
+    var configuration_element = null;
     var app_name = "pluggable_scm_configuration_module";
+    var angular_controller_name = "PluggableSCMConfigurationController";
     var enclosing_form = jQuery(".submit.finish").closest("form");
     var enclosing_form_id = enclosing_form.attr("id");
     var enclosing_form_name = enclosing_form.attr("name");
 
-    var initialize = function(controller_element_id, form_name_prefix) {
+    var initialize = function(controller_element_id, data_element_id, configuration_element_id, form_name_prefix) {
         controller_element = document.getElementById(controller_element_id);
-        this.configureFormSerialization(form_name_prefix);
-        this.updateNamesInTemplate();
+        controller_element.setAttribute("ng-controller", angular_controller_name);
+        data_element = document.getElementById(data_element_id);
+        configuration_element = document.getElementById(configuration_element_id);
+        configureFormSerialization(form_name_prefix);
+        updateNamesInTemplate();
+        if (!new AngularHelper().isDefined(app_name)) {
+            defineAngularModule();
+        }
+        populateFieldsAndErrors();
         return this;
     };
 
     /*
-     * Templates use 'formname.inputname.<expression>' format for error messages. These expressions need to be specified as GO_INPUT_NAME[<ng-model-value>].$error.
+     * Templates use 'formname.inputname.<expression>' format for error messages. These expressions need to be specified as GOINPUTNAME[<ng-model-value>].$error.
      * These expressions need to be updated with actual formname and input-name.
      * */
     var updateNamesInTemplate = function () {
@@ -53,14 +63,15 @@ var PluggableSCMConfigurationModule = function () {
         });
     };
 
-    var bootstrap = function () {
+    var defineAngularModule = function() {
         new AngularHelper().defineModule(app_name);
         angular.module(app_name)
-        .controller("PluggableSCMConfigurationController", ['$scope', function ($scope) {
-
+        .controller(angular_controller_name, ['$scope', function ($scope) {
+            populateFieldsAndErrors($scope);
             $scope.checkConnection = function(url) {
                 var material = {};
-                angular.forEach($scope.conf_keys, function(key) {
+                var configuration_keys = JSON.parse(jQuery(configuration_element).text());
+                angular.forEach(configuration_keys, function(key) {
                     this[key] = $scope[key] || "";
                 }, material);
                 var data = {};
@@ -87,7 +98,7 @@ var PluggableSCMConfigurationModule = function () {
                     },
                     error: function (xhr, options, thrownError) {
                         $scope.check_connection_message = xhr.status + ' - ' + thrownError;
-                        scope.check_connection_state = 'error_message';
+                        $scope.check_connection_state = 'error_message';
                         $scope.$apply();
                     }
                 });
@@ -97,11 +108,7 @@ var PluggableSCMConfigurationModule = function () {
             // check connection message state
             $scope.check_connection_state = "";
             $scope.check_connection_message = "";
-
-            // placeholder for names declared by ng-model directive on inputs in a template
-            $scope.conf_keys = [];
         }])
-
        .directive('servererror', function () {
             return {
                 restrict: 'A',
@@ -114,25 +121,34 @@ var PluggableSCMConfigurationModule = function () {
                 }
             };
         })
-        .directive('ngModel', function() {
-            var linker = function(scope, element, attrs) {
-                scope.conf_keys.push(attrs.ngModel);
-            }
+    }
 
-            return {
-                restrict: 'A',
-                priority: 100,
-                require: '?ngModel',
-                link: linker
-            };
-        });
+    var populateFieldsAndErrors = function ($scope) {
+        try{
+            var data = JSON.parse(jQuery(data_element).text());
+            var errors = "errors";
+            $scope[errors] = {};
+            angular.forEach(data, function (value, key) {
+                $scope[key] = value.value;
+                if (value.errors !== null) {
+                    $scope[errors][key] = value.errors;
+                    if ($scope[enclosing_form_name] != null) {
+                       $scope[enclosing_form_name].$setValidity('server', false);
+                    }
+                }
+            });
+        }
+        catch(e){
+            console.log(e.message);
+        }
+    }
+
+    var bootstrap = function (bootstrap_element_id) {
         new AngularHelper().bootstrapAngular(enclosing_form_id, app_name);
     };
 
     return {
         initialize: initialize,
-        bootstrap: bootstrap,
-        configureFormSerialization: configureFormSerialization,
-        updateNamesInTemplate: updateNamesInTemplate
+        bootstrap: bootstrap
     };
 };

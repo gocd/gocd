@@ -46,6 +46,11 @@ module Admin
       builtin_material_options().merge(scm_material_options())
     end
 
+    def scm_material_config_keys(plugin_id)
+      configuration = SCMMetadataStore.getInstance().getConfigurationMetadata(plugin_id).list()
+      com.google.gson.Gson.new.toJson(configuration.map { |x| x.getKey() })
+    end
+
     def repository_packages_map_from_config
       return @repository_packages_map if @repository_packages_map
       @repository_packages_map = {}

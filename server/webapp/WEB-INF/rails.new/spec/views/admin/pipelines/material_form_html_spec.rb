@@ -23,6 +23,15 @@ describe "admin/pipelines/new.html.erb" do
   include Admin::ConfigContextHelper
   include MockRegistryModule
 
+  PLUGGABLE_SCM_TEMPLATE = %Q{
+    <label>URL:<span class="asterisk">*</span></label>
+    <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]" ng-model="url" ng-required="true" tabindex="1"/>
+    <label>Username:</label>
+    <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][username]" ng-model="username" ng-required="true" tabindex="2"/>
+    <label>Password:</label>
+    <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][password]" ng-model="password" ng-required="true" tabindex="3"/>
+  }
+
   before(:each) do
     allow(view).to receive(:pipeline_create_path).and_return("create_path")
 
@@ -40,12 +49,11 @@ describe "admin/pipelines/new.html.erb" do
     @meta_data_store.clear()
     scm_view = double('SCMView')
     scm_view.stub(:displayValue).and_return('SCM Material')
-    scm_view.stub(:template).and_return(%Q{
-        <label>URL:<span class="asterisk">*</span></label>
-        <input type="text" name="pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]" ng-model="url" ng-required="true" tabindex="1"/>
-    })
+    scm_view.stub(:template).and_return(PLUGGABLE_SCM_TEMPLATE)
     scm_configurations = SCMConfigurations.new
     scm_configurations.add(SCMConfiguration.new('url'))
+    scm_configurations.add(SCMConfiguration.new('username'))
+    scm_configurations.add(SCMConfiguration.new('password'))
     @meta_data_store.addMetadataFor('com.plugin.id', scm_configurations, scm_view)
 
     assign(:pipeline, @pipeline)
@@ -392,23 +400,63 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     describe "Pluggable SCM Material" do
-      it "should render all scm material attributes" do
+      before :each do
         plugin_id = "com.plugin.id"
-        material_id = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), nil).getSCMType()
-        material = PluggableSCMMaterialConfig.new
-        scm = com.thoughtworks.go.domain.scm.SCM.new
+        configurations = [ConfigurationPropertyMother.create("url", false, "//bad_url"),
+                          ConfigurationPropertyMother.create("username", false, "wally"),
+                          ConfigurationPropertyMother.create("password", false, "hunter12")]
+        configurations.first.addError("url", "Wrong format")
+        scm = SCM.new(nil, PluginConfiguration.new(plugin_id, "1"), Configuration.new(configurations.to_java(ConfigurationProperty)))
         scm.setPluginConfiguration(com.thoughtworks.go.domain.config.PluginConfiguration.new(plugin_id, "1"))
+        material_id = scm.getSCMType()
+        material = PluggableSCMMaterialConfig.new
         material.setSCMConfig(scm)
 
         @scm_materials[material_id] = material
+      end
+
+      it "should render all scm material attributes" do
         render
 
-        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |form|
-          expect(form).to have_selector("label", :text => "Material Name*")
-          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][#{com.thoughtworks.go.domain.scm.SCM::NAME}]']")
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          expect(div).to have_selector("label", :text => "Material Name*")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][#{com.thoughtworks.go.domain.scm.SCM::NAME}]']")
 
-          expect(form).to have_selector("label", :text => "URL:*")
-          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]']")
+          expect(div).to have_selector("label", :text => "URL:*")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][url]']")
+          expect(div).to have_selector("label", :text => "Username:")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][username]']")
+          expect(div).to have_selector("label", :text => "Password:")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][pluggable_material_com_plugin_id][password]']")
+        end
+      end
+
+      it "should render material data and errors" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          data_for_template = JSON.parse(div.find("span.plugged_material_data", :visible => false).text)
+          expect(data_for_template.keys.sort).to eq(["password", "url", "username"])
+          expect(data_for_template["url"]).to eq({"errors" => "Wrong format", "value" => "//bad_url"})
+          expect(data_for_template["username"]).to eq({"value" => "wally"})
+          expect(data_for_template["password"]).to eq({"value" => "hunter12"})
+        end
+      end
+
+      it "should render material configuration keys" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          configuration = JSON.parse(div.find("span.plugged_material_configuration", :visible => false).text)
+          expect(configuration.sort).to eq(["password", "url", "username"])
+        end
+      end
+
+      it "should render 'check connection' button" do
+        render
+
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
+          expect(div).to have_selector("button.check_connection span", :text => "CHECK CONNECTION")
         end
       end
     end

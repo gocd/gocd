@@ -6,9 +6,11 @@
      check_connection_url = admin_pluggable_scm_check_connection_path(:plugin_id => plugin_id);
      form_name_provider_obj = form_name_provider(p_f)
      plugged_material_controller_element_id = form_name_provider_obj.css_id_for("angular_container")
+     plugged_material_data_element_id = form_name_provider_obj.css_id_for("data")
+     plugged_material_configuration_element_id = form_name_provider_obj.css_id_for("configuration")
   %>
 
-  <div id="<%= plugged_material_controller_element_id %>" ng-controller="PluggableSCMConfigurationController">
+  <div id="<%= plugged_material_controller_element_id %>">
     <%= p_f.hidden_field :pluginId, :value => plugin_id %>
     <%= p_f.hidden_field com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::SCM_ID -%>
     <div class="form_item_block required">
@@ -30,6 +32,12 @@
 
     <%= render :partial => 'shared/convert_tool_tips.html' %>
   </div>
+  <span id="<%= plugged_material_data_element_id %>" class="plugged_material_data" style="display: none">
+    <%= com.google.gson.Gson.new.toJson(scm_config.getConfigAsMap()) %>
+  </span>
+  <span id="<%= plugged_material_configuration_element_id %>" class="plugged_material_configuration" style="display: none">
+    <%= scm_material_config_keys(plugin_id) %>
+  </span>
 </div>
 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
 
@@ -37,6 +45,8 @@
   jQuery(document).ready(function () {
     var form_name_prefix = "<%= form_name_provider_obj.form_name_prefix %>";
     var plugged_material_controller_element_id = "<%= plugged_material_controller_element_id %>";
-    new PluggableSCMConfigurationModule().initialize(plugged_material_controller_element_id, form_name_prefix);
+    var plugged_material_data_element_id = "<%= plugged_material_data_element_id %>";
+    var plugged_material_configuration_element_id = "<%= plugged_material_configuration_element_id %>";
+    new PluggableSCMConfigurationModule().initialize(plugged_material_controller_element_id, plugged_material_data_element_id, plugged_material_configuration_element_id, form_name_prefix);
   });
 </script>

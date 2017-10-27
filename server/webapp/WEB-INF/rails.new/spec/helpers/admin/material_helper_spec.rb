@@ -80,15 +80,28 @@ describe Admin::MaterialHelper do
     end
   end
 
+  describe "Pluggable SCM materials" do
+    it "should get all configuration keys for a material as JSON array" do
+      SCMMetadataStore.getInstance().clear()
+      setup_metadata
+      keys = JSON.parse(scm_material_config_keys('com.plugin.id1'))
+      expect(keys.sort).to eq(['password', 'url', 'username'])
+    end
+  end
+
   def setup_metadata
     @meta_data_store = SCMMetadataStore.getInstance
 
     scm_configurations = SCMConfigurations.new
+    scm_configurations.add(SCMConfiguration.new('url'))
+    scm_configurations.add(SCMConfiguration.new('username'))
+    scm_configurations.add(SCMConfiguration.new('password'))
 
     scm_view = double('SCMView')
     scm_view.stub(:displayValue).and_return('Plugin 1')
     @meta_data_store.addMetadataFor('com.plugin.id1', scm_configurations, scm_view)
 
+    scm_configurations = SCMConfigurations.new
     scm_view = double('SCMView')
     scm_view.stub(:displayValue).and_return('Plugin 2')
     @meta_data_store.addMetadataFor('com.plugin.id2', scm_configurations, scm_view)

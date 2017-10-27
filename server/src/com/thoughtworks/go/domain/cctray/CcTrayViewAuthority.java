@@ -42,8 +42,9 @@ public class CcTrayViewAuthority {
 
         SecurityConfig security = goConfigService.security();
         final Map<String, Collection<String>> rolesToUsers = rolesToUsers(security);
-        final Set<String> superAdmins = namesOf(security.adminsConfig(), rolesToUsers);
-        final boolean noSuperAdminsAreDefined = superAdmins.size() == 0;
+        final Set<String> superAdminUsers = namesOf(security.adminsConfig(), rolesToUsers);
+        final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security.adminsConfig().getRoles());
+        final boolean noSuperAdminsAreDefined = noSuperAdminsDefined();
 
         goConfigService.groups().accept(new PipelineGroupVisitor() {
             @Override
@@ -57,11 +58,12 @@ public class CcTrayViewAuthority {
                 Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
 
                 Set<String> viewers = new HashSet<>();
-                viewers.addAll(superAdmins);
+                viewers.addAll(superAdminUsers);
                 viewers.addAll(pipelineGroupAdmins);
                 viewers.addAll(pipelineGroupViewers);
 
                 Set<PluginRoleConfig> roles = new HashSet<>();
+                roles.addAll(superAdminPluginRoles);
                 roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getAdminsConfig().getRoles()));
                 roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getViewConfig().getRoles()));
 
@@ -85,6 +87,11 @@ public class CcTrayViewAuthority {
         return pluginRoleConfigs;
     }
 
+    private boolean noSuperAdminsDefined() {
+        AdminsConfig adminsConfig = goConfigService.security().adminsConfig();
+        return adminsConfig.getRoles().isEmpty() && adminsConfig.getUsers().isEmpty();
+    }
+
     private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Collection<String>> rolesToUsers) {
         List<AdminUser> superAdmins = adminsConfig.getUsers();
         Set<String> superAdminNames = new HashSet<>();
@@ -103,7 +110,9 @@ public class CcTrayViewAuthority {
     private Map<String, Collection<String>> rolesToUsers(SecurityConfig securityConfig) {
         Map<String, Collection<String>> rolesToUsers = new HashMap<>();
         for (Role role : securityConfig.getRoles()) {
-            rolesToUsers.put(role.getName().toLower(), role.usersOfRole());
+            if (role instanceof RoleConfig) {
+                rolesToUsers.put(role.getName().toLower(), role.usersOfRole());
+            }
         }
         return rolesToUsers;
     }

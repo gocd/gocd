@@ -58,12 +58,15 @@ public class AllowedViewers implements Viewers {
 
         AllowedViewers that = (AllowedViewers) o;
 
-        return allowedUsers.equals(that.allowedUsers);
+        if (allowedRoles != null ? !allowedRoles.equals(that.allowedRoles) : that.allowedRoles != null) return false;
+        return allowedUsers != null ? allowedUsers.equals(that.allowedUsers) : that.allowedUsers == null;
     }
 
     @Override
     public int hashCode() {
-        return allowedUsers.hashCode();
+        int result = allowedRoles != null ? allowedRoles.hashCode() : 0;
+        result = 31 * result + (allowedUsers != null ? allowedUsers.hashCode() : 0);
+        return result;
     }
 
     @Override

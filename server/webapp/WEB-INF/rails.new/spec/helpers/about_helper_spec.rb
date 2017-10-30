@@ -14,29 +14,15 @@
 # limitations under the License.
 ##########################################################################
 
-module AboutHelper
-  def jvm_version
-    system_property('java.version')
-  end
+require 'spec_helper'
 
-  def os_information
-    [system_property('os.name'), system_property('os.version')].join(' ')
-  end
+describe AboutHelper do
+  include AboutHelper
 
-  def system_property(property)
-    system_environment.getPropertyImpl(property)
-  end
+  it "should get the pipelines count" do
+    should_receive(:pipeline_config_service).and_return(pipeline_config_service = double('pipeline_config_service'))
+    expect(pipeline_config_service).to receive(:totalPipelinesCount).and_return(10)
 
-  def available_space
-    artifact_dir = artifacts_dir_holder.getArtifactsDir
-    number_to_human_size artifact_dir.getUsableSpace()
-  end
-
-  def schema_version
-    system_service.getSchemaVersion()
-  end
-
-  def total_pipelines_count
-    pipeline_config_service.totalPipelinesCount()
+    expect(total_pipelines_count).to eq(10)
   end
 end

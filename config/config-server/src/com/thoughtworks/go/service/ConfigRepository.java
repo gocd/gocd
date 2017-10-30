@@ -400,17 +400,23 @@ public class ConfigRepository {
             public void run() throws Exception {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
+                    LOGGER.debug("Before GC: Size - {}", getConfigRepoDisplaySize());
                     long expireTimeInMs = systemEnvironment.getConfigGitGCExpireTime();
                     git.gc().setAggressive(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE))
                             .setExpire(new Date(System.currentTimeMillis() - expireTimeInMs))
                             .call();
                     LOGGER.info("After GC: {}", git.gc().getStatistics());
+                    LOGGER.debug("After GC: Size: {}", getConfigRepoDisplaySize());
                 } catch (GitAPIException e) {
                     LOGGER.error("Could not perform GC", e);
                     throw e;
                 }
             }
         });
+    }
+
+    private String getConfigRepoDisplaySize() {
+        return FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(workingDir));
     }
 
     public long getLooseObjectCount() throws Exception {

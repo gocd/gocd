@@ -56,7 +56,7 @@ def dependencies = [
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
     release: '0.2.1',
-    asset: 'json-config-plugin-0.2-1.jar',
+    asset: 'json-config-plugin-0.2.1.jar',
     checksum: 'd82d93f016a5f2e25d2afa8a0a181d45e898b27947d202220695d4f765e7ef7d'
   )
 ]

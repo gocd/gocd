@@ -22,11 +22,13 @@ import com.thoughtworks.go.domain.config.Admin;
 @ConfigTag("view")
 @ConfigCollection(Admin.class)
 public class ViewConfig extends AdminsConfig {
+    private final ConfigErrors configErrors = new ConfigErrors();
+
     public ViewConfig() {
     }
 
     public ConfigErrors errors() {
-        return new ConfigErrors();
+        return configErrors;
     }
 
     public ViewConfig(Admin... admins) {

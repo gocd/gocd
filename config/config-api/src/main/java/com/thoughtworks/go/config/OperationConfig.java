@@ -23,11 +23,13 @@ import com.thoughtworks.go.domain.config.Admin;
 @ConfigTag("operate")
 @ConfigCollection(Admin.class)
 public class OperationConfig extends AdminsConfig {
+    private final ConfigErrors configErrors = new ConfigErrors();
+
     public OperationConfig() {
     }
 
     public ConfigErrors errors() {
-        return new ConfigErrors();
+        return configErrors;
     }
 
     public OperationConfig(Admin... admins) {

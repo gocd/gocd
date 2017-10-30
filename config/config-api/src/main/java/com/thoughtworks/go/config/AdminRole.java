@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.config.Admin;
 public class AdminRole implements Admin {
     @ConfigValue private CaseInsensitiveString name;
     private ConfigErrors configErrors = new ConfigErrors();
-    public static final String ROLES = "roles";
     public static final String NAME = "name";
 
     public AdminRole() {
@@ -94,7 +93,6 @@ public class AdminRole implements Admin {
         }
         SecurityConfig securityConfig = validationContext.getServerSecurityConfig();
         if (!securityConfig.isRoleExist(this.name)) {
-            configErrors.add(ROLES, String.format("Role \"%s\" does not exist.", this.name));
             configErrors.add(NAME, String.format("Role \"%s\" does not exist.", this.name));
         }
     }

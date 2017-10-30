@@ -190,6 +190,14 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         this.adminsConfig = adminsConfig;
     }
 
+    public void setViewConfig(ViewConfig viewConfig) {
+        this.viewConfig = viewConfig;
+    }
+
+    public void setOperationConfig(OperationConfig operationConfig) {
+        this.operationConfig = operationConfig;
+    }
+
     public void setAllowGroupAdmins(boolean allowGroupAdmins) {
         this.allowGroupAdmins = allowGroupAdmins;
     }

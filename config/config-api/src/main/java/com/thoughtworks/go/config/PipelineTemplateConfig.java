@@ -78,6 +78,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         if (!isTemplateBeingCreated) {
             validateDependencies(preprocessedConfig);
         }
+        validateStageConfig(validationContext);
     }
 
     private void validateDependencies(CruiseConfig preprocessedConfig) {
@@ -155,15 +156,16 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
                 return false;
             }
         });
-        validateStageConfig(validationContext);
     }
 
     private void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
         for (Admin admin : getAuthorization().getAdminsConfig()) {
             admin.validate(validationContextWhichChecksForRole);
+            authorization.getAdminsConfig().errors().addAll(admin.errors());
         }
         for (Admin admin : getAuthorization().getViewConfig()) {
             admin.validate(validationContextWhichChecksForRole);
+            authorization.getViewConfig().errors().addAll(admin.errors());
         }
     }
 

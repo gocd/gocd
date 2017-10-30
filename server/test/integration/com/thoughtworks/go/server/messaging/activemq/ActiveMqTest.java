@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.messaging.activemq;
 
 import com.thoughtworks.go.server.messaging.*;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
+import com.thoughtworks.go.utils.Assertions;
+import com.thoughtworks.go.utils.Timeout;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +40,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class ActiveMqTest implements GoMessageListener {
-    private GoMessage receivedMessage;
+public class ActiveMqTest {
     public MessagingService messaging;
 
     @Before
@@ -49,32 +50,30 @@ public class ActiveMqTest implements GoMessageListener {
 
     @After
     public void tearDown() throws JMSException {
-        receivedMessage = null;
         messaging.stop();
     }
 
     @Test
     public void shouldBeAbleToListenForMessages() throws Exception {
-        GoMessageTopic<GoTextMessage> topic
-                = new GoMessageTopic<GoTextMessage>(messaging, "queue-name") {};
-        topic.addListener(this);
+        GoMessageTopic<GoTextMessage> topic = new GoMessageTopic<GoTextMessage>(messaging, "queue-name") {};
+        GoodListener listener = new GoodListener();
+        topic.addListener(listener);
 
         topic.post(new GoTextMessage("Hello World!"));
 
-        Thread.sleep(1000);
+        waitForReceivedMessages(listener);
 
-        assertThat(((GoTextMessage) receivedMessage).getText(), is("Hello World!"));
+        assertThat(listener.receivedMessages().get(0).getText(), is("Hello World!"));
     }
 
     @Test
     public void shouldSupportCompetingConsumers() throws Exception {
         HangingListener hanging = new HangingListener();
-        FastListener fast1 = new FastListener();
+        GoodListener fastListener = new GoodListener();
 
-        GoMessageQueue<GoTextMessage> queue
-                = new GoMessageQueue<GoTextMessage>(messaging, "queue-name") {};
+        GoMessageQueue<GoTextMessage> queue = new GoMessageQueue<GoTextMessage>(messaging, "queue-name") {};
         queue.addListener(hanging);
-        queue.addListener(fast1);
+        queue.addListener(fastListener);
 
         queue.post(new GoTextMessage("Hello World1"));
         queue.post(new GoTextMessage("Hello World2"));
@@ -82,9 +81,9 @@ public class ActiveMqTest implements GoMessageListener {
         queue.post(new GoTextMessage("Hello World4"));
         queue.post(new GoTextMessage("Hello World5"));
 
-        Thread.sleep(1000);
+        waitForReceivedMessages(fastListener);
 
-        assertThat(fast1.receivedMessages.size(), is(4));
+        assertThat(fastListener.receivedMessages.size(), is(4));
 
         hanging.finish();
     }
@@ -93,8 +92,7 @@ public class ActiveMqTest implements GoMessageListener {
     public void shouldStillReceiveMessagesIfAnExceptionIsThrown() throws Exception {
         ExceptionListener exceptionListener = new ExceptionListener();
 
-        GoMessageQueue<GoTextMessage> queue
-                = new GoMessageQueue<GoTextMessage>(messaging, "queue-name") {};
+        GoMessageQueue<GoTextMessage> queue = new GoMessageQueue<GoTextMessage>(messaging, "queue-name") {};
         queue.addListener(exceptionListener);
 
         queue.post(new GoTextMessage("Hello World1"));
@@ -103,24 +101,25 @@ public class ActiveMqTest implements GoMessageListener {
         queue.post(new GoTextMessage("Hello World4"));
         queue.post(new GoTextMessage("Hello World5"));
 
-        Thread.sleep(1000);
+        waitForReceivedMessages(exceptionListener);
 
-        assertThat(exceptionListener.receivedMessages.size(), is(5));
+        assertThat(exceptionListener.receivedMessages().size(), is(5));
     }
 
-    public void onMessage(GoMessage message) {
-        receivedMessage = message;
+    private interface TestListener extends GoMessageListener<GoTextMessage> {
+        List<GoTextMessage> receivedMessages();
     }
 
-    private class HangingListener implements GoMessageListener<GoTextMessage> {
+    private class HangingListener implements TestListener {
+        private List<GoTextMessage> receivedMessages = new ArrayList<>();
         private boolean finish;
 
         public void onMessage(GoTextMessage message) {
-            while (finish == false) {
+            while (!finish) {
                 try {
                     Thread.sleep(20000L);
-                } catch (InterruptedException e) {
-
+                    receivedMessages.add(message);
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -128,22 +127,44 @@ public class ActiveMqTest implements GoMessageListener {
         public void finish() {
             finish  = true;
         }
+
+        @Override
+        public List<GoTextMessage> receivedMessages() {
+            return receivedMessages;
+        }
     }
 
-    private class FastListener implements GoMessageListener<GoTextMessage> {
-        public List<GoTextMessage> receivedMessages = new ArrayList<>();
+    private class GoodListener implements TestListener {
+        private List<GoTextMessage> receivedMessages = new ArrayList<>();
 
         public void onMessage(GoTextMessage message) {
             receivedMessages.add(message);
         }
+
+        @Override
+        public List<GoTextMessage> receivedMessages() {
+            return receivedMessages;
+        }
     }
 
-    private class ExceptionListener extends FastListener {
+    private class ExceptionListener extends GoodListener {
         public void onMessage(GoTextMessage message) {
             super.onMessage(message);
-
             throw new RuntimeException(message.getText());
         }
     }
 
+    private void waitForReceivedMessages(TestListener listener) {
+        Assertions.waitUntil(Timeout.FIVE_SECONDS, new Assertions.Predicate() {
+            @Override
+            public String toString() {
+                return "Wait for message to be received";
+            }
+
+            @Override
+            public boolean call() throws Exception {
+                return listener.receivedMessages() != null && listener.receivedMessages().size() > 0;
+            }
+        });
+    }
 }

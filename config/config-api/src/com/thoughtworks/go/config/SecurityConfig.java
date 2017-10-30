@@ -177,4 +177,13 @@ public class SecurityConfig implements Validatable {
         }
         return result;
     }
+
+    public PluginRoleConfig getPluginRole(CaseInsensitiveString roleName) {
+        for (PluginRoleConfig pluginRoleConfig : rolesConfig.getPluginRoleConfigs()) {
+            if (pluginRoleConfig.getName().equals(roleName)) {
+                return pluginRoleConfig;
+            }
+        }
+        return null;
+    }
 }

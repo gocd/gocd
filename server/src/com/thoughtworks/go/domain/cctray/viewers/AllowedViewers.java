@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.domain.cctray.viewers;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.RoleUser;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.HashSet;
@@ -23,9 +26,11 @@ import java.util.Set;
 
 /* Understands: The set of viewers it has. */
 public class AllowedViewers implements Viewers {
+    private final Set<PluginRoleConfig> allowedRoles;
     private Set<String> allowedUsers = new HashSet<>();
 
-    public AllowedViewers(Set<String> allowedUsers) {
+    public AllowedViewers(Set<String> allowedUsers, Set<PluginRoleConfig> allowedRoles) {
+        this.allowedRoles = allowedRoles;
         for (String user : allowedUsers) {
             this.allowedUsers.add(user.toLowerCase());
         }
@@ -33,7 +38,17 @@ public class AllowedViewers implements Viewers {
 
     @Override
     public boolean contains(String username) {
-        return allowedUsers.contains(username.toLowerCase());
+        return allowedUsers.contains(username.toLowerCase()) || containsInRole(username);
+    }
+
+    private boolean containsInRole(String username) {
+        for (PluginRoleConfig role : allowedRoles) {
+            for (RoleUser r : role.getUsers()) {
+                if (r.getName().equals(new CaseInsensitiveString(username)))
+                    return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -43,12 +58,15 @@ public class AllowedViewers implements Viewers {
 
         AllowedViewers that = (AllowedViewers) o;
 
-        return allowedUsers.equals(that.allowedUsers);
+        if (allowedRoles != null ? !allowedRoles.equals(that.allowedRoles) : that.allowedRoles != null) return false;
+        return allowedUsers != null ? allowedUsers.equals(that.allowedUsers) : that.allowedUsers == null;
     }
 
     @Override
     public int hashCode() {
-        return allowedUsers.hashCode();
+        int result = allowedRoles != null ? allowedRoles.hashCode() : 0;
+        result = 31 * result + (allowedUsers != null ? allowedUsers.hashCode() : 0);
+        return result;
     }
 
     @Override

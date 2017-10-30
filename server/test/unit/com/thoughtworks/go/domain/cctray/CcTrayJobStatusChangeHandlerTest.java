@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
@@ -107,7 +108,7 @@ public class CcTrayJobStatusChangeHandlerTest {
 
     @Test
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
-        Viewers viewers = new AllowedViewers(s("viewer1", "viewer2"));
+        Viewers viewers = new AllowedViewers(s("viewer1", "viewer2"), Collections.singleton(new PluginRoleConfig("admin", "ldap")));
 
         ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
         oldStatusInCache.updateViewers(viewers);

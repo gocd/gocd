@@ -25,6 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
+
 import static com.thoughtworks.go.fixture.IntegrationTestsFixture.login;
 import static com.thoughtworks.go.fixture.IntegrationTestsFixture.resetSecurityContext;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
@@ -133,6 +135,6 @@ public class CcTrayServiceTest {
     }
 
     private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users));
+        return new AllowedViewers(s(users), Collections.emptySet());
     }
 }

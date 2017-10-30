@@ -197,4 +197,21 @@ public class SecurityConfigTest {
 
         assertThat(pluginRolesConfig, hasSize(0));
     }
+
+    @Test
+    public void getPluginRole_shouldReturnPluginRoleMatchingTheGivenName() throws Exception {
+        PluginRoleConfig role = new PluginRoleConfig("foo", "ldap");
+        SecurityConfig securityConfig = new SecurityConfig();
+
+        securityConfig.addRole(role);
+
+        assertThat(securityConfig.getPluginRole(new CaseInsensitiveString("FOO")), is(role));
+    }
+
+    @Test
+    public void getPluginRole_shouldReturnNullInAbsenceOfPluginRoleForTheGivenName() throws Exception {
+        SecurityConfig securityConfig = new SecurityConfig();
+
+        assertNull(securityConfig.getPluginRole(new CaseInsensitiveString("foo")));
+    }
 }

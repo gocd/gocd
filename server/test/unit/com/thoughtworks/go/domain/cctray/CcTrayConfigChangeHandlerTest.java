@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
 import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.helper.GoConfigMother;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -51,12 +52,19 @@ public class CcTrayConfigChangeHandlerTest {
 
     private GoConfigMother goConfigMother;
     private CcTrayConfigChangeHandler handler;
+    private PluginRoleUsersStore pluginRoleUsersStore;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         goConfigMother = new GoConfigMother();
         handler = new CcTrayConfigChangeHandler(cache, stageStatusLoader, ccTrayViewAuthority);
+        pluginRoleUsersStore = PluginRoleUsersStore.instance();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        pluginRoleUsersStore.clearAll();
     }
 
     @Test
@@ -219,16 +227,11 @@ public class CcTrayConfigChangeHandlerTest {
 
     @Test
     public void shouldUpdateViewPermissionsForEveryProjectBasedOnViewPermissionsOfTheGroup() throws Exception {
-        ProjectStatus pipeline1_stage1 = new ProjectStatus("pipeline1 :: stage", "Activity1", "Status1", "Label1", new Date(), "stage1-url");
-        ProjectStatus pipeline1_stage1_job = new ProjectStatus("pipeline1 :: stage :: job", "Activity1-Job", "Status1-Job", "Label1-Job", new Date(), "job1-url");
-        ProjectStatus pipeline2_stage2 = new ProjectStatus("pipeline2 :: stage", "Activity2", "Status2", "Label2", new Date(), "stage2-url");
-        ProjectStatus pipeline2_stage2_job = new ProjectStatus("pipeline2 :: stage :: job", "Activity2-Job", "Status2-Job", "Label2-Job", new Date(), "job2-url");
+        PluginRoleConfig admin = new PluginRoleConfig("admin", "ldap");
+        pluginRoleUsersStore.assignRole("user4", admin);
 
-        when(cache.get("pipeline1 :: stage1")).thenReturn(pipeline1_stage1);
-        when(cache.get("pipeline1 :: stage1 :: job1")).thenReturn(pipeline1_stage1_job);
-        when(cache.get("pipeline2 :: stage2")).thenReturn(pipeline2_stage2);
-        when(cache.get("pipeline2 :: stage2 :: job2")).thenReturn(pipeline2_stage2_job);
-        when(ccTrayViewAuthority.groupsAndTheirViewers()).thenReturn(m("group1", viewers("user1", "user2"), "group2", viewers("user3")));
+        AllowedViewers allowedViewers = new AllowedViewers(s("user3"), Collections.singleton(admin));
+        when(ccTrayViewAuthority.groupsAndTheirViewers()).thenReturn(m("group1", viewers("user1", "user2"), "group2", allowedViewers));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
@@ -246,21 +249,25 @@ public class CcTrayConfigChangeHandlerTest {
         assertThat(statuses.get(0).canBeViewedBy("user1"), is(true));
         assertThat(statuses.get(0).canBeViewedBy("user2"), is(true));
         assertThat(statuses.get(0).canBeViewedBy("user3"), is(false));
+        assertThat(statuses.get(0).canBeViewedBy("user4"), is(false));
 
         assertThat(statuses.get(1).name(), is("pipeline1 :: stage1 :: job1"));
         assertThat(statuses.get(1).canBeViewedBy("user1"), is(true));
         assertThat(statuses.get(1).canBeViewedBy("user2"), is(true));
         assertThat(statuses.get(1).canBeViewedBy("user3"), is(false));
+        assertThat(statuses.get(1).canBeViewedBy("user4"), is(false));
 
         assertThat(statuses.get(2).name(), is("pipeline2 :: stage2"));
         assertThat(statuses.get(2).canBeViewedBy("user1"), is(false));
         assertThat(statuses.get(2).canBeViewedBy("user2"), is(false));
         assertThat(statuses.get(2).canBeViewedBy("user3"), is(true));
+        assertThat(statuses.get(2).canBeViewedBy("user4"), is(true));
 
         assertThat(statuses.get(3).name(), is("pipeline2 :: stage2 :: job2"));
         assertThat(statuses.get(3).canBeViewedBy("user1"), is(false));
         assertThat(statuses.get(3).canBeViewedBy("user2"), is(false));
         assertThat(statuses.get(3).canBeViewedBy("user3"), is(true));
+        assertThat(statuses.get(3).canBeViewedBy("user4"), is(true));
     }
 
     @Test
@@ -322,9 +329,8 @@ public class CcTrayConfigChangeHandlerTest {
         assertThat(allValues.get(1).viewers().contains("user3"), is(false));
     }
 
-
     private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users));
+        return new AllowedViewers(s(users), Collections.emptySet());
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {

@@ -30,6 +30,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,6 +69,7 @@ public class PipelineConfigServiceTest {
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(cruiseConfig.getAllPipelineConfigs());
         pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
     }
 
@@ -192,9 +194,11 @@ public class PipelineConfigServiceTest {
     @Test
     public void pipelineCountShouldIncludeConfigRepoPipelinesAsWell() {
         CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
+        ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
         mergedCruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         when(goConfigService.cruiseConfig()).thenReturn(mergedCruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(mergedCruiseConfig.getAllPipelineConfigs());
 
         assertThat(pipelineConfigService.totalPipelinesCount(), is(mergedCruiseConfig.allPipelines().size()));
     }

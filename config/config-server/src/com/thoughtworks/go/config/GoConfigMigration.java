@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -57,14 +56,13 @@ public class GoConfigMigration {
     private final UpgradeFailedHandler upgradeFailed;
     private final ConfigRepository configRepository;
     private final TimeProvider timeProvider;
-    private final SystemEnvironment systemEnvironment;
     private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
     public static final String UPGRADE = "Upgrade";
 
     @Autowired
-    public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
+    public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
         this(new UpgradeFailedHandler() {
             public void handle(Exception e) {
                 e.printStackTrace();
@@ -80,17 +78,16 @@ public class GoConfigMigration {
                 }).start();
 
             }
-        }, configRepository, timeProvider, configCache, registry, systemEnvironment);
+        }, configRepository, timeProvider, configCache, registry);
     }
 
     GoConfigMigration(UpgradeFailedHandler upgradeFailed, ConfigRepository configRepository, TimeProvider timeProvider,
-                      ConfigCache configCache, ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
+                      ConfigCache configCache, ConfigElementImplementationRegistry registry) {
         this.upgradeFailed = upgradeFailed;
         this.configRepository = configRepository;
         this.timeProvider = timeProvider;
         this.configCache = configCache;
         this.registry = registry;
-        this.systemEnvironment = systemEnvironment;
     }
 
     //  This method should be removed once upgrade is done using new com.thoughtworks.go.config.GoConfigMigrator#migrate()

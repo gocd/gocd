@@ -377,23 +377,64 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldNotSetLockStatusOnPipelineConfigWhenLockIs0() {
+    public void shouldNotSetLockStatusOnPipelineConfigWhenValueIsNone() {
         Map configMap = new HashMap();
-        configMap.put(PipelineConfig.LOCK, "0");
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_NONE);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isLock(), is(false));
+        assertThat(pipelineConfig.isLockable(), is(false));
     }
 
     @Test
-    public void shouldSetLockStatusOnPipelineConfigWhenLockIs1() {
+    public void shouldSetLockStatusOnPipelineConfigWhenValueIsLockOnFailure() {
         Map configMap = new HashMap();
-        configMap.put(PipelineConfig.LOCK, "1");
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isLock(), is(true));
+        assertThat(pipelineConfig.isLockable(), is(true));
+    }
+
+    @Test
+    public void shouldSetLockStatusOnPipelineConfigWhenValueIsUnlockWhenFinished() {
+        Map configMap = new HashMap();
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED);
+
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setConfigAttributes(configMap);
+        assertThat(pipelineConfig.isPipelineUnlockableWhenFinished(), is(true));
+    }
+
+    @Test
+    public void isNotLockableWhenLockValueHasNotBeenSet() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+
+        assertThat(pipelineConfig.hasExplicitLock(), is(false));
+        assertThat(pipelineConfig.isLockable(), is(false));
+    }
+
+    @Test
+    public void shouldValidateLockBehaviorValues() throws Exception {
+        Map configMap = new HashMap();
+        configMap.put(PipelineConfig.LOCK_BEHAVIOR, "someRandomValue");
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
+        pipelineConfig.setConfigAttributes(configMap);
+        pipelineConfig.validate(null);
+
+        assertThat(pipelineConfig.errors().isEmpty(), is(false));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LOCK_BEHAVIOR),
+                containsString("Lock behavior has an invalid value (someRandomValue). Valid values are: "));
+    }
+
+    @Test
+    public void shouldAllowNullForLockBehavior() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
+        pipelineConfig.setLockBehaviorIfNecessary(null);
+        pipelineConfig.validate(null);
+
+        assertThat(pipelineConfig.errors().toString(), pipelineConfig.errors().isEmpty(), is(true));
     }
 
     @Test

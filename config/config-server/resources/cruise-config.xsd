@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="97"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="98"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -334,7 +334,15 @@
                     </xsd:sequence>
                     <xsd:attribute name="name" type="nameType" use="required"/>
                     <xsd:attribute name="labeltemplate" type="labelType"/>
-                    <xsd:attribute name="isLocked" type="xsd:boolean"/>
+                    <xsd:attribute name="lockBehavior">
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:enumeration value="lockOnFailure"/>
+                                <xsd:enumeration value="unlockWhenFinished"/>
+                                <xsd:enumeration value="none"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:attribute>
                     <xsd:attribute name="template" type="nameType" use="optional"/>
                 </xsd:complexType>
             </xsd:element>
@@ -1003,5 +1011,3 @@
         <xsd:attribute name="secure" type="xsd:boolean"/>
     </xsd:complexType>
 </xsd:schema>
-
-

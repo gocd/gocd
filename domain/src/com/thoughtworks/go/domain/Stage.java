@@ -148,11 +148,15 @@ public class Stage extends PersistentObject {
     }
 
     public boolean passed() {
-        return this.stageState().equals(StageState.Passed);
+        return StageState.Passed.equals(this.stageState());
     }
 
     public boolean failed() {
-        return this.stageState().equals(StageState.Failed);
+        return StageState.Failed.equals(this.stageState());
+    }
+
+    public boolean cancelled() {
+        return StageState.Cancelled.equals(this.stageState());
     }
 
     public boolean isActive() {

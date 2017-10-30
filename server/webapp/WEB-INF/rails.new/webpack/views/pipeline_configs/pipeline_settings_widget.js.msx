@@ -44,7 +44,7 @@ const PipelineSettingsWidget = {
                    class='pipeline-settings'>
         <div>
           <f.row>
-            <f.column size={4}>
+            <f.column size={4} largeSize={4}>
               <f.input model={pipeline}
                        attrName="labelTemplate"
                        label={[
@@ -52,28 +52,7 @@ const PipelineSettingsWidget = {
                          <f.tooltip tooltip={{content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>, size: "large"}} model={pipeline} attrName="labelTemplate" />
                        ]}
                        validate />
-            </f.column>
-            <f.column class="align-with-control" size={4} largeSize={3}>
-              <f.checkbox model={pipeline}
-                          attrName='enablePipelineLocking'
-                          label={[
-                            "Enable pipeline locking",
-                            <f.tooltip tooltip={{content: tt.pipeline.enablePipelineLocking}} />
-                          ]} />
-            </f.column>
 
-            <f.column size={4} largeSize={5} end class="pipeline-schedule">
-              <label>
-                {pipelineAutoScheduleMessage}
-                <f.tooltip tooltip={{
-                  content:   pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
-                  size:      'small'
-                }}/>
-              </label>
-            </f.column>
-          </f.row>
-          <f.row>
-            <f.column largeSize={4}>
               <f.input model={pipeline.timer()}
                        attrName="spec"
                        label={[
@@ -82,17 +61,62 @@ const PipelineSettingsWidget = {
                        ]}
                        validate />
             </f.column>
-            <f.column size={3} end class="align-with-control">
-              <f.checkbox model={pipeline.timer()}
-                          attrName='onlyOnChanges'
-                          label={[
-                            'Run only on new material',
-                            <f.tooltip tooltip={{content: tt.pipeline.timer.onlyOnChanges}} />
-                          ]}
-                          disabled={s.isBlank(pipeline.timer().spec())} />
+            <f.column size={5} largeSize={5}>
+              <label>
+                Pipeline locking behavior
+                <f.tooltip tooltip={{content: tt.pipeline.lockBehavior}} />
+              </label>
+
+              <label>
+                <input type="radio"
+                       name="lockBehavior"
+                       id="lockBehavior-unlockWhenFinished"
+                       checked={pipeline.lockBehavior() === "unlockWhenFinished"}
+                       onchange={pipeline.lockBehavior.bind(pipeline, "unlockWhenFinished")} />
+                Run single instance of pipeline at a time
+                <f.tooltip tooltip={{content: tt.pipeline.lockBehaviorUnlockWhenFinished}} />
+              </label>
+
+              <label>
+                <input type="radio"
+                       name="lockBehavior"
+                       id="lockBehavior-lockOnFailure"
+                       checked={pipeline.lockBehavior() === "lockOnFailure"}
+                       onchange={pipeline.lockBehavior.bind(pipeline, "lockOnFailure")} />
+                Run single instance of pipeline and lock on failure
+                <f.tooltip tooltip={{content: tt.pipeline.lockBehaviorLockOnFailure}} />
+              </label>
+
+              <label>
+                <input type="radio"
+                       name="lockBehavior"
+                       id="lockBehavior-none"
+                       checked={pipeline.lockBehavior() === "none"}
+                       onchange={pipeline.lockBehavior.bind(pipeline, "none")} />
+                Run multiple instances (default)
+                <f.tooltip tooltip={{content: tt.pipeline.lockBehaviorNone}} />
+              </label>
             </f.column>
 
+            <f.column size={3} largeSize={3} end>
+              <label class="pipeline-schedule">
+                {pipelineAutoScheduleMessage}
+                <f.tooltip tooltip={{
+                  content:   pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
+                  size:      'small'
+                }}/>
+              </label>
 
+              <div class="pipeline-schedule-run-on-new-material">
+                <f.checkbox model={pipeline.timer()}
+                            attrName='onlyOnChanges'
+                            label={[
+                              'Run only on new material',
+                              <f.tooltip tooltip={{content: tt.pipeline.timer.onlyOnChanges}} />
+                            ]}
+                            disabled={s.isBlank(pipeline.timer().spec())} />
+              </div>
+            </f.column>
           </f.row>
           <f.row>
             <TrackingToolWidget trackingTool={pipeline.trackingTool}

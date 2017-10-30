@@ -1130,12 +1130,17 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Boolean isPipelineLocked(String pipelineName) {
+    public Boolean isPipelineLockable(String pipelineName) {
         PipelineConfig pipelineConfig = pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         if (pipelineConfig.hasExplicitLock()) {
             return pipelineConfig.explicitLock();
         }
         return false;
+    }
+
+    @Override
+    public boolean isPipelineUnlockableWhenFinished(String pipelineName) {
+        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isPipelineUnlockableWhenFinished();
     }
 
     @Override

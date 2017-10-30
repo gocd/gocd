@@ -384,7 +384,7 @@ public class ScheduleService {
         try {
             Pipeline pipeline = pipelineDao.loadPipeline(stage.getPipelineId());
 
-            unlockIfLastStage(pipeline, stage);
+            unlockIfNecessary(pipeline, stage);
 
             if (pipelinePauseService.isPaused(pipeline.getName())) {
                 return;
@@ -407,8 +407,16 @@ public class ScheduleService {
         }
     }
 
-    public void unlockIfLastStage(Pipeline pipeline, Stage stage) {
-        if (stageOrderService.getNextStage(pipeline, stage.getName()) == null) {
+    public void unlockIfNecessary(Pipeline pipeline, Stage stage) {
+        StageConfig nextStage = stageOrderService.getNextStage(pipeline, stage.getName());
+
+        boolean isLastStage = nextStage == null;
+
+        boolean isUnlockable = goConfigService.isUnlockableWhenFinished(pipeline.getName());
+        boolean nextStageIsManual = nextStage != null && nextStage.requiresApproval();
+        boolean pipelineIsConsideredToBeComplete = stage.isCompleted() && (!stage.passed() || nextStageIsManual);
+
+        if (isLastStage || (isUnlockable && pipelineIsConsideredToBeComplete)) {
             pipelineLockService.unlock(pipeline.getName());
         }
     }

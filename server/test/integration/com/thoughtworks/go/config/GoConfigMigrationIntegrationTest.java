@@ -61,9 +61,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.helper.ConfigFileFixture.pipelineWithAttributes;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.readToEnd;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -455,7 +459,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "    </environment>"
                 + "    </environments>"
                 + " </cruise>";
-        String migratedContent = migrateXmlString(content, 22);
+        String migratedContent = migrateXmlString(content, 22, 23);
 
         assertThat(migratedContent, containsString("<pipeline isLocked=\"true\" name=\"in_env\">"));
         assertThat(migratedContent, containsString("<pipeline isLocked=\"false\" name=\"in_env_unLocked\">"));
@@ -1448,6 +1452,21 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(configXml, not(containsString("pluginId=\"json.config.plugin\"")));
         String migratedContent = migrateXmlString(configXml, 94);
         assertThat(migratedContent, containsString("pluginId=\"json.config.plugin\""));
+    }
+
+    @Test
+    public void shouldConvertIsLockedAttributeToATristateNamedLockBehavior() throws Exception {
+        String defaultPipeline = pipelineWithAttributes("name=\"default1\"", 97);
+        String lockedPipeline = pipelineWithAttributes("name=\"locked1\" isLocked=\"true\"", 97);
+        String unLockedPipeline = pipelineWithAttributes("name=\"unlocked1\" isLocked=\"false\"", 97);
+
+        String defaultPipelineAfterMigration = pipelineWithAttributes("name=\"default1\"", 98);
+        String lockedPipelineAfterMigration = pipelineWithAttributes("name=\"locked1\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\"", 98);
+        String unLockedPipelineAfterMigration = pipelineWithAttributes("name=\"unlocked1\" lockBehavior=\"" + LOCK_VALUE_NONE + "\"", 98);
+
+        assertStringsIgnoringCarriageReturnAreEqual(defaultPipelineAfterMigration, migrateXmlString(defaultPipeline, 97, 98));
+        assertStringsIgnoringCarriageReturnAreEqual(lockedPipelineAfterMigration, migrateXmlString(lockedPipeline, 97, 98));
+        assertStringsIgnoringCarriageReturnAreEqual(unLockedPipelineAfterMigration, migrateXmlString(unLockedPipeline, 97, 98));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

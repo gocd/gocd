@@ -18,15 +18,6 @@
                 <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE, :css_class => "form_error") %>
             </div>
 
-            <div class="form_item_block checkbox_row">
-                <div class="checkbox_label_wrapper">
-                    <%= f.check_box com.thoughtworks.go.config.PipelineConfig::LOCK -%>
-                    <%= f.label com.thoughtworks.go.config.PipelineConfig::LOCK, l.string('AUTOMATIC_PIPELINE_LOCKING') -%>
-                </div>
-                <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_PIPELINE_LOCKING") -%>"></div>
-                <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::LOCK, :css_class => "form_error") %>
-            </div>
-
             <% if @pipeline.hasTemplate() -%>
                 <%- first_stage_of_template = first_stage_of_template(@cruise_config, @pipeline.getTemplateName()) -%>
                 <%= f.fields_for :approval, first_stage_of_template.getApproval do |approval| %>
@@ -75,6 +66,30 @@
             <% end %>
 
         </div>
+    </div>
+
+    <h3><%= "Pipeline locking behavior" %></h3>
+
+    <div class="form_item_block">
+      <div class="checkbox_row radio_button_row">
+        <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR, com.thoughtworks.go.config.PipelineConfig::LOCK_VALUE_UNLOCK_WHEN_FINISHED -%>
+        <%= f.label "#{com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR}_#{com.thoughtworks.go.config.PipelineConfig::LOCK_VALUE_UNLOCK_WHEN_FINISHED.downcase}", l.string('AUTOMATIC_PIPELINE_LOCKING_UNLOCK_WHEN_FINISHED') -%>
+        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_AUTOMATIC_PIPELINE_LOCKING_UNLOCK_WHEN_FINISHED") -%>"></div>
+      </div>
+
+      <div class="checkbox_row radio_button_row">
+        <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR, com.thoughtworks.go.config.PipelineConfig::LOCK_VALUE_LOCK_ON_FAILURE -%>
+        <%= f.label "#{com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR}_#{com.thoughtworks.go.config.PipelineConfig::LOCK_VALUE_LOCK_ON_FAILURE.downcase}", l.string('AUTOMATIC_PIPELINE_LOCKING_LOCK_ON_FAILURE') -%>
+        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_AUTOMATIC_PIPELINE_LOCKING_LOCK_ON_FAILURE") -%>"></div>
+      </div>
+
+      <div class="checkbox_row radio_button_row">
+        <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR, com.thoughtworks.go.config.PipelineConfig::LOCK_VALUE_NONE -%>
+        <%= f.label "#{com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR}_#{com.thoughtworks.go.config.PipelineConfig::LOCK_VALUE_NONE.downcase}", l.string('AUTOMATIC_PIPELINE_LOCKING_NO_LOCK') -%>
+        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_AUTOMATIC_PIPELINE_LOCKING_NO_LOCK") -%>"></div>
+      </div>
+
+      <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::LOCK_BEHAVIOR, :css_class => "form_error") %>
     </div>
 
     <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>

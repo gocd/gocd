@@ -44,7 +44,7 @@ if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
 
 module.exports = function (env) {
   var production = (env && env.production === 'true');
-  var outputDir  = env.outputDir || path.join(__dirname, '..', 'public', 'assets', 'webpack');
+  var outputDir  = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
 
   console.log(`Generating assets in ${outputDir}`);
 

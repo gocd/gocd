@@ -63,7 +63,6 @@ import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -77,8 +76,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_ANT_BUILDER;
-import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED;
+import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
@@ -117,7 +118,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(CONFIG).config;
         PipelineConfig pipelineConfig1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         assertThat(pipelineConfig1.size(), is(2));
         assertThat(pipelineConfig1.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
@@ -156,7 +157,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWithConfigRepo() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.ONE_CONFIG_REPO).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ONE_CONFIG_REPO).config;
         assertThat(cruiseConfig.getConfigRepos().size(), is(1));
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
         assertThat(configRepo.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
@@ -164,7 +165,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWithConfigRepoAndPluginName() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo pluginId=\"myplugin\" id=\"repo-id\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
@@ -178,7 +179,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWith2ConfigRepos() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo pluginId=\"myplugin\" id=\"repo-id1\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
@@ -197,7 +198,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWithConfigRepoAndConfiguration() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo id=\"id1\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
@@ -219,7 +220,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test(expected = XsdValidationException.class)
     public void shouldThrowXsdValidationException_WhenNoRepository() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo pluginId=\"myplugin\">\n"
                         + "    </config-repo >\n"
@@ -229,7 +230,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test(expected = XsdValidationException.class)
     public void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo pluginId=\"myplugin\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
@@ -241,7 +242,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test(expected = GoConfigInvalidException.class)
     public void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo pluginId=\"myplugin\" id=\"id1\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
@@ -264,7 +265,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
-        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG, new MagicalGoConfigXmlLoader.Callback() {
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(CONFIG, new MagicalGoConfigXmlLoader.Callback() {
             @Override
             public void call(CruiseConfig cruiseConfig) {
                 cruiseConfig.setPartials(asList(new PartialConfig()));
@@ -276,14 +277,14 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSetConfigOriginInPipeline_AfterLoadingConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(CONFIG).config;
         PipelineConfig pipelineConfig1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         assertThat(pipelineConfig1.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
 
     @Test
     public void shouldSetConfigOriginInEnvironment_AfterLoadingConfigFile() {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <agents>"
@@ -299,7 +300,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportMultipleAgentsFromSameBox() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigMigrator.migrate(ConfigFileFixture.WITH_MULTIPLE_LOCAL_AGENT_CONFIG)).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigMigrator.migrate(WITH_MULTIPLE_LOCAL_AGENT_CONFIG)).config;
         assertThat(cruiseConfig.agents().size(), is(2));
         assertThat(cruiseConfig.agents().get(0).getHostname(), is(cruiseConfig.agents().get(1).getHostname()));
         assertThat(cruiseConfig.agents().get(0).getIpAddress(), is(cruiseConfig.agents().get(1).getIpAddress()));
@@ -353,7 +354,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateAnEmptyArtifactSourceToStar() throws Exception {
-        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(ConfigFileFixture.configWithArtifactSourceAs("")));
+        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactPlans().get(0).getSrc(), is("*"));
@@ -361,7 +362,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateAnArtifactSourceWithJustWhitespaceToStar() throws Exception {
-        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(ConfigFileFixture.configWithArtifactSourceAs(" \t ")));
+        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs(" \t ")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactPlans().get(0).getSrc(), is("*"));
@@ -369,7 +370,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldRetainArtifactSourceThatIsNotWhitespace() throws Exception {
-        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(ConfigFileFixture.configWithArtifactSourceAs("t ")));
+        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("t ")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactPlans().get(0).getSrc(), is("t "));
@@ -733,7 +734,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToExplicitlyLockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" isLocked=\"true\">\n"
+                "<pipeline name=\"pipeline\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\">\n"
                         + "  <materials>\n"
                         + "    <hg url=\"/hgrepo\"/>\n"
                         + "  </materials>\n"
@@ -756,7 +757,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldBeAbleToExplicitlyUnlockAPipeline() throws Exception {
         String pipelineXmlPartial =
-                "<pipeline name=\"pipeline\" isLocked=\"false\">\n"
+                "<pipeline name=\"pipeline\" lockBehavior=\"" + PipelineConfig.LOCK_VALUE_NONE + "\">\n"
                         + "  <materials>\n"
                         + "    <hg url=\"/hgrepo\"/>\n"
                         + "  </materials>\n"
@@ -860,7 +861,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "        <exec command=\"\" arguments=\"\" />\n"
                         + "      </tasks>\n"
                         + "    </job>\n";
-        String configWithInvalidCommand = ConfigFileFixture.withCommand(jobWithCommand);
+        String configWithInvalidCommand = withCommand(jobWithCommand);
 
         try {
 
@@ -940,7 +941,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "        <exec command=\"c:\\program files\\cmd.exe\" args=\"arguments\" />\n"
                         + "      </tasks>\n"
                         + "    </job>\n";
-        String configWithCommand = ConfigFileFixture.withCommand(jobWithCommand);
+        String configWithCommand = withCommand(jobWithCommand);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config;
         Task task = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().first().tasks().first();
@@ -951,16 +952,16 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadMingleConfigForPipeline() throws Exception {
-        String configWithCommand = ConfigFileFixture.withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"/>");
+        String configWithCommand = withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"/>");
         MingleConfig mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
         assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance")));
 
-        configWithCommand = ConfigFileFixture.withMingleConfig(
+        configWithCommand = withMingleConfig(
                 "<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions>foo = bar!=baz</mqlGroupingConditions></mingle>");
         mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
         assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance", "foo = bar!=baz")));
 
-        configWithCommand = ConfigFileFixture.withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions/></mingle>");
+        configWithCommand = withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions/></mingle>");
         mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
         assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance", "")));
     }
@@ -995,52 +996,30 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowEmptyAuthInApproval() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(ConfigFileFixture.STAGE_WITH_EMPTY_AUTH)));
-            fail("Should not allow approval with empty authorization");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("The content of element 'authorization' is not complete"));
-        }
+        assertXsdFailureDuringLoad(STAGE_WITH_EMPTY_AUTH,
+                "The content of element 'authorization' is not complete. One of '{user, role}' is expected.");
     }
 
     @Test
     public void shouldNotAllowEmptyRoles() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(ConfigFileFixture.CONFIG_WITH_EMPTY_ROLES)));
-            fail("Should not allow approval with empty roles");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("The content of element 'roles' is not complete. One of '{baseRole}' is expected."));
-        }
+        assertXsdFailureDuringLoad(CONFIG_WITH_EMPTY_ROLES,
+                "The content of element 'roles' is not complete. One of '{baseRole}' is expected.");
     }
 
     @Test
     public void shouldNotAllowEmptyUser() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(ConfigFileFixture.CONFIG_WITH_EMPTY_USER)));
-            fail("Should not allow approval with empty user");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("Value '' with length = '0' is not facet-valid with respect to minLength '1'"));
-        }
+        assertXsdFailureDuringLoad(CONFIG_WITH_EMPTY_USER,
+                "Value '' with length = '0' is not facet-valid with respect to minLength '1' for type '#AnonType_userusersroleType'.");
     }
 
     @Test
     public void shouldNotAllowDuplicateRoles() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(ConfigFileFixture.CONFIG_WITH_DUPLICATE_ROLE)));
-            fail("Should not allow approval with empty user");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Role names should be unique. Duplicate names found."));
-        }
+        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_ROLE, "Role names should be unique. Duplicate names found.", GoConfigInvalidException.class);
     }
 
     @Test
     public void shouldNotAllowDuplicateUsersInARole() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(ConfigFileFixture.CONFIG_WITH_DUPLICATE_USER)));
-            fail("Should not allow role with duplicate user");
-        } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), containsString("User 'ps' already exists in 'admin'."));
-        }
+        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_USER, "User 'ps' already exists in 'admin'.", GoConfigInvalidException.class);
     }
 
     /**
@@ -1235,14 +1214,14 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadPipelinesWithGroupName() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.PIPELINE_GROUPS).config;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(PIPELINE_GROUPS).config;
         assertThat(config.getGroups().first().getGroup(), is("studios"));
         assertThat(config.getGroups().get(1).getGroup(), is("perfessionalservice"));
     }
 
     @Test
     public void shouldLoadTasksWithExecutionCondition() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.TASKS_WITH_CONDITION).config;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(TASKS_WITH_CONDITION).config;
         JobConfig job = config.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
         assertThat(job.tasks().size(), is(2));
@@ -1256,7 +1235,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadTasksWithOnCancel() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.TASKS_WITH_ON_CANCEL).config;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(TASKS_WITH_ON_CANCEL).config;
         JobConfig job = config.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
         Task task = job.tasks().findFirstByType(AntTask.class);
@@ -1270,7 +1249,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldNotLoadTasksWithOnCancelTaskNested() throws Exception {
         try {
-            ConfigMigrator.loadWithMigration(ConfigFileFixture.TASKS_WITH_ON_CANCEL_NESTED);
+            ConfigMigrator.loadWithMigration(TASKS_WITH_ON_CANCEL_NESTED);
             fail("Should not allow nesting of 'oncancel' within task inside oncancel");
         } catch (Exception expected) {
             // Carrots are good for your eyes
@@ -1280,7 +1259,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldNotLoadTasksWithEmptyOnCancelTask() throws Exception {
         try {
-            ConfigMigrator.loadWithMigration(ConfigFileFixture.TASKS_WITH_EMPTY_ON_CANCEL);
+            ConfigMigrator.loadWithMigration(TASKS_WITH_EMPTY_ON_CANCEL);
             fail("Should not allow empty 'oncancel'");
         } catch (Exception expected) {
         }
@@ -1288,19 +1267,19 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowBothCounterAndMaterialNameInLabelTemplate() throws Exception {
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git}")).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git}")).config;
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate(), is("1.3.0-${COUNT}-${git}"));
     }
 
     @Test
     public void shouldAllowBothCounterAndTruncatedGitMaterialInLabelTemplate() throws Exception {
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git[:7]}", CONFIG_SCHEMA_VERSION)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git[:7]}", CONFIG_SCHEMA_VERSION)).config;
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate(), is("1.3.0-${COUNT}-${git[:7]}"));
     }
 
     @Test
     public void shouldAllowHashCharacterInLabelTemplate() throws Exception {
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git}##", CONFIG_SCHEMA_VERSION)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git}##", CONFIG_SCHEMA_VERSION)).config;
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate(), is("1.3.0-${COUNT}-${git}#"));
     }
 
@@ -1322,7 +1301,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     public void assertPipelineLabelTemplate(String labelTemplate) {
         try {
-            ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(labelTemplate, 75));
+            ConfigMigrator.loadWithMigration(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(labelTemplate, 75));
             fail("should have failed");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Label is invalid."));
@@ -1331,7 +1310,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadMaterialNameIfPresent() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.MATERIAL_WITH_NAME).config;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(MATERIAL_WITH_NAME).config;
         MaterialConfigs materialConfigs = config.pipelineConfigByName(new CaseInsensitiveString("pipeline")).materialConfigs();
         assertThat(materialConfigs.get(0).getName(), is(new CaseInsensitiveString("svn")));
         assertThat(materialConfigs.get(1).getName(), is(new CaseInsensitiveString("hg")));
@@ -1339,14 +1318,14 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadPipelineWithTimer() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.PIPELINE_WITH_TIMER).config;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(PIPELINE_WITH_TIMER).config;
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
         assertThat(pipelineConfig.getTimer(), is(new TimerConfig("0 15 10 ? * MON-FRI", false)));
     }
 
     @Test
     public void shouldLoadConfigWithEnvironment() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <agents>"
@@ -1378,7 +1357,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotLoadConfigWithEmptyTemplates() throws Exception {
-        String content = ConfigFileFixture.configWithTemplates(
+        String content = configWithTemplates(
                 "<templates>"
                         + "</templates>");
         try {
@@ -1632,7 +1611,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWithPipelineTemplate() throws Exception {
-        String content = ConfigFileFixture.configWithTemplates(
+        String content = configWithTemplates(
                 "<templates>"
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
@@ -1650,7 +1629,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWith2PipelineTemplates() throws Exception {
-        String content = ConfigFileFixture.configWithTemplates(
+        String content = configWithTemplates(
                 "<templates>"
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
@@ -1676,7 +1655,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldOnlySupportUniquePipelineTemplates() throws Exception {
-        String content = ConfigFileFixture.configWithTemplates(
+        String content = configWithTemplates(
                 "<templates>"
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
@@ -1703,7 +1682,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowEmptyPipelineTemplates() throws Exception {
-        String content = ConfigFileFixture.configWithTemplates(
+        String content = configWithTemplates(
                 "<templates>"
                         + "  <pipeline name='erbshe'>"
                         + "  </pipeline>"
@@ -1729,7 +1708,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     private void testForInvalidJobName(String invalidJobName, String marker) {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "    <pipeline name=\"dev\">\n"
                         + "      <materials>\n"
                         + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
@@ -1755,7 +1734,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllow_NonRunOnAllAgentJobToHavePartsOfTheRunOnAll_and_NonRunMultipleInstanceJobToHavePartsOfTheRunInstance_AgentsMarkerInItsName() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "    <pipeline name=\"dev\">\n"
                         + "      <materials>\n"
                         + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
@@ -1789,7 +1768,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadConfigWithPipelinesMatchingUpWithPipelineDefinitionCaseInsensitively() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <pipelines>"
@@ -1805,7 +1784,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowConfigWithUnknownPipeline() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <pipelines>"
@@ -1824,7 +1803,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicatePipelineAcrossEnvironments() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <pipelines>"
@@ -1847,7 +1826,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicatePipelinesInASingleEnvironment() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <pipelines>"
@@ -1866,7 +1845,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowConfigWithEnvironmentsWithSameNames() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat' />"
                         + "  <environment name='uat' />"
@@ -1881,7 +1860,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowConfigWithInvalidName() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='exclamation is invalid !' />"
                         + "</environments>");
@@ -1896,7 +1875,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowConfigWithAbsentReferencedAgentUuid() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironmentsAndAgents(
+        String content = configWithEnvironmentsAndAgents(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <agents>"
@@ -1918,7 +1897,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowConfigWithEmptyPipeline() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <pipelines/>"
@@ -1933,7 +1912,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowConfigWithEmptyAgents() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <agents/>"
@@ -1948,7 +1927,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowConfigWithDuplicateAgentUuidInEnvironment() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironmentsAndAgents(
+        String content = configWithEnvironmentsAndAgents(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <agents>"
@@ -1972,7 +1951,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowConfigWithEmptyEnvironmentsBlock() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "</environments>");
         try {
@@ -1986,7 +1965,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowConfigWithNoAgentsAndNoPipelinesInEnvironment() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironments(
+        String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat' />"
                         + "</environments>");
@@ -1996,7 +1975,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowConfigWithEnvironmentReferencingDisabledAgent() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironmentsAndAgents(
+        String content = configWithEnvironmentsAndAgents(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <agents>"
@@ -2014,7 +1993,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportEnvironmentVariablesInEnvironment() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironmentsAndAgents(
+        String content = configWithEnvironmentsAndAgents(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "     <environmentvariables> "
@@ -2039,7 +2018,7 @@ public class MagicalGoConfigXmlLoaderTest {
         //TODO : This should be fixed as part of #4865
         //String multiLinedata = "\nsome data\nfoo bar";
         String multiLinedata = "some data\nfoo bar";
-        String content = ConfigFileFixture.configWithEnvironmentsAndAgents(
+        String content = configWithEnvironmentsAndAgents(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "     <environmentvariables> "
@@ -2059,7 +2038,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowOnlyOneTimerOnAPipeline() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <timer>1 1 1 * * ? *</timer>"
                         + "    <timer>2 2 2 * * ? *</timer>"
@@ -2082,7 +2061,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldValidateTimerSpec() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <timer>BAD BAD TIMER!!!!!</timer>"
                         + "    <materials>"
@@ -2131,7 +2110,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportEnvironmentVariablesInAJob() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <svn url ='svnurl'/>"
@@ -2155,7 +2134,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportEnvironmentVariablesInAPipeline() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "  <environmentvariables>"
                         + "    <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>"
@@ -2177,7 +2156,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportEnvironmentVariablesInAStage() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "  <materials>"
                         + "    <svn url ='svnurl'/>"
@@ -2200,7 +2179,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicateEnvironmentVariablesInAJob() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <svn url ='svnurl'/>"
@@ -2290,7 +2269,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicateEnvironmentVariablesInAPipeline() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "      <environmentvariables>"
                         + "         <variable name='PIPELINE_VARIABLE'><value>pipeline variable</value></variable>"
@@ -2317,7 +2296,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicateEnvironmentVariablesInAStage() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <svn url ='svnurl'/>"
@@ -2344,7 +2323,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicateEnvironmentVariablesInAnEnvironment() throws Exception {
-        String content = ConfigFileFixture.configWithEnvironmentsAndAgents(
+        String content = configWithEnvironmentsAndAgents(
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "     <environmentvariables> "
@@ -2367,7 +2346,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowParamsInEnvironmentVariablesInAPipeline() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <params>"
                         + "         <param name=\"some_param\">param_name</param>"
@@ -2412,7 +2391,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldUnderstandEncryptedPasswordAttributeForSvnMaterial() throws Exception {
         String password = "abc";
         String encryptedPassword = new GoCipher().encrypt(password);
-        String content = ConfigFileFixture.configWithPipeline(format(
+        String content = configWithPipeline(format(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <svn url='svnurl' username='admin' encryptedPassword='%s'/>"
@@ -2449,7 +2428,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     private CruiseConfig loadJobWithRunOnAllAgents(String value) throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <svn url ='svnurl'/>"
@@ -2464,7 +2443,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     private CruiseConfig loadJobWithRunMultipleInstance(String value) throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <svn url ='svnurl'/>"
@@ -2551,7 +2530,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowOnlyOneOfTrackingToolOrMingleConfigInSourceXml() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "<trackingtool link=\"https://some-tracking-tool/projects/go/cards/${ID}\" regex=\"##(\\d+)\" />"
                         + "      <mingle baseUrl=\"https://some-tracking-tool/\" projectIdentifier=\"go\">"
@@ -2577,7 +2556,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowTFSMaterial() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "    <materials>"
                         + "      <tfs url='tfsurl' username='foo' password='bar' projectPath='project-path' />"
@@ -2599,7 +2578,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldAllowAnEnvironmentVariableToBeMarkedAsSecure_WithValueInItsOwnTag() throws Exception {
         String cipherText = new GoCipher().encrypt("plainText");
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "<environmentvariables>\n"
                         + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>" + cipherText + "</encryptedValue></variable>\n"
@@ -2625,7 +2604,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateEmptyEnvironmentVariable() throws Exception {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "<environmentvariables>\n"
                         + "        <variable name=\"var_name\" />\n"
@@ -2651,7 +2630,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void should_NOT_AllowTFSMaterial_toHaveWorkSpaceNameLongerThan_30_characters() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "    <materials>"
                         + "      <tfs url='tfsurl' username='foo' password='bar' workspace='0123456789012345678901234567890' projectPath='project-path' />"
@@ -2677,7 +2656,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldAllowAnEnvironmentVariableToBeMarkedAsSecure_WithEncryptedValueInItsOwnTag() throws Exception {
         String value = "abc";
         String encryptedValue = new GoCipher().encrypt(value);
-        String content = ConfigFileFixture.configWithPipeline(format(
+        String content = configWithPipeline(format(
                 "<pipeline name='some_pipeline'>"
                         + "<environmentvariables>\n"
                         + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>%s</encryptedValue></variable>\n"
@@ -2703,7 +2682,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowWorkspaceOwnerAndWorkspaceAsAttributesOnTfsMaterial() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "    <materials>"
                         + "      <tfs url='tfsurl' username='foo' password='bar' projectPath='project-path' />"
@@ -2724,7 +2703,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateConfigToSplitUsernameAndDomainAsAttributeOnTfsMaterial() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "    <materials>"
                         + "      <tfs url='tfsurl' username='domain\\username' password='bar' projectPath='project-path' />"
@@ -2749,7 +2728,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowUserToSpecify_PathFromAncestor_forFetchArtifactFromAncestor() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='uppest_pipeline'>"
                         + "    <materials>"
                         + "      <git url=\"foo\" />"
@@ -2806,7 +2785,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void should_NOT_allowUserToSpecifyFetchStage_afterUpstreamStage() {
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='up_pipeline'>"
                         + "  <materials>"
                         + "    <git url=\"/tmp/git\"/>"
@@ -2873,12 +2852,8 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "</pipeline>"
                 + "</pipelines>"
                 + "</cruise>";
-        try {
-            GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
-            assertThat(goConfigHolder.config.server().getCommandRepositoryLocation(), is("default"));
-        } catch (Exception e) {
-            fail("Should not come here");
-        }
+        GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
+        assertThat(goConfigHolder.config.server().getCommandRepositoryLocation(), is("default"));
     }
 
     @Test
@@ -3144,12 +3119,9 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "  </repositories>"
                 + "</cruise>";
 
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown duplicate fingerprint exception");
-        } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(), is("Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']"));
-        }
+        assertFailureDuringLoad(xml,
+                "Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']",
+                GoConfigInvalidException.class);
     }
 
     final static String REPO = " <repository id='repo-id' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
@@ -3176,90 +3148,51 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryIdsAreDuplicate() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO, "") + withPackages(REPO, "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [repo-id] declared for identity constraint of element \"repositories\"."));
-        }
+        assertXsdFailureDuringLoad(xml, "Duplicate unique value [repo-id] declared for identity constraint of element \"repositories\".");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryNamesAreDuplicate() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + format(REPO_WITH_NAME, "1", "repo", "") + format(REPO_WITH_NAME, "2", "repo", "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [repo] declared for identity constraint of element \"repositories\"."));
-        }
+        assertXsdFailureDuringLoad(xml, "Duplicate unique value [repo] declared for identity constraint of element \"repositories\".");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageIdsAreDuplicate() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO, format("<packages>%s%s</packages>",
                 PACKAGE, PACKAGE)) + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [package-id] declared for identity constraint of element \"cruise\"."));
-        }
+
+        assertXsdFailureDuringLoad(xml, "Duplicate unique value [package-id] declared for identity constraint of element \"cruise\".");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryIdIsEmpty() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_ID, "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Repo id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryIdIsInvalid() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_ID, "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Repo id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryNameIsMissing() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_NAME, "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("\"Name\" is required for Repository"));
-        }
+        assertXsdFailureDuringLoad(xml, "\"Name\" is required for Repository");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryNameIsEmpty() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_NAME, "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryNameIsInvalid() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_NAME, "") + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
@@ -3274,60 +3207,35 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldThrowXsdValidationWhenPackageIdIsEmpty() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_ID, PACKAGE_WITH_EMPTY_ID) + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Repo id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageIdIsInvalid() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_ID,
                 PACKAGE_WITH_INVALID_ID) + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Repo id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageNameIsMissing() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_NAME,
                 PACKAGE_WITH_MISSING_NAME) + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("\"Name\" is required for Repository"));
-        }
+        assertXsdFailureDuringLoad(xml, "\"Name\" is required for Repository");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageNameIsEmpty() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_NAME,
                 PACKAGE_WITH_EMPTY_NAME) + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageNameIsInvalid() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_NAME,
                 PACKAGE_WITH_INVALID_NAME) + " </repositories></cruise>";
-        try {
-            xmlLoader.loadConfigHolder(xml);
-            fail("should have thrown XsdValidationException");
-        } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
-        }
+        assertXsdFailureDuringLoad(xml, "Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
@@ -3777,7 +3685,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "<environmentvariables>\n"
                         + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>" + encryptedValueWithWhitespaceAndNewline + "</encryptedValue></variable>\n"
@@ -3805,7 +3713,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
-        String content = ConfigFileFixture.configWithPluggableScm(
+        String content = configWithPluggableScm(
                 "<scm id=\"f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b\" name=\"gocd-private\">\n" +
                         "      <pluginConfiguration id=\"github.pr\" version=\"1\" />\n" +
                         "      <configuration>\n" +
@@ -3833,7 +3741,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
-        String content = ConfigFileFixture.configWithPipeline(
+        String content = configWithPipeline(
                 "<pipeline name='some_pipeline'>"
                         + "    <materials>"
                         + "      <svn url='asdsa' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' dest='svn'>"
@@ -3877,7 +3785,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
                 "                        ").toString();
 
-        String content = ConfigFileFixture.config(
+        String content = config(
                 "<server artifactsdir='artifacts'>\n" +
                         "    <mailhost hostname='host' port='25' username='user' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' tls='false' from='user@domain.com' admin='admin@domain.com' />\n" +
                         "  </server>", 88);
@@ -3890,32 +3798,46 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldFailValidationForPipelineWithDuplicateStageNames() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(ConfigFileFixture.PIPELINES_WITH_DUPLICATE_STAGE_NAME);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e instanceof RuntimeException);
-            assertThat(e.getMessage(), is("You have defined multiple stages called 'mingle'. Stage names are case-insensitive and must be unique."));
-        }
+        assertFailureDuringLoad(PIPELINES_WITH_DUPLICATE_STAGE_NAME,
+                "You have defined multiple stages called 'mingle'. Stage names are case-insensitive and must be unique.", RuntimeException.class
+        );
     }
 
     @Test
     public void shouldThrowExceptionIfBuildPlansExistWithTheSameNameWithinAPipeline() throws Exception {
-        try {
-            xmlLoader.loadConfigHolder(ConfigFileFixture.JOBS_WITH_SAME_NAME);
-        } catch (Exception e) {
-            assertTrue(e instanceof XsdValidationException);
-            assertThat(e.getMessage(), is("Duplicate unique value [unit] declared for identity constraint of element \"jobs\"."));
-        }
+        assertXsdFailureDuringLoad(JOBS_WITH_SAME_NAME,
+                "Duplicate unique value [unit] declared for identity constraint of element \"jobs\".");
     }
 
     @Test
     public void shouldThrowExceptionIfPipelineDoesNotContainAnyBuildPlans() throws Exception {
+        assertXsdFailureDuringLoad(STAGE_WITH_NO_JOBS,
+                "The content of element 'jobs' is not complete. One of '{job}' is expected.");
+    }
+
+    @Test
+    public void shouldAllowOnlyThreeValuesForLockBehavior() throws Exception {
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p1\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p2\" lockBehavior=\"" + LOCK_VALUE_UNLOCK_WHEN_FINISHED + "\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p3\" lockBehavior=\"" + LOCK_VALUE_NONE + "\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"pipelineWithNoLockBehaviorDefined\"", CONFIG_SCHEMA_VERSION));
+
+        assertXsdFailureDuringLoad(pipelineWithAttributes("name=\"pipelineWithWrongLockBehavior\" lockBehavior=\"some-random-value\"", CONFIG_SCHEMA_VERSION),
+                "Value 'some-random-value' is not facet-valid with respect to enumeration '[lockOnFailure, unlockWhenFinished, none]'. It must be a value from the enumeration.");
+    }
+
+    private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {
+        assertFailureDuringLoad(configXML, expectedMessage, XsdValidationException.class);
+    }
+
+    private void assertFailureDuringLoad(String configXML, String expectedMessage, Class<?> expectedExceptionClass) {
         try {
-            xmlLoader.loadConfigHolder(ConfigFileFixture.STAGE_WITH_NO_JOBS);
+            xmlLoader.loadConfigHolder(configXML);
+            fail("Should have failed with an exception of type: " + expectedExceptionClass.getSimpleName());
         } catch (Exception e) {
-            assertTrue(e instanceof XsdValidationException);
-            assertThat(e.getMessage(), is("The content of element 'jobs' is not complete. One of '{job}' is expected."));
+            String message = "\nExpected: " + expectedExceptionClass.getSimpleName() + "\nActual  : " + e.getClass().getSimpleName() + " with message: " + e.getMessage();
+            assertTrue(message, e.getClass().equals(expectedExceptionClass));
+            assertThat(e.getMessage(), is(expectedMessage));
         }
     }
 

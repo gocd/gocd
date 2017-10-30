@@ -35,7 +35,7 @@ const Pipeline = function (data) {
   Validatable.call(this, data);
 
   this.name                  = Stream(data.name);
-  this.enablePipelineLocking = Stream(data.enablePipelineLocking);
+  this.lockBehavior          = Stream(data.lockBehavior);
   this.templateName          = Stream(s.defaultToIfBlank(data.templateName, ''));
   this.labelTemplate         = Stream(s.defaultToIfBlank(data.labelTemplate, ''));
   this.template              = Stream(data.template);
@@ -77,7 +77,7 @@ const Pipeline = function (data) {
   this.update = function (etag, extract) {
     const config = (xhr) => {
       xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.setRequestHeader("Accept", "application/vnd.go.cd.v4+json");
+      xhr.setRequestHeader("Accept", "application/vnd.go.cd.v5+json");
       xhr.setRequestHeader("If-Match", etag);
     };
 
@@ -88,7 +88,7 @@ const Pipeline = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PUT',
-        url:         Routes.apiv4AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
+        url:         Routes.apiv5AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
         timeout:     mrequest.timeout,
         beforeSend:  config,
         data:        JSON.stringify(entity, s.snakeCaser),
@@ -117,7 +117,7 @@ const Pipeline = function (data) {
 
 Pipeline.fromJSON = (data) => new Pipeline({
   name:                  data.name,
-  enablePipelineLocking: data.enable_pipeline_locking,
+  lockBehavior:          data.lock_behavior,
   templateName:          data.template_name,
   labelTemplate:         data.label_template,
   template:              data.template,
@@ -152,7 +152,7 @@ Pipeline.Timer.fromJSON = (data) => {
   }
 };
 
-Pipeline.API_VERSION = 'v4';
+Pipeline.API_VERSION = 'v5';
 
 Pipeline.find = (url, extract) => $.Deferred(() => {
 

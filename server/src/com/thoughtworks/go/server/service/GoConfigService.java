@@ -635,9 +635,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isLockable(String pipelineName) {
-        return getCurrentConfig().isPipelineLocked(pipelineName);
+        return getCurrentConfig().isPipelineLockable(pipelineName);
     }
 
+    public boolean isUnlockableWhenFinished(String pipelineName) {
+        return getCurrentConfig().isPipelineUnlockableWhenFinished(pipelineName);
+    }
 
     public GoConfigDao.CompositeConfigCommand modifyRolesCommand(List<String> users, List<TriStateSelection> roleSelections) {
         GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();

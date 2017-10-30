@@ -186,9 +186,9 @@ public class ScheduleServiceIntegrationTest {
         });
         pipelineService.save(pipeline);
         assertThat(pipelineLockService.isLocked(pipelineName), is(true));
-        scheduleService.unlockIfLastStage(pipeline, pipeline.getStages().first());
+        scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().first());
         assertThat(pipelineLockService.isLocked(pipelineName), is(true));
-        scheduleService.unlockIfLastStage(pipeline, pipeline.getStages().last());
+        scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().last());
         assertThat(pipelineLockService.isLocked(pipelineName), is(false));
     }
 

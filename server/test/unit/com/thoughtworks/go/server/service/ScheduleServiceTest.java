@@ -45,6 +45,10 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
+import static com.thoughtworks.go.domain.JobResult.*;
+import static com.thoughtworks.go.domain.JobState.Building;
+import static com.thoughtworks.go.domain.JobState.Completed;
+import static com.thoughtworks.go.domain.JobState.Completing;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
@@ -73,30 +77,12 @@ public class ScheduleServiceTest {
     private InstanceFactory instanceFactory = null;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
     private ElasticProfileService elasticProfileService;
+    private StageOrderService stageOrderService;
+    private PipelineLockService pipelineLockService;
 
     @Before
     public void setup() {
-        jobInstanceService = mock(JobInstanceService.class);
-        goConfigService = mock(GoConfigService.class);
-        environmentConfigService = mock(EnvironmentConfigService.class);
-        serverHealthService = mock(ServerHealthService.class);
-        final TestTransactionSynchronizationManager synchronizationManager = new TestTransactionSynchronizationManager();
-        schedulingChecker = mock(SchedulingCheckerService.class);
-        pipelineScheduleQueue = mock(PipelineScheduleQueue.class);
-        consoleActivityMonitor = mock(ConsoleActivityMonitor.class);
-        pipelinePauseService = mock(PipelinePauseService.class);
-        stageService = mock(StageService.class);
-        securityService = mock(SecurityService.class);
-        pipelineService = mock(PipelineService.class);
-        localizer = mock(Localizer.class);
-        timeProvider = new TimeProvider();
-        schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
-        elasticProfileService = mock(ElasticProfileService.class);
-        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(
-                PipelineScheduledTopic.class), mock(PipelineDao.class), mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue,
-                jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, mock(PipelineLockService.class), serverHealthService,
-                new TestTransactionTemplate(synchronizationManager),
-                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService);
+        createMocks();
     }
 
     @Test
@@ -200,7 +186,7 @@ public class ScheduleServiceTest {
 
         job.setResult(JobResult.Cancelled);
         when(jobInstanceService.buildByIdWithTransitions(jobIdendifier.getBuildId())).thenReturn(job);
-        service.jobCompleting(jobIdendifier, JobResult.Passed, agentUuid);
+        service.jobCompleting(jobIdendifier, Passed, agentUuid);
         verify(jobInstanceService).buildByIdWithTransitions(jobIdendifier.getBuildId());
         verifyNoMoreInteractions(jobInstanceService);
     }
@@ -312,6 +298,74 @@ public class ScheduleServiceTest {
         verify(consoleActivityMonitor).cancelUnresponsiveJobs(service);
     }
 
+    @Test
+    public void shouldUnlockPipelineBasedOnLockSetting() throws Exception {
+        assertUnlockPipeline("unlock when next stage is manual, this stage is passed and pipeline is unlockable", Completed, Passed, false, true, true, true);
+        assertUnlockPipeline("don't unlock when next stage manual, this stage is passed and pipeline is not unlockable", Completed, Passed, false, true, false, false);
+        assertUnlockPipeline("unlock when next stage is manual, this stage is failed and pipeline is unlockable", Completed, Failed, false, true, true, true);
+        assertUnlockPipeline("don't unlock when next stage manual, this stage is failed and pipeline is not unlockable", Completed, Failed, false, true, false, false);
+
+        assertUnlockPipeline("unlock when last stage is passed and pipeline is unlockable", Completed, Passed, true, false, true, true);
+        assertUnlockPipeline("unlock when last stage is failed and pipeline is unlockable", Completed, Failed, true, false, true, true);
+
+        assertUnlockPipeline("unlock when last stage is passed and pipeline is not unlockable", Completed, Passed, true, false, false, true);
+        assertUnlockPipeline("unlock when last stage is failed and pipeline is not unlockable", Completed, Failed, true, false, false, true);
+
+        assertUnlockPipeline("unlock when non-last stage is cancelled and pipeline is unlockable", Completed, Cancelled, false, false, true, true);
+        assertUnlockPipeline("don't unlock when non-last stage is cancelled and pipeline is not unlockable", Completed, Cancelled, false, false, false, false);
+        assertUnlockPipeline("unlock when last stage is cancelled and pipeline is unlockable", Completed, Cancelled, true, false, true, true);
+        assertUnlockPipeline("unlock when last stage is cancelled and pipeline is not unlockable", Completed, Cancelled, true, false, false, true);
+
+        assertUnlockPipeline("unlock when non-last stage is failed and pipeline is unlockable", Completed, Failed, false, false, true, true);
+        assertUnlockPipeline("don't unlock when non-last stage is failed and pipeline is not unlockable", Completed, Failed, false, false, false, false);
+        assertUnlockPipeline("unlock when non-last stage is failed, next stage is manual and pipeline is unlockable", Completed, Failed, false, true, true, true);
+        assertUnlockPipeline("don't unlock when non-last stage is failed, next stage is manual and pipeline is not unlockable", Completed, Failed, false, true, false, false);
+
+        assertUnlockPipeline("don't unlock when stage has not completed and pipeline is not unlockable", Building, Cancelled, false, true, false, false);
+        assertUnlockPipeline("don't unlock when stage has not completed and pipeline is unlockable", Building, Unknown, false, true, true, false);
+    }
+
+    private void assertUnlockPipeline(String message, JobState state, JobResult result, boolean isLastStage, boolean isNextStageManual, boolean isUnlockablePipeline, boolean shouldUnlock) {
+        createMocks();
+
+        Stage stage = StageMother.stageWithNBuildsHavingEndState(state, result, "stage1", "job1");
+        StageConfig stage2Config = isNextStageManual ? StageConfigMother.manualStage("stage2") : StageConfigMother.custom("stage2");
+        Pipeline pipeline = PipelineMother.pipeline("pipeline1");
+
+        when(stageOrderService.getNextStage(pipeline, "stage1")).thenReturn(isLastStage ? null : stage2Config);
+        when(goConfigService.isUnlockableWhenFinished(pipeline.getName())).thenReturn(isUnlockablePipeline);
+
+        service.unlockIfNecessary(pipeline, stage);
+
+        verify(pipelineLockService, times(shouldUnlock ? 1 : 0)).unlock(pipeline.getName());
+    }
+
+    private void createMocks() {
+        jobInstanceService = mock(JobInstanceService.class);
+        goConfigService = mock(GoConfigService.class);
+        environmentConfigService = mock(EnvironmentConfigService.class);
+        serverHealthService = mock(ServerHealthService.class);
+        final TestTransactionSynchronizationManager synchronizationManager = new TestTransactionSynchronizationManager();
+        schedulingChecker = mock(SchedulingCheckerService.class);
+        pipelineScheduleQueue = mock(PipelineScheduleQueue.class);
+        consoleActivityMonitor = mock(ConsoleActivityMonitor.class);
+        pipelinePauseService = mock(PipelinePauseService.class);
+        stageService = mock(StageService.class);
+        securityService = mock(SecurityService.class);
+        pipelineService = mock(PipelineService.class);
+        localizer = mock(Localizer.class);
+        timeProvider = new TimeProvider();
+        schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
+        elasticProfileService = mock(ElasticProfileService.class);
+        stageOrderService = mock(StageOrderService.class);
+        pipelineLockService = mock(PipelineLockService.class);
+        service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(
+                PipelineScheduledTopic.class), mock(PipelineDao.class), mock(StageDao.class), stageOrderService, securityService, pipelineScheduleQueue,
+                jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, pipelineLockService, serverHealthService,
+                new TestTransactionTemplate(synchronizationManager),
+                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService);
+    }
+
     private static class StubPipelineScheduleTopic extends PipelineScheduledTopic {
         private int callCount;
 
@@ -323,5 +377,4 @@ public class ScheduleServiceTest {
             callCount++;
         }
     }
-
 }

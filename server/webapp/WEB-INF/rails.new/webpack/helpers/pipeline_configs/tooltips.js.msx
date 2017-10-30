@@ -80,17 +80,45 @@ const pipelineLabelTemplate = {
   }
 };
 
-const pipelineEnablePipelineLocking = (
+const pipelineLockBehavior = (
   <div>
     <p>
-      If checked, only a single instance of the pipeline can be run at a time and the lock
-      will release only if the
-      entire pipeline completes successfully.
+      Define whether pipeline is locked while running (to force a single instance) or unlocked.
+    </p>
+  </div>
+);
+
+const pipelineLockBehaviorUnlockWhenFinished = (
+  <div>
+    <p>
+      Only a single instance of the pipeline will be run at a time and the pipeline will NOT be locked upon failure.
     </p>
 
     <p>
-      This is particularly useful in deployment scenarios, where you may want
+      The pipeline will only be locked to ensure a single instance, but will be unlocked if the pipeline finishes
+      (irrespective of status) or reaches a manual stage.
+    </p>
+  </div>
+);
+
+const pipelineLockBehaviorLockOnFailure = (
+  <div>
+    <p>
+      Only a single instance of the pipeline will be run at a time and the pipeline will be locked upon failure.
+    </p>
+
+    <p>
+      The pipeline can be unlocked manually and will be unlocked if it reaches the final stage, irrespective of the
+      status of that stage. This is particularly useful in deployment scenarios, where you may want
       to ensure that multiple pipeline instances are not deploying simultaneously.
+    </p>
+  </div>
+);
+
+const pipelineLockBehaviorNone = (
+  <div>
+    <p>
+      This pipeline will not be locked and multiple instances of this pipeline will be allowed to run (default).
     </p>
   </div>
 );
@@ -722,8 +750,11 @@ const tabs = {
 
 const tooltips = {
   pipeline: {
-    labelTemplate:         pipelineLabelTemplate,
-    enablePipelineLocking: pipelineEnablePipelineLocking,
+    labelTemplate:                  pipelineLabelTemplate,
+    lockBehavior:                   pipelineLockBehavior,
+    lockBehaviorUnlockWhenFinished: pipelineLockBehaviorUnlockWhenFinished,
+    lockBehaviorLockOnFailure:      pipelineLockBehaviorLockOnFailure,
+    lockBehaviorNone:               pipelineLockBehaviorNone,
     automaticPipelineScheduling,
     manualPipelineScheduling,
     timer:                 {

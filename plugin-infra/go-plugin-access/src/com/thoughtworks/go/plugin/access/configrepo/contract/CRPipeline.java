@@ -16,19 +16,22 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.SourceCodeMaterial;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 public class CRPipeline extends CRBase {
     private String group;
     private String name;
     private String label_template;
-    private boolean enable_pipeline_locking;
+    private String lock_behavior;
     private CRTrackingTool tracking_tool;
     private CRMingle mingle;
     private CRTimer timer;
@@ -48,13 +51,13 @@ public class CRPipeline extends CRBase {
         this.stages = Arrays.asList(stages);
     }
 
-    public CRPipeline(String name, String groupName, String labelTemplate, boolean isLocked, CRTrackingTool trackingTool,
+    public CRPipeline(String name, String groupName, String labelTemplate, String lockBehavior, CRTrackingTool trackingTool,
                       CRMingle mingle, CRTimer timer, Collection<CREnvironmentVariable> environmentVariables,
                       Collection<CRMaterial> materials, List<CRStage> stages, String template, Collection<CRParameter> parameters) {
         this.name = name;
         this.group = groupName;
         this.label_template = labelTemplate;
-        this.enable_pipeline_locking = isLocked;
+        this.lock_behavior = lockBehavior;
         this.tracking_tool = trackingTool;
         this.mingle = mingle;
         this.timer = timer;
@@ -81,12 +84,8 @@ public class CRPipeline extends CRBase {
         this.label_template = labelTemplate;
     }
 
-    public boolean isLocked() {
-        return enable_pipeline_locking;
-    }
-
-    public void setIsLocked(boolean isLocked) {
-        this.enable_pipeline_locking = isLocked;
+    public String lockBehavior() {
+        return lock_behavior;
     }
 
     public CRTrackingTool getTrackingTool() {
@@ -280,7 +279,14 @@ public class CRPipeline extends CRBase {
         }
         validateEnvironmentVariableUniqueness(errors, location);
         validateParamNameUniqueness(errors, location);
+        validateLockBehaviorValue(errors, location);
+    }
 
+    private void validateLockBehaviorValue(ErrorCollection errors, String location) {
+        if (lock_behavior != null && !PipelineConfig.VALID_LOCK_VALUES.contains(lock_behavior)) {
+            errors.addError(location, MessageFormat.format("Lock behavior has an invalid value ({0}). Valid values are: {1}",
+                    lock_behavior, PipelineConfig.VALID_LOCK_VALUES));
+        }
     }
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {

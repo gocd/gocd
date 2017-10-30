@@ -109,7 +109,7 @@ public class MagicalGoConfigXmlWriterTest {
         config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
         config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).lockExplicitly();
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("isLocked=\"true"));
+        assertThat(output.toString(), containsString("lockBehavior=\"" + PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE));
     }
 
     @Test
@@ -118,16 +118,7 @@ public class MagicalGoConfigXmlWriterTest {
         config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
         config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).unlockExplicitly();
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("isLocked=\"false"));
-    }
-
-    @Test
-    public void shouldBeAbleToRemoveAnExplicitLockOnAPipeline() throws Exception {
-        CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
-        config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
-        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).removeExplicitLocks();
-        xmlWriter.write(config, output, false);
-        assertThat(output.toString(), not(containsString("isLocked=")));
+        assertThat(output.toString(), containsString("lockBehavior=\"" + PipelineConfig.LOCK_VALUE_NONE));
     }
 
     @Test

@@ -27,7 +27,7 @@ describe("Pipeline Model", () => {
     timer    = new Pipeline.Timer({spec: "0 0 22 ? * MON-FRI"});
     pipeline = new Pipeline({
       name:                  "BuildRailsApp",
-      enablePipelineLocking: true,
+      lockBehavior:          "lockOnFailure",
       templateName:          "BuildRPM",
       labelTemplate:         "foo-1.0.${COUNT}-${svn}",
       timer,
@@ -45,8 +45,8 @@ describe("Pipeline Model", () => {
     expect(pipeline.name()).toBe("BuildRailsApp");
   });
 
-  it("should initialize pipeline model indicating enablePipelineLocking", () => {
-    expect(pipeline.enablePipelineLocking()).toBe(true);
+  it("should initialize pipeline model indicating lock behavior", () => {
+    expect(pipeline.lockBehavior()).toBe("lockOnFailure");
   });
 
   it("should initialize pipeline model with template", () => {
@@ -201,6 +201,7 @@ describe("Pipeline Model", () => {
       expect(pipeline.labelTemplate()).toBe("foo-1.0.${COUNT}-${svn}");
       expect(pipeline.timer().spec()).toBe("0 0 22 ? * MON-FRI");
       expect(pipeline.timer().onlyOnChanges()).toBe(true);
+      expect(pipeline.lockBehavior()).toBe("lockOnFailure");
       expect(expectedParamNames).toEqual(['COMMAND', 'WORKING_DIR']);
       expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
       expect(expectedMaterialNames).toEqual(['materialA']);
@@ -216,7 +217,7 @@ describe("Pipeline Model", () => {
           responseText:    JSON.stringify(samplePipelineJSON()),
           status:          200,
           responseHeaders: {
-            'Content-Type': 'application/vnd.go.cd.v4+json'
+            'Content-Type': 'application/vnd.go.cd.v5+json'
           }
         });
 
@@ -317,7 +318,7 @@ describe("Pipeline Model", () => {
     /* eslint-disable camelcase */
     return {
       name:                    "yourproject",
-      enable_pipeline_locking: true,
+      lock_behavior:           "lockOnFailure",
       template_name:           "",
       label_template:          "foo-1.0.${COUNT}-${svn}",
       timer:                   {

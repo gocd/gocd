@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::FeatureTogglesController do
   before do
     @feature_toggle_service = stub_service(:feature_toggle_service)
   end
 
-  describe :route do
+  describe "route" do
     it "should resolve route to list all feature toggles" do
       expect({:get => "/api/admin/feature_toggles"}).to route_to(:controller => "api/feature_toggles", :action => "index", :no_layout => true, :format => :json)
       expect(api_admin_feature_toggles_path).to eq("/api/admin/feature_toggles")
@@ -35,7 +35,7 @@ describe Api::FeatureTogglesController do
     end
   end
 
-  describe :index do
+  describe "index" do
     it "should list existing feature toggles in JSON format" do
       allow(@feature_toggle_service).to receive(:allToggles).and_return(FeatureToggleMother.someToggles())
 
@@ -65,7 +65,7 @@ describe Api::FeatureTogglesController do
     end
   end
 
-  describe :update do
+  describe "update" do
     it "should update the value of a specified key to true when sent 'on'" do
       expect(@feature_toggle_service).to receive(:changeValueOfToggle).with("key.to.toggle", true)
 

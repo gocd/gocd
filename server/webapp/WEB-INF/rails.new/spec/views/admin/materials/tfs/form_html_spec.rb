@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "_form.html.erb" do
   include GoUtil
@@ -38,13 +38,13 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", {visible: :hidden})
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME}]'][value='Tfs Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]'][value='http://10.4.4.101:8080/tfs/Sample']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]'][value='loser']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN}]'][value='domain']")
     expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
-    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::ENCRYPTED_PASSWORD}]'][value='#{@material_config.getEncryptedPassword()}']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::ENCRYPTED_PASSWORD}]'][value='#{@material_config.getEncryptedPassword()}']", {visible: :hidden})
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER}]'][value='boulder']")
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'][value='walk_this_path']")

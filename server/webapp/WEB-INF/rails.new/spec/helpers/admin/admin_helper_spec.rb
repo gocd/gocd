@@ -14,10 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::AdminHelper do
   include Admin::AdminHelper
+
+  def system_environment
+    @system_environment ||= instance_double("com.thoughtworks.go.util.SystemEnvironment")
+  end
 
   it "should return template's first stage" do
     @cruise_config = BasicCruiseConfig.new
@@ -27,15 +31,11 @@ describe Admin::AdminHelper do
   end
 
   it "should return true when postgresql is used" do
-    system_environment = double("system environment")
-    allow(self).to receive(:system_environment).and_return(system_environment)
     expect(system_environment).to receive(:isDefaultDbProvider).and_return(false)
     expect(external_db?).to eq(true)
   end
 
   it "should return false when postgresql is not used" do
-    system_environment = double("system environment")
-    allow(self).to receive(:system_environment).and_return(system_environment)
     expect(system_environment).to receive(:isDefaultDbProvider).and_return(true)
     expect(external_db?).to eq(false)
   end

@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::AgentsController do
-  describe :index do
+  describe "index" do
     describe 'authorization_check' do
       it 'should allow all with security disabled' do
         disable_security

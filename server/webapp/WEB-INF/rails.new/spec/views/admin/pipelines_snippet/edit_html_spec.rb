@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/pipelines_snippet/edit.html.erb" do
   include ReflectiveUtil
@@ -31,7 +31,7 @@ describe "admin/pipelines_snippet/edit.html.erb" do
 
     Capybara.string(response.body).find('div#edit_group').tap do |div|
       div.find("form[action='#{pipelines_snippet_update_path(:group_name => group_name)}']").tap do |form|
-        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='md5']")
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='md5']", {visible: :hidden})
         expect(form).to have_selector("a.cancel[href='#{pipelines_snippet_show_path(:group_name => group_name)}']", 'Cancel')
         form.find("button.submit[id='save_config'][disabled='disabled']").tap do |button|
           expect(button).to have_selector("span", :text => "SAVE")

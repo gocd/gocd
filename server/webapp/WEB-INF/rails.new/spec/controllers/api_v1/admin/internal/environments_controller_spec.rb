@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::Internal::EnvironmentsController do
   include ApiHeaderSetupTeardown
@@ -25,8 +25,8 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
     allow(controller).to receive("environment_config_service").and_return(@environment_config_service)
   end
 
-  describe :security do
-    describe :index do
+  describe "security" do
+    describe "index" do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -49,12 +49,12 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
     end
   end
 
-  describe :action do
+  describe "action" do
     before :each do
       enable_security
     end
 
-    describe :index do
+    describe "index" do
       it 'should fetch all the environments' do
         login_as_admin
         environments_list = %w(dev production)
@@ -91,13 +91,13 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
         expect(JSON.parse(response.body)).to eq(environments_list)
       end
 
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
           it 'should route to index action of the internal environments controller' do
             expect(:get => 'api/admin/internal/environments').to route_to(action: 'index', controller: 'api_v1/admin/internal/environments')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end

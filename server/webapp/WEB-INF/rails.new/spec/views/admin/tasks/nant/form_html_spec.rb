@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "admin/tasks/nant/new.html.erb" do
@@ -39,10 +39,10 @@ describe "admin/tasks/nant/new.html.erb" do
     render :template => "admin/tasks/plugin/new.html.erb"
 
     Capybara.string(response.body).find("form[action='task_create_path']").tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Build file")
         expect(divs[0]).to have_selector("input[name='task[buildFile]']")
-        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right build_file'][title='Relative path to a NAnt build file. If not specified, the path defaults to &#39;default.build'.&#39;]")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right build_file'][title=\"Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.\"]")
         expect(divs[0]).to have_selector("label", :text => "Target")
         expect(divs[0]).to have_selector("input[name='task[target]']")
         expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right target'][title='NAnt target(s) to run. If not specified, defaults to the default target of the build file.']")
@@ -65,10 +65,11 @@ describe "admin/tasks/nant/new.html.erb" do
     render :template => "admin/tasks/plugin/edit.html.erb"
 
     Capybara.string(response.body).find("form[action='task_update_path']").tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Build file")
         expect(divs[0]).to have_selector("input[name='task[buildFile]'][value='#{task.getBuildFile()}']")
-        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right build_file'][title='Relative path to a NAnt build file. If not specified, the path defaults to &#39;default.build&#39;.']")
+        title="Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'."
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right build_file'][title=\"Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.\"]")
         expect(divs[0]).to have_selector("label", :text => "Target")
         expect(divs[0]).to have_selector("input[name='task[target]'][value='#{task.getTarget()}']")
         expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right target'][title='NAnt target(s) to run. If not specified, defaults to the default target of the build file.']")
@@ -94,7 +95,7 @@ describe "admin/tasks/nant/new.html.erb" do
     render :template => "admin/tasks/plugin/new.html.erb"
 
     Capybara.string(response.body).find("form[action='task_create_path']").tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[buildFile]']")
         expect(divs[0]).to have_selector("div.form_error", :text => "build file error")
         expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[target]']")

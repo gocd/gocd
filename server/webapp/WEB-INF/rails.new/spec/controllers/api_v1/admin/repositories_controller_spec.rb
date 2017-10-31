@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::RepositoriesController do
   include ApiHeaderSetupTeardown
@@ -26,8 +26,8 @@ describe ApiV1::Admin::RepositoriesController do
     allow(controller).to receive(:package_repository_service).and_return(@package_repository_service)
   end
 
-  describe :index do
-    describe :for_admins do
+  describe "index" do
+    describe "for_admins" do
       it 'should render a list of package repositories, for admins' do
         login_as_admin
         pkg_repo = PackageRepository.new()
@@ -42,7 +42,7 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -70,13 +70,13 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to index action of environments controller' do
           expect(:get => 'api/admin/repositories').to route_to(action: 'index', controller: 'api_v1/admin/repositories')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -88,8 +88,8 @@ describe ApiV1::Admin::RepositoriesController do
     end
   end
 
-  describe :show do
-    describe :for_admins do
+  describe "show" do
+    describe "for_admins" do
       before :each do
         login_as_admin
         @package_repo = PackageRepository.new()
@@ -111,7 +111,7 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_package_repository).and_return(nil)
       end
@@ -142,8 +142,8 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of package repositories controller for specified package repository id' do
           expect(:get => 'api/admin/repositories/foo123').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
         end
@@ -152,7 +152,7 @@ describe ApiV1::Admin::RepositoriesController do
           expect(:get => 'api/admin/repositories/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -164,9 +164,9 @@ describe ApiV1::Admin::RepositoriesController do
     end
   end
 
-  describe :destroy do
+  describe "destroy" do
 
-    describe :for_admins do
+    describe "for_admins" do
       before :each do
         login_as_admin
         @package_repo = PackageRepository.new()
@@ -191,7 +191,7 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before :each do
         allow(controller).to receive(:load_package_repository).and_return(nil)
       end
@@ -223,8 +223,8 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to destroy action of package repository controller for specified package repository id' do
           expect(:delete => 'api/admin/repositories/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
         end
@@ -232,7 +232,7 @@ describe ApiV1::Admin::RepositoriesController do
           expect(:delete => 'api/admin/repositories/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -244,9 +244,9 @@ describe ApiV1::Admin::RepositoriesController do
     end
   end
 
-  describe :create do
+  describe "create" do
 
-    describe :for_admins do
+    describe "for_admins" do
       before :each do
         login_as_admin
         @package_repo = PackageRepository.new(@repo_id, @repo_id, PluginConfiguration.new('npm', '1'), Configuration.new())
@@ -279,7 +279,7 @@ describe ApiV1::Admin::RepositoriesController do
 
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:create, :create)
@@ -307,13 +307,13 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to create action of package repositories controller' do
           expect(:post => 'api/admin/repositories/').to route_to(action: 'create', controller: 'api_v1/admin/repositories')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -325,9 +325,9 @@ describe ApiV1::Admin::RepositoriesController do
     end
   end
 
-  describe :update do
+  describe "update" do
 
-    describe :for_admins do
+    describe "for_admins" do
       before :each do
         login_as_admin
         @entity_hashing_service = double('entity-hashing-service')
@@ -382,7 +382,7 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :security do
+    describe "security" do
       before(:each) do
         allow(controller).to receive(:load_package_repository).and_return(nil)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
@@ -415,8 +415,8 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
 
         it 'should route to update action of repositories controller for specified package repository id' do
           expect(:put => 'api/admin/repositories/foo123').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
@@ -425,7 +425,7 @@ describe ApiV1::Admin::RepositoriesController do
           expect(:put => 'api/admin/repositories/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

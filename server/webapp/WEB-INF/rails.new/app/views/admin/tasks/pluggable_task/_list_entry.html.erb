@@ -3,7 +3,7 @@
     <%- if (is_plugin_missing) %>
         <%= label_tag "", scope[:tvm].getTypeForDisplay(), :title => l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [scope[:tvm].getTypeForDisplay()].to_java(java.lang.Object)), :class => "missing_plugin_link instant-tooltip" -%>
     <%- else %>
-        <%= link_to_function(scope[:tvm].getTypeForDisplay(), nil, {:onclick => modify_onclick_callback}) -%>
+        <%= link_to(scope[:tvm].getTypeForDisplay(), '#', :onclick => modify_onclick_callback) -%>
     <%- end %>
 </td>
 <td class="run_ifs"><%= scope[:task_config].getConditionsForDisplay() %></td>

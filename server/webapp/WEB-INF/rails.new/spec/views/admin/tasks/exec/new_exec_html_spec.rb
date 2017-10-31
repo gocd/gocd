@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/tasks/plugin/new.html.erb" do
   include GoUtil
@@ -39,7 +39,7 @@ describe "admin/tasks/plugin/new.html.erb" do
     expect(response.body).to have_selector("form[action='task_create_path']")
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Command*")
         expect(divs[0]).to have_selector("input[name='task[command]']")
         expect(divs[0]).to have_selector("label", :text => "Arguments")

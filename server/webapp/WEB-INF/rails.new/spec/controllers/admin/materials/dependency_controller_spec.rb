@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
+require 'rails_helper'
+require_relative 'material_controller_examples'
 
 describe Admin::Materials::DependencyController do
   include MockRegistryModule
   before do
-    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = instance_double('com.thoughtworks.go.server.service.GoConfigService'))
     allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
   end
 

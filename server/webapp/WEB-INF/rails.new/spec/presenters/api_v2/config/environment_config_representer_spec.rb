@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV2::Config::EnvironmentConfigRepresenter do
 
-  describe :serialize do
+  describe "serialize" do
     it 'renders an environment with hal representation' do
       presenter = ApiV2::Config::EnvironmentConfigRepresenter.new(get_environment_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -47,7 +47,7 @@ describe ApiV2::Config::EnvironmentConfigRepresenter do
 
   end
 
-  describe :deserialize do
+  describe "deserialize" do
     it 'should convert from minimal json to EnvironmentConfig' do
       environment_config = BasicEnvironmentConfig.new
 

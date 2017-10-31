@@ -14,14 +14,18 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe AboutHelper do
   include AboutHelper
 
+  def pipeline_config_service
+    @pipeline_config_service
+  end
+
   it "should get the pipelines count" do
-    should_receive(:pipeline_config_service).and_return(pipeline_config_service = double('pipeline_config_service'))
-    expect(pipeline_config_service).to receive(:totalPipelinesCount).and_return(10)
+    @pipeline_config_service = double('pipeline_config_service')
+    expect(@pipeline_config_service).to receive(:totalPipelinesCount).and_return(10)
 
     expect(total_pipelines_count).to eq(10)
   end

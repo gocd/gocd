@@ -14,10 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::ServerController do
   include MockRegistryModule
+  include ExtraSpecAssertions
 
   before do
     allow(controller).to receive(:set_current_user)
@@ -36,9 +37,9 @@ describe Admin::ServerController do
     @server_configuration_form = ServerConfigurationForm.new(@valid_server_params)
 
 
-    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
-    allow(controller).to receive(:user_service).and_return(@user_service = Object.new)
-    allow(controller).to receive(:system_service).and_return(@system_service = Object.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = double(GoConfigService))
+    allow(controller).to receive(:user_service).and_return(@user_service = double(UserService))
+    allow(controller).to receive(:system_service).and_return(@system_service = double(SystemService))
 
     allow(@user_service).to receive(:canUserTurnOffAutoLogin).and_return(true)
     allow(@go_config_service).to receive(:getMailHost).and_return(@mail_host)
@@ -52,7 +53,7 @@ describe Admin::ServerController do
 
     allow(controller).to receive(:populate_config_validity)
     allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
-    allow(controller).to receive(:server_config_service).and_return(@server_config_service = Object.new)
+    allow(controller).to receive(:server_config_service).and_return(@server_config_service = double(ServerConfigService))
 
     allow(controller).to receive(:l).and_return(localizer = Class.new do
       def method_missing method, *args
@@ -89,7 +90,7 @@ describe Admin::ServerController do
     end
 
     it "should assign command repo base directory location" do
-      allow(controller).to receive(:system_environment).and_return(@system_environment = Object.new)
+      allow(controller).to receive(:system_environment).and_return(@system_environment = double(SystemEnvironment))
       expect(@system_environment).to receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
 
       get :index
@@ -106,7 +107,7 @@ describe Admin::ServerController do
           controller.instance_variable_set :@user, user
         end
         allow(controller).to receive(:current_user).and_return(user)
-        allow(controller).to receive(:security_service).and_return(@security_service = Object.new)
+        allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
         allow(@go_config_service).to receive(:isSecurityEnabled).and_return(true)
         allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
         allow(@security_service).to receive(:isUserAdmin).with(user).and_return(true)
@@ -116,8 +117,7 @@ describe Admin::ServerController do
         allow(controller).to receive(:cruise_config_md5).and_return('foo_bar_baz')
 
         get :index
-
-        expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+        expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']", visible: :hidden)
       end
     end
   end
@@ -330,7 +330,7 @@ describe Admin::ServerController do
     end
 
     it "should return error if sendTestEmail fails" do
-      allow(controller).to receive(:server_config_service).and_return(@server_config_service = Object.new)
+      allow(controller).to receive(:server_config_service).and_return(@server_config_service = double(ServerConfigService))
       mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       res = nil

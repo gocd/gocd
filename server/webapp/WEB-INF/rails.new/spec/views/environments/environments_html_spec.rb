@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'environments/_environments.html.erb' do
   describe "with environments" do
@@ -42,9 +42,7 @@ describe 'environments/_environments.html.erb' do
       @prod = Environment.new("prod", [@pipeline_model_2])
       assign(:environments, [@uat, @prod])
 
-      class << view
-        include StagesHelper
-      end
+      view.extend StagesHelper
     end
 
     it "should have wrapping div for ajax refresh" do

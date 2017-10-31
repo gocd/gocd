@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/package_definitions/new.html.erb" do
 
@@ -38,11 +38,11 @@ describe "admin/package_definitions/new.html.erb" do
     expect(response.body).to have_selector(".new_form_item_block label", :text => "Package Name*")
     expect(response.body).to have_selector(".new_form_item_block input[type='text'][name='material[package_definition[name]]']")
 
-    expect(response.body).to have_selector(".new_form_item input[type='hidden'][name='material[package_definition[configuration][0][configurationKey][name]]'][value='key1']")
+    expect(response.body).to have_selector(".new_form_item input[type='hidden'][name='material[package_definition[configuration][0][configurationKey][name]]'][value='key1']", {visible: :hidden})
     expect(response.body).to have_selector(".new_form_item label", :text => "Key 1*")
     expect(response.body).to have_selector(".new_form_item input[type='text'][name='material[package_definition[configuration][0][configurationValue][value]]'][value='value1']")
 
-    expect(response.body).to have_selector(".new_form_item input[type='hidden'][name='material[package_definition[configuration][1][configurationKey][name]]'][value='key2']")
+    expect(response.body).to have_selector(".new_form_item input[type='hidden'][name='material[package_definition[configuration][1][configurationKey][name]]'][value='key2']", {visible: :hidden})
     expect(response.body).to have_selector(".new_form_item label", :text => "Key 2")
     expect(response.body).to have_selector(".new_form_item input[type='password'][name='material[package_definition[configuration][1][configurationValue][value]]'][value='value2']")
   end

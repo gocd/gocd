@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::EncryptionController do
   include ApiHeaderSetupTeardown
   include ApiV1::ApiVersionHelper
 
-  describe :security do
+  describe "security" do
     it 'should allow anyone, with security disabled' do
       disable_security
       expect(controller).to allow_action(:post, :encrypt_value)
@@ -53,14 +53,14 @@ describe ApiV1::Admin::EncryptionController do
     end
   end
 
-  describe :route do
-    describe :with_header do
+  describe "route" do
+    describe "with_header" do
       it 'should route to encrypt_value action of encryption controller' do
         expect(:post => 'api/admin/encrypt').to route_to(action: 'encrypt_value', controller: 'api_v1/admin/encryption')
       end
 
     end
-    describe :without_header do
+    describe "without_header" do
       before :each do
         teardown_header
       end
@@ -71,7 +71,7 @@ describe ApiV1::Admin::EncryptionController do
     end
   end
 
-  describe :encryption do
+  describe "encryption" do
     it 'should return the encrypted value of the plain text passed' do
       login_as_admin
       post_with_api_header :encrypt_value, {value: 'foo'}

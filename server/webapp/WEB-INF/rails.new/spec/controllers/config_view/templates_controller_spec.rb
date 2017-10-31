@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigView::TemplatesController do
 
-  describe :routes do
+  describe "routes" do
     it "should resolve & generate route for viewing templates" do
       expect(:get => "/config_view/templates/template.name").to route_to(:controller => "config_view/templates", :action => "show", :name => "template.name")
       expect(config_view_templates_show_path(:name => "template.name")).to eq("/config_view/templates/template.name")
@@ -68,10 +68,9 @@ describe ConfigView::TemplatesController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before :each do
       login_as_admin
-      allow(controller).to receive(:is_user_authorized_to_view_template)
       @template_config_service = double('template config service')
       allow(controller).to receive(:template_config_service).and_return(@template_config_service)
     end
@@ -90,7 +89,7 @@ describe ConfigView::TemplatesController do
     end
 
     it "should render error when template config service returns bad operation result" do
-      result = HttpLocalizedOperationResult.new()
+      result = double(HttpLocalizedOperationResult)
       expect(result).to receive(:isSuccessful).and_return(false)
       expect(result).to receive(:httpCode).and_return(404)
       expect(result).to receive(:message).with(anything).and_return("Template Not found")

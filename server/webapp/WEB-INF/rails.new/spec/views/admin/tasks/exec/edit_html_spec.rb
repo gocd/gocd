@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/tasks/plugin/edit.html.erb" do
   include GoUtil
@@ -37,7 +37,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Command*")
         expect(divs[0]).to have_selector("input[name='task[command]']")
         expect(divs[0]).to have_selector("label", :text => "Arguments")
@@ -56,7 +56,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
     render
 
     Capybara.string(response.body).find('form').tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Arguments")
         expect(divs[0]).to have_selector("textarea[name='task[argListString]']", "-l\n-a")
       end
@@ -84,7 +84,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
         expect(on_cancel).to have_selector("label", :text => "Command*")
         expect(on_cancel).to have_selector("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][command]'][value='echo']")
         expect(on_cancel).to have_selector("label", :text => "Arguments")
-        expect(on_cancel).to have_selector("input[type='text'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][args]'][value=?]", "'failing'")
+        expect(on_cancel).to have_selector("input[type='text'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][args]'][value=\"'failing'\"]")
         expect(on_cancel).to have_selector("label", :text => "Working Directory")
         expect(on_cancel).to have_selector("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][workingDirectory]'][value='oncancel_working_dir']")
       end
@@ -169,30 +169,17 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
     Capybara.string(response.body).find('form').tap do |form|
       expect(form).to have_selector("label", "Run if conditions*")
-      id = ''
-      form.all("div.form_item_block") do |divs|
-        expect(divs[0]).to have_selector("label[for='?']", /runif_passed_[a-f0-9-]{36}/)
-        divs[0].find("label") do |tags|
-          label = tags[0]
-          expect(label.children[0].to_s).to eq("Passed")
-          id = label.attributes['for']
-        end
+      form.all("div.form_item_block.run_if_options").tap do |divs|
+        expect(divs[0].find('label[for*=runif_passed_]')[:for]).to match(/runif_passed_[a-f0-9-]{36}/)
+        id = divs[0].find('label[for*=runif_passed_]')[:for]
         expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_PASSED}]'][id='#{id}']")
 
-        expect(divs[0]).to have_selector("label[for='?']", /runif_failed_[a-f0-9-]{36}/)
-        divs[0].find("label") do |tags|
-          label = tags[0]
-          expect(label.children[0].to_s).to eq("Failed")
-          id = label.attributes['for']
-        end
+        expect(divs[0].find('label[for*=runif_failed_]')[:for]).to match(/runif_failed_[a-f0-9-]{36}/)
+        id = divs[0].find('label[for*=runif_failed_]')[:for]
         expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_FAILED}]'][id='#{id}']")
 
-        expect(divs[0]).to have_selector("label[for='?']", /runif_any_[a-f0-9-]{36}/)
-        divs[0].find("label") do |tags|
-          label = tags[0]
-          expect(label.children[0].to_s).to eq("Any")
-          id = label.attributes['for']
-        end
+        expect(divs[0].find('label[for*=runif_any_]')[:for]).to match(/runif_any_[a-f0-9-]{36}/)
+        id = divs[0].find('label[for*=runif_any_]')[:for]
         expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_ANY}]'][id='#{id}']")
       end
     end

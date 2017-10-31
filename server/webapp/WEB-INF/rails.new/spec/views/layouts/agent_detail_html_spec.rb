@@ -14,17 +14,20 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
+require 'rails_helper'
+require_relative 'layout_html_examples'
 
 describe "/layouts/agent_detail" do
   include AgentMother
   include GoUtil
+  include EngineUrlHelper
+
+  it_should_behave_like :layout
 
   before do
     @layout_name = 'layouts/agent_detail'
-    assign(:user, @user = Object.new)
-    allow(@user).to receive(:anonymous?).and_return(true)
+    @user = Username::ANONYMOUS
+    assign(:user, @user)
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
@@ -37,13 +40,13 @@ describe "/layouts/agent_detail" do
     end
 
     stub_context_path(view)
+    stub_routes_for_main_app main_app
+    assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1"))
   end
 
-  describe :header do
+  describe "header" do
 
     it "should set the page title" do
-      assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1"))
-
       render :inline => '<div>content</div>', :layout => @layout_name
 
       page = Capybara::Node::Simple.new(response.body)
@@ -51,8 +54,6 @@ describe "/layouts/agent_detail" do
     end
 
     it "should show agent name" do
-      assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1"))
-
       render :inline => '<div>content</div>', :layout => @layout_name
 
       expect(response.body).to have_selector(".page_header ul.entity_title li h1",:text=>"Agent01")

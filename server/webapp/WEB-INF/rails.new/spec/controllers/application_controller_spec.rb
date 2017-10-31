@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 require 'java'
 
 describe ApplicationController do
@@ -42,7 +42,7 @@ describe ApplicationController do
     end
   end
 
-  describe :java_routes do
+  describe "java_routes" do
     it "should generate run stage url" do
       expect(run_stage_path(pipeline_name: "pipeline_name", stage_name: "stage_name",
                             pipeline_counter: 10)).to eq("/run/pipeline_name/10/stage_name")
@@ -135,7 +135,7 @@ describe ApplicationController do
     end
   end
 
-  describe :default_as_empty_list do
+  describe "default_as_empty_list" do
     it "should default given params as empty list only if not given" do
       @controller.params = HashWithIndifferentAccess.new
       @controller.params[:default_as_empty_list] = ["foo", "bar>baz", "quux>bang>boom", "user>name", "hello"]
@@ -307,6 +307,9 @@ describe ApplicationController do
 
       it "should cache the url if options is an active-record object" do
         obj = TestObject.new
+        def controller.test_object_url(*args)
+          raise 'should not invoke this, because it is stubbed!'
+        end
         expect(controller).to receive(:test_object_url).with(obj).and_return("some-url")
         expect(controller.url_for(obj)).to eq("some-url")
       end

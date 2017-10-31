@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV3::Shared::Stages::StageRepresenter do
-  describe :serialize do
+  describe "serialize" do
     it 'should render stage with hal representation' do
       presenter   = ApiV3::Shared::Stages::StageRepresenter.new(get_stage_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -55,7 +55,7 @@ describe ApiV3::Shared::Stages::StageRepresenter do
 
   end
 
-  describe :deserialize do
+  describe "deserialize" do
     it 'should convert basic hash to StageConfig' do
       stage_config = StageConfig.new
 

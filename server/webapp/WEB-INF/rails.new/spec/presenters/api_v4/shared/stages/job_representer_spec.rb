@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::Shared::Stages::JobRepresenter do
 
-  describe :serialize do
+  describe "serialize" do
     it 'should render job with hal representation' do
 
       presenter   = ApiV4::Shared::Stages::JobRepresenter.new(com.thoughtworks.go.helper.JobConfigMother.jobConfig())
@@ -116,7 +116,7 @@ describe ApiV4::Shared::Stages::JobRepresenter do
     end
   end
 
-  describe :deserialize do
+  describe "deserialize" do
     it 'should convert basic hash to Job' do
       job_config = JobConfig.new
       ApiV4::Shared::Stages::JobRepresenter.new(job_config).from_hash({

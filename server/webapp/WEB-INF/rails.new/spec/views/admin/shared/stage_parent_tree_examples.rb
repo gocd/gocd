@@ -24,15 +24,15 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.find("li.collapsable") do |li_1|
-            expect(li_1).to have_selector("a[href='#{@stage_parent_edit_path}']", "pipeline")
-            li_1.find("ul.stages") do |ul_2|
-              ul_2.find("li.expandable") do |li_2|
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}']", :text => "stage1")
-                li_2.find("ul.jobs.hidden") do |ul_3|
-                  expect(ul_3).to have_selector("li a[href='#{admin_tasks_listing_path(:pipeline_name => "pipeline", :stage_name => "stage1", :job_name => "dev", :current_tab=>"tasks")}']", :text => "dev")
-                end
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.find("li.collapsable[1]") do |pipeline|
+            expect(pipeline).to have_selector("a[href='#{@stage_parent_edit_path}']", :text => "pipeline")
+
+            pipeline.all("ul.stages li.expandable").tap do |collapsed_stages|
+              expect(collapsed_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}']", :text => "stage1")
+
+              collapsed_stages[0].all("ul.jobs.hidden").tap do |jobs|
+                expect(jobs[0]).to have_selector("a[href='#{admin_tasks_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :job_name => "dev", :current_tab=>"tasks")}']", :text => "dev")
               end
             end
           end
@@ -44,24 +44,22 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.all("li.collapsable") do |li_1s|
-            expect(li_1s[0]).to have_selector("a[href='#{@stage_parent_edit_path}']", "pipeline")
-            li_1s[0].find("ul.stages") do |ul_2|
-              ul_2.find("li.expandable") do |li_2|
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}']", :text => "stage1")
-                expect(li_2).to have_selector("ul.jobs.hidden")
-              end
-              ul_2.find("li.expandable") do |li_2|
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage3", :current_tab => "settings" )}']", :text => "stage3")
-                expect(li_2).to have_selector("ul.jobs.hidden")
-              end
-              ul_2.find("li.collapsable") do |li_2|
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}']", :text => "stage2")
-                expect(li_2).to have_selector("ul.jobs")
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.find("li.collapsable[1]") do |pipeline|
+            expect(pipeline).to have_selector("a[href='#{@stage_parent_edit_path}']", :text => "pipeline")
 
-                expect(li_2).not_to have_selector("ul.jobs.hidden")
-              end
+            pipeline.all("ul.stages li.expandable").tap do |collapsed_stages|
+              expect(collapsed_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}']", :text => "stage1")
+              expect(collapsed_stages[0]).to have_selector("ul.jobs.hidden")
+
+              expect(collapsed_stages[1]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage3", :current_tab => "settings")}']", :text => "stage3")
+              expect(collapsed_stages[1]).to have_selector("ul.jobs.hidden")
+            end
+
+            pipeline.all("ul.stages li.collapsable").tap do |expanded_stages|
+              expect(expanded_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}']", :text => "stage2")
+              expect(expanded_stages[0]).to have_selector("ul.jobs")
+              expect(expanded_stages[0]).not_to have_selector("ul.jobs.hidden")
             end
           end
         end
@@ -77,16 +75,14 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.all("li") do |li_1s|
-            expect(li_1s[0]).to have_selector("a[href='#{@stage_parent_edit_path}'][class='parent_selected']")
-            li_1s[0].find("ul.stages") do |ul_2|
-              ul_2.find("li") do |li_2|
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}'][class='']")
-                li_2.find("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}'][class='selected']") do |a|
-                  expect(a).not_to have_selector("li a[class='selected']") #make sure no job is selected
-                end
-              end
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.find("li.collapsable[1]") do |pipeline|
+            expect(pipeline).to have_selector("a[href='#{@stage_parent_edit_path}'][class='parent_selected']")
+
+            pipeline.all(:xpath, ".//ul[@class='stages']/li").tap do |all_stages|
+              expect(all_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}'][class='']")
+
+              expect(all_stages[1]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}'][class='selected']")
             end
           end
         end
@@ -100,12 +96,10 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.find("ul.stages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "permissions")}'][class='']")
-              expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "permissions")}'][class='selected']")
-            end
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.all(:xpath, ".//ul[@class='stages']/li").tap do |all_stages|
+            expect(all_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "permissions")}'][class='']")
+            expect(all_stages[1]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "permissions")}'][class='selected']")
           end
         end
       end
@@ -118,12 +112,10 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.find("ul.stages") do |ul_2|
-            ul_2.find("li") do |li_2|
-              expect(li_2).to have_selector("li a[href='#{admin_job_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "jobs")}'][class='']")
-              expect(li_2).to have_selector("li a[href='#{admin_job_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "jobs")}'][class='selected']")
-            end
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.all(:xpath, ".//ul[@class='stages']/li").tap do |all_stages|
+            expect(all_stages[0]).to have_selector("a[href='#{admin_job_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "jobs")}'][class='']")
+            expect(all_stages[1]).to have_selector("a[href='#{admin_job_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "jobs")}'][class='selected']")
           end
         end
       end
@@ -133,23 +125,19 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.all("li") do |li_1s|
-            expect(li_1s[0]).to have_selector("a[href='#{@stage_parent_edit_path}'][class=?]", "parent_selected")
-            li_1s[0].find("ul.stages") do |ul_2|
-              ul_2.find("li") do |li_2|
-                li_2.find("li") do |li_3|
-                  expect(li_3).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}'][class='']")
-                  li_3.find("ul.jobs.hidden") do |ul_4|
-                    expect(ul_4).to have_selector("li a[class=''][href='#{admin_tasks_listing_path(:pipeline_name => "pipeline", :stage_name => "stage1", :job_name => "dev", :current_tab=>"tasks")}']", :text => "dev")
-                  end
-                end
-                li_2.find("li") do |li_3|
-                  expect(li_3).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}'][class='parent_selected']")
-                  li_3.find("ul.jobs") do |ul_4|
-                    expect(ul_4).to have_selector("li a[href='#{admin_tasks_listing_path(:pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :current_tab=>"tasks")}'][class='selected']", :text => "dev")
-                  end
-                end
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.find("li.collapsable[1]") do |pipeline|
+            expect(pipeline).to have_selector("a[href='#{@stage_parent_edit_path}'][class='parent_selected']")
+
+            pipeline.all(:xpath, ".//ul[@class='stages']/li").tap do |all_stages|
+              expect(all_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}'][class='']")
+              all_stages[0].find("ul.jobs.hidden") do |jobs|
+                expect(jobs).to have_selector("a[class=''][href='#{admin_tasks_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :job_name => "dev", :current_tab => "tasks")}']", :text => "dev")
+              end
+
+              expect(all_stages[1]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}'][class='parent_selected']")
+              all_stages[1].find("ul.jobs") do |jobs|
+                expect(jobs).to have_selector("li a[href='#{admin_tasks_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :current_tab => "tasks")}'][class='selected']", :text => "dev")
               end
             end
           end
@@ -161,14 +149,13 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.all("ul.jobs.hidden") do |ul_2s|
-            expect(ul_2s[0]).to have_selector("li a[class=''][href='#{admin_job_edit_path(:pipeline_name => "pipeline", :stage_name => "stage1", :job_name => "dev", :current_tab=>"artifacts")}']", :text => "dev""dev")
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.all("ul.stages li.expandable ul.jobs.hidden").tap do |jobs|
+            expect(jobs[0]).to have_selector("a[class=''][href='#{admin_job_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :job_name => "dev", :current_tab=>"artifacts")}']", :text => "dev")
           end
-        end
-        Capybara.string(response.body).all('li').tap do |li_1s|
-          li_1s[0].all("ul.jobs") do |ul_2s|
-            expect(ul_2s[1]).to have_selector("li a[href='#{admin_job_edit_path(:pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :current_tab=>"artifacts")}'][class='selected']", :text => "dev""dev")
+
+          tree_view.all("ul.stages li.collapsable ul.jobs").tap do |jobs|
+            expect(jobs[0]).to have_selector("a[href='#{admin_job_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :current_tab=>"artifacts")}'][class='selected']", :text => "dev")
           end
         end
       end
@@ -178,14 +165,14 @@ shared_examples_for :stage_parent_tree do
 
         render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
-        Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-          ul_1.all("li") do |li_1s|
-            expect(li_1s[0]).to have_selector("a[href='#{@stage_parent_edit_path}'][class='selected']")
-            li_1s[0].find("ul.stages") do |ul_2|
-              ul_2.find("li") do |li_2|
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}'][class='']")
-                expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}'][class='']")
-              end
+        Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+          tree_view.find("li.collapsable[1]") do |pipeline|
+            expect(pipeline).to have_selector("a[href='#{@stage_parent_edit_path}'][class='selected']")
+
+            pipeline.all(:xpath, ".//ul[@class='stages']/li").tap do |all_stages|
+              expect(all_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}'][class='']")
+
+              expect(all_stages[1]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}'][class='']")
             end
           end
         end
@@ -197,26 +184,25 @@ shared_examples_for :stage_parent_tree do
 
       render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline, :stage_parent => @stage_parent}}
 
-      Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
-        ul_1.all("li.collapsable") do |li_1s|
-          expect(li_1s[0]).to have_selector("a[href='#{@stage_parent_edit_path}']", :text => "pipeline")
-          li_1s[0].find("ul.stages") do |ul_2|
-            ul_2.find("li.expandable") do |li_2|
-              expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}']", :text => "stage1")
-              expect(li_2).to have_selector("ul.jobs.hidden")
-            end
-            ul_2.find("li.expandable") do |li_2|
-              expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage3", :current_tab => "settings")}']", :text => "stage3")
-              expect(li_2).to have_selector("ul.jobs.hidden")
-            end
-            ul_2.find("li.collapsable") do |li_2|
-              expect(li_2).to have_selector("li a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}']", :text => "stage2")
-              expect(li_2).to have_selector("ul.jobs")
-              expect(li_2).not_to have_selector("ul.jobs.hidden")
+      Capybara.string(response.body).find('ul.pipeline').tap do |tree_view|
+        tree_view.find("li.collapsable[1]") do |pipeline|
+          expect(pipeline).to have_selector("a[href='#{@stage_parent_edit_path}']", :text => "pipeline")
 
-              li_2.find("ul.jobs") do |ul_3|
-                expect(ul_3).not_to have_selector("li a[href='#{admin_tasks_listing_path(:pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :current_tab=>"tasks")}']", :text => "dev")
-              end
+          pipeline.all("ul.stages li.expandable").tap do |collapsed_stages|
+              expect(collapsed_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage1", :current_tab => "settings")}']", :text => "stage1")
+              expect(collapsed_stages[0]).to have_selector("ul.jobs.hidden")
+
+              expect(collapsed_stages[1]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage3", :current_tab => "settings")}']", :text => "stage3")
+              expect(collapsed_stages[1]).to have_selector("ul.jobs.hidden")
+          end
+
+          pipeline.all("ul.stages li.collapsable").tap do |expanded_stages|
+            expect(expanded_stages[0]).to have_selector("a[href='#{admin_stage_edit_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :current_tab => "settings")}']", :text => "stage2")
+            expect(expanded_stages[0]).to have_selector("ul.jobs")
+            expect(expanded_stages[0]).not_to have_selector("ul.jobs.hidden")
+
+            expanded_stages[0].find("ul.jobs") do |jobs|
+              expect(jobs).to have_selector("a[href='#{admin_tasks_listing_path(:stage_parent => @stage_parent, :pipeline_name => "pipeline", :stage_name => "stage2", :job_name => "dev", :current_tab=>"tasks")}']", :text => "dev")
             end
           end
         end

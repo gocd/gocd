@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::StagesController do
 
   describe "index" do
     before :each do
       allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
-      allow(controller).to receive(:set_locale)
+      # allow(controller).to receive(:set_locale)
       allow(controller).to receive(:populate_config_validity)
     end
 
@@ -84,8 +84,8 @@ describe Api::StagesController do
       post :cancel_stage_using_pipeline_stage_name, {:pipeline_name => "blah_pipeline", :stage_name => "blah_stage", :no_layout => true}
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
         end
@@ -94,7 +94,7 @@ describe Api::StagesController do
                                                                                      :action => "cancel_stage_using_pipeline_stage_name",
                                                                                      :no_layout => true, :pipeline_name => "blah_pipeline", :stage_name => "blah_stage")
         end
-        describe :with_pipeline_name_constraints do
+        describe "with_pipeline_name_constraints" do
           it 'should route to cancel_stage_using_pipeline_stage_name action of stages controller having dots in pipeline name' do
             expect(:post => '/api/stages/some.thing/bar/cancel').to route_to(:no_layout => true, controller: 'api/stages', action: 'cancel_stage_using_pipeline_stage_name', pipeline_name: 'some.thing', stage_name: 'bar')
           end
@@ -120,7 +120,7 @@ describe Api::StagesController do
           end
         end
 
-        describe :with_stage_name_constraints do
+        describe "with_stage_name_constraints" do
           it 'should route to cancel_stage_using_pipeline_stage_name action of stages controller' do
             expect(:post => '/api/stages/foo/bar/cancel').to route_to(:no_layout => true, controller: 'api/stages', action: 'cancel_stage_using_pipeline_stage_name', pipeline_name: 'foo', stage_name: 'bar')
           end
@@ -151,7 +151,7 @@ describe Api::StagesController do
         end
       end
 
-      describe :without_header do
+      describe "without_header" do
         it "should not resolve route to cancel_stage_using_pipeline_stage_name when constraint is not met" do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
           expect(:post => '/api/stages/blah_pipeline/blah_stage/cancel').to_not route_to(:controller => "api/stages",
@@ -162,7 +162,7 @@ describe Api::StagesController do
     end
   end
 
-  describe :history do
+  describe "history" do
     include APIModelMother
 
     before :each do
@@ -194,13 +194,13 @@ describe Api::StagesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
+    describe "route" do
       it "should route to history" do
         expect(:get => "/api/stages/pipeline/stage/history").to route_to(:controller => 'api/stages', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :offset => "0", :no_layout => true)
         expect(:get => "/api/stages/pipeline/stage/history/1").to route_to(:controller => 'api/stages', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :offset => "1", :no_layout => true)
       end
 
-      describe :with_pipeline_name_contraint do
+      describe "with_pipeline_name_contraint" do
         it 'should route to history action of stages controller having dots in pipeline name' do
           expect(:get => 'api/stages/some.thing/bar/history').to route_to(no_layout: true, controller: 'api/stages', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar', offset: '0')
         end
@@ -226,7 +226,7 @@ describe Api::StagesController do
         end
       end
 
-      describe :with_stage_name_constraint do
+      describe "with_stage_name_constraint" do
         it 'should route to history action of stages controller having dots in stage name' do
           expect(:get => 'api/stages/foo/some.thing/history').to route_to(no_layout: true, controller: 'api/stages', action: 'history', pipeline_name: 'foo', stage_name: 'some.thing', offset: '0')
         end
@@ -255,7 +255,7 @@ describe Api::StagesController do
     end
   end
 
-  describe :instance_by_counter do
+  describe "instance_by_counter" do
     include APIModelMother
 
     before :each do
@@ -289,8 +289,8 @@ describe Api::StagesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
-      describe :with_pipeline_name_contraint do
+    describe "route" do
+      describe "with_pipeline_name_contraint" do
         it 'should route to instance_by_counter action of stages controller having dots in pipeline name' do
           expect(:get => 'api/stages/some.thing/bar/instance/1/2').to route_to(no_layout: true, controller: 'api/stages', action: 'instance_by_counter', pipeline_name: 'some.thing', stage_name: 'bar', pipeline_counter: '1', stage_counter: '2')
         end
@@ -316,7 +316,7 @@ describe Api::StagesController do
         end
       end
 
-      describe :with_stage_name_constraint do
+      describe "with_stage_name_constraint" do
         it 'should route to instance_by_counter action of stages controller having dots in stage name' do
           expect(:get => 'api/stages/foo/some.thing/instance/1/2').to route_to(no_layout: true, controller: 'api/stages', action: 'instance_by_counter', pipeline_name: 'foo', stage_name: 'some.thing', pipeline_counter: '1', stage_counter: '2')
         end
@@ -342,13 +342,13 @@ describe Api::StagesController do
         end
       end
 
-      describe :with_pipeline_counter_constraint do
+      describe "with_pipeline_counter_constraint" do
         it 'should not route to instance_by_counter action of stages controller for invalid pipeline counter' do
           expect(:get => 'api/stages/some.thing/bar/instance/fo$%#@6/2').to_not be_routable
         end
       end
 
-      describe :with_stage_counter_constraint do
+      describe "with_stage_counter_constraint" do
         it 'should not route to instance_by_counter action of stages controller for invalid stage counter' do
           expect(:get => 'api/stages/some.thing/bar/instance/1/fo$%#@6').to_not be_routable
         end

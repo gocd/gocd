@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/agent_details/job_run_history.html.erb" do
   include AgentMother
@@ -39,12 +39,10 @@ describe "/agent_details/job_run_history.html.erb" do
     job3 = JobInstanceMother.rescheduled("third", "uuid")
 
     assign(:job_instances,JobInstancesModel.new(JobInstances.new([job1, job2, job3].to_java(JobInstance)), Pagination.pageByNumber(6, 40, 2)))
-    class << view
-      include AgentsHelper
-    end
+    view.extend AgentsHelper
   end
 
-  describe :tabs do
+  describe "tabs" do
 
     it "should have details and job history tabs" do
 
@@ -63,7 +61,7 @@ describe "/agent_details/job_run_history.html.erb" do
     end
   end
 
-  describe :job_run_history do
+  describe "job_run_history" do
 
     it "should show table for job history" do
       render

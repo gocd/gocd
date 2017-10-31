@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::PackageRepositoriesController do
   include MockRegistryModule
@@ -26,7 +26,7 @@ describe Admin::PackageRepositoriesController do
     allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
   end
 
-  describe :routes do
+  describe "routes" do
     it "should resolve route to the new package-repositories page" do
       expect({:get => "/admin/package_repositories/new"}).to route_to(:controller => "admin/package_repositories", :action => "new")
       expect(package_repositories_new_path).to eq("/admin/package_repositories/new")
@@ -84,7 +84,7 @@ describe Admin::PackageRepositoriesController do
     end
   end
 
-  describe :actions do
+  describe "actions" do
 
     before :each do
       config_validity = double('config validity')
@@ -314,7 +314,7 @@ describe Admin::PackageRepositoriesController do
     describe "check connection" do
 
       before(:each) do
-        @result = HttpLocalizedOperationResult.new
+        @result = double(HttpLocalizedOperationResult)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       end
 
@@ -345,7 +345,7 @@ describe Admin::PackageRepositoriesController do
       end
     end
 
-    describe :destroy do
+    describe "destroy" do
 
       before :each do
         @cruise_config = double('cruise config')

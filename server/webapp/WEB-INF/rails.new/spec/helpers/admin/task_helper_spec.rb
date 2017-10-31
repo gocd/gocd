@@ -14,10 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::TaskHelper do
   include Admin::TaskHelper
+
+  def task_view_service
+    @task_view_service ||= double("task_view_service")
+  end
 
   it "should get css class names for each task" do
     expect(task_css_class("exec")).to eq("lookup_icon")
@@ -28,9 +32,7 @@ describe Admin::TaskHelper do
   end
 
   it "should get all task options" do
-    mock_task_view_service = double("task_view_service")
-    allow(self).to receive(:task_view_service).and_return(mock_task_view_service)
-    expect(mock_task_view_service).to receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new), tvm_of(RakeTask.new)])
+    expect(task_view_service).to receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new), tvm_of(RakeTask.new)])
 
     result = task_options
     expect(result).to eq([["Ant", "ant"], ["NAnt", "nant"], ["Rake", "rake"], ["More...", "exec"]])

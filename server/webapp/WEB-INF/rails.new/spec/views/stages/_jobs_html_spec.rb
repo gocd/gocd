@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
+require 'rails_helper'
+require_relative '../auto_refresh_examples'
 
 
 describe 'stages/_jobs.html.erb' do

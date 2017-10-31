@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe MaterialsHelper do
   include MaterialsHelper
@@ -91,7 +91,7 @@ describe MaterialsHelper do
     expect(render_tracking_tool_link(modification, 'pipeline')).to eq("<p>#<a href=\"http://pavan/42\" target=\"story_tracker\">42</a> What is the question sir?</p>")
   end
 
-  describe :render_comment_markup_for do
+  describe "render_comment_markup_for" do
     it "should display comment and trackback url" do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on blrstdgobgr03.","TRACKBACK_URL":"google.com"}'
       expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Built on blrstdgobgr03.<br>Trackback: <a href=\"google.com\">google.com</a>")
@@ -116,7 +116,7 @@ describe MaterialsHelper do
     end
   end
 
-  describe :render_simple_comment do
+  describe "render_simple_comment" do
     it "should display only comment when both comment and trackback url are provided" do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on blrstdgobgr03.","TRACKBACK_URL":"google.com"}'
       expect(render_simple_comment(comment_str)).to eq("Built on blrstdgobgr03.")

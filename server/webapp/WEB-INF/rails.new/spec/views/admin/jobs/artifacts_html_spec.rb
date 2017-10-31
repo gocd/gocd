@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/jobs/artifacts.html.erb" do
   include GoUtil
@@ -37,7 +37,7 @@ describe "admin/jobs/artifacts.html.erb" do
   it "should include a hidden field used to find out when all the artifacts are deleted" do
     render
 
-    expect(response.body).to have_selector("form input[type='hidden'][name='default_as_empty_list[]'][value='job>artifactPlans']")
+    expect(response.body).to have_selector("form input[type='hidden'][name='default_as_empty_list[]'][value='job>artifactPlans']", visible: :hidden)
   end
 
   it "should have a heading as Artifacts with a title tooltip" do

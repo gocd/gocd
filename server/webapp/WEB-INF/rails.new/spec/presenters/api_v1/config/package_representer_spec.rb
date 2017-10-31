@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::PackageRepresenter do
 
-  describe :serialize do
+  describe "serialize" do
     it 'renders a package with hal representation' do
       presenter = ApiV1::Config::PackageRepresenter.new({package: get_package})
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -33,7 +33,7 @@ describe ApiV1::Config::PackageRepresenter do
     end
   end
 
-  describe :deserialize do
+  describe "deserialize" do
     it 'should convert from minimal json to package' do
       package = PackageDefinition.new
 

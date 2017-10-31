@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/materials/pluggable_scm/new.html.erb" do
   include GoUtil
@@ -47,7 +47,7 @@ describe "admin/materials/pluggable_scm/new.html.erb" do
     expect(response.body).to have_selector('#message_pane')
 
     Capybara.string(response.body).find("form[action='admin_pluggable_scm_create_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='md5-1']")
+      expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='md5-1']", visible: :hidden)
       expect(form).to have_selector("button[type='submit']", :text => 'SAVE')
       expect(form).to have_selector("button", :text => 'Cancel')
     end

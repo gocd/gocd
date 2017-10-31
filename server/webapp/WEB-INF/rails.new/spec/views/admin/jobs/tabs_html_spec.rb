@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), "..", "environment_variables_form_example.rb")
+require 'rails_helper'
+require_relative '../environment_variables_form_example'
 
 describe "admin/jobs/tabs.html.erb" do
   include GoUtil
@@ -44,14 +44,14 @@ describe "admin/jobs/tabs.html.erb" do
 
     Capybara.string(response.body).find('form').tap do |form|
       expect(form).to have_selector("input[name='job[tabs][][name]'][value='tab1']")
-      expect(form).to have_selector("input[name='job[tabs][][original_name]'][value='tab1']")
+      expect(form).to have_selector("input[name='job[tabs][][original_name]'][value='tab1']", {visible: :hidden})
       expect(form).to have_selector("input[name='job[tabs][][path]'][value='path1']")
 
       expect(form).to have_selector("input[name='job[tabs][][name]'][value='tab2']")
-      expect(form).to have_selector("input[name='job[tabs][][original_name]'][value='tab2']")
+      expect(form).to have_selector("input[name='job[tabs][][original_name]'][value='tab2']", {visible: :hidden})
       expect(form).to have_selector("input[name='job[tabs][][path]'][value='path2']")
 
-      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='job>tabs']")
+      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='job>tabs']", {visible: :hidden})
     end
   end
 

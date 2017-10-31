@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::Admin::PipelinesController do
   include ApiHeaderSetupTeardown
@@ -39,7 +39,7 @@ describe ApiV4::Admin::PipelinesController do
     allow(@go_config_service).to receive(:getCurrentConfig).and_return(go_config)
     allow(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity::valid())
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(@group)
-    @pipeline_groups = com.thoughtworks.go.domain.PipelineGroups.new
+    @pipeline_groups = double(com.thoughtworks.go.domain.PipelineGroups)
     allow(@go_config_service).to receive(:groups).and_return(@pipeline_groups)
     allow(@pipeline_groups).to receive(:hasGroup).and_return(true)
     allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@pipeline_md5)
@@ -50,8 +50,8 @@ describe ApiV4::Admin::PipelinesController do
     controller.send(:go_cache).remove("GO_ETAG_CACHE")
   end
 
-  describe :security do
-    describe :show do
+  describe "security" do
+    describe "show" do
       before(:each) do
         allow(@pipeline_config_service).to receive(:getPipelineConfig).with(anything()).and_return(PipelineConfig.new)
       end
@@ -74,7 +74,7 @@ describe ApiV4::Admin::PipelinesController do
       end
     end
 
-    describe :update do
+    describe "update" do
       it 'should allow anyone, with security disabled' do
         allow(@pipeline_config_service).to receive(:getPipelineConfig).with(anything()).and_return(PipelineConfig.new)
         disable_security
@@ -98,7 +98,7 @@ describe ApiV4::Admin::PipelinesController do
       end
     end
 
-    describe :create do
+    describe "create" do
       before :each do
         allow(controller).to receive(:check_if_pipeline_by_same_name_already_exists).and_return(nil)
       end
@@ -120,7 +120,7 @@ describe ApiV4::Admin::PipelinesController do
       end
     end
 
-    describe :destroy do
+    describe "destroy" do
       before(:each) do
         allow(@pipeline_config_service).to receive(:getPipelineConfig).with(anything()).and_return(PipelineConfig.new)
       end
@@ -150,14 +150,14 @@ describe ApiV4::Admin::PipelinesController do
     end
   end
 
-  describe :action do
+  describe "action" do
     before :each do
       enable_security
       allow(@security_service).to receive(:hasViewPermissionForPipeline).and_return(true)
       @pipeline_name = 'pipeline1'
     end
 
-    describe :show do
+    describe "show" do
 
       it "should not show pipeline config for Non Admin users" do
         login_as_pipeline_group_Non_Admin_user
@@ -228,8 +228,8 @@ describe ApiV4::Admin::PipelinesController do
         expect(response.body).to_not be_empty
       end
 
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
           it 'should route to show action of pipelines controller for alphanumeric pipeline name' do
             expect(:get => 'api/admin/pipelines/foo123').to route_to(action: 'show', controller: 'api_v4/admin/pipelines', pipeline_name: 'foo123')
           end
@@ -250,7 +250,7 @@ describe ApiV4::Admin::PipelinesController do
             expect(:get => 'api/admin/pipelines/FOO').to route_to(action: 'show', controller: 'api_v4/admin/pipelines', pipeline_name: 'FOO')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end
@@ -262,7 +262,7 @@ describe ApiV4::Admin::PipelinesController do
       end
     end
 
-    describe :update do
+    describe "update" do
       before(:each) do
         login_as_pipeline_group_admin_user(@group)
         @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
@@ -389,8 +389,8 @@ describe ApiV4::Admin::PipelinesController do
         expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
       end
 
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
           it 'should route to update action of pipelines controller for alphanumeric pipeline name' do
             expect(:put => 'api/admin/pipelines/foo123').to route_to(action: 'update', controller: 'api_v4/admin/pipelines', pipeline_name: 'foo123')
           end
@@ -411,7 +411,7 @@ describe ApiV4::Admin::PipelinesController do
             expect(:put => 'api/admin/pipelines/FOO').to route_to(action: 'update', controller: 'api_v4/admin/pipelines', pipeline_name: 'FOO')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end
@@ -424,7 +424,7 @@ describe ApiV4::Admin::PipelinesController do
       end
     end
 
-    describe :create do
+    describe "create" do
       before(:each) do
         @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
         @pipeline.setOrigin(FileConfigOrigin.new)
@@ -572,14 +572,14 @@ describe ApiV4::Admin::PipelinesController do
         expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
       end
 
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
 
           it 'should route to create action of pipelines controller' do
             expect(:post => 'api/admin/pipelines/').to route_to(action: 'create', controller: 'api_v4/admin/pipelines')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end
@@ -592,7 +592,7 @@ describe ApiV4::Admin::PipelinesController do
       end
     end
 
-    describe :destroy do
+    describe "destroy" do
       before(:each) do
         login_as_admin
         @pipeline_name = "pipeline1"
@@ -633,8 +633,8 @@ describe ApiV4::Admin::PipelinesController do
         expect(actual_response).to eq({:message => "Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'."})
       end
 
-      describe :route do
-        describe :with_header do
+      describe "route" do
+        describe "with_header" do
 
           it 'should route to destroy action of pipelines controller for alphanumeric pipeline name' do
             expect(:delete => 'api/admin/pipelines/foo123').to route_to(action: 'destroy', controller: 'api_v4/admin/pipelines', pipeline_name: 'foo123')
@@ -656,7 +656,7 @@ describe ApiV4::Admin::PipelinesController do
             expect(:delete => 'api/admin/pipelines/FOO').to route_to(action: 'destroy', controller: 'api_v4/admin/pipelines', pipeline_name: 'FOO')
           end
         end
-        describe :without_header do
+        describe "without_header" do
           before :each do
             teardown_header
           end

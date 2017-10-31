@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/backup/index.html.erb" do
 
@@ -45,7 +45,7 @@ describe "admin/backup/index.html.erb" do
         form.find("button[type='submit']") do |submit_button|
           expect(submit_button).to have_selector("span", :text => 'PROCEED')
         end
-        form.find("button") do |cancel_button|
+        form.find("button.close_modalbox_control") do |cancel_button|
           expect(cancel_button).to have_selector("span", :text => 'Cancel')
         end
       end

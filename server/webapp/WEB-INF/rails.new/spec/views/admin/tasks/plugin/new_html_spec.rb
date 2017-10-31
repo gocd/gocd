@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/tasks/plugin/new.html.erb" do
   include GoUtil
@@ -48,7 +48,7 @@ describe "admin/tasks/plugin/new.html.erb" do
     expect(response.body).to have_selector("#message_pane")
 
     Capybara.string(response.body).find('form').tap do |form|
-      expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='abcd1234']")
+      expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='abcd1234']", {visible: :hidden})
       expect(form).to have_selector("button[type='submit']", :text => "SAVE")
       expect(form).to have_selector("button", :text => "Cancel")
     end

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe AdminController, "integration test" do
   #this the place for integration testing admin-config-update, we should try to cover failure, 406, 409, 401 etc here,

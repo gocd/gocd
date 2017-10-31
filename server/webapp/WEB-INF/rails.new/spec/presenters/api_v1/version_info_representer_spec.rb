@@ -15,7 +15,7 @@
 ##########################################################################
 
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::VersionInfoRepresenter do
   before(:each) do

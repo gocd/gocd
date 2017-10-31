@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::StagesController do
   render_views
@@ -22,7 +22,7 @@ describe Api::StagesController do
   before :each do
     controller.go_cache.clear
     allow(controller).to receive(:stage_service).and_return(@stage_service = double())
-    allow(controller).to receive(:set_locale)
+    # allow(controller).to receive(:set_locale)
     allow(controller).to receive(:populate_config_validity)
 
   end

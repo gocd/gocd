@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::MergedEnvironmentsController do
   include ApiHeaderSetupTeardown
   include ApiV1::ApiVersionHelper
 
-  describe :index do
+  describe "index" do
     before(:each) do
       environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(environment_name))
@@ -29,7 +29,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       allow(@environment_config_service).to receive(:getAllMergedEnvironments).and_return([@environment_config])
     end
 
-    describe :for_admins do
+    describe "for_admins" do
       it 'should render the environment' do
         login_as_admin
 
@@ -39,7 +39,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       end
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -67,13 +67,13 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to index action of environments controller' do
           expect(:get => 'api/admin/environments/merged').to route_to(action: 'index', controller: 'api_v1/admin/merged_environments')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end
@@ -85,7 +85,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before(:each) do
       @environment_name = 'foo-environment'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
@@ -96,7 +96,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
     end
 
-    describe :for_admins do
+    describe "for_admins" do
       it 'should render the environment' do
         login_as_admin
 
@@ -115,7 +115,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       end
     end
 
-    describe :security do
+    describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :show, environment_name: @environment_name)
@@ -143,8 +143,8 @@ describe ApiV1::Admin::MergedEnvironmentsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe "route" do
+      describe "with_header" do
         it 'should route to show action of environments controller for alphanumeric environment name' do
           expect(:get => 'api/admin/environments/foo123/merged').to route_to(action: 'show', controller: 'api_v1/admin/merged_environments', environment_name: 'foo123')
         end
@@ -165,7 +165,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
           expect(:get => 'api/admin/environments/FOO/merged').to route_to(action: 'show', controller: 'api_v1/admin/merged_environments', environment_name: 'FOO')
         end
       end
-      describe :without_header do
+      describe "without_header" do
         before :each do
           teardown_header
         end

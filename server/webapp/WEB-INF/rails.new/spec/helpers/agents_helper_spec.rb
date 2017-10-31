@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe AgentsHelper do
@@ -26,7 +26,7 @@ describe AgentsHelper do
     stub_context_path self
   end
 
-  describe :agent_selector do
+  describe "agent_selector" do
     before(:each) do
       @selected = ['uuid']
     end
@@ -54,7 +54,7 @@ describe AgentsHelper do
     expect(cell_with_title("foo", "class", "bar")).to eq("<td class='class' title='bar'><span>foo</span></td>")
   end
 
-  describe :piped_cell do
+  describe "piped_cell" do
     it "should create pipe seperated cell" do
       expect(self).to receive(:cell_with_title).with("foo | bar", "blah-title")
       piped_cell(["foo","bar"],"default value" ,"blah-title")
@@ -67,7 +67,7 @@ describe AgentsHelper do
 
   end
 
-  describe :agent_status_cell do
+  describe "agent_status_cell" do
     before do
       @time = java.util.Date.new
     end
@@ -93,11 +93,7 @@ describe AgentsHelper do
     end
 
     it "should title status cell with last heard time if agent status is lost contact" do
-      should_receive(:cell_with_title).with("lost contact", "status", anything()).and_return do |arg1,arg2,arg3|
-        expect(arg3).to match(/lost contact at/)
-        "blah"
-      end
-      expect(agent_status_cell(lost_contact_agent(:locator=>''))).to eq('blah')
+      expect(agent_status_cell(lost_contact_agent(:locator => ''))).to match(/lost contact at/)
     end
 
     it "should title status cell with status when agent status is other than lost contact" do
@@ -133,10 +129,14 @@ describe AgentsHelper do
     expect(build_locator_url("foo/bar")).to eq("/go/tab/build/detail/foo/bar")
   end
 
+  def security_service
+    @security_service
+  end
+  
   it "should call security service to check if user has view or operate permission" do
+    @security_service = double(SecurityService)
     should_receive(:current_user).and_return(:user)
-    should_receive(:security_service).and_return(security_service = Object.new)
-    expect(security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(:user, "uat").and_return(true)
+    expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(:user, "uat").and_return(true)
 
     expect(has_view_or_operate_permission_on_pipeline?("uat/1/dist/2/build")).to eq(true)
   end

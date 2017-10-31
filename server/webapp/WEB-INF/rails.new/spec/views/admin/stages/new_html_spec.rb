@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/stages/new.html.erb" do
   include GoUtil
@@ -51,8 +51,8 @@ describe "admin/stages/new.html.erb" do
 
     Capybara.string(response.body).find('#new_stage_container form').tap do |form|
       expect(form).to have_selector("h3", :text => "Stage Information")
-      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
-      expect(form).to have_selector("input[type='hidden'][name='current_tab'][value='stages']")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']", {visible: :hidden})
+      expect(form).to have_selector("input[type='hidden'][name='current_tab'][value='stages']", {visible: :hidden})
       expect(form).to have_selector(".instructions", :text => "You can add more jobs and tasks to this stage once the stage has been created.")
 
       expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::NAME}]'][value='stage-name']")

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def render_environment(pipeline_model)
   render :partial => "environments/environment_pipeline", :locals=>{:scope => {:pipeline_model => pipeline_model}}
@@ -28,9 +28,7 @@ describe "/environments/_environment_pipeline.html.erb" do
   include PipelineModelMother
 
   before do
-    class << view
-      include StagesHelper
-    end
+    view.extend StagesHelper
     allow(view).to receive(:is_user_an_admin?).and_return(false)
   end
 
@@ -98,11 +96,11 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    Capybara.string(response.body).all(".stages a .stage_bar") do |stages|
+    Capybara.string(response.body).all(".stages a .stage_bar").tap do |stages|
       second_stage = stages[1]
       expect(second_stage["class"]).to match("Passed")
-      expect(second_stage.attributes["class"]).not_to include("last_run_stage")
-      expect(second_stage.attributes["style"]).to include("width: 9.9167em")
+      expect(second_stage["class"]).not_to include("last_run_stage")
+      expect(second_stage["style"]).to include("width: 9.9167em")
     end
   end
 
@@ -258,7 +256,7 @@ describe "/environments/_environment_pipeline.html.erb" do
     expect(rendered).to match("PIPELINE_PARTIAL")
   end
 
-  describe :deployed_revisions do
+  describe "deployed_revisions" do
 
     def environments_partial
       {:partial => "environments/environment_pipeline", :locals=>{:scope => {:pipeline_model => @pipeline_model}}}

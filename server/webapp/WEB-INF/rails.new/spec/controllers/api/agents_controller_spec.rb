@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::AgentsController do
   before do
@@ -24,7 +24,7 @@ describe Api::AgentsController do
     login_as_admin
   end
 
-  describe :job_run_history do
+  describe "job_run_history" do
     include APIModelMother
 
     it "should resolve routes" do

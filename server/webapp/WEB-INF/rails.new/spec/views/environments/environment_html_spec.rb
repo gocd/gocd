@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/environments/_environment.html.erb" do
   include PipelineModelMother
@@ -37,10 +37,7 @@ describe "/environments/_environment.html.erb" do
     @pipelines[1].addPipelineInstance( pipeline2)
     @pipelines[2].addPipelineInstance( pipeline3)
     @environment = double('environment uat', :name => "UAT", :getPipelineModels => @pipelines)
-    class << view
-      include StagesHelper
-    end
-    allow(view).to receive(:on_pipeline_dashboard?).and_return(false)
+    view.extend StagesHelper
   end
 
   def render_show

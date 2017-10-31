@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter do
 
-  describe :serialize do
+  describe "serialize" do
     it 'renders an environment with hal representation' do
       environment = get_environment_config
       presenter = ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter.new(environment)

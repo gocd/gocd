@@ -15,6 +15,7 @@
 ##########################################################################
 
 class Admin::TemplatesController < AdminController
+  helper Admin::TemplatesHelper
 
   before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions]
   before_filter :check_admin_user_or_group_admin_user_and_401, only: [:new, :create]
@@ -141,18 +142,6 @@ class Admin::TemplatesController < AdminController
 
   def create_empty_template_view_model
     PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new(), params[:pipelineToExtractFrom], template_config_service.allPipelinesNotUsingTemplates(current_user, HttpLocalizedOperationResult.new))
-  end
-
-  helper_method :default_url_options, :allow_pipeline_selection?
-
-  def default_url_options(options = nil)
-    super.reverse_merge(params.only(:allow_pipeline_selection).symbolize_keys)
-  end
-
-  TRUE = true.to_s
-
-  def allow_pipeline_selection?
-    params[:allow_pipeline_selection] == TRUE
   end
 
   def autocomplete_for_permissions

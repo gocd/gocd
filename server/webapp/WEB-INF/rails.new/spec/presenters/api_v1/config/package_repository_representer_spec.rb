@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::PackageRepositoryRepresenter do
 
-  describe :serialize do
+  describe "serialize" do
     it 'renders a package repository with hal representation' do
       presenter = ApiV1::Config::PackageRepositoryRepresenter.new(get_package_repository)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -33,7 +33,7 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
     end
   end
 
-  describe :deserialize do
+  describe "deserialize" do
     it 'renders a package repository with hal representation' do
       package_repo = PackageRepository.new
       ApiV1::Config::PackageRepositoryRepresenter.new(package_repo).from_hash(get_package_repository_json)

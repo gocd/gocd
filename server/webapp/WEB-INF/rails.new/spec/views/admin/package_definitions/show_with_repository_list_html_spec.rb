@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 include GoUtil, FormUI
 
 describe "admin/package_definitions/show_with_repository_list.html.erb" do
@@ -91,12 +91,12 @@ describe "admin/package_definitions/show_with_repository_list.html.erb" do
       expect(response.body).to have_selector("div.information", :text => "No Pipelines currently use this package")
 
       Capybara.string(response.body).find("form[action='#{package_definition_delete_path(:repo_id => 'id1', :package_id => 'pid2')}'][id='delete_package_form'][method='post']").tap do |form|
-        expect(form).to have_selector("input[name='_method'][type='hidden'][value='delete']")
-        expect(form).to have_selector("input[name='config_md5'][type='hidden'][value='abc']")
+        expect(form).to have_selector("input[name='_method'][type='hidden'][value='delete']", visible: :hidden)
+        expect(form).to have_selector("input[name='config_md5'][type='hidden'][value='abc']", visible: :hidden)
         form.find("span[id='trigger_package_delete_pid2']") do |span|
           span.find("button[id='delete_button_pid2']") do |button|
-            button.find("div[id='warning_prompt']") do |div|
-              expect(div).to have_selector("p", :text => "You are about to delete package pname4")
+            span.find("div[id='warning_prompt']", visible: :hidden) do |div|
+              expect(div).to have_selector("p", {:text => "You are about to delete package package-name", visible: :hidden})
             end
           end
         end

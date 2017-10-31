@@ -14,22 +14,21 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::StatusReportsController do
 
-  describe :routes do
+  describe "routes" do
     it 'should route to show' do
       expect({:get => '/admin/status_reports/pluginId'}).to route_to(:controller => 'admin/status_reports', :action => 'show', :plugin_id => 'pluginId')
       expect(admin_status_report_path(:plugin_id => 'com.tw.myplugin')).to eq('/admin/status_reports/com.tw.myplugin')
     end
   end
 
-  describe :security do
+  describe "security" do
     before :each do
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil))
-      allow(@elastic_agent_extension).to receive(:getStatusReport).and_return('report')
     end
 
     after :each do
@@ -56,7 +55,7 @@ describe Admin::StatusReportsController do
     end
   end
 
-  describe :show do
+  describe "show" do
     before :each do
       login_as_admin
     end
@@ -68,10 +67,13 @@ describe Admin::StatusReportsController do
     end
 
     it 'should return the status report for an available plugin' do
+      elastic_agent_extension = instance_double('com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension')
+      allow(elastic_agent_extension).to receive(:getStatusReport).with('com.tw.myplugin').and_return('status_report')
+
+      allow(controller).to receive(:elastic_agent_extension).and_return(elastic_agent_extension)
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
-      allow(controller.elastic_agent_extension).to receive(:getStatusReport).with('com.tw.myplugin').and_return('status_report')
 
       get :show, :plugin_id => 'com.tw.myplugin'
 
@@ -80,10 +82,14 @@ describe Admin::StatusReportsController do
     end
 
     it 'should be not found if plugin does not support status_report endpoint' do
+      elastic_agent_extension = instance_double('com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension')
+      allow(elastic_agent_extension).to receive(:getStatusReport).with('com.tw.myplugin').and_raise(java.lang.UnsupportedOperationException.new)
+
+      allow(controller).to receive(:elastic_agent_extension).and_return(elastic_agent_extension)
+
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
       pluginDescriptor = GoPluginDescriptor.new('com.tw.myplugin', nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, capabilities))
-      allow(controller.elastic_agent_extension).to receive(:getStatusReport).with('com.tw.myplugin').and_raise(java.lang.UnsupportedOperationException.new)
 
       get :show, :plugin_id => 'com.tw.myplugin'
 

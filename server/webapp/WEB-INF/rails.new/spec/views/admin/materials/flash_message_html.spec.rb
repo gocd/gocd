@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/materials/hg/new.html.erb" do
 
   include GoUtil
 
   before :each do
-    assign(:material, @material = HgMaterial.new("url", nil))
+    assign(:material, @material = HgMaterialConfig.new("url", nil))
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     ReflectionUtil.setField(@cruise_config, "md5", "abc")
   end
@@ -41,6 +41,6 @@ describe "admin/materials/hg/new.html.erb" do
 
     render
 
-    expect(response.body).to have_selector("#config_save_actions")
+    expect(response.body).not_to have_selector("#config_save_actions")
   end
 end

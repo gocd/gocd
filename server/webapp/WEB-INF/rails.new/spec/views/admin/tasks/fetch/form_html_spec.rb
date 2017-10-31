@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "admin/tasks/fetch/new.html.erb" do
@@ -57,7 +57,7 @@ describe "admin/tasks/fetch/new.html.erb" do
 
   def assert_response_body
     Capybara.string(response.body).find('form').tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Pipeline")
         expect(divs[0]).to have_selector("input[name='task[pipelineName]']")
         expect(divs[0]).to have_selector("label", :text => "Stage*")

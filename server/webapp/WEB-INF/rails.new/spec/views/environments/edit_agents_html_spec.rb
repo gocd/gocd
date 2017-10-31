@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "environments/edit_agents.html.erb" do
   include GoUtil
@@ -32,6 +32,6 @@ describe "environments/edit_agents.html.erb" do
   it "should have cruise_config_md5 as part of output" do
     stub_template "environments/_edit_agents.html.erb" => "DUMMY"
     render
-    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']", visible: :hidden)
   end
 end

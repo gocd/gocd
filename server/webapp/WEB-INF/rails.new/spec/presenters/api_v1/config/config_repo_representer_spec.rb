@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::ConfigRepoRepresenter do
-  describe :serialize do
+  describe "serialize" do
     it 'should render config repo with hal representation' do
       config_repo_config = ConfigRepoConfig.new(GitMaterialConfig.new('git://foo', 'master'), 'config-repo-json-plugin', 'repo-1')
       actual_json = ApiV1::Config::ConfigRepoRepresenter.new(config_repo_config).to_hash(url_builder: UrlBuilder.new)

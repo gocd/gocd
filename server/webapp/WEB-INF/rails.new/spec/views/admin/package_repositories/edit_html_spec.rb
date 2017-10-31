@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/package_repositories/edit.html.erb" do
   include GoUtil
@@ -72,7 +72,7 @@ describe "admin/package_repositories/edit.html.erb" do
       expect(response.body).to have_selector("h2", :text => "Edit Package RepositoryWhat is a Package Repository?")
 
       Capybara.string(response.body).find("div#package-repositories").tap do |div|
-        expect(div).to have_selector "input#package_repository_repoId[name='package_repository[repoId]'][type='hidden'][value='1']"
+        expect(div).to have_selector("input#package_repository_repoId[name='package_repository[repoId]'][type='hidden'][value='1']", {visible: :hidden})
 
         expect(div).to have_selector "label[for='package_repository_name']"
         expect(div).to have_selector "input#package_repository_name[name='package_repository[name]'][value='name']"

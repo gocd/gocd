@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::MergedEnvironments::MergedEnvironmentsConfigRepresenter do
 
-  describe :serialize do
+  describe "serialize" do
     it 'renders a list of environments' do
       environment_config_one = EnvironmentConfigMother.environment("dev")
       environment_config_two = EnvironmentConfigMother.environment("testing")

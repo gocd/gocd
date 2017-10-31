@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV2::Config::EnvironmentVariableRepresenter do
   it 'should render plain environment variable with hal representation' do

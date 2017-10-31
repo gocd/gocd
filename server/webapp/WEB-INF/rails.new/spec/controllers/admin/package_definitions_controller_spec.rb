@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::PackageDefinitionsController do
   include ConfigSaveStubbing
@@ -91,7 +91,7 @@ describe Admin::PackageDefinitionsController do
       @package_configurations.add(PackageConfiguration.new("k3").with(PackageConfiguration::DISPLAY_NAME, "Key 3").with(PackageConfiguration::SECURE, true))
     end
 
-    describe :show do
+    describe "show" do
       it "should show package definition details" do
         expect(@package_metadata_store).to receive(:getMetadata).with("pluginid").and_return(@package_configurations)
 
@@ -119,7 +119,7 @@ describe Admin::PackageDefinitionsController do
       end
     end
 
-    describe :show_for_new_pipeline_wizard do
+    describe "show_for_new_pipeline_wizard" do
       it "should show package definition details" do
         expect(@package_metadata_store).to receive(:getMetadata).with("pluginid").and_return(@package_configurations)
 
@@ -147,7 +147,7 @@ describe Admin::PackageDefinitionsController do
       end
     end
 
-    describe :show_wih_repository_list do
+    describe "show_wih_repository_list" do
       it "should show package definition details along with package repository listing" do
         expect(@package_metadata_store).to receive(:getMetadata).with("pluginid").and_return(@package_configurations)
 
@@ -193,7 +193,7 @@ describe Admin::PackageDefinitionsController do
       end
     end
 
-    describe :pipelines_used_in do
+    describe "pipelines_used_in" do
       it "should show pipelines used in for a given package" do
 
         packageOne = PackageMaterialConfig.new("package-id-one");
@@ -219,7 +219,7 @@ describe Admin::PackageDefinitionsController do
     end
 
 
-    describe :new do
+    describe "new" do
       it "should render template for new package definition" do
         expect(@package_metadata_store).to receive(:getMetadata).with("pluginid").and_return(@package_configurations)
 
@@ -249,7 +249,7 @@ describe Admin::PackageDefinitionsController do
       end
     end
 
-    describe :new_for_new_pipeline_wizard do
+    describe "new_for_new_pipeline_wizard" do
       it "should render template for new package definition" do
         expect(@package_metadata_store).to receive(:getMetadata).with("pluginid").and_return(@package_configurations)
 
@@ -279,7 +279,7 @@ describe Admin::PackageDefinitionsController do
       end
     end
 
-    describe :destroy do
+    describe "destroy" do
       it "should delete given package" do
         stub_save_for_success
         expect(stub_service(:flash_message_service)).to receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
@@ -293,9 +293,9 @@ describe Admin::PackageDefinitionsController do
       end
     end
 
-    describe :check_connection do
+    describe "check_connection" do
       before(:each) do
-        @result = HttpLocalizedOperationResult.new
+        @result = double(HttpLocalizedOperationResult)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       end
 
@@ -324,9 +324,10 @@ describe Admin::PackageDefinitionsController do
         cruise_config = double("cruise config")
         expect(cruise_config).to receive(:getPackageRepositories).and_return(repositories)
         expect(@go_config_service).to receive(:getCurrentConfig).and_return(cruise_config)
-        expect(@package_definition_service).to receive(:check_connection).with(package_definition, an_instance_of(HttpLocalizedOperationResult)) do |p, r|
+        expect(@package_definition_service).to receive(:check_connection).with(package_definition, @result) do |p, r|
           # we don't really care about the error itself. Just the fact that an error occurred. Hence the PACKAGE_CHECK_FAILED error being used here. (Sachin)
-          r.badRequest(LocalizedMessage.string("PACKAGE_CHECK_FAILED", "foo"))
+          allow(r).to receive(:message).and_return("Package check Failed. Reason(s): foo")
+          allow(r).to receive(:isSuccessful).and_return(false)
         end
 
         get :check_connection, :material => pkg_params

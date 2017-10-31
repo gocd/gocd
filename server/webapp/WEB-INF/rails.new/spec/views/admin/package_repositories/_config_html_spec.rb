@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "config.html.erb" do
   describe "config.html" do
@@ -30,13 +30,13 @@ describe "config.html.erb" do
 
       expect(response.body).to have_selector("fieldset legend span", :text => "YUM Repository Configuration")
       expect(response.body).to have_selector(".field label", :text => "Key 1*")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']", {visible: :hidden})
       expect(response.body).to have_selector(".field input[type='text'][name='package_repository[configuration][0][configurationValue][value]'][value='v1']")
 
       expect(response.body).to have_selector(".field label", :text => "Key 2")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']", {visible: :hidden})
       expect(response.body).to have_selector(".field input[type='password'][readonly='readonly'][name='package_repository[configuration][1][configurationValue][value]'][value='2AmGllf3Wbc=']")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']", {visible: :hidden})
       expect(response.body).to have_selector(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
       expect(response.body).to have_selector(".field label[for='checkbox_field_1']")
       expect(response.body).to have_selector(".field label[for='checkbox_field_1'] span", :text=>'Change Key 2')
@@ -57,14 +57,14 @@ describe "config.html.erb" do
 
       expect(response.body).to have_selector("fieldset legend span", :text => "YUM Repository Configuration")
       expect(response.body).to have_selector(".field label", :text => "Key 1*")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']", {visible: :hidden})
       expect(response.body).to have_selector(".field input[type='text'][name='package_repository[configuration][0][configurationValue][value]'][value='v1']")
 
       expect(response.body).to have_selector(".field label", :text => "Key 2")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']", {visible: :hidden})
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']", {visible: :hidden})
       expect(response.body).to have_selector(".field input[type='password'][name='package_repository[configuration][1][configurationValue][value]'][value='2AmGllf3Wbc=']")
-      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][isChanged]'][value='1']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][isChanged]'][value='1']", {visible: :hidden})
 
       expect(response.body).not_to have_selector(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
       expect(response.body).not_to have_selector(".field label[for='checkbox_field_1']")

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/tasks/index.html.erb" do
   include GoUtil
@@ -262,7 +262,7 @@ describe "admin/tasks/index.html.erb" do
 
         Capybara.string(response.body).find('table.list_table').tap do |table|
           table.find("td.has_on_cancel") do |td|
-            expect(td.find("label.missing_plugin_link")['title']).to eq("Associated plugin &#39;MISSING&#39; not found. Please contact the Go admin to install the plugin.")
+            expect(td.find("label.missing_plugin_link")['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
           end
         end
       end
@@ -322,9 +322,9 @@ describe "admin/tasks/index.html.erb" do
   def assert_has_delete_button_for_task tr, index
     tr.find("td form[action='/admin/pipelines/foo-pipeline/stages/bar-stage/job/baz-job/tasks/#{index}'][method='post']") do |form|
       expect(form).to have_selector("span#trigger_delete_task_#{index}.icon_remove.delete_parent")
-      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']")
-      expect(form).to have_selector("input[type='hidden'][name='_method'][value='delete']")
-      expect(form).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the task at index '#{index.to_i + 1}' \?/)
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']", {visible: :hidden})
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='delete']", {visible: :hidden})
+      expect(form).to have_selector("div#warning_prompt[style='display:none;']", {text: /Are you sure you want to delete the task at index '#{index.to_i + 1}' \?/, visible: :hidden })
     end
   end
 end

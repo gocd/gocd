@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe Admin::JobsController, "view" do
@@ -25,8 +25,6 @@ describe Admin::JobsController, "view" do
 
     before do
       allow(controller).to receive(:populate_config_validity)
-      allow(controller).to receive(:checkConfigFileValid)
-
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["job-1", "job-2"].to_java(java.lang.String))

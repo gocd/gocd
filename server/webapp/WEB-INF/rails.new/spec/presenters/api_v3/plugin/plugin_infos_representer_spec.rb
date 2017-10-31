@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV3::Plugin::PluginInfosRepresenter do
   it 'renders all plugin_infos with hal representation' do

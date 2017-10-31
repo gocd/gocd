@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
+require 'rails_helper'
+require_relative 'material_controller_examples'
 
 describe Admin::Materials::SvnController do
   before do

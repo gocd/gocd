@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "agent_bulk_editor" do
   include AgentBulkEditor
@@ -22,6 +22,11 @@ describe "agent_bulk_editor" do
   before :each do
     allow(self).to receive(:agent_service).and_return(@agent_service = double('agent-service'))
     allow(self).to receive(:current_user).and_return(@user = Object.new)
+    @params = {}
+  end
+
+  def params
+    @params
   end
 
   it "should enable selected agents" do
@@ -29,8 +34,7 @@ describe "agent_bulk_editor" do
       result.ok("Accepted")
     end
 
-    params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
     bulk_edit
   end
 
@@ -39,8 +43,7 @@ describe "agent_bulk_editor" do
       result.ok("Accepted")
     end
 
-    params = {:operation => 'Disable', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params = {:operation => 'Disable', :selected => ["UUID1", "UUID2"], :no_layout => true}
     bulk_edit
   end
 
@@ -49,8 +52,7 @@ describe "agent_bulk_editor" do
       result.ok("Accepted")
     end
 
-    params = {:operation => 'Delete', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params = {:operation => 'Delete', :selected => ["UUID1", "UUID2"], :no_layout => true}
     bulk_edit
   end
 
@@ -60,8 +62,7 @@ describe "agent_bulk_editor" do
       result.ok("Accepted")
     end
 
-    params =  {:operation => 'Add_Resource', :selected => ["UUID1", "UUID2"], :add_resource => "new-resource", :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params =  {:operation => 'Add_Resource', :selected => ["UUID1", "UUID2"], :add_resource => "new-resource", :no_layout => true}
     bulk_edit
   end
 
@@ -71,8 +72,7 @@ describe "agent_bulk_editor" do
       result.ok("Accepted")
     end
 
-    params = {:operation => 'Apply_Resource', :selected => ["UUID1", "UUID2"], :selections => {"new-resource" => 'add', "old-resource" => "remove"}, :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params = {:operation => 'Apply_Resource', :selected => ["UUID1", "UUID2"], :selections => {"new-resource" => 'add', "old-resource" => "remove"}, :no_layout => true}
     bulk_edit
   end
 
@@ -82,8 +82,7 @@ describe "agent_bulk_editor" do
       result.ok("Accepted")
     end
 
-    params =  {:operation => 'Apply_Environment', :selected => ["UUID1", "UUID2"], :selections => {"uat" => 'add', "prod" => "remove"}, :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params =  {:operation => 'Apply_Environment', :selected => ["UUID1", "UUID2"], :selections => {"uat" => 'add', "prod" => "remove"}, :no_layout => true}
     bulk_edit
   end
 
@@ -92,8 +91,7 @@ describe "agent_bulk_editor" do
       result.notAcceptable("Error message", HealthStateType.general(HealthStateScope::GLOBAL))
     end
 
-    params = { :operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true }
-    allow(self).to receive(:params).and_return(params)
+    @params = { :operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true }
     expect(bulk_edit.message()).to eq("Error message")
   end
 
@@ -102,28 +100,24 @@ describe "agent_bulk_editor" do
       result.ok("Enabled 3 agent(s)")
     end
 
-    params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
     expect(bulk_edit.message()).to eq("Enabled 3 agent(s)")
   end
 
   it "should show message for an unrecognised operation" do
-    params =  {:operation => 'BAD_OPERATION', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params =  {:operation => 'BAD_OPERATION', :selected => ["UUID1", "UUID2"], :no_layout => true}
 
     expect(bulk_edit.message()).to eq("The operation BAD_OPERATION is not recognized.")
   end
 
   it "should show error if selected parameter is omitted" do
-    params = {:operation => 'Enable', :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params = {:operation => 'Enable', :no_layout => true}
 
     expect(bulk_edit.message()).to eq("No agents were selected. Please select at least one agent and try again.")
   end
 
   it "should show error if no agents are selected" do
-    params = {:operation => 'Enable', :selected => [], :no_layout => true}
-    allow(self).to receive(:params).and_return(params)
+    @params = {:operation => 'Enable', :selected => [], :no_layout => true}
 
     expect(bulk_edit.message()).to eq("No agents were selected. Please select at least one agent and try again.")
   end

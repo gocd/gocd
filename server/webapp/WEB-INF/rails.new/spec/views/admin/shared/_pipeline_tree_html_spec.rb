@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'stage_parent_tree_examples.rb')
+require 'rails_helper'
+require_relative 'stage_parent_tree_examples'
 
 describe "template_tree" do
   include TaskMother

@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe SortableTableHelper do
-  describe :table_sort_params do
+  describe "table_sort_params" do
     it "should generate sort link params to sort ASC the first time" do
       expect(table_sort_params('hostname')).to eq({ :column => 'hostname', :order => 'ASC', :filter => nil})
       expect(table_sort_params('ip_address')).to eq({ :column => 'ip_address', :order => 'ASC', :filter => nil})
@@ -37,7 +37,7 @@ describe SortableTableHelper do
     end
   end
 
-  describe :column_header do
+  describe "column_header" do
     it "should generate column_header as link when sortable" do
       expect(self).to receive(:link_to).with("<span>ColumnName</span>", {:column => "SomeResource", :order => "ASC", :filter => nil}, {}).and_return("OUTPUT")
       expect(column_header("ColumnName", "SomeResource")).to eq("OUTPUT")
@@ -48,7 +48,7 @@ describe SortableTableHelper do
     end
   end
 
-  describe :sortable_column_status do
+  describe "sortable_column_status" do
     it "should return no options for unsorted column" do
       expect(sortable_column_status('hostname')).to eq({ })
     end

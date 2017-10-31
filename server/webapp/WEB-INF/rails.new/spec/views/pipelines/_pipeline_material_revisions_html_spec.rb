@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "/pipelines/show_for_trigger.html.erb" do
@@ -128,8 +128,8 @@ describe "/pipelines/show_for_trigger.html.erb" do
       expect(divs[0]).to have_selector(".comment", :text => "I changed something")
       expect(divs[0]).to have_selector(".folder", :text => "Folder")
       expect(divs[0]).to have_selector("input.autocomplete-input[name='material_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']")
-      expect(divs[0]).to have_selector("input.original-revision[name='original_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']")
-      expect(divs[0]).to have_selector("input.original-revision[value='1234']")
+      expect(divs[0]).to have_selector("input.original-revision[name='original_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']", visible: :hidden)
+      expect(divs[0]).to have_selector("input.original-revision[value='1234']", visible: :hidden)
     end
   end
 

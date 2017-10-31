@@ -14,13 +14,16 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigUpdate::CheckIsSuperAdmin do
   include ::ConfigUpdate::CheckIsSuperAdmin
 
+  def params
+    @params = {}
+  end
+  
   before do
-    allow(self).to receive(:params).and_return(@params = {})
     @security_service = double("security_service") #Instance variable because the module expects this to be defined
     @user = "loser" #Instance variable because the module expects this to be defined
   end

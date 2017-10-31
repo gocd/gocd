@@ -14,19 +14,20 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
+require 'rails_helper'
+require_relative 'layout_html_examples'
 
 describe "/layouts/application" do
   include EngineUrlHelper
+  it_should_behave_like :layout
 
   before do
     @layout_name = "layouts/application"
     @admin_url = "/admin/pipelines"
-    assign(:user, @user = Object.new)
+    @user = Username::ANONYMOUS
+    assign(:user, @user)
     assign(:error_count, 0)
     assign(:warning_count, 0)
-    allow(@user).to receive(:anonymous?).and_return(true)
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     class << view
@@ -41,8 +42,6 @@ describe "/layouts/application" do
     stub_routes_for_main_app main_app
     allow(view).to receive(:main_app).and_return(main_app)
   end
-
-  it_should_behave_like :layout
 
   it "should show content" do
     render :inline => '<div>content</div>', :layout => @layout_name

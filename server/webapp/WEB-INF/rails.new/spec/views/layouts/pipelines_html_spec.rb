@@ -14,7 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
+require_relative 'layout_html_examples'
 
 describe "layouts/pipelines.html.eb" do
   include GoUtil
@@ -23,10 +24,11 @@ describe "layouts/pipelines.html.eb" do
   before do
     @layout_name = 'layouts/pipelines'
     @user = Username.new(CaseInsensitiveString.new("blah-name"), "blah diaply name")
-    assign(:user,@user)
+    assign(:user, @user)
     now = org.joda.time.DateTime.new
     @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate()),
                                                           PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).toDate())])
+
     @stages.get(0).setId(12)
     @stages.get(1).setId(13)
     @stages.get(0).setOperatePermission(true)
@@ -42,21 +44,16 @@ describe "layouts/pipelines.html.eb" do
     params[:pipeline_counter] = "1"
     @request.path_parameters.reverse_merge!(params)
     allow(view).to receive(:can_view_admin_page?).and_return(true)
+    view.extend PipelinesHelper
+    view.extend ApplicationHelper
+    view.extend StagesHelper
     class << view
-      include PipelinesHelper
-      include ApplicationHelper
-      include StagesHelper
-
       def url_for_with_stub(*args)
         args.empty? ? "/go/" : url_for_without_stub(*args)
       end
 
       alias_method_chain :url_for, :stub
     end
-    allow(view).to receive(:stage_detail_path)
-
-    allow(view).to receive(:stage_detail_path).with(:stage_name => 'stage-0', :stage_counter => "1").and_return("url_to_0")
-    allow(view).to receive(:stage_detail_path).with(:stage_name => 'stage-1', :stage_counter => '1').and_return("url_to_1")
 
     in_params :action => 'overview', :controller => "stages"
     allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-0', :stage_counter => "1", :action => 'overview').and_return("url_to_0")
@@ -101,15 +98,14 @@ describe "layouts/pipelines.html.eb" do
 
   describe "pipline bar" do
     before do
-      @first_stage = @stages.get(0)
-      assign(:stage,@first_stage)
+      @first_stage = StageSummaryModel.new(StageMother.scheduledStage("pipeline-name", 1, "stage-0", 1, "job"), Stages.new, JobDurationStrategy.ALWAYS_ZERO, nil)
+      assign(:stage, @first_stage)
       stage = double('stage')
       allow(stage).to receive(:getConfigVersion).and_return('current_version')
-      allow(@first_stage).to receive(:getStage).and_return(stage)
       allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with(anything, anything).and_return(false)
     end
 
-    describe :other_stage_runs do
+    describe "other_stage_runs" do
 
       it "should add javascript to initialize other stage runs microcontent" do
         assign(:show_stage_status_bar,true)
@@ -142,7 +138,7 @@ describe "layouts/pipelines.html.eb" do
 
     it "should not display stage links for stages not run" do
       params[:stage_name] = "stage-1"
-      expect(view).not_to receive(:stage_detail_url).with(:stage_name => 'blah-stage', :stage_counter => '0')
+      expect(view).not_to receive(:stage_detail_tab_path).with(:stage_name => 'blah-stage', :stage_counter => '0')
 
       @pim.getStageHistory().add(NullStageHistoryItem.new('blah-stage'))
 

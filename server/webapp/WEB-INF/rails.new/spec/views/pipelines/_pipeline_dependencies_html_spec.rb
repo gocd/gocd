@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 
@@ -106,12 +106,12 @@ describe "/pipelines/_pipeline_dependencies.html.erb" do
 
     Capybara.string(response.body).find("#downstream_down1").tap do |pipeline|
       expect(pipeline).to have_selector("button#deploy-with-options-down1")
-      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[b5a42fa56a06e4ca35b8e66369065e485b8ceffabf5063438362c67d2bbeaf90]'][value='pipeline-name/23/stage/21']")
+      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[b5a42fa56a06e4ca35b8e66369065e485b8ceffabf5063438362c67d2bbeaf90]'][value='pipeline-name/23/stage/21']", visible: :hidden)
     end
 
     Capybara.string(response.body).find("#downstream_down2").tap do |pipeline|
       expect(pipeline).to have_selector("button#deploy-with-options-down2")
-      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[736d704feab607fa0872cf6ce570fa196dfeb2c3f4d698dd8f0760b3e6aa6b5a]'][value='pipeline-name/23/stage-1/2']")
+      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[736d704feab607fa0872cf6ce570fa196dfeb2c3f4d698dd8f0760b3e6aa6b5a]'][value='pipeline-name/23/stage-1/2']", visible: :hidden)
     end
 
     Capybara.string(response.body).find("#downstream_down3").tap do |pipeline|
@@ -127,12 +127,12 @@ describe "/pipelines/_pipeline_dependencies.html.erb" do
 
     Capybara.string(response.body).find("#downstream_down1").tap do |pipeline|
       expect(pipeline).to have_selector("button#deploy-with-options-down1[disabled='disabled']")
-      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[b5a42fa56a06e4ca35b8e66369065e485b8ceffabf5063438362c67d2bbeaf90]'][value='pipeline-name/23/stage/21']")
+      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[b5a42fa56a06e4ca35b8e66369065e485b8ceffabf5063438362c67d2bbeaf90]'][value='pipeline-name/23/stage/21']", visible: :hidden)
     end
 
     Capybara.string(response.body).find("#downstream_down2").tap do |pipeline|
       expect(pipeline).to have_selector("button#deploy-with-options-down2")
-      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[736d704feab607fa0872cf6ce570fa196dfeb2c3f4d698dd8f0760b3e6aa6b5a]'][value='pipeline-name/23/stage-1/2']")
+      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[736d704feab607fa0872cf6ce570fa196dfeb2c3f4d698dd8f0760b3e6aa6b5a]'][value='pipeline-name/23/stage-1/2']", visible: :hidden)
     end
   end
 
@@ -146,7 +146,7 @@ describe "/pipelines/_pipeline_dependencies.html.erb" do
 
     Capybara.string(response.body).find("#downstream_down1").tap do |pipeline|
       expect(pipeline).to have_selector("button#deploy-with-options-down1")
-      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[b5a42fa56a06e4ca35b8e66369065e485b8ceffabf5063438362c67d2bbeaf90]'][value='pipeline-name/23/stage/21']")
+      expect(pipeline).to have_selector("input[type='hidden'][name='pegged_revisions[b5a42fa56a06e4ca35b8e66369065e485b8ceffabf5063438362c67d2bbeaf90]'][value='pipeline-name/23/stage/21']", visible: :hidden)
     end
 
     Capybara.string(response.body).find("#downstream_down2").tap do |pipeline|

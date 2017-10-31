@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::PipelineConfigsController do
 
@@ -27,7 +27,7 @@ describe Admin::PipelineConfigsController do
     allow(controller).to receive(:user_service).and_return(@user_service)
 
   end
-  describe :route do
+  describe "route" do
     it 'should route to edit for alphanumeric pipeline name' do
       expect(:get => 'admin/pipelines/foo123/edit').to route_to(action: 'edit', controller: 'admin/pipeline_configs', pipeline_name: 'foo123')
     end
@@ -49,7 +49,7 @@ describe Admin::PipelineConfigsController do
     end
   end
 
-  describe :security do
+  describe "security" do
     before :each do
       allow(controller).to receive(:check_feature_toggle).and_return(nil)
       allow(controller).to receive(:load_pipeline).and_return(nil)
@@ -59,7 +59,7 @@ describe Admin::PipelineConfigsController do
       allow(@go_config_service).to receive(:findGroupNameByPipeline).with(anything).and_return('group')
       allow(@go_config_service).to receive(:groups).and_return(groups)
     end
-    describe :edit do
+    describe "edit" do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :edit)
@@ -88,7 +88,7 @@ describe Admin::PipelineConfigsController do
     end
   end
 
-  describe :edit do
+  describe "edit" do
     before(:each) do
       login_as_admin
       allow(@pipeline_config_service).to receive(:getPipelineConfig).and_return('pipe')

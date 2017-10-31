@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe NonApiController do
   before do
@@ -65,7 +65,7 @@ describe NonApiController do
   end
 
   it "should render error using custom template if chosen" do
-    controller.prepend_view_path 'spec/util/views'
+    controller.prepend_view_path 'spec/support/util/views'
     controller.error_template_for_request = 'crazy_error_template'
     get :not_found_action
     assert_template "crazy_error_template"

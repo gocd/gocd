@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
   include TaskMother
 
   shared_examples_for 'tasks' do
 
-    describe :serialize do
+    describe "serialize" do
       it 'should render task with hal representation' do
         presenter          = ApiV3::Shared::Stages::Tasks::TaskRepresenter.new(existing_task)
         actual_json        = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -49,7 +49,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
       end
     end
 
-    describe :deserialize do
+    describe "deserialize" do
       it 'should convert hash to Task' do
         new_task = task_type.new
 
@@ -84,7 +84,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
     end
   end
 
-  describe :exec do
+  describe "exec" do
     it_should_behave_like 'tasks'
 
     def existing_task
@@ -137,7 +137,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
     end
   end
 
-  describe :ant do
+  describe "ant" do
     it_should_behave_like 'tasks'
 
     def existing_task
@@ -212,7 +212,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
     end
   end
 
-  describe :nant do
+  describe "nant" do
     it_should_behave_like 'tasks'
 
     def task_type
@@ -289,7 +289,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
     end
   end
 
-  describe :rake do
+  describe "rake" do
     it_should_behave_like 'tasks'
 
     def existing_task
@@ -366,7 +366,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
     end
   end
 
-  describe :fetch do
+  describe "fetch" do
 
     it_should_behave_like 'tasks'
 
@@ -425,7 +425,7 @@ describe ApiV3::Shared::Stages::Tasks::TaskRepresenter do
 
   end
 
-  describe :pluggable do
+  describe "pluggable" do
     it_should_behave_like 'tasks'
 
     before(:each) do

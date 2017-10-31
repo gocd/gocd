@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe FailuresHelper do
   include FailuresHelper
   include RailsLocalizer
 
-  describe :fbh_details_link do
+  describe "fbh_details_link" do
     it "should ensure uniqueness" do
       job_id = JobIdentifier.new("pipeline-foo", 12, "label-1020", "stage-bar", "34", "build-dev")
       id = fbh_failure_detail_popup_id_for_failure(job_id, "my-suite", "his-test")

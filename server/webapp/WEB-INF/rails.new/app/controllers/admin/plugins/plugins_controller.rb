@@ -17,7 +17,7 @@
 class Admin::Plugins::PluginsController < AdminController
 
   before_filter :set_tab_name
-  helper_method :can_edit_plugin_settings?
+  include ::Admin::Plugins::PluginsHelper
 
   def index
     @plugin_descriptors = default_plugin_manager.plugins()
@@ -65,21 +65,9 @@ class Admin::Plugins::PluginsController < AdminController
     end
   end
 
-  def can_edit_plugin_settings?(plugin_id)
-    meta_data_store.hasPlugin(plugin_id) && is_admin_user? && !meta_data_store.preferenceFor(plugin_id).getTemplate().blank?
-  end
-
   private
-  def is_admin_user?
-    security_service.isUserAdmin(current_user)
-  end
-
   def set_tab_name
     @tab_name = 'plugins-listing'
-  end
-
-  def meta_data_store
-    PluginSettingsMetadataStore.getInstance()
   end
 
   def render_settings_page(plugin_settings, status_code)

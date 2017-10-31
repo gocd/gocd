@@ -14,19 +14,18 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe AgentDetailsController do
 
   before do
-    allow(controller).to receive(:set_locale)
     allow(controller).to receive(:populate_config_validity)
-    allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
-    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = Object.new)
+    allow(controller).to receive(:agent_service).and_return(@agent_service = instance_double('com.thoughtworks.go.server.service.AgentService'))
+    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = instance_double('com.thoughtworks.go.server.service.JobInstanceService'))
   end
 
-  describe :routes do
+  describe "routes" do
     it "should resolve the route to an agent" do
       expect(:get => "/agents/uuid").to route_to({:controller => "agent_details", :action => 'show',:uuid => "uuid"})
       expect(controller.send(:agent_detail_path,:uuid=>"uuid")).to eq("/agents/uuid")
@@ -39,7 +38,7 @@ describe AgentDetailsController do
   end
 
 
-  describe :agent_details do
+  describe "agent_details" do
     include AgentMother
 
     before :each do

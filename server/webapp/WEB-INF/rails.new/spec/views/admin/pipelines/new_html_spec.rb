@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/pipelines/new.html.erb" do
   include GoUtil
@@ -50,6 +50,7 @@ describe "admin/pipelines/new.html.erb" do
     allow(view).to receive(:is_user_a_group_admin?).and_return(false)
     job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"))].to_java(JobConfig))
     stage_config = StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)
+    view.extend Admin::PipelinesHelper
     allow(view).to receive(:default_stage_config).and_return(stage_config)
   end
 
@@ -167,7 +168,7 @@ describe "admin/pipelines/new.html.erb" do
       render
 
       Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
-        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']", visible: :hidden)
       end
     end
   end

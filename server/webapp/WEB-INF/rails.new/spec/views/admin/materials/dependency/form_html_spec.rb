@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "_form.html.erb" do
   include GoUtil
@@ -33,7 +33,7 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/dependency/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
 
-    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']", visible: :hidden)
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Dependency Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'][value='up-pipeline \[up-stage\]']")
   end

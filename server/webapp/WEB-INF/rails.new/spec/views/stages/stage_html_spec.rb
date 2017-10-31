@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), "..",  "auto_refresh_examples.rb")
+require 'rails_helper'
+require_relative '../auto_refresh_examples'
 
 describe 'stages/stage.html.erb' do
 
@@ -81,7 +81,7 @@ describe 'stages/stage.html.erb' do
 
       it "should render stage history" do
         render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
-        expect(response).to have_selector "#stage-history-page[type='hidden'][value='" + @stage_history_page.currentPage().to_s() +"']"
+        expect(response).to have_selector("#stage-history-page[type='hidden'][value='" + @stage_history_page.currentPage().to_s() +"']", visible: :hidden)
         expect(response).to have_selector "#stage_history"
       end
 
@@ -101,7 +101,7 @@ describe 'stages/stage.html.erb' do
         expect(response).to_not have_selector ".modified_files"
       end
 
-      describe :auto_refresh do
+      describe "auto_refresh" do
         before(:each) do
           @partial = 'stages/stage.html.erb'
           @ajax_refresher = /StageDetailAjaxRefresher/
@@ -116,7 +116,7 @@ describe 'stages/stage.html.erb' do
         expect(page.title).to include("Stage Detail")
       end
 
-      describe :title_bar do
+      describe "title_bar" do
 
         it "should show stage result" do
           render :template => "stages/stage.html.erb", :layout => "layouts/pipelines.html.erb"
@@ -414,7 +414,7 @@ describe 'stages/stage.html.erb' do
         params[:action] = 'tests'
         allow(view).to receive(:failure_details_path).and_return("/path/to/failures")
       end
-      describe :failingTestsWithMultiplePipelines do
+      describe "failingTestsWithMultiplePipelines" do
         before(:each) do
           job_identifier = JobIdentifier.new(nil, 1, nil, nil, nil, "job-1")
           @failing_tests = StageTestRuns.new(2,1,1)
@@ -525,7 +525,7 @@ describe 'stages/stage.html.erb' do
         end
       end
 
-      describe :testsCounts do
+      describe "testsCounts" do
         before(:each) do
           @failing_tests = StageTestRuns.new(2, 0, 0)
           assign :failing_tests, @failing_tests
@@ -577,7 +577,7 @@ describe 'stages/stage.html.erb' do
         expect(response).to_not have_selector(".non_passing_tests .counts")
       end
 
-      describe :failingTests do
+      describe "failingTests" do
         before(:each) do
           @failing_tests = StageTestRuns.new(4, 0, 0)
           job1 = JobIdentifier.new('pipeline', 1, "label", "stage", "1", "job1")

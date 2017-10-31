@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "pipelines/index.html.erb" do
   include PipelineModelMother
@@ -36,11 +36,9 @@ describe "pipelines/index.html.erb" do
     assign(:pipeline_selections, PipelineSelections.new())
     assign(:pipeline_groups, [@pipeline_group_model, @pipeline_group_model_other, @pipeline_group_model_empty])
     assign(:pipeline_configs, BasicPipelineConfigs.new)
-    class << view
-      include StagesHelper
-    end
-    allow(view).to receive(:on_pipeline_dashboard?).and_return(true)
-    @security_service = stub_service(:security_service)
+    view.extend StagesHelper
+    
+    @security_service = stub_service(:security_service, view)
     allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
 

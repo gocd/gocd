@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::StageWithMinimalAttributesRepresenter do
-  describe :serialize do
+  describe "serialize" do
     it 'should render basic stage with hal representation' do
       stage = StageConfigMother.custom('build', 'junit', 'jasmine')
       presenter   = ApiV1::Config::StageWithMinimalAttributesRepresenter.new(stage)

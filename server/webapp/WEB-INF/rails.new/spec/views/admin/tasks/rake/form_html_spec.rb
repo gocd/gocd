@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "admin/tasks/rake/new.html.erb" do
@@ -38,7 +38,7 @@ describe "admin/tasks/rake/new.html.erb" do
     render :template => "admin/tasks/plugin/new.html.erb"
 
     Capybara.string(response.body).find("form[action='task_create_path']").tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Build file")
         expect(divs[0]).to have_selector("input[name='task[buildFile]']")
         expect(divs[0]).to have_selector("label", :text => "Target")
@@ -58,7 +58,7 @@ describe "admin/tasks/rake/new.html.erb" do
     render :template => "admin/tasks/plugin/edit.html.erb"
 
     Capybara.string(response.body).find("form[action='task_update_path']").tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Build file")
         expect(divs[0]).to have_selector("input[name='task[buildFile]'][value='#{task.getBuildFile()}']")
         expect(divs[0]).to have_selector("label", :text => "Target")
@@ -82,7 +82,7 @@ describe "admin/tasks/rake/new.html.erb" do
     render :template => "admin/tasks/plugin/edit.html.erb"
 
     Capybara.string(response.body).find("form[action='task_update_path']").tap do |form|
-      form.all("div.fieldset") do |divs|
+      form.all("div.fieldset").tap do |divs|
         expect(divs[0]).to have_selector("label", :text => "Build file")
         expect(divs[0]).to have_selector("input[name='task[buildFile]'][value='#{rake_task.getBuildFile()}']")
         expect(divs[0]).to have_selector("label", :text => "Target")

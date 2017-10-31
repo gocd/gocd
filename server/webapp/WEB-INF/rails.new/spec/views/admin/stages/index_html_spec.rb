@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/stages/index.html.erb" do
   include GoUtil
@@ -95,7 +95,7 @@ describe "admin/stages/index.html.erb" do
     expect(response.body).not_to have_selector("select[id='select_template']")
 
     Capybara.string(response.body).find("table.list_table").tap do |table|
-      expect(table).to have_selector("td a", @dev_stage.name().to_s)
+      expect(table).to have_selector("td a")
     end
   end
 
@@ -130,7 +130,7 @@ describe "admin/stages/index.html.erb" do
     render
 
     Capybara.string(response.body).find("table.list_table").tap do |table|
-      table.all("td") do |tds|
+      table.all("td").tap do |tds|
         tds[0].find("form[action='#{admin_stage_increment_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(0).name())}']") do |form|
           form.find("button[type='submit']") do |button|
             expect(button).to have_selector(".promote_down")
@@ -144,11 +144,9 @@ describe "admin/stages/index.html.erb" do
     render
 
     Capybara.string(response.body).find("table.list_table").tap do |table|
-      table.all("td") do |tds|
-        tds[0].find("form[action='#{admin_stage_increment_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(1).name())}']") do |form|
-          form.find("button[type='submit']") do |button|
-            expect(button).not_to have_selector(".promote_down")
-          end
+      table.find("tr.stage_acceptance").tap do |acceptance_stage_row|
+        acceptance_stage_row.find("form[action='#{admin_stage_increment_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(1).name())}']") do |form|
+          expect(form).not_to have_selector(".promote_down")
         end
       end
     end
@@ -158,8 +156,8 @@ describe "admin/stages/index.html.erb" do
     render
 
     Capybara.string(response.body).find("table.list_table").tap do |table|
-      table.all("td") do |tds|
-        tds[0].find("form[action='#{admin_stage_decrement_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(1).name())}']") do |form|
+      table.find("tr.stage_acceptance") do |acceptance_stage_row|
+        acceptance_stage_row.find("form[action='#{admin_stage_decrement_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(1).name())}']") do |form|
           form.find("button[type='submit']") do |button|
             expect(button).to have_selector(".promote_up")
           end
@@ -172,11 +170,9 @@ describe "admin/stages/index.html.erb" do
     render
 
     Capybara.string(response.body).find("table.list_table").tap do |table|
-      table.all("td") do |tds|
+      table.all("td").tap do |tds|
         tds[0].find("form[action='#{admin_stage_decrement_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(0).name())}']") do |form|
-          form.find("button[type='submit']") do |button|
-            expect(button).not_to have_selector(".promote_up")
-          end
+          expect(form).not_to have_selector(".promote_up")
         end
       end
     end

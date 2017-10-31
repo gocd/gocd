@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/templates/edit_permissions.html.erb" do
   include GoUtil
@@ -40,12 +40,12 @@ describe "admin/templates/edit_permissions.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='/admin/templates/some_template/permissions'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']", {visible: :hidden})
 
       expect(form).to have_selector("label[for='template_name']", :text => "Template Name")
       expect(form).to have_selector("input[type='text'][name='template[name]'][value='some_template'][id='template_name']")
 
-      match_hidden_row(form, "", Authorization::UserType::USER, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::ON)
+      match_hidden_row(form, "", Authorization::UserType::USER, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON)
 
       match_row(form, "new-admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::DISABLED)
       match_row(form, "old-admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::DISABLED)
@@ -58,7 +58,7 @@ describe "admin/templates/edit_permissions.html.erb" do
 
   def match_hidden_row form, name, type, admin, view
     form.find("textarea#USER_users_and_roles_template") do |textarea|
-      match_inputs textarea, name, type, admin, view
+      match_inputs  Capybara.string(textarea.text), name, type, admin, view
     end
   end
 
@@ -70,8 +70,8 @@ describe "admin/templates/edit_permissions.html.erb" do
 
   def match_inputs element, name, type, admin, view
     expect(element).to have_selector("input[type='text'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::NAME}]'][value='#{name}']")
-    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']")
-    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{Authorization::PresentationElement::ADMIN_PRIVILEGE}]'][value='#{admin}']")
-    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{Authorization::PresentationElement::VIEW_PRIVILEGE}]'][value='#{view}']")
+    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']", {visible: :hidden})
+    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{Authorization::PresentationElement::ADMIN_PRIVILEGE}]'][value='#{admin}']", {visible: :hidden})
+    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{Authorization::PresentationElement::VIEW_PRIVILEGE}]'][value='#{view}']", {visible: :hidden})
   end
 end

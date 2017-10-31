@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe MessageVerifier do
-  describe :verify do
+  describe "verify" do
     before(:each) do
       @public_key = %Q(-----BEGIN RSA PUBLIC KEY-----
                       MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2fEQ/cRwxjDpyB+LxwjW

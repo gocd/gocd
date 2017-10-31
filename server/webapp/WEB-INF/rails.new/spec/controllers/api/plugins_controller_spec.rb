@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::PluginsController do
 
@@ -39,7 +39,7 @@ describe Api::PluginsController do
     expect(response.body).to eq("enabled")
   end
 
-  describe :route do
+  describe "route" do
     it 'should route to status action of the plugins controller' do
       expect(:get => 'api/plugins/status').to route_to(no_layout: true, controller: 'api/plugins', action: 'status')
     end

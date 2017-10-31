@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::WebHooks::GitLabController do
 
@@ -25,7 +25,7 @@ describe Api::WebHooks::GitLabController do
     allow(controller).to receive(:server_config_service).and_return(@server_config_service)
   end
 
-  describe :notify do
+  describe "notify" do
     it 'should return 400 [bad request] if the request is missing the X-Gitlab-Token header' do
       post :notify
       expect(response.status).to eq(400)

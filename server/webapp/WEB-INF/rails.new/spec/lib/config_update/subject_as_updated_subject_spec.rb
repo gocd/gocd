@@ -14,10 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ::ConfigUpdate::SubjectAsUpdatedSubject do
   include ::ConfigUpdate::SubjectAsUpdatedSubject
+
+  def subject(*args)
+    raise 'this is stubbed in a test'
+  end
 
   it "should return node as updated node" do
     should_receive(:subject).with("node").and_return(:dummy_subject)

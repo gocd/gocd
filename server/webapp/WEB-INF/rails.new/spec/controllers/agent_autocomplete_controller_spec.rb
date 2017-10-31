@@ -14,17 +14,17 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe AgentAutocompleteController do
 
   before :each do
-    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
-    allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = Object.new)
-    allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = double("go_config_service"))
+    allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double("environment_config_service"))
+    allow(controller).to receive(:agent_service).and_return(@agent_service = double("agent_service"))
   end
 
-  describe :routes do
+  describe "routes" do
 
     it "should resolve the path" do
       expect(:get => '/agents/filter_autocomplete/resource').to route_to(:controller => "agent_autocomplete", :action => 'resource')
@@ -36,12 +36,12 @@ describe AgentAutocompleteController do
     end
   end
 
-  describe :actions do
+  describe "actions" do
     before do
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
     end
 
-    describe :resource do
+    describe "resource" do
       it "should return all resources starting with given query string" do
         expect(@go_config_service).to receive(:getResourceList).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
         get "resource", :q => "li"
@@ -50,7 +50,7 @@ describe AgentAutocompleteController do
       end
     end
 
-    describe :status do
+    describe "status" do
       it "should return all types of agent status" do
         get "status", :q => ""
         expect(response.body).to eq("pending\nlostcontact\nmissing\nbuilding\ncancelled\nidle\ndisabled")
@@ -67,7 +67,7 @@ describe AgentAutocompleteController do
       end
     end
 
-    describe :environment do
+    describe "environment" do
       it "should return all environments" do
         env_list = java.util.Arrays.asList([CaseInsensitiveString.new("prod"), CaseInsensitiveString.new("testing"), CaseInsensitiveString.new("staging")].to_java(CaseInsensitiveString))
         expect(@environment_config_service).to receive(:environmentNames).and_return(env_list)
@@ -83,7 +83,7 @@ describe AgentAutocompleteController do
       end
     end
 
-    describe :name do
+    describe "name" do
       it "should return all unique agent hostnames" do
         expect(@agent_service).to receive(:getUniqueAgentNames).and_return(java.util.Arrays.asList(["dev-agent", "test-linux-agent", "test-win-agent"].to_java(java.lang.String)))
 
@@ -99,7 +99,7 @@ describe AgentAutocompleteController do
       end
     end
 
-    describe :ip do
+    describe "ip" do
       it "should return all agent ip addresses" do
         expect(@agent_service).to receive(:getUniqueIPAddresses).and_return(java.util.Arrays.asList(["10.11.12.13", "11.13.14.15"].to_java(java.lang.String)))
 
@@ -115,7 +115,7 @@ describe AgentAutocompleteController do
       end
     end
 
-    describe :os do
+    describe "os" do
       it "should return all agent operating systems" do
         expect(@agent_service).to receive(:getUniqueAgentOperatingSystems).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
 

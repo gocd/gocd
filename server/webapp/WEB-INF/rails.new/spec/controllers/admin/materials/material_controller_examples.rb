@@ -20,11 +20,6 @@ shared_examples_for :material_controller do
   include MockRegistryModule
 
   describe "routes should resolve and generate" do
-    before do
-      allow(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
-    end
-
     it "new" do
       expect({:get => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/new"}).to route_to(:controller => "admin/materials/#{@short_material_type}", :action => "new", :pipeline_name => "pipeline.name")
       expect(send("admin_#{@short_material_type}_new_path", :pipeline_name => "foo.bar")).to eq("/admin/pipelines/foo.bar/materials/#{@short_material_type}/new")

@@ -14,20 +14,20 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
+require 'rails_helper'
+require_relative 'layout_html_examples'
 
 describe "/layouts/admin" do
   include EngineUrlHelper
+  it_should_behave_like :layout
 
   before do
     @layout_name = 'layouts/admin'
     @admin_url = "/admin/pipelines"
-    @user = Object.new
+    @user = Username::ANONYMOUS
     assign(:user, @user)
     assign(:error_count, 0)
     assign(:warning_count, 0)
-    allow(@user).to receive(:anonymous?).and_return(true)
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_a_group_admin?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
@@ -48,8 +48,6 @@ describe "/layouts/admin" do
     stub_routes_for_main_app main_app
     allow(view).to receive(:main_app).and_return(main_app)
   end
-
-  it_should_behave_like :layout
 
   it "should display only pipeline configurations and pipeline groups tab when the user is a group admin" do
     allow(view).to receive(:is_user_an_admin?).and_return(false)
@@ -77,20 +75,11 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled" do
-      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         tab.find("li#plugins-listing-tab-button") do |li|
-          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='some_path_to_plugins']", "Plugins")
+          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='/path/to/plugins/listing']")
         end
-      end
-    end
-
-    it "should not show plugins listing page if plugins are disabled" do
-      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
-      render :inline => "<div>content</div>", :layout => @layout_name
-      Capybara.string(response.body).find(".sub_tabs_container") do |tab|
-        expect(tab).to_not have_selector("li#plugins-listing-tab-button")
       end
     end
 
@@ -101,7 +90,7 @@ describe "/layouts/admin" do
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         tab.find("li#plugins-listing-tab-button") do |li|
-          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='some_path_to_plugins']", "Plugins")
+          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='/path/to/plugins/listing']")
         end
       end
     end
@@ -113,8 +102,8 @@ describe "/layouts/admin" do
       allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
-        tab.find("li#plugins-listing-tab-button") do
-          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='some_path_to_plugins']", "Plugins")
+        tab.find("li#plugins-listing-tab-button") do |li|
+          expect(li).to have_selector("a#tab-link-of-plugins-listing[href='/path/to/plugins/listing']")
         end
       end
     end
@@ -143,13 +132,13 @@ describe "/layouts/admin" do
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#user-summary-tab-button.current_tab a#tab-link-of-user-listing[href='/path/for/user/listing']", 'User Summary')
+      expect(response.body).to have_selector("#user-summary-tab-button.current_tab a#tab-link-of-user-listing[href='/path/for/user/listing']")
     end
 
     it "should not show oauth_clients tab button when on user-summary" do
       render :inline => "<div>content</div>", :layout => @layout_name
       expect(response.body).to_not have_selector("#oauth-clients-tab-button.current_tab")
-      expect(response.body).to have_selector("#oauth-clients-tab-button a#tab-link-of-oauth-clients[href='/path/for/oauth/clients']", 'OAuth Clients')
+      expect(response.body).to have_selector("#oauth-clients-tab-button a#tab-link-of-oauth-clients[href='/path/for/oauth/clients']")
     end
   end
 
@@ -160,12 +149,12 @@ describe "/layouts/admin" do
 
     it "should show content" do
       render :inline => '<div>content</div>', :layout => @layout_name
-      expect(response.body).to have_selector('#tab-content-of-pipeline-groups', 'content')
+      expect(response.body).to have_selector('#tab-content-of-pipeline-groups')
     end
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/path/to/pipeline/groups']", 'Pipelines')
+      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/path/to/pipeline/groups']")
     end
   end
 
@@ -176,18 +165,18 @@ describe "/layouts/admin" do
 
     it "should show content" do
       render :inline => '<div>content</div>', :layout => @layout_name
-      expect(response.body).to have_selector('#tab-content-of-oauth-clients', 'content')
+      expect(response.body).to have_selector('#tab-content-of-oauth-clients')
     end
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#oauth-clients-tab-button.current_tab a#tab-link-of-oauth-clients[href='/path/for/oauth/clients']", 'OAuth Clients')
+      expect(response.body).to have_selector("#oauth-clients-tab-button.current_tab a#tab-link-of-oauth-clients[href='/path/for/oauth/clients']")
     end
 
     it "should not highlight user_listing tab button when on oauth clients tab" do
       render :inline => "<div>content</div>", :layout => @layout_name
       expect(response.body).to_not have_selector("#user-summary-tab-button.current_tab")
-      expect(response.body).to have_selector("#user-summary-tab-button a#tab-link-of-user-listing[href='/path/for/user/listing']", 'User Summary')
+      expect(response.body).to have_selector("#user-summary-tab-button a#tab-link-of-user-listing[href='/path/for/user/listing']")
     end
   end
 
@@ -199,12 +188,12 @@ describe "/layouts/admin" do
     it "should show content" do
       render :inline => '<div>content</div>', :layout => @layout_name
 
-      expect(response.body).to have_selector('#tab-content-of-templates', 'content')
+      expect(response.body).to have_selector('#tab-content-of-templates')
     end
 
     it "should show tab button for super admins" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']", 'Templates')
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']")
     end
 
     it "should not be visible for group admins" do
@@ -213,7 +202,7 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']", 'Templates')
+      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']")
     end
 
     it "should be visible for template admins" do
@@ -222,7 +211,7 @@ describe "/layouts/admin" do
 
       render :inline => "<div>content</div>", :layout => @layout_name
 
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']", 'Templates')
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']")
     end
 
   end
@@ -233,7 +222,7 @@ describe "/layouts/admin" do
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container ul") do |ul|
         ul.find("#backup-tab-button") do |button|
-          expect(button).to have_selector("a#tab-link-of-backup[href='admin/backup']", "Backup")
+          expect(button).to have_selector("a#tab-link-of-backup[href='admin/backup']")
         end
       end
     end
@@ -269,7 +258,7 @@ describe "/layouts/admin" do
       render :inline => 'content', :layout => @layout_name
 
       Capybara.string(response.body).find("#tab-content-of-pipelines-snippet.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-pipelines-snippet'][href='admin/pipelines/snippet']", "Config XML")
+        expect(tab).to have_selector("a[id='tab-link-of-pipelines-snippet'][href='admin/pipelines/snippet']")
       end
     end
 
@@ -303,7 +292,7 @@ describe "/layouts/admin" do
       render :inline => 'content', :layout => @layout_name
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/admin/package_repositories/new']", "Package Repositories")
+        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/path/to/package/repo']")
       end
     end
 
@@ -314,7 +303,7 @@ describe "/layouts/admin" do
       render :inline => 'content', :layout => @layout_name
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/admin/package_repositories/list']", "Package Repositories")
+        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/path/to/package/listing']")
       end
     end
   end

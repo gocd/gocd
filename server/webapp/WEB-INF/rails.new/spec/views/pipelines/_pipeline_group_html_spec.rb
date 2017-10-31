@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/pipelines/_pipeline_group.html" do
   include PipelineModelMother
 
   before(:each) do
-    @security_service = stub_service(:security_service)
+    @security_service = stub_service(:security_service, view)
     allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
 

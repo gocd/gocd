@@ -405,13 +405,13 @@ public class BuildWorkTest {
     }
 
     @Test
-    public void shouldUpdateOnlyStatusWhenBuildIsIgnored() throws Exception {
+    public void shouldUpdateStatusAndSetResultCancelledWhenBuildIsIgnored() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, "pipeline1");
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub(true);
 
         buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
 
-        assertThat(buildRepository.results.isEmpty(), is(true));
+        assertThat(buildRepository.results.contains(JobResult.Cancelled), is(true));
         assertThat(buildRepository.states, containsResult(JobState.Completed));
     }
 

@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.domain.JobResult.Cancelled;
 import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
@@ -126,7 +127,7 @@ public class BuildWork implements Work {
                             PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) throws Exception {
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
-            return null;
+            return Cancelled;
         }
 
         goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentTime())));
@@ -139,7 +140,7 @@ public class BuildWork implements Work {
 
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
-            return null;
+            return Cancelled;
         }
 
         return completeJob(buildJob(environmentVariableContext));

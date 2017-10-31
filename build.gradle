@@ -148,6 +148,45 @@ allprojects {
   }
 }
 
+task licenseHeaderCheck {
+  FileTree tree = fileTree(dir: project.projectDir, includes: ['**/*.java', '**/*.xml', "**/*.rb", "**/*.js*", "**/*.scss", "**/*.css"])
+  tree.excludes = [".idea/**",
+                   "**/target/",
+                   "**/out/",
+                   "**/test-resources",
+                   "tools/",
+                   "**/package.json",
+                   "**/*.erb",
+                   "**/test.rb",
+                   "**/test_service_cache.rb",
+                   "plugin-infra/go-plugin-access/**/migrations",
+                   "server/webapp/scripts",
+                   "server/config/cruise-config.xml",
+                   "server/webapp/WEB-INF/rails.new/vendor",
+                   "server/webapp/WEB-INF/rails.new/**/assets",
+                   "server/webapp/WEB-INF/rails.new/spec/javascripts",
+                   "server/webapp/WEB-INF/rails.new/node_modules",
+                   "**/rails.new/spec/webpack/patches",
+                   "**/WEB-INF/rails.new/webpack/gen",
+                   "**/spec/webpack/helpers/fixup-stacktraces.js",
+                   "**/admin/commands/matched_command_snippets.json"
+  ]
+
+  def filesWithoutLicenseHeader = []
+  tree.each { File file ->
+    if (!file.getText("UTF-8").findAll(/Copyright \d\d\d\d ThoughtWorks, Inc./)) {
+      filesWithoutLicenseHeader << file
+    }
+  }
+
+  if (filesWithoutLicenseHeader.size() > 0) {
+    throw new RuntimeException("License header missing on following files\n" + filesWithoutLicenseHeader.join("\n"))
+  } else {
+    println "License header verified."
+  }
+
+}
+
 subprojects {
   apply plugin: 'java'
   apply plugin: 'maven'
@@ -196,6 +235,7 @@ subprojects {
   }
 
   clean.dependsOn cleanLogs
+  check.finalizedBy licenseHeaderCheck
 
   tasks.withType(Jar) { jarTask ->
     manifest {

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service.lookups;
 
-import java.util.Date;
-
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -27,7 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.thoughtworks.go.util.FileUtil.makepath;
+import java.util.Date;
+
 import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS;
 import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_DIRECTORY;
 
@@ -99,6 +98,6 @@ public class CachedCommandSnippets {
 
     private String getRepositoryDirectory() {
         ServerConfig serverConfig = goConfigService.currentCruiseConfig().server();
-        return makepath(systemEnvironment.get(COMMAND_REPOSITORY_DIRECTORY), serverConfig.getCommandRepositoryLocation());
+        return String.format("%s/%s", systemEnvironment.get(COMMAND_REPOSITORY_DIRECTORY), serverConfig.getCommandRepositoryLocation());
     }
 }

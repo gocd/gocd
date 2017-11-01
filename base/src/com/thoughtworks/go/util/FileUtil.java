@@ -50,15 +50,6 @@ public class FileUtil {
         return directory.canRead() && directory.canExecute() && directory.listFiles() != null;
     }
 
-    public static String makepath(String... paths) {
-        StringBuilder fullPath = new StringBuilder();
-        for (String path : paths) {
-            fullPath.append(path);
-            fullPath.append("/");
-        }
-        return fullPath.toString().substring(0, fullPath.length() - 1);
-    }
-
     public static String readToEnd(File file) throws IOException {
         FileInputStream input = new FileInputStream(file);
         return readToEnd(input);

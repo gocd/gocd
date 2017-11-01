@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.config.validation;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+
+import java.io.File;
 
 import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_DIRECTORY;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -44,7 +44,7 @@ public class CommandRepositoryLocationValidator implements GoConfigValidator {
         }
         String taskRepositoryRootLocation = systemEnvironment.get(COMMAND_REPOSITORY_DIRECTORY);
         File taskRepositoryRootDirectory = new File(taskRepositoryRootLocation);
-        File repository = new File(FileUtil.makepath(taskRepositoryRootLocation, taskRepositoryLocation));
+        File repository = new File(taskRepositoryRootLocation, taskRepositoryLocation);
         if (!FileUtil.isChildOf(taskRepositoryRootDirectory, repository)) {
             throw new Exception(String.format("Invalid  Repository Location, repository should be a subdirectory under %s", taskRepositoryRootDirectory.getAbsolutePath()));
         }

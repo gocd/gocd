@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,7 +192,7 @@ public class GoFileConfigDataSource {
             LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
             if (configFile.exists()) {
                 LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
-                LOGGER.warn(FileUtil.readContentFromFile(configFile));
+                LOGGER.warn(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
                 LOGGER.warn("------");
             }
             LOGGER.debug("", e);
@@ -219,7 +220,7 @@ public class GoFileConfigDataSource {
             LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
             if (configFile.exists()) {
                 LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
-                LOGGER.warn(FileUtil.readContentFromFile(configFile));
+                LOGGER.warn(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
                 LOGGER.warn("------");
             }
             LOGGER.debug("", e);

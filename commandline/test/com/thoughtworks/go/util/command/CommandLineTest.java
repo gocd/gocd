@@ -22,6 +22,7 @@ import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,6 +38,7 @@ import java.util.regex.Matcher;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -301,7 +303,7 @@ public class CommandLineTest {
     public void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
         File shellScript = temporaryFolder.newFile("hello-world.sh");
 
-        FileUtil.writeContentToFile("echo ${PWD}", shellScript);
+        FileUtils.writeStringToFile(shellScript, "echo ${PWD}", UTF_8);
         assertThat(shellScript.setExecutable(true), is(true));
 
         CommandLine line = CommandLine.createCommandLine("../hello-world.sh").withWorkingDir(subFolder);
@@ -315,7 +317,7 @@ public class CommandLineTest {
     private File createScript(String name, String content) throws IOException {
         File shellScript = new File(subFolder, name);
 
-        FileUtil.writeContentToFile(content, shellScript);
+        FileUtils.writeStringToFile(shellScript, content, UTF_8);
         return shellScript;
     }
 

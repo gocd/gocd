@@ -145,7 +145,7 @@ public class ArtifactsPublisherTest {
                 + "<testsuite errors=\"0\" failures=\"0\" tests=\"7\" time=\"0.429\" >\n"
                 + "<testcase/>\n"
                 + "</testsuite>\n";
-        FileUtil.writeContentToFile(content, testFile);
+        FileUtils.writeStringToFile(testFile, content, StandardCharsets.UTF_8);
         return testFolder;
     }
 }

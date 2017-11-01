@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.builder;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,6 +27,7 @@ import java.io.File;
 import java.util.zip.Deflater;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -97,7 +99,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
     public void shouldDownloadWithURLContainsSHA1WhenFileExists() throws Exception {
         File artifactOnAgent = new File(sandbox, "pipelines/cruise/foo/a.jar");
         new File(sandbox, "pipelines/cruise/foo").mkdirs();
-        FileUtil.writeContentToFile("foobar", artifactOnAgent);
+        FileUtils.writeStringToFile(artifactOnAgent, "foobar", UTF_8);
         String sha1 = java.net.URLEncoder.encode(StringUtil.sha1Digest(artifactOnAgent), "UTF-8");
 
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "content for url without sha1");
@@ -109,7 +111,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
 
         runBuilder(builder, JobResult.Passed);
         assertThat(artifactOnAgent.isFile(), is(true));
-        assertThat(FileUtil.readContentFromFile(artifactOnAgent), is("content for url with sha1"));
+        assertThat(FileUtils.readFileToString(artifactOnAgent, UTF_8), is("content for url with sha1"));
     }
 
 

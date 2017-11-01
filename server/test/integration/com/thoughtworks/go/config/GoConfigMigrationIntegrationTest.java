@@ -69,6 +69,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.helper.ConfigFileFixture.pipelineWithAttributes;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.readToEnd;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -1784,7 +1785,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private CruiseConfig loadConfigFileWithContent(String content) throws Exception {
-        FileUtil.writeContentToFile(content, configFile);
+        FileUtils.writeStringToFile(configFile, content, UTF_8);
         return loadWithMigration(configFile).config;
     }
 
@@ -1793,7 +1794,7 @@ public class GoConfigMigrationIntegrationTest {
             public void handle(Exception e) {
                 String content = "";
                 try {
-                    content = FileUtil.readContentFromFile(configFile);
+                    content = FileUtils.readFileToString(configFile, UTF_8);
                 } catch (IOException e1) {
                 }
                 throw bomb(e.getMessage() + ": content=\n" + content, e);

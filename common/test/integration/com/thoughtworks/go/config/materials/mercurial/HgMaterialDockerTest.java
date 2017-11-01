@@ -18,14 +18,15 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -42,7 +43,7 @@ public class HgMaterialDockerTest {
         HgMaterial material = new HgMaterial("http://user1:password@localhost:9999", null);
         final List<Modification> modifications = material.latestModification(workingFolder, new TestSubprocessExecutionContext());
         final File unversionedFile = new File(workingFolder, "unversioned.txt");
-        FileUtil.writeContentToFile("something", unversionedFile);
+        FileUtils.writeStringToFile(unversionedFile, "something", UTF_8);
         assertTrue(unversionedFile.exists());
 
         material = new HgMaterial("http://user2:password@localhost:9999", null);
@@ -55,7 +56,7 @@ public class HgMaterialDockerTest {
         HgMaterial material = new HgMaterial("http://user1:password@localhost:9999", null);
         final List<Modification> modifications = material.latestModification(workingFolder, new TestSubprocessExecutionContext());
         final File unversionedFile = new File(workingFolder, "unversioned.txt");
-        FileUtil.writeContentToFile("something", unversionedFile);
+        FileUtils.writeStringToFile(unversionedFile, "something", UTF_8);
         assertTrue(unversionedFile.exists());
 
         material.modificationsSince(workingFolder, new StringRevision(modifications.get(0).getRevision()), new TestSubprocessExecutionContext());

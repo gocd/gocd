@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,6 +28,7 @@ import static com.thoughtworks.go.domain.BuildCommand.downloadFile;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.util.MapBuilder.map;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -49,7 +50,7 @@ public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
                 "url", "http://far.far.away/foo.jar",
                 "dest", "bar.jar")), Passed);
         assertThat(console.output(), containsString("without verifying the integrity"));
-        assertThat(FileUtil.readContentFromFile(dest), is("some content"));
+        assertThat(FileUtils.readFileToString(dest, UTF_8), is("some content"));
     }
 
     @Test
@@ -62,7 +63,7 @@ public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
                 "src", "foo.jar",
                 "checksumUrl", "http://far.far.away/foo.jar.md5")), Passed);
         assertThat(console.output(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "dest.jar").getPath())));
-        assertThat(FileUtil.readContentFromFile(new File(sandbox, "dest.jar")), is("some content"));
+        assertThat(FileUtils.readFileToString(new File(sandbox, "dest.jar"), UTF_8), is("some content"));
     }
 
     @Test
@@ -77,6 +78,6 @@ public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
                 "url", "http://far.far.away/foo.jar",
                 "dest", "bar.jar")), Passed);
         assertThat(console.output(), containsString("Saved artifact"));
-        assertThat(FileUtil.readContentFromFile(dest), is("content with sha1"));
+        assertThat(FileUtils.readFileToString(dest, UTF_8), is("content with sha1"));
     }
 }

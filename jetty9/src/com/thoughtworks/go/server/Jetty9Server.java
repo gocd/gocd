@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
@@ -50,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
@@ -191,7 +193,7 @@ public class Jetty9Server extends AppServer {
     }
 
     protected void replaceJettyXmlIfItBelongsToADifferentVersion(File jettyConfig) throws IOException {
-        if (FileUtil.readContentFromFile(jettyConfig).contains(JETTY_VERSION)) return;
+        if (FileUtils.readFileToString(jettyConfig, UTF_8).contains(JETTY_VERSION)) return;
         replaceFileWithPackagedOne(jettyConfig);
     }
 

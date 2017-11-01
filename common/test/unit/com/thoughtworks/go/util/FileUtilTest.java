@@ -20,7 +20,6 @@ import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -69,18 +67,6 @@ public class FileUtilTest {
     }
 
     @Test
-    public void shouldWriteContentToFile() throws IOException {
-        String content = "content";
-        File targetFile = temporaryFolder.newFile("test1.txt");
-        FileUtil.writeContentToFile(content, targetFile);
-        FileInputStream input = new FileInputStream(targetFile);
-        String actual = IOUtils.toString(input);
-        assertThat(actual, is(content));
-        input.close();
-        targetFile.delete();
-    }
-
-    @Test
     public void shouldBeHiddenIfFileStartWithDot() {
         assertTrue(FileUtil.isHidden(new File(".svn")));
     }
@@ -90,15 +76,6 @@ public class FileUtilTest {
         File mockFile = Mockito.mock(File.class);
         Mockito.when(mockFile.isHidden()).thenReturn(true);
         assertTrue(FileUtil.isHidden(mockFile));
-    }
-
-    @Test
-    public void shouldReadContentFromFile() throws IOException {
-        String content = "content";
-        File targetFile = temporaryFolder.newFile("test1.txt");
-        FileUtil.writeContentToFile(content, targetFile);
-        String actual = FileUtil.readContentFromFile(targetFile);
-        assertThat(actual, is(content));
     }
 
     @Test

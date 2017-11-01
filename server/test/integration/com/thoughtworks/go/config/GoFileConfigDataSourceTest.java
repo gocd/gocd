@@ -65,6 +65,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
@@ -330,7 +331,7 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldBeAbleToConcurrentAccess() throws Exception {
         GoConfigFileHelper helper = new GoConfigFileHelper(loadAndMigrate(ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER));
-        final String xml = FileUtil.readContentFromFile(helper.getConfigFile());
+        final String xml = FileUtils.readFileToString(helper.getConfigFile(), UTF_8);
 
         final List<Exception> errors = new Vector<>();
         Thread thread1 = new Thread(new Runnable() {

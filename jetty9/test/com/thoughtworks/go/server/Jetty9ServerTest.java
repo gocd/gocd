@@ -17,9 +17,9 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.ArrayUtil;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -46,6 +46,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -308,9 +309,9 @@ public class Jetty9ServerTest {
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
         String originalContent = "jetty-v6.2.3\nsome other local changes";
-        FileUtil.writeContentToFile(originalContent, jettyXml);
+        FileUtils.writeStringToFile(jettyXml, originalContent, UTF_8);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
-        assertThat(FileUtil.readContentFromFile(systemEnvironment.getJettyConfigFile()), is(FileUtil.readContentFromFile(new File(getClass().getResource("config/jetty.xml").getPath()))));
+        assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is(FileUtils.readFileToString(new File(getClass().getResource("config/jetty.xml").getPath()), UTF_8)));
     }
 
     @Test
@@ -319,9 +320,9 @@ public class Jetty9ServerTest {
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
         String originalContent = "jetty-v9.2.3\nsome other local changes";
-        FileUtil.writeContentToFile(originalContent, jettyXml);
+        FileUtils.writeStringToFile(jettyXml, originalContent, UTF_8);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
-        assertThat(FileUtil.readContentFromFile(systemEnvironment.getJettyConfigFile()), is(originalContent));
+        assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is(originalContent));
     }
 
     @Test

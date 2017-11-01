@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -32,6 +31,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_PLUGINS_ZIP;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_GO_PROVIDED_PATH;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class PluginsInitializer implements Initializer {
@@ -69,7 +69,7 @@ public class PluginsInitializer implements Initializer {
     private boolean shouldReplaceBundledPlugins(File bundledPluginsDirectory) throws IOException {
         File versionFile = new File(bundledPluginsDirectory, "version.txt");
         if (!versionFile.exists()) return true;
-        String currentlyInstalledVersion = FileUtil.readContentFromFile(versionFile);
+        String currentlyInstalledVersion = FileUtils.readFileToString(versionFile, UTF_8);
         String versionNumberInZip = zipUtil.getFileContentInsideZip(getPluginsZipStream(), "version.txt");
         return !currentlyInstalledVersion.equals(versionNumberInZip);
     }

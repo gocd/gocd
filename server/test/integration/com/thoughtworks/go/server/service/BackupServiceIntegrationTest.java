@@ -70,6 +70,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -128,8 +129,8 @@ public class BackupServiceIntegrationTest {
         tempFiles = new TempFiles();
         originalCipher = new CipherProvider(systemEnvironment).getKey();
 
-        FileUtil.writeContentToFile("invalid crapy config", new File(systemEnvironment.getConfigDir(), "cruise-config.xml"));
-        FileUtil.writeContentToFile("invalid crapy cipher", new File(systemEnvironment.getConfigDir(), "cipher"));
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
     }
 
     @After
@@ -137,8 +138,8 @@ public class BackupServiceIntegrationTest {
         tempFiles.cleanUp();
         dbHelper.onTearDown();
         cleanupBackups();
-        FileUtil.writeContentToFile(goConfigService.xml(), new File(systemEnvironment.getConfigDir(), "cruise-config.xml"));
-        FileUtil.writeContentToFile(originalCipher, systemEnvironment.getCipherFile());
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
+        FileUtils.writeByteArrayToFile(systemEnvironment.getCipherFile(), originalCipher);
         configHelper.onTearDown();
     }
 
@@ -202,10 +203,10 @@ public class BackupServiceIntegrationTest {
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
         String latestChangeRev = modifications.get(0).getRevision();
         git.checkout(cloneDir, new StringRevision(latestChangeRev), subprocessExecutionContext);
-        assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), greaterThan(0));
+        assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present"), greaterThan(0));
         StringRevision revision = new StringRevision(latestChangeRev + "~1");
         git.updateTo(new InMemoryStreamConsumer(), cloneDir, new RevisionContext(revision), subprocessExecutionContext);
-        assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), is(-1));
+        assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present"), is(-1));
     }
 
     @Test
@@ -219,7 +220,7 @@ public class BackupServiceIntegrationTest {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(localizer), is("Backup completed successfully."));
         File version = backedUpFile("version.txt");
-        assertThat(FileUtil.readContentFromFile(version), is("some-test-version-007"));
+        assertThat(FileUtils.readFileToString(version, UTF_8), is("some-test-version-007"));
     }
 
     @Test

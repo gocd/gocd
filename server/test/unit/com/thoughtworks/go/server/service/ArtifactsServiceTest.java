@@ -50,6 +50,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -276,18 +277,18 @@ public class ArtifactsServiceTest {
         File jobDir = new File("artifact-root/pipelines/pipeline/10/stage/20/job");
         jobDir.mkdirs();
         File aFile = new File(jobDir, "foo");
-        FileUtil.writeContentToFile("hello world", aFile);
+        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
         File aDirectory = new File(jobDir, "bar");
         aDirectory.mkdir();
         File anotherFile = new File(aDirectory, "baz");
-        FileUtil.writeContentToFile("quux", anotherFile);
+        FileUtils.writeStringToFile(anotherFile, "quux", UTF_8);
 
         File cruiseOutputDir = new File(jobDir, "cruise-output");
         cruiseOutputDir.mkdir();
         File consoleLog = new File(cruiseOutputDir, "console.log");
-        FileUtil.writeContentToFile("Build Logs", consoleLog);
+        FileUtils.writeStringToFile(consoleLog, "Build Logs", UTF_8);
         File checksumFile = new File(cruiseOutputDir, "md5.checksum");
-        FileUtil.writeContentToFile("foo:25463254625346", checksumFile);
+        FileUtils.writeStringToFile(checksumFile, "foo:25463254625346", UTF_8);
 
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
@@ -339,7 +340,7 @@ public class ArtifactsServiceTest {
         File jobDir = new File(path);
         jobDir.mkdirs();
         File aFile = new File(jobDir, "foo");
-        FileUtil.writeContentToFile("hello world", aFile);
+        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
         return jobDir;
     }
 

@@ -23,6 +23,7 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 
 import java.io.File;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.copyDirectory;
 
 public class SvnTestRepo extends TestRepo {
@@ -127,7 +129,7 @@ public class SvnTestRepo extends TestRepo {
         boolean addedToExistingDir = directoryToAddTo.exists();
         directoryToAddTo.mkdirs();
 
-        FileUtil.writeContentToFile("", newFileToAdd);
+        FileUtils.writeStringToFile(newFileToAdd, "", UTF_8);
 
         svnMaterial.add(consumer, addedToExistingDir ? newFileToAdd : directoryToAddTo);
         svnMaterial.commit(consumer, workingCopy, message);
@@ -154,7 +156,7 @@ public class SvnTestRepo extends TestRepo {
         File newFileToAdd = new File(workingDir, fileName);
         newFileToAdd.getParentFile().mkdirs();
 
-        FileUtil.writeContentToFile("", newFileToAdd);
+        FileUtils.writeStringToFile(newFileToAdd, "", UTF_8);
         svnMaterial.add(consumer, newFileToAdd);
         svnMaterial.commit(consumer, workingDir, "adding file [" + svnMaterial.getFolder() + "/" + fileName + "]");
     }

@@ -82,37 +82,6 @@ public class FileUtil {
         return file.isHidden() || file.getName().startsWith(".");
     }
 
-    public static void writeContentToFile(String content, File file) throws IOException {
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(file);
-            IOUtils.write(content, outputStream);
-        } finally {
-            IOUtils.closeQuietly(outputStream);
-        }
-    }
-
-    public static void writeContentToFile(byte[] content, File file) throws IOException {
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(file);
-            IOUtils.write(content, outputStream);
-        } finally {
-            IOUtils.closeQuietly(outputStream);
-        }
-    }
-
-    public static String readContentFromFile(File file) throws IOException {
-        FileInputStream input = null;
-        try {
-            input = new FileInputStream(file);
-            return IOUtils.toString(input);
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
-    }
-
-
     public static boolean deleteFolder(File testFolder) {
         return FileUtils.deleteQuietly(testFolder);
     }

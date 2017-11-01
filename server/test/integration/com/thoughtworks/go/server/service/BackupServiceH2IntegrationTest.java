@@ -55,6 +55,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -104,16 +105,16 @@ public class BackupServiceH2IntegrationTest {
         tempFiles = new TempFiles();
         originalCipher = new CipherProvider(systemEnvironment).getKey();
 
-        FileUtil.writeContentToFile("invalid crapy config", new File(systemEnvironment.getConfigDir(), "cruise-config.xml"));
-        FileUtil.writeContentToFile("invalid crapy cipher", new File(systemEnvironment.getConfigDir(), "cipher"));
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
     }
 
     @After
     public void tearDown() throws Exception {
         tempFiles.cleanUp();
         dbHelper.onTearDown();
-        FileUtil.writeContentToFile(goConfigService.xml(), new File(systemEnvironment.getConfigDir(), "cruise-config.xml"));
-        FileUtil.writeContentToFile(originalCipher, systemEnvironment.getCipherFile());
+        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
+        FileUtils.writeByteArrayToFile(systemEnvironment.getCipherFile(), originalCipher);
         configHelper.onTearDown();
         FileUtils.deleteQuietly(backupsDirectory);
     }

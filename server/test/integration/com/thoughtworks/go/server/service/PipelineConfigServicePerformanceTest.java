@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
@@ -43,6 +44,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -245,7 +247,7 @@ public class PipelineConfigServicePerformanceTest {
     private void setupPipelines(Integer numberOfPipelinesToBeCreated) throws Exception {
         String groupName = "jumbo";
         String configFile = "<FULL PATH TO YOUR CONFIG FILE>";
-        String xml = FileUtil.readContentFromFile(new File(configFile));
+        String xml = FileUtils.readFileToString(new File(configFile), UTF_8);
         xml = goConfigMigration.upgradeIfNecessary(xml);
         goConfigService.fileSaver(false).saveConfig(xml, goConfigService.getConfigForEditing().getMd5());
         LOGGER.info("Total number of pipelines in this config: " + goConfigService.getConfigForEditing().allPipelines().size());

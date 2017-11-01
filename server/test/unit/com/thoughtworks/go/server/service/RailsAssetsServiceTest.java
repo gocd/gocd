@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -78,7 +79,7 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldGetAssetPathFromManifestJson() throws IOException {
-        FileUtil.writeContentToFile(json, new File(assetsDir, ".sprockets-manifest-digest.json"));
+        FileUtils.writeStringToFile(new File(assetsDir, ".sprockets-manifest-digest.json"), json, UTF_8);
         when(context.getInitParameter("rails.root")).thenReturn("");
         when(context.getRealPath(Matchers.<String>any())).thenReturn(assetsDir.getAbsolutePath());
         railsAssetsService.initialize();

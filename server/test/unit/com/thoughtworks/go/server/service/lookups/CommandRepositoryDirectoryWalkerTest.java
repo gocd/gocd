@@ -28,7 +28,6 @@ import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -44,6 +43,7 @@ import org.mockito.Matchers;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.argThat;
@@ -104,7 +104,7 @@ public class CommandRepositoryDirectoryWalkerTest {
 
     @Test
     public void shouldProcessXmlFiles() throws IOException {
-        FileUtil.writeContentToFile(CommandSnippetMother.validXMLSnippetContentForCommand("MsBuild"), xmlFile);
+        FileUtils.writeStringToFile(xmlFile, CommandSnippetMother.validXMLSnippetContentForCommand("MsBuild"), UTF_8);
         ArrayList results = new ArrayList();
         walker.handleFile(xmlFile, 0, results);
         assertThat(results.size(), is(1));
@@ -119,7 +119,7 @@ public class CommandRepositoryDirectoryWalkerTest {
     public void shouldProcessXmlFilesInsideCommandRepo() throws Exception {
         File command_repo = tempFiles.createUniqueFolder("command-repo");
         File windows = TestFileUtil.createTestFolder(command_repo, "windows");
-        FileUtil.writeContentToFile(CommandSnippetMother.validXMLSnippetContentForCommand("MsBuild"), new File(windows, "msbuild.xml"));
+        FileUtils.writeStringToFile(new File(windows, "msbuild.xml"), CommandSnippetMother.validXMLSnippetContentForCommand("MsBuild"), UTF_8);
 
         CommandSnippets results = walker.getAllCommandSnippets(command_repo.getPath());
 

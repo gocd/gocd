@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -81,7 +83,7 @@ public class GoConfigMigrationTest {
     @Test
     public void shouldCommitConfig_WithUsername_Upgrade() throws Exception {
         File file = tempFiles.createFile("my-config.xml");
-        FileUtil.writeContentToFile(OLDER_VERSION_XML, file);
+        FileUtils.writeStringToFile(file, OLDER_VERSION_XML, UTF_8);
 
         final GoConfigRevision[] commitMade = new GoConfigRevision[1];
         doAnswer(new Answer<Void>() {

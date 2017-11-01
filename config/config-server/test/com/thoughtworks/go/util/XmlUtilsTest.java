@@ -19,6 +19,7 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
+import org.apache.commons.io.FileUtils;
 import org.jdom2.input.JDOMParseException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -87,7 +89,7 @@ public class XmlUtilsTest {
     }
 
     private String xxeFileContent() throws IOException {
-        return FileUtil.readContentFromFile(new File(this.getClass().getResource("/data/xml-with-xxe.xml").getFile()));
+        return FileUtils.readFileToString(new File(this.getClass().getResource("/data/xml-with-xxe.xml").getFile()), UTF_8);
     }
 
 }

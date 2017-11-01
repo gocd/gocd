@@ -64,6 +64,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -966,7 +967,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(cachedGoConfig.loadForEditing(), is(config));
@@ -1006,7 +1007,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(cachedGoConfig.loadForEditing(), is(config));
@@ -1034,7 +1035,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(cachedGoConfig.loadForEditing(), is(config));
@@ -1064,7 +1065,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(cachedGoConfig.loadForEditing(), is(config));
@@ -1090,7 +1091,7 @@ public class CachedGoConfigIntegrationTest {
             fail("Expected the test to fail");
         } catch (Exception e) {
             String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-            String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+            String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
             assertThat(cachedGoConfig.loadForEditing(), is(originalConfig));
             assertEquals(gitShaBeforeSave, gitShaAfterSave);
             assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
@@ -1118,7 +1119,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));
 
         String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
-        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+        String configXmlFromConfigFolder = FileUtils.readFileToString(new File(goConfigDao.fileLocation()), UTF_8);
 
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(cachedGoConfig.loadForEditing(), is(editedConfig));

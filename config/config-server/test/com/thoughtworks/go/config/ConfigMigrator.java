@@ -19,10 +19,12 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.mock;
 
 public class ConfigMigrator {
@@ -33,7 +35,7 @@ public class ConfigMigrator {
             public void handle(Exception e) {
                 String content = "";
                 try {
-                    content = FileUtil.readContentFromFile(configFile);
+                    content = FileUtils.readFileToString(configFile, UTF_8);
                 } catch (IOException e1) {
                 }
                 throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
@@ -49,9 +51,9 @@ public class ConfigMigrator {
 
     public static String migrate(String configXml) throws IOException {
         File tempFile = TestFileUtil.createTempFile("cruise-config.xml");
-        FileUtil.writeContentToFile(configXml, tempFile);
+        FileUtils.writeStringToFile(tempFile, configXml, UTF_8);
         migrate(tempFile);
-        String newConfigXml = FileUtil.readContentFromFile(tempFile);
+        String newConfigXml = FileUtils.readFileToString(tempFile, UTF_8);
         tempFile.delete();
         return newConfigXml;
     }
@@ -75,7 +77,7 @@ public class ConfigMigrator {
     public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws Exception {
         MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
         File tempFile = TestFileUtil.createTempFile("cruise-config.xml");
-        FileUtil.writeContentToFile(FileUtil.readToEnd(input), tempFile);
+        FileUtils.writeStringToFile(tempFile, FileUtil.readToEnd(input), UTF_8);
         migrate(tempFile);
         final FileInputStream inputStream = new FileInputStream(tempFile);
         return xmlLoader.loadConfigHolder(FileUtil.readToEnd(inputStream));

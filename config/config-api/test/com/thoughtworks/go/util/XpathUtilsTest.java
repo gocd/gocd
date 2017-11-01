@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.xml.sax.InputSource;
@@ -23,6 +24,7 @@ import org.xml.sax.InputSource;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -155,7 +157,7 @@ public class XpathUtilsTest {
 
     private File getTestFile(String xml) throws IOException {
         testFile = TestFileUtil.createTempFile("testXml");
-        FileUtil.writeContentToFile(xml, testFile);
+        FileUtils.writeStringToFile(testFile, xml, UTF_8);
         return testFile;
     }
 }

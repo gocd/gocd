@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -35,6 +34,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
 public class RailsAssetsService implements ServletContextAware {
@@ -66,7 +67,7 @@ public class RailsAssetsService implements ServletContextAware {
         File manifestFile = (File) files.iterator().next();
 
         LOG.info("Found rails assets manifest file named {} ", manifestFile.getName());
-        String manifest = FileUtil.readContentFromFile(manifestFile);
+        String manifest = FileUtils.readFileToString(manifestFile, UTF_8);
         Gson gson = new Gson();
         railsAssetsManifest = gson.fromJson(manifest, RailsAssetsManifest.class);
         LOG.info("Successfully read rails assets manifest file located at {}", manifestFile.getAbsolutePath());

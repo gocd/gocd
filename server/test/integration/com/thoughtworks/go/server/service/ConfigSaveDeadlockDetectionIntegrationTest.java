@@ -29,10 +29,10 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemUtil;
+import org.apache.commons.io.FileUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -227,9 +228,9 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     }
 
     private void update(File configFile) throws IOException {
-        String currentConfig = FileUtil.readContentFromFile(configFile);
+        String currentConfig = FileUtils.readFileToString(configFile, UTF_8);
         String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
-        FileUtil.writeContentToFile(updatedConfig, configFile);
+        FileUtils.writeStringToFile(configFile, updatedConfig, UTF_8);
     }
 
     private Thread configRepoSaveThread(final ConfigRepoConfig configRepoConfig, final int counter) throws InterruptedException {

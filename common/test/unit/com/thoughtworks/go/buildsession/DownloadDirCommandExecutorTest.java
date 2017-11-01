@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,6 +28,7 @@ import java.util.zip.Deflater;
 import static com.thoughtworks.go.domain.BuildCommand.downloadDir;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.util.MapBuilder.map;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -55,8 +56,8 @@ public class DownloadDirCommandExecutorTest extends BuildSessionBasedTestCase {
         File dest = new File(sandbox, "dest");
 
         assertThat(console.output(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents", dest.getPath())));
-        assertThat(FileUtil.readContentFromFile(new File(dest, "log/a")), is("content for a"));
-        assertThat(FileUtil.readContentFromFile(new File(dest, "log/b")), is("content for b"));
+        assertThat(FileUtils.readFileToString(new File(dest, "log/a"), UTF_8), is("content for a"));
+        assertThat(FileUtils.readFileToString(new File(dest, "log/b"), UTF_8), is("content for b"));
     }
 
 }

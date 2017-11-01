@@ -37,8 +37,6 @@ import java.nio.charset.Charset;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
-import static com.thoughtworks.go.util.FileUtil.normalizePath;
-import static com.thoughtworks.go.util.TestUtils.isEquivalentPathName;
 import static com.thoughtworks.go.util.TestUtils.isSameAsPath;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -101,14 +99,6 @@ public class FileUtilTest {
         FileUtil.writeContentToFile(content, targetFile);
         String actual = FileUtil.readContentFromFile(targetFile);
         assertThat(actual, is(content));
-    }
-
-    @Test
-    public void shouldNormailzeFilepaths() throws IOException {
-
-        assertThat(normalizePath(new File("foo\\bar")), isEquivalentPathName("foo/bar"));
-        assertThat(normalizePath(new File("foo\\bar\\")), isEquivalentPathName("foo/bar/"));
-        assertThat(normalizePath(new File("foo\\bar bar\\")), isEquivalentPathName("foo/bar bar/"));
     }
 
     @Test

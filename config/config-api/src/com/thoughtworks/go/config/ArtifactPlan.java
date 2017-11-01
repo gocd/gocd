@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -28,7 +29,6 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
 import static org.apache.commons.lang.StringUtils.removeStart;
@@ -78,7 +78,7 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     }
 
     public String getDest() {
-        return normalizePath(dest);
+        return FilenameUtils.separatorsToUnix(dest);
     }
 
     public void setBuildId(long buildInstanceId) {
@@ -90,7 +90,7 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     }
 
     public String getSrc() {
-        return normalizePath(src);
+        return FilenameUtils.separatorsToUnix(src);
     }
 
     public void setDest(String dest) {
@@ -160,10 +160,10 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
 
     protected String destURL(File rootPath, File file, String src, String dest) {
         String trimmedPattern = rtrimStandardrizedWildcardTokens(src);
-        if (StringUtils.equals(normalizePath(trimmedPattern), normalizePath(src))) {
+        if (StringUtils.equals(FilenameUtils.separatorsToUnix(trimmedPattern), FilenameUtils.separatorsToUnix(src))) {
             return dest;
         }
-        String trimmedPath = removeStart(subtractPath(rootPath, file), normalizePath(trimmedPattern));
+        String trimmedPath = removeStart(subtractPath(rootPath, file), FilenameUtils.separatorsToUnix(trimmedPattern));
         if (!StringUtils.startsWith(trimmedPath, "/") && StringUtils.isNotEmpty(trimmedPath)) {
             trimmedPath = "/" + trimmedPath;
         }
@@ -176,7 +176,8 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
 
     public String effectiveDestinationPath() {
         File src = new File(getSrc());
-        return normalizePath(StringUtils.isEmpty(getDest()) ? src.getName() : new File(getDest(), src.getName()).getPath());
+        String filePath = StringUtils.isEmpty(getDest()) ? src.getName() : new File(getDest(), src.getName()).getPath();
+        return FilenameUtils.separatorsToUnix(filePath);
     }
 
     public boolean validateTree(ValidationContext validationContext) {

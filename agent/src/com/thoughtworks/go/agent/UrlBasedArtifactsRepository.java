@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,6 @@ import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
@@ -86,7 +86,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
                 taggedConsumeLineWithPrefix(console, PUBLISH,
                         format("Uploading artifacts from %s to %s", file.getAbsolutePath(), getDestPath(destPath)));
 
-                String normalizedDestPath = normalizePath(destPath);
+                String normalizedDestPath = FilenameUtils.separatorsToUnix(destPath);
                 String url = getUploadUrl(buildId, normalizedDestPath, publishingAttempts);
 
                 int statusCode = httpService.upload(url, size, dataToUpload, artifactChecksums(file, normalizedDestPath));
@@ -165,7 +165,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
         for (File file : fileStructure) {
             String filePath = removeStart(file.getAbsolutePath(), directory.getParentFile().getAbsolutePath());
             try (FileInputStream inputStream = new FileInputStream(file)) {
-                checksumProperties.setProperty(getEffectiveFileName(destPath, normalizePath(filePath)), md5Hex(inputStream));
+                checksumProperties.setProperty(getEffectiveFileName(destPath, FilenameUtils.separatorsToUnix(filePath)), md5Hex(inputStream));
             }
         }
         return checksumProperties;
@@ -184,6 +184,6 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
     }
 
     private String removeLeadingSlash(File artifactDest) {
-        return removeStart(normalizePath(artifactDest.getPath()), "/");
+        return removeStart(FilenameUtils.separatorsToUnix(artifactDest.getPath()), "/");
     }
 }

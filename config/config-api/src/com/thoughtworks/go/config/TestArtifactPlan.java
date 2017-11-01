@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.UnitTestReportGenerator;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public class TestArtifactPlan extends ArtifactPlan {
                 }
             } else {
                 final String message = MessageFormat.format("The Directory {0} specified as a test artifact was not found."
-                        + " Please check your configuration", FileUtil.normalizePath(source));
+                        + " Please check your configuration", FilenameUtils.separatorsToUnix(source.getPath()));
                 publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
                 LOG.error(message);
             }

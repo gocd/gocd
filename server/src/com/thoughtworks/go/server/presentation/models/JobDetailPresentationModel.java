@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.util.DirectoryReader;
 import com.thoughtworks.go.util.TimeConverter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,6 @@ import java.util.List;
 import static com.thoughtworks.go.config.TestArtifactPlan.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
-import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static org.apache.commons.lang.math.NumberUtils.toInt;
 
 public class JobDetailPresentationModel {
@@ -171,7 +171,7 @@ public class JobDetailPresentationModel {
     }
 
     public String getRestfulUrl(String path) {
-        return BASE_FILE_URL + jobIdentifier.buildLocator() + "/" + normalizePath(path);
+        return BASE_FILE_URL + jobIdentifier.buildLocator() + "/" + FilenameUtils.separatorsToUnix(path);
     }
 
 

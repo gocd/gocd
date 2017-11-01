@@ -17,6 +17,7 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -117,21 +118,13 @@ public class FileUtil {
     }
 
 
-    public static String normalizePath(File fileToNormalize) {
-        return normalizePath(fileToNormalize.getPath());
-    }
-
-    public static String normalizePath(String filePath) {
-        return StringUtils.replace(filePath, "\\", "/");
-    }
-
     public static String fileNameFromPath(String src) {
-        String[] urlparts = normalizePath(src).split("/");
+        String[] urlparts = FilenameUtils.separatorsToUnix(src).split("/");
         return urlparts[urlparts.length - 1];
     }
 
     public static String applyBaseDirIfRelativeAndNormalize(File baseDir, File actualFileToUse) {
-        return normalizePath(applyBaseDirIfRelative(baseDir, actualFileToUse));
+        return FilenameUtils.separatorsToUnix(applyBaseDirIfRelative(baseDir, actualFileToUse).getPath());
     }
 
     public static File applyBaseDirIfRelative(File baseDir, File actualFileToUse) {
@@ -362,8 +355,8 @@ public class FileUtil {
     }
 
     public static String subtractPath(File rootPath, File file) {
-        String fullPath = normalizePath(file.getParentFile());
-        String basePath = normalizePath(rootPath);
+        String fullPath = FilenameUtils.separatorsToUnix(file.getParentFile().getPath());
+        String basePath = FilenameUtils.separatorsToUnix(rootPath.getPath());
         return StringUtils.removeStart(StringUtils.removeStart(fullPath, basePath), "/");
     }
 
@@ -466,7 +459,7 @@ public class FileUtil {
     public static String join(File defaultWorkingDir, String actualFileToUse) {
         if (actualFileToUse == null) {
             LOGGER.trace("Using the default Directory->{}", defaultWorkingDir);
-            return normalizePath(defaultWorkingDir);
+            return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
         }
         return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
     }

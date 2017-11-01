@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class DirHandler implements FetchHandler {
 
     private String getSrcFilePath(ZipEntry entry) {
         String parent = new File(srcFile).getParent();
-        return FileUtil.normalizePath(new File(parent, entry.getName()).getPath());
+        return FilenameUtils.separatorsToUnix(new File(parent, entry.getName()).getPath());
     }
 
     public boolean handleResult(int httpCode, GoPublisher goPublisher) {

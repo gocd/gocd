@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.UnitTestReportGenerator;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,7 @@ public class GenerateTestReportCommandExecutor implements BuildCommandExecutor {
                 allFiles.addAll(fileList);
             } else {
                 final String message = MessageFormat.format("The Directory {0} specified as a test artifact was not found."
-                        + " Please check your configuration", FileUtil.normalizePath(source));
+                        + " Please check your configuration", FilenameUtils.separatorsToUnix(source.getPath()));
                 buildSession.printlnWithPrefix(message);
                 LOG.error(message);
             }

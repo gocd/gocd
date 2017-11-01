@@ -32,7 +32,7 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +55,7 @@ public class FetchTaskBuilder implements TaskBuilder<FetchTask> {
 
     FetchHandler getHandler(FetchTask task, String pipelineName) {
         return StringUtils.isNotEmpty(task.getRawSrcdir()) ? new DirHandler(task.getRawSrcdir(), task.destOnAgent(pipelineName)) : new FileHandler(
-                task.artifactDest(pipelineName, FileUtil.fileNameFromPath(task.getRawSrcfile())), task.getSrc());
+                task.artifactDest(pipelineName, FilenameUtils.getName(task.getRawSrcfile())), task.getSrc());
     }
 
     private JobIdentifier resolveTargetJob(FetchTask task, Pipeline currentPipeline, UpstreamPipelineResolver resolver) {

@@ -155,16 +155,6 @@ public class FileUtilTest {
     }
 
     @Test
-    public void shouldGetFileNameFromLinuxSlash() throws Exception {
-        assertThat(FileUtil.fileNameFromPath("/consoleout/console.log"), is("console.log"));
-    }
-
-    @Test
-    public void shouldGetFileNameFromWindowsSlash() throws Exception {
-        assertThat(FileUtil.fileNameFromPath("\\consoleout\\console.log"), is("console.log"));
-    }
-
-    @Test
     public void shouldConvertBytes() {
         assertThat(FileUtil.byteCountToDisplaySize(1023), is("1023 bytes"));
     }

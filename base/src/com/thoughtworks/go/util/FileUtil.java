@@ -86,12 +86,6 @@ public class FileUtil {
         return FileUtils.deleteQuietly(testFolder);
     }
 
-
-    public static String fileNameFromPath(String src) {
-        String[] urlparts = FilenameUtils.separatorsToUnix(src).split("/");
-        return urlparts[urlparts.length - 1];
-    }
-
     public static String applyBaseDirIfRelativeAndNormalize(File baseDir, File actualFileToUse) {
         return FilenameUtils.separatorsToUnix(applyBaseDirIfRelative(baseDir, actualFileToUse).getPath());
     }

@@ -138,30 +138,6 @@ public class FileUtil {
         return uriString.replaceAll("^file:/", "file:///");
     }
 
-    public static Boolean isStructureSame(File folder1, File folder2) {
-        List<String> structure1 = flatten(folder1);
-        List<String> structure2 = flatten(folder2);
-        Collections.sort(structure1);
-        Collections.sort(structure2);
-        return structure1.equals(structure2);
-    }
-
-    private static List<String> flatten(File folder1) {
-        ArrayList<String> list = new ArrayList<>();
-        flatten(list, folder1.getAbsolutePath(), folder1);
-        return list;
-    }
-
-    private static void flatten(List<String> list, String absPath, File file1) {
-        if (file1.isFile()) {
-            list.add(file1.getAbsolutePath().replace(absPath, ""));
-        } else if (file1.isDirectory()) {
-            for (File file : file1.listFiles()) {
-                flatten(list, absPath, file);
-            }
-        }
-    }
-
     public static String filesystemSafeFileHash(File folder) {
         String hash = StringUtil.sha1Digest(folder.getAbsolutePath().getBytes());
         hash = hash.replaceAll("[^0-9a-zA-Z\\.\\-]", "");

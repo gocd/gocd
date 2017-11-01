@@ -103,34 +103,6 @@ public class FileUtilTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenTwoFolderHasSameStructure() throws Exception {
-        File root = temporaryFolder.newFolder();
-        File folder1 = new File(root, "folder1");
-        folder1.mkdirs();
-        File file1 = new File(folder1, "readme.txt");
-        file1.createNewFile();
-        File folder2 = new File(root, "folder2");
-        folder2.mkdirs();
-        File file2 = new File(folder2, "readme.txt");
-        file2.createNewFile();
-        assertThat(FileUtil.isStructureSame(folder1, folder2), is(true));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenTwoFolderHasDifferentStructure() throws Exception {
-        File root = temporaryFolder.newFolder();
-        File folder1 = new File(root, "folder1");
-        folder1.mkdirs();
-        File file1 = new File(folder1, "readme.txt");
-        file1.createNewFile();
-        File folder2 = new File(root, "folder2");
-        folder2.mkdirs();
-        File file2 = new File(folder2, "readx.txt");
-        file2.createNewFile();
-        assertThat(FileUtil.isStructureSame(folder1, folder2), is(false));
-    }
-
-    @Test
     public void shouldCreateUniqueHashForFolders() throws Exception {
         File file = new File("c:a/b/c/d/e");
         File file2 = new File("c:foo\\bar\\baz");

@@ -154,5 +154,3 @@ out/
 config/config-server/warnings.log
 server/dev
 **/.DS_Store
-server/config/go-config-before-migration-91.xml
-server/config/go-config-before-migration-92.xml

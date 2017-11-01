@@ -38,7 +38,7 @@ public class ConfigMigrator {
                 }
                 throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
             }
-        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry, new SystemEnvironment()
+        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry
         );
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
         upgrader.upgradeIfNecessary(configFile, "N/A");

@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
@@ -117,7 +116,7 @@ public class GoConfigServiceTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
-                registry, systemEnvironment), goCache, configRepo, registry,
+                registry), goCache, configRepo, registry,
                 instanceFactory, mock(CachedGoPartials.class), systemEnvironment);
     }
 

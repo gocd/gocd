@@ -22,8 +22,8 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.junit.After;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class JobDetailPresentationModelJMockTest {
 
     @After
     public void tearDown() throws Exception {
-        FileUtil.deleteFolder(testFolder);
+        FileUtils.deleteQuietly(testFolder);
     }
 
     @Test

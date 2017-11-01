@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
@@ -93,8 +92,8 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
         dbHelper.onTearDown();
-        FileUtil.deleteFolder(goConfigService.artifactsDir());
-        FileUtil.deleteFolder(workingFolder);
+        FileUtils.deleteQuietly(goConfigService.artifactsDir());
+        FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();

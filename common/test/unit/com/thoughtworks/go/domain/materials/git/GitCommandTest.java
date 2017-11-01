@@ -27,7 +27,6 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
 import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.DateUtils;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
@@ -138,7 +137,7 @@ public class GitCommandTest {
 
     @Test
     public void shouldOnlyCloneLimitedRevisionsIfDepthSpecified() throws Exception {
-        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        FileUtils.deleteQuietly(this.gitLocalRepoDir);
         git.clone(inMemoryConsumer(), repoUrl, 2);
         assertThat(git.isShallow(), is(true));
         assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_4), is(true));
@@ -152,7 +151,7 @@ public class GitCommandTest {
 
     @Test
     public void unshallowALocalRepoWithArbitraryDepth() throws Exception {
-        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        FileUtils.deleteQuietly(this.gitLocalRepoDir);
         git.clone(inMemoryConsumer(), repoUrl, 2);
         git.unshallow(inMemoryConsumer(), 3);
         assertThat(git.isShallow(), is(true));
@@ -169,7 +168,7 @@ public class GitCommandTest {
 
     @Test
     public void unshallowShouldNotResultInWorkingCopyCheckout() {
-        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        FileUtils.deleteQuietly(this.gitLocalRepoDir);
         git.cloneWithNoCheckout(inMemoryConsumer(), repoUrl);
         git.unshallow(inMemoryConsumer(), 3);
         assertWorkingCopyNotCheckedOut();
@@ -491,7 +490,7 @@ public class GitCommandTest {
     }
 
     @Test public void shouldThrowExceptionIfRepoCanNotConnectWhenModificationCheck() throws Exception {
-        FileUtil.deleteFolder(repoLocation);
+        FileUtils.deleteQuietly(repoLocation);
         try {
             git.latestModification();
             fail("Should throw exception when repo cannot connected");

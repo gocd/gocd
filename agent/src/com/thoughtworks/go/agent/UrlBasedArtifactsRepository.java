@@ -109,7 +109,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
                 taggedConsumeLineWithPrefix(console, PUBLISH_ERR, message);
                 lastException = e;
             } finally {
-                FileUtil.deleteFolder(tmpDir);
+                FileUtils.deleteQuietly(tmpDir);
             }
         }
         if (lastException != null) {

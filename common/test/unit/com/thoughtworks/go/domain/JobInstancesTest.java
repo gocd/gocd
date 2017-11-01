@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class JobInstancesTest {
     private File artifactsRoot;
 
     @After public void tearDown() {
-        FileUtil.deleteFolder(artifactsRoot);
+        FileUtils.deleteQuietly(artifactsRoot);
     }
 
     @Test

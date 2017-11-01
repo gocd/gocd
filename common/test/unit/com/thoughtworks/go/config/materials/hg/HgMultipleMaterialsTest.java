@@ -29,9 +29,9 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class HgMultipleMaterialsTest {
     public void cleanupRepo() {
         repo.tearDown();
         for (File file : toClean) {
-            FileUtil.deleteFolder(file);
+            FileUtils.deleteQuietly(file);
         }
     }
 

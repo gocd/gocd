@@ -38,9 +38,9 @@ import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +132,7 @@ public class ScheduleServiceIntegrationTest {
     public void teardown() throws Exception {
         pipelineFixture.onTearDown();
         dbHelper.onTearDown();
-        FileUtil.deleteFolder(goConfigService.artifactsDir());
+        FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         agentAssignment.clear();
         configHelper.onTearDown();

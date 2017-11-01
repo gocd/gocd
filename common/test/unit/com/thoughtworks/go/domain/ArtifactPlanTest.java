@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -32,7 +33,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -51,7 +51,7 @@ public class ArtifactPlanTest {
 
     @After
     public void tearDown() {
-        deleteFolder(testFolder);
+        FileUtils.deleteQuietly(testFolder);
     }
 
     @Test public void shouldPublishArtifacts() throws Exception {

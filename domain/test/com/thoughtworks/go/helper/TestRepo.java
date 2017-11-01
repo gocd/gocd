@@ -22,7 +22,7 @@ import java.util.List;
 
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 
 
 public abstract class TestRepo {
@@ -31,7 +31,7 @@ public abstract class TestRepo {
 
     public static void internalTearDown() {
         for (File tmpFolder : tmpFolders) {
-            FileUtil.deleteFolder(tmpFolder);
+            FileUtils.deleteQuietly(tmpFolder);
         }
     }
 

@@ -24,9 +24,9 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -199,7 +199,7 @@ public class HgMaterial extends ScmMaterial {
         HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl(), secrets());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
             LOGGER.debug("Invalid hg working copy or repository changed. Delete folder: {}", workingFolder);
-            FileUtil.deleteFolder(workingFolder);
+            FileUtils.deleteQuietly(workingFolder);
         }
         if (!workingFolder.exists()) {
             createParentFolderIfNotExist(workingFolder);

@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,9 +22,9 @@ import java.io.IOException;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.io.FileUtils;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
@@ -54,7 +54,7 @@ public class TestArtifactPlanTest {
 
     @After
     public void tearDown() {
-        FileUtil.deleteFolder(rootPath);
+        FileUtils.deleteQuietly(rootPath);
     }
 
     @Test

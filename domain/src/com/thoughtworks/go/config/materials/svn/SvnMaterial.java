@@ -25,11 +25,11 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.svn.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.slf4j.LoggerFactory;
@@ -169,7 +169,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     public void freshCheckout(ConsoleOutputStreamConsumer outputStreamConsumer, SubversionRevision revision,
                               File workingFolder) {
         if (workingFolder.isDirectory()) {
-            FileUtil.deleteFolder(workingFolder);
+            FileUtils.deleteQuietly(workingFolder);
         }
         LOGGER.trace("Checking out to revision {} in {}", revision, workingFolder);
         createParentFolderIfNotExist(workingFolder);

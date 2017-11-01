@@ -32,14 +32,15 @@ import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.utils.SvnRepoFixture;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +52,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildAssignmentTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
     private static final String PIPELINE_NAME = "cruise";
@@ -67,7 +71,7 @@ public class BuildAssignmentTest {
     @Before
     public void setUp() throws IOException {
         initMocks(this);
-        dir = new File("someFolder");
+        dir = temporaryFolder.newFolder("someFolder");
         svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo");
         svnRepoFixture.createRepository();
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
@@ -82,7 +86,6 @@ public class BuildAssignmentTest {
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
         hgTestRepo.tearDown();
-        FileUtil.deleteFolder(dir);
     }
 
     @Test

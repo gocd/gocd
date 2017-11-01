@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
             return ValidationBean.notValid("Unable to connect to server " + serverAndPort + " : \n" + e.getMessage());
         }
         finally{
-            FileUtil.deleteFolder(baseDir);
+            FileUtils.deleteQuietly(baseDir);
         }
     }
 

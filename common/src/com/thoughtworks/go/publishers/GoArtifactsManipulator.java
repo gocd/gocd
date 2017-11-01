@@ -115,7 +115,7 @@ public class GoArtifactsManipulator {
                 goPublisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
                 lastException = e;
             } finally {
-                FileUtil.deleteFolder(tmpDir);
+                FileUtils.deleteQuietly(tmpDir);
             }
         }
         if (lastException != null) {

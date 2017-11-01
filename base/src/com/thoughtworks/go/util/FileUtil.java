@@ -73,10 +73,6 @@ public class FileUtil {
         return file.isHidden() || file.getName().startsWith(".");
     }
 
-    public static boolean deleteFolder(File testFolder) {
-        return FileUtils.deleteQuietly(testFolder);
-    }
-
     public static String applyBaseDirIfRelativeAndNormalize(File baseDir, File actualFileToUse) {
         return FilenameUtils.separatorsToUnix(applyBaseDirIfRelative(baseDir, actualFileToUse).getPath());
     }

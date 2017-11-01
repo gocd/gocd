@@ -41,7 +41,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -112,7 +112,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     public void teardown() throws Exception {
         dbHelper.onTearDown();
         notifier.enableUpdates();
-        FileUtil.deleteFolder(goConfigService.artifactsDir());
+        FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         agentAssignment.clear();
         CONFIG_HELPER.onTearDown();

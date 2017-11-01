@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -94,8 +93,8 @@ public class BuildCauseProducerServiceIntegrationHgTest {
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
         dbHelper.onTearDown();
-        FileUtil.deleteFolder(goConfigService.artifactsDir());
-        FileUtil.deleteFolder(workingFolder);
+        FileUtils.deleteQuietly(goConfigService.artifactsDir());
+        FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
         pipelineScheduleQueue.clear();
     }

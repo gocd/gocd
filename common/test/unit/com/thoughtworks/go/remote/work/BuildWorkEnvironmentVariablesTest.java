@@ -39,10 +39,10 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.utils.SvnRepoFixture;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -115,7 +115,7 @@ public class BuildWorkEnvironmentVariablesTest {
         p4Fixture.stop(p4Client);
         TestRepo.internalTearDown();
         hgTestRepo.tearDown();
-        FileUtil.deleteFolder(dir);
+        FileUtils.deleteQuietly(dir);
     }
 
     @Test

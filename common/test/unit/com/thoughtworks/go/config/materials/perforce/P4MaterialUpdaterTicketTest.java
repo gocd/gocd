@@ -21,11 +21,11 @@ import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -47,7 +47,7 @@ public class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
     @After
     public void teardown() throws Exception {
         p4Fixture.stop(p4);
-        deleteFolder(workingDir);
+        FileUtils.deleteQuietly(workingDir);
     }
 
     @Test

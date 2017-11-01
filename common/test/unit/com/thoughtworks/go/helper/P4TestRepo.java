@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.*;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,8 +80,8 @@ public class P4TestRepo extends TestRepo {
     public void onTearDown() {
         Process process = (Process) ReflectionUtil.getField(p4dProcess, "process");
         process.destroy();
-        FileUtil.deleteFolder(tempRepo);
-        FileUtil.deleteFolder(clientFolder);
+        FileUtils.deleteQuietly(tempRepo);
+        FileUtils.deleteQuietly(clientFolder);
     }
 
     public String projectRepositoryUrl() {

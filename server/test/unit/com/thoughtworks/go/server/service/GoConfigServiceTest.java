@@ -50,6 +50,7 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -503,7 +504,7 @@ public class GoConfigServiceTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Cruise does not have read permission on " + artifactsDir.getAbsolutePath()));
         } finally {
-            FileUtil.deleteFolder(artifactsDir);
+            FileUtils.deleteQuietly(artifactsDir);
         }
 
     }
@@ -524,7 +525,7 @@ public class GoConfigServiceTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Cruise does not have write permission on " + artifactsDir.getAbsolutePath()));
         } finally {
-            FileUtil.deleteFolder(artifactsDir);
+            FileUtils.deleteQuietly(artifactsDir);
         }
 
     }

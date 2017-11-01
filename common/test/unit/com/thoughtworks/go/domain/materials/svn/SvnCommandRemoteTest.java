@@ -19,7 +19,6 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.helper.SvnRemoteRepository;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -60,7 +59,7 @@ public class SvnCommandRemoteTest {
     @After
     public void stopRepo() throws Exception {
         if (repository!=null) repository.stop();
-        FileUtil.deleteFolder(workingDir);
+        FileUtils.deleteQuietly(workingDir);
     }
 
     @Test public void shouldSupportSvnInfo() throws Exception {
@@ -145,7 +144,7 @@ public class SvnCommandRemoteTest {
         assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
 
         try {
-            FileUtil.deleteFolder(workingDir);
+            FileUtils.deleteQuietly(workingDir);
             badUserNameCommand().checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
@@ -154,7 +153,7 @@ public class SvnCommandRemoteTest {
         }
 
         try {
-            FileUtil.deleteFolder(workingDir);
+            FileUtils.deleteQuietly(workingDir);
             badPasswordCommand().checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
@@ -163,7 +162,7 @@ public class SvnCommandRemoteTest {
         }
 
         try {
-            FileUtil.deleteFolder(workingDir);
+            FileUtils.deleteQuietly(workingDir);
             badUrlCommand().checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {

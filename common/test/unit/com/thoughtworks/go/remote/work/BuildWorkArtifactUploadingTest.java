@@ -41,6 +41,7 @@ import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.utils.SvnRepoFixture;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +94,7 @@ public class BuildWorkArtifactUploadingTest {
     @After
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
-        FileUtil.deleteFolder(buildWorkingDirectory);
+        FileUtils.deleteQuietly(buildWorkingDirectory);
         new SystemEnvironment().clearProperty("serviceUrl");
     }
 

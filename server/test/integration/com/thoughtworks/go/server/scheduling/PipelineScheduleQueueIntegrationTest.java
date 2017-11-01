@@ -36,10 +36,10 @@ import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.PipelineScheduleQueue;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import ch.qos.logback.classic.Level;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
@@ -111,7 +111,7 @@ public class PipelineScheduleQueueIntegrationTest {
         fixture.onTearDown();
         dbHelper.onTearDown();
         configFileEditor.onTearDown();
-        FileUtil.deleteFolder(goConfigService.artifactsDir());
+        FileUtils.deleteQuietly(goConfigService.artifactsDir());
         queue.clear();
     }
 

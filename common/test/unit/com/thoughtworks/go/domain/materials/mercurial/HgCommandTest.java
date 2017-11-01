@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -71,7 +70,7 @@ public class HgCommandTest {
     public void tearDown() throws IOException {
         for (File folder : foldersToDelete) {
             if (folder.exists()) {
-                deleteFolder(folder);
+                FileUtils.deleteQuietly(folder);
             }
         }
     }
@@ -149,7 +148,7 @@ public class HgCommandTest {
                 ProcessOutputStreamConsumer.inMemoryConsumer();
 
         // delete repository in order to fail the hg pull command
-        assertThat(deleteFolder(serverRepo), is(true));
+        assertThat(FileUtils.deleteQuietly(serverRepo), is(true));
 
         // now hg pull will fail and throw an exception
         hgCommand.updateTo(new StringRevision("tip"), output);

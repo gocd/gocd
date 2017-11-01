@@ -22,12 +22,12 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.After;
@@ -92,7 +92,7 @@ public class HgMaterialTest {
 
     @After
     public void teardown() {
-        FileUtil.deleteFolder(workingFolder);
+        FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
     }
 

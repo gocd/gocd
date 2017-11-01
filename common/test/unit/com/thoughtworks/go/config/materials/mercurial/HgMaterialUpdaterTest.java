@@ -28,8 +28,8 @@ import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @After
     public void teardown() {
-        FileUtil.deleteFolder(workingFolder);
+        FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
     }
 

@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.UnitTestReportGenerator;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class GenerateTestReportCommandExecutor implements BuildCommandExecutor {
                 generator.generate(allFiles.toArray(new File[allFiles.size()]), uploadPath);
             } finally {
                 if (tempFolder != null) {
-                    FileUtil.deleteFolder(tempFolder);
+                    FileUtils.deleteQuietly(tempFolder);
                 }
             }
 

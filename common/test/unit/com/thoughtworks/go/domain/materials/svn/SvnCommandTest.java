@@ -22,9 +22,9 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.jdom2.input.SAXBuilder;
@@ -96,7 +96,7 @@ public class SvnCommandTest {
     @After
     public void teardown() {
         testRepo.tearDown();
-        FileUtil.deleteFolder(checkoutFolder);
+        FileUtils.deleteQuietly(checkoutFolder);
     }
 
     @Test

@@ -23,9 +23,9 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.web.ArtifactFolder;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
@@ -71,7 +71,7 @@ public class ZipArtifactCacheTest {
     }
 
     @After public void tearDown() throws Exception {
-        FileUtil.deleteFolder(folder);
+        FileUtils.deleteQuietly(folder);
     }
 
     @Test public void shouldKnowWhenCacheAlreadyCreated() throws Exception {

@@ -19,15 +19,16 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.StubGoPublisher;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,23 +38,19 @@ import static org.junit.Assert.assertThat;
 
 public class ArtifactsPublisherTest {
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private File workingFolder;
-    private File toClean;
     private ArtifactsPublisher artifactsPublisher;
 
     @Before
     public void setUp() throws IOException {
         artifactsPublisher = new ArtifactsPublisher();
-        workingFolder = TestFileUtil.createTempFolder("workingFolder");
+        workingFolder = temporaryFolder.newFolder("temporaryFolder");
         File file = new File(workingFolder, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
         file.createNewFile();
-    }
-
-    @After
-    public void tearDown() {
-        FileUtil.deleteFolder(workingFolder);
-        FileUtils.deleteQuietly(toClean);
     }
 
     @Test

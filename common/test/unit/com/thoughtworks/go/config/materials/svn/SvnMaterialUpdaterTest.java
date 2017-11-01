@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -57,7 +56,7 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @After
     public void tearDown() throws Exception {
-        FileUtil.deleteFolder(workingDir);
+        FileUtils.deleteQuietly(workingDir);
         TestRepo.internalTearDown();
     }
 
@@ -89,7 +88,7 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
     public void shouldDoAFreshCheckoutIfDestIsNotARepo() throws Exception {
         updateTo(svnMaterial, new RevisionContext(revision), JobResult.Passed);
         console.clear();
-        FileUtil.deleteFolder(new File(workingDir, "svnDir/.svn"));
+        FileUtils.deleteQuietly(new File(workingDir, "svnDir/.svn"));
         updateTo(svnMaterial, new RevisionContext(revision), JobResult.Passed);
         assertThat(console.output(), containsString("Checked out revision"));
         assertThat(console.output(), not(containsString("Updating")));

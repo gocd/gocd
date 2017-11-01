@@ -22,8 +22,8 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class BuildWorkArtifactFetchingTest {
     @After
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
-        FileUtil.deleteFolder(buildWorkingDirectory);
+        FileUtils.deleteQuietly(buildWorkingDirectory);
     }
 
     @Test

@@ -59,6 +59,7 @@ import com.thoughtworks.go.utils.SerializationTester;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -172,7 +173,7 @@ public class BuildAssignmentServiceIntegrationTest {
         fixture.onTearDown();
         dbHelper.onTearDown();
         configHelper.onTearDown();
-        FileUtil.deleteFolder(goConfigService.artifactsDir());
+        FileUtils.deleteQuietly(goConfigService.artifactsDir());
         agentAssignment.clear();
         agentRemoteHandler.connectedAgents().clear();
     }

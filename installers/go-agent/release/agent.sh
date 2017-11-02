@@ -126,8 +126,11 @@ if [ "$VNC" == "Y" ]; then
     export DISPLAY
 fi
 
-AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM -Dgocd.agent.log.dir=$GO_AGENT_LOG_DIR $GO_AGENT_SYSTEM_PROPERTIES"
+AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $GO_AGENT_SYSTEM_PROPERTIES"
 
+if [ "$1" == "service_mode" ]; then
+  AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Dgocd.agent.log.dir=$GO_AGENT_LOG_DIR"
+fi
 
 if [ "$TMPDIR" != "" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.io.tmpdir=$TMPDIR"

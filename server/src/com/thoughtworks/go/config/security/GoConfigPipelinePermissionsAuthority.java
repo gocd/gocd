@@ -66,13 +66,13 @@ public class GoConfigPipelinePermissionsAuthority {
                 Set<String> pipelineGroupOperators = namesOf(group.getAuthorization().getOperationConfig(), rolesToUsers);
                 Set<String> pipelineGroupAdmins = namesOf(group.getAuthorization().getAdminsConfig(), rolesToUsers);
 
-                Set<PluginRoleConfig> viewerRoles = pluginRolesFor(group.getAuthorization().getViewConfig().getRoles());
-                Set<PluginRoleConfig> operatorRoles = pluginRolesFor(group.getAuthorization().getOperationConfig().getRoles());
-                Set<PluginRoleConfig> adminRoles = pluginRolesFor(group.getAuthorization().getAdminsConfig().getRoles());
+                Set<PluginRoleConfig> pipelineGroupViewerRoles = pluginRolesFor(group.getAuthorization().getViewConfig().getRoles());
+                Set<PluginRoleConfig> pipelineGroupOperatorRoles = pluginRolesFor(group.getAuthorization().getOperationConfig().getRoles());
+                Set<PluginRoleConfig> pipelineGroupAdminRoles = pluginRolesFor(group.getAuthorization().getAdminsConfig().getRoles());
 
-                adminRoles.addAll(superAdminPluginRoles);
-                operatorRoles.addAll(adminRoles);
-                viewerRoles.addAll(adminRoles);
+                pipelineGroupAdminRoles.addAll(superAdminPluginRoles);
+                pipelineGroupOperatorRoles.addAll(pipelineGroupAdminRoles);
+                pipelineGroupViewerRoles.addAll(pipelineGroupAdminRoles);
 
                 admins.addAll(superAdminUsers);
                 admins.addAll(pipelineGroupAdmins);
@@ -87,14 +87,13 @@ public class GoConfigPipelinePermissionsAuthority {
 
                 for (PipelineConfig pipeline : group) {
                     if (hasNoAdminsDefinedAtRootLevel) {
-                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, new AllowedUsers(admins, operatorRoles), new AllowedUsers(admins, adminRoles)));
-
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
                     } else if (hasNoAuthDefinedAtGroupLevel) {
-                        AllowedUsers adminUsers = new AllowedUsers(admins, adminRoles);
-                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, adminUsers, adminUsers, adminUsers));
+                        AllowedUsers adminUsers = new AllowedUsers(admins, pipelineGroupAdminRoles);
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, adminUsers, adminUsers));
                     }else {
-                        AllowedUsers pipelineOperators = pipelineOperators(pipeline, admins, new AllowedUsers(operators, Collections.emptySet()), rolesToUsers);
-                        Permissions permissions = new Permissions(new AllowedUsers(viewers, viewerRoles), new AllowedUsers(operators, operatorRoles), new AllowedUsers(admins, adminRoles), pipelineOperators);
+                        AllowedUsers pipelineOperators = pipelineOperators(pipeline, admins, new AllowedUsers(operators, pipelineGroupOperatorRoles), rolesToUsers);
+                        Permissions permissions = new Permissions(new AllowedUsers(viewers, pipelineGroupViewerRoles), new AllowedUsers(operators, pipelineGroupOperatorRoles), new AllowedUsers(admins, pipelineGroupAdminRoles), pipelineOperators);
                         pipelinesAndTheirPermissions.put(pipeline.name(), permissions);
                     }
                 }
@@ -128,12 +127,13 @@ public class GoConfigPipelinePermissionsAuthority {
         }
 
         Set<String> stageLevelApproversOfFirstStage = namesOf(pipeline.first().getApproval().getAuthConfig(), rolesToUsers);
+        Set<PluginRoleConfig> stageLevelPluginRoleApproversOfFirstStage = pluginRolesFor(pipeline.first().getApproval().getAuthConfig().getRoles());
 
         Set<String> pipelineOperators = new HashSet<>();
         pipelineOperators.addAll(admins);
         pipelineOperators.addAll(stageLevelApproversOfFirstStage);
 
-        return new AllowedUsers(pipelineOperators, Collections.emptySet());
+        return new AllowedUsers(pipelineOperators, stageLevelPluginRoleApproversOfFirstStage);
     }
 
     private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Collection<String>> rolesToUsers) {

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -31,6 +32,7 @@ import org.mockito.Mock;
 
 import java.util.*;
 
+import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -223,14 +225,14 @@ public class CcTrayConfigChangeHandlerTest {
         verifyZeroInteractions(stageStatusLoader);
     }
 
-//    TODO: fix_me
     @Test
     public void shouldUpdateViewPermissionsForEveryProjectBasedOnViewPermissionsOfTheGroup() throws Exception {
         PluginRoleConfig admin = new PluginRoleConfig("admin", "ldap");
         pluginRoleUsersStore.assignRole("user4", admin);
 
-        AllowedUsers allowedViewers = new AllowedUsers(s("user3"), Collections.singleton(admin));
-//        when(pipelinePermissionsAuthority.groupsAndTheirViewers()).thenReturn(m("group1", viewers("user1", "user2"), "group2", allowedViewers));
+        Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
+        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(s("user3"), Collections.singleton(admin)), NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
+        when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(m(new CaseInsensitiveString("pipeline1"), pipeline1Permissions, new CaseInsensitiveString("pipeline2"), pipeline2Permissions));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");

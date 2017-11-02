@@ -64,7 +64,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderAllSuperAdminUsersAsViewersOperatorsAndAdminsOfPipelines() throws Exception {
+    public void withSuperAdminsAndGroupLevelAuthorization_shouldConsiderAllSuperAdminUsersAsViewersOperatorsAndAdminsOfPipelines() throws Exception {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
 
@@ -80,7 +80,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderUsersOfAllSuperAdminRolesAsViewersOperatorsAndAdminsOfPipelines() throws Exception {
+    public void withSuperAdminsThroughRolesAndGroupLevelAuthorization_shouldConsiderUsersOfAllSuperAdminRolesAsViewersOperatorsAndAdminsOfPipelines() throws Exception {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
 
@@ -98,7 +98,60 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderAllUsersHavingSuperAdminPluginRoleAsViewersOfPipelineGroups() throws Exception {
+    public void withSuperAdminsThroughPluginRolesAndGroupLevelAuthorization_shouldConsiderAllUsersHavingSuperAdminPluginRoleAsViewersOperatorsAndAdminsOfPipelineGroups() throws Exception {
+        PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
+        pluginRoleUsersStore.assignRole("admin_user", admin);
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
+
+        configMother.addRole(config, admin);
+        configMother.addRoleAsSuperAdmin(config, "go_admins");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+
+        assertPipelinesInMap(permissions, "pipeline1");
+        assertViewers(permissions, "pipeline1", Collections.singleton(admin),  "viewer1");
+        assertOperators(permissions, "pipeline1", Collections.singleton(admin));
+        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
+    }
+
+    @Test
+    public void withSuperAdminsAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() throws Exception {
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        configMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        PipelineConfigs group = config.findGroup("group1");
+        assertThat(group.getAuthorization(), is(new Authorization()));
+        assertFalse(config.server().security().adminsConfig().isEmpty());
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+
+        assertPipelinesInMap(permissions, "pipeline1");
+        assertEveryoneIsAPartOf(pipelinePermissions.viewers());
+        assertEveryoneIsAPartOf(pipelinePermissions.operators());
+        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+    }
+
+    @Test
+    public void withSuperAdminsThroughRolesAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() throws Exception {
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        configMother.addRole(config, configMother.createRole("superadminrole1", "superadmin1", "superadmin2"));
+        configMother.addRoleAsSuperAdmin(config, "superadminrole1");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+
+        assertPipelinesInMap(permissions, "pipeline1");
+        assertEveryoneIsAPartOf(pipelinePermissions.viewers());
+        assertEveryoneIsAPartOf(pipelinePermissions.operators());
+    }
+
+    @Test
+    public void withSuperAdminsThroughPluginRolesAndNoGroupAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() throws Exception {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", admin);
 
@@ -108,13 +161,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addRoleAsSuperAdmin(config, "go_admins");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(admin));
+        assertEveryoneIsAPartOf(pipelinePermissions.viewers());
+        assertEveryoneIsAPartOf(pipelinePermissions.operators());
+        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
     }
 
     @Test
-    public void usersBelongingToAdminPluginRole_shouldNotBeViewers_uponRevocationOfTheRole() throws Exception {
+    public void withSuperAdminsThroughPluginRolesAndGroupAuthorization_uponRevocationOfARoleForAdminUser_shouldNoLongerBeViewerOperatorOrAdminOfPipelines() throws Exception {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", admin);
 
@@ -127,32 +183,42 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(admin));
+        assertViewers(permissions, "pipeline1", Collections.singleton(admin), "view_user");
+        assertOperators(permissions, "pipeline1", Collections.singleton(admin));
+        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
 
         pluginRoleUsersStore.revokeAllRolesFor("admin_user");
 
-//        assertFalse(pipelinesAndTheirViewers.get("group1").contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).admins().contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).operators().contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).viewers().contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).pipelineOperators().contains("admin_user"));
     }
 
     @Test
-    public void pipelineGroupViewersThroughPluginRole_shouldNotBeViewers_uponRevocationOfTheRole() throws Exception {
-        PluginRoleConfig pipelineViewers = new PluginRoleConfig("pipeline_viewers", "ldap");
-        pluginRoleUsersStore.assignRole("viewer", pipelineViewers);
+    public void withSuperAdminAndPipelineGroupAdminThroughPluginRole_uponRevocationOfTheRoleForGroupAdminUser_shouldNoLongerBeViewerOperatorOrAdminOfPipelines() throws Exception {
+        PluginRoleConfig groupAdmin = new PluginRoleConfig("group_admin", "ldap");
+        pluginRoleUsersStore.assignRole("admin_user", groupAdmin);
 
         configMother.addRoleAsSuperAdmin(config, "super_admin");
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
-        configMother.addRole(config, pipelineViewers);
-        configMother.addRoleAsViewerOfPipelineGroup(config, "pipeline_viewers", "group1");
+        configMother.addRole(config, groupAdmin);
+        configMother.addAdminRoleForPipelineGroup(config, "group_admin", "group1");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(pipelineViewers));
+        assertViewers(permissions, "pipeline1", Collections.singleton(groupAdmin));
+        assertOperators(permissions, "pipeline1", Collections.singleton(groupAdmin));
+        assertAdmins(permissions, "pipeline1", Collections.singleton(groupAdmin));
 
-        pluginRoleUsersStore.revokeAllRolesFor("viewer");
+        pluginRoleUsersStore.revokeAllRolesFor("admin_user");
 
-//        assertFalse(pipelinesAndTheirViewers.get("group1").contains("viewer"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).admins().contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).operators().contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).viewers().contains("admin_user"));
+        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).pipelineOperators().contains("admin_user"));
     }
 
     @Test
@@ -173,8 +239,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderPipelineGroupAdminsAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
+    public void withSuperAdminsAndPipelineGroupAdminUsers_shouldConsiderPipelineGroupAdminsAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
+
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group2");
@@ -196,8 +263,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderAllUsersInPipelineGroupAdminRolesAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
+    public void withSuperAdminsAndPipelineGroupAdminsRole_shouldConsiderAllUsersInPipelineGroupAdminRolesAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
+
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group2");
@@ -214,6 +282,34 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertViewers(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "groupadmin1", "groupadmin2", "groupadmin3");
         assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "groupadmin1", "groupadmin2", "groupadmin3");
         assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "groupadmin1", "groupadmin2", "groupadmin3");
+
+        assertViewers(permissions, "pipeline2", Collections.emptySet(), "superadmin1", "viewer1");
+        assertOperators(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
+        assertAdmins(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
+    }
+
+    @Test
+    public void withSuperAdminsAndPipelineGroupAdminsPluginRole_shouldConsiderAllUsersInPipelineGroupAdminPluginRolesAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
+        PluginRoleConfig groupAdmin = new PluginRoleConfig("group_admin", "ldap");
+        pluginRoleUsersStore.assignRole("admin", groupAdmin);
+
+        configMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addRole(config, groupAdmin);
+        configMother.addAdminRoleForPipelineGroup(config, "group_admin", "group1");
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group2");
+
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+
+        assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
+
+        assertViewers(permissions, "pipeline1", Collections.singleton(groupAdmin), "superadmin1");
+        assertOperators(permissions, "pipeline1", Collections.singleton(groupAdmin), "superadmin1");
+        assertAdmins(permissions, "pipeline1", Collections.singleton(groupAdmin), "superadmin1");
 
         assertViewers(permissions, "pipeline2", Collections.emptySet(), "superadmin1", "viewer1");
         assertOperators(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
@@ -238,7 +334,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderUsersWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
+    public void withSuperAdminAndGroupAuthorization_shouldConsiderUsersWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
@@ -262,7 +358,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderUsersOfRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
+    public void withSuperAdminAndGroupAuthorizationThroughRole_shouldConsiderUsersOfRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
@@ -288,7 +384,35 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderUsersWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
+    public void withSuperAdminAndGroupAuthorizationThroughPluginRoles_shouldConsiderUsersOfPluginRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
+        PluginRoleConfig groupViewer = new PluginRoleConfig("group_viewer", "ldap");
+        pluginRoleUsersStore.assignRole("viewer", groupViewer);
+
+        configMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addRole(config, groupViewer);
+        configMother.addRoleAsViewerOfPipelineGroup(config, "group_viewer", "group1");
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group2");
+
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+
+        assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
+
+        assertViewers(permissions, "pipeline1", Collections.singleton(groupViewer), "superadmin1");
+        assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+
+        assertViewers(permissions, "pipeline2", Collections.emptySet(), "superadmin1", "viewer1");
+        assertOperators(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
+        assertAdmins(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
+    }
+
+    @Test
+    public void withSuperAdminAndGroupAuthorization_shouldConsiderUsersWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
@@ -312,7 +436,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderUsersOfRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
+    public void withSuperAdminAndGroupAuthorizationThroughRole_shouldConsiderUsersOfRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
@@ -320,21 +444,48 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addUserAsOperatorOfPipelineGroup(config, "operator1", "group2");
 
         configMother.addRole(config, configMother.createRole("group1_operate_role1", "groupoperator1", "groupoperator2"));
-        configMother.addRole(config, configMother.createRole("group1_operate_role2", "groupoperator2", "groupoperator3"));
+        configMother.addRole(config, configMother.createRole("group2_operate_role2", "groupoperator2", "groupoperator3"));
         configMother.addRoleAsOperatorOfPipelineGroup(config, "group1_operate_role1", "group1");
-        configMother.addRoleAsOperatorOfPipelineGroup(config, "group1_operate_role2", "group1");
+        configMother.addRoleAsOperatorOfPipelineGroup(config, "group2_operate_role2", "group2");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
 
         assertViewers(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
-        assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "groupoperator1", "groupoperator2", "groupoperator3");
+        assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "groupoperator1", "groupoperator2");
         assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
 
         assertViewers(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
-        assertOperators(permissions, "pipeline2", Collections.emptySet(), "superadmin1", "operator1");
+        assertOperators(permissions, "pipeline2", Collections.emptySet(), "superadmin1", "groupoperator2", "groupoperator3", "operator1");
         assertAdmins(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
+    }
+
+    @Test
+    public void withSuperAdminAndGroupAuthorizationThroughPluginRoles_shouldConsiderUsersOfPluginRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
+        PluginRoleConfig groupOperator = new PluginRoleConfig("group_operator", "ldap");
+        pluginRoleUsersStore.assignRole("operator", groupOperator);
+
+        configMother.addUserAsSuperAdmin(config, "super_admin");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addRole(config, groupOperator);
+        configMother.addRoleAsOperatorOfPipelineGroup(config, "group_operator", "group1");
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer2", "group2");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+
+        assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
+
+        assertViewers(permissions, "pipeline1", Collections.emptySet(), "super_admin");
+        assertOperators(permissions, "pipeline1", Collections.singleton(groupOperator), "super_admin");
+        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "super_admin");
+
+        assertViewers(permissions, "pipeline2", Collections.emptySet(), "super_admin", "viewer2");
+        assertOperators(permissions, "pipeline2", Collections.emptySet(), "super_admin");
+        assertAdmins(permissions, "pipeline2", Collections.emptySet(), "super_admin");
     }
 
     @Test
@@ -432,7 +583,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroupWithNoAuthorizationConfigurationSetup_WhenExplicitSuperAdminsAreNOTSetup() throws Exception {
+    public void withNoSuperAdminsAndNoGroupAuthorization_shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroup() throws Exception {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         PipelineConfigs group = config.findGroup("group1");
@@ -450,43 +601,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderAllUsersAsViewersOfAGroupWithNoAuthorizationConfigurationSetup_WhenExplicitSuperAdminsAreSetup() throws Exception {
-        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
-
-        PipelineConfigs group = config.findGroup("group1");
-        assertThat(group.getAuthorization(), is(new Authorization()));
-        assertFalse(config.server().security().adminsConfig().isEmpty());
-
-        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
-
-        assertPipelinesInMap(permissions, "pipeline1");
-
-        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
-
-        assertThat(pipelinePermissions.viewers().contains("superadmin1"), is(true));
-        assertEveryoneIsAPartOf(pipelinePermissions.viewers());
-    }
-
-    @Test
-    public void shouldNotConsiderAllUsersAsOperatorsOfAGroupWithNoAuthorizationConfigurationSetup_WhenExplicitSuperAdminsAreSetup() throws Exception {
-        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
-
-        PipelineConfigs group = config.findGroup("group1");
-        assertThat(group.getAuthorization(), is(new Authorization()));
-        assertFalse(config.server().security().adminsConfig().isEmpty());
-
-        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
-
-        assertPipelinesInMap(permissions, "pipeline1");
-
-        assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
-        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
-    }
-
-    @Test
-    public void shouldConsiderAllUsersAsViewersOfAGroup_EvenIfExplicitGroupAdminIsSetup_AND_NoGlobalSuperAdminsExist() throws Exception {
+    public void withNoSuperAdminsAndGroupLevelAuthorization_shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroup_EvenIfExplicitGroupAdminIsSetup() throws Exception {
         /* No superuser */
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2A", "job2A1", "job2A2");
@@ -512,17 +627,23 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldApplyAuthorizationBasedOnPipelineGroupAuthorization_IfSuperAdminsAreConfiguredUsingEmptyRoles() throws Exception {
+    public void withSuperAdminsThroughEmptyRoleAndGroupAuthorization_shouldApplyAuthorizationBasedOnPipelineGroupAuthorization() throws Exception {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2A", "job2A1", "job2A2");
 
         configMother.addRoleAsSuperAdmin(config, "empty_role");
-        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
-        configMother.addUserAsViewerOfPipelineGroup(config, "viewer2", "group2");
+
+        configMother.addUserAsViewerOfPipelineGroup(config, "group1_user", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "group1_user", "group1");
+        configMother.addAdminUserForPipelineGroup(config, "group1_user", "group1");
+
+        configMother.addUserAsViewerOfPipelineGroup(config, "group2_user", "group2");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
-        assertViewers(permissions, "pipeline1", Collections.emptySet(), "viewer1");
+        assertViewers(permissions, "pipeline1", Collections.emptySet(), "group1_user");
+        assertOperators(permissions, "pipeline1", Collections.emptySet(), "group1_user");
+        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "group1_user");
     }
 
     @Test
@@ -542,22 +663,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldConsiderAUserAsViewerOfGroup_IfUserBelongsToTheConfiguredPluginRole_AndInPresenceOfSuperAdmin() throws Exception {
-        PluginRoleConfig admin = configMother.createPluginRole("go_admin", "ldap");
-
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
-        configMother.addRole(config, admin);
-        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
-        configMother.addRoleAsViewerOfPipelineGroup(config, "go_admin", "group1");
-        pluginRoleUsersStore.assignRole("user", admin);
-
-        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
-
-        assertViewers(permissions, "pipeline1", Collections.emptySet(), "user");
-    }
-
-    @Test
-    public void shouldAllowStageToOverrideOperators() throws Exception {
+    public void withSuperAdminsAndGroupLevelAuthorization_shouldAllowStageToOverrideOperators() throws Exception {
         PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsSuperAdmin(config, "superadmin1");
 
@@ -581,6 +687,29 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
+    public void withSuperAdminsAndGroupLevelAuthorization_shouldAllowStageToOverrideOperatorsThroughPluginRole() throws Exception {
+        PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        PluginRoleConfig groupOperator = new PluginRoleConfig("group_operator", "ldap");
+        pluginRoleUsersStore.assignRole("operator", groupOperator);
+
+        configMother.addUserAsSuperAdmin(config, "super_admin");
+
+        configMother.addRole(config, groupOperator);
+        configMother.addRoleAsOperatorOfPipelineGroup(config, "group_operator", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "user1", "group1");
+
+        StageConfigMother.addApprovalWithRoles(pipelineConfig.first(), "group_operator");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+
+        assertPipelinesInMap(permissions, "pipeline1");
+
+        assertGroupOperators(permissions, "pipeline1", Collections.singleton(groupOperator), "user1", "super_admin");
+        assertPipelineOperators(permissions, "pipeline1", Collections.singleton(groupOperator), "super_admin");
+    }
+
+    @Test
     public void shouldAllowRetrievingPermissionsOfASinglePipelineByName() throws Exception {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
 
@@ -596,16 +725,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(configService.findGroupByPipeline(p2Config.name())).thenReturn(config.findGroup("group2"));
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "viewer1"))));
-        assertThat(p1Permissions.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"))));
-        assertThat(p1Permissions.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1"))));
-        assertThat(p1Permissions.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"))));
+        assertThat(p1Permissions.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "viewer1"), Collections.emptySet())));
+        assertThat(p1Permissions.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"), Collections.emptySet())));
+        assertThat(p1Permissions.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1"), Collections.emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"), Collections.emptySet())));
 
         Permissions p2Permission = service.permissionsForPipeline(p2Config.name());
-        assertThat(p2Permission.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
-        assertThat(p2Permission.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
-        assertThat(p2Permission.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
-        assertThat(p2Permission.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
+        assertThat(p2Permission.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
+        assertThat(p2Permission.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
+        assertThat(p2Permission.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
+        assertThat(p2Permission.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
     }
 
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissions() {

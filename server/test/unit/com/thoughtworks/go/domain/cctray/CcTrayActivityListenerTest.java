@@ -134,6 +134,7 @@ public class CcTrayActivityListenerTest {
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class), mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
 
         listener.initialize();
+        listener.startDaemon();
 
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(2) instanceof SecurityConfigChangeListener, is(true));

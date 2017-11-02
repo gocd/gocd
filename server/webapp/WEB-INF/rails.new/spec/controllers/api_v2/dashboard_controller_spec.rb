@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV2::DashboardController do
   include GoDashboardPipelineMother
@@ -22,14 +22,14 @@ describe ApiV2::DashboardController do
   before do
     @user = Username.new(CaseInsensitiveString.new("foo"))
 
-    controller.stub(:current_user).and_return(@user)
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:current_user).and_return(@user)
+    allow(controller).to receive(:populate_config_validity)
 
     @go_dashboard_service = stub_service(:go_dashboard_service)
     @pipeline_selections_service = stub_service(:pipeline_selections_service)
   end
 
-  describe :dashboard do
+  describe 'dashboard' do
     it 'should get dashboard json' do
       pipeline_selections = PipelineSelections::ALL
       pipeline_group = GoDashboardPipelineGroup.new('group1', Permissions.new(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))

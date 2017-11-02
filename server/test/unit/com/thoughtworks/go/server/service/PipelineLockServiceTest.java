@@ -242,7 +242,7 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("pipeline1"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
-        when(cruiseConfig.isPipelineLocked("pipeline1")).thenThrow(new PipelineNotFoundException("pipeline1 not found"));
+        when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new PipelineNotFoundException("pipeline1 not found"));
 
         pipelineLockService.registerListener(lockStatusChangeListener);
         pipelineLockService.onConfigChange(cruiseConfig);

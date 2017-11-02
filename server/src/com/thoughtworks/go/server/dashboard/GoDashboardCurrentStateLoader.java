@@ -124,7 +124,7 @@ public class GoDashboardCurrentStateLoader {
 
         for (PipelineInstanceModel instanceModel : pims) {
             populateStagesWhichHaventRunFromConfig(instanceModel, pipelineConfig);
-            populateLockStatus(instanceModel, pipelineConfig.isLock(), isCurrentlyLocked, isUnlockable);
+            populateLockStatus(instanceModel, pipelineConfig.isLockable(), isCurrentlyLocked, isUnlockable);
         }
 
         return pims;

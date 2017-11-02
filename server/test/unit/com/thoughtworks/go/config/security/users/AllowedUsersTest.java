@@ -45,7 +45,7 @@ public class AllowedUsersTest {
 
     @Test
     public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
-        AllowedUsers users = new AllowedUsers(s("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet())
+        AllowedUsers users = new AllowedUsers(s("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet());
 
         assertThat(users.contains("user1"), is(true));
         assertThat(users.contains("USER1"), is(true));

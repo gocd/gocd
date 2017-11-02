@@ -52,7 +52,7 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
+import com.thoughtworks.go.server.websocket.agent.AgentRemoteHandler;
 import com.thoughtworks.go.server.websocket.AgentStub;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.SerializationTester;

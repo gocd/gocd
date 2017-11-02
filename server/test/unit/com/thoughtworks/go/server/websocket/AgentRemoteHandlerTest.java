@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.server.websocket.agent.AgentRemoteHandler;
 import com.thoughtworks.go.websocket.*;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;

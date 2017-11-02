@@ -160,14 +160,14 @@
 
   <servlet>
     <servlet-name>agent-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.AgentRemoteServlet</servlet-class>
+    <servlet-class>com.thoughtworks.go.server.websocket.agent.AgentRemoteServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
   </servlet>
 
   <servlet>
     <servlet-name>console-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.ConsoleLogSocketServlet</servlet-class>
+    <servlet-class>com.thoughtworks.go.server.websocket.consolelog.ConsoleLogSocketServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
   </servlet>

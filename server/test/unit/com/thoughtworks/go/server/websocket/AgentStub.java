@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.server.websocket.agent.Agent;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 

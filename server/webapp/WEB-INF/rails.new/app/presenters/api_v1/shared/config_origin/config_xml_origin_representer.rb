@@ -20,18 +20,23 @@ module ApiV1
       class ConfigXmlOriginRepresenter < BaseRepresenter
         alias_method :config_xml_config, :represented
 
-        property :type, exec_context: :decorator
-
-        property :file,
-                 exec_context: :decorator,
-                 decorator: ApiV1::Shared::ConfigOrigin::ConfigXmlSummaryRepresenter
-
-        def type
-          'local'
+        link :self do |opts|
+          opts[:url_builder].config_view_url()
         end
 
-        def file
-          config_xml_config
+        link :doc do |opts|
+          'https://api.gocd.org/#get-configuration'
+        end
+
+        property :type, exec_context: :decorator
+        property :id, exec_context: :decorator
+
+        def type
+          'gocd'
+        end
+
+        def id
+          config_xml_config.displayName
         end
       end
     end

@@ -29,17 +29,15 @@ describe ApiV1::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
 
   def expected_json
     {
-      type: 'local',
-      file: {
-        _links: {
-          self: {
-            href: 'http://test.host/admin/config_xml'
-          }, doc: {
-            href: 'https://api.gocd.org/#get-configuration'
-          }
-        },
-        name: 'cruise-config.xml'
-      }
+      type: 'gocd',
+      _links: {
+        self: {
+          href: 'http://test.host/admin/config_xml'
+        }, doc: {
+          href: 'https://api.gocd.org/#get-configuration'
+        }
+      },
+      id: 'cruise-config.xml'
     }
   end
 end

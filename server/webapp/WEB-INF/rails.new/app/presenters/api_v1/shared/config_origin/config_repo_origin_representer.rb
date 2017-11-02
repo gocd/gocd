@@ -20,18 +20,32 @@ module ApiV1
       class ConfigRepoOriginRepresenter < BaseRepresenter
         alias_method :config_repo_origin, :represented
 
-        property :type, exec_context: :decorator
+        link :self do |opts|
+          opts[:url_builder].apiv1_admin_config_repo_url(id: config_repo.getId)
+        end
 
-        property :repo,
-                 exec_context: :decorator,
-                 decorator: ApiV1::Shared::ConfigOrigin::ConfigRepoSummaryRepresenter
+        link :doc do |opts|
+          'https://api.gocd.org/#config-repos'
+        end
+
+        link :find do |opts|
+          opts[:url_builder].apiv1_admin_config_repo_url(id: '__id__').gsub(/__id__/, ':id')
+        end
+
+        property :type, exec_context: :decorator
+        property :id, exec_context: :decorator
+
 
         def type
           'config repo'
         end
 
-        def repo
+        def config_repo
           config_repo_origin.getConfigRepo
+        end
+
+        def id
+          config_repo_origin.getConfigRepo.id
         end
       end
     end

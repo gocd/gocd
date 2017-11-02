@@ -28,20 +28,18 @@ describe ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
   def expected_json
     {
       type: 'config repo',
-      repo: {
-        _links: {
-          self: {
-            href: 'http://test.host/api/admin/config_repos/repo1'
-          },
-          doc: {
-            href: 'https://api.gocd.org/#config-repos'
-          },
-          find: {
-            href: 'http://test.host/api/admin/config_repos/:id'
-          }
+      _links: {
+        self: {
+          href: 'http://test.host/api/admin/config_repos/repo1'
         },
-        id: 'repo1'
-      }
+        doc: {
+          href: 'https://api.gocd.org/#config-repos'
+        },
+        find: {
+          href: 'http://test.host/api/admin/config_repos/:id'
+        }
+      },
+      id: 'repo1'
     }
   end
 end

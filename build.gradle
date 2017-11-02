@@ -169,7 +169,9 @@ task licenseHeaderCheck {
                    "**/rails.new/spec/webpack/patches",
                    "**/WEB-INF/rails.new/webpack/gen",
                    "**/spec/webpack/helpers/fixup-stacktraces.js",
-                   "**/admin/commands/matched_command_snippets.json"
+                   "**/admin/commands/matched_command_snippets.json",
+                   "**/server/plugins_work/**",
+                   "server/webapp/WEB-INF/rails.new/db/config.git/cruise-config.xml"
   ]
 
   def filesWithoutLicenseHeader = []

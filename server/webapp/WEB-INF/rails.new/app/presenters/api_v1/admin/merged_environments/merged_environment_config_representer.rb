@@ -42,9 +42,9 @@ module ApiV1
                    },
                    decorator: lambda {|origin, *|
                      if origin.instance_of? FileConfigOrigin
-                       Shared::ConfigOrigin::ConfigXmlOriginRepresenter
+                       ConfigOrigin::ConfigXmlOriginRepresenter
                      else
-                       Shared::ConfigOrigin::ConfigRepoOriginRepresenter
+                       ConfigOrigin::ConfigRepoOriginRepresenter
                      end
                    }
 

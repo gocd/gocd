@@ -23,8 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.util.*;
 
@@ -284,38 +282,6 @@ public class FileUtil {
         String fullPath = FilenameUtils.separatorsToUnix(file.getParentFile().getPath());
         String basePath = FilenameUtils.separatorsToUnix(rootPath.getPath());
         return StringUtils.removeStart(StringUtils.removeStart(fullPath, basePath), "/");
-    }
-
-    private static final long ONE_KB = 1024;
-
-    private static final long ONE_MB = ONE_KB * ONE_KB;
-
-    private static final long ONE_GB = ONE_KB * ONE_MB;
-
-    private static final long ONE_TB = ONE_KB * ONE_GB;
-
-    private static final long ONE_PB = ONE_KB * ONE_TB;
-
-
-    public static String byteCountToDisplaySize(long size) {
-        if (size >= ONE_PB) {
-            return displaySizeFor(size, ONE_PB, " PB");
-        } else if (size >= ONE_TB) {
-            return displaySizeFor(size, ONE_TB, " TB");
-        } else if (size >= ONE_GB) {
-            return displaySizeFor(size, ONE_GB, " GB");
-        } else if (size >= ONE_MB) {
-            return displaySizeFor(size, ONE_MB, " MB");
-        } else if (size >= ONE_KB) {
-            return displaySizeFor(size, ONE_KB, " KB");
-        } else {
-            return String.valueOf(size) + " bytes";
-        }
-    }
-
-    private static String displaySizeFor(long size, double unit, String unitInString) {
-        BigDecimal bigDecimal = new BigDecimal((double) size / unit);
-        return bigDecimal.setScale(1, RoundingMode.HALF_UP) + unitInString;
     }
 
     public static List<String> readLines(InputStream resource) throws IOException {

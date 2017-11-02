@@ -127,50 +127,6 @@ public class FileUtilTest {
     }
 
     @Test
-    public void shouldConvertBytes() {
-        assertThat(FileUtil.byteCountToDisplaySize(1023), is("1023 bytes"));
-    }
-
-    @Test
-    public void shouldConvertBytesToKilo() {
-        assertThat(FileUtil.byteCountToDisplaySize(1024 + 512), is("1.5 KB"));
-    }
-
-    @Test
-    public void shouldOnlyKeep() {
-        assertThat(FileUtil.byteCountToDisplaySize(1024 + 512 + 256), is("1.8 KB"));
-    }
-
-    @Test
-    public void shouldConvertBytesToMega() {
-        assertThat(FileUtil.byteCountToDisplaySize(1024 * 1024), is("1.0 MB"));
-    }
-
-    @Test
-    public void shouldConvertBytesToMegaForFloat() {
-        assertThat(FileUtil.byteCountToDisplaySize(1 * 1024 * 1024 + 512 * 1024), is("1.5 MB"));
-    }
-
-    @Test
-    public void shouldConvertBytesToGiga() {
-        long twoGiga = 2L * 1024 * 1024 * 1024 + 512 * 1024 * 1024;
-        assertThat(FileUtil.byteCountToDisplaySize(twoGiga), is("2.5 GB"));
-    }
-
-
-    @Test
-    public void shouldConvertBytesToTB() {
-        long twoGiga = 2L * 1024 * 1024 * 1024 * 1024 + 512L * 1024 * 1024 * 1024;
-        assertThat(FileUtil.byteCountToDisplaySize(twoGiga), is("2.5 TB"));
-    }
-
-    @Test
-    public void shouldConvertBytesToPB() {
-        long twoGiga = 2L * 1024 * 1024 * 1024 * 1024 * 1024 + 512L * 1024 * 1024 * 1024 * 1024;
-        assertThat(FileUtil.byteCountToDisplaySize(twoGiga), is("2.5 PB"));
-    }
-
-    @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldCreateFileURIForFile() {
         assertThat(FileUtil.toFileURI(new File("/var/lib/foo/")), is("file:///var/lib/foo"));

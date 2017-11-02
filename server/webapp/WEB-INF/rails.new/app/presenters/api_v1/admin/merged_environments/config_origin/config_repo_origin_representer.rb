@@ -22,7 +22,7 @@ module ApiV1
           alias_method :config_repo_origin, :represented
 
           link :self do |opts|
-            opts[:url_builder].apiv1_admin_config_repo_url(id: config_repo.getId)
+            opts[:url_builder].apiv1_admin_config_repo_url(id: id)
           end
 
           link :doc do |opts|
@@ -38,11 +38,7 @@ module ApiV1
 
 
           def type
-            'config repo'
-          end
-
-          def config_repo
-            config_repo_origin.getConfigRepo
+            'config_repo'
           end
 
           def id

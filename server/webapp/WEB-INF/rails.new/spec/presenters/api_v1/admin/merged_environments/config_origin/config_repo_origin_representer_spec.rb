@@ -27,7 +27,7 @@ describe ApiV1::Admin::MergedEnvironments::ConfigOrigin::ConfigRepoOriginReprese
 
   def expected_json
     {
-      type: 'config repo',
+      type: 'config_repo',
       _links: {
         self: {
           href: 'http://test.host/api/admin/config_repos/repo1'

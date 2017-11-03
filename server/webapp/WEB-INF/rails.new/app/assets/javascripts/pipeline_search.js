@@ -23,6 +23,7 @@ PipelineSearch = function () {
             }
             pipelineSearch.forceSearch();
         });
+        pipelineSearch.forceSearch();
     };
 
     return {

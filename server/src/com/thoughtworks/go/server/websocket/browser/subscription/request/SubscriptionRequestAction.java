@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket.browser.subscription;
+package com.thoughtworks.go.server.websocket.browser.subscription.request;
 
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
-
-public abstract class SubscriptionMessage {
-    public abstract boolean isAuthorized(SecurityService securityService, Username currentUser);
-
-    public abstract void start(BrowserWebSocket socket, JobInstanceService jobInstanceService);
+public enum SubscriptionRequestAction {
+    subscribe,
+    unsubscribe
 }

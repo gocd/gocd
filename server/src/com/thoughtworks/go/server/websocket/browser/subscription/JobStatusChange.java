@@ -32,6 +32,10 @@ public class JobStatusChange extends SubscriptionMessage {
     @Expose
     private final JobIdentifier jobIdentifier;
 
+    public JobStatusChange() {
+        jobIdentifier = new JobIdentifier();
+    }
+
     public JobStatusChange(JobIdentifier jobIdentifier) {
         this.jobIdentifier = jobIdentifier;
     }
@@ -69,6 +73,7 @@ public class JobStatusChange extends SubscriptionMessage {
             @Override
             public void jobStatusChanged(JobInstance job)  {
                 try {
+
                     socket.send(ByteBuffer.wrap(job.getIdentifier().toFullString().getBytes()));
                 } catch (IOException e) {
                     e.printStackTrace();

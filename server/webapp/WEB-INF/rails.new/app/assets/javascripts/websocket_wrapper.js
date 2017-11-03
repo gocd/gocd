@@ -123,6 +123,10 @@
       ws.close(code, reason)
     };
 
+    this.send = function (data) {
+      ws.send(data);
+    };
+
     this.stop = function (code, reason) {
       stopped = true;
       pingDetectionTimeoutTimer.done();

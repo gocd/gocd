@@ -23,6 +23,9 @@ import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 
 public class ServerHealthMessageCount extends SubscriptionMessage {
 
+    public ServerHealthMessageCount() {
+    }
+
     @Override
     public int hashCode() {
         return super.hashCode();

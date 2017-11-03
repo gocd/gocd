@@ -21,6 +21,7 @@ import com.thoughtworks.go.server.websocket.SocketEndpoint;
 import com.thoughtworks.go.server.websocket.SocketHealthService;
 import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
+import com.thoughtworks.go.server.websocket.browser.subscription.request.SubscriptionRequest;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,7 +78,8 @@ public class BrowserWebSocket implements SocketEndpoint {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String input) throws Exception {
-        List<SubscriptionMessage> subscriptionMessages = SubscriptionMessage.fromJSON(input);
+        SubscriptionRequest subscriptionRequest = SubscriptionRequest.fromJSON(input);
+        ArrayList<SubscriptionMessage> subscriptionMessages = subscriptionRequest.getEvents();
         for (SubscriptionMessage subscriptionMessage : subscriptionMessages) {
             try {
                 subscriptionManager.subscribe(subscriptionMessage, this);

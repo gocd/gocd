@@ -1,16 +1,11 @@
 <div class="form_item">
   <% p_f = scope[:form]
-     material = scope[:material]
-     scm_config = material.getSCMConfig()
+     scm_config = scope[:material].getSCMConfig()
      plugin_id = scm_config.getPluginConfiguration().getId()
      check_connection_url = admin_pluggable_scm_check_connection_path(:plugin_id => plugin_id);
-     form_name_provider_obj = form_name_provider(p_f)
-     plugged_material_controller_element_id = form_name_provider_obj.css_id_for("angular_container")
-     plugged_material_data_element_id = form_name_provider_obj.css_id_for("data")
-     plugged_material_configuration_element_id = form_name_provider_obj.css_id_for("configuration")
   %>
 
-  <div id="<%= plugged_material_controller_element_id %>">
+  <div ng-controller="PluginTemplateViewController">
     <%= p_f.hidden_field :pluginId, :value => plugin_id %>
     <%= p_f.hidden_field com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::SCM_ID -%>
     <div class="form_item_block required">
@@ -18,35 +13,27 @@
       <%= p_f.text_field com.thoughtworks.go.domain.scm.SCM::NAME, {:class => "form_input required", :id => nil} -%>
       <%= error_message_on(scm_config, com.thoughtworks.go.domain.scm.SCM::NAME, :css_class => "form_error") %>
     </div>
-    <div class="plugged_material_template required">
+    <div class="plugged_material_template required" plugin-template="<%= form_name_provider(p_f).form_name_prefix %>">
       <%== com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().template(plugin_id) %>
     </div>
 
     <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => p_f}} %>
     <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => p_f}} %>
 
-    <%= submit_button(l.string("CHECK_CONNECTION"), :class => "check_connection", :type => "button", :'ng-click' => "checkConnection('#{check_connection_url}')") -%>
-    <div ng-class="['connection_test_message', check_connection_state]">
-      <pre ng-bind="check_connection_message" ng-show="check_connection_message"></pre>
-    </div>
-
     <%= render :partial => 'shared/convert_tool_tips.html' %>
+    <span class="plugged_material_data" plugin-data style="display: none">
+      <%= com.google.gson.Gson.new.toJson(scm_config.getConfigAsMap()) %>
+    </span>
+
+    <div ng-controller="PluggableSCMConfigurationController">
+      <%= submit_button(l.string("CHECK_CONNECTION"), :class => "check_connection", :type => "button", :'ng-click' => "checkConnection('#{check_connection_url}')") -%>
+      <div ng-class="['connection_test_message', check_connection_state]">
+        <pre ng-bind="check_connection_message" ng-show="check_connection_message"></pre>
+      </div>
+      <span class="plugged_material_configuration_keys" plugged-material-configuration-keys style="display: none">
+        <%= scm_material_config_keys(plugin_id) %>
+      </span>
+    </div>
   </div>
-  <span id="<%= plugged_material_data_element_id %>" class="plugged_material_data" style="display: none">
-    <%= com.google.gson.Gson.new.toJson(scm_config.getConfigAsMap()) %>
-  </span>
-  <span id="<%= plugged_material_configuration_element_id %>" class="plugged_material_configuration" style="display: none">
-    <%= scm_material_config_keys(plugin_id) %>
-  </span>
 </div>
 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
-
-<script type="text/javascript">
-  jQuery(document).ready(function () {
-    var form_name_prefix = "<%= form_name_provider_obj.form_name_prefix %>";
-    var plugged_material_controller_element_id = "<%= plugged_material_controller_element_id %>";
-    var plugged_material_data_element_id = "<%= plugged_material_data_element_id %>";
-    var plugged_material_configuration_element_id = "<%= plugged_material_configuration_element_id %>";
-    new PluggableSCMConfigurationModule().initialize(plugged_material_controller_element_id, plugged_material_data_element_id, plugged_material_configuration_element_id, form_name_prefix);
-  });
-</script>

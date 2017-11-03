@@ -93,7 +93,7 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
   it "should render plugin template and data for a new pluggable SCM" do
     render
 
-    Capybara.string(response.body).find('div.plugged_material#material_angular_pluggable_material_my_scm_plugin').tap do |div|
+    Capybara.string(response.body).find('div.plugged_material').tap do |div|
       template_text = text_without_whitespace(div.find('div.plugged_material_template'))
       expect(template_text).to eq(SCM_PLUGIN_TEMPLATE)
 

@@ -692,19 +692,19 @@ describe Admin::PipelinesController do
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip", :materials =>
         {:materialType => material_type, material_type.to_sym => scm_params}}}
 
-      assigns[:group_name].should == "new-group"
+      expect(assigns[:group_name]).to eq("new-group")
       new_pipeline = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new("new-pip"))
 
       material = new_pipeline.material_configs.get(0)
-      material.type.should == PluggableSCMMaterialConfig::TYPE
+      expect(material.type).to eq(PluggableSCMMaterialConfig::TYPE)
       scm = material.getSCMConfig()
-      scm.getPluginConfiguration().getId().should == scm_params[:pluginId]
+      expect(scm.getPluginConfiguration().getId()).to eq(scm_params[:pluginId])
       scm.getName == scm_params[:name]
 
       configuration = scm.getConfiguration().getConfigurationAsMap(true)
-      configuration.size().should == 2
-      configuration['url'].should == scm_params[:url]
-      configuration['username'].should == scm_params[:username]
+      expect(configuration.size()).to eq(2)
+      expect(configuration['url']).to eq(scm_params[:url])
+      expect(configuration['username']).to eq(scm_params[:username])
     end
 
     it "should be able to create a pipeline with a pluggable task" do

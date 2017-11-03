@@ -447,7 +447,7 @@ describe "admin/pipelines/new.html.erb" do
         render
 
         Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .pluggable_material_com_plugin_id").tap do |div|
-          configuration = JSON.parse(div.find("span.plugged_material_configuration", :visible => false).text)
+          configuration = JSON.parse(div.find("span.plugged_material_configuration_keys", :visible => false).text)
           expect(configuration.sort).to eq(["password", "url", "username"])
         end
       end

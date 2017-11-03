@@ -53,7 +53,7 @@ describe "admin/plugins/plugins/settings.html.erb" do
   it "should render plugin template and data for a plugin settings" do
     render
 
-    Capybara.string(response.body).find('div.plugin_settings#plugin_settings_angular_plugin_settings').tap do |div|
+    Capybara.string(response.body).find('div.plugin_settings').tap do |div|
       template_text = text_without_whitespace(div.find('div.plugin_settings_template'))
       expect(template_text).to eq(SETTINGS_PLUGIN_TEMPLATE)
 

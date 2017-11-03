@@ -1,21 +1,18 @@
 <%= render(:partial => "shared/flash_message") %>
 
 <%= form_for(@plugin_settings, :as => :plugin_settings, :url => update_settings_path(:plugin_id => @plugin_settings.getPluginId()), :html => {"novalidate" => "novalidate", :id => "plugin_settings_form", :name => "plugin_settings_form", :method => "POST", :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
-    <% form_name_provider_obj = form_name_provider(f) %>
-    <% plugin_settings_angular_controller_element_id = form_name_provider_obj.css_id_for("angular_plugin_settings") %>
-    <% plugin_settings_data_element_id = form_name_provider_obj.css_id_for("data_plugin_settings") %>
 
     <div class="form_content">
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
-        <div id="plugin_settings">
+        <div id="plugin_settings" >
             <div class="fieldset">
-                <div id="<%= plugin_settings_angular_controller_element_id %>" name="<%= plugin_settings_angular_controller_element_id %>" class="plugin_settings">
+                <div ng-controller="PluginTemplateViewController" class="plugin_settings">
                     <div class="form_item">
-                        <div class="plugin_settings_template required">
+                        <div class="plugin_settings_template required" plugin-template="<%= form_name_provider(f).form_name_prefix %>">
                             <%== @meta_data_store.template(@plugin_settings.getPluginId()) %>
                         </div>
 
-                        <span id="<%= plugin_settings_data_element_id %>" class="plugin_settings_data" style="display: none">
+                        <span class="plugin_settings_data" plugin-data style="display: none">
                             <%= com.google.gson.Gson.new.toJson(@plugin_settings.getSettingsMap()) %>
                         </span>
                     </div>
@@ -29,11 +26,7 @@
 
     <script type="text/javascript">
         jQuery(document).ready(function () {
-            var form_name_prefix = "<%= form_name_provider_obj.form_name_prefix %>";
-            var plugin_settings_angular_controller_element_id = "<%= plugin_settings_angular_controller_element_id %>";
-            var plugin_settings_data_element_id = "<%= plugin_settings_data_element_id %>";
-            new TaskPluginView().initialize(plugin_settings_angular_controller_element_id, plugin_settings_data_element_id, form_name_prefix);
-            new TaskPluginView().bootstrapAngular();
+            new PluginTemplateView().bootstrapAngular('plugin_settings_form');
         });
     </script>
 <% end %>

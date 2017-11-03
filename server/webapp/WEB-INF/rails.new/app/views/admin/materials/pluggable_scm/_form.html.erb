@@ -3,9 +3,6 @@
 
 <% scm_config = scope[:material].getSCMConfig() %>
 <%= form_for(scope[:material], :as => :material, :url => scope[:url], :html => {"novalidate"=> "novalidate", :id=> "material_form", :name=> "material_form", :method => scope[:method], :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
-    <% form_name_provider_obj = form_name_provider(f) %>
-    <% plugged_material_angular_controller_element_id = form_name_provider_obj.css_id_for("angular_" + scm_config.getSCMType()) %>
-    <% plugged_material_data_element_id = form_name_provider_obj.css_id_for("data_" + scm_config.getSCMType()) %>
 
     <%= md5_field %>
 
@@ -15,15 +12,15 @@
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
         <div id="material">
             <div class="fieldset">
-                <div id="<%= plugged_material_angular_controller_element_id %>" name="<%= plugged_material_angular_controller_element_id %>" class="plugged_material">
-                    <div class="form_item">
+                <div class="plugged_material">
+                    <div class="form_item" ng-controller="PluginTemplateViewController">
                         <div class="form_item_block required">
                             <%= required_label(f, com.thoughtworks.go.domain.scm.SCM::NAME, l.string('MATERIAL_NAME')) %>
                             <%= f.text_field com.thoughtworks.go.domain.scm.SCM::NAME, {:class => "form_input", :id => nil} -%>
                             <%= error_message_on(scm_config, com.thoughtworks.go.domain.scm.SCM::NAME, :css_class => "form_error") %>
                         </div>
 
-                        <div class="plugged_material_template required">
+                        <div class="plugged_material_template required" plugin-template="<%= form_name_provider(f).form_name_prefix %>">
                             <%== scope[:meta_data_store].template(scope[:material].getPluginId()) %>
                         </div>
 
@@ -32,7 +29,7 @@
                             <span id="pluggable_scm_check_connection_message"></span>
                         </div>
 
-                        <span id="<%= plugged_material_data_element_id %>" class="plugged_material_data" style="display: none">
+                        <span class="plugged_material_data" plugin-data style="display: none">
                             <%= com.google.gson.Gson.new.toJson(scm_config.getConfigAsMap()) %>
                         </span>
 
@@ -74,13 +71,7 @@
 
     <script type="text/javascript">
         jQuery(document).ready(function () {
-            var form_name_prefix = "<%= form_name_provider_obj.form_name_prefix %>";
-            var plugged_material_angular_controller_element_id = "<%= plugged_material_angular_controller_element_id %>";
-            var plugged_material_data_element_id = "<%= plugged_material_data_element_id %>";
-            new TaskPluginView().initialize(plugged_material_angular_controller_element_id, plugged_material_data_element_id, form_name_prefix);
-
-            new TaskPluginView().bootstrapAngular();
-
+            new PluginTemplateView().bootstrapAngular('material_form');
             new PluggableSCMCheckConnection("<%= admin_pluggable_scm_check_connection_path(:plugin_id => scope[:material].getPluginId()) %>").bind("#material_form", "#check_connection_pluggable_scm", "#pluggable_scm_check_connection_message");
         });
     </script>

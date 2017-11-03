@@ -83,7 +83,7 @@
         new TaskEditor.TypeEditor({container: jQuery('#material_forms'), switch_control: jQuery('#material_type_options'), entry_to_be_hidden: '.material_entry'});
     });
     jQuery(document).ready(function () {
-        new PluggableSCMConfigurationModule().bootstrap('pipeline_edit_form');
+        new PluginTemplateView().bootstrapAngular('pipeline_edit_form', [new PluggableSCMConfiguration()]);
     });
 </script>
 

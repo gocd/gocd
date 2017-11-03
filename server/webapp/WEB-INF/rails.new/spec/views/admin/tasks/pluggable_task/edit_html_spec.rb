@@ -52,7 +52,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
     render
 
-    Capybara.string(response.body).find('div.plugged_task#task_angular_pluggable_task_my_curl_plugin').tap do |div|
+    Capybara.string(response.body).find('div.plugged_task').tap do |div|
       template_text = text_without_whitespace(div.find("div.plugged_task_template"))
       expect(template_text).to eq(TASK_PLUGIN_TEMPLATE)
 

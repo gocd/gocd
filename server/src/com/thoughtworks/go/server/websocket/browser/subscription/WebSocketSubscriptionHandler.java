@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 
 public interface WebSocketSubscriptionHandler<T extends SubscriptionMessage> {
+
     void start(T message, BrowserWebSocket socket) throws Exception;
 
-    boolean isAuthorized(SubscriptionMessage message, BrowserWebSocket securityService);
+    boolean isAuthorized(SubscriptionMessage message, SecurityService securityService, Username currentUser);
 
     Class<T> getType();
 }

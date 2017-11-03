@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket.browser.subscription.jobstatuschange;
+package com.thoughtworks.go.server.websocket.browser.subscription;
 
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
-import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
-import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class JobStatusChange extends SubscriptionMessage {
     @Expose
@@ -33,9 +39,9 @@ public class JobStatusChange extends SubscriptionMessage {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JobStatusChange)) return false;
+        if (!(o instanceof com.thoughtworks.go.server.websocket.browser.subscription.JobStatusChange)) return false;
 
-        JobStatusChange that = (JobStatusChange) o;
+        com.thoughtworks.go.server.websocket.browser.subscription.JobStatusChange that = (com.thoughtworks.go.server.websocket.browser.subscription.JobStatusChange) o;
 
         return jobIdentifier != null ? jobIdentifier.equals(that.jobIdentifier) : that.jobIdentifier == null;
     }
@@ -53,12 +59,21 @@ public class JobStatusChange extends SubscriptionMessage {
     }
 
     @Override
-    public void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
-        throw new UnsupportedOperationException();
+    public boolean isAuthorized(SecurityService securityService, Username currentUser) {
+        return securityService.hasViewPermissionForPipeline(currentUser, jobIdentifier.getPipelineName());
     }
 
     @Override
-    public boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) {
-        throw new UnsupportedOperationException();
+    public void start(BrowserWebSocket socket, JobInstanceService jobInstanceService) {
+        jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
+            @Override
+            public void jobStatusChanged(JobInstance job)  {
+                try {
+                    socket.send(ByteBuffer.wrap(job.getIdentifier().toFullString().getBytes()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

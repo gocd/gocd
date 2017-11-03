@@ -20,26 +20,31 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class ServerHealthMessageCount extends SubscriptionMessage {
+@Component
+public class JobStatusChangeSubscriptionHandler implements WebSocketSubscriptionHandler {
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    private JobInstanceService jobInstanceService;
+
+    @Autowired
+    public JobStatusChangeSubscriptionHandler(JobInstanceService jobInstanceService) {
+        this.jobInstanceService = jobInstanceService;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof ServerHealthMessageCount)) return false;
-        return true;
+    public void start(SubscriptionMessage message, BrowserWebSocket socket) throws Exception {
+        message.start(socket, jobInstanceService);
     }
 
     @Override
-    public boolean isAuthorized(SecurityService securityService, Username currentUser) {
-        return false;
+    public boolean isAuthorized(SubscriptionMessage message, SecurityService securityService, Username currentUser) {
+        return message.isAuthorized(securityService, currentUser);
     }
 
     @Override
-    public void start(BrowserWebSocket socket, JobInstanceService jobInstanceService) {
+    public Class getType() {
+        return JobStatusChange.class;
     }
 }

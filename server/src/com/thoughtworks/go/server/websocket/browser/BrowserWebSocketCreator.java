@@ -28,16 +28,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class BrowserWebSocketCreator implements WebSocketCreator {
     private SocketHealthService socketHealthService;
-    private WebSocketSubscriptionManager subscriptionFactory;
+    private WebSocketSubscriptionManager webSocketSubscriptionManager;
 
     @Autowired
     public BrowserWebSocketCreator(SocketHealthService socketHealthService, WebSocketSubscriptionManager webSocketSubscriptionManager) {
         this.socketHealthService = socketHealthService;
-        this.subscriptionFactory = webSocketSubscriptionManager;
+        this.webSocketSubscriptionManager = webSocketSubscriptionManager;
     }
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        return new BrowserWebSocket(socketHealthService, subscriptionFactory, UserHelper.getUserName());
+        return new BrowserWebSocket(socketHealthService, webSocketSubscriptionManager, UserHelper.getUserName());
     }
 }

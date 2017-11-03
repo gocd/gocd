@@ -20,8 +20,10 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
-import com.thoughtworks.go.server.websocket.browser.subscription.jobstatuschange.JobStatusChange;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -56,8 +58,7 @@ public abstract class SubscriptionMessage {
         return GSON;
     }
 
+    public abstract boolean isAuthorized(SecurityService securityService, Username currentUser);
 
-    public abstract void subscribe(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket) throws Exception;
-
-    public abstract boolean isAuthorized(WebSocketSubscriptionManager webSocketSubscriptionManager, BrowserWebSocket webSocket);
+    public abstract void start(BrowserWebSocket socket, JobInstanceService jobInstanceService);
 }

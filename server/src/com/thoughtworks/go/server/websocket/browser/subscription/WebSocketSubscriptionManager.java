@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
-
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,21 +27,20 @@ import java.util.Map;
 @Component
 public class WebSocketSubscriptionManager {
     private final Map<Class<? extends SubscriptionMessage>, WebSocketSubscriptionHandler> handlers = new HashMap<>();
+    private final SecurityService securityService;
 
     @Autowired
-    public WebSocketSubscriptionManager(WebSocketSubscriptionHandler... handlers) {
+    public WebSocketSubscriptionManager(SecurityService securityService, WebSocketSubscriptionHandler... handlers) {
+        this.securityService = securityService;
         for (WebSocketSubscriptionHandler handler : handlers) {
             this.handlers.put(handler.getType(), handler);
         }
     }
 
-    public void subscribe(SubscriptionMessage subscriptionMessage, BrowserWebSocket webSocket) throws Exception {
-        if (subscriptionMessage.isAuthorized(this, webSocket)) {
-            subscriptionMessage.subscribe(this, webSocket);
+    public void subscribe(SubscriptionMessage subscriptionMessage, BrowserWebSocket browserWebSocket) throws Exception {
+        WebSocketSubscriptionHandler webSocketSubscriptionHandler = handlers.get(subscriptionMessage.getClass());
+        if(webSocketSubscriptionHandler.isAuthorized(subscriptionMessage, securityService, browserWebSocket.getCurrentUser())) {
+            webSocketSubscriptionHandler.start(subscriptionMessage, browserWebSocket);
         }
-    }
-
-    public WebSocketSubscriptionHandler getHandler(Class<? extends SubscriptionMessage> subscriptionType) {
-        return handlers.get(subscriptionType);
     }
 }

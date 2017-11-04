@@ -29,7 +29,7 @@ var PluggableSCMConfiguration = function () {
             $scope.check_connection_state = "";
             $scope.check_connection_message = "";
         }])
-        .directive('pluggedMaterialConfigurationKeys', function ($rootScope) {
+        .directive('pluggedMaterialConfigurationKeys', ['$rootScope', function ($rootScope) {
             return {
                 restrict: 'A',
                 link: function ($scope, $element, $attributes) {
@@ -42,7 +42,7 @@ var PluggableSCMConfiguration = function () {
                     }
                 }
             };
-        });;
+        }]);
     };
 
     var checkConnection = function (url) {

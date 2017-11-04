@@ -42,7 +42,7 @@ var PluginTemplateView = function () {
             };
         })
         // Use this directive on an element containing plugin template.
-        .directive('pluginTemplate', function ($compile) {
+        .directive('pluginTemplate', ['$compile', function ($compile) {
             return {
                 restrict: 'A',
                 link: function ($scope, $element, $attributes) {
@@ -62,13 +62,13 @@ var PluginTemplateView = function () {
                     $compile($element.contents())($scope);
                 }
             };
-        })
+        }])
         /*
          * Use this directive on an element containing plugin data.
          * Format {"[config key]": {"value": "[value]", "errors": "[error message]"}}
          * Example: {"type": {"value": "X"}, "url": {"value":"Y", "errors": "incorrect format"}}
          */
-        .directive('pluginData', function ($rootScope) {
+        .directive('pluginData', ['$rootScope', function ($rootScope) {
             return {
                 restrict: 'A',
                 link: function ($scope, $element, $attributes) {
@@ -90,7 +90,7 @@ var PluginTemplateView = function () {
                     }
                 }
             };
-        });
+        }]);
 
         return this;
     };

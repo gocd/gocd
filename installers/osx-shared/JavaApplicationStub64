@@ -238,9 +238,9 @@ test -f "overrides.env" && log "Sourcing overrides.env\n" && source "overrides.e
 log "Final environment variables $(test -f "overrides.env" && echo "after sourcing overrides.env ")are:\n$(env | sort)\n"
 
 test -z "${JAVACMD}" -o ! -x "${JAVACMD}" && show_message_and_exit 2 "${APPLICATION_NAME}" "Error launching ${APPLICATION_NAME}" "" \
-      "You need to have Java 1.7 or newer installed to run the ${APPLICATION_NAME} application." "" \
+      "You need to have Java 1.8 installed to run the ${APPLICATION_NAME} application." "" \
       "Java found was: \\\"${JAVACMD}\\\"" "" \
-      "If you do have Java 1.7 or newer installed, please see: \
+      "If you do have Java 1.8 installed, please see: \
 https://docs.gocd.org/current/installation/troubleshoot_installer.html#mac_java"
 
 COMMAND=()

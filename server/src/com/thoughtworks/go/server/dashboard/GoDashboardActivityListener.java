@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -33,6 +33,8 @@ import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /* Listens to all activity that is needed to keep the dashboard updated and sets it up for processing.
  */
@@ -47,6 +49,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     private final GoDashboardConfigChangeHandler configChangeHandler;
     private final GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler;
     private final GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler;
+    private final GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler;
 
     private final MultiplexingQueueProcessor processor;
 
@@ -58,7 +61,8 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
                                        GoDashboardStageStatusChangeHandler stageStatusChangeHandler,
                                        GoDashboardConfigChangeHandler configChangeHandler,
                                        GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler,
-                                       GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler) {
+                                       GoDashboardPipelineLockStatusChangeHandler lockStatusChangeHandler,
+                                       GoDashboardTemplateConfigChangeHandler templateConfigChangeHandler) {
         this.goConfigService = goConfigService;
         this.stageService = stageService;
         this.pipelinePauseService = pipelinePauseService;
@@ -68,6 +72,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         this.configChangeHandler = configChangeHandler;
         this.pauseStatusChangeHandler = pauseStatusChangeHandler;
         this.lockStatusChangeHandler = lockStatusChangeHandler;
+        this.templateConfigChangeHandler = templateConfigChangeHandler;
 
         this.processor = new MultiplexingQueueProcessor("Dashboard");
     }
@@ -76,6 +81,8 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     public void initialize() {
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
+        goConfigService.register(securityConfigChangeListener());
+        goConfigService.register(templateConfigChangedListener());
         stageService.addStageStatusListener(stageStatusChangedListener());
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
@@ -120,6 +127,25 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         };
     }
 
+    protected EntityConfigChangedListener<PipelineTemplateConfig> templateConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineTemplateConfig>() {
+            @Override
+            public void onEntityConfigChange(final PipelineTemplateConfig templateConfig) {
+                processor.add(new Action() {
+                    @Override
+                    public void call() {
+                        templateConfigChangeHandler.call(templateConfig);
+                    }
+
+                    @Override
+                    public String description() {
+                        return "template config: " + templateConfig;
+                    }
+                });
+            }
+        };
+    }
+
     private StageStatusListener stageStatusChangedListener() {
         return new StageStatusListener() {
             @Override
@@ -133,6 +159,25 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
                     @Override
                     public String description() {
                         return "stage: " + stage;
+                    }
+                });
+            }
+        };
+    }
+
+    protected SecurityConfigChangeListener securityConfigChangeListener() {
+        return new SecurityConfigChangeListener() {
+            @Override
+            public void onEntityConfigChange(Object entity) {
+                processor.add(new Action() {
+                    @Override
+                    public void call() {
+                        configChangeHandler.call(goConfigService.currentCruiseConfig());
+                    }
+
+                    @Override
+                    public String description() {
+                        return "security_config changed";
                     }
                 });
             }

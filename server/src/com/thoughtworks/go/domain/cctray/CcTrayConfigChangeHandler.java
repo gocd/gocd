@@ -68,7 +68,6 @@ public class CcTrayConfigChangeHandler {
                     updateProjectStatusForPipeline(usersWithViewPermissionsForPipeline, pipelineConfig, projectStatuses);
                 }
             }
-
         });
 
         return projectStatuses;

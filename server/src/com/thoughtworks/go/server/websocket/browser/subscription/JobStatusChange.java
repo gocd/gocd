@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 
@@ -68,17 +67,15 @@ public class JobStatusChange extends SubscriptionMessage {
     }
 
     @Override
-    public void start(BrowserWebSocket socket, JobInstanceService jobInstanceService) {
-        jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
-            @Override
-            public void jobStatusChanged(JobInstance job)  {
-                try {
+    public void start(BrowserWebSocket socket, WebSocketSubscriptionHandler handler) throws IOException {
+        JobStatusChangeSubscriptionHandler subscriptionHandler = (JobStatusChangeSubscriptionHandler) handler;
 
-                    socket.send(ByteBuffer.wrap(job.getIdentifier().toFullString().getBytes()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        if(subscriptionHandler.getjobInstance(jobIdentifier).isCompleted()) {
+            subscriptionHandler.sendCurrentJobInstance(jobIdentifier, socket);
+            socket.close(200, "Done");
+        } else {
+            subscriptionHandler.sendCurrentJobInstance(jobIdentifier, socket);
+            subscriptionHandler.registerJobStateChangeListener(jobIdentifier, socket);
+        }
     }
 }

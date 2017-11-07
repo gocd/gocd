@@ -17,12 +17,13 @@
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
+
+import java.io.IOException;
 
 public abstract class SubscriptionMessage {
     public abstract boolean isAuthorized(SecurityService securityService, Username currentUser);
 
-    public abstract void start(BrowserWebSocket socket, JobInstanceService jobInstanceService);
+    public abstract void start(BrowserWebSocket socket, WebSocketSubscriptionHandler handler) throws IOException;
 }

@@ -16,10 +16,13 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
+import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
+
+import java.io.IOException;
 
 public class ServerHealthMessageCount extends SubscriptionMessage {
 
@@ -43,6 +46,7 @@ public class ServerHealthMessageCount extends SubscriptionMessage {
     }
 
     @Override
-    public void start(BrowserWebSocket socket, JobInstanceService jobInstanceService) {
+    public void start(BrowserWebSocket socket, WebSocketSubscriptionHandler handler) throws IOException {
+
     }
 }

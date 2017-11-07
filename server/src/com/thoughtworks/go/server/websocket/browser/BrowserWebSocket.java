@@ -56,6 +56,7 @@ public class BrowserWebSocket implements SocketEndpoint {
 
     @OnWebSocketConnect
     public void onConnect(Session session) throws Exception {
+        System.out.println("generic websocket connected = " + session);
         this.session = session;
         socketHealthService.register(this);
         LOGGER.debug("{} connected", sessionName());
@@ -73,6 +74,7 @@ public class BrowserWebSocket implements SocketEndpoint {
 
     @OnWebSocketClose
     public void onClose(int status, String reason) {
+        System.out.println("generic websocket closed status " + status);
         socketHealthService.deregister(this);
     }
 
@@ -96,6 +98,7 @@ public class BrowserWebSocket implements SocketEndpoint {
 
     @Override
     public void send(ByteBuffer data) throws IOException {
+        System.out.println("generic websocket sending = " + session);
         session.getRemote().sendBytes(data);
     }
 

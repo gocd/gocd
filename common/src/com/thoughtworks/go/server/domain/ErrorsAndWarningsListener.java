@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-
-import java.util.Map;
+import com.thoughtworks.go.serverhealth.ServerHealthStates;
 
 public interface ErrorsAndWarningsListener {
-    void errorsAndWarningsChanged(Map<HealthStateType, ServerHealthState> messages);
+    void errorsAndWarningsChanged(ServerHealthStates messages);
 }

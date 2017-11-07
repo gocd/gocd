@@ -82,7 +82,7 @@ public class ServerHealthService {
 
     private void notifyListeners() {
         for (ErrorsAndWarningsListener listener : listeners) {
-            listener.errorsAndWarningsChanged(serverHealth);
+            listener.errorsAndWarningsChanged(logs());
         }
     }
 
@@ -159,7 +159,7 @@ public class ServerHealthService {
         return entries;
     }
 
-    private void addErrorsAndWarningsChangeListener(ErrorsAndWarningsListener listener) {
+    public void addErrorsAndWarningsChangeListener(ErrorsAndWarningsListener listener) {
         listeners.add(listener);
     }
 

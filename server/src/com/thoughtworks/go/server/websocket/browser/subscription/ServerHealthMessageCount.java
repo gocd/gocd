@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription;
 
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 
 import java.io.IOException;
 
 public class ServerHealthMessageCount extends SubscriptionMessage {
+    private int errorsCount = 0;
+    private int warningsCount = 0;
 
     public ServerHealthMessageCount() {
     }
@@ -36,17 +36,19 @@ public class ServerHealthMessageCount extends SubscriptionMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof ServerHealthMessageCount)) return false;
         return true;
     }
 
     @Override
     public boolean isAuthorized(SecurityService securityService, Username currentUser) {
-        return false;
+        return true;
     }
 
     @Override
     public void start(BrowserWebSocket socket, WebSocketSubscriptionHandler handler) throws IOException {
+        ServerHealthMessagesCountChangeSubscriptionHandler subscriptionHandler = (ServerHealthMessagesCountChangeSubscriptionHandler) handler;
 
+        subscriptionHandler.sendCurrentErrorsAndWarningsCount(socket);
+        subscriptionHandler.registerErrorsAndWarningsCountChangeListener(socket);
     }
 }

@@ -88,13 +88,13 @@ public class BrowserWebSocket implements SocketEndpoint {
                 try {
                     subscriptionManager.subscribe(subscriptionMessage, this);
                 } catch (Exception e) {
-                    String error = String.format("There was an error subscribing %s to %s", getCurrentUser(), subscriptionMessage);
+                    String error = String.format("There was an error subscribing %s to %s. Error: %s", getCurrentUser(), subscriptionMessage, e.getMessage());
                     LOGGER.debug(error);
                     close(CLOSE_ABNORMAL, error);
                 }
             }
         } else {
-            String unsupportedOperation = "Unsubscribing events is not supported.";
+            String unsupportedOperation = String.format("Action %s is not supported.", subscriptionRequest.getAction());
             LOGGER.debug(unsupportedOperation);
             close(CLOSE_ABNORMAL, unsupportedOperation);
         }

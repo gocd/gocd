@@ -17,6 +17,5 @@
 package com.thoughtworks.go.server.websocket.browser.subscription.request;
 
 public enum SubscriptionRequestAction {
-    subscribe,
-    unsubscribe
+    subscribe
 }

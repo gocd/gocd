@@ -17,9 +17,9 @@
          "value": false
       },
       {
-         "key": "browser_console_log_ws_key",
+         "key": "build_details_page_ws_key",
          "description": "Enables rendering console logs via websockets. Default: disabled.",
-         "value": true
+         "value": false
       },
       {
         "key": "plugin_spa_toggle_key",

@@ -123,7 +123,7 @@ public class JobController {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);
-        data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
+        data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BUILD_DETAILS_PAGE_WS));
         data.put("l", localizer);
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));

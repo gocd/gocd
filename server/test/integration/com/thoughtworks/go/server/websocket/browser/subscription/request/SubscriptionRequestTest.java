@@ -16,15 +16,18 @@
 
 package com.thoughtworks.go.server.websocket.browser.subscription.request;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.websocket.browser.subscription.JobStatusChange;
 import com.thoughtworks.go.server.websocket.browser.subscription.ServerHealthMessageCount;
 import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class SubscriptionRequestTest {
@@ -59,4 +62,24 @@ public class SubscriptionRequestTest {
         assertThat(messages.get(0), is(instanceOf(JobStatusChange.class)));
         assertThat(messages.get(1), is(instanceOf(ServerHealthMessageCount.class)));
     }
+
+        @Test
+    public void shouldDeserializeJobStatusChange() throws Exception {
+        SubscriptionRequest subscriptionRequest = SubscriptionRequest.fromJSON(JSON);
+        ArrayList<SubscriptionMessage> messages = subscriptionRequest.getEvents();
+        JobStatusChange subscriptionMessage = (JobStatusChange) messages.get(0);
+        JobIdentifier jobIdentifier = new JobIdentifier("foo", -1, "42", "test", "1", "unit");
+        jobIdentifier.setBuildId(null);
+        jobIdentifier.setPipelineCounter(null);
+        assertThat(subscriptionMessage, equalTo(new JobStatusChange(jobIdentifier)));
+    }
+
+    @Test
+    public void shouldDeserializeServerHealthMessageCount() throws Exception {
+        SubscriptionRequest subscriptionRequest = SubscriptionRequest.fromJSON(JSON);
+        ArrayList<SubscriptionMessage> messages = subscriptionRequest.getEvents();
+        ServerHealthMessageCount subscriptionMessage = (ServerHealthMessageCount) messages.get(1);
+        assertThat(subscriptionMessage, is(new ServerHealthMessageCount()));
+    }
+
 }

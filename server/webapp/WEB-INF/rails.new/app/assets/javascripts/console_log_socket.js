@@ -57,7 +57,6 @@
 
 
     function retryConnectionOrFallbackToPollingOnError(e) {
-      debugger;
       fallingBackToPolling = true; // prevent close handler from trying to reconnect
       fallbackObserver.enable();
       fallbackObserver.notify();

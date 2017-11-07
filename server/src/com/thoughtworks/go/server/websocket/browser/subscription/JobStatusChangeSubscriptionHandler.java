@@ -37,6 +37,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
+import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_ABNORMAL;
+import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_NORMAL;
+
 @Component
 public class JobStatusChangeSubscriptionHandler implements WebSocketSubscriptionHandler {
 
@@ -105,7 +108,7 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
                         sendJobInstance(getjobStatusJson(jobIdentifier), socket);
                         jobStates.put(jobIdentifier, job.getState());
                         if(job.isCompleted()) {
-                            socket.close();
+                            socket.close(CLOSE_NORMAL, "Job finished");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.websocket.consolelog;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.websocket.SocketEndpoint;
 import com.thoughtworks.go.server.websocket.SocketHealthService;
-import com.thoughtworks.go.server.websocket.WebsocketMessages;
+import com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
@@ -102,7 +102,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     @Override
     public void ping() throws IOException {
-        session.getRemote().sendString(WebsocketMessages.PING);
+        session.getRemote().sendString(WebsocketMessagesAndStatuses.PING);
     }
 
     @Override

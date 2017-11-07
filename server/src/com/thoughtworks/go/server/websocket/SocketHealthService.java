@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_NORMAL;
+
 @Service
 @EnableScheduling
 public class SocketHealthService {
@@ -51,9 +53,10 @@ public class SocketHealthService {
                         socket.ping();
                     }
                 } catch (IOException e) {
-                    if ("Connection output is closed".equals(e.getMessage())) {
+                    String outputIsClosed = "Connection output is closed";
+                    if (outputIsClosed.equals(e.getMessage())) {
                         deregister(socket);
-                        socket.close();
+                        socket.close(CLOSE_NORMAL, outputIsClosed);
                     }
                     LOGGER.error("Failed to ping socket %s", socket.key(), e);
                 }

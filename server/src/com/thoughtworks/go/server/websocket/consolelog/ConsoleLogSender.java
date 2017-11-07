@@ -39,6 +39,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.zip.GZIPOutputStream;
 
+import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_NORMAL;
+
 @Component
 public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
@@ -110,7 +112,7 @@ public class ConsoleLogSender {
 
             LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
         } finally {
-            webSocket.close();
+            webSocket.close(CLOSE_NORMAL, "Done sending console logs");
         }
     }
 

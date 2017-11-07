@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.server.websocket;
 
-public class WebsocketMessages {
+public class WebsocketMessagesAndStatuses {
     public static final String PING = "{\"type\":\"ping\"}";
+    public static final int CLOSE_NORMAL = 1000;
+    public static final int CLOSE_ABNORMAL = 1006;
+    public static final int CLOSE_WILL_RETRY = 4100;
 }

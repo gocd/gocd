@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_ABNORMAL;
+
 @WebSocket
 public class BrowserWebSocket implements SocketEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(BrowserWebSocket.class);
@@ -87,14 +89,15 @@ public class BrowserWebSocket implements SocketEndpoint {
                 try {
                     subscriptionManager.subscribe(subscriptionMessage, this);
                 } catch (Exception e) {
-                    LOGGER.debug("There was an error subscribing {} to {}", getCurrentUser(), subscriptionMessage);
-                    session.close();
+                    String error = String.format("There was an error subscribing %s to %s", getCurrentUser(), subscriptionMessage);
+                    LOGGER.debug(error);
+                    session.close(CLOSE_ABNORMAL, error);
                 }
             }
         } else {
-            LOGGER.debug("Unsubscribing events is not supported.");
-            // todo: appropriate error code to handle this
-            session.close();
+            String unsupportedOperation = "Unsubscribing events is not supported.";
+            LOGGER.debug(unsupportedOperation);
+            session.close(CLOSE_ABNORMAL, unsupportedOperation);
         }
     }
 

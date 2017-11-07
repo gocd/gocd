@@ -20,25 +20,21 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.StageService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
-
-import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_ABNORMAL;
-import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_NORMAL;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class JobStatusChangeSubscriptionHandler implements WebSocketSubscriptionHandler {
@@ -47,13 +43,15 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
     private JobStatusCache cache;
     private final AgentService agentService;
     private final StageService stageService;
-    private final HashMap<JobIdentifier, JobState> jobStates = new HashMap<JobIdentifier, JobState>();
+    private JobResolverService jobResolverService;
+
     @Autowired
-    public JobStatusChangeSubscriptionHandler(JobInstanceService jobInstanceService, JobStatusCache cache, AgentService agentService, StageService stageService) {
+    public JobStatusChangeSubscriptionHandler(JobInstanceService jobInstanceService, JobStatusCache cache, AgentService agentService, StageService stageService, JobResolverService jobResolverService) {
         this.jobInstanceService = jobInstanceService;
         this.cache = cache;
         this.agentService = agentService;
         this.stageService = stageService;
+        this.jobResolverService = jobResolverService;
     }
 
     @Override
@@ -72,7 +70,8 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
     }
 
     public void sendCurrentJobInstance(JobIdentifier jobIdentifier, BrowserWebSocket socket) throws IOException {
-        sendJobInstance(getjobStatusJson(jobIdentifier), socket);
+        JobIdentifier actualJobIdentifier = jobResolverService.actualJobIdentifier(jobIdentifier);
+        sendJobInstance(getjobStatusJson(actualJobIdentifier), socket);
     }
 
     public JobInstance getjobInstance(JobIdentifier identifier) {
@@ -82,8 +81,7 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
 
 
     public List getjobStatusJson(JobIdentifier identifier) {
-        JobConfigIdentifier jobConfigIdentifier = new JobConfigIdentifier(identifier.getPipelineName(), identifier.getStageName(), identifier.getBuildName());
-        JobInstance jobInstance = cache.currentJob(jobConfigIdentifier);
+        JobInstance jobInstance = jobInstanceService.buildById(identifier.getBuildId());
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(jobInstance,
                 agentService.findAgentObjectByUuid(jobInstance.getAgentUuid()),
                 stageService.getBuildDuration(identifier.getPipelineName(), identifier.getStageName(), jobInstance));
@@ -99,18 +97,20 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
     }
 
     public void registerJobStateChangeListener(JobIdentifier jobIdentifier, BrowserWebSocket socket) {
-        jobStates.put(jobIdentifier, JobState.Unknown);
+        JobIdentifier actualJobIdentifier = jobResolverService.actualJobIdentifier(jobIdentifier);
         jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
             @Override
-            public void jobStatusChanged(JobInstance job)  {
-                if(!jobStates.get(jobIdentifier).getStatus().equals(job.getState())) {
-                    try {
-                        sendJobInstance(getjobStatusJson(jobIdentifier), socket);
-                        jobStates.put(jobIdentifier, job.getState());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            public void jobStatusChanged(JobInstance job) {
+                if (!job.getIdentifier().equals(actualJobIdentifier)) {
+                    return;
                 }
+
+                try {
+                    sendJobInstance(getjobStatusJson(actualJobIdentifier), socket);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }

@@ -57,7 +57,6 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     @OnWebSocketConnect
     public void onConnect(Session session) throws Exception {
-        System.out.println("console log connected = " + session);
         this.session = session;
         socketHealthService.register(this);
         LOGGER.debug("{} connected", sessionName());
@@ -90,13 +89,11 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     @OnWebSocketClose
     public void onClose(int status, String reason) {
-        System.out.println("console log websocket closed status " + status);
         socketHealthService.deregister(this);
     }
 
     @Override
     public void send(ByteBuffer data) throws IOException {
-        System.out.println("console log websocket sending = " + session);
         session.getRemote().sendBytes(data);
     }
 

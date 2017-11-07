@@ -17,8 +17,9 @@
 (function ($) {
   "use strict";
 
-  function BuildSummarySocket(fallbackObserver, transformer) {
-    var genricSocket ;
+  function BuildSummarySocket(fallbackObserver, transformer, consoleLogSocket) {
+    var genricSocket;
+    var isConsoleLogStreamingStarted = false;
 
     var details              = $(".job_details_content");
     var fallingBackToPolling = false;
@@ -100,9 +101,19 @@
       reader.addEventListener("loadend", function () {
         var arrayBuffer   = reader.result;
         var gzippedBuf    = new Uint8Array(arrayBuffer);
-        var jobStatus = maybeGunzip(gzippedBuf);
+        var jobStatus = JSON.parse(maybeGunzip(gzippedBuf));
 
-        fallbackObserver.notify(JSON.parse(jobStatus));
+        if(jobStatus[0].building_info.current_status == 'preparing' && !isConsoleLogStreamingStarted) {
+          consoleLogSocket.start();
+          isConsoleLogStreamingStarted = true;
+        }
+
+        if(jobStatus[0].building_info.is_completed == 'true') {
+          consoleLogSocket.start();
+          isConsoleLogStreamingStarted = true;
+        }
+
+        fallbackObserver.notify(jobStatus);
       });
 
       reader.readAsArrayBuffer(jobStatusJSON);

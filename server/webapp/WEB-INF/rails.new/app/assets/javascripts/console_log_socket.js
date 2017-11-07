@@ -40,18 +40,21 @@
       return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
     }
 
-    socket = new WebSocketWrapper({
-      url:                          endpointUrl(startLine),
-      indefiniteRetry:              true,
-      failIfInitialConnectionFails: true
-    });
+    function start() {
+      socket = new WebSocketWrapper({
+        url:                          endpointUrl(startLine),
+        indefiniteRetry:              true,
+        failIfInitialConnectionFails: true
+      });
 
-    socket.on("message", renderLines);
-    socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
-    socket.on("close", maybeResumeOnClose);
-    socket.on("beforeInitialize", function (options) {
-      options.url = endpointUrl(startLine);
-    });
+      socket.on("message", renderLines);
+      socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
+      socket.on("close", maybeResumeOnClose);
+      socket.on("beforeInitialize", function (options) {
+        options.url = endpointUrl(startLine);
+      });
+    }
+
 
     function retryConnectionOrFallbackToPollingOnError(e) {
       debugger;
@@ -61,7 +64,6 @@
     }
 
     function maybeResumeOnClose(e) {
-      debugger;
       if (fallingBackToPolling) {
         return;
       }
@@ -120,6 +122,7 @@
       reader.readAsArrayBuffer(buildOutput);
     }
 
+    this.start = start;
   }
 
   window.ConsoleLogSocket = ConsoleLogSocket;

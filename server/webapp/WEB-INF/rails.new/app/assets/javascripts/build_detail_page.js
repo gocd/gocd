@@ -135,10 +135,10 @@
       var legacyBuildSummaryPoller = new BuildSummaryObserver($('.build_detail_summary'));
       //executor.register(legacyConsolePoller);
 
-      new BuildSummarySocket(legacyBuildSummaryPoller, multiTransformer);
-
       // websocket log tailer
-      new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
+      var console_log_socket = new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
+
+      new BuildSummarySocket(legacyBuildSummaryPoller, multiTransformer, console_log_socket);
 
       jobDetails.on("dequeue", function (e, name) {
         multiTransformer.dequeue(name);

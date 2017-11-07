@@ -107,9 +107,6 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
                     try {
                         sendJobInstance(getjobStatusJson(jobIdentifier), socket);
                         jobStates.put(jobIdentifier, job.getState());
-                        if(job.isCompleted()) {
-                            socket.close(CLOSE_NORMAL, "Job finished");
-                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

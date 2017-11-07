@@ -72,7 +72,6 @@ public class JobStatusChange extends SubscriptionMessage {
 
         if(subscriptionHandler.getjobInstance(jobIdentifier).isCompleted()) {
             subscriptionHandler.sendCurrentJobInstance(jobIdentifier, socket);
-            socket.close(200, "Done");
         } else {
             subscriptionHandler.sendCurrentJobInstance(jobIdentifier, socket);
             subscriptionHandler.registerJobStateChangeListener(jobIdentifier, socket);

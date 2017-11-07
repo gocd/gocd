@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_ABNORMAL;
@@ -91,13 +90,13 @@ public class BrowserWebSocket implements SocketEndpoint {
                 } catch (Exception e) {
                     String error = String.format("There was an error subscribing %s to %s", getCurrentUser(), subscriptionMessage);
                     LOGGER.debug(error);
-                    session.close(CLOSE_ABNORMAL, error);
+                    close(CLOSE_ABNORMAL, error);
                 }
             }
         } else {
             String unsupportedOperation = "Unsubscribing events is not supported.";
             LOGGER.debug(unsupportedOperation);
-            session.close(CLOSE_ABNORMAL, unsupportedOperation);
+            close(CLOSE_ABNORMAL, unsupportedOperation);
         }
     }
 

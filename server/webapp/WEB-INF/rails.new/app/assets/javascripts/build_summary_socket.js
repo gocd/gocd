@@ -18,7 +18,7 @@
   "use strict";
 
   function BuildSummarySocket(fallbackObserver, transformer, consoleLogSocket) {
-    var genricSocket;
+    var socket;
     var isConsoleLogStreamingStarted = false;
 
     var details              = $(".job_details_content");
@@ -33,13 +33,13 @@
       return protocol + "//" + host + context_path(path);
     }
 
-    genricSocket = new WebSocketWrapper({
+    socket = new WebSocketWrapper({
       url:                          genricEndpointUrl(),
       indefiniteRetry:              true,
       failIfInitialConnectionFails: true
     });
 
-    genricSocket.on("open", function () {
+    socket.on("open", function () {
       var msg = {
         action: "subscribe",
         events: [
@@ -58,12 +58,12 @@
 
       // we call `toJSON` offered by prototype.js.
       // Calling `JSON.stringify()` fails because of monkey patched `toJSON` on all JS prototypes applied by prototype.js.
-      genricSocket.send(Object.toJSON(msg));
+      socket.send(Object.toJSON(msg));
     });
-    genricSocket.on("message", renderJobStatus);
+    socket.on("message", renderJobStatus);
 
-    genricSocket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
-    genricSocket.on("close", maybeResumeOnClose);
+    socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
+    socket.on("close", maybeResumeOnClose);
 
     function retryConnectionOrFallbackToPollingOnError(e) {
       fallingBackToPolling = true; // prevent close handler from trying to reconnect
@@ -89,6 +89,18 @@
       }
     }
 
+    function startConsoleLog(jobStatus) {
+      if (jobStatus[0].building_info.current_status == 'preparing' && !isConsoleLogStreamingStarted) {
+        consoleLogSocket.start();
+        isConsoleLogStreamingStarted = true;
+      }
+
+      if (jobStatus[0].building_info.is_completed == 'true' && !isConsoleLogStreamingStarted) {
+        consoleLogSocket.start();
+        isConsoleLogStreamingStarted = true;
+      }
+    }
+
     function renderJobStatus(e) {
       var jobStatusJSON = e.data, lines, slice = [];
 
@@ -102,18 +114,12 @@
         var arrayBuffer   = reader.result;
         var gzippedBuf    = new Uint8Array(arrayBuffer);
         var jobStatus = JSON.parse(maybeGunzip(gzippedBuf));
-
-        if(jobStatus[0].building_info.current_status == 'preparing' && !isConsoleLogStreamingStarted) {
-          consoleLogSocket.start();
-          isConsoleLogStreamingStarted = true;
-        }
-
-        if(jobStatus[0].building_info.is_completed == 'true' && !isConsoleLogStreamingStarted) {
-          consoleLogSocket.start();
-          isConsoleLogStreamingStarted = true;
-        }
+        startConsoleLog(jobStatus);
 
         fallbackObserver.notify(jobStatus);
+        if (jobStatus[0].building_info.is_completed == 'true') {
+          socket.close(WebSocketWrapper.CLOSE_NORMAL, "job completed");
+        }
       });
 
       reader.readAsArrayBuffer(jobStatusJSON);

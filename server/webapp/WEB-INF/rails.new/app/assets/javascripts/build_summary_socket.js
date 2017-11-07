@@ -108,7 +108,7 @@
           isConsoleLogStreamingStarted = true;
         }
 
-        if(jobStatus[0].building_info.is_completed == 'true') {
+        if(jobStatus[0].building_info.is_completed == 'true' && !isConsoleLogStreamingStarted) {
           consoleLogSocket.start();
           isConsoleLogStreamingStarted = true;
         }

@@ -18,6 +18,8 @@ package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.CruiseConfigProvider;
+import com.thoughtworks.go.server.domain.ErrorsAndWarningsListener;
+import com.thoughtworks.go.server.domain.JobStatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class ServerHealthService {
 
     private HashMap<ServerHealthState, Set<String>> pipelinesWithErrors;
     private Map<HealthStateType, ServerHealthState> serverHealth;
+
+    private ArrayList<ErrorsAndWarningsListener> listeners = new ArrayList<>();
 
     public ServerHealthService() {
         this.serverHealth = new ConcurrentHashMap<>();
@@ -66,10 +70,19 @@ public class ServerHealthService {
             if (serverHealth.containsKey(type)) {
                 serverHealth.remove(type);
             }
+            notifyListeners();
             return null;
         } else {
             serverHealth.put(type, serverHealthState);
+            notifyListeners();
             return type;
+        }
+
+    }
+
+    private void notifyListeners() {
+        for (ErrorsAndWarningsListener listener : listeners) {
+            listener.errorsAndWarningsChanged(serverHealth);
         }
     }
 
@@ -144,6 +157,10 @@ public class ServerHealthService {
             }
         });
         return entries;
+    }
+
+    private void addErrorsAndWarningsChangeListener(ErrorsAndWarningsListener listener) {
+        listeners.add(listener);
     }
 
     public String getLogsAsText() {

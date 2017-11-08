@@ -76,11 +76,11 @@ public class ServerHealthMessagesCountChangeSubscriptionHandler implements WebSo
         String res = "{" +
                 "  \"type\":\"ServerHealthMessageCount\"," +
                 "  \"response\":{" +
-                "    \"errorsCount\":" + warningCount + "," +
-                "    \"warningsCount\":" + errorCount + "" +
+                "    \"errorsCount\":" + errorCount + "," +
+                "    \"warningsCount\":" + warningCount + "" +
                 "  }" +
                 "}";
-        
+
         try {
             socket.send(ByteBuffer.wrap(res.getBytes()));
         } catch (Exception e) {

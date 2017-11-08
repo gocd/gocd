@@ -26,15 +26,13 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.websocket.browser.BrowserWebSocket;
+import org.jcodings.util.Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class JobStatusChangeSubscriptionHandler implements WebSocketSubscriptionHandler {
@@ -116,6 +114,9 @@ public class JobStatusChangeSubscriptionHandler implements WebSocketSubscription
     }
 
     private void sendJobInstance(List json, BrowserWebSocket socket) throws IOException {
-        socket.send(ByteBuffer.wrap(new Gson().toJson(json).getBytes()));
+        HashMap<String, Object> websocketResponse = new HashMap<>();
+        websocketResponse.put("type", "JobStatusChange");
+        websocketResponse.put("response", json);
+        socket.send(ByteBuffer.wrap(new Gson().toJson(websocketResponse).getBytes()));
     }
 }

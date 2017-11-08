@@ -57,6 +57,7 @@
 
       ws.addEventListener('message', function (e) {
         if (isPingFrame(e.data)) {
+
           lastPingTime = new Date();
           // don't bubble the ping event, since it's only meant for the websocket
           return;

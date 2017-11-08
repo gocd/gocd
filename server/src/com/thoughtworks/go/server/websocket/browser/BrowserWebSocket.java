@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.websocket.browser;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.websocket.SocketEndpoint;
 import com.thoughtworks.go.server.websocket.SocketHealthService;
+import com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses;
 import com.thoughtworks.go.server.websocket.browser.subscription.SubscriptionMessage;
 import com.thoughtworks.go.server.websocket.browser.subscription.WebSocketSubscriptionManager;
 import com.thoughtworks.go.server.websocket.browser.subscription.request.SubscriptionRequest;
@@ -39,7 +40,6 @@ import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.
 @WebSocket
 public class BrowserWebSocket implements SocketEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(BrowserWebSocket.class);
-    private static final String PING = "{\"type\":\"ping\"}";
     private final String key;
     private WebSocketSubscriptionManager subscriptionManager;
     private Username currentUser;
@@ -111,7 +111,7 @@ public class BrowserWebSocket implements SocketEndpoint {
 
     @Override
     public void ping() throws IOException {
-        session.getRemote().sendString(PING);
+        session.getRemote().sendBytes(ByteBuffer.wrap(WebsocketMessagesAndStatuses.PING.getBytes()));
     }
 
     @Override

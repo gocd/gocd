@@ -52,6 +52,9 @@
               'stage_counter': details.data('stage-counter'),
               'build_name': details.data('build')
             }
+          },
+          {
+            'type': 'ServerHealthMessageCount'
           }
         ]
       };
@@ -72,6 +75,7 @@
     }
 
     function maybeResumeOnClose(e) {
+      console.log("Closing socket!!");
       if (fallingBackToPolling) {
         return;
       }
@@ -113,12 +117,13 @@
       reader.addEventListener("loadend", function () {
         var arrayBuffer   = reader.result;
         var gzippedBuf    = new Uint8Array(arrayBuffer);
-        var jobStatus = JSON.parse(maybeGunzip(gzippedBuf));
-        startConsoleLog(jobStatus);
-
-        fallbackObserver.notify(jobStatus);
-        if (jobStatus[0].building_info.is_completed == 'true') {
-          socket.close(WebSocketWrapper.CLOSE_NORMAL, "job completed");
+        var websocketMessage = JSON.parse(maybeGunzip(gzippedBuf));
+        if(websocketMessage.type === 'JobStatusChange') {
+          var jobStatus = websocketMessage.response;
+          startConsoleLog(jobStatus);
+          fallbackObserver.notify(jobStatus);
+        } else {
+          console.log(websocketMessage);
         }
       });
 

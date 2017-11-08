@@ -30,7 +30,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
+import com.thoughtworks.go.server.websocket.agent.AgentRemoteHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;

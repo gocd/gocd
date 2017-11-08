@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.browser.subscription.request;
 
-public class WebsocketMessages {
-    public static final String PING = "{\"type\":\"ping\"}";
+public enum SubscriptionRequestAction {
+    subscribe
 }

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.consolelog;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.server.websocket.SocketHealthService;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;

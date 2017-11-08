@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.websocket.agent.AgentRemoteHandler;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.websocket.Action;

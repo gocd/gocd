@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.server.websocket.consolelog;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -22,6 +22,8 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.util.Retryable;
+import com.thoughtworks.go.server.websocket.SocketEndpoint;
+import com.thoughtworks.go.server.websocket.SocketHealthService;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.zip.GZIPOutputStream;
+
+import static com.thoughtworks.go.server.websocket.WebsocketMessagesAndStatuses.CLOSE_NORMAL;
 
 @Component
 public class ConsoleLogSender {
@@ -56,7 +60,7 @@ public class ConsoleLogSender {
     private SocketHealthService socketHealthService;
 
     @Autowired
-    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService) {
+    public ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService) {
         this.consoleService = consoleService;
         this.jobInstanceDao = jobInstanceDao;
         this.socketHealthService = socketHealthService;
@@ -108,7 +112,7 @@ public class ConsoleLogSender {
 
             LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
         } finally {
-            webSocket.close();
+            webSocket.close(CLOSE_NORMAL, "Done sending console logs");
         }
     }
 
@@ -168,7 +172,7 @@ public class ConsoleLogSender {
         buffer.reset();
     }
 
-    byte[] maybeGzipIfLargeEnough(byte[] input) {
+    public byte[] maybeGzipIfLargeEnough(byte[] input) {
         if (input.length < 512) {
             return input;
         }

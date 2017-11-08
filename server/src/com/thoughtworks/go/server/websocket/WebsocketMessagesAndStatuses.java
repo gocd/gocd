@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.websocket.Message;
-
-public interface Agent {
-    void send(Message msg);
+public class WebsocketMessagesAndStatuses {
+    public static final String PING = "{\"type\":\"ping\"}";
+    public static final int CLOSE_NORMAL = 1000;
+    public static final int CLOSE_ABNORMAL = 1006;
+    public static final int CLOSE_WILL_RETRY = 4100;
 }

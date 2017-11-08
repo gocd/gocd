@@ -42,13 +42,14 @@
 
   $(function initConsolePageDomReady() {
     var jobDetails = $(".job_details_content");
+    //var executor;
 
     if (!jobDetails.length) return;
-
-    var jobStatusUrl = "jobStatus.json?pipelineName=" + jobDetails.data("pipeline") + "&stageName=" + jobDetails.data("stage") + "&jobId=" + jobDetails.data("job");
-    var executor     = new DashboardPeriodicalExecutor(jobStatusUrl, function detectJobCompleted(jobInfo) {
-      return jobInfo[0].building_info.is_completed.toString() === "true";
-    });
+    //
+    //var jobStatusUrl = "jobStatus.json?pipelineName=" + jobDetails.data("pipeline") + "&stageName=" + jobDetails.data("stage") + "&jobId=" + jobDetails.data("job");
+    //var executor     = new DashboardPeriodicalExecutor(jobStatusUrl, function detectJobCompleted(jobInfo) {
+    //  return jobInfo[0].building_info.is_completed.toString() === "true";
+    //});
 
     var build = $("[data-console-url]");
 
@@ -129,21 +130,24 @@
 
       // fallback to AJAX polling log tailer
       var legacyConsolePoller = new ConsoleLogObserver(consoleUrl, multiTransformer, lifecycleOptions);
-      executor.register(legacyConsolePoller);
+      //executor.register(legacyConsolePoller);
+
+      var legacyBuildSummaryPoller = new BuildSummaryObserver($('.build_detail_summary'));
+      //executor.register(legacyConsolePoller);
 
       // websocket log tailer
-      new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
+      var console_log_socket = new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
+
+      new BuildSummarySocket(legacyBuildSummaryPoller, multiTransformer, console_log_socket);
 
       jobDetails.on("dequeue", function (e, name) {
         multiTransformer.dequeue(name);
       });
-
     }
 
-    executor.register(new TimerObserver(jobDetails.data("build")));
-    executor.register(new BuildSummaryObserver($('.build_detail_summary')));
+    //executor.register(new TimerObserver(jobDetails.data("build")));
 
-    executor.start();
+    //executor.start();
 
     $(document).on("click.fullScreen", '#full-screen', function () {
       $(".content_wrapper_outer").toggleClass("full-screen");

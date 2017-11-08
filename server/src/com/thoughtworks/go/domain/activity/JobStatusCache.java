@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullJobInstance;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;

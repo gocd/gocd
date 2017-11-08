@@ -57,6 +57,7 @@
 
       ws.addEventListener('message', function (e) {
         if (isPingFrame(e.data)) {
+
           lastPingTime = new Date();
           // don't bubble the ping event, since it's only meant for the websocket
           return;
@@ -111,7 +112,7 @@
     var isPingFrame = function (data) {
       if (_.isString(data)) {
         try {
-          return JSON.parse(e.data)['type'] === 'ping'
+          return JSON.parse(data)['type'] === 'ping'
         } catch (e) {
           // ignore, maybe it's not json
         }
@@ -121,6 +122,10 @@
 
     this.close = function (code, reason) {
       ws.close(code, reason)
+    };
+
+    this.send = function (data) {
+      ws.send(data);
     };
 
     this.stop = function (code, reason) {

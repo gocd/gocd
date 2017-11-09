@@ -19,7 +19,8 @@
 
   function ConsoleLogSocket(fallbackObserver, transformer, options) {
     var CONSOLE_LOG_DOES_NOT_EXISTS = 4410;
-    var startLine = 0, socket;
+    var CONSOLE_LOG_NOT_AVAILABLE   = 4004;
+    var startLine                   = 0, socket;
 
     var details              = $(".job_details_content");
     var fallingBackToPolling = false;
@@ -40,18 +41,20 @@
       return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
     }
 
-    socket = new WebSocketWrapper({
-      url:                          endpointUrl(startLine),
-      indefiniteRetry:              true,
-      failIfInitialConnectionFails: true
-    });
+    function start() {
+      socket = new WebSocketWrapper({
+        url:                          endpointUrl(startLine),
+        indefiniteRetry:              true,
+        failIfInitialConnectionFails: true
+      });
 
-    socket.on("message", renderLines);
-    socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
-    socket.on("close", maybeResumeOnClose);
-    socket.on("beforeInitialize", function (options) {
-      options.url = endpointUrl(startLine);
-    });
+      socket.on("message", renderLines);
+      socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
+      socket.on("close", maybeResumeOnClose);
+      socket.on("beforeInitialize", function (options) {
+        options.url = endpointUrl(startLine);
+      });
+    }
 
     function retryConnectionOrFallbackToPollingOnError(e) {
       fallingBackToPolling = true; // prevent close handler from trying to reconnect
@@ -74,6 +77,10 @@
         if (options && "function" === typeof options.onComplete) {
           transformer.invoke(options.onComplete);
         }
+      }
+
+      if (e.code === CONSOLE_LOG_NOT_AVAILABLE) {
+        start();
       }
     }
 
@@ -117,6 +124,8 @@
       });
       reader.readAsArrayBuffer(buildOutput);
     }
+
+    start();
 
   }
 

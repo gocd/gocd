@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
@@ -43,6 +44,7 @@ public class ConsoleService {
     private ArtifactDirectoryChooser chooser;
     public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
     private ArtifactsDirHolder artifactsDirHolder;
+    private JobInstanceDao jobInstanceDao;
 
 
     public ConsoleService(ArtifactDirectoryChooser chooser) {
@@ -50,9 +52,10 @@ public class ConsoleService {
     }
 
     @Autowired
-    public ConsoleService(ArtifactsDirHolder artifactsDirHolder) {
+    public ConsoleService(ArtifactsDirHolder artifactsDirHolder, JobInstanceDao jobInstanceDao) {
         this(new ArtifactDirectoryChooser());
         this.artifactsDirHolder = artifactsDirHolder;
+        this.jobInstanceDao = jobInstanceDao;
     }
 
     public void initialize() {
@@ -67,6 +70,14 @@ public class ConsoleService {
 
     public File consoleLogArtifact(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {
         return chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
+    }
+
+    public boolean doesLogExists(JobIdentifier jobIdentifier) {
+        try {
+            return consoleLogFile(jobIdentifier).exists();
+        } catch (IllegalArtifactLocationException e) {
+            return false;
+        }
     }
 
     public File consoleLogFile(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {

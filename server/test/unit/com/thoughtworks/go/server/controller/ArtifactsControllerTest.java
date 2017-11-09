@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
 import com.thoughtworks.go.server.service.ConsoleService;
@@ -55,6 +56,7 @@ public class ArtifactsControllerTest {
     private ArtifactsService artifactService;
     private ConsoleService consoleService;
     private SystemEnvironment systemEnvironment;
+    private JobInstanceDao jobInstanceDao;
 
     @Before
     public void setUp() {
@@ -63,8 +65,9 @@ public class ArtifactsControllerTest {
         restfulService = mock(RestfulService.class);
         artifactService = mock(ArtifactsService.class);
         consoleService = mock(ConsoleService.class);
+        jobInstanceDao = mock(JobInstanceDao.class);
         systemEnvironment = mock(SystemEnvironment.class);
-        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService, systemEnvironment);
+        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), jobInstanceDao, consoleActivityMonitor, consoleService, systemEnvironment);
 
         request = new MockHttpServletRequest();
     }
@@ -105,9 +108,10 @@ public class ArtifactsControllerTest {
     @Test
     public void shouldFunnelAll_GET_calls() throws Exception {
         final ModelAndView returnVal = new ModelAndView();
-        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService, systemEnvironment) {
-            @Override ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
-                                               String buildName, String sha, String serverAlias) throws Exception {
+        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), jobInstanceDao, consoleActivityMonitor, consoleService, systemEnvironment) {
+            @Override
+            ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
+                                     String buildName, String sha, String serverAlias) throws Exception {
                 return returnVal;
             }
         };

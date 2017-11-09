@@ -113,11 +113,7 @@ public class ConsoleLogSender {
     }
 
     private boolean doesLogExists(JobIdentifier jobIdentifier) {
-        try {
-            return consoleService.consoleLogFile(jobIdentifier).exists();
-        } catch (IllegalArtifactLocationException e) {
-            return false;
-        }
+        return consoleService.doesLogExists(jobIdentifier);
     }
 
     private void waitForLogToExist(final SocketEndpoint websocket, final JobIdentifier jobIdentifier) throws Retryable.TooManyRetriesException {
@@ -136,7 +132,7 @@ public class ConsoleLogSender {
     }
 
     private boolean detectCompleted(JobIdentifier jobIdentifier) throws Exception {
-        return jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier).isCompleted();
+        return jobInstanceDao.isJobCompleted(jobIdentifier);
     }
 
     private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {

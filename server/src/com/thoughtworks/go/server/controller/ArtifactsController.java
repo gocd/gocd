@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
@@ -35,7 +36,6 @@ import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -63,6 +63,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 public class ArtifactsController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsController.class);
 
+    private final ZipArtifactCache zipArtifactCache;
+    private final JobInstanceDao jobInstanceDao;
     private final ConsoleActivityMonitor consoleActivityMonitor;
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
@@ -70,15 +72,19 @@ public class ArtifactsController {
     private ArtifactsService artifactsService;
     private RestfulService restfulService;
     private ConsoleService consoleService;
+    private final SystemEnvironment systemEnvironment;
     private HeaderConstraint headerConstraint;
 
     @Autowired
-    ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
+    ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache, JobInstanceDao jobInstanceDao,
                         ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService, SystemEnvironment systemEnvironment) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
+        this.zipArtifactCache = zipArtifactCache;
+        this.jobInstanceDao = jobInstanceDao;
         this.consoleActivityMonitor = consoleActivityMonitor;
         this.consoleService = consoleService;
+        this.systemEnvironment = systemEnvironment;
 
         this.folderViewFactory = FileModelAndView.htmlViewFactory();
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
@@ -250,8 +256,12 @@ public class ArtifactsController {
     ) throws Exception {
         start = start == null ? 0L : start;
 
-        try (ConsoleConsumer streamer = consoleService.getStreamer(start, restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
-                buildName))) {
+        try {
+            JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+            if (jobInstanceDao.isJobCompleted(identifier) && !consoleService.doesLogExists(identifier)) {
+                return logsNotFound(identifier);
+            }
+            ConsoleConsumer streamer = consoleService.getStreamer(start, identifier);
             return new ModelAndView(new ConsoleOutView(streamer));
         } catch (Exception e) {
             return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
@@ -331,5 +341,10 @@ public class ArtifactsController {
                                        String buildName) {
         return ResponseCodeView.create(SC_NOT_FOUND, String.format("Job %s/%s/%s/%s/%s not found.", pipelineName,
                 counterOrLabel, stageName, stageCounter, buildName));
+    }
+
+    private ModelAndView logsNotFound(JobIdentifier identifier) {
+        String notFound = String.format("Console log for %s is unavailable as it may have been purged by Go or deleted externally.", identifier.toFullString());
+        return ResponseCodeView.create(SC_NOT_FOUND, notFound);
     }
 }

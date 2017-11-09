@@ -100,7 +100,7 @@ public class ConsoleLogSender {
 
             //send the remaining logs if any
             if (detectCompleted(jobIdentifier)) {
-                try(ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
+                try (ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
                     start += sendLogs(webSocket, consoleFileStreamer, jobIdentifier);
                     LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
                 }
@@ -113,20 +113,14 @@ public class ConsoleLogSender {
     }
 
     private boolean doesLogExists(JobIdentifier jobIdentifier) {
-        return consoleService.doesLogExists(jobIdentifier);
+        return consoleService.doesLogExist(jobIdentifier);
     }
 
     private void waitForLogToExist(final SocketEndpoint websocket, final JobIdentifier jobIdentifier) throws Retryable.TooManyRetriesException {
         Retryable.retry(new Predicate<Integer>() {
             @Override
             public boolean test(Integer integer) {
-                try {
-                    return !websocket.isOpen() || consoleService.consoleLogFile(jobIdentifier).exists();
-                } catch (IllegalArtifactLocationException e) {
-                    LOGGER.error("Job identifier {} is not valid; Cannot resolve console log file", jobIdentifier, e);
-
-                    return true; // Stop trying
-                }
+                return !websocket.isOpen() || doesLogExists(jobIdentifier);
             }
         }, String.format("waiting for console log to exist for %s", jobIdentifier), 20);
     }

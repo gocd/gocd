@@ -44,7 +44,6 @@ public class ConsoleService {
     private ArtifactDirectoryChooser chooser;
     public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
     private ArtifactsDirHolder artifactsDirHolder;
-    private JobInstanceDao jobInstanceDao;
 
 
     public ConsoleService(ArtifactDirectoryChooser chooser) {
@@ -55,7 +54,6 @@ public class ConsoleService {
     public ConsoleService(ArtifactsDirHolder artifactsDirHolder, JobInstanceDao jobInstanceDao) {
         this(new ArtifactDirectoryChooser());
         this.artifactsDirHolder = artifactsDirHolder;
-        this.jobInstanceDao = jobInstanceDao;
     }
 
     public void initialize() {
@@ -72,7 +70,7 @@ public class ConsoleService {
         return chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
     }
 
-    public boolean doesLogExists(JobIdentifier jobIdentifier) {
+    public boolean doesLogExist(JobIdentifier jobIdentifier) {
         try {
             return consoleLogFile(jobIdentifier).exists();
         } catch (IllegalArtifactLocationException e) {

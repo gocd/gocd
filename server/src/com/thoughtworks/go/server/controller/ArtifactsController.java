@@ -63,7 +63,6 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 public class ArtifactsController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsController.class);
 
-    private final ZipArtifactCache zipArtifactCache;
     private final JobInstanceDao jobInstanceDao;
     private final ConsoleActivityMonitor consoleActivityMonitor;
     private final ArtifactFolderViewFactory folderViewFactory;
@@ -72,7 +71,6 @@ public class ArtifactsController {
     private ArtifactsService artifactsService;
     private RestfulService restfulService;
     private ConsoleService consoleService;
-    private final SystemEnvironment systemEnvironment;
     private HeaderConstraint headerConstraint;
 
     @Autowired
@@ -80,11 +78,9 @@ public class ArtifactsController {
                         ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService, SystemEnvironment systemEnvironment) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
-        this.zipArtifactCache = zipArtifactCache;
         this.jobInstanceDao = jobInstanceDao;
         this.consoleActivityMonitor = consoleActivityMonitor;
         this.consoleService = consoleService;
-        this.systemEnvironment = systemEnvironment;
 
         this.folderViewFactory = FileModelAndView.htmlViewFactory();
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
@@ -258,7 +254,7 @@ public class ArtifactsController {
 
         try {
             JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
-            if (jobInstanceDao.isJobCompleted(identifier) && !consoleService.doesLogExists(identifier)) {
+            if (jobInstanceDao.isJobCompleted(identifier) && !consoleService.doesLogExist(identifier)) {
                 return logsNotFound(identifier);
             }
             ConsoleConsumer streamer = consoleService.getStreamer(start, identifier);

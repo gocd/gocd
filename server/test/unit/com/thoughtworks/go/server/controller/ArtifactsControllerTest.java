@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ArtifactsService;
@@ -40,9 +41,12 @@ import java.io.InputStream;
 
 import static com.thoughtworks.go.util.GoConstants.CHECKSUM_MULTIPART_FILENAME;
 import static com.thoughtworks.go.util.GoConstants.REGULAR_MULTIPART_FILENAME;
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -84,6 +88,21 @@ public class ArtifactsControllerTest {
         when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
+    }
+
+    @Test
+    public void testConsoleOutShouldReturnErrorWhenJobHasBeenCompletedAndLogsNotFound() throws Exception {
+        JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103l);
+        when(restfulService.findJob("pipeline", "10", "stage", "2", "build")).thenReturn(jobIdentifier);
+
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(false);
+
+        ModelAndView view = artifactsController.consoleout("pipeline", "10", "stage", "build", "2", 1L);
+
+        assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
+        assertThat(view.getView(), is(instanceOf((ResponseCodeView.class))));
+        assertThat(((ResponseCodeView) view.getView()).getContent(), containsString("Console log for Build [pipeline/10/stage/2/build/103] is unavailable as it may have been purged by Go or deleted externally"));
     }
 
     @Test

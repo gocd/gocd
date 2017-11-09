@@ -31,7 +31,7 @@ dependencies {
   compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
-  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.7.0.201704051617-r'
+  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.9.0.201710071750-r'
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'

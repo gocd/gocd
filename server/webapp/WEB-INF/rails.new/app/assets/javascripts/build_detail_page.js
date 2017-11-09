@@ -56,7 +56,7 @@
       jobDetails.trigger("dequeue", tabName);
     }
 
-    var uid = [jobDetails.data("pipeline"), jobDetails.data("stage"), jobDetails.data("job"), jobDetails.data("build")].join("-");
+    var uid         = [jobDetails.data("pipeline"), jobDetails.data("stage"), jobDetails.data("job"), jobDetails.data("build")].join("-");
     var tabsManager = new TabsManager(null, "build", uid, "console", {
       "console":  new SubTabs($(".sub_tabs_container #build_console")[0], triggerLogDequeue),
       "failures": new SubTabs($(".sub_tabs_container #failures_console")[0], triggerLogDequeue)
@@ -68,7 +68,7 @@
 
       containers.on("consoleUpdated", function detectFoldable(e) {
         var el = e.currentTarget;
-        var c = $(el);
+        var c  = $(el);
         if (!c.data("detected") && el.querySelector(".log-fs-type")) {
           c.siblings(".console-action-bar").find("[data-collapsed]").show();
           c.data("detected", true);
@@ -86,7 +86,7 @@
           name = "failures";
         }
 
-        var tfm = new LogOutputTransformer(container, FoldableSection, tabsManager.getCurrentTab() !== name);
+        var tfm  = new LogOutputTransformer(container, FoldableSection, tabsManager.getCurrentTab() !== name);
         tfm.name = name;
         transformers.push(tfm);
       });
@@ -100,8 +100,8 @@
         e.stopPropagation();
         e.preventDefault();
 
-        var trigger = $(e.currentTarget).removeData("collapsed");
-        var consoleArea = trigger.closest(".console-action-bar").siblings(".buildoutput_pre");
+        var trigger          = $(e.currentTarget).removeData("collapsed");
+        var consoleArea      = trigger.closest(".console-action-bar").siblings(".buildoutput_pre");
         var foldableSections = consoleArea.children(".log-fs-type");
 
         if (!foldableSections.length) return;
@@ -131,8 +131,13 @@
       var legacyConsolePoller = new ConsoleLogObserver(consoleUrl, multiTransformer, lifecycleOptions);
       executor.register(legacyConsolePoller);
 
-      // websocket log tailer
-      new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
+
+      if (jobDetails.data('websocket') == 'enabled') {
+        // websocket log tailer
+        new ConsoleLogSocket(legacyConsolePoller, multiTransformer, lifecycleOptions);
+      } else {
+        legacyConsolePoller.enable();
+      }
 
       jobDetails.on("dequeue", function (e, name) {
         multiTransformer.dequeue(name);
@@ -149,7 +154,7 @@
       $(".content_wrapper_outer").toggleClass("full-screen");
       $("#cruise_message_counts").toggleClass("hide");
       $(window).trigger($.Event("resetPinOnScroll"), [{
-        calcRequiredScroll: function() {
+        calcRequiredScroll: function () {
           return $(".console-area").offset().top - $("#header").outerHeight(true) - $(".page_header").outerHeight(true);
         }
       }]);

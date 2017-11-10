@@ -13,10 +13,122 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import 'shared/mixins';
 @import 'shared/autocomplete';
 @import 'shared/common';
 @import 'shared/modal';
 @import 'shared/header';
 @import 'shared/alert';
+@import 'pipeline_configs/accordion';
+
+$settings-icon-color: #555;
+$settings-icon-hover-color: #000;
+
+%pipeline-label-text {
+  font-size:     12px;
+  margin-bottom: 5px;
+  font-weight:   600;
+  color:         #333;
+}
+
+.edit-pipeline {
+  @include icon-before($type: gear, $color: $settings-icon-color);
+  &:not(.disabled) {
+    &:hover {
+      &:before {
+        color: $settings-icon-hover-color;
+      }
+    }
+  }
+
+  &.disabled {
+    &:before {
+      color: $dark-gray;
+    }
+  }
+}
+
+.pipeline-group-title {
+  font-weight: 600;
+  margin:      10px 0 10px 0;
+  font-size:   20px;
+}
+
+.pipeline {
+  display:          block;
+  float:            left;
+  width:            275px;
+  padding:          15px;
+  min-height:       190px;
+  margin:           0 10px 10px 0;
+  border-radius:    5px;
+  background-color: #fff;
+}
+
+.pipeline-group {
+  display: inline-block;
+}
+
+.dashboard {
+  margin-top:   60px;
+  display:      block;
+  margin-left:  15px;
+  margin-right: 15px;
+}
+
+.pipeline-group-wrapper {
+  display: block;
+}
+
+.pipeline-header {
+  border-bottom:  1px solid #ccc;
+  display:        block;
+  float:          left;
+  margin-bottom:  15px;
+  overflow:       visible;
+  padding-bottom: 10px;
+  width:          100%;
+  vertical-align: baseline;
+}
+
+.pipeline-actions {
+  float:          right;
+  padding-top:    5px;
+  padding-left:   10px;
+  padding-bottom: 5px;
+}
+
+.pipeline-name {
+  display:     table-cell;
+  font-weight: 600;
+}
+
+.instance-label {
+  @extend %pipeline-label-text;
+}
+
+.instance-details, .latest-stage {
+  @extend %pipeline-label-text;
+  font-weight: 300;
+}
+
+.stage-instance {
+  height:       12px;
+  margin-top:   10px;
+  display:      block;
+  line-height:  12px;
+  margin-right: 4px;
+}
+
+.passed {
+  background-color: #00c853;
+}
+
+.failed {
+  background-color: #fa2d2d;
+}
+
+.building {
+  background-color: #ffc11b;
+}
+

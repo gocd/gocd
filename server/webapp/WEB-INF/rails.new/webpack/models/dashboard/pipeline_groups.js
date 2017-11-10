@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-const $               = require('jquery');
-const m               = require('mithril');
-const Stream          = require('mithril/stream');
-const Dashboard       = require('models/dashboard/dashboard');
-const DashboardWidget = require('views/dashboard/dashboard_widget');
+const _      = require('lodash');
+const Stream = require('mithril/stream');
 
-require('foundation-sites');
+const PipelineGroup = function (info) {
+  this.name      = Stream(info.name);
+  this.pipelines = Stream(info.pipelines);
+};
 
-$(() => {
-  $(document).foundation();
+const PipelineGroups = function (groups) {
+  this.groups = _.map(groups, (group) => new PipelineGroup(group));
+};
 
-  const onSuccess = (dashboard) => {
-    const component = {
-      view() {
-        return m(DashboardWidget, {dashboard: Stream(dashboard)});
-      }
-    };
-
-    m.mount($("#dashboard").get(0), component);
-  };
-
-  Dashboard.get().then(onSuccess);
-});
+module.exports = PipelineGroups;

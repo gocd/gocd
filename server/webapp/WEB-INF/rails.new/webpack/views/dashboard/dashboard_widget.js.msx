@@ -1,0 +1,67 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m               = require('mithril');
+const _               = require('lodash');
+const f               = require('helpers/form_helper');
+const Stream          = require('mithril/stream');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const PipelineWidget  = require('views/dashboard/pipeline_widget');
+
+const DashboardWidget = {
+  oninit(vnode) {
+    ComponentMixins.HasViewModel.call(this);
+
+    this.getPipelinesGroupView = (pipelineGroup, _index) => {
+      const pipelines = _.map(pipelineGroup.pipelines(), (pipelineName) => {
+        return (
+          <PipelineWidget pipeline={Stream(vnode.attrs.dashboard().findPipeline(pipelineName))}/>
+        );
+      });
+
+      return (
+        <div class="pipeline-group-wrapper">
+          <div class="pipeline-group">
+            <h2 class="pipeline-group-title"> {pipelineGroup.name()}</h2>
+            <div>
+              {pipelines}
+            </div>
+          </div>
+        </div>
+      );
+    };
+  },
+
+  view(vnode) {
+    const dashboard  = vnode.attrs.dashboard();
+    const groupsView = _.map(dashboard.getPipelineGroups(), vnode.state.getPipelinesGroupView);
+
+    return (
+      <div>
+        <div class="header-panel">
+          <header class="page-header">
+            <f.row>Pipelines</f.row>
+          </header>
+        </div>
+        <div class="dashboard">
+          {groupsView}
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = DashboardWidget;

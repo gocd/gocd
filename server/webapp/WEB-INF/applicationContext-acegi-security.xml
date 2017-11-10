@@ -311,6 +311,7 @@
                 /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
 
                 /agents=ROLE_USER
+                /dashboard=ROLE_USER
                 /agents/*/job_run_history*=ROLE_SUPERVISOR
                 /agents/*/job_run_history/*=ROLE_SUPERVISOR
                 /config_view/templates/*=ROLE_USER

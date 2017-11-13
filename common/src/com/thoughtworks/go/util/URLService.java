@@ -53,6 +53,10 @@ public class URLService implements ServerUrlGenerator{
         return baseRemotingURL + "/admin/agent";
     }
 
+    public String getTokenURL() {
+        return baseRemotingURL + "/admin/agent/token";
+    }
+
     public String getAgentLatestStatusUrl() {
         return baseRemotingURL + "/admin/latest-agent.status";
     }

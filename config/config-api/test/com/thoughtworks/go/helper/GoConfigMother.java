@@ -78,7 +78,7 @@ public class GoConfigMother {
     }
 
     public static void enableSecurityWithPasswordFilePlugin(CruiseConfig cruiseConfig) {
-        cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("file","cd.go.authentication.passwordfile"));
+        cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
     }
 
     public static CruiseConfig addUserAsSuperAdmin(CruiseConfig config, String adminName) {
@@ -198,6 +198,18 @@ public class GoConfigMother {
         }
     }
 
+    public static BasicCruiseConfig configWithAutoRegisterKey(String autoregisterKey) {
+        try {
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            ServerConfig serverConfig = new ServerConfig(null, null, 0, 0, null, autoregisterKey);
+            cruiseConfig.setServerConfig(serverConfig);
+            return cruiseConfig;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     private static JobConfigs defaultBuildPlans(String... planNames) {
         JobConfigs plans = new JobConfigs();
         for (String name : planNames) {
@@ -236,7 +248,7 @@ public class GoConfigMother {
         for (String id : ids) {
             PackageRepository packageRepository = new PackageRepository();
             packageRepository.setId(id);
-            packageRepository.setName("name"+id);
+            packageRepository.setName("name" + id);
             packageRepository.setPluginConfiguration(new PluginConfiguration("plugin-1", "1.0.0"));
             packageRepository.setPackages(new Packages(PackageDefinitionMother.create(id + "-pkg-1", packageRepository), PackageDefinitionMother.create(id + "-pkg-2", packageRepository)));
             GoCipher cipher = new GoCipher();
@@ -311,7 +323,7 @@ public class GoConfigMother {
     public static CruiseConfig configWithConfigRepo() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(
-                new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git"),"myplugin", "id2"
+                new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git"), "myplugin", "id2"
         )));
         return cruiseConfig;
     }

@@ -19,16 +19,13 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerClientBuilder;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
+import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.slf4j.Logger;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
@@ -37,15 +34,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.TestUtils.exists;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(JMock.class)
 public class SslInfrastructureServiceTest {
@@ -55,20 +55,35 @@ public class SslInfrastructureServiceTest {
     private boolean remoteCalled;
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
+    private GuidService guidService = new GuidService();
+    private TokenService tokenService = new TokenService();
+
+    @Mock
+    private AgentRegistry agentRegistry;
+    @Mock
+    private TokenRequester tokenRequester;
+    @Mock
+    private GoAgentServerHttpClient httpClient;
+    @Mock
+    private SslInfrastructureService.RemoteRegistrationRequester remoteRegistrationRequester;
 
     @Before
     public void setup() throws Exception {
+        initMocks(this);
+
         remoteCalled = false;
         GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
         GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.deleteOnExit();
-        Registration registration = createRegistration();
-        sslInfrastructureService = new SslInfrastructureService(requesterStub(registration), httpClientStub());
-        GuidService.storeGuid("uuid");
+
+        sslInfrastructureService = new SslInfrastructureService(remoteRegistrationRequester, httpClient, tokenRequester, agentRegistry);
+        guidService = new GuidService();
+        guidService.store("uuid");
     }
 
     @After
     public void teardown() throws Exception {
-        GuidService.deleteGuid();
+        guidService.delete();
+        tokenService.delete();
         GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
     }
 
@@ -77,74 +92,39 @@ public class SslInfrastructureServiceTest {
         folder.create();
         File configFile = folder.newFile();
 
-        shouldCreateSslInfrastucture();
+        when(agentRegistry.guidPresent()).thenReturn(true);
+        when(remoteRegistrationRequester.requestRegistration(anyString(), any(AgentAutoRegistrationProperties.class))).thenReturn(createRegistration());
+
+        shouldCreateSslInfrastructure();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
         assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
-        assertRemoteCalled();
+        verify(remoteRegistrationRequester, times(1)).requestRegistration(anyString(), any(AgentAutoRegistrationProperties.class));
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
-        assertRemoteNotCalled();
+        verify(remoteRegistrationRequester, times(1)).requestRegistration(anyString(), any(AgentAutoRegistrationProperties.class));
 
         sslInfrastructureService.invalidateAgentCertificate();
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
-        assertRemoteCalled();
+        verify(remoteRegistrationRequester, times(2)).requestRegistration(anyString(), any(AgentAutoRegistrationProperties.class));
     }
 
-    private void shouldCreateSslInfrastucture() throws Exception {
+    @Test
+    public void shouldGetTokenFromServerIfOneNotExist() throws Exception {
+        tokenService.delete();
+        when(tokenRequester.getToken()).thenReturn("token-from-server");
+
+        sslInfrastructureService.getTokenIfNecessary();
+
+        verify(agentRegistry).storeTokenToDisk("token-from-server");
+    }
+
+    private void shouldCreateSslInfrastructure() throws Exception {
         sslInfrastructureService.createSslInfrastructure();
-    }
-
-    private void assertRemoteCalled() {
-        assertThat("Remote called", remoteCalled, is(true));
-        remoteCalled = false;
-    }
-
-    private void assertRemoteNotCalled() {
-        assertThat("Remote not called", remoteCalled, is(false));
-        remoteCalled = false;
     }
 
     private Registration createRegistration() {
         Registration certificates = AgentCertificateMother.agentCertificate();
         return new Registration(certificates.getPrivateKey(), certificates.getChain());
-    }
-
-    private SslInfrastructureService.RemoteRegistrationRequester requesterStub(final Registration registration) {
-        final SslInfrastructureServiceTest me = this;
-        final SystemEnvironment systemEnvironment = new SystemEnvironment();
-        return new SslInfrastructureService.RemoteRegistrationRequester(null, agentRegistryStub(), new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(systemEnvironment))) {
-            protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties)
-                    throws IOException, ClassNotFoundException {
-                LOGGER.debug("Requesting remote registration");
-                me.remoteCalled = true;
-                return registration;
-            }
-        };
-    }
-
-    private GoAgentServerHttpClient httpClientStub() {
-        final GoAgentServerHttpClient client = context.mock(GoAgentServerHttpClient.class);
-        context.checking(new Expectations() {
-            {
-                try {
-                    allowing(client).reset();
-                } catch (Exception e) {
-                    throw bomb(e);
-                }
-            }
-        });
-        return client;
-    }
-
-    private AgentRegistry agentRegistryStub() {
-        final AgentRegistry registry = context.mock(AgentRegistry.class);
-        context.checking(new Expectations() {
-            {
-                allowing(registry).uuid();
-                will(returnValue("uuid"));
-            }
-        });
-        return registry;
     }
 }

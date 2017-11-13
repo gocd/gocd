@@ -106,7 +106,7 @@ public class AgentWebSocketClientControllerTest {
 
     @After
     public void tearDown() {
-        GuidService.deleteGuid();
+        new GuidService().delete();
     }
 
     @Test

@@ -22,17 +22,42 @@ import static com.thoughtworks.go.util.ExceptionUtils.methodNotImplemented;
 
 public class DefaultAgentRegistry implements AgentRegistry {
 
+    private final GuidService guidService;
+    private final TokenService tokenService;
+
     public DefaultAgentRegistry() {
+        guidService = new GuidService();
+        tokenService = new TokenService();
     }
 
     public String uuid() {
-        if (!GuidService.guidPresent()) {
-            GuidService.storeGuid(UUID.randomUUID().toString());
+        if (!guidService.dataPresent()) {
+            guidService.store(UUID.randomUUID().toString());
         }
-        return GuidService.loadGuid();
+        return guidService.load();
     }
 
     public String serverBaseUrl() {
         throw methodNotImplemented();
+    }
+
+    @Override
+    public String token() {
+        return tokenService.load();
+    }
+
+    @Override
+    public boolean tokenPresent() {
+        return tokenService.dataPresent();
+    }
+
+    @Override
+    public void storeTokenToDisk(String token) {
+        tokenService.store(token);
+    }
+
+    @Override
+    public boolean guidPresent() {
+        return guidService.dataPresent();
     }
 }

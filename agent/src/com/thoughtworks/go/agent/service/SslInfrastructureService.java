@@ -21,7 +21,6 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.KeyStoreManager;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
@@ -61,17 +60,24 @@ public class SslInfrastructureService {
     private final KeyStoreManager keyStoreManager;
     private final GoAgentServerHttpClient httpClient;
     private transient boolean registered = false;
+    private TokenRequester tokenRequester;
+    private AgentRegistry agentRegistry;
 
     @Autowired
     public SslInfrastructureService(URLService urlService, GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) throws Exception {
-        this(new RemoteRegistrationRequester(urlService.getAgentRegistrationURL(), agentRegistry, httpClient), httpClient);
+        this(new RemoteRegistrationRequester(urlService.getAgentRegistrationURL(), agentRegistry, httpClient),
+                httpClient,
+                new TokenRequester(urlService.getTokenURL(), agentRegistry, httpClient),
+                agentRegistry);
     }
 
     // For mocking out remote call
-    SslInfrastructureService(RemoteRegistrationRequester requester, GoAgentServerHttpClient httpClient)
+    SslInfrastructureService(RemoteRegistrationRequester requester, GoAgentServerHttpClient httpClient, TokenRequester tokenRequester, AgentRegistry agentRegistry)
             throws Exception {
         this.remoteRegistrationRequester = requester;
         this.httpClient = httpClient;
+        this.tokenRequester = tokenRequester;
+        this.agentRegistry = agentRegistry;
         this.keyStoreManager = new KeyStoreManager();
         this.keyStoreManager.preload(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
     }
@@ -87,13 +93,22 @@ public class SslInfrastructureService {
 
     public void registerIfNecessary(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
         registered = keyStoreManager.hasCertificates(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE,
-                httpClientBuilder().keystorePassword()) && GuidService.guidPresent();
+                httpClientBuilder().keystorePassword()) && agentRegistry.guidPresent();
         if (!registered) {
             LOGGER.info("[Agent Registration] Starting to register agent.");
             register(agentAutoRegistrationProperties);
             createSslInfrastructure();
             registered = true;
             LOGGER.info("[Agent Registration] Successfully registered agent.");
+        }
+    }
+
+    public void getTokenIfNecessary() throws IOException, InterruptedException {
+        if (!agentRegistry.tokenPresent()) {
+            LOGGER.info("[Agent Registration] Fetching token from server.");
+            final String token = tokenRequester.getToken();
+            agentRegistry.storeTokenToDisk(token);
+            LOGGER.info("[Agent Registration] Got a token from server.");
         }
     }
 
@@ -106,6 +121,7 @@ public class SslInfrastructureService {
         Registration keyEntry = Registration.createNullPrivateKeyEntry();
         while (!keyEntry.isValid()) {
             try {
+                getTokenIfNecessary();
                 keyEntry = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {
                 LOGGER.error("[Agent Registration] There was a problem registering with the go server.", e);
@@ -175,6 +191,7 @@ public class SslInfrastructureService {
                     .addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.agentAutoRegisterHostname())
                     .addParameter("elasticAgentId", agentAutoRegisterProperties.agentAutoRegisterElasticAgentId())
                     .addParameter("elasticPluginId", agentAutoRegisterProperties.agentAutoRegisterElasticPluginId())
+                    .addParameter("token", agentRegistry.token())
                     .build();
 
             try {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
+import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.http.NameValuePair;
@@ -29,6 +30,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -41,11 +44,22 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RemoteRegistrationRequesterTest {
+
+    private TokenService tokenService;
+
+    @Before
+    public void setUp() throws Exception {
+        tokenService = new TokenService();
+        tokenService.store("token");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        tokenService.delete();
+    }
 
     @Test
     public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {

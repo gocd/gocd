@@ -45,7 +45,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldRegisterAgent() throws Exception {
         String uuid = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
-        controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, request);
+        controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, null, request);
         AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
         assertThat(agentConfig.getHostname(), is("hostname"));
     }
@@ -54,7 +54,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldNotRegisterAgentWhenValidationFails() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         int totalAgentsBeforeRegistrationRequest = goConfigService.agents().size();
-        controller.agentRequest("hostname", null, "sandbox", "100", null, null, null, null, null, null, null, false, request);
+        controller.agentRequest("hostname", null, "sandbox", "100", null, null, null, null, null, null, null, false, null, request);
         int totalAgentsAfterRegistrationRequest = goConfigService.agents().size();
         assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
     }

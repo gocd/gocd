@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.tfs.TFSJarDetector;
@@ -31,11 +32,15 @@ import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,12 +49,16 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
 import javax.annotation.PostConstruct;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +76,7 @@ public class AgentRegistrationController {
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
     private volatile String tfsSdkChecksum;
+    private Mac mac;
 
     @Autowired
     public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) {
@@ -75,6 +85,19 @@ public class AgentRegistrationController {
         this.systemEnvironment = systemEnvironment;
         this.pluginsZip = pluginsZip;
         this.agentConfigService = agentConfigService;
+    }
+
+    private Mac hmac() {
+        if (mac == null) {
+            try {
+                mac = Mac.getInstance("HmacSHA256");
+                SecretKeySpec secretKey = new SecretKeySpec(goConfigService.serverConfig().getAgentAutoRegisterKey().getBytes(), "HmacSHA256");
+                mac.init(secretKey);
+            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return mac;
     }
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
@@ -185,13 +208,17 @@ public class AgentRegistrationController {
                                      @RequestParam("elasticAgentId") String elasticAgentId,
                                      @RequestParam("elasticPluginId") String elasticPluginId,
                                      @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
-                                     HttpServletRequest request) throws IOException {
+                                     @RequestParam("token") String token, HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         Registration keyEntry;
         String preferredHostname = hostname;
 
         try {
+            if (!Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
+                throw new RuntimeException("Not a valid token");
+            }
+
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
@@ -244,11 +271,28 @@ public class AgentRegistrationController {
             keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);
         } catch (Exception e) {
             keyEntry = Registration.createNullPrivateKeyEntry();
-            LOG.error("Error occured during agent registration process: ", e);
+            LOG.error("Error occurred during agent registration process: ", e);
         }
 
         return render(keyEntry);
     }
+
+    @RequestMapping(value = "/admin/agent/token", method = RequestMethod.GET)
+    public ResponseEntity getToken(@RequestParam("uuid") String uuid) {
+        try {
+            if (StringUtils.isBlank(uuid)) {
+                throw new RuntimeException("UUID cannot be blank.");
+            }
+            final AgentInstance agentInstance = agentService.findAgent(uuid);
+            if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || goConfigService.hasAgent(uuid)) {
+                throw new RuntimeException("A token has already been issued for this agent.");
+            }
+            return new ResponseEntity<>(Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
+    }
+
 
     private ModelAndView render(final Registration registration) {
         return new ModelAndView(new View() {

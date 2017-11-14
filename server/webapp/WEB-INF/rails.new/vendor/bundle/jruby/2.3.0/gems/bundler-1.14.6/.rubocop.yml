@@ -1,0 +1,128 @@
+inherit_from:
+  - .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 1.9
+  Exclude:
+    - tmp/**/*
+    - lib/bundler/vendor/**/*
+  DisplayCopNames: true
+
+# Lint
+
+# They are idiomatic
+Lint/AssignmentInCondition:
+  Enabled: false
+
+Lint/EndAlignment:
+  AlignWith: variable
+  AutoCorrect: true
+
+Lint/UnusedMethodArgument:
+  Enabled: false
+
+# Style
+
+Style/AccessModifierIndentation:
+  EnforcedStyle: outdent
+
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+
+Style/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Style/PerlBackrefs:
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Style/SpaceInsideBlockBraces:
+  SpaceBeforeBlockParameters: false
+
+Style/TrivialAccessors:
+  Enabled: false
+
+# We adopted raise instead of fail.
+Style/SignalException:
+  EnforcedStyle: only_raise
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+# Having these make it easier to *not* forget to add one when adding a new
+# value and you can simply copy the previous line.
+Style/TrailingCommaInLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
+
+# `String.new` is preferred style with enabled frozen string literal
+Style/EmptyLiteral:
+  Enabled: false
+
+# 1.8.7 support
+
+Style/HashSyntax:
+  EnforcedStyle: hash_rockets
+
+Style/Lambda:
+  Enabled: false
+
+Style/DotPosition:
+  EnforcedStyle: trailing
+
+Style/EachWithObject:
+  Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/TrailingCommaInArguments:
+  Enabled: false
+
+Performance/FlatMap:
+  Enabled: false
+
+# Metrics
+
+# We've chosen to use Rubocop only for style, and not for complexity or quality checks.
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+# It will be obvious which code is complex, Rubocop should only lint simple
+# rules for us.
+Metrics/PerceivedComplexity:
+  Enabled: false

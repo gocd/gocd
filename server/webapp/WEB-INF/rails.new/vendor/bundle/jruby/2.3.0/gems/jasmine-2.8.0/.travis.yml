@@ -1,0 +1,36 @@
+language: ruby
+
+rvm:
+  - "1.9.3"
+  - "2.0.0"
+  - "2.3.1"
+
+env:
+  - "RAILS_VERSION=rails3"
+  - "RAILS_VERSION=rails4"
+  - "RAILS_VERSION=pojs"
+
+sudo: false
+
+script: "if [ $PERFORMANCE_SPECS ];then bundle exec rake performance_specs --trace; else bundle exec rake --trace; fi"
+
+install:
+  - bundle install --retry=3
+
+matrix:
+  fast_finish: true
+  include:
+    - rvm: "2.3.1"
+      env:
+        - "PERFORMANCE_SPECS=true"
+        - "RAILS_VERSION=rails5"
+    - rvm: "2.3.1"
+      env: "RAILS_VERSION=rails5"
+  allow_failures:
+    - rvm: "jruby-9.1.5.0"
+      env:
+        - "RAILS_VERSION=rails4"
+        - "JRUBY_OPTS=''"
+
+before_install:
+  - gem install bundler -v "= 1.5.1"

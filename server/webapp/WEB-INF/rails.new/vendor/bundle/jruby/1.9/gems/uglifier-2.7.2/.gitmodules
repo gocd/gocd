@@ -1,6 +1,0 @@
-[submodule "vendor/uglifyjs"]
-	path = vendor/uglifyjs
-	url = https://github.com/mishoo/UglifyJS2.git
-[submodule "vendor/source-map"]
-	path = vendor/source-map
-	url = https://github.com/mozilla/source-map.git

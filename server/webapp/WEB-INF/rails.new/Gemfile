@@ -1,39 +1,54 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.0.4'
+git_source(:github) do |repo_name|
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
+  "https://github.com/#{repo_name}.git"
+end
 
-gem 'validatable', '>=1.6.0'
-
+gem 'rails', '5.1.4'
+gem 'sass-rails', '5.0.6'
+gem 'webpacker'
+gem 'uglifier'
+gem 'js-routes'
+gem 'roar', '1.0.1'
+gem 'representable', '2.1.7'
+gem 'versionist'
 gem 'dynamic_form'
 
-gem 'sprockets-rails'
-gem 'sass-rails'
-gem 'uglifier'
-gem 'foundation-rails'
-gem 'bourbon'
-gem 'font-awesome-sass'
-gem 'js-routes'
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem 'rake'
 
 gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
-gem 'versionist'
-gem 'roar'
-gem 'webpack-rails', '0.9.10'
+gem 'validatable', '>=1.6.0'
+
+group :development do
+  # jasmine-rails seems to add stuff to the asset pipeline and causes view spec failures.
+  # Since we use `jasmine:ci` task from `jasmine` gem and `jasmine-rails` purely in the dev environment to run specs,
+  # we avoid loading this gem in the test environment.
+  gem 'jasmine-rails'
+end
 
 group :development, :test do
-  gem 'rails-dev-tweaks', '~> 1.1'
-  gem 'minitest'
-  gem "jasmine"
-  gem "jasmine-rails"
+  gem 'rspec-rails'
+  gem 'capybara'
+  gem 'listen'
+
+  # === begin jasmine+friends
+  gem 'jasmine'
+  gem 'jasmine-core'
   gem 'selenium-webdriver'
-  gem 'jasmine-jquery-rails'
-  gem 'jasmine-junitreporter'
+  # === end jasmine+friends
 
-  gem 'rspec-rails', '3.6.0'
   gem 'rspec_junit_formatter'
+  gem 'rails-controller-testing'
 
-  # newer version of addressable version requires ruby >=2.0. Remove after upgrading jruby
-  gem 'addressable', '2.4.0'
-  gem 'capybara', '2.15.4'
-  gem 'ruby-debug-base'
-  gem 'ruby-debug-ide'
+  # to enable debugging, turn on debug flag:
+  # -Djruby.debug.fullTrace=true
+  # gem 'pry'
+  # git 'https://github.com/ketan/pry-debugger-jruby' do
+  #   gem 'pry-debugger-jruby'
+  # end
+  # gem 'pry-state'
 end

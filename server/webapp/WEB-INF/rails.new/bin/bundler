@@ -8,7 +8,7 @@
 
 require 'rubygems'
 
-version = ">= 0"
+version = ">= 0.a"
 
 if ARGV.first
   str = ARGV.first
@@ -19,5 +19,9 @@ if ARGV.first
   end
 end
 
-gem 'bundler', version
-load Gem.bin_path('bundler', 'bundler', version)
+if Gem.respond_to?(:activate_bin_path)
+load Gem.activate_bin_path('bundler', 'bundler', version)
+else
+gem "bundler", version
+load Gem.bin_path("bundler", "bundler", version)
+end

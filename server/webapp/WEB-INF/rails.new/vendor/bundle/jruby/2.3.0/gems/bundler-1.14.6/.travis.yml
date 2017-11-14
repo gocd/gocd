@@ -1,0 +1,122 @@
+language: ruby
+script: rake spec:travis
+before_script:
+  - travis_retry rake spec:travis:deps
+  - travis_retry rake man:build
+  - travis_retry rake spec:rubygems:clone_rubygems_$RGV
+
+branches:
+  only:
+    - master
+    - auto
+    - /.+-dev$/
+    - /.+-stable$/
+
+notifications:
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      - secure: JxBi7DDJGkIF/7f/FSN/HUHpvV4EKfQccZHTPd1b2pNJn3GXo6u+tNVbAw2WjxYzPyPQI3ZcYBCU9SEXp/i7VmG8uMzh8Kyildw+miSKYKVb90uYqcsXWzbxwyNBgJLvyDkzST45H5lgnyAicee3WkFes/WDZikIajbH7ztdb04=
+
+addons:
+  code_climate:
+    repo_token:
+      secure: "TrzIv116JLGUxm6PAUskCYrv8KTDguncKROVwbnjVPKTGDAgoDderd8JUdDEXrKoZ9qGLD2TPYKExt9/QDl71E+qHdWnVqWv4HKCUk2P9z/VLKzHuggOUBkCXiJUhjywUieCJhI3N92bfq2EjSBbu2/OFHqWOjLQ+QCooTEBjv8="
+
+rvm:
+  - 2.4.0
+  - 2.3.3
+  - 2.2.6
+  - 2.1.9
+  - 2.0.0
+  - 1.9.3
+  - 1.8.7
+
+# Rubygems versions MUST be available as rake tasks
+# see Rakefile:125 for the list of possible RGV values
+env:
+  # We need to know if changes to rubygems will break bundler on release
+  - RGV=master
+  # Test the latest rubygems release with all of our supported rubies
+  - RGV=v2.6.8
+
+matrix:
+  include:
+    # Ruby 2.4, Rubygems 2.6.8 and up
+    # Ruby 2.3, Rubygems 2.5.1 and up
+    - rvm: 2.2.6
+      env: RGV=v2.5.2
+    # Ruby 2.2, Rubygems 2.4.5 and up
+    - rvm: 2.2.6
+      env: RGV=v2.4.8
+    # Ruby 2.1, Rubygems 2.2.2 and up
+    - rvm: 2.1.9
+      env: RGV=v2.2.5
+    # Ruby 2.0.0, Rubygems 2.0.0 and up
+    - rvm: 2.0.0
+      env: RGV=v2.2.5
+    - rvm: 2.0.0
+      env: RGV=v2.1.11
+    - rvm: 2.0.0
+      env: RGV=v2.0.14
+    # Ruby 1.9.3, Rubygems 1.5.3 and up
+    - rvm: 1.9.3
+      env: RGV=v2.2.5
+    - rvm: 1.9.3
+      env: RGV=v2.1.11
+    - rvm: 1.9.3
+      env: RGV=v2.0.14
+    - rvm: 1.9.3
+      env: RGV=v1.8.29
+    - rvm: 1.9.3
+      env: RGV=v1.7.2
+    - rvm: 1.9.3
+      env: RGV=v1.6.2
+    - rvm: 1.9.3
+      env: RGV=v1.5.3
+
+    # Ruby 1.8.7, Rubygems 1.3.6 and up
+    - rvm: 1.8.7
+      env: RGV=v2.2.5
+    # ALLOWED FAILURES
+    # since the great Travis image outage, frequent random segfaults :'(
+    - rvm: 1.8.7
+      env: RGV=v2.0.14
+    - rvm: 1.8.7
+      env: RGV=v1.8.29
+    - rvm: 1.8.7
+      env: RGV=v1.7.2
+    - rvm: 1.8.7
+      env: RGV=v1.6.2
+    - rvm: 1.8.7
+      env: RGV=v1.5.3
+    - rvm: 1.8.7
+      env: RGV=v1.4.2
+    - rvm: 1.8.7
+      env: RGV=v1.3.7
+    - rvm: 1.8.7
+      env: RGV=v1.3.6
+    # Ruby-head (we want to know how we're doing, but not fail the build)
+    - rvm: ruby-head
+      env: RGV=master
+
+  allow_failures:
+    - rvm: 1.8.7
+      env: RGV=v2.0.14
+    - rvm: 1.8.7
+      env: RGV=v1.8.29
+    - rvm: 1.8.7
+      env: RGV=v1.7.2
+    - rvm: 1.8.7
+      env: RGV=v1.6.2
+    - rvm: 1.8.7
+      env: RGV=v1.5.3
+    - rvm: 1.8.7
+      env: RGV=v1.4.2
+    - rvm: 1.8.7
+      env: RGV=v1.3.7
+    - rvm: 1.8.7
+      env: RGV=v1.3.6
+    - rvm: ruby-head
+      env: RGV=master

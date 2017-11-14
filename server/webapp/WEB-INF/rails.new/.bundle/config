@@ -1,5 +1,5 @@
 ---
-BUNDLE_PATH: vendor/bundle
-BUNDLE_BIN: bin
-BUNDLE_CLEAN: true
-BUNDLE_DISABLE_SHARED_GEMS: '1'
+BUNDLE_PATH: "vendor/bundle"
+BUNDLE_BIN: "bin"
+BUNDLE_CLEAN: "true"
+BUNDLE_DISABLE_SHARED_GEMS: "true"

@@ -1,0 +1,54 @@
+AllCops:
+  DisplayCopNames: true
+
+#
+# Lint
+#
+
+Lint/HandleExceptions:
+  Enabled: false
+
+Lint/Loop:
+  Enabled: false
+
+#
+# Metrics
+#
+
+Metrics/AbcSize:
+  Max: 35
+
+Metrics/ClassLength:
+  Max: 128
+
+Metrics/LineLength:
+  Max: 128
+
+Metrics/MethodLength:
+  CountComments: false
+  Max: 50
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Max: 15
+
+#
+# Style
+#
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/GlobalVars:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/RescueModifier:
+  Enabled: false
+
+Style/TrivialAccessors:
+  Enabled: false

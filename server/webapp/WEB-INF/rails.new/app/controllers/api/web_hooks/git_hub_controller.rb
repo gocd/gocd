@@ -38,24 +38,24 @@ module Api
 
       def allow_only_push_event
         unless request.headers['X-GitHub-Event'] == 'push'
-          render text: "Ignoring event of type `#{request.headers['X-GitHub-Event']}'", content_type: 'text/plain', status: :accepted, layout: nil
+          render plain: "Ignoring event of type `#{request.headers['X-GitHub-Event']}'", content_type: 'text/plain', status: :accepted
         end
       end
 
       def prempt_ping_call
         if request.headers['X-GitHub-Event'] == 'ping'
-          render text: payload['zen'], content_type: 'text/plain', status: :accepted, layout: nil
+          render plain: payload['zen'], content_type: 'text/plain', status: :accepted
         end
       end
 
       def verify_payload
         if payload.blank?
-          render text: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request
         end
       rescue => e
         Rails.logger.warn('Could not understand github webhook payload:')
         Rails.logger.warn(e)
-        render text: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request, layout: nil
+        render plain: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request
       end
 
       def payload
@@ -68,13 +68,13 @@ module Api
 
       def verify_content_origin
         if request.headers['X-Hub-Signature'].blank?
-          return render text: "No HMAC signature specified via `X-Hub-Signature' header!", content_type: 'text/plain', status: :bad_request, layout: nil
+          return render plain: "No HMAC signature specified via `X-Hub-Signature' header!", content_type: 'text/plain', status: :bad_request
         end
 
         expected_signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), webhook_secret, request.body.read)
 
         unless Rack::Utils.secure_compare(expected_signature, request.headers['X-Hub-Signature'])
-          render text: "HMAC signature specified via `X-Hub-Signature' did not match!", content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: "HMAC signature specified via `X-Hub-Signature' did not match!", content_type: 'text/plain', status: :bad_request
         end
       end
     end

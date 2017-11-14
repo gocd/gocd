@@ -23,20 +23,6 @@ describe Api::ServerStateController do
     allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
-  it 'should answer to /api/state/status' do
-    expect(get: '/api/state/status').to route_to(action: 'status', controller: 'api/server_state', no_layout: true)
-  end
-
-  it 'should answer to /api/state/active' do
-    expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-    expect(post: '/api/state/active').to route_to(action: 'to_active', controller: 'api/server_state', no_layout: true)
-  end
-
-  it 'should answer to /api/state/passive' do
-    expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-    expect(post: '/api/state/passive').to route_to(action: 'to_passive', controller: 'api/server_state', no_layout: true)
-  end
-
   it 'should return server state status as active' do
     expect(@system_environment).to receive(:isServerActive).and_return(true)
     get :status

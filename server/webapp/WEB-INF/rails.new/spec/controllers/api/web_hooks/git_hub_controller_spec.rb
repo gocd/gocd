@@ -43,18 +43,8 @@ describe Api::WebHooks::GitHubController do
           }
         }
 
-        params_string = params.to_json
-
-        allow(request).to receive(:body) do
-          StringIO.new(params_string)
-        end
-
-        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request.body.read)
-
-        request.headers.merge!({
-                                 'X-Hub-Signature' => signature,
-                                 'Content-Type' => 'application/json'
-                               })
+        request_body = params.to_json
+        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request_body)
 
         allow(controller).to receive(:prempt_ping_call)
         allow(controller).to receive(:allow_only_push_event)
@@ -78,29 +68,22 @@ describe Api::WebHooks::GitHubController do
 
         expect(@material_update_service)
           .to receive(:updateGitMaterial)
-          .with('branch', all_matching_repos
-          )
-          .and_return(true)
+                .with('branch', all_matching_repos)
+                .and_return(true)
 
-        post :notify, params
-        expect(response.status).to eq(202)
+        request.headers.merge!({'X-Hub-Signature' => signature})
+        post :notify, body: request_body, as: :json
         expect(response.body).to eq('OK!')
+        expect(response.status).to eq(202)
       end
 
       it 'should return 400 [bad request] if the signature does not match our signed payload' do
         expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {}
-        params_string = params.to_json
-        allow(request).to receive(:body) do
-          StringIO.new(params_string)
-        end
+        request_body = params.to_json
 
-        request.headers.merge!({
-                                 'X-Hub-Signature' => 'some_bad_signature',
-                                 'Content-Type' => 'application/json'
-                               })
-
-        post :notify, params
+        request.headers.merge!({'X-Hub-Signature' => 'some_bad_signature'})
+        post :notify, body: request_body, as: :json
         expect(response.status).to eq(400)
         expect(response.body).to eq("HMAC signature specified via `X-Hub-Signature' did not match!")
       end
@@ -108,22 +91,12 @@ describe Api::WebHooks::GitHubController do
       it 'should respond with 202 [accepted] upon receiving a GitHub ping event' do
         expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {zen: 'some github zen'}
-        params_string = params.to_json
-        allow(request).to receive(:body) do
-          StringIO.new(params_string)
-        end
-        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request.body.read)
+        request_body = params.to_json
 
-        request.headers.merge!({
-                                 'X-Hub-Signature' => signature,
-                                 'Content-Type' => 'application/json',
-                                 'X-GitHub-Event' => 'ping'
-                               })
+        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request_body)
 
-
-        request.env['RAW_POST_DATA'] = params_string
-
-        post :notify, params
+        request.headers.merge!({'X-Hub-Signature' => signature, 'X-GitHub-Event' => 'ping'})
+        post :notify, body: request_body, as: :json
         expect(response.status).to eq(202)
         expect(response.body).to eq(params[:zen])
       end
@@ -141,17 +114,9 @@ describe Api::WebHooks::GitHubController do
         }
 
         params_string = CGI.escape(params.to_json)
+        request_body="payload=#{params_string}"
 
-        allow(request).to receive(:body) do
-          StringIO.new("payload=#{params_string}")
-        end
-
-        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request.body.read)
-
-        request.headers.merge!({
-                                 'X-Hub-Signature' => signature,
-                                 'Content-Type' => 'application/x-www-form-urlencoded'
-                               })
+        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request_body)
 
         allow(controller).to receive(:prempt_ping_call)
         allow(controller).to receive(:allow_only_push_event)
@@ -175,30 +140,24 @@ describe Api::WebHooks::GitHubController do
 
         expect(@material_update_service)
           .to receive(:updateGitMaterial)
-          .with('branch', all_matching_repos
-          )
-          .and_return(true)
+                .with('branch', all_matching_repos)
+                .and_return(true)
 
-        post :notify, payload: params_string
-        expect(response.status).to eq(202)
+        request.headers.merge!({'X-Hub-Signature' => signature})
+        post :notify, body: request_body, params: {payload: params_string}, as: :url_encoded_form
         expect(response.body).to eq('OK!')
+        expect(response.status).to eq(202)
       end
 
       it 'should return 400 [bad request] if the signature does not match our signed payload' do
         expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {}
         params_string = CGI.escape(params.to_json)
+        request_body = "payload=#{params_string}"
 
-        allow(request).to receive(:body) do
-          StringIO.new("payload=#{params_string}")
-        end
+        request.headers.merge!({'X-Hub-Signature' => 'some_bad_signature'})
+        post :notify, body: request_body, params: {payload: params_string}, as: :url_encoded_form
 
-        request.headers.merge!({
-                                 'X-Hub-Signature' => 'some_bad_signature',
-                                 'Content-Type' => 'application/x-www-form-urlencoded'
-                               })
-
-        post :notify, payload: params_string
         expect(response.status).to eq(400)
         expect(response.body).to eq("HMAC signature specified via `X-Hub-Signature' did not match!")
       end
@@ -207,23 +166,12 @@ describe Api::WebHooks::GitHubController do
         expect(@server_config_service).to receive(:getWebhookSecret).and_return('secret')
         params = {zen: 'some github zen'}
         params_string = CGI.escape(params.to_json)
+        request_body = "payload=#{params_string}"
 
-        allow(request).to receive(:body) do
-          StringIO.new("payload=#{params_string}")
-        end
+        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request_body)
 
-        signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), 'secret', request.body.read)
-
-        request.headers.merge!({
-                                 'X-Hub-Signature' => signature,
-                                 'Content-Type' => 'application/x-www-form-urlencoded',
-                                 'X-GitHub-Event' => 'ping'
-                               })
-
-
-        request.env['RAW_POST_DATA'] = params_string
-
-        post :notify, payload: params_string
+        request.headers.merge!({'X-Hub-Signature' => signature, 'X-GitHub-Event' => 'ping'})
+        post :notify, body: request_body, params: {payload: params_string}, as: :url_encoded_form
 
         expect(response.status).to eq(202)
         expect(response.body).to eq(params[:zen])

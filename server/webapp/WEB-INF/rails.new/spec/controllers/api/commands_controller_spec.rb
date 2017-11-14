@@ -21,20 +21,12 @@ describe Api::CommandsController do
     @command_repository_service = stub_service(:command_repository_service)
   end
 
-  describe "routes" do
-    it "should generate path for command snippet cache reload " do
-      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      expect(:post => '/api/admin/command-repo-cache/reload').to route_to(:no_layout => true, :controller => "api/commands", :action => "reload_cache")
-      expect(admin_command_cache_reload_path).to eq("/api/admin/command-repo-cache/reload")
-    end
-  end
-
   describe "actions" do
     describe "reload_cache" do
       it "should reload the cache" do
         expect(@command_repository_service).to receive(:reloadCache)
 
-        post :reload_cache, :no_layout => true
+        post :reload_cache, params: {:no_layout => true}
 
         expect(response.status).to eq(200)
         expect(response.code).to eq("200")

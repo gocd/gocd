@@ -26,7 +26,7 @@ class Admin::CommandsController < AdminController
   def show
     relative_path_of_snippet = params[:command_name]
     definition = command_repository_service.getCommandSnippetByRelativePath(relative_path_of_snippet)
-    render :text => "Command definition not found", :status => 404 and return if definition.nil?
+    render :plain => "Command definition not found", :status => 404 and return if definition.nil?
 
     render :json => {:name => definition.getName(), :description => definition.getDescription(), :author => definition.getAuthor(), :authorinfo => definition.getAuthorInfo(),
         :moreinfo => definition.getMoreInfo(), :command => definition.getCommandName(), :arguments => definition.getArguments().join("\n")}
@@ -35,6 +35,6 @@ class Admin::CommandsController < AdminController
   def lookup
     matched_command_snippets = command_repository_service.lookupCommand(params[:lookup_prefix])
 
-    render :text => matched_command_snippets.collect {|snippet| "#{snippet.getName()}|#{snippet.getRelativePath()}"}.join("\n")
+    render :plain => matched_command_snippets.collect {|snippet| "#{snippet.getName()}|#{snippet.getRelativePath()}"}.join("\n")
   end
 end

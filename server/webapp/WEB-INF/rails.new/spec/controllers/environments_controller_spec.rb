@@ -73,47 +73,6 @@ describe EnvironmentsController do
       expect(assigns[:environments]).to eq(["environment-1", "environment-2"])
     end
 
-    it "should match /environments defaulting to html format" do
-      expect(:get => "/environments").to route_to({:controller => "environments", :action => 'index', :format => :html})
-    end
-
-    it "should match /environments defaulting to json format" do
-      expect(:post => "/environments.json").to route_to({:controller => "environments", :action => 'index', :format => "json"})
-    end
-
-    it "should match /new" do
-      expect(:get => "/environments/new").to route_to({:controller => "environments", :action => 'new', :no_layout => true})
-    end
-
-    it "should match /create" do
-      expect(:post => "/environments/create").to route_to({:controller => "environments", :action => 'create', :no_layout => true})
-    end
-
-    it "should match /update" do
-      expect(:put => "/environments/foo").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo'})
-      expect(:put => "/environments/foo.bar.baz").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo.bar.baz'})
-    end
-
-    it "should match /show" do
-      expect(:get => "/environments/foo/show").to route_to({:controller => "environments", :action => 'show', :name => 'foo'})
-      expect(:get => "/environments/foo.bar.baz/show").to route_to({:controller => "environments", :action => 'show', :name => 'foo.bar.baz'})
-    end
-
-    it "should match /edit/pipelines" do
-      expect(:get => "/environments/foo/edit/pipelines").to route_to({:controller => "environments", :action => 'edit_pipelines', :name => 'foo', :no_layout => true})
-      expect(:get => "/environments/foo.bar.baz/edit/pipelines").to route_to({:controller => "environments", :action => 'edit_pipelines', :name => 'foo.bar.baz', :no_layout => true})
-    end
-
-    it "should match /edit/agents" do
-      expect(:get => "/environments/foo/edit/agents").to route_to({:controller => "environments", :action => 'edit_agents', :name => 'foo', :no_layout => true})
-      expect(:get => "/environments/foo.bar.baz/edit/agents").to route_to({:controller => "environments", :action => 'edit_agents', :name => 'foo.bar.baz', :no_layout => true})
-    end
-
-    it "should match /edit/variables" do
-      expect(:get => "/environments/foo/edit/variables").to route_to({:controller => "environments", :action => 'edit_variables', :name => 'foo', :no_layout => true})
-      expect(:get => "/environments/foo.bar.baz/edit/variables").to route_to({:controller => "environments", :action => 'edit_variables', :name => 'foo.bar.baz', :no_layout => true})
-    end
-
     it "should create a new environment" do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(user)
@@ -131,7 +90,7 @@ describe EnvironmentsController do
         result = operation_result
       end
 
-      post :create, :no_layout => true, :environment => {:name => environment_name, :variables => [{"name" => "SHELL", "valueForDisplay" => "/bin/zsh"}]}
+      post :create, params: { :no_layout => true, :environment => {:name => environment_name, :variables => [{"name" => "SHELL", "valueForDisplay" => "/bin/zsh"}]} }
 
       expect(@env_name).to eq(CaseInsensitiveString.new(environment_name))
       expect(@environment_variables).to eq([{"name" => "SHELL", "value" => "/bin/zsh"}])
@@ -157,7 +116,7 @@ describe EnvironmentsController do
         createEnvironmentCalled = true
       end
 
-      post :create, :no_layout => true, :environment => {:name => environment_name, :pipelines => [{:name => "first_pipeline"}, {:name => "second_pipeline"}], :agents => [{:uuid => "agent_1_uuid"}]}
+      post :create, params: { :no_layout => true, :environment => {:name => environment_name, :pipelines => [{:name => "first_pipeline"}, {:name => "second_pipeline"}], :agents => [{:uuid => "agent_1_uuid"}]} }
 
       expect(response.status).to eq(302)
       flash_guid = $1 if response.location =~ /environments\/foo-environment\/show\?.*?fm=(.+)/
@@ -202,14 +161,14 @@ describe EnvironmentsController do
         result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "environment", @environment_name))
       end
 
-      post :create, :no_layout => true, :environment => {:name => environment_name, :pipelines => []}
+      post :create, params: { :no_layout => true, :environment => {:name => environment_name, :pipelines => []} }
 
       expect(response.body).to match(/Failed to add environment./)
       expect(response.status).to eq(409)
     end
 
     it "should return error message if environment name is blank" do
-      post :create, :no_layout => true, :environment => {:pipelines => []}
+      post :create, params: { :no_layout => true, :environment => {:pipelines => []} }
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Environment name is required/)
@@ -221,7 +180,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return([EnvironmentPipelineModel.new("first", nil)])
 
 
-      post :create, :no_layout => true, :environment => {'pipelines' => [{'name' => "first"}]}
+      post :create, params: { :no_layout => true, :environment => {'pipelines' => [{'name' => "first"}]} }
 
       expect(response.status).to eq(400)
       expect(response.body).to have_selector("input[type='checkbox'][name='environment[pipelines][][name]'][id='pipeline_first'][checked='checked']")
@@ -259,9 +218,9 @@ describe EnvironmentsController do
         result.badRequest(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
       end
 
-      put :update, :no_layout => true,
+      put :update, params: { :no_layout => true,
           :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => @environment_name, :cruise_config_md5 => md5
+          :name => @environment_name, :cruise_config_md5 => md5 }
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Failed to update environment 'foo-environment'/)
@@ -273,7 +232,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
 
-      put :update, :no_layout => true, :environment => {:name => ""}, :name => @environment_name, :cruise_config_md5 => md5
+      put :update, params: { :no_layout => true, :environment => {:name => ""}, :name => @environment_name, :cruise_config_md5 => md5 }
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Environment name is required/)
@@ -286,9 +245,9 @@ describe EnvironmentsController do
         result.unprocessableEntity(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
       end
 
-      put :update, :no_layout => true,
+      put :update, params: { :no_layout => true,
           :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => @environment_name, :cruise_config_md5 => md5
+          :name => @environment_name, :cruise_config_md5 => md5 }
 
       expect(response.status).to eq(422)
       expect(response.body).to match(/Failed to update environment 'foo-environment'/)
@@ -304,9 +263,9 @@ describe EnvironmentsController do
         result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)))
       end
 
-      put :update, :no_layout => true,
+      put :update, params: { :no_layout => true,
           :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => @environment_name, :cruise_config_md5 => md5
+          :name => @environment_name, :cruise_config_md5 => md5 }
 
       expect(response).to be_success
       expect(response.location).to match(/^\/environments\/foo_env\/show\?.*?fm=/)
@@ -339,9 +298,9 @@ describe EnvironmentsController do
       end
 
 
-      put :update, :no_layout => true,
+      put :update, params: { :no_layout => true,
           :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => "foo_env", :cruise_config_md5 => 'md5'
+          :name => "foo_env", :cruise_config_md5 => 'md5' }
 
       expect(response).to be_success
       expect(response.location).to match(/^\/environments\/foo_env\/show\?.*?fm=/)
@@ -376,7 +335,7 @@ describe EnvironmentsController do
     end
 
     it "should load existing variables for environment variables edit" do
-      get :edit_variables, :name => "foo-environment", :no_layout => true
+      get :edit_variables, params: { :name => "foo-environment", :no_layout => true }
 
       expect(assigns[:environment]).to_not be_nil
       expect(response.body).to have_selector("form input[type='text'][name='environment[variables][][name]'][value='name_foo']")
@@ -395,7 +354,7 @@ describe EnvironmentsController do
 
       @config_helper.addPipelineWithGroup("baz-group", "baz", "dev", ["unit"].to_java(:string))
 
-      get :edit_pipelines, :name => "foo-environment", :no_layout => true
+      get :edit_pipelines, params: { :name => "foo-environment", :no_layout => true }
 
       expect(assigns[:environment]).to_not be_nil
 
@@ -409,7 +368,7 @@ describe EnvironmentsController do
       @config_helper.addAgentToEnvironment(@environment_name, "in-env")
       @config_helper.addAgent("out-of-env", "out-env")
 
-      get :edit_agents, :name => "foo-environment", :no_layout => true
+      get :edit_agents, params: { :name => "foo-environment", :no_layout => true }
 
       expect(assigns[:environment]).to_not be_nil
 
@@ -418,7 +377,7 @@ describe EnvironmentsController do
     end
 
     it "should fail agent_edit for a non existing environment" do
-      get :edit_agents, :name => "some-non-existent-environment", :no_layout => true
+      get :edit_agents, params: { :name => "some-non-existent-environment", :no_layout => true }
 
       expect(assigns[:environment]).to be_nil
 
@@ -426,7 +385,7 @@ describe EnvironmentsController do
     end
 
     it "should fail pipeline_edit for a non existing environment" do
-      get :edit_pipelines, :name => "some-non-existent-environment", :no_layout => true
+      get :edit_pipelines, params: { :name => "some-non-existent-environment", :no_layout => true }
 
       expect(assigns[:environment]).to be_nil
 
@@ -434,7 +393,7 @@ describe EnvironmentsController do
     end
 
     it "should fail variable_edit for a non existing environment" do
-      get :edit_variables, :name => "some-non-existent-environment", :no_layout => true
+      get :edit_variables, params: { :name => "some-non-existent-environment", :no_layout => true }
 
       expect(assigns[:environment]).to be_nil
 
@@ -492,7 +451,7 @@ describe EnvironmentsController do
     end
 
     it "should show pipelines and environment variables" do
-      get :show, :name => "foo-env"
+      get :show, params: { :name => "foo-env" }
 
       expect(response).to be_success
 

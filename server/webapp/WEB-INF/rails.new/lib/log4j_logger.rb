@@ -15,6 +15,12 @@
 ##########################################################################
 
 class Log4jLogger
+
+  module LoggerCompatibility # we don't use it, but it's needed as part of the API contract
+    attr_accessor :formatter
+    def silence(*args, &blk); yield self; end
+  end
+
   # SLF4J severity levels
   LEVELS = %w{ trace debug info warn error }
 
@@ -54,7 +60,7 @@ class Log4jLogger
   # using the Java ex.cause in this case.
   #
   class Logger
-    attr_accessor :level
+    include LoggerCompatibility
     attr_reader :name
 
     # Create new or find existing Logger by name. If name is a Module (Class, etc.)

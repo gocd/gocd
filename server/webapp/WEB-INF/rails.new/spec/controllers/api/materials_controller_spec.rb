@@ -29,36 +29,31 @@ describe Api::MaterialsController do
     end
 
     it "should return 401 when user is not an admin" do
-      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
+      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActiveSupport::HashWithIndifferentAccess), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
         result.unauthorized(LocalizedMessage.string('API_ACCESS_UNAUTHORIZED'), HealthStateType.unauthorised())
       end
-      post :notify, @params
+      post :notify, params: @params
       expect(response.status).to eq(401)
       expect(response.body).to eq("Unauthorized to access this API.\n")
     end
 
-    it "should return 200 when notify is successful" do
-      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)).and_return(nil)
-      post :notify, @params
-      expect(response.status).to eq(200)
+    it "should return 202 when notify is successful" do
+      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActiveSupport::HashWithIndifferentAccess), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
+        result.accepted(LocalizedMessage.string("MATERIAL_SCHEDULE_NOTIFICATION_ACCEPTED"));
+      end
+      post :notify, params: @params
+      expect(response.status).to eq(202)
+      expect(response.content_type).to eq('text/plain')
+      expect(response.body).to eq("The material is now scheduled for an update. Please check relevant pipeline(s) for status.\n")
     end
 
     it "should return 400 with params is empty" do
-      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
+      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActiveSupport::HashWithIndifferentAccess), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
         result.badRequest(LocalizedMessage.string('API_BAD_REQUEST'))
       end
-      post :notify, @params
+      post :notify, params: @params
       expect(response.status).to eq(400)
       expect(response.body).to eq("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.\n")
-    end
-
-    it "should generate the route" do
-      expect(material_notify_path(:post_commit_hook_material_type => 'svn')).to eq("/api/material/notify/svn")
-    end
-
-    it "should resolve" do
-      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      expect(:post => "/api/material/notify/svn").to route_to(:controller => "api/materials", :action => "notify", :no_layout=>true, :post_commit_hook_material_type => "svn")
     end
   end
 
@@ -67,16 +62,12 @@ describe Api::MaterialsController do
       allow(controller).to receive(:material_config_service).and_return(@material_config_service = double('material_config_service'))
     end
 
-    it "should resolve" do
-      expect(:get => "/api/config/materials").to route_to(:controller => "api/materials", :action => "list_configs", :no_layout=>true)
-    end
-
     it "should render material list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@material_config_service).to receive(:getMaterialConfigs).with("loser").and_return([create_material_config_model])
 
-      get :list_configs, :no_layout => true
+      get :list_configs, params: { :no_layout => true }
 
       expect(response.body).to eq([MaterialConfigAPIModel.new(create_material_config_model)].to_json)
     end
@@ -88,11 +79,6 @@ describe Api::MaterialsController do
       allow(controller).to receive(:material_service).and_return(@material_service = double('material_service'))
     end
 
-    it "should resolve" do
-      expect(:get => "/api/materials/fingerprint/modifications").to route_to(:controller => "api/materials", :action => "modifications", :fingerprint => "fingerprint", :offset => "0", :no_layout => true)
-      expect(:get => "/api/materials/fingerprint/modifications/1").to route_to(:controller => "api/materials", :action => "modifications", :fingerprint => "fingerprint", :offset => "1", :no_layout => true)
-    end
-
     it "should render material modification list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
@@ -101,7 +87,7 @@ describe Api::MaterialsController do
       expect(@material_service).to receive(:getTotalModificationsFor).with(material_config).and_return(10)
       expect(@material_service).to receive(:getModificationsFor).with(material_config, anything).and_return([create_modification_view_model])
 
-      get :modifications, :fingerprint => "fingerprint", :offset => "5", :no_layout => true
+      get :modifications, params: { :fingerprint => "fingerprint", :offset => "5", :no_layout => true }
 
       expect(response.body).to eq(MaterialHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_modification_view_model]).to_json)
     end
@@ -113,7 +99,7 @@ describe Api::MaterialsController do
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
-      get :modifications, :fingerprint => "fingerprint", :no_layout => true
+      get :modifications, params: { :fingerprint => "fingerprint", :no_layout => true }
 
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")

@@ -35,7 +35,7 @@ describe "/admin/tasks/plugin/edit.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='task_update_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='_method'][value='PUT']", {visible: :hidden})
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='put']", {visible: :hidden})
       expect(form).to have_selector("label", :text => "Command*")
       expect(form).to have_selector("input[name='task[#{com.thoughtworks.go.config.ExecTask::COMMAND}]'][value='ls']")
     end

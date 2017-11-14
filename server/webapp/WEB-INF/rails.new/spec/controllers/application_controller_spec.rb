@@ -177,7 +177,7 @@ describe ApplicationController do
   describe "do for every request" do
     controller do
       def index
-        render text: "Hello"
+        render plain: "Hello"
       end
     end
 
@@ -222,7 +222,7 @@ describe ApplicationController do
   context "with license agent validity stubbed" do
     controller do
       def test_action
-        render text: "Some test action"
+        render plain: "Some test action"
       end
     end
 
@@ -289,155 +289,73 @@ describe ApplicationController do
 
       # Fake that part of a Rails model object that is needed by url_for.
       class TestObject
+        extend ActiveModel::Naming
+
         def id
         end
 
-        def self.model_name
+        def to_model
           self
         end
 
-        def self.singular_route_key
-          "test_object"
+        def persisted?
+          self
         end
+
       end
 
       it "should return only the path to a given resource and not the whole url" do
-        expect(controller.url_for(controller: "java", action: "null", foo: "junk")).to eq("/rails/java/null?foo=junk")
-      end
-
-      it "should cache the url if options is an active-record object" do
-        obj = TestObject.new
-        def controller.test_object_url(*args)
-          raise 'should not invoke this, because it is stubbed!'
-        end
-        expect(controller).to receive(:test_object_url).with(obj).and_return("some-url")
-        expect(controller.url_for(obj)).to eq("some-url")
+        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk")).to eq("http://test.host/api/version?foo=junk")
       end
 
       it "should return full path when requested explicitly" do
-        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
+        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
+            only_path: false)).to eq("http://test.host/api/version?foo=junk")
       end
 
       it "should use ssl base url from server config when requested" do
-        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false, protocol: 'https')).to eq("https://ssl.host:443/rails/java/null?foo=junk")
-        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false, protocol: 'http')).to eq("http://test.host/rails/java/null?foo=junk")
-        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
-            only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
+        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
+            only_path: false, protocol: 'https')).to eq("https://ssl.host:443/api/version?foo=junk")
+        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
+            only_path: false, protocol: 'http')).to eq("http://test.host/api/version?foo=junk")
+        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
+            only_path: false)).to eq("http://test.host/api/version?foo=junk")
       end
     end
 
     describe "url cache" do
       before do
+        Services.go_cache.clear
         draw_test_controller_route
-
-        ActionController::Base.class_eval do
-          @@url_cache_miss_count = 0
-          alias_method :url_for_original, :url_for
-
-          def url_for(options)
-            @@url_cache_miss_count += 1
-            s = string_for(params) + " - "
-            s += string_for(options)
-            "#{@@url_cache_miss_count} - #{s} - #{request.protocol} - #{request.host_with_port}"
-          end
-
-          def string_for(map)
-            str = []
-            map.keys.sort { |val, other| val.to_s <=> other.to_s }.each do |key|
-              str << "#{key}=#{map[key]}"
-            end
-            str.join("|")
-          end
-        end
-        allow(stub_service(:server_config_service)).to receive(:siteUrlFor) do |url, _force_ssl|
-          url
+        def controller.default_url_options
+          super.reverse_merge(UrlBuilder.default_url_options)
         end
       end
 
       after do
-        ActionController::Base.class_eval do
-          remove_method :url_for
-          alias_method :url_for, :url_for_original
-          remove_method :url_for_original
-        end
+        Services.go_cache.clear
         controller.go_cache.clear
       end
 
-      it "should cache the url based on options" do
-        controller.params.clear
-        expect(controller.url_for('foo' => 'foo', 'bar' => 'bar')).to eq("1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host")
-        expect(controller.url_for('bar' => 'bar', 'foo' => 'foo')).to eq("1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host")
+      it "should cache the url" do
+        Services.go_cache.clear
+        expect(controller.url_for(controller: 'api_v1/version', action: :show)).to eq("http://test.host/api/version")
+        key = Services.go_cache.getKeys.grep(/#{Regexp.quote(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY)}#{Regexp.quote(GoCache::SUB_KEY_DELIMITER)}/).last
+        expect(key).to be_present
+        Services.go_cache.put(key, "some-random-url")
+        expect(controller.url_for(controller: 'api_v1/version', action: :show)).to eq("some-random-url")
+        expect(Services.go_cache.get(key)).to eq('some-random-url')
       end
 
-      it "should cache the url based on params" do
-        allow(controller).to receive(:params).and_return(foo: "foo", bar: "bar")
-        expect(controller.url_for).to eq("1 - bar=bar|foo=foo - only_path=true - http:// - test.host")
-        allow(controller).to receive(:params).and_return(bar: "bar", foo: "foo")
-        expect(controller.url_for).to eq("1 - bar=bar|foo=foo - only_path=true - http:// - test.host")
-      end
-
-      it "should cache the url based on params and options" do
-        allow(controller).to receive(:params).and_return(bar: "bar", baz: "baz")
-        expect(controller.url_for(foo: "foo", quux: "quux")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
-
-        allow(controller).to receive(:params).and_return(baz: "baz", bar: "bar")
-        expect(controller.url_for(quux: "quux", foo: "foo")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
-
-        expect(controller.url_for(foo: "foo")).to eq("2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host")
-
-        allow(controller).to receive(:params).and_return(bar: "bar")
-        expect(controller.url_for(foo: "foo")).to eq("3 - bar=bar - foo=foo|only_path=true - http:// - test.host")
-      end
-
-      it "should cache the url based on values" do
-        expect(controller.url_for(foo: "foo", quux: "foo")).to eq("1 -  - foo=foo|only_path=true|quux=foo - http:// - test.host")
-        expect(controller.url_for(foo: "foo", quux: "quux")).to eq("2 -  - foo=foo|only_path=true|quux=quux - http:// - test.host")
-      end
-
-      it "should cache the url based on keys" do
-        expect(controller.url_for(foo: "foo")).to eq("1 -  - foo=foo|only_path=true - http:// - test.host")
-        expect(controller.url_for(foo1: "foo")).to eq("2 -  - foo1=foo|only_path=true - http:// - test.host")
-      end
-
-      it "should cache the url based on host_and_port request reached on" do
-        allow(controller.request).to receive(:host_with_port).and_return("local-host:8153")
-        expect(controller.url_for(foo: "foo")).to eq("1 -  - foo=foo|only_path=true - http:// - local-host:8153")
-        allow(controller.request).to receive(:host_with_port).and_return("local-ghost:8154")
-        expect(controller.url_for(foo: "foo")).to eq("2 -  - foo=foo|only_path=true - http:// - local-ghost:8154")
-        allow(controller.request).to receive(:host_with_port).and_return("local-ghost:8153")
-        expect(controller.url_for(foo: "foo")).to eq("3 -  - foo=foo|only_path=true - http:// - local-ghost:8153")
-      end
-
-      it "should cache the url based on protocol request reached on" do
-        allow(controller.request).to receive(:host_with_port).and_return("host")
-        allow(controller.request).to receive(:protocol).and_return("http://")
-        expect(controller.url_for(foo: "foo")).to eq("1 -  - foo=foo|only_path=true - http:// - host")
-
-        allow(controller.request).to receive(:protocol).and_return("https://")
-        expect(controller.url_for(foo: "foo")).to eq("2 -  - foo=foo|only_path=true - https:// - host")
-
-        allow(controller.request).to receive(:protocol).and_return("spdy://")
-        expect(controller.url_for(foo: "foo")).to eq("3 -  - foo=foo|only_path=true - spdy:// - host")
-      end
-
-      it "should not mistake pipeline_counter and stage_counter for caching" do
-        allow(controller).to receive(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
-                                            "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
-        expect(controller.url_for(format: "json")).to eq(
-              "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host")
-
-        allow(controller).to receive(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
-                                            "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
-        expect(controller.url_for(format: "json")).to eq(
-              "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host")
-      end
-
-      it "should sort symbols after string" do
-        h = HashMapKey
-        expect([h.new(:pavan), h.new("pavan"), h.new("JJ"), h.new(:JJ)].sort).to eq([h.new("JJ"), h.new("pavan"), h.new(:JJ), h.new(:pavan)])
+      it "should cache the url irrespective of option key type" do
+        Services.go_cache.clear
+        url_options = {controller: 'api_v1/version', action: :show, foo: 'bar', boo: 'baz'}
+        expect(controller.url_for(url_options)).to eq("http://test.host/api/version?boo=baz&foo=bar")
+        key = Services.go_cache.getKeys.grep(/#{Regexp.quote(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY)}#{Regexp.quote(GoCache::SUB_KEY_DELIMITER)}/).last
+        expect(key).to be_present
+        Services.go_cache.put(key, "some-random-url")
+        expect(controller.url_for(Hash[url_options.stringify_keys.to_a.shuffle])).to eq("some-random-url")
+        expect(Services.go_cache.get(key)).to eq('some-random-url')
       end
 
       it "should contain flash message in the session upon redirect and forwards the params" do

@@ -17,7 +17,7 @@
 module ApiV1
   module Elastic
     class ProfilesController < ::ApiV1::BaseController
-      before_filter :check_admin_user_or_group_admin_user_and_401
+      before_action :check_admin_user_or_group_admin_user_and_401
       before_action :check_for_stale_request, :check_for_attempted_rename, only: [:update]
 
       include ProfilesControllerActions

@@ -31,7 +31,7 @@ module ApiV4
 
       def show
         json = ApiV4::Admin::Templates::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@template))
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(@template), template: false)
       end
 
       def create

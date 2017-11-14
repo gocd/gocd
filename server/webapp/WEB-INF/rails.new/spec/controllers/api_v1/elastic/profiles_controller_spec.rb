@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Elastic::ProfilesController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -76,26 +76,6 @@ describe ApiV1::Elastic::ProfilesController do
         expect(actual_response).to eq(expected_response([profile], ApiV1::Elastic::ProfilesRepresenter))
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to index action of controller' do
-          expect(:get => 'api/elastic/profiles').to route_to(action: 'index', controller: 'api_v1/elastic/profiles')
-        end
-      end
-      describe "without_header" do
-
-        before :each do
-          teardown_header
-        end
-
-        it 'should not route to index action of controller without header' do
-          expect(:get => 'api/elastic/profiles').to_not route_to(action: 'index', controller: 'api_v1/elastic/profiles')
-          expect(:get => 'api/elastic/profiles').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -114,14 +94,14 @@ describe ApiV1::Elastic::ProfilesController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:get, :show, profile_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { profile_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :show, profile_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { profile_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -149,7 +129,7 @@ describe ApiV1::Elastic::ProfilesController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).and_return('md5')
         expect(@elastic_profile_service).to receive(:findProfile).with('unit-test.docker').and_return(profile)
 
-        get_with_api_header :show, profile_id: 'unit-test.docker'
+        get_with_api_header :show, params: { profile_id: 'unit-test.docker' }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(profile, ApiV1::Elastic::ProfileRepresenter))
@@ -158,46 +138,11 @@ describe ApiV1::Elastic::ProfilesController do
       it 'should return 404 if the profile does not exist' do
         expect(@elastic_profile_service).to receive(:findProfile).with('non-existent-profile').and_return(nil)
 
-        get_with_api_header :show, profile_id: 'non-existent-profile'
+        get_with_api_header :show, params: { profile_id: 'non-existent-profile' }
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to show action of controller for alphanumeric identifier' do
-          expect(:get => 'api/elastic/profiles/foo123').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
-        end
-
-        it 'should route to show action of controller for identifier with dots' do
-          expect(:get => 'api/elastic/profiles/foo.123').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'foo.123')
-        end
-
-        it 'should route to show action of controller for identifier with hyphen' do
-          expect(:get => 'api/elastic/profiles/foo-123').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'foo-123')
-        end
-
-        it 'should route to show action of controller for identifier with underscore' do
-          expect(:get => 'api/elastic/profiles/foo_123').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'foo_123')
-        end
-
-        it 'should route to show action of controller for capitalized identifier' do
-          expect(:get => 'api/elastic/profiles/FOO').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'FOO')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of controller without header' do
-          expect(:get => 'api/elastic/profiles/foo').to_not route_to(action: 'show', controller: 'api_v1/elastic/profiles')
-          expect(:get => 'api/elastic/profiles/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles/foo')
-        end
-      end
-    end
-
   end
 
   describe "create" do
@@ -244,7 +189,7 @@ describe ApiV1::Elastic::ProfilesController do
         profile = ElasticProfile.new('unit-test.docker', 'docker')
         allow(controller).to receive(:etag_for).and_return('some-md5')
         expect(@elastic_profile_service).to receive(:create).with(anything, an_instance_of(ElasticProfile), an_instance_of(HttpLocalizedOperationResult))
-        post_with_api_header :create, profile: profile_hash
+        post_with_api_header :create, params: { profile: profile_hash }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(profile, ApiV1::Elastic::ProfileRepresenter))
@@ -258,28 +203,11 @@ describe ApiV1::Elastic::ProfilesController do
         allow(result).to receive(:httpCode).and_return(422)
         expect(@elastic_profile_service).to receive(:create).with(anything, an_instance_of(ElasticProfile), result)
 
-        post_with_api_header :create, profile: profile_hash
+        post_with_api_header :create, params: { profile: profile_hash }
 
         expect(response).to have_api_message_response(422, 'Save failed')
       end
     end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of controller' do
-          expect(:post => 'api/elastic/profiles').to route_to(action: 'create', controller: 'api_v1/elastic/profiles')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of controller without header' do
-          expect(:post => 'api/elastic/profiles').to_not route_to(action: 'create', controller: 'api_v1/elastic/profiles')
-          expect(:post => 'api/elastic/profiles').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles')
-        end
-      end
-    end
-
   end
 
   describe "update" do
@@ -298,14 +226,14 @@ describe ApiV1::Elastic::ProfilesController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:put, :update, profile_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { profile_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:put, :update, profile_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { profile_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -331,7 +259,7 @@ describe ApiV1::Elastic::ProfilesController do
         allow(controller).to receive(:load_entity_from_config).and_return(profile)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
 
-        put_with_api_header :update, profile_id: 'foo', profile: profile_hash
+        put_with_api_header :update, params: { profile_id: 'foo', profile: profile_hash }
 
         expect(response).to have_api_message_response(422, 'Renaming of elastic agent profile IDs is not supported by this API.')
       end
@@ -342,7 +270,7 @@ describe ApiV1::Elastic::ProfilesController do
         allow(controller).to receive(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = 'some-etag'
 
-        put_with_api_header :update, profile_id: 'unit-test.docker', profile: profile_hash
+        put_with_api_header :update, params: { profile_id: 'unit-test.docker', profile: profile_hash }
 
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for Elastic agent profile 'unit-test.docker'. Please update your copy of the config with the changes.")
       end
@@ -355,43 +283,10 @@ describe ApiV1::Elastic::ProfilesController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(ElasticProfile)).exactly(3).times.and_return('md5')
         expect(@elastic_profile_service).to receive(:update).with(anything, 'md5', an_instance_of(ElasticProfile), anything)
 
-        put_with_api_header :update, profile_id: 'unit-test.docker', profile: profile_hash
+        put_with_api_header :update, params: { profile_id: 'unit-test.docker', profile: profile_hash }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(profile, ApiV1::Elastic::ProfileRepresenter))
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to update action of controller for alphanumeric identifier' do
-          expect(:put => 'api/elastic/profiles/foo123').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
-        end
-
-        it 'should route to update action of controller for identifier with dots' do
-          expect(:put => 'api/elastic/profiles/foo.123').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'foo.123')
-        end
-
-        it 'should route to update action of controller for identifier with hyphen' do
-          expect(:put => 'api/elastic/profiles/foo-123').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'foo-123')
-        end
-
-        it 'should route to update action of controller for identifier with underscore' do
-          expect(:put => 'api/elastic/profiles/foo_123').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'foo_123')
-        end
-
-        it 'should route to update action of controller for capitalized identifier' do
-          expect(:put => 'api/elastic/profiles/FOO').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'FOO')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of controller without header' do
-          expect(:put => 'api/elastic/profiles/foo').to_not route_to(action: 'update', controller: 'api_v1/elastic/profiles')
-          expect(:put => 'api/elastic/profiles/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles/foo')
-        end
       end
     end
   end
@@ -411,14 +306,14 @@ describe ApiV1::Elastic::ProfilesController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:delete, :destroy, profile_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { profile_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:delete, :destroy, profile_id: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { profile_id: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -442,7 +337,7 @@ describe ApiV1::Elastic::ProfilesController do
       it 'should raise an error if profile is not found' do
         expect(@elastic_profile_service).to receive(:findProfile).and_return(nil)
 
-        delete_with_api_header :destroy, profile_id: 'foo'
+        delete_with_api_header :destroy, params: { profile_id: 'foo' }
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -454,7 +349,7 @@ describe ApiV1::Elastic::ProfilesController do
         allow(@elastic_profile_service).to receive(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
           result.setMessage(LocalizedMessage::string('RESOURCE_DELETE_SUCCESSFUL', 'profile', 'foo'))
         end
-        delete_with_api_header :destroy, profile_id: 'foo'
+        delete_with_api_header :destroy, params: { profile_id: 'foo' }
 
         expect(response).to have_api_message_response(200, "The profile 'foo' was deleted successfully.")
       end
@@ -466,44 +361,9 @@ describe ApiV1::Elastic::ProfilesController do
         allow(@elastic_profile_service).to receive(:delete).with(anything, an_instance_of(ElasticProfile), result) do |user, profile, result|
           result.unprocessableEntity(LocalizedMessage::string('SAVE_FAILED_WITH_REASON', 'Validation failed'))
         end
-        delete_with_api_header :destroy, profile_id: 'foo'
+        delete_with_api_header :destroy, params: { profile_id: 'foo' }
 
         expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to destroy action of controller for alphanumeric identifier' do
-          expect(:delete => 'api/elastic/profiles/foo123').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
-        end
-
-        it 'should route to destroy action of controller for identifier with dots' do
-          expect(:delete => 'api/elastic/profiles/foo.123').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'foo.123')
-        end
-
-        it 'should route to destroy action of controller for identifier with hyphen' do
-          expect(:delete => 'api/elastic/profiles/foo-123').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'foo-123')
-        end
-
-        it 'should route to destroy action of controller for identifier with underscore' do
-          expect(:delete => 'api/elastic/profiles/foo_123').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'foo_123')
-        end
-
-        it 'should route to destroy action of controller for capitalized identifier' do
-          expect(:delete => 'api/elastic/profiles/FOO').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'FOO')
-        end
-      end
-
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of controller without header' do
-          expect(:delete => 'api/elastic/profiles/foo').to_not route_to(action: 'destroy', controller: 'api_v1/elastic/profiles')
-          expect(:delete => 'api/elastic/profiles/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles/foo')
-        end
       end
     end
   end

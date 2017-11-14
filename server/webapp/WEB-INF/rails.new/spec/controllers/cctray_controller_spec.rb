@@ -17,12 +17,6 @@
 require 'rails_helper'
 
 describe CctrayController do
-  describe "routes" do
-    it "should resolve its route" do
-      expect(:get => '/cctray.xml').to route_to(:controller => "cctray", :action => "index", :format => "xml")
-    end
-  end
-
   context "cctray" do
     describe "index" do
       after do

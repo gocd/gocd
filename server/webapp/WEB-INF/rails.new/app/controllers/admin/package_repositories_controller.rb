@@ -19,13 +19,13 @@ class Admin::PackageRepositoriesController < AdminController
 
   layout "admin"
 
-  before_filter :load_config_for_edit, :only => [:new, :list ,:create, :edit, :update, :destroy, :plugin_config, :plugin_config_for_repo]
+  before_action :load_config_for_edit, :only => [:new, :list ,:create, :edit, :update, :destroy, :plugin_config, :plugin_config_for_repo]
 
-  before_filter :package_repository_list, :only => [:new, :list, :edit]
+  before_action :package_repository_list, :only => [:new, :list, :edit]
 
-  before_filter :package_to_pipeline_map, :only => [:new, :list, :edit]
+  before_action :package_to_pipeline_map, :only => [:new, :list, :edit]
 
-  before_filter :set_tab_name, :only => [:new, :list, :edit, :destroy]
+  before_action :set_tab_name, :only => [:new, :list, :edit, :destroy]
 
   def new
     @package_repository = PackageRepository.new

@@ -31,9 +31,6 @@ describe "_stage_history.html.erb" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
 
     @stage_history_page = stage_history_page(10)
-    allow(view).to receive(:stage_detail_tab_path).with(instance_of(Hash)) do |params|
-      "url_for_#{params[:pipeline_counter]}_run_#{params[:stage_counter]}"
-    end
   end
 
   it "should show title" do
@@ -62,7 +59,7 @@ describe "_stage_history.html.erb" do
     render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :current_stage_pipeline => @pipeline, :current_config_version => "md5-test"}}
 
     (1..10).each do |i|
-      Capybara.string(response.body).find(".stage a[href='url_for_#{i}_run_1']").tap do |link|
+      Capybara.string(response.body).find(".stage a[href='/pipelines/cruise/#{i}/dev/1']").tap do |link|
         expect(link).to(((i-2)%4 == 0) ? have_selector("div.color_code_stage.has_rerun_jobs") : have_selector("div.color_code_stage.has_no_rerun_jobs"))
       end
     end
@@ -134,17 +131,17 @@ describe "_stage_history.html.erb" do
 
     render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => 'jobs', :current_stage_pipeline => @pipeline, :current_config_version => "md5-test"}}
 
-    Capybara.string(response.body).find(".stage_history .stage a[href='url_for_5_run_1'].selected.alert").tap do |f|
+    Capybara.string(response.body).find(".stage_history .stage a[href='/pipelines/cruise/5/dev/1/jobs'].selected.alert").tap do |f|
       expect(f).to have_selector  ".color_code_stage.Passed"
       expect(f).to have_selector  ".pipeline_label", :text => "LABEL-5"
     end
 
-    Capybara.string(response.body).find(".stage_history .stage a[href='url_for_10_run_1']").tap do |f|
+    Capybara.string(response.body).find(".stage_history .stage a[href='/pipelines/cruise/10/dev/1/jobs']").tap do |f|
       expect(f).to have_selector  ".color_code_stage.Passed"
       expect(f).to have_selector  ".pipeline_label", :text => "LABEL-10"
     end
 
-    Capybara.string(response.body).find(".stage_history .stage a[href='url_for_1_run_2']").tap do |f|
+    Capybara.string(response.body).find(".stage_history .stage a[href='/pipelines/cruise/1/dev/2/jobs']").tap do |f|
       expect(f).to have_selector  ".color_code_stage.Passed"
       expect(f).to have_selector  ".pipeline_label", :text => "LABEL-1"
       expect(f).to have_selector ".stage_counter", :text => "(run 2)"

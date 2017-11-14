@@ -9,10 +9,10 @@
         </div>
         <div class="graph_navigation_buttons">
             <% if scope[:pagination].hasPreviousPage() %>
-                <%= link_to l.string("NEWER"), stage_detail_tab_path(:action=> "stats", :page_number => scope[:pagination].getPreviousPage()), :class => 'newer link_as_button' -%>
+                <%= link_to l.string("NEWER"), stage_detail_tab_stats_path(:action=> "stats", :page_number => scope[:pagination].getPreviousPage()), :class => 'newer link_as_button' -%>
             <% end %>
             <% if scope[:pagination].hasNextPage() %>
-                <%= link_to l.string("OLDER"), stage_detail_tab_path(:action=> "stats", :page_number => scope[:pagination].getNextPage()), :class => 'older link_as_button' -%>
+                <%= link_to l.string("OLDER"), stage_detail_tab_stats_path(:action=> "stats", :page_number => scope[:pagination].getNextPage()), :class => 'older link_as_button' -%>
             <% end %>
         </div>
     <% end  %>

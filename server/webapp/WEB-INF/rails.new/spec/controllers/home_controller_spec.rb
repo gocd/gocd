@@ -23,9 +23,6 @@ describe HomeController do
       allow(@system_environment).to receive(:landingPage).and_return('/landingPage')
       allow(controller).to receive(:system_environment).and_return(@system_environment)
     end
-    it "should resolve" do
-      expect({:get => "/home"}).to route_to(:controller => "home", :action => "index")
-    end
 
     it 'should redirect to landing page' do
       allow(controller).to receive(:url_for_path).with('/landingPage').and_return('/go/landingPage')

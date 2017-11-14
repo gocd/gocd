@@ -3,7 +3,7 @@
         <%= render :partial => "shared/bare_stage.html", :locals => {:scope => {:pipeline => scope[:pipeline], :stage => scope[:stage], :total_width => scope[:total_width]}} %>
     </span>
 <% else -%>
-    <a href='<%= stage_detail_tab_path(:pipeline_name => scope[:pipeline].getName(), :pipeline_counter => scope[:pipeline].getCounter(), :stage_name => scope[:stage].getName(), :stage_counter => scope[:stage].getCounter()) -%>' class='stage'>
+    <a href='<%= stage_detail_tab_default_path(:pipeline_name => scope[:pipeline].getName(), :pipeline_counter => scope[:pipeline].getCounter(), :stage_name => scope[:stage].getName(), :stage_counter => scope[:stage].getCounter()) -%>' class='stage'>
         <%= render :partial => "shared/bare_stage.html", :locals => {:scope => {:pipeline => scope[:pipeline], :stage => scope[:stage], :total_width => scope[:total_width]}} %>
     </a>
 <% end -%>

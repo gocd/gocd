@@ -19,9 +19,9 @@ class AdminController < ApplicationController
   include ::Admin::AuthorizationHelper
 
   layout "admin"
-  prepend_before_filter :default_as_empty_list, :only => [:update]
-  before_filter :enable_admin_error_template
-  before_filter :load_context
+  prepend_before_action :default_as_empty_list, :only => [:update]
+  before_action :enable_admin_error_template
+  before_action :load_context
 
   GO_CONFIG_ERROR_HEADER = 'Go-Config-Error'
 
@@ -29,7 +29,7 @@ class AdminController < ApplicationController
   def save_popup(md5, save_action, render_error_options_or_proc = {:action => :new, :layout => false}, url_options = {}, flash_success_message = "Saved successfully.", &load_data)
     render_error_options_or_proc.reverse_merge(:layout => false) unless render_error_options_or_proc.is_a?(Proc)
     save(md5, render_error_options_or_proc, save_action, flash_success_message, load_data) do |message|
-      render(:text => 'Saved successfully', :location => url_options_with_flash(message, {:action => :index, :class => 'success'}.merge(url_options)))
+      render(:plain => 'Saved successfully', :location => url_options_with_flash(message, {:action => :index, :class => 'success'}.merge(url_options)))
     end
   end
 

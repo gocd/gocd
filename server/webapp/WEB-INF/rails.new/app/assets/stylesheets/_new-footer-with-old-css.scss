@@ -16,13 +16,13 @@
 
 // helps renders the new foundation based footer into old rails + vm pages
 
-@import 'bourbon';
+@import 'bourbon/app/assets/stylesheets/bourbon';
 @import '_font-awesome-glyphs';
 @import '_fonts';
 
 @import '_variables';
 @import 'settings';
-@import 'foundation';
+@import 'foundation-sites/scss/foundation';
 
 #footer-new-foundation {
   box-sizing: border-box;

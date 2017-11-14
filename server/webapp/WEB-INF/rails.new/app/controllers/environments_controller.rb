@@ -15,16 +15,16 @@
 ##########################GO-LICENSE-END##################################
 
 class EnvironmentsController < ApplicationController
-  before_filter :load_new_environment, :only => [:new, :create]
-  before_filter :load_existing_environment, :only => [:edit, :update, :show, :edit_pipelines, :edit_agents, :edit_variables]
+  before_action :load_new_environment, :only => [:new, :create]
+  before_action :load_existing_environment, :only => [:edit, :update, :show, :edit_pipelines, :edit_agents, :edit_variables]
 
-  before_filter :load_pipelines_and_agents, :only => [:new, :edit, :create, :update, :edit_pipelines, :edit_agents]
+  before_action :load_pipelines_and_agents, :only => [:new, :edit, :create, :update, :edit_pipelines, :edit_agents]
 
-  prepend_before_filter :default_as_empty_list, :only => [:update]
-  skip_before_filter :verify_authenticity_token
+  prepend_before_action :default_as_empty_list, :only => [:update]
+  skip_before_action :verify_authenticity_token
 
   layout "application", :except => [:edit_pipelines, :edit_agents, :edit_variables]
-  prepend_before_filter :set_tab_name
+  prepend_before_action :set_tab_name
 
   def index
     @environments = environment_service.getEnvironments(current_user)
@@ -59,7 +59,7 @@ class EnvironmentsController < ApplicationController
 
     message = result.message(Spring.bean('localizer'))
     if result.isSuccessful()
-      render :text => message, :location => url_options_with_flash(message, {:action => :show, :name => @environment.name(), :class => 'success', :only_path => true})
+      render :plain => message, :location => url_options_with_flash(message, {:action => :show, :name => @environment.name(), :class => 'success', :only_path => true})
     else
       render_error_response message, 400, true
     end

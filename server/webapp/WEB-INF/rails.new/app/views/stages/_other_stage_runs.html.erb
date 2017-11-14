@@ -3,7 +3,7 @@
         <% (1..@stage.getTotalRuns()).each do |n_in_other_stage_runs| %>
             <% next if @stage.getStageCounter() == n_in_other_stage_runs.to_s %>
             <li>
-                <a href="<%= stage_detail_tab_path(:stage_counter => n_in_other_stage_runs, :action => params[:action]) %>">
+              <a href="<%= stage_detail_tab_path_for({:stage_counter => n_in_other_stage_runs, :stage_name => @stage.getName()}, params[:action]) %>">
                     <span style="float:left; margin-right: 10px;"><%= l.string("Run:") + " " + l.X_of_Y(n_in_other_stage_runs, @stage.getTotalRuns()) %></span>
                     <%= render :partial=> "stages/stage_result.html", :locals=>{:scope => {:state=>@stage.getStateForRun(n_in_other_stage_runs)}} %>
                 </a>

@@ -88,6 +88,6 @@ class Api::StagesController < Api::ApiController
 
   private
   def render_not_found()
-    render text: "Not Found!", status: 404
+    render plain: "Not Found!", status: 404
   end
 end

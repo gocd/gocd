@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 @import "font-awesome-sprockets";
-@import "font-awesome/variables";
-@import 'css3/animation';
+@import "font-awesome/scss/variables";
+@import 'bourbon/app/assets/stylesheets/css3/animation';
 
 <%
   variables = {}
-  variable_definitions = File.read(File.join(Gem.loaded_specs['font-awesome-sass'].full_gem_path, 'assets/stylesheets/font-awesome/_variables.scss')).lines.grep(/\$fa-var-/).collect(&:strip)
+  variable_definitions = File.read(File.join(Rails.root, 'node_modules/font-awesome/scss/_variables.scss')).lines.grep(/\$fa-var-/).collect(&:strip)
   variable_definitions.each do |definition|
     definition =~ /\$fa-var-(.*): "\\(.*)";/
     variables[$1] = $2;

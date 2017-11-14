@@ -18,33 +18,26 @@ require 'rails_helper'
 
 describe ConfigView::TemplatesController do
 
-  describe "routes" do
-    it "should resolve & generate route for viewing templates" do
-      expect(:get => "/config_view/templates/template.name").to route_to(:controller => "config_view/templates", :action => "show", :name => "template.name")
-      expect(config_view_templates_show_path(:name => "template.name")).to eq("/config_view/templates/template.name")
-    end
-  end
-
   describe 'security' do
 
     it 'should allow anyone, with security disabled' do
       disable_security
 
-      expect(controller).to allow_action(:get, :show, name: 'template')
+      expect(controller).to allow_action(:get, :show, params: { name: 'template' })
     end
 
     it 'should disallow anonymous users, with security enabled' do
       enable_security
       login_as_anonymous
 
-      expect(controller).to disallow_action(:get, :show, name: 'template')
+      expect(controller).to disallow_action(:get, :show, params: { name: 'template' })
     end
 
     it 'should disallow normal users, with security enabled' do
       enable_security
       login_as_user
 
-      expect(controller).to disallow_action(:get, :show, name: 'template')
+      expect(controller).to disallow_action(:get, :show, params: { name: 'template' })
     end
 
     it 'should allow admin, with security enabled' do
@@ -78,13 +71,13 @@ describe ConfigView::TemplatesController do
     it "should return a template object of the given name" do
       template_config = 'template config'
       expect(@template_config_service).to receive(:loadForView).with('template.name', an_instance_of(HttpLocalizedOperationResult)).and_return(template_config)
-      get :show, {:name => 'template.name'}
+      get :show, params: { :name => 'template.name' }
       expect(assigns[:template_config]).to eq(template_config)
     end
 
     it "should return nil for template config when template name does not exist" do
       expect(@template_config_service).to receive(:loadForView).with('template.name', an_instance_of(HttpLocalizedOperationResult)).and_return(nil)
-      get :show, {:name => 'template.name'}
+      get :show, params: { :name => 'template.name' }
       expect(assigns[:template_config]).to eq(nil)
     end
 
@@ -96,7 +89,7 @@ describe ConfigView::TemplatesController do
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       template_name = 'template.name'
       expect(@template_config_service).to receive(:loadForView).with(template_name, result).and_return(nil)
-      get :show, {:name => template_name}
+      get :show, params: { :name => template_name }
       expect(assigns[:template_config]).to eq(nil)
       expect(response).to render_template("shared/config_error")
       expect(response.status).to eq(404)

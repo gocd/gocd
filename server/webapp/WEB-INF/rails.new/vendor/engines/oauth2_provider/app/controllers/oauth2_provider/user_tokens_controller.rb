@@ -26,13 +26,13 @@ module Oauth2Provider
       token.destroy
       redirect_after_revoke
     end
-  
+
     def revoke_by_admin
       if params[:token_id].blank? && params[:user_id].blank?
         render_not_authorized
         return
       end
-    
+
       if !params[:token_id].blank?
         token = Oauth2Provider::Token.find_by_id(params[:token_id])
         if token.nil?
@@ -46,13 +46,13 @@ module Oauth2Provider
 
       redirect_after_revoke
     end
-  
-    private 
-  
+
+    private
+
     def render_not_authorized
-      render :text => "You are not authorized to perform this action!", :status => :bad_request
+      render :plain => "You are not authorized to perform this action!", :status => :bad_request
     end
-  
+
     def redirect_after_revoke
       flash[:notice] = "OAuth access token was successfully deleted."
       redirect_to params[:redirect_url] || oauth_engine.user_tokens_index_path

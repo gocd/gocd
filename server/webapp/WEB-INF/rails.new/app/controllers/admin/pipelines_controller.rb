@@ -25,8 +25,8 @@ module Admin
     include PipelineConfigLoader
     include ::Admin::DependencyMaterialAutoSuggestions
 
-    before_filter :load_config_for_edit, :only => [:new, :create, :clone, :save_clone]
-    before_filter :load_template_list, :only => [:new, :create]
+    before_action :load_config_for_edit, :only => [:new, :create, :clone, :save_clone]
+    before_action :load_template_list, :only => [:new, :create]
 
     load_pipeline_except_for :update, :new, :create, :clone, :save_clone
 

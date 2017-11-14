@@ -41,8 +41,8 @@ module MaterialsHelper
     material.getType() == "DependencyMaterial"
   end
 
-  def stage_url_from_identifier locator
-    stage_url(:id => stage_service.findStageIdByLocator(locator))
+  def stage_url_from_identifier locator, options={}
+    stage_url(options.merge(:id => stage_service.findStageIdByLocator(locator)))
   end
 
   def render_simple_comment(comment)

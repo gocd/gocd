@@ -54,7 +54,7 @@ describe Admin::TasksController do
     it "should increment a task's index" do
       stub_save_for_success
 
-      post :increment_index, :pipeline_name => "template.name", :stage_name => "stage_one", :job_name => "job", :task_index=> "0", :config_md5 => "abcd1234", :stage_parent => "templates", :current_tab => "tasks"
+      post :increment_index, params: { :pipeline_name => "template.name", :stage_name => "stage_one", :job_name => "job", :task_index=> "0", :config_md5 => "abcd1234", :stage_parent => "templates", :current_tab => "tasks" }
 
       tasks = @template.get(0).getJobs().get(0).getTasks()
 
@@ -69,7 +69,7 @@ describe Admin::TasksController do
 
       stub_save_for_success
 
-      post :decrement_index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index=> "1", :config_md5 => "abcd1234", :stage_parent => "pipelines", :current_tab => "tasks"
+      post :decrement_index, params: { :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index=> "1", :config_md5 => "abcd1234", :stage_parent => "pipelines", :current_tab => "tasks" }
 
       expect(@tasks.size()).to eq(4)
       expect(@tasks.get(0)).to eq(nant_task)
@@ -111,7 +111,7 @@ describe Admin::TasksController do
       expect(controller).to receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
       expect(task_view_service).to receive(:getTaskViewModels).and_return(tasks = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
 
-      get :index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :stage_parent => "pipelines", :current_tab=>"tasks"
+      get :index, params: { :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :stage_parent => "pipelines", :current_tab=>"tasks" }
 
       expect(assigns[:pipeline]).to eq(@pipeline)
       expect(assigns[:stage]).to eq(@pipeline.get(0))

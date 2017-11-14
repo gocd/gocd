@@ -23,26 +23,15 @@ describe Api::PluginsController do
     allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
-  it "should answer to /api/plugins/status" do
-    expect(:get => '/api/plugins/status').to route_to(:action => "status", :controller => 'api/plugins', :no_layout => true)
-  end
-
   it "should return plugin status as false when not set" do
     expect(@system_environment).to receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_FALSE)
-    get :status, {:no_layout => true}
+    get :status, params: { :no_layout => true }
     expect(response.body).to eq("disabled")
     end
 
   it "should return plugin status as true when set" do
     expect(@system_environment).to receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_TRUE)
-    get :status, {:no_layout => true}
+    get :status, params: { :no_layout => true }
     expect(response.body).to eq("enabled")
   end
-
-  describe "route" do
-    it 'should route to status action of the plugins controller' do
-      expect(:get => 'api/plugins/status').to route_to(no_layout: true, controller: 'api/plugins', action: 'status')
-    end
-  end
-
 end

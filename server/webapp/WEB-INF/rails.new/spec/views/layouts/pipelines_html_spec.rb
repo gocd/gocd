@@ -56,11 +56,6 @@ describe "layouts/pipelines.html.eb" do
     end
 
     in_params :action => 'overview', :controller => "stages"
-    allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-0', :stage_counter => "1", :action => 'overview').and_return("url_to_0")
-    allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-1', :stage_counter => "1", :action => 'overview').and_return("url_to_1")
-    allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name => "cruise", :pipeline_counter => 1,
-                                                :stage_name => 'dev', :stage_counter => "1", :action => 'overview').and_return("url_to_historical_stage")
-    allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name=>"pipeline-name", :pipeline_counter=>1, :stage_name=>"stage-1", :stage_counter=>"1", :action=>"pipeline").and_return("url_to_pipeline")
     allow(view).to receive(:stage_history_path).and_return("historical_stage_page_number")
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:config_change_path)
@@ -111,7 +106,6 @@ describe "layouts/pipelines.html.eb" do
         assign(:show_stage_status_bar,true)
         assign(:stage_history_page,last_stage_history_page(1))
         assign(:stage,stage_with_three_runs)
-        allow(view).to receive(:stage_detail_tab_path).and_return("some_tab_path");
         render :inline => '<div>content</div>', :layout=>@layout_name
         expect(response.body).to have_selector("script[type='text/javascript']", :text=>/new\sMicroContentPopup\(\$\('other_stage_runs'\),\snew\sMicroContentPopup\.NoOpHandler\(\)\)/, :visible=>false)
       end
@@ -132,23 +126,17 @@ describe "layouts/pipelines.html.eb" do
     it "should display stage links" do
       params[:stage_name] = "stage-1"
       render :inline => '<div>content</div>', :layout=>@layout_name
-      expect(response.body).to have_selector(".pipeline .stages .stage a.stage_bar[title='stage-0 (Cancelled)'][href='url_to_0']")
-      expect(response.body).to have_selector(".pipeline .stages .selected a.stage_bar[title='stage-1 (Cancelled)'][href='url_to_1']")
+      expect(response.body).to have_selector(".pipeline .stages .stage a.stage_bar[title='stage-0 (Cancelled)'][href='/pipelines/pipeline/1/stage-0/1/overview']")
+      expect(response.body).to have_selector(".pipeline .stages .selected a.stage_bar[title='stage-1 (Cancelled)'][href='/pipelines/pipeline/1/stage-1/1/overview']")
     end
 
     it "should not display stage links for stages not run" do
       params[:stage_name] = "stage-1"
-      expect(view).not_to receive(:stage_detail_tab_path).with(:stage_name => 'blah-stage', :stage_counter => '0')
-
       @pim.getStageHistory().add(NullStageHistoryItem.new('blah-stage'))
-
-      allow(view).to receive(:stage_detail_tab_path).with(:stage_name => 'stage-0', :stage_counter => "1", :action => 'overview').and_return("url_to_0")
-      allow(view).to receive(:stage_detail_tab_path).with(:stage_name => 'stage-1', :stage_counter => "1", :action => 'overview').and_return("url_to_1")
-
       render :inline => '<div>content</div>', :layout=>@layout_name
 
-      expect(response.body).to have_selector(".pipeline .stages .stage_bar[title='stage-0 (Cancelled)'][href=url_to_0]")
-      expect(response.body).to have_selector(".pipeline .stages .selected .stage_bar[title='stage-1 (Cancelled)'][href=url_to_1]")
+      expect(response.body).to have_selector(".pipeline .stages .stage_bar[title='stage-0 (Cancelled)'][href='/pipelines/pipeline/1/stage-0/1/overview']")
+      expect(response.body).to have_selector(".pipeline .stages .selected .stage_bar[title='stage-1 (Cancelled)'][href='/pipelines/pipeline/1/stage-1/1/overview']")
       expect(response.body).to have_selector(".pipeline .stages div .stage_bar[title='blah-stage (Unknown)']")
     end
 
@@ -243,10 +231,8 @@ describe "layouts/pipelines.html.eb" do
         assign(:lockedPipeline,StageIdentifier.new("blah", 1, "cool-bug", "stage", "2"))
         @pim.setCanUnlock(true)
 
-        allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name=>"blah", :pipeline_counter=>1, :stage_name=>"stage", :stage_counter=>"2", :action=>"pipeline").and_return("pipeline2")
-
         render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector(".locked .locked_instance a[href='pipeline2']", :text=>"Locked by cool-bug")
+        expect(response.body).to have_selector(".locked .locked_instance a[href='/pipelines/blah/1/stage/2/pipeline']", :text=>"Locked by cool-bug")
       end
 
       it "should not show link when no instance is locked" do
@@ -258,7 +244,6 @@ describe "layouts/pipelines.html.eb" do
 
     describe "graphs tab" do
       it "should not render stage history widget pane" do
-        allow(view).to receive(:stage_detail_tab_path).and_return("some_tab_path");
         in_params(:action => "stats")
 
         render :inline => '<div>content</div>', :layout=>@layout_name

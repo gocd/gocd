@@ -22,28 +22,36 @@ module StagesHelper
 
   def is_current_stage?(identifier)
     params[:pipeline_name] == identifier.getPipelineName() &&
-            params[:pipeline_counter].to_i == identifier.getPipelineCounter().to_i &&
-            params[:stage_name] == identifier.getStageName() &&
-            params[:stage_counter].to_i == identifier.getStageCounter().to_i
+      params[:pipeline_counter].to_i == identifier.getPipelineCounter().to_i &&
+      params[:stage_name] == identifier.getStageName() &&
+      params[:stage_counter].to_i == identifier.getStageCounter().to_i
   end
 
   def stage_detail_path_for_identifier(identifier, options = {})
-    stage_detail_tab_path(options.merge(:pipeline_name => identifier.getPipelineName(),
-                                    :pipeline_counter => identifier.getPipelineCounter(),
-                                    :stage_name => identifier.getStageName(),
-                                    :stage_counter => identifier.getStageCounter()))
+    stage_detail_tab_default_path(options.merge(:pipeline_name => identifier.getPipelineName(),
+                                                :pipeline_counter => identifier.getPipelineCounter(),
+                                                :stage_name => identifier.getStageName(),
+                                                :stage_counter => identifier.getStageCounter()))
   end
 
   def stage_detail_pipeline_tab_for_identifier identifier
     tab_aware_path_for_stage identifier, 'pipeline'
   end
 
-  def tab_aware_path_for_stage stage_identifier, tab    
-    stage_detail_tab_path :pipeline_name => stage_identifier.getPipelineName(),
-                          :pipeline_counter => stage_identifier.getPipelineCounter(),
-                          :stage_name => stage_identifier.getStageName(),
-                          :stage_counter => stage_identifier.getStageCounter(),
-                          :action => tab
+  def tab_aware_path_for_stage stage_identifier, tab
+    stage_detail_tab_path_for({:pipeline_name => stage_identifier.getPipelineName(),
+                               :pipeline_counter => stage_identifier.getPipelineCounter(),
+                               :stage_name => stage_identifier.getStageName(),
+                               :stage_counter => stage_identifier.getStageCounter()}, tab)
+  end
+
+  def stage_detail_tab_path_for options, tab
+    tab = tab || 'default'
+    if options.nil?
+      send("stage_detail_tab_#{tab}_path")
+    else
+      send("stage_detail_tab_#{tab}_path", options)
+    end
   end
 
   def empty_stage(stage_instance_model)
@@ -52,11 +60,11 @@ module StagesHelper
 
   def link_with_current_tab(link_name, action)
     class_name = action == params[:action] ? ' class="current"' : ''
-    "<li#{class_name}>#{link_to(link_name, stage_detail_tab_path(:action => action))}</li>".html_safe
+    "<li#{class_name}>#{link_to(link_name, stage_detail_tab_path_for(nil, action))}</li>".html_safe
   end
 
   def stage_bar_options sim
-    tag_options(:class => "stage_bar #{sim.getState()}", :title => "%s (%s)" % [sim.getName(), l.messageFor(sim.getState())])
+    raw tag.tag_options(:class => "stage_bar #{sim.getState()}", :title => "%s (%s)" % [sim.getName(), l.messageFor(sim.getState())])
   end
 
   def stage_history_pagination_handler page, tab
@@ -73,4 +81,4 @@ END
   def is_config_used_to_run_this_stage_out_of_sync_with_current?(current_config_version, stage_config_version)
     current_config_version != stage_config_version
   end
- end
+end

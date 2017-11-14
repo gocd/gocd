@@ -26,7 +26,7 @@ module ApiV4
       presenters    = ApiV4::AgentsRepresenter.new(agent_service.agentEnvironmentMap, security_service, current_user)
       response_hash = presenters.to_hash(url_builder: self)
 
-      if stale?(etag: Digest::MD5.hexdigest(JSON.generate(response_hash)))
+      if stale?(strong_etag: Digest::MD5.hexdigest(JSON.generate(response_hash)), template: false)
         render DEFAULT_FORMAT => response_hash
       end
     end

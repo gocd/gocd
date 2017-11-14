@@ -19,8 +19,8 @@ class Admin::PackageDefinitionsController < AdminController
 
   layout false
 
-  before_filter :load_config_for_edit, :only => [:show, :show_for_new_pipeline_wizard, :show_with_repository_list, :new, :new_for_new_pipeline_wizard, :pipelines_used_in]
-  before_filter :initialize_variables, :only => [:show, :show_for_new_pipeline_wizard, :new, :new_for_new_pipeline_wizard, :pipelines_used_in]
+  before_action :load_config_for_edit, :only => [:show, :show_for_new_pipeline_wizard, :show_with_repository_list, :new, :new_for_new_pipeline_wizard, :pipelines_used_in]
+  before_action :initialize_variables, :only => [:show, :show_for_new_pipeline_wizard, :new, :new_for_new_pipeline_wizard, :pipelines_used_in]
 
   def show
     return if @errors

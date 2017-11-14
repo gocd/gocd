@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::RepositoriesController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -69,23 +69,6 @@ describe ApiV1::Admin::RepositoriesController do
         expect(controller).to allow_action(:get, :index)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of environments controller' do
-          expect(:get => 'api/admin/repositories').to route_to(action: 'index', controller: 'api_v1/admin/repositories')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of environments controller without header' do
-          expect(:get => 'api/admin/repositories').to_not route_to(action: 'index', controller: 'api_v1/admin/repositories')
-          expect(:get => 'api/admin/repositories').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/repositories')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -98,7 +81,7 @@ describe ApiV1::Admin::RepositoriesController do
 
       it 'should render the package repository' do
         allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(@package_repo)
-        get_with_api_header :show, repo_id: @repo_id
+        get_with_api_header :show, params: { repo_id: @repo_id }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@package_repo, ApiV1::Config::PackageRepositoryRepresenter))
       end
@@ -106,7 +89,7 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should render 404 when a package repository does not exist' do
         allow(@package_repository_service).to receive(:getPackageRepository).and_return(nil)
 
-        get_with_api_header :show, repo_id: 'invalid-package-repo-id'
+        get_with_api_header :show, params: { repo_id: 'invalid-package-repo-id' }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -117,18 +100,18 @@ describe ApiV1::Admin::RepositoriesController do
       end
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:get, :show, repo_id: @repo_id)
+        expect(controller).to allow_action(:get, :show, params: { repo_id: @repo_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :show, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { repo_id: @repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:get, :show, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { repo_id: @repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -141,31 +124,9 @@ describe ApiV1::Admin::RepositoriesController do
         expect(controller).to allow_action(:get, :show)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of package repositories controller for specified package repository id' do
-          expect(:get => 'api/admin/repositories/foo123').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
-        end
-
-        it 'should route to show action of repositories controller for repo_id with dots' do
-          expect(:get => 'api/admin/repositories/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of package repositories controller without header' do
-          expect(:get => 'api/admin/repositories/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/repositories')
-          expect(:get => 'api/admin/repositories/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/repositories/foo')
-        end
-      end
-    end
   end
 
   describe "destroy" do
-
     describe "for_admins" do
       before :each do
         login_as_admin
@@ -179,14 +140,14 @@ describe ApiV1::Admin::RepositoriesController do
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'package repository', @package_repo.getId()))
         end
 
-        delete_with_api_header :destroy, repo_id: @repo_id
+        delete_with_api_header :destroy, params: { repo_id: @repo_id }
         expect(response).to have_api_message_response(200, "The package repository 'npm' was deleted successfully.")
       end
 
       it 'should render 404 when a package repository does not exist' do
         allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(nil)
 
-        delete_with_api_header :destroy, repo_id: @repo_id
+        delete_with_api_header :destroy, params: { repo_id: @repo_id }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -198,18 +159,18 @@ describe ApiV1::Admin::RepositoriesController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:delete, :destroy, repo_id: @repo_id)
+        expect(controller).to allow_action(:delete, :destroy, params: { repo_id: @repo_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:delete, :destroy, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { repo_id: @repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { repo_id: @repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -222,30 +183,9 @@ describe ApiV1::Admin::RepositoriesController do
         expect(controller).to allow_action(:delete, :destroy)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to destroy action of package repository controller for specified package repository id' do
-          expect(:delete => 'api/admin/repositories/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
-        end
-        it 'should route to destroy action of repositories controller for repo_id with dots' do
-          expect(:delete => 'api/admin/repositories/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of package repositories controller without header' do
-          expect(:delete => 'api_v1/admin/repositories/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/repositories')
-          expect(:delete => 'api_v1/admin/repositories/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api_v1/admin/repositories/foo')
-        end
-      end
-    end
   end
 
   describe "create" do
-
     describe "for_admins" do
       before :each do
         login_as_admin
@@ -255,7 +195,7 @@ describe ApiV1::Admin::RepositoriesController do
         expect(@package_repository_service).to receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
         allow(@package_repository_service).to receive(:getPackageRepository).and_return(@package_repo)
 
-        post_with_api_header :create, :repository => {repo_id: @repo_id, name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []}
+        post_with_api_header :create, params: { :repository => {repo_id: @repo_id, name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []} }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@package_repo, ApiV1::Config::PackageRepositoryRepresenter))
       end
@@ -264,7 +204,7 @@ describe ApiV1::Admin::RepositoriesController do
         expect(@package_repository_service).to receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
         allow(@package_repository_service).to receive(:getPackageRepository).and_return(@package_repo)
 
-        post_with_api_header :create, :repository => {name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []}
+        post_with_api_header :create, params: { :repository => {name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []} }
         expect(actual_response).to have_key(:repo_id)
       end
 
@@ -273,7 +213,7 @@ describe ApiV1::Admin::RepositoriesController do
           result.unprocessableEntity(LocalizedMessage.string("PLUGIN_ID_INVALID", 'invalid_id'));
         end
 
-        post_with_api_header :create, :repository => {name: @repo_id, type: 'invalid_id', configuration: []}
+        post_with_api_header :create, params: { :repository => {name: @repo_id, type: 'invalid_id', configuration: []} }
         expect(response).to have_api_message_response(422, 'Invalid plugin id')
       end
 
@@ -306,27 +246,9 @@ describe ApiV1::Admin::RepositoriesController do
         expect(controller).to allow_action(:post, :create)
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of package repositories controller' do
-          expect(:post => 'api/admin/repositories/').to route_to(action: 'create', controller: 'api_v1/admin/repositories')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of environments controller without header' do
-          expect(:post => 'api/admin/repositories').to_not route_to(action: 'create', controller: 'api_v1/admin/repositories')
-          expect(:post => 'api/admin/environments').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments')
-        end
-      end
-    end
   end
 
   describe "update" do
-
     describe "for_admins" do
       before :each do
         login_as_admin
@@ -344,7 +266,7 @@ describe ApiV1::Admin::RepositoriesController do
         expect(@package_repository_service).to receive(:updatePackageRepository).with(an_instance_of(PackageRepository), anything, anything, result, anything)
         hash = {repo_id: @repo_id, name: @repo_id, plugin_metadata: {id: 'some-id', version: '1'}, configuration: []}
 
-        put_with_api_header :update, :repo_id => @repo_id, :repository => hash
+        put_with_api_header :update, params: { :repo_id => @repo_id, :repository => hash }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@package_repo, ApiV1::Config::PackageRepositoryRepresenter))
       end
@@ -356,7 +278,7 @@ describe ApiV1::Admin::RepositoriesController do
         allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
 
         hash = {repo_id: @repo_id, name: "foo", plugin_metadata: {id: 'npm', version: '1'}, configuration: [{key: 'REPO_URL', value: 'https://foo.bar'}]}
-        put_with_api_header :update, :repo_id => @repo_id, :repository => hash
+        put_with_api_header :update, params: { :repo_id => @repo_id, :repository => hash }
 
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for Package Repository 'npm'. Please update your copy of the config with the changes.")
       end
@@ -366,7 +288,7 @@ describe ApiV1::Admin::RepositoriesController do
         allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@md5)
 
         hash = {repo_id: @repo_id, name: "foo", plugin_metadata: {id: 'npm', version: '1'}, configuration: [{key: 'REPO_URL', value: 'https://foo.bar'}]}
-        put_with_api_header :update, :repo_id => @repo_id, :repository => hash
+        put_with_api_header :update, params: { :repo_id => @repo_id, :repository => hash }
 
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for Package Repository 'npm'. Please update your copy of the config with the changes.")
       end
@@ -376,7 +298,7 @@ describe ApiV1::Admin::RepositoriesController do
         allow(@package_repository_service).to receive(:getPackageRepository).with('non-existing-repo-id').and_return(nil)
         hash = {repo_id: 'non-existing-repo-id', name: "foo", plugin_metadata: {id: 'npm', version: '1'}, configuration: [{key: 'REPO_URL', value: 'https://foo.bar'}]}
 
-        put_with_api_header :update, :repo_id => 'non-existing-repo-id', :repository => hash
+        put_with_api_header :update, params: { :repo_id => 'non-existing-repo-id', :repository => hash }
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -390,18 +312,18 @@ describe ApiV1::Admin::RepositoriesController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:put, :update, repo_id: @repo_id)
+        expect(controller).to allow_action(:put, :update, params: { repo_id: @repo_id })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:put, :update, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { repo_id: @repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:put, :update, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { repo_id: @repo_id }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -412,27 +334,6 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
         expect(controller).to allow_action(:put, :update)
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to update action of repositories controller for specified package repository id' do
-          expect(:put => 'api/admin/repositories/foo123').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
-        end
-        it 'should route to update action of repositories controller for repo_id with dots' do
-          expect(:put => 'api/admin/repositories/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to put action of repositories controller without header' do
-          expect(:put => 'api_v1/admin/repositories/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/repositories')
-          expect(:put => 'api_v1/admin/repositories/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api_v1/admin/repositories/foo')
-        end
       end
     end
   end

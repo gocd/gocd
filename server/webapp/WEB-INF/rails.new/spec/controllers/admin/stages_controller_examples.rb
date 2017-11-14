@@ -30,7 +30,7 @@ shared_examples_for :stages_controller do
         @pipeline.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials('stage-to-move'))
         @pipeline.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials('fixed_stage'))
 
-        post :increment_index, :stage_parent => @stage_parent, :pipeline_name => "pipeline-name", :stage_name => "stage-to-move", :config_md5 => "1234abcd"
+        post :increment_index, params: { :stage_parent => @stage_parent, :pipeline_name => "pipeline-name", :stage_name => "stage-to-move", :config_md5 => "1234abcd" }
 
         expect(@pipeline.get(0).name()).to eq(CaseInsensitiveString.new("fixed_stage"))
         expect(@pipeline.get(1).name()).to eq(CaseInsensitiveString.new("stage-to-move"))
@@ -52,7 +52,7 @@ shared_examples_for :stages_controller do
         @pipeline.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials('fixed_stage'))
         @pipeline.add(StageConfigMother.oneBuildPlanWithResourcesAndMaterials('stage-to-move'))
 
-        post :decrement_index, :stage_parent => @stage_parent, :pipeline_name => "pipeline-name", :stage_name => "stage-to-move", :config_md5 => "1234abcd"
+        post :decrement_index, params: { :stage_parent => @stage_parent, :pipeline_name => "pipeline-name", :stage_name => "stage-to-move", :config_md5 => "1234abcd" }
 
         expect(@pipeline.get(0).name()).to eq(CaseInsensitiveString.new("stage-to-move"))
         expect(@pipeline.get(1).name()).to eq(CaseInsensitiveString.new("fixed_stage"))

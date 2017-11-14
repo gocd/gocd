@@ -23,7 +23,7 @@ module ApiV1
 
       def show
         json = ApiV1::Config::ConfigRepoRepresenter.new(@config_repo).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@config_repo))
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(@config_repo), template: false)
       end
 
       def index

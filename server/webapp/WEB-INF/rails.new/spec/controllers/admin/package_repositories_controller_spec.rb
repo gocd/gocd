@@ -26,64 +26,6 @@ describe Admin::PackageRepositoriesController do
     allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
   end
 
-  describe "routes" do
-    it "should resolve route to the new package-repositories page" do
-      expect({:get => "/admin/package_repositories/new"}).to route_to(:controller => "admin/package_repositories", :action => "new")
-      expect(package_repositories_new_path).to eq("/admin/package_repositories/new")
-    end
-
-    it "should resolve route to the list package-repositories page" do
-      expect({:get => "/admin/package_repositories/list"}).to route_to(:controller => "admin/package_repositories", :action => "list")
-      expect(package_repositories_list_path).to eq("/admin/package_repositories/list")
-    end
-
-    it "should resolve route to the create package-repositories page" do
-      expect({:post => "/admin/package_repositories"}).to route_to(:controller => "admin/package_repositories", :action => "create")
-      expect(package_repositories_create_path).to eq("/admin/package_repositories")
-    end
-
-    it "should resolve route to the edit package-repositories page" do
-      expect({:get => "/admin/package_repositories/abcd-1234/edit"}).to route_to(:controller => "admin/package_repositories", :action => "edit", :id => "abcd-1234")
-      expect(package_repositories_edit_path(:id => "abcd-1234")).to eq("/admin/package_repositories/abcd-1234/edit")
-    end
-
-    it "should resolve route to the update package-repositories page" do
-      expect({:put => "/admin/package_repositories/abcd-1234"}).to route_to(:controller => "admin/package_repositories", :action => "update", :id => "abcd-1234")
-      expect(package_repositories_update_path(:id => "abcd-1234")).to eq("/admin/package_repositories/abcd-1234")
-    end
-
-    it "should resolve route to plugin config" do
-      expect({:get => "/admin/package_repositories/abcd-1234/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "abcd-1234")
-      expect(package_repositories_plugin_config_path(:plugin => "abcd-1234")).to eq("/admin/package_repositories/abcd-1234/config")
-    end
-
-    it "should resolve route to plugin config for repo" do
-      expect({:get => "/admin/package_repositories/repoid/pluginid/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "pluginid", :id => "repoid")
-      expect(package_repositories_plugin_config_for_repo_path(:plugin => "pluginid", :id => "repoid")).to eq("/admin/package_repositories/repoid/pluginid/config")
-    end
-
-    it "should resolve route to check connection for repo" do
-      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      expect({:post => "admin/package_repositories/check_connection"}).to route_to(:controller => "admin/package_repositories", :action => "check_connection")
-      expect(package_repositories_check_connection_path).to eq("/admin/package_repositories/check_connection")
-    end
-
-    it "should resolve route to deletion of repo" do
-      expect({:delete => "/admin/package_repositories/repo"}).to route_to(:controller => "admin/package_repositories", :action => "destroy", :id => "repo")
-      expect(package_repositories_delete_path(:id => "repo")).to eq("/admin/package_repositories/repo")
-    end
-
-    it "should allow dots in the name of a plugin in the route for a plugin's configuration" do
-      expect({:get => "/admin/package_repositories/plugin.id.with.dots/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "plugin.id.with.dots")
-      expect(package_repositories_plugin_config_path(:plugin => "plugin.id.with.dots")).to eq("/admin/package_repositories/plugin.id.with.dots/config")
-    end
-
-    it "should allow dots in the name of a plugin in the route for a plugin config for a repository" do
-      expect({:get => "/admin/package_repositories/repoid/plugin.id.with.dots/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "plugin.id.with.dots", :id => "repoid")
-      expect(package_repositories_plugin_config_for_repo_path(:plugin => "plugin.id.with.dots", :id => "repoid")).to eq("/admin/package_repositories/repoid/plugin.id.with.dots/config")
-    end
-  end
-
   describe "actions" do
 
     before :each do
@@ -156,7 +98,7 @@ describe Admin::PackageRepositoriesController do
       end
 
       it "should get the configuration properties for a given plugin-id" do
-        get :plugin_config, :plugin => "pluginid"
+        get :plugin_config, params: { :plugin => "pluginid" }
 
         expect(assigns[:repository_configuration]).to_not be_nil
         expect(assigns[:repository_configuration].properties[0].display_name).to eq("Key 1")
@@ -167,7 +109,7 @@ describe Admin::PackageRepositoriesController do
       end
 
       it "should get the configuration properties with values for a given repo-id associated with package material plugin" do
-        get :plugin_config_for_repo, :id => "repo1", :plugin => "pluginid"
+        get :plugin_config_for_repo, params: { :id => "repo1", :plugin => "pluginid" }
 
         expect(assigns[:repository_configuration]).to_not be_nil
         expect(assigns[:repository_configuration].properties.size).to eq(1)
@@ -194,7 +136,7 @@ describe Admin::PackageRepositoriesController do
         allow(PackageRepository).to receive(:new).and_return(package_repository)
         expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("repo-id", 200,  "success"))
 
-        post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+        post :create, params: { :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}} }
 
         expect(response.body).to eq("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"repo-id\",\"redirectUrl\":\"/admin/package_repositories/repo-id/edit\"}")
         expect(flash[:success]).to eq("success")
@@ -207,7 +149,7 @@ describe Admin::PackageRepositoriesController do
         allow(PackageRepository).to receive(:new).and_return(package_repository)
         expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::failure(nil, 500, "failed", nil, nil));
 
-        post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+        post :create, params: { :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}} }
 
         expect(flash[:success]).to eq(nil)
         expect(response.response_code).to eq(500)
@@ -234,7 +176,7 @@ describe Admin::PackageRepositoriesController do
       end
 
       it "should render form for editing  package repository" do
-        get :edit, :id => "abcd-1234"
+        get :edit, params: { :id => "abcd-1234" }
 
         expect(assigns[:package_repository]).to eq(@repository1)
         expect(assigns[:repository_configuration]).to_not be_nil
@@ -248,7 +190,7 @@ describe Admin::PackageRepositoriesController do
       end
 
       it "should render error if plugin is missing package repository" do
-        get :edit, :id => "with-missing-plugin"
+        get :edit, params: { :id => "with-missing-plugin" }
 
         expect(assigns[:package_repository]).to eq(@repository2)
         expect(assigns[:repository_configuration]).to_not be_nil
@@ -260,7 +202,7 @@ describe Admin::PackageRepositoriesController do
       end
 
       it "should render 404 page when repo is missing" do
-        get :edit, :id => "missing-repo-id"
+        get :edit, params: { :id => "missing-repo-id" }
 
         expect(response.response_code).to eq(404)
         expect(assigns[:message]).to eq("Could not find the repository with id 'missing-repo-id'. It might have been deleted.")
@@ -281,7 +223,7 @@ describe Admin::PackageRepositoriesController do
         allow(PackageRepository).to receive(:new).and_return(package_repository)
         expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("id", 200, "success"))
 
-        post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+        post :update, params: { :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}} }
 
         expect(response.body).to eq("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\",\"redirectUrl\":\"/admin/package_repositories/id/edit\"}")
         expect(flash[:success]).to eq("success")
@@ -300,7 +242,7 @@ describe Admin::PackageRepositoriesController do
 
         expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ajax_response)
 
-        post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+        post :update, params: { :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}} }
 
         expect(flash[:notice]).to eq(nil)
         expect(response.body).to eq("{\"fieldErrors\":{\"field1\":[\"error 1\"],\"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}")
@@ -324,7 +266,7 @@ describe Admin::PackageRepositoriesController do
         expect(@result).to receive(:message).with(anything).and_return("Connection OK from plugin.")
         expect(@package_repository_service).to receive(:checkConnection).with(package_repository, @result)
 
-        get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+        get :check_connection, params: { :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}} }
 
         json = JSON.parse(response.body)
         expect(json["success"]).to eq("Connection OK from plugin.")
@@ -337,7 +279,7 @@ describe Admin::PackageRepositoriesController do
         expect(@result).to receive(:message).twice.with(anything).and_return("Connection To Repo Failed. Bad Url")
         expect(@package_repository_service).to receive(:checkConnection).with(package_repository, @result)
 
-        get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+        get :check_connection, params: { :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}} }
 
         json = JSON.parse(response.body)
         expect(json["success"]).to eq(nil)
@@ -365,7 +307,7 @@ describe Admin::PackageRepositoriesController do
         expect(@go_config_service).to receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(@update_response)
         expect(stub_service(:flash_message_service)).to receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
 
-        delete :destroy, :id => "repo-id", :config_md5 => @config_md5
+        delete :destroy, params: { :id => "repo-id", :config_md5 => @config_md5 }
 
         expect(response).to redirect_to package_repositories_list_path(:fm => 'random-uuid')
       end
@@ -391,7 +333,7 @@ describe Admin::PackageRepositoriesController do
           r.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         }.and_return(@update_response)
 
-        delete :destroy, :id => repository_id, :config_md5 => @config_md5
+        delete :destroy, params: { :id => repository_id, :config_md5 => @config_md5 }
 
         expect(assigns[:tab_name]).to eq("package-repositories")
         assert_template "edit"

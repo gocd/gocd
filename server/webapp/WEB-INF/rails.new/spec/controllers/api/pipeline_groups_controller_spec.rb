@@ -28,16 +28,12 @@ describe Api::PipelineGroupsController do
       allow(controller).to receive(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
     end
 
-    it "should resolve" do
-      expect(:get => "/api/config/pipeline_groups").to route_to(:controller => "api/pipeline_groups", :action => "list_configs", :no_layout=>true)
-    end
-
     it "should render pipeline group list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@pipeline_configs_service).to receive(:getGroupsForUser).with("loser").and_return([create_pipeline_group_config_model])
 
-      get :list_configs, :no_layout => true
+      get :list_configs, params: { :no_layout => true }
 
       expect(response.body).to eq([PipelineGroupConfigAPIModel.new(create_pipeline_group_config_model)].to_json)
     end

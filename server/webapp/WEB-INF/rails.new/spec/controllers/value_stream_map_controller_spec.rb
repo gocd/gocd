@@ -1,4 +1,4 @@
-##########################GO-LICENSE-START################################
+##########################################################################
 # Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'rails_helper'
 
@@ -41,9 +41,6 @@ describe ValueStreamMapController do
     @vsm_material_path_partial = proc do |material_fingerprint, revision|
       vsm_show_material_path(material_fingerprint, revision)
     end
-    @stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
-      stage_detail_tab_path(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
-    end
     @pipeline_edit_path_normal_edit = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
     @pipeline_edit_path_quick_edit = proc { |pipeline_name | edit_admin_pipeline_config_path(:pipeline_name => pipeline_name) }
   end
@@ -60,7 +57,7 @@ describe ValueStreamMapController do
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with('foo', 42, @user, an_instance_of(HttpOperationResult)).and_return(pim)
       allow(controller).to receive(:url_for_pipeline_instance).with(pim).and_return('/some_funky_url')
 
-      get :show, { pipeline_name: 'foo', pipeline_counter: '42' }
+      get :show, params: { pipeline_name: 'foo', pipeline_counter: '42' }
 
       expect(response.status).to eq(302)
       expect(response).to redirect_to("/some_funky_url")
@@ -72,7 +69,7 @@ describe ValueStreamMapController do
       expect(@pipeline_history_service).to receive(:findPipelineInstance).never
       expect(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with('foo', '42').and_return('pipeline')
 
-      get :show, { pipeline_name: 'foo', pipeline_counter: '42', format: 'json' }
+      get :show, params: { pipeline_name: 'foo', pipeline_counter: '42', format: 'json' }
 
       expect(response.status).to eq(200)
     end
@@ -82,37 +79,17 @@ describe ValueStreamMapController do
       expect(@pipeline_history_service).to receive(:findPipelineInstance).never
       expect(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with('foo', '42').and_return('pipeline')
 
-      get :show, { pipeline_name: 'foo', pipeline_counter: '42' }
+      get :show, params: { pipeline_name: 'foo', pipeline_counter: '42' }
 
       expect(response.status).to eq(200)
     end
   end
 
   describe "show" do
-    it "should route to pdg show path" do
-      expect(controller.send(:vsm_show_path, { pipeline_name: "P", pipeline_counter: 1, format: "json" })).to eq("/pipelines/value_stream_map/P/1.json")
-      expect(controller.send(:vsm_show_path, { pipeline_name: "P", pipeline_counter: 1, format: "html" })).to eq("/pipelines/value_stream_map/P/1")
-      expect(controller.send(:vsm_show_path, { pipeline_name: "P", pipeline_counter: 1 })).to eq("/pipelines/value_stream_map/P/1")
-
-      expect(get: "/pipelines/value_stream_map/name_of_pipeline/15.json").to route_to({ controller: "value_stream_map", action: 'show', pipeline_name: "name_of_pipeline", pipeline_counter: "15", format: "json" })
-      expect(get: "/pipelines/value_stream_map/name_of_pipeline/15.html").to route_to({ controller: "value_stream_map", action: 'show', pipeline_name: "name_of_pipeline", pipeline_counter: "15", format: "html" })
-      expect(get: "/pipelines/value_stream_map/name_of_pipeline/15").to route_to({ format: :html, controller: "value_stream_map", action: 'show', pipeline_name: "name_of_pipeline", pipeline_counter: "15" })
-    end
-
-    it "should route to pdg show path for pipelines with dot in their name" do
-      expect(controller.send(:vsm_show_path, { pipeline_name: "P.Q", pipeline_counter: 1, format: "json" })).to eq("/pipelines/value_stream_map/P.Q/1.json")
-      expect(controller.send(:vsm_show_path, { pipeline_name: "P.Q", pipeline_counter: 1, format: "html" })).to eq("/pipelines/value_stream_map/P.Q/1")
-      expect(controller.send(:vsm_show_path, { pipeline_name: "P.Q", pipeline_counter: 1 })).to eq("/pipelines/value_stream_map/P.Q/1")
-
-      expect(get: "/pipelines/value_stream_map/name.of.pipeline/15.json").to route_to({ controller: "value_stream_map", action: 'show', pipeline_name: "name.of.pipeline", pipeline_counter: "15", format: "json" })
-      expect(get: "/pipelines/value_stream_map/name.of.pipeline/15.html").to route_to({ controller: "value_stream_map", action: 'show', pipeline_name: "name.of.pipeline", pipeline_counter: "15", format: "html" })
-      expect(get: "/pipelines/value_stream_map/name.of.pipeline/15").to route_to({ controller: "value_stream_map", action: 'show', pipeline_name: "name.of.pipeline", pipeline_counter: "15", format: :html })
-    end
-
     it "should show Error message when pipeline name and counter cannot be resolved to a unique instance" do
       pipeline = "foo"
       allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("foo","1").and_throw(Exception.new());
-      get :show, pipeline_name: pipeline, pipeline_counter: 1
+      get :show, params: { pipeline_name: pipeline, pipeline_counter: 1 }
 
       expect(assigns(:pipeline)).to eq(nil)
     end
@@ -126,7 +103,7 @@ describe ValueStreamMapController do
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
 
-        get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         expect(response.status).to eq(200)
 
@@ -143,7 +120,7 @@ describe ValueStreamMapController do
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
 
-        get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         expect(response.status).to eq(200)
 
@@ -165,7 +142,7 @@ describe ValueStreamMapController do
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1,@user, @result).and_return(model)
 
-        get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         graph_details = JSON.parse(response.body)
         expected_graph_details = JSON.parse(expected_json_for_graph_with_pipeline_instance_details)
@@ -180,7 +157,7 @@ describe ValueStreamMapController do
           allow(result).to receive(:message).with(anything).and_return("error")
         end
 
-        get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         expect(response.body).to eq({ error: "error" }.to_json)
       end
@@ -189,7 +166,7 @@ describe ValueStreamMapController do
     describe "render html" do
       it "should render html when html format" do
         allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
-        get :show, pipeline_name: "P1", pipeline_counter: 1
+        get :show, params: { pipeline_name: "P1", pipeline_counter: 1 }
         assert_template "show"
       end
     end
@@ -319,20 +296,6 @@ describe ValueStreamMapController do
   end
 
   describe "show material" do
-    it "should route to VSM show material path" do
-      expect(controller.send(:vsm_show_material_path, { material_fingerprint: "fingerprint", revision: 'revision', format: "json" })).to eq("/materials/value_stream_map/fingerprint/revision.json")
-      expect(controller.send(:vsm_show_material_path, { material_fingerprint: "fingerprint", revision: 'revision', format: "html" })).to eq("/materials/value_stream_map/fingerprint/revision")
-      expect(controller.send(:vsm_show_material_path, { material_fingerprint: "fingerprint", revision: 'revision' })).to eq("/materials/value_stream_map/fingerprint/revision")
-
-      expect(get: "/materials/value_stream_map/fingerprint/revision.json").to route_to({ controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision", format: "json" })
-      expect(get: "/materials/value_stream_map/fingerprint/revision.html").to route_to({ controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision", format: "html" })
-      expect(get: "/materials/value_stream_map/fingerprint/revision").to route_to({ format: :html, controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision" })
-
-      expect(get: "/materials/value_stream_map/fingerprint/revision.with.dots.json").to route_to({ format: "json", controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision.with.dots" })
-      expect(get: "/materials/value_stream_map/fingerprint/revision.with.dots.html").to route_to({ format: "html", controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision.with.dots" })
-      expect(get: "/materials/value_stream_map/fingerprint/revision.with.dots").to route_to({ format: :html, controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision.with.dots" })
-    end
-
     describe "render json" do
       it "should get the pipeline dependency graph json" do
         material = GitMaterial.new("url")
@@ -341,7 +304,7 @@ describe ValueStreamMapController do
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
 
-        get :show_material, material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json"
+        get :show_material, params: { material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json" }
 
         expect(response.status).to eq(200)
 
@@ -355,7 +318,7 @@ describe ValueStreamMapController do
           allow(result).to receive(:message).with(anything).and_return("error")
         end
 
-        get :show_material, material_fingerprint: fingerprint, revision: revision, format: "json"
+        get :show_material, params: { material_fingerprint: fingerprint, revision: revision, format: "json" }
 
         expect(response.body).to eq({ error: "error" }.to_json)
       end
@@ -368,7 +331,7 @@ describe ValueStreamMapController do
         expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
         expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(material_config)
 
-        get :show_material, material_fingerprint: 'fingerprint', revision: 'revision'
+        get :show_material, params: { material_fingerprint: 'fingerprint', revision: 'revision' }
 
         assert_template "show_material"
         expect(assigns(:material_display_name)).to eq('http://some.repo')
@@ -378,7 +341,7 @@ describe ValueStreamMapController do
         expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
         expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(nil)
 
-        get :show_material, material_fingerprint: 'fingerprint', revision: 'revision'
+        get :show_material, params: { material_fingerprint: 'fingerprint', revision: 'revision' }
 
         assert_template "show_material"
         expect(assigns(:material_display_name)).to be_nil

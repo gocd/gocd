@@ -19,6 +19,6 @@ require 'rails_helper'
 describe Api::FeedsHelper do
   include Api::FeedsHelper
   it "should return the url to pipeline resource given pipeline id" do
-    expect(pipeline_details_url("cruise/1/dev/1", 1)).to eq("http://test.host/api/pipelines/cruise/1.xml")
+    expect(pipeline_details_url("cruise/1/dev/1", 1, UrlBuilder.default_url_options)).to eq("http://test.host/api/pipelines/cruise/1.xml")
   end
 end

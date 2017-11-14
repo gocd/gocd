@@ -25,7 +25,7 @@ describe StageConfigLoader do
 
       self.filter_names = []
 
-      def self.before_filter filter_name, *args
+      def self.before_action filter_name, *args
         filter_names << filter_name
       end
 

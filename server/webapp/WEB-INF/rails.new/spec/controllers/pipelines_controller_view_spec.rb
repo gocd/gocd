@@ -62,7 +62,7 @@ describe PipelinesController do
       expect(@pipeline_history_service).to receive(:latest).with('pipeline-name', @user).and_return(pim)
       expect(@go_config_service).to receive(:variablesFor).with("pipeline-name").and_return(EnvironmentVariablesConfig.new())
 
-      post 'show_for_trigger', :pipeline_name => 'pipeline-name', "pegged_revisions" =>{svn_material_config.getPipelineUniqueFingerprint() => "hello_world"}
+      post :show_for_trigger, params: { :pipeline_name => 'pipeline-name', "pegged_revisions" =>{svn_material_config.getPipelineUniqueFingerprint() => "hello_world"} }
       expect(response.body).to have_selector(".material_summary #material-number-0.updated[title='hello_world']", :text=>"hello_world")
       expect(response.body).to have_selector("#material-number-0-pegged[title='hello_world']")
       expect(response.body).to have_selector(".material_details #material-number-0-autocomplete-content")

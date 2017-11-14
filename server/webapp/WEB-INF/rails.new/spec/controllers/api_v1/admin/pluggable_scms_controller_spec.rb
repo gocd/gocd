@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::PluggableScmsController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before :each do
@@ -77,22 +77,6 @@ describe ApiV1::Admin::PluggableScmsController do
         expect(actual_response).to eq(expected_response([@scm], ApiV1::Scms::PluggableScmsRepresenter))
       end
     end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of pluggable_scms controller' do
-          expect(:get => 'api/admin/scms').to route_to(action: 'index', controller: 'api_v1/admin/pluggable_scms')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of pluggable_scms controller without header' do
-          expect(:get => 'api/admin/scms').to_not route_to(action: 'index', controller: 'api_v1/admin/pluggable_scms')
-          expect(:get => 'api/admin/scms').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -107,14 +91,14 @@ describe ApiV1::Admin::PluggableScmsController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:get, :show, material_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: {material_name: 'foo'}).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :show, material_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: {material_name: 'foo'}).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -141,7 +125,7 @@ describe ApiV1::Admin::PluggableScmsController do
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('material').exactly(2).times.and_return(@scm)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@scm).and_return('md5')
 
-        get_with_api_header :show, material_name: 'material'
+        get_with_api_header :show, params: {material_name: 'material'}
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@scm, ApiV1::Scms::PluggableScmRepresenter))
@@ -150,26 +134,10 @@ describe ApiV1::Admin::PluggableScmsController do
       it 'should return 404 if the pluggable scm material does not exist' do
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('non-existent-material').and_return(nil)
 
-        get_with_api_header :show, material_name: 'non-existent-material'
+        get_with_api_header :show, params: {material_name: 'non-existent-material'}
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
 
-      end
-    end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of pluggable_scms controller for material name with dots' do
-          expect(:get => 'api/admin/scms/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/pluggable_scms', material_name: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of pluggable_scms controller without header' do
-          expect(:get => 'api/admin/scms/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/pluggable_scms')
-          expect(:get => 'api/admin/scms/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms/foo')
-        end
       end
     end
   end
@@ -218,9 +186,9 @@ describe ApiV1::Admin::PluggableScmsController do
 
       it 'should deserialize scm object from given parameters' do
         allow(controller).to receive(:etag_for_entity_in_config).and_return('some-md5')
-        hash = {id: 'scm-id', name: 'foo', auto_update: false, plugin_metadata: {id: 'foo', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
+        hash = {id: 'scm-id', name: 'foo', auto_update: false, plugin_metadata: {id: 'foo', version: '1'}, configuration: [{:key => 'url', :value => 'git@github.com:foo/bar.git'}, {:key => 'password', :value => "some-value"}]}
         expect(@pluggable_scm_service).to receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
-        post_with_api_header :create, pluggable_scm: hash
+        post_with_api_header :create, params: {pluggable_scm: hash}
 
         expect(response).to be_ok
         real_response = actual_response
@@ -234,7 +202,7 @@ describe ApiV1::Admin::PluggableScmsController do
         hash = {name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "encrypted_value" => 'baz'}]}
         expect(@pluggable_scm_service).to receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
 
-        post_with_api_header :create, hash
+        post_with_api_header :create, params: hash
 
         expect(actual_response).to have_key(:id)
       end
@@ -252,23 +220,6 @@ describe ApiV1::Admin::PluggableScmsController do
         expect(response).to have_api_message_response(422, "Save failed")
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of pluggable_scms controller' do
-          expect(:post => 'api/admin/scms').to route_to(action: 'create', controller: 'api_v1/admin/pluggable_scms')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of pluggable_scms controller without header' do
-          expect(:post => 'api/admin/scms').to_not route_to(action: 'create', controller: 'api_v1/admin/pluggable_scms')
-          expect(:post => 'api/admin/scms').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms')
-        end
-      end
-    end
   end
 
   describe "update" do
@@ -277,21 +228,21 @@ describe ApiV1::Admin::PluggableScmsController do
         disable_security
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         allow(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
-        expect(controller).to allow_action(:put, :update, material_name: 'foo')
+        expect(controller).to allow_action(:put, :update, params: {material_name: 'foo'})
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:put, :update, material_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: {material_name: 'foo'}).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:put, :update, material_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: {material_name: 'foo'}).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -299,14 +250,14 @@ describe ApiV1::Admin::PluggableScmsController do
         login_as_admin
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         allow(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
-        expect(controller).to allow_action(:put, :update, material_name: 'foo')
+        expect(controller).to allow_action(:put, :update, params: {material_name: 'foo'})
       end
 
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         allow(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
-        expect(controller).to allow_action(:put, :update, material_name: 'foo')
+        expect(controller).to allow_action(:put, :update, params: {material_name: 'foo'})
       end
 
     end
@@ -319,13 +270,13 @@ describe ApiV1::Admin::PluggableScmsController do
       it 'should deserialize scm object from given parameters' do
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
 
-        hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
+        hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{:key => 'url', :value => 'git@github.com:foo/bar.git'}]}
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SCM)).exactly(2).times.and_return('md5')
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).exactly(2).times.and_return(@scm)
         expect(@pluggable_scm_service).to receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything, 'md5')
 
-        put_with_api_header :update, material_name: 'material', pluggable_scm: hash
+        put_with_api_header :update, params: {material_name: 'material', pluggable_scm: hash}
 
         expect(response).to be_ok
         real_response = actual_response
@@ -337,7 +288,7 @@ describe ApiV1::Admin::PluggableScmsController do
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
         params = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
 
-        put_with_api_header :update, material_name: 'foo', pluggable_scm: params
+        put_with_api_header :update, params: {material_name: 'foo', pluggable_scm: params}
 
         expect(response).to have_api_message_response(422, 'Renaming of SCM material is not supported by this API.')
       end
@@ -350,13 +301,13 @@ describe ApiV1::Admin::PluggableScmsController do
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SCM)).and_return('md5')
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).and_return(@scm)
-        allow(@pluggable_scm_service).to receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), result, anything)  do |user, scm, result|
+        allow(@pluggable_scm_service).to receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), result, anything) do |user, scm, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
         params = {material_name: 'material'}
 
-        put_with_api_header :update, params
+        put_with_api_header :update, params: params
 
         expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
       end
@@ -367,21 +318,21 @@ describe ApiV1::Admin::PluggableScmsController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SCM)).and_return('another-etag')
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
 
-        put_with_api_header :update, material_name: 'foo', pluggable_scm: params
+        put_with_api_header :update, params: {material_name: 'foo', pluggable_scm: params}
 
-        expect(response).to have_api_message_response(412, "Someone has modified the configuration for SCM 'foo'. Please update your copy of the config with the changes." )
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for SCM 'foo'. Please update your copy of the config with the changes.")
 
       end
 
       it 'should proceed with update if etag matches.' do
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
-        hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
+        hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{:key => 'url', :value => 'git@github.com:foo/bar.git'}]}
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SCM)).exactly(3).times.and_return('md5')
         expect(@pluggable_scm_service).to receive(:findPluggableScmMaterial).with('material').exactly(3).times.and_return(@scm)
         expect(@pluggable_scm_service).to receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything, "md5")
 
-        put_with_api_header :update, material_name: 'material', pluggable_scm: hash
+        put_with_api_header :update, params: {material_name: 'material', pluggable_scm: hash}
 
         expect(response).to be_ok
         real_response = actual_response
@@ -389,24 +340,6 @@ describe ApiV1::Admin::PluggableScmsController do
         expect(real_response).to eq(hash)
 
       end
-
-    end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to update action of pluggable_scms controller for material name with dots' do
-          expect(:put => 'api/admin/scms/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/pluggable_scms', material_name: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of pluggable_scms controller without header' do
-          expect(:put => 'api/admin/scms/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/pluggable_scms')
-          expect(:put => 'api/admin/scms/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms/foo')
-        end
-      end
     end
   end
-
 end

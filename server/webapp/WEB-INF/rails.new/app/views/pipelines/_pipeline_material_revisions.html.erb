@@ -2,9 +2,9 @@
    scope[:pegged_revisions] ||= {}
 %>
 
-<%= pipeline_operations_blocking_form_remote_tag(:url => api_pipeline_action_path(:pipeline_name => scope[:pipeline_name], :action => "schedule"),
+<%= pipeline_operations_blocking_form_remote_tag(:url => api_pipeline_schedule_path(:pipeline_name => scope[:pipeline_name]),
                              :html => {
-                                     :onsubmit => ("PipelineOperations.onTriggerWithOptionsDialog(this, '#{scope[:pipeline_name]}', '#{api_pipeline_action_path(:pipeline_name => scope[:pipeline_name], :action => "schedule")}'); return false;").html_safe
+                                     :onsubmit => ("PipelineOperations.onTriggerWithOptionsDialog(this, '#{scope[:pipeline_name]}', '#{api_pipeline_schedule_path(:pipeline_name => scope[:pipeline_name])}'); return false;").html_safe
                              }
     ) -%>
 

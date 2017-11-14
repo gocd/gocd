@@ -19,10 +19,14 @@ require 'rails_helper'
 describe "/api/pipelines/pipelines" do
 
   before do
+    def controller.default_url_options
+      super.reverse_merge(UrlBuilder.default_url_options)
+    end
+
     pipeline_config = PipelineMother.twoBuildPlansWithResourcesAndHgMaterialsAtUrl("uat", "default-stage", "http://foo:bar@baz.com:8000")
     @pipeline = PipelineHistoryMother.pipelineHistory(pipeline_config, @schedule_time = java.util.Date.new()).first
     @pipeline.setMaterialConfigs(pipeline_config.materialConfigs())
-    pipelines = PipelineInstanceModels.createPipelineInstanceModels();
+    pipelines = PipelineInstanceModels.createPipelineInstanceModels()
     assign(:pipelines, pipelines)
     pipelines.add(@pipeline)
     pipelines.add(@empty_pipeline = PipelineInstanceModel.createEmptyPipelineInstanceModel("pipeline", BuildCause.createWithEmptyModifications(), StageInstanceModels.new()))

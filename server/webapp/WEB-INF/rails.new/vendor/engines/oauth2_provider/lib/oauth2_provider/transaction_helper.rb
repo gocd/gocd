@@ -15,7 +15,7 @@ module Oauth2Provider
 
     module ClassMethods
       def transaction_actions(*actions)
-        self.around_filter TransactionFilter.new, :only => actions
+        self.around_action TransactionFilter.new, :only => actions
       end
     end
   end

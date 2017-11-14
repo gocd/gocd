@@ -42,7 +42,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class GoCache {
     private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<>();
 
-    static final String SUB_KEY_DELIMITER = "!_#$#_!";
+    public static final String SUB_KEY_DELIMITER = "!_#$#_!";
 
     private Cache ehCache;
 

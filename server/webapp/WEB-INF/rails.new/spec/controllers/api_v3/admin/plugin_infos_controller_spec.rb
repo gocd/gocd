@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV3::Admin::PluginInfosController do
-  include ApiHeaderSetupTeardown
+
   include ApiV3::ApiVersionHelper
 
   before(:each) do
@@ -42,7 +42,7 @@ describe ApiV3::Admin::PluginInfosController do
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_user
-        expect(controller).to disallow_action(:get, :show, {:id => 'plugin_id'}).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { :id => 'plugin_id' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -116,7 +116,7 @@ describe ApiV3::Admin::PluginInfosController do
       expect(@default_plugin_manager).to receive(:plugins).and_return([bad_plugin, good_plugin])
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with(nil).and_return([good_plugin_info])
 
-      get_with_api_header :index, include_bad: true
+      get_with_api_header :index, params: { include_bad: true }
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response([good_plugin_info, bad_plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
     end
@@ -130,7 +130,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([plugin_info])
 
-      get_with_api_header :index, type: 'scm'
+      get_with_api_header :index, params: { type: 'scm' }
 
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response([plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
@@ -180,29 +180,11 @@ describe ApiV3::Admin::PluginInfosController do
     it 'should be a unprocessible entity for a invalid plugin type' do
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
 
-      get_with_api_header :index, type: 'invalid_type'
+      get_with_api_header :index, params: { type: 'invalid_type' }
 
       expect(response.code).to eq('422')
       json = JSON.parse(response.body).deep_symbolize_keys
       expect(json[:message]).to eq('Your request could not be processed. Invalid plugins type - `invalid_type` !')
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to the index action of plugin_infos controller' do
-          expect(:get => 'api/admin/plugin_info').to route_to(action: 'index', controller: 'api_v3/admin/plugin_infos')
-        end
-      end
-
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of plugin_infos controller without header' do
-          expect(:get => 'api/admin/plugin_info').to_not route_to(action: 'index', controller: 'api_v3/admin/plugin_infos')
-          expect(:get => 'api/admin/plugin_info').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_info')
-        end
-      end
     end
   end
 
@@ -220,7 +202,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin_id').and_return(plugin_info)
 
-      get_with_api_header :show, id: 'plugin_id'
+      get_with_api_header :show, params: { id: 'plugin_id' }
 
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(plugin_info, ApiV3::Plugin::PluginInfoRepresenter))
@@ -237,7 +219,7 @@ describe ApiV3::Admin::PluginInfosController do
       expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('bad.plugin').and_return(nil)
       expect(@default_plugin_manager).to receive(:getPluginDescriptorFor).with('bad.plugin').and_return(bad_plugin)
 
-      get_with_api_header :show, id: 'bad.plugin'
+      get_with_api_header :show, params: { id: 'bad.plugin' }
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(bad_plugin_info, ApiV3::Plugin::PluginInfoRepresenter))
     end
@@ -257,46 +239,11 @@ describe ApiV3::Admin::PluginInfosController do
       expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin_id').and_return(nil)
       expect(@default_plugin_manager).to receive(:getPluginDescriptorFor).with('plugin_id').and_return(nil)
 
-      get_with_api_header :show, id: 'plugin_id'
+      get_with_api_header :show, params: { id: 'plugin_id' }
 
       expect(response.code).to eq('404')
       json = JSON.parse(response.body).deep_symbolize_keys
       expect(json[:message]).to eq('Either the resource you requested was not found, or you are not authorized to perform this action.')
-    end
-
-    describe "route" do
-      describe "with_header" do
-
-        it 'should route to the show action of plugin_infos controller for alphanumeric plugin id' do
-          expect(:get => 'api/admin/plugin_info/foo123bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo123bar')
-        end
-
-        it 'should route to the show action of plugin_infos controller for plugin id with hyphen' do
-          expect(:get => 'api/admin/plugin_info/foo-123-bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo-123-bar')
-        end
-
-        it 'should route to the show action of plugin_infos controller for plugin id with underscore' do
-          expect(:get => 'api/admin/plugin_info/foo_123_bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo_123_bar')
-        end
-
-        it 'should route to the show action of plugin_infos controller for plugin id with dots' do
-          expect(:get => 'api/admin/plugin_info/foo.123.bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo.123.bar')
-        end
-
-        it 'should route to the show action of plugin_infos controller for capitalized plugin id' do
-          expect(:get => 'api/admin/plugin_info/FOO').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'FOO')
-        end
-      end
-
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_infos controller without header' do
-          expect(:get => 'api/admin/plugin_info/abc').to_not route_to(action: 'show', controller: 'api_v3/admin/plugin_infos')
-          expect(:get => 'api/admin/plugin_info/abc').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_info/abc')
-        end
-      end
     end
   end
 end

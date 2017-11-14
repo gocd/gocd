@@ -24,7 +24,7 @@ module ApiV4
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
       def show
-        if stale?(etag: etag_for(@pipeline_config))
+        if stale?(strong_etag: etag_for(@pipeline_config), template: false)
           json = Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json
         end

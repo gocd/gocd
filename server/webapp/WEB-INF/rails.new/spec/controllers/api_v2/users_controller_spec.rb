@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV2::UsersController do
-  include ApiHeaderSetupTeardown
+
   include ApiV2::ApiVersionHelper
 
   before :each do
@@ -56,23 +56,6 @@ describe ApiV2::UsersController do
         expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
       end
     end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of users controller' do
-          expect(:get => 'api/users').to route_to(action: 'index', controller: 'api_v2/users')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of users controller without header' do
-          expect(:get => 'api/users').to_not route_to(action: 'index', controller: 'api_v2/users')
-          expect(:get => 'api/users').to route_to(controller: 'application', action: 'unresolved', url: 'api/users')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -88,7 +71,7 @@ describe ApiV2::UsersController do
       it 'should render the user' do
         login_as_admin
 
-        get_with_api_header :show, login_name: @john.name
+        get_with_api_header :show, params: { login_name: @john.name }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@john, ApiV2::UserRepresenter))
       end
@@ -98,7 +81,7 @@ describe ApiV2::UsersController do
 
         login_name = SecureRandom.hex
         allow(@user_service).to receive(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
-        get_with_api_header :show, login_name: login_name
+        get_with_api_header :show, params: { login_name: login_name }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -106,46 +89,18 @@ describe ApiV2::UsersController do
     describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:get, :show, login_name: @john.name)
+        expect(controller).to allow_action(:get, :show, params: { login_name: @john.name })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:get, :show, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { login_name: @john.name }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:get, :show, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
-      end
-    end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of users controller for alphanumeric login name' do
-          expect(:get => 'api/users/foo123').to route_to(action: 'show', controller: 'api_v2/users', login_name: 'foo123')
-        end
-
-        it 'should route to show action of users controller having dots in login name' do
-          expect(:get => 'api/users/foo.bar').to route_to(action: 'show', controller: 'api_v2/users', login_name: 'foo.bar')
-        end
-
-        it 'should route to show action of users controller for capitalized login name' do
-          expect(:get => 'api/users/Foo').to route_to(action: 'show', controller: 'api_v2/users', login_name: 'Foo')
-        end
-
-        it 'should not route to show action of users controller for invalid login name' do
-          expect(:get => 'api/users/foo#%$').not_to be_routable
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of users controller without header' do
-          expect(:get => 'api/users/foo').to_not route_to(action: 'show', controller: 'api_v2/users')
-          expect(:get => 'api/users/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/users/foo')
-        end
+        expect(controller).to disallow_action(:get, :show, params: { login_name: @john.name }).with(401, 'You are not authorized to perform this action.')
       end
     end
   end
@@ -168,7 +123,7 @@ describe ApiV2::UsersController do
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "user", username))
         end
 
-        delete_with_api_header :destroy, login_name: @john.name
+        delete_with_api_header :destroy, params: { login_name: @john.name }
         expect(response).to be_ok
         expect(response).to have_api_message_response(200, "The user 'jdoe' was deleted successfully.")
       end
@@ -178,7 +133,7 @@ describe ApiV2::UsersController do
 
         login_name = SecureRandom.hex
         allow(@user_service).to receive(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
-        delete_with_api_header :destroy, login_name: login_name
+        delete_with_api_header :destroy, params: { login_name: login_name }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -187,47 +142,18 @@ describe ApiV2::UsersController do
     describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:delete, :destroy, login_name: @john.name)
+        expect(controller).to allow_action(:delete, :destroy, params: { login_name: @john.name })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:delete, :destroy, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { login_name: @john.name }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:delete, :destroy, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to destroy action of users controller for alphanumeric login name' do
-          expect(:delete => 'api/users/foo123').to route_to(action: 'destroy', controller: 'api_v2/users', login_name: 'foo123')
-        end
-
-        it 'should route to destroy action of users controller having dots in login name' do
-          expect(:delete => 'api/users/foo.bar').to route_to(action: 'destroy', controller: 'api_v2/users', login_name: 'foo.bar')
-        end
-
-        it 'should route to destroy action of users controller for capitalized login name' do
-          expect(:delete => 'api/users/Foo').to route_to(action: 'destroy', controller: 'api_v2/users', login_name: 'Foo')
-        end
-
-        it 'should not route to show action of users controller for invalid login name' do
-          expect(:delete => 'api/users/foo#%$').not_to be_routable
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of users controller without header' do
-          expect(:delete => 'api/users/foo').to_not route_to(action: 'destroy', controller: 'api_v2/users')
-          expect(:delete => 'api/users/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/users/foo')
-        end
+        expect(controller).to disallow_action(:delete, :destroy, params: { login_name: @john.name }).with(401, 'You are not authorized to perform this action.')
       end
     end
   end
@@ -248,7 +174,7 @@ describe ApiV2::UsersController do
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "users", users))
         end
 
-        delete_with_api_header :bulk_delete, users: [@john.name, @joanne.name]
+        delete_with_api_header :bulk_delete, params: { users: [@john.name, @joanne.name] }
 
         expect(response).to have_api_message_response(200, "The users '[\"jdoe\", \"jrowling\"]' was deleted successfully.")
       end
@@ -271,7 +197,7 @@ describe ApiV2::UsersController do
           bulkDeletionFailureResult
         end
 
-        delete_with_api_header :bulk_delete, users: [@john.name, @joanne.name]
+        delete_with_api_header :bulk_delete, params: { users: [@john.name, @joanne.name] }
 
         expect(response).to have_api_message_response(422, "Deletion failed because some users were either enabled or do not exist.")
       end
@@ -287,7 +213,7 @@ describe ApiV2::UsersController do
           BulkDeletionFailureResult.new()
         end
 
-        delete_with_api_header :bulk_delete, users: []
+        delete_with_api_header :bulk_delete, params: { users: [] }
 
         expect(response).to have_api_message_response(400, "No users selected.")
       end
@@ -309,25 +235,6 @@ describe ApiV2::UsersController do
         expect(controller).to allow_action(:delete, 'bulk_delete')
       end
     end
-
-    describe 'routes' do
-      describe 'with header' do
-        it 'should route to the bulk_delete action for users controller' do
-          expect(:delete => '/api/users').to route_to(action: 'bulk_delete', controller: 'api_v2/users')
-        end
-      end
-
-      describe 'without header' do
-        before :each do
-          teardown_header
-        end
-
-        it 'should not route to the bulk_delete action for users controller' do
-          expect(:delete => '/api/users').to_not route_to(action: 'bulk_delete', controller: 'api_v2/users')
-          expect(:delete => '/api/users').to route_to(controller: 'application', action: 'unresolved', url: 'api/users')
-        end
-      end
-    end
   end
 
   describe "update" do
@@ -344,7 +251,7 @@ describe ApiV2::UsersController do
         login_as_admin
         expect(@user_service).to receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
 
-        patch_with_api_header :update, login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
+        patch_with_api_header :update, params: { login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar' }
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@john, ApiV2::UserRepresenter))
       end
@@ -354,7 +261,7 @@ describe ApiV2::UsersController do
 
         login_name = SecureRandom.hex
         allow(@user_service).to receive(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
-        patch_with_api_header :update, login_name: login_name
+        patch_with_api_header :update, params: { login_name: login_name }
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -362,47 +269,18 @@ describe ApiV2::UsersController do
     describe "security" do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:patch, :update, login_name: @john.name)
+        expect(controller).to allow_action(:patch, :update, params: { login_name: @john.name })
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:patch, :update, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:patch, :update, params: { login_name: @john.name }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:patch, :update, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to update action of users controller for alphanumeric login name' do
-          expect(:patch => 'api/users/foo123').to route_to(action: 'update', controller: 'api_v2/users', login_name: 'foo123')
-        end
-
-        it 'should route to update action of users controller having dots in login name' do
-          expect(:patch => 'api/users/foo.bar').to route_to(action: 'update', controller: 'api_v2/users', login_name: 'foo.bar')
-        end
-
-        it 'should route to update action of users controller for capitalized login name' do
-          expect(:patch => 'api/users/Foo').to route_to(action: 'update', controller: 'api_v2/users', login_name: 'Foo')
-        end
-
-        it 'should not route to show action of users controller for invalid login name' do
-          expect(:patch => 'api/users/foo#%$').not_to be_routable
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of users controller without header' do
-          expect(:patch => 'api/users/foo').to_not route_to(action: 'update', controller: 'api_v2/users')
-          expect(:patch => 'api/users/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/users/foo')
-        end
+        expect(controller).to disallow_action(:patch, :update, params: { login_name: @john.name }).with(401, 'You are not authorized to perform this action.')
       end
     end
   end
@@ -424,7 +302,7 @@ describe ApiV2::UsersController do
 
         expect(@user_service).to receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
 
-        post_with_api_header :create, login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
+        post_with_api_header :create, params: { login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar' }
         expect(response.status).to be(201)
         expect(actual_response).to eq(expected_response(@john, ApiV2::UserRepresenter))
       end
@@ -435,7 +313,7 @@ describe ApiV2::UsersController do
         login_name = SecureRandom.hex
         expect(@user_service).to receive(:withEnableUserMutex).and_yield
         allow(@user_service).to receive(:findUserByName).with(login_name).and_return(User.new(login_name))
-        post_with_api_header :create, login_name: login_name
+        post_with_api_header :create, params: { login_name: login_name }
         expect(response).to have_api_message_response(409, "The user `#{login_name}` already exists.")
       end
     end
@@ -455,23 +333,6 @@ describe ApiV2::UsersController do
       it 'should disallow normal users, with security enabled' do
         login_as_user
         expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
-      end
-    end
-
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of users controller' do
-          expect(:post => 'api/users').to route_to(action: 'create', controller: 'api_v2/users')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of users controller without header' do
-          expect(:post => 'api/users').to_not route_to(action: 'create', controller: 'api_v2/users')
-          expect(:post => 'api/users').to route_to(controller: 'application', action: 'unresolved', url: 'api/users')
-        end
       end
     end
   end

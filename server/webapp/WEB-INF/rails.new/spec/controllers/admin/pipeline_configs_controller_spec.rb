@@ -27,27 +27,6 @@ describe Admin::PipelineConfigsController do
     allow(controller).to receive(:user_service).and_return(@user_service)
 
   end
-  describe "route" do
-    it 'should route to edit for alphanumeric pipeline name' do
-      expect(:get => 'admin/pipelines/foo123/edit').to route_to(action: 'edit', controller: 'admin/pipeline_configs', pipeline_name: 'foo123')
-    end
-
-    it 'should route to edit for pipeline name with dots' do
-      expect(:get => 'admin/pipelines/foo.123/edit').to route_to(action: 'edit', controller: 'admin/pipeline_configs', pipeline_name: 'foo.123')
-    end
-
-    it 'should route to edit for pipeline name with hyphen' do
-      expect(:get => 'admin/pipelines/foo-123/edit').to route_to(action: 'edit', controller: 'admin/pipeline_configs', pipeline_name: 'foo-123')
-    end
-
-    it 'should route to edit for pipeline name with underscore' do
-      expect(:get => 'admin/pipelines/foo_123/edit').to route_to(action: 'edit', controller: 'admin/pipeline_configs', pipeline_name: 'foo_123')
-    end
-
-    it 'should route to edit for capitalized pipeline name' do
-      expect(:get => 'admin/pipelines/FOO/edit').to route_to(action: 'edit', controller: 'admin/pipeline_configs', pipeline_name: 'FOO')
-    end
-  end
 
   describe "security" do
     before :each do
@@ -69,7 +48,7 @@ describe Admin::PipelineConfigsController do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :edit, pipeline_name: 'pipeline')
+        expect(controller).to disallow_action(:get, :edit, params: { pipeline_name: 'pipeline' })
       end
 
       it 'should allow admin users, with security enabled' do
@@ -80,10 +59,10 @@ describe Admin::PipelineConfigsController do
 
       it 'should allow pipeline group admin users, with security enabled' do
         allow(controller).to receive(:populate_config_validity).and_return(true)
-        
+
         login_as_group_admin
 
-        expect(controller).to allow_action(:get, :edit, pipeline_name: 'pipeline')
+        expect(controller).to allow_action(:get, :edit, params: { pipeline_name: 'pipeline' })
       end
     end
   end
@@ -102,7 +81,7 @@ describe Admin::PipelineConfigsController do
     it 'should load the pipeline_config object corresponding to the pipeline_name' do
       expect(@pipeline_config_service).to receive(:getPipelineConfig).with('pipeline1').and_return('pipeline_config_object')
 
-      get :edit, :pipeline_name => 'pipeline1'
+      get :edit, params: { :pipeline_name => 'pipeline1' }
 
       expect(assigns[:pipeline_config]).to eq('pipeline_config_object')
     end
@@ -111,7 +90,7 @@ describe Admin::PipelineConfigsController do
       expect(@user_service).to receive(:allUsernames).and_return('all users')
       expect(@user_service).to receive(:allRoleNames).and_return('all roles')
 
-      get :edit, :pipeline_name => 'pipeline1'
+      get :edit, params: { :pipeline_name => 'pipeline1' }
 
       expect(assigns[:all_users]).to eq('all users')
       expect(assigns[:all_roles]).to eq('all roles')

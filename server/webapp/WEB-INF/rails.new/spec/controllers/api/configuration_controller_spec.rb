@@ -25,18 +25,13 @@ describe Api::ConfigurationController do
   end
 
   describe "config_revisions" do
-    it "should route to list_revisions" do
-      expect(:get => '/api/config/revisions').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '0', :no_layout => true)
-      expect(:get => '/api/config/revisions/1').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '1', :no_layout => true)
-    end
-
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(true)
       expect(@config_repository).to receive(:getCommits).with(10, 0).and_return([create_config_revision_model])
 
-      get :config_revisions, :no_layout => true
+      get :config_revisions, params: { :no_layout => true }
 
       expect(response.body).to eq([ConfigRevisionAPIModel.new(create_config_revision_model)].to_json)
     end
@@ -46,7 +41,7 @@ describe Api::ConfigurationController do
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(false)
 
-      get :config_revisions, :no_layout => true
+      get :config_revisions, params: { :no_layout => true }
 
       expect(response.status).to eq(401)
       expect(response.body).to eq("Unauthorized to access this API.\n")
@@ -54,17 +49,13 @@ describe Api::ConfigurationController do
   end
 
   describe "diff" do
-    it "should route to list_revisions" do
-      expect(:get => '/api/config/diff/a/b').to route_to(:controller => "api/configuration", :action => "config_diff", :from_revision => 'a', :to_revision => 'b', :no_layout => true)
-    end
-
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(true)
       expect(@config_repository).to receive(:configChangesForCommits).with('a', 'b').and_return('text')
 
-      get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
+      get :config_diff, params: { :from_revision => 'a', :to_revision => 'b', :no_layout => true }
 
       expect(response.body).to eq('text')
       expect(response.content_type).to eq('text/plain');
@@ -75,7 +66,7 @@ describe Api::ConfigurationController do
       expect(controller).to receive(:current_user).and_return(loser)
       expect(@security_service).to receive(:isUserAdmin).with(loser).and_return(false)
 
-      get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
+      get :config_diff, params: { :from_revision => 'a', :to_revision => 'b', :no_layout => true }
 
       expect(response.status).to eq(401)
       expect(response.body).to eq("Unauthorized to access this API.\n")

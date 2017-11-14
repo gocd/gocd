@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::NotificationFiltersController do
-  include ApiHeaderSetupTeardown
+
   include ApiV4::ApiVersionHelper
 
   before(:each) do
@@ -51,7 +51,7 @@ describe ApiV1::NotificationFiltersController do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
       expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
 
-      post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks")
+      post_with_api_header(:create, params: {pipeline: "foo", stage: "bar", event: "Breaks"})
 
       assert_equal 200, response.status
     end
@@ -60,7 +60,7 @@ describe ApiV1::NotificationFiltersController do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
       expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
 
-      post_with_api_header(:create, pipeline: "foo", stage: "bar", event: "Breaks", match_commits: true)
+      post_with_api_header(:create, params: {pipeline: "foo", stage: "bar", event: "Breaks", match_commits: true})
 
       assert_equal 200, response.status
     end
@@ -68,7 +68,7 @@ describe ApiV1::NotificationFiltersController do
     it("validates input") do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
 
-      post_with_api_header(:create, pipeline: "foo", event: "Breaks", match_commits: true)
+      post_with_api_header(:create, params: {pipeline: "foo", event: "Breaks", match_commits: true})
 
       assert_equal 400, response.status
       assert_equal "You must specify pipeline, stage, and event.", JSON.parse(response.body)["message"]
@@ -80,7 +80,7 @@ describe ApiV1::NotificationFiltersController do
       allow(@user).to receive(:notificationFilters).and_return([]) # really don't care
       expect(@user_service).to receive(:removeNotificationFilter).with(@user.id, 5)
 
-      delete_with_api_header(:destroy, id: "5")
+      delete_with_api_header(:destroy, params: {id: "5"})
       assert_equal 200, response.status
     end
   end

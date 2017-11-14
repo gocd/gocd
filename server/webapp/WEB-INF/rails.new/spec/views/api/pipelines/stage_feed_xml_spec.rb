@@ -145,6 +145,9 @@ describe "/api/feeds/index" do
     end
 
     it "should include link pipeline resource" do
+      def controller.default_url_options
+        super.reverse_merge(UrlBuilder.default_url_options)
+      end
       allow(view).to receive(:page_url).with(@entry1.getStageIdentifier().getStageLocator()).and_return("entry_1_url")
       allow(view).to receive(:page_url).with(@entry2.getStageIdentifier().getStageLocator()).and_return("entry_2_url")
       allow(view).to receive(:page_url).with(@entry1.getStageIdentifier().getStageLocator(), :action => "pipeline").and_return("pipeline_1_url")

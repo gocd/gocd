@@ -20,8 +20,8 @@ module Admin
     include TaskHelper
     load_job_except_for :destroy, :increment_index, :decrement_index
 
-    before_filter :load_task, :only => [:edit]
-    before_filter :load_autocomplete_hash_for_fetch_task, :only => [:new, :edit]
+    before_action :load_task, :only => [:edit]
+    before_action :load_autocomplete_hash_for_fetch_task, :only => [:new, :edit]
 
     def index
       assert_load :tasks, @job.getTasks()

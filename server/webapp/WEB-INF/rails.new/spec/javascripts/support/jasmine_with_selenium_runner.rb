@@ -25,7 +25,7 @@ class JasmineWithSeleniumRunner
     @web_driver = Selenium::WebDriver.for((runner_config['browser'] || 'firefox').to_sym, {})
     @formatter = formatter
     @jasmine_server_url = jasmine_server_url
-    @result_batch_size = runner_config['batch_size'] || 50
+    @result_batch_size = runner_config['batch_size'] || 10
   end
 
   def run
@@ -33,7 +33,7 @@ class JasmineWithSeleniumRunner
     RakeFileUtils.rm_rf tmp_dir
     RakeFileUtils.mkdir_p tmp_dir
 
-    if Config::CONFIG['host_os'] =~ /windows|cygwin|bccwin|cygwin|djgpp|mingw|mswin|wince/i
+    if RbConfig::CONFIG['host_os'] =~ /windows|cygwin|bccwin|cygwin|djgpp|mingw|mswin|wince/i
       tmp_dir = tmp_dir.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR || '\\')
     end
 
@@ -129,8 +129,8 @@ class JasmineWithSeleniumRunner
               try { JSON.stringify(expectation.actual); } catch (e) { expectation.actual = '<circular actual>'; }
             }
           }
-          return results;
+          return JSON.stringify(results);
     JS
-    Jasmine::Result.map_raw_results(slice)
+    Jasmine::Result.map_raw_results(JSON.parse(eval(slice)))
   end
 end

@@ -8,7 +8,7 @@ module Oauth2Provider
     include Oauth2Provider::TransactionHelper
     
     transaction_actions :create, :update, :destroy
-    before_filter :set_layout_and_tab_name
+    before_action :set_layout_and_tab_name
     
     def index
       @oauth_clients = Client.all.sort{|a, b| a.name.casecmp(b.name)}

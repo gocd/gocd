@@ -1,0 +1,34 @@
+##########################GO-LICENSE-START################################
+# Copyright 2017 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################GO-LICENSE-END##################################
+
+module RouteExt
+
+  def url_for(options = {}, route_name = nil, url_strategy = ActionDispatch::Routing::RouteSet::UNKNOWN)
+    if options.respond_to?(:has_key?)
+      force_ssl = (options[:protocol] == "https://")
+    end
+    sorted_options_for_cache_key = java.util.TreeMap.new(options)
+    cache_key = ActiveSupport::Cache.expand_cache_key(sorted_options_for_cache_key)
+
+    unless url = Services.go_cache.get(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY, cache_key)
+      url = Services.server_config_service.siteUrlFor(super(options, route_name, url_strategy), force_ssl || false)
+      Services.go_cache.put(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY, cache_key, url)
+    end
+    url
+  end
+
+  ActionDispatch::Routing::RouteSet.send(:prepend, RouteExt)
+end

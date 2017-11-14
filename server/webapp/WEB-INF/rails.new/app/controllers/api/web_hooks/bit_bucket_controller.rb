@@ -41,21 +41,21 @@ module Api
 
       def allow_only_push_event
         unless request.headers['X-Event-Key'] == 'repo:push'
-          render text: "Ignoring event of type `#{request.headers['X-Event-Key']}'", content_type: 'text/plain', status: :accepted, layout: nil
+          render plain: "Ignoring event of type `#{request.headers['X-Event-Key']}'", content_type: 'text/plain', status: :accepted
         end
       end
 
       def verify_payload
         if payload.blank?
-          render text: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request
         end
         if repo_branch.blank?
-          render text: 'No branch present in payload, ignoring.', content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: 'No branch present in payload, ignoring.', content_type: 'text/plain', status: :bad_request
         end
       rescue => e
         Rails.logger.warn('Could not understand bitbucket webhook payload:')
         Rails.logger.warn(e)
-        render text: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request, layout: nil
+        render plain: 'Could not understand the payload!', content_type: 'text/plain', status: :bad_request
       end
 
       def payload
@@ -66,17 +66,17 @@ module Api
 
       def verify_content_origin
         if token.blank?
-          return render text: 'No token specified via basic authentication!', content_type: 'text/plain', status: :bad_request, layout: nil
+          return render plain: 'No token specified via basic authentication!', content_type: 'text/plain', status: :bad_request
         end
 
         unless Rack::Utils.secure_compare(webhook_secret, token)
-          render text: 'Token specified via basic authentication did not match!', content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: 'Token specified via basic authentication did not match!', content_type: 'text/plain', status: :bad_request
         end
       end
 
       def allow_only_git_scm
         if payload['repository']['scm'] != 'git'
-          render text: "Only `git' repositories are currently supported!", content_type: 'text/plain', status: :bad_request, layout: nil
+          render plain: "Only `git' repositories are currently supported!", content_type: 'text/plain', status: :bad_request
         end
       end
 

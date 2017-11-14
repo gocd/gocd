@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 require 'rails_helper'
 
 describe ApiV3::Admin::TemplatesController do
-  include ApiHeaderSetupTeardown
   include ApiV3::ApiVersionHelper
 
   before :each do
@@ -89,23 +88,6 @@ describe ApiV3::Admin::TemplatesController do
         expect(actual_response).to eq(expected_response([templates], ApiV3::Admin::Templates::TemplatesConfigRepresenter))
       end
     end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to index action of templates controller' do
-          expect(:get => 'api/admin/templates').to route_to(action: 'index', controller: 'api_v3/admin/templates')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of templates controller without header' do
-          expect(:get => 'api/admin/templates').to_not route_to(action: 'index', controller: 'api_v3/admin/templates')
-          expect(:get => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
-        end
-      end
-    end
-
   end
 
   describe "show" do
@@ -123,14 +105,14 @@ describe ApiV3::Admin::TemplatesController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:get, :show, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { template_name: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:get, :show, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:get, :show, params: { template_name: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -143,14 +125,14 @@ describe ApiV3::Admin::TemplatesController do
       it 'show allow template admin, with security enabled' do
         login_as_template_admin
 
-        expect(controller).to allow_action(:get, :show, template_name: 'foo')
+        expect(controller).to allow_action(:get, :show, params: { template_name: 'foo' })
       end
 
       it 'should allow template view users, with security enabled' do
         enable_security
         allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
 
-        expect(controller).to allow_action(:get, :show, template_name: 'foo')
+        expect(controller).to allow_action(:get, :show, params: { template_name: 'foo' })
       end
     end
     describe 'admin' do
@@ -166,7 +148,7 @@ describe ApiV3::Admin::TemplatesController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
         expect(@template_config_service).to receive(:loadForView).with('template', @result).and_return(@template)
 
-        get_with_api_header :show, template_name: 'template'
+        get_with_api_header :show, params: { template_name: 'template' }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
@@ -175,45 +157,12 @@ describe ApiV3::Admin::TemplatesController do
       it 'should return 404 if the template does not exist' do
         expect(@template_config_service).to receive(:loadForView).with('non-existent-template', @result).and_return(nil)
 
-        get_with_api_header :show, template_name: 'non-existent-template'
+        get_with_api_header :show, params: { template_name: 'non-existent-template' }
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
 
       end
     end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to show action of templates controller for alphanumeric template name' do
-          expect(:get => 'api/admin/templates/foo123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo123')
-        end
-
-        it 'should route to show action of templates controller for template name with dots' do
-          expect(:get => 'api/admin/templates/foo.123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo.123')
-        end
-
-        it 'should route to show action of templates controller for template name with hyphen' do
-          expect(:get => 'api/admin/templates/foo-123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo-123')
-        end
-
-        it 'should route to show action of templates controller for template name with underscore' do
-          expect(:get => 'api/admin/templates/foo_123').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'foo_123')
-        end
-
-        it 'should route to show action of templates controller for capitalized template name' do
-          expect(:get => 'api/admin/templates/FOO').to route_to(action: 'show', controller: 'api_v3/admin/templates', template_name: 'FOO')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of templates controller without header' do
-          expect(:get => 'api/admin/templates/foo').to_not route_to(action: 'show', controller: 'api_v3/admin/templates')
-          expect(:get => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
-        end
-      end
-    end
-
   end
 
   describe "create" do
@@ -267,7 +216,7 @@ describe ApiV3::Admin::TemplatesController do
       it 'should deserialize template from given parameters' do
         allow(controller).to receive(:etag_for).and_return('some-md5')
         expect(@template_config_service).to receive(:createTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything)
-        post_with_api_header :create, template: template_hash
+        post_with_api_header :create, params: { template: template_hash }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
@@ -281,28 +230,11 @@ describe ApiV3::Admin::TemplatesController do
         allow(result).to receive(:httpCode).and_return(422)
         expect(@template_config_service).to receive(:createTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result)
 
-        post_with_api_header :create, template: template_hash
+        post_with_api_header :create, params: { template: template_hash }
 
         expect(response).to have_api_message_response(422, "Save failed")
       end
     end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to create action of templates controller' do
-          expect(:post => 'api/admin/templates').to route_to(action: 'create', controller: 'api_v3/admin/templates')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of templates controller without header' do
-          expect(:post => 'api/admin/templates').to_not route_to(action: 'create', controller: 'api_v3/admin/templates')
-          expect(:post => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
-        end
-      end
-    end
-
   end
 
   describe "update" do
@@ -321,14 +253,14 @@ describe ApiV3::Admin::TemplatesController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:put, :update, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { template_name: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:put, :update, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :update, params: { template_name: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -341,7 +273,7 @@ describe ApiV3::Admin::TemplatesController do
       it 'show allow template admin, with security enabled' do
         login_as_template_admin
 
-        expect(controller).to allow_action(:put, :update, template_name: 'foo')
+        expect(controller).to allow_action(:put, :update, params: { template_name: 'foo' })
       end
     end
     describe 'admin' do
@@ -358,7 +290,7 @@ describe ApiV3::Admin::TemplatesController do
 
         expect(@template_config_service).to receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, anything)
 
-        put_with_api_header :update, template_name: 'some-template', template: template_hash
+        put_with_api_header :update, params: { template_name: 'some-template', template: template_hash }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
@@ -368,7 +300,7 @@ describe ApiV3::Admin::TemplatesController do
         allow(controller).to receive(:load_template).and_return(@template)
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
 
-        put_with_api_header :update, template_name: 'foo', template: template_hash
+        put_with_api_header :update, params: { template_name: 'foo', template: template_hash }
 
         expect(response).to have_api_message_response(422, 'Renaming of Templates is not supported by this API.')
       end
@@ -379,7 +311,7 @@ describe ApiV3::Admin::TemplatesController do
         allow(controller).to receive(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
 
-        put_with_api_header :update, template_name: 'some-template', template: template_hash
+        put_with_api_header :update, params: { template_name: 'some-template', template: template_hash }
 
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for Template 'some-template'. Please update your copy of the config with the changes." )
       end
@@ -391,7 +323,7 @@ describe ApiV3::Admin::TemplatesController do
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('md5')
         expect(@template_config_service).to receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, "md5")
 
-        put_with_api_header :update, template_name: 'some-template', template: template_hash
+        put_with_api_header :update, params: { template_name: 'some-template', template: template_hash }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@template, ApiV3::Admin::Templates::TemplateConfigRepresenter))
@@ -409,41 +341,9 @@ describe ApiV3::Admin::TemplatesController do
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
-        put_with_api_header :update, template_name: 'some-template'
+        put_with_api_header :update, params: { template_name: 'some-template' }
 
         expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
-      end
-    end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to update action of templates controller for alphanumeric template name' do
-          expect(:put => 'api/admin/templates/foo123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo123')
-        end
-
-        it 'should route to update action of templates controller for template name with dots' do
-          expect(:put => 'api/admin/templates/foo.123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo.123')
-        end
-
-        it 'should route to update action of templates controller for template name with hyphen' do
-          expect(:put => 'api/admin/templates/foo-123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo-123')
-        end
-
-        it 'should route to update action of templates controller for template name with underscore' do
-          expect(:put => 'api/admin/templates/foo_123').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'foo_123')
-        end
-
-        it 'should route to update action of templates controller for capitalized template name' do
-          expect(:put => 'api/admin/templates/FOO').to route_to(action: 'update', controller: 'api_v3/admin/templates', template_name: 'FOO')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of templates controller without header' do
-          expect(:put => 'api/admin/templates/foo').to_not route_to(action: 'update', controller: 'api_v3/admin/templates')
-          expect(:put => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
-        end
       end
     end
   end
@@ -463,14 +363,14 @@ describe ApiV3::Admin::TemplatesController do
         enable_security
         login_as_anonymous
 
-        expect(controller).to disallow_action(:delete, :destroy, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { template_name: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         enable_security
         login_as_user
 
-        expect(controller).to disallow_action(:delete, :destroy, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { template_name: 'foo' }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin, with security enabled' do
@@ -483,7 +383,7 @@ describe ApiV3::Admin::TemplatesController do
       it 'should allow template admin, with security enabled' do
         login_as_template_admin
 
-        expect(controller).to allow_action(:delete, :destroy, template_name: 'foo')
+        expect(controller).to allow_action(:delete, :destroy, params: { template_name: 'foo' })
       end
     end
     describe 'admin' do
@@ -495,7 +395,7 @@ describe ApiV3::Admin::TemplatesController do
       it 'should raise an error if template is not found' do
         expect(@template_config_service).to receive(:loadForView).and_return(nil)
 
-        delete_with_api_header :destroy, template_name: 'foo'
+        delete_with_api_header :destroy, params: { template_name: 'foo' }
 
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -506,7 +406,7 @@ describe ApiV3::Admin::TemplatesController do
         allow(@template_config_service).to receive(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
           result.setMessage(LocalizedMessage::string("RESOURCE_DELETE_SUCCESSFUL", 'template', 'some-template'))
         end
-        delete_with_api_header :destroy, template_name: 'some-template'
+        delete_with_api_header :destroy, params: { template_name: 'some-template' }
 
         expect(response).to have_api_message_response(200, "The template 'some-template' was deleted successfully.")
       end
@@ -517,41 +417,9 @@ describe ApiV3::Admin::TemplatesController do
         allow(@template_config_service).to receive(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
-        delete_with_api_header :destroy, template_name: 'some-template'
+        delete_with_api_header :destroy, params: { template_name: 'some-template' }
 
         expect(response).to have_api_message_response(422, "Save failed. Validation failed")
-      end
-    end
-    describe "route" do
-      describe "with_header" do
-        it 'should route to destroy action of templates controller for alphanumeric template name' do
-          expect(:delete => 'api/admin/templates/foo123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo123')
-        end
-
-        it 'should route to destroy action of templates controller for template name with dots' do
-          expect(:delete => 'api/admin/templates/foo.123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo.123')
-        end
-
-        it 'should route to destroy action of templates controller for template name with hyphen' do
-          expect(:delete => 'api/admin/templates/foo-123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo-123')
-        end
-
-        it 'should route to destroy action of templates controller for template name with underscore' do
-          expect(:delete => 'api/admin/templates/foo_123').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'foo_123')
-        end
-
-        it 'should route to destroy action of templates controller for capitalized template name' do
-          expect(:delete => 'api/admin/templates/FOO').to route_to(action: 'destroy', controller: 'api_v3/admin/templates', template_name: 'FOO')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of templates controller without header' do
-          expect(:delete => 'api/admin/templates/foo').to_not route_to(action: 'destroy', controller: 'api_v3/admin/templates')
-          expect(:delete => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
-        end
       end
     end
   end

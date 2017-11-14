@@ -53,7 +53,7 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
   dependsOn ':server:testJar'
   dependsOn ':server:fastUnitTestJar'
   dependsOn ':server:sharedTestJar'
-
+  dependsOn ':server:yarnInstall'
   outputs.upToDateWhen { false }
 
   description = 'Run old jasmine tests'
@@ -88,6 +88,7 @@ task jasmineKarmaServer(type: Exec) {
 }
 
 task jasmineOldServer(type: ExecuteUnderRailsTask) {
+  dependsOn ':server:yarnInstall'
   description 'Run a web server to run jasmine tests locally'
   railsCommand = './bin/rake --trace jasmine:server'
   environment += [

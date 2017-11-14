@@ -52,7 +52,7 @@
                     <%= t.label com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, l.string('CRON_TIMER_SPECIFICATION') -%>
                     <%= t.text_field com.thoughtworks.go.config.TimerConfig::TIMER_SPEC -%>
                     <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_CRON_TIMER_SPECIFICATION") -%>"></div>
-                    <%= error_message_on(@pipeline.getTimer(), com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, :css_class => "form_error") %>
+                    <%= error_message_on(@pipeline.getTimer(), com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, :css_class => "form_error") if @pipeline.getTimer() %>
                 </div>
                 <div class="form_item_block checkbox_row">
                     <div class="checkbox_label_wrapper">

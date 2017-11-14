@@ -27,28 +27,6 @@ describe Admin::PipelinesSnippetController do
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
   end
 
-  describe "routes" do
-    it "should resolve the route to partial config page" do
-      expect({:get => "/admin/pipelines/snippet"}).to route_to(:controller => "admin/pipelines_snippet", :action => "index")
-      expect(pipelines_snippet_path).to eq("/admin/pipelines/snippet")
-    end
-
-    it "should resolve route to get group xml" do
-      expect({:get => "/admin/pipelines/snippet/foo.bar"}).to route_to(:controller => "admin/pipelines_snippet", :action => "show", :group_name => "foo.bar")
-      expect(pipelines_snippet_show_path(:group_name => 'foo.bar')).to eq("/admin/pipelines/snippet/foo.bar")
-    end
-
-    it "should resolve route to save group xml" do
-      expect({:put => "/admin/pipelines/snippet/foo.bar"}).to route_to(:controller => "admin/pipelines_snippet", :action => "update", :group_name => "foo.bar")
-      expect(pipelines_snippet_update_path(:group_name => 'foo.bar')).to eq("/admin/pipelines/snippet/foo.bar")
-    end
-
-    it "should resolve route to edit group xml" do
-      expect({:get => "/admin/pipelines/snippet/foo.bar/edit"}).to route_to(:controller => "admin/pipelines_snippet", :action => "edit", :group_name => "foo.bar")
-      expect(pipelines_snippet_edit_path(:group_name => 'foo.bar')).to eq("/admin/pipelines/snippet/foo.bar/edit")
-    end
-  end
-
   describe "actions" do
     before :each do
       expect(controller).to receive(:populate_config_validity).and_return(true)
@@ -82,7 +60,7 @@ describe Admin::PipelinesSnippetController do
         expect(@result).to receive(:isSuccessful).and_return(true)
         expect(@pipeline_configs_service).to receive(:getXml).with("valid_group", @user, @result).and_return("some valid xml as string")
 
-        get :show, {:group_name => "valid_group"}
+        get :show, params: { :group_name => "valid_group" }
 
         expect(assigns[:group_as_xml]).to eq("some valid xml as string")
         expect(assigns[:group_name]).to eq("valid_group")
@@ -99,7 +77,7 @@ describe Admin::PipelinesSnippetController do
         @config = BasicCruiseConfig.new
         group = "valid_group"
         expect(@pipeline_configs_service).to receive(:getXml).with(group, @user, @result).and_return(nil)
-        get :show, {:group_name => group}
+        get :show, params: { :group_name => group }
 
         expect(response).to render_template 'shared/config_error'
         assert_response 401
@@ -120,7 +98,7 @@ describe Admin::PipelinesSnippetController do
         @config = BasicCruiseConfig.new
         expect(@config).to receive(:getMd5).and_return('md5_value_for_configuration')
         expect(@go_config_service).to receive(:getConfigForEditing).and_return(@config)
-        get :edit, {:group_name => group}
+        get :edit, params: { :group_name => group }
 
         expect(assigns[:group_name]).to eq(group)
         expect(assigns[:group_as_xml]).to eq("some valid xml as string")
@@ -139,7 +117,7 @@ describe Admin::PipelinesSnippetController do
         group = "valid_group"
         expect(@go_config_service).to receive(:getConfigForEditing).and_return(@config)
         expect(@pipeline_configs_service).to receive(:getXml).with(group, @user, @result).and_return(nil)
-        get :edit, {:group_name => group}
+        get :edit, params: { :group_name => group }
 
         expect(response).to render_template 'shared/config_error'
         assert_response 401
@@ -171,7 +149,7 @@ describe Admin::PipelinesSnippetController do
         expect(validity).to receive(:isPostValidationError).and_return(false)
         expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
         expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
-        put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
+        put :update, params: { :group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5" }
 
         expect(response).to redirect_to pipelines_snippet_show_path("renamed_group", :fm => "Success!")
       end
@@ -191,7 +169,7 @@ describe Admin::PipelinesSnippetController do
         expect(validity).to receive(:isPostValidationError).never
         expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
         expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
-        put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
+        put :update, params: { :group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5" }
 
         expect(response).to render_template 'edit'
         expect(assigns[:config_md5]).to eq("md5")
@@ -219,7 +197,7 @@ describe Admin::PipelinesSnippetController do
         expect(validity).to receive(:isMergeConflict).and_return(false)
         expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
         expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
-        put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
+        put :update, params: { :group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5" }
 
         expect(response).to render_template 'edit'
         expect(assigns[:config_md5]).to eq("md5")

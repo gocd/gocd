@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV1::Admin::Internal::ResourcesController do
-  include ApiHeaderSetupTeardown
+
   include ApiV1::ApiVersionHelper
 
   before(:each) do
@@ -78,7 +78,7 @@ describe ApiV1::Admin::Internal::ResourcesController do
         login_as_admin
         resources_list = %w(linux windows).sort
         expect(@go_config_service).to receive(:getResourceList).and_return(resources_list)
-        controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(resources_list.join('/'))
+        controller.request.env['HTTP_IF_NONE_MATCH'] = %Q{"#{Digest::MD5.hexdigest(resources_list.join('/'))}"}
 
         get_with_api_header :index
 
@@ -97,24 +97,6 @@ describe ApiV1::Admin::Internal::ResourcesController do
         expect(response).to be_ok
         expect(JSON.parse(response.body)).to eq(resources_list)
       end
-
-      describe "route" do
-        describe "with_header" do
-          it 'should route to index action of the internal resources controller' do
-            expect(:get => 'api/admin/internal/resources').to route_to(action: 'index', controller: 'api_v1/admin/internal/resources')
-          end
-        end
-        describe "without_header" do
-          before :each do
-            teardown_header
-          end
-          it 'should not route to index action of internal resources controller without header' do
-            expect(:get => 'api/admin/internal/resources').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/resources')
-            expect(:get => 'api/admin/internal/resources').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/resources')
-          end
-        end
-      end
-
     end
   end
 end

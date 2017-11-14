@@ -88,14 +88,18 @@ describe GoCacheStore do
     expect(@go_cache.get("key")).to eq nil
   end
 
-  it "should convert Ruby strings into Java strings for view fragments (name starting with view_)" do
+  it "should convert Ruby strings into Java strings for view fragments (name starting with view_) when writing to cache" do
     @store.write("view_a", "value")
-
-    expect(@store.fetch("view_a").is_a? java.lang.String).to be_truthy
-    expect(@store.fetch("view_a")).to eq(java.lang.String.new("value"))
 
     expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_truthy
     expect(@go_cache.get("view_a").value).to eq(java.lang.String.new("value"))
+  end
+
+  it "should convert Java strings put into cache for view fragments (name starting with view_) to ruby strings while fetching from cache" do
+    @store.write("view_a", "value")
+
+    expect(@store.fetch("view_a").is_a? String).to be_truthy
+    expect(@store.fetch("view_a")).to eq("value")
   end
 
   it "should NOT convert objects which are not Ruby strings into Java string for view fragments (name starting with view_)" do

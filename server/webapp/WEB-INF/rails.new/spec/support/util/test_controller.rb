@@ -28,8 +28,9 @@ unless defined? NonApiController
         match 'rails/bang', via: :all, to: 'api/test#localized_not_found_action'
         match 'rails/quux', via: :all, to: 'api/test#localized_not_found_action_with_message_ending_in_newline'
         match 'rails/boom', via: :all, to: 'api/test#localized_operation_result_without_message'
-        match 'rails/:controller/:action', via: :all, to: 'api/test#test_action'
+        match 'rails/test/test_action', via: :all, to: 'api/test#test_action'
         match 'rails/auto_refresh', via: :all, to: 'api/test#auto_refresh'
+        match 'rails/unresolved', via: :all, to: 'api/test#unresolved'
 
         match 'rails/non_api_404', via: :all, to: 'non_api#not_found_action'
         match 'rails/non_api_localized_404', via: :all, to: 'non_api#localized_not_found_action'
@@ -68,18 +69,18 @@ class NonApiController < ApplicationController
   end
 
   def double_render_without_error
-    render :text => "first render"
-    render :text => "second render"
+    render :plain => "first render"
+    render :plain => "second render"
   end
 
   def encoded_param_user_action
     @decodable_param = params[:decodable_param]
-    render :text => ""
+    render :plain => ""
   end
 
   def non_encoded_param_user_action
     @decodable_param = params[:decodable_param]
-    render :text => ""
+    render :plain => ""
   end
 end
 
@@ -122,11 +123,11 @@ module Api
       render_localized_operation_result(hor)
     end
 
-    def test_action;
+    def test_action
     end
 
     def auto_refresh
-      render :text => root_url
+      render :plain => root_url
     end
   end
 end

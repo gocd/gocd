@@ -31,7 +31,7 @@ describe "admin/stages/permissions.html.erb" do
     set(cruise_config, "md5", "abc")
     cruise_config.addPipeline("group-1", @pipeline)
 
-    in_params(:pipeline_name => "pipeline", :stage_name => "stage", :action => "permissions", :controller => "admin/stages")
+    in_params({pipeline_name: "pipeline", stage_name: "stage", action: "permissions", controller: "admin/stages", current_tab: 'settings', stage_parent: 'pipelines'})
   end
 
   it "should have title Permissions" do

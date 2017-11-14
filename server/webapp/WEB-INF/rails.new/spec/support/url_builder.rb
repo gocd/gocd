@@ -14,9 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 class UrlBuilder
-  def method_missing(method, *args)
-    Rails.application.routes.url_helpers.send(method, *add_hostname(args))
-  end
+  include ActionDispatch::Routing::UrlFor
+  include Rails.application.routes.url_helpers
 
   def request
     OpenStruct.new(host: 'test.host', scheme: 'http', port: 80)
@@ -27,4 +26,10 @@ class UrlBuilder
     opts[:host] = 'test.host'
     [*args, opts]
   end
+
+  self.default_url_options = {
+    host: 'test.host',
+    protocol: 'http',
+    only_path: false
+  }
 end

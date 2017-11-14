@@ -47,7 +47,7 @@ describe FailuresHelper do
 
     it "should render anchor and js for failed_test details" do
       job_id = JobIdentifier.new("pipeline1", 1234, "pip-label-1", "defaultStage", "5678", "defaultJob")
-      expect(failure_details_link(job_id, "cruise.testing.JUnit", "a")).to eq(%Q{<a href='/failures/pipeline1/1234/defaultStage/5678/defaultJob/Y3J1aXNlLnRlc3RpbmcuSlVuaXQ%253D%250A/YQ%253D%253D%250A' id="for_fbh_failure_details_pipeline1/1234/defaultStage/5678/defaultJob_cruise.testing.JUnit_a" class="fbh_failure_detail_button" title='View failure details'>[Trace]</a>\n})
+      expect(failure_details_link(job_id, "cruise.testing.JUnit", "a")).to eq(%Q{<a href='/failures/pipeline1/1234/defaultStage/5678/defaultJob/Y3J1aXNlLnRlc3RpbmcuSlVuaXQ%25253D%25250A/YQ%25253D%25253D%25250A' id="for_fbh_failure_details_pipeline1/1234/defaultStage/5678/defaultJob_cruise.testing.JUnit_a" class="fbh_failure_detail_button" title='View failure details'>[Trace]</a>\n})
     end
   end
 end

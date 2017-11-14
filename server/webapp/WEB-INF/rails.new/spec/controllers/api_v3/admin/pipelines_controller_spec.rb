@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 require 'rails_helper'
 
 describe ApiV3::Admin::PipelinesController do
-  include ApiHeaderSetupTeardown
+
   include ApiV3::ApiVersionHelper
 
   before(:each) do
@@ -65,7 +65,7 @@ describe ApiV3::Admin::PipelinesController do
         enable_security
         login_as_pipeline_group_Non_Admin_user
         allow(@security_service).to receive(:hasViewPermissionForPipeline).and_return(false)
-        expect(controller).to disallow_action(:get, :show, {:pipeline_name => "pipeline1"}).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:get, :show, params: { :pipeline_name => "pipeline1" }).with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -86,7 +86,7 @@ describe ApiV3::Admin::PipelinesController do
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_pipeline_group_Non_Admin_user
-        expect(controller).to disallow_action(:put, :update, {:pipeline_name => "pipeline1"}).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:put, :update, params: { :pipeline_name => "pipeline1" }).with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -105,18 +105,18 @@ describe ApiV3::Admin::PipelinesController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:post, :create, :group => @group)
+        expect(controller).to allow_action(:post, :create, params: { :group => @group })
       end
 
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_pipeline_group_Non_Admin_user
-        expect(controller).to disallow_action(:post, :create, :pipeline => {:name => "pipeline1"}, :group => @group).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:post, :create, params: { :pipeline => {:name => "pipeline1"}, :group => @group }).with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_pipeline_group_admin_user(@group)
-        expect(controller).to allow_action(:post, :create, :group => @group)
+        expect(controller).to allow_action(:post, :create, params: { :group => @group })
       end
     end
 
@@ -133,13 +133,13 @@ describe ApiV3::Admin::PipelinesController do
         enable_security
         login_as_anonymous
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
-        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { :pipeline_name => "pipeline1" }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
-        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:delete, :destroy, params: { :pipeline_name => "pipeline1" }).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should allow admin users, with security enabled' do
@@ -163,7 +163,7 @@ describe ApiV3::Admin::PipelinesController do
         login_as_pipeline_group_Non_Admin_user
         pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
 
-        get_with_api_header :show, :pipeline_name => @pipeline_name
+        get_with_api_header :show, params: { :pipeline_name => @pipeline_name }
 
         expect(response.code).to eq("401")
         json = JSON.parse(response.body).deep_symbolize_keys
@@ -178,7 +178,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(pipeline)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(pipeline).and_return(pipeline_md5)
 
-        get_with_api_header :show, :pipeline_name => @pipeline_name
+        get_with_api_header :show, params: { :pipeline_name => @pipeline_name }
 
         expect(response).to be_ok
         expected_response = expected_response(pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter)
@@ -194,9 +194,9 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(pipeline)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(pipeline).and_return(pipeline_md5)
 
-        controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(pipeline_md5)
+        controller.request.env['HTTP_IF_NONE_MATCH'] = %Q{"#{Digest::MD5.hexdigest(pipeline_md5)}"}
 
-        get_with_api_header :show, {:pipeline_name => @pipeline_name}
+        get_with_api_header :show, params: { :pipeline_name => @pipeline_name }
 
         expect(response.code).to eq('304')
         expect(response.body).to be_empty
@@ -206,7 +206,7 @@ describe ApiV3::Admin::PipelinesController do
         login_as_pipeline_group_admin_user(@group)
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
 
-        get_with_api_header :show, :pipeline_name => @pipeline_name
+        get_with_api_header :show, params: { :pipeline_name => @pipeline_name }
 
         expect(response.code).to eq("404")
         json = JSON.parse(response.body).deep_symbolize_keys
@@ -223,43 +223,11 @@ describe ApiV3::Admin::PipelinesController do
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = 'stale-etag'
 
-        get_with_api_header :show, {pipeline_name: @pipeline_name}
+        get_with_api_header :show, params: { pipeline_name: @pipeline_name }
         expect(response).to be_ok
         expect(response.body).to_not be_empty
       end
 
-      describe "route" do
-        describe "with_header" do
-          it 'should route to show action of pipelines controller for alphanumeric pipeline name' do
-            expect(:get => 'api/admin/pipelines/foo123').to route_to(action: 'show', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo123')
-          end
-
-          it 'should route to show action of pipelines controller for pipeline name with dots' do
-            expect(:get => 'api/admin/pipelines/foo.123').to route_to(action: 'show', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo.123')
-          end
-
-          it 'should route to show action of pipelines controller for pipeline name with hyphen' do
-            expect(:get => 'api/admin/pipelines/foo-123').to route_to(action: 'show', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo-123')
-          end
-
-          it 'should route to show action of pipelines controller for pipeline name with underscore' do
-            expect(:get => 'api/admin/pipelines/foo_123').to route_to(action: 'show', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo_123')
-          end
-
-          it 'should route to show action of pipelines controller for capitalized pipeline name' do
-            expect(:get => 'api/admin/pipelines/FOO').to route_to(action: 'show', controller: 'api_v3/admin/pipelines', pipeline_name: 'FOO')
-          end
-        end
-        describe "without_header" do
-          before :each do
-            teardown_header
-          end
-          it 'should not route to show action of pipelines controller without header' do
-            expect(:get => 'api/admin/pipelines/foo').to_not route_to(action: 'show', controller: 'api_v3/admin/pipelines')
-            expect(:get => 'api/admin/pipelines/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines/foo')
-          end
-        end
-      end
     end
 
     describe "update" do
@@ -272,7 +240,7 @@ describe ApiV3::Admin::PipelinesController do
       it "should not update pipeline config if the user is not admin or pipeline group admin" do
         allow(@pipeline_groups).to receive(:hasGroup).and_return(true)
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline }
 
         # expect(response.code).to eq("401")
 
@@ -287,7 +255,7 @@ describe ApiV3::Admin::PipelinesController do
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
 
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter))
@@ -297,7 +265,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         controller.request.env['HTTP_IF_MATCH'] = "old-etag"
 
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline }
 
         expect(response.code).to eq("412")
         expect(actual_response).to eq({:message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes."})
@@ -305,7 +273,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should not update pipeline config if no etag is passed" do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline }
 
         expect(response.code).to eq("412")
         expect(actual_response).to eq({:message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes."})
@@ -317,7 +285,7 @@ describe ApiV3::Admin::PipelinesController do
         @pipeline.setOrigin(origin)
 
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline }
 
         expect(response.code).to eq("422")
         expect(actual_response).to eq({:message => "Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'."})
@@ -338,7 +306,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).with(anything(), anything(), @pipeline_md5, result)
         controller.request.env['HTTP_IF_MATCH'] = @latest_etag
 
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => invalid_pipeline
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => invalid_pipeline }
 
         expect(response.code).to eq("406")
         json = JSON.parse(response.body).deep_symbolize_keys
@@ -354,7 +322,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         controller.request.env['HTTP_IF_MATCH'] = @latest_etag
 
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline("renamed_pipeline")
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline("renamed_pipeline") }
 
         expect(response.code).to eq("406")
         expect(actual_response).to eq({:message => "Renaming the pipeline resource is not supported by this API."})
@@ -368,7 +336,7 @@ describe ApiV3::Admin::PipelinesController do
         end
         controller.request.env['HTTP_IF_MATCH'] = @latest_etag
 
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "package", "package-name")
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "package", "package-name") }
 
         expect(response).to be_ok
         expect(pipeline_being_saved.materialConfigs().first().getPackageDefinition()).to eq(@repo.findPackage("package-name"))
@@ -383,44 +351,11 @@ describe ApiV3::Admin::PipelinesController do
         end
         controller.request.env['HTTP_IF_MATCH'] = @latest_etag
 
-        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id")
+        put_with_api_header :update, params: { pipeline_name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id") }
         expect(response).to be_ok
         expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
       end
 
-      describe "route" do
-        describe "with_header" do
-          it 'should route to update action of pipelines controller for alphanumeric pipeline name' do
-            expect(:put => 'api/admin/pipelines/foo123').to route_to(action: 'update', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo123')
-          end
-
-          it 'should route to update action of pipelines controller for pipeline name with dots' do
-            expect(:put => 'api/admin/pipelines/foo.123').to route_to(action: 'update', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo.123')
-          end
-
-          it 'should route to update action of pipelines controller for pipeline name with hyphen' do
-            expect(:put => 'api/admin/pipelines/foo-123').to route_to(action: 'update', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo-123')
-          end
-
-          it 'should route to update action of pipelines controller for pipeline name with underscore' do
-            expect(:put => 'api/admin/pipelines/foo_123').to route_to(action: 'update', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo_123')
-          end
-
-          it 'should route to update action of pipelines controller for capitalized pipeline name' do
-            expect(:put => 'api/admin/pipelines/FOO').to route_to(action: 'update', controller: 'api_v3/admin/pipelines', pipeline_name: 'FOO')
-          end
-        end
-        describe "without_header" do
-          before :each do
-            teardown_header
-          end
-
-          it 'should not route to update action of pipelines controller without header' do
-            expect(:put => 'api/admin/pipelines/foo').to_not route_to(action: 'update', controller: 'api_v3/admin/pipelines')
-            expect(:put => 'api/admin/pipelines/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines/foo')
-          end
-        end
-      end
     end
 
     describe "create" do
@@ -430,7 +365,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should not allow non admin users to create a new pipeline config" do
         login_as_pipeline_group_Non_Admin_user
-        post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
+        post_with_api_header :create, params: { :pipeline => pipeline, :group => "new_grp" }
 
         expect(response.code).to eq("401")
 
@@ -445,7 +380,7 @@ describe ApiV3::Admin::PipelinesController do
         allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false) # pipeline group admin
         allow(@security_service).to receive(:isUserAdmin).and_return(false) # not an admin
 
-        post_with_api_header :create, :pipeline => pipeline, :group => "another_group"
+        post_with_api_header :create, params: { :pipeline => pipeline, :group => "another_group" }
 
         expect(response.code).to eq("401")
 
@@ -464,7 +399,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:createPipelineConfig).with(anything(), anything(), anything(), "new_grp")
         expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
 
-        post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
+        post_with_api_header :create, params: { :pipeline => pipeline, :group => "new_grp" }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter))
@@ -477,7 +412,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:createPipelineConfig).with(anything(), anything(), anything(), "new_grp")
         expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
 
-        post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
+        post_with_api_header :create, params: { :pipeline => pipeline, :group => "new_grp" }
 
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter))
@@ -500,7 +435,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:createPipelineConfig).with(anything(), anything(), result, "group")
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("latest-etag")}\""
 
-        post_with_api_header :create, :pipeline => invalid_pipeline, :group => "group"
+        post_with_api_header :create, params: { :pipeline => invalid_pipeline, :group => "group" }
 
         expect(response.code).to eq("406")
         json = JSON.parse(response.body).deep_symbolize_keys
@@ -517,7 +452,7 @@ describe ApiV3::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         expect(@pipeline_config_service).not_to receive(:createPipelineConfig).with(anything(), anything(), anything(), "new_grp")
 
-        post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
+        post_with_api_header :create, params: { :pipeline => pipeline, :group => "new_grp" }
 
         expect(response.code).to eq("422")
 
@@ -530,7 +465,7 @@ describe ApiV3::Admin::PipelinesController do
         allow(@security_service).to receive(:isUserAdmin).and_return(true)
         allow(@pipeline_config_service).to receive(:getPipelineConfig).and_return(nil)
 
-        post_with_api_header :create, :pipeline => pipeline, :group => ""
+        post_with_api_header :create, params: { :pipeline => pipeline, :group => "" }
 
         expect(response.code).to eq("422")
 
@@ -549,7 +484,7 @@ describe ApiV3::Admin::PipelinesController do
           pipeline_being_saved = pipeline
         end
 
-        post_with_api_header :create, :pipeline => pipeline_with_pluggable_material("pipeline1", "package", "package-name"), :group => "group"
+        post_with_api_header :create, params: { :pipeline => pipeline_with_pluggable_material("pipeline1", "package", "package-name"), :group => "group" }
         expect(response).to be_ok
         expect(pipeline_being_saved.materialConfigs().first().getPackageDefinition()).to eq(@repo.findPackage("package-name"))
       end
@@ -565,28 +500,9 @@ describe ApiV3::Admin::PipelinesController do
           pipeline_being_saved = pipeline
         end
 
-        post_with_api_header :create, :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id"), :group => "group"
+        post_with_api_header :create, params: { :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id"), :group => "group" }
         expect(response).to be_ok
         expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
-      end
-
-      describe "route" do
-        describe "with_header" do
-
-          it 'should route to create action of pipelines controller' do
-            expect(:post => 'api/admin/pipelines/').to route_to(action: 'create', controller: 'api_v3/admin/pipelines')
-          end
-        end
-        describe "without_header" do
-          before :each do
-            teardown_header
-          end
-
-          it 'should not route to create action of pipelines controller without header' do
-            expect(:post => 'api/admin/pipelines').to_not route_to(action: 'create', controller: 'api_v3/admin/pipelines')
-            expect(:post => 'api/admin/pipelines').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines')
-          end
-        end
       end
     end
 
@@ -604,7 +520,7 @@ describe ApiV3::Admin::PipelinesController do
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'pipeline', pipeline.name.to_s))
         end
 
-        put_with_api_header :destroy, pipeline_name: @pipeline_name
+        put_with_api_header :destroy, params: { pipeline_name: @pipeline_name }
 
         expect(response.code).to eq("200")
         expect(actual_response).to eq({:message => "The pipeline 'pipeline1' was deleted successfully."})
@@ -613,7 +529,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should render not found if the specified pipeline is absent" do
         allow(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
-        put_with_api_header :destroy, pipeline_name: @pipeline_name
+        put_with_api_header :destroy, params: { pipeline_name: @pipeline_name }
 
         expect(response.code).to eq("404")
         expect(actual_response).to eq({:message => "Either the resource you requested was not found, or you are not authorized to perform this action."})
@@ -625,44 +541,10 @@ describe ApiV3::Admin::PipelinesController do
         @pipeline.setOrigin(origin)
 
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
-        put_with_api_header :destroy, pipeline_name: @pipeline_name
+        put_with_api_header :destroy, params: { pipeline_name: @pipeline_name }
 
         expect(response.code).to eq("422")
         expect(actual_response).to eq({:message => "Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'."})
-      end
-
-      describe "route" do
-        describe "with_header" do
-
-          it 'should route to destroy action of pipelines controller for alphanumeric pipeline name' do
-            expect(:delete => 'api/admin/pipelines/foo123').to route_to(action: 'destroy', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo123')
-          end
-
-          it 'should route to destroy action of pipelines controller for pipeline name with dots' do
-            expect(:delete => 'api/admin/pipelines/foo.123').to route_to(action: 'destroy', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo.123')
-          end
-
-          it 'should route to destroy action of pipelines controller for pipeline name with hyphen' do
-            expect(:delete => 'api/admin/pipelines/foo-123').to route_to(action: 'destroy', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo-123')
-          end
-
-          it 'should route to destroy action of pipelines controller for pipeline name with underscore' do
-            expect(:delete => 'api/admin/pipelines/foo_123').to route_to(action: 'destroy', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo_123')
-          end
-
-          it 'should route to destroy action of pipelines controller for capitalized pipeline name' do
-            expect(:delete => 'api/admin/pipelines/FOO').to route_to(action: 'destroy', controller: 'api_v3/admin/pipelines', pipeline_name: 'FOO')
-          end
-        end
-        describe "without_header" do
-          before :each do
-            teardown_header
-          end
-          it 'should not route to destroy action of pipelines controller without header' do
-            expect(:delete => 'api/admin/pipelines/foo').to_not route_to(action: 'destroy', controller: 'api_v3/admin/pipelines')
-            expect(:delete => 'api/admin/pipelines/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines/foo')
-          end
-        end
       end
     end
 

@@ -16,7 +16,7 @@
 
 class Api::Internal::PluggableTaskController < ApplicationController
 
-  before_filter :verify_content_type_on_post
+  before_action :verify_content_type_on_post
 
 
   java_import com.thoughtworks.go.plugin.api.task.TaskConfig

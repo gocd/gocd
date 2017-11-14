@@ -17,7 +17,7 @@
 @import 'variables';
 @import 'foundation_and_overrides';
 // make sure to load after foundation
-@import "bourbon";
+@import "bourbon/app/assets/stylesheets/bourbon";
 @import 'keyframes';
 @import 'font-awesome-glyphs';
 @import 'global';

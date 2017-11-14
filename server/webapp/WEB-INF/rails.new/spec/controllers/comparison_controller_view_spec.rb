@@ -85,7 +85,7 @@ describe ComparisonController, "view" do
 
       expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
 
-      get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => 17
+      get :show, params: { :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => 17 }
 
       expect(assigns[:mingle_config]).to be_nil
       Capybara.string(response.body).find("div.content_wrapper_outer").tap do |outer_div|
@@ -107,7 +107,7 @@ describe ComparisonController, "view" do
       expect(HttpOperationResult).to receive(:new).and_return(@result)
       expect(phs).to receive(:findPipelineInstance).with("admin_only", 17, @loser, @result).and_return(nil)
 
-      get :show, :pipeline_name => "admin_only", :from_counter => "10", :to_counter => "17"
+      get :show, params: { :pipeline_name => "admin_only", :from_counter => "10", :to_counter => "17" }
 
       expect(assigns[:from_pipeline]).to be_nil
       expect(assigns[:to_pipeline]).to be_nil
@@ -136,7 +136,7 @@ describe ComparisonController, "view" do
 
       stub_go_config_service
 
-      get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :show_bisect => 'true'
+      get :show, params: { :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :show_bisect => 'true' }
 
       expect(assigns[:material_revisions].size).to eq(2)
       expect(assigns[:dependency_material_revisions].size).to eq(1)
@@ -185,7 +185,7 @@ describe ComparisonController, "view" do
         result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipleine', ['some_pipeline']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
 
-      get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :no_layout => true #Using No layout here so that we can assert on that message.
+      get :show, params: { :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :no_layout => true }#Using No layout here so that we can assert on that message.
 
       expect(response.body).to eq("pipleine '[\"some_pipeline\"]' not found.\n")
     end
@@ -196,7 +196,7 @@ describe ComparisonController, "view" do
     it "should render timeline view" do
       expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
 
-      get :timeline, :pipeline_name => "some_pipeline", :page => "1", :other_pipeline_counter => "3", :suffix => "from"
+      get :timeline, params: { :pipeline_name => "some_pipeline", :page => "1", :other_pipeline_counter => "3", :suffix => "from" }
 
       Capybara.string(response.body).find("div#modal_timeline_container").find("div.modal_timeline").tap do |timeline_container|
         timeline_container.find("form").find("div.results").find("div.pipeline_instance_list").tap do |pipeline_instance|
@@ -224,7 +224,7 @@ describe ComparisonController, "view" do
     it "should generate comparison paths for 'to' pipeline" do
       expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
 
-      get :timeline, :pipeline_name => "some_pipeline", :page => "1", :other_pipeline_counter => "3", :suffix => "to"
+      get :timeline, params: { :pipeline_name => "some_pipeline", :page => "1", :other_pipeline_counter => "3", :suffix => "to" }
 
       Capybara.string(response.body).find("div#modal_timeline_container").find("div.modal_timeline").tap do |timeline_container|
         timeline_container.find("form").find("div.results").find("div.pipeline_instance_details").tap do |pipeline_instance_details|
@@ -238,7 +238,7 @@ describe ComparisonController, "view" do
       expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
       @pipeline_instances.setPagination(Pagination.pageStartingAt(0, 10, 20))
 
-      get :timeline, :pipeline_name => "some_pipeline", :page => "1"
+      get :timeline, params: { :pipeline_name => "some_pipeline", :page => "1" }
 
       expect(Capybara.string(response.body).all(:xpath, "div[@class='pagination']").count).to eq(0)
     end
@@ -247,7 +247,7 @@ describe ComparisonController, "view" do
       @pipeline_instances.setPagination(Pagination.pageByNumber(3, 10, 2))
       expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 3, 10, "loser").and_return(@pipeline_instances)
 
-      get :timeline, :pipeline_name => "some_pipeline", :page => "3"
+      get :timeline, params: { :pipeline_name => "some_pipeline", :page => "3" }
 
       Capybara.string(response.body).find("div#modal_timeline_container").find("div.modal_timeline").find("form").
           find("div.results").find("div.pipeline_instance_list").find("div#pagination_bar").find("div.pagination").find("div.wrapper").tap do |pagination|

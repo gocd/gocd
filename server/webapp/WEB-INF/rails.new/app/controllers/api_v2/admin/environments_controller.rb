@@ -27,7 +27,7 @@ module ApiV2
 
       def show
         json = ApiV2::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@environment_config))
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(@environment_config), template: false)
       end
 
       def create

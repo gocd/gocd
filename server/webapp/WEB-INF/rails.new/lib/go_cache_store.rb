@@ -15,14 +15,23 @@
 ##########################GO-LICENSE-END##################################
 
 class GoCacheStore < ActiveSupport::Cache::Store
+
+  VIEW_PREFIX = 'view_'
+
   def read_entry(name, options = nil)
-    cache.get(*key(name, options))
+    entry = cache.get(*key(name, options))
+    return nil unless entry
+
+    entry = entry.dup
+    if name.start_with?(VIEW_PREFIX) && entry.value.is_a?(java.lang.String)
+      entry.value = entry.value.to_s
+    end
+    entry
   end
 
   def write(name, value, options = nil)
-    if name.start_with? "view_" and value.is_a? String
-      super(name, value.to_java(:string), options)
-      return
+    if name.start_with?(VIEW_PREFIX) && value.is_a?(String)
+      return super(name, value.to_java(:string), options)
     end
     super(name, value, options)
   end

@@ -91,7 +91,7 @@ public class AgentRegistrationController {
         if (mac == null) {
             try {
                 mac = Mac.getInstance("HmacSHA256");
-                SecretKeySpec secretKey = new SecretKeySpec(goConfigService.serverConfig().getAgentAutoRegisterKey().getBytes(), "HmacSHA256");
+                SecretKeySpec secretKey = new SecretKeySpec(goConfigService.serverConfig().getTokenGenerationKey().getBytes(), "HmacSHA256");
                 mac.init(secretKey);
             } catch (NoSuchAlgorithmException | InvalidKeyException e) {
                 throw new RuntimeException(e);
@@ -216,7 +216,7 @@ public class AgentRegistrationController {
 
         try {
             if (!Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
-                throw new RuntimeException("Not a valid token");
+                throw new RuntimeException("Not a valid token.");
             }
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {

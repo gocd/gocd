@@ -208,4 +208,13 @@ public class ServerConfigTest {
         serverConfig.ensureWebhookSecretExists();
         assertTrue(StringUtils.isNotBlank(serverConfig.getWebhookSecret()));
     }
+
+    @Test
+    public void shouldEnsureTokenGenerationKeyExists() throws Exception {
+        ServerConfig serverConfig = new ServerConfig();
+        assertNull(serverConfig.getTokenGenerationKey());
+        assertNotNull(serverConfig.getClass().getMethod("ensureTokenGenerationKeyExists").getAnnotation(PostConstruct.class));
+        serverConfig.ensureTokenGenerationKeyExists();
+        assertTrue(StringUtils.isNotBlank(serverConfig.getTokenGenerationKey()));
+    }
 }

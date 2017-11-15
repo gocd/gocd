@@ -191,6 +191,7 @@ public class GoConfigMother {
         try {
             BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
             ServerConfig serverConfig = new ServerConfig("artifactsDir", new SecurityConfig());
+            serverConfig.ensureTokenGenerationKeyExists();
             cruiseConfig.setServerConfig(serverConfig);
             return cruiseConfig;
         } catch (Exception e) {

@@ -78,7 +78,7 @@ public class GoConfigFileHelper {
     }
 
     private GoConfigFileHelper(String xml, GoConfigDao goConfigDao) {
-        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
+        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
         this.originalXml = xml;
         assignFileDao(goConfigDao);
         try {
@@ -1070,10 +1070,10 @@ public class GoConfigFileHelper {
 
     public static void withServerIdImmutability(Procedure fn) {
         try {
-            SystemEnvironment.enforceServerIdImmutability.set(true);
+            SystemEnvironment.enforceServerImmutability.set(true);
             fn.call();
         } finally {
-            SystemEnvironment.enforceServerIdImmutability.set(false);
+            SystemEnvironment.enforceServerImmutability.set(false);
         }
     }
 }

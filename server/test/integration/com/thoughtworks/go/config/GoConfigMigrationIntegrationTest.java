@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.Task;
@@ -42,15 +41,12 @@ import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.core.IsEqual;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +69,6 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.helper.ConfigFileFixture.pipelineWithAttributes;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.readToEnd;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -95,13 +90,20 @@ import static org.junit.Assert.*;
 public class GoConfigMigrationIntegrationTest {
     private File configFile;
     ConfigRepository configRepository;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private ConfigCache configCache;
-    @Autowired private ServerVersion serverVersion;
-    @Autowired private ConfigElementImplementationRegistry registry;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private CachedGoPartials cachedGoPartials;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private ConfigCache configCache;
+    @Autowired
+    private ServerVersion serverVersion;
+    @Autowired
+    private ConfigElementImplementationRegistry registry;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private CachedGoPartials cachedGoPartials;
 
     private String currentGoServerVersion;
     private MagicalGoConfigXmlLoader loader;
@@ -940,7 +942,7 @@ public class GoConfigMigrationIntegrationTest {
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         Tasks tasks = jobConfig.getTasks();
-        assertThat(tasks.size(),is(1));
+        assertThat(tasks.size(), is(1));
         assertThat(tasks.get(0) instanceof PluggableTask, is(true));
     }
 
@@ -983,7 +985,7 @@ public class GoConfigMigrationIntegrationTest {
                 create("password", false, "password"));
 
         Tasks tasks = jobConfig.getTasks();
-        assertThat(tasks.size(),is(1));
+        assertThat(tasks.size(), is(1));
         assertThat(tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
     }
 
@@ -991,8 +993,8 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldRemoveLicenseSection_asPartOfMigration72() throws Exception {
         String licenseUser = "Go UAT ThoughtWorks";
         String configWithLicenseSection =
-                "<cruise schemaVersion='71'>"+
-                    "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">" +
+                "<cruise schemaVersion='71'>" +
+                        "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">" +
                         "    <license user=\"" + licenseUser + "\">kTr+1ZBEr/5EiWlADIM6gUMtedtaLKPh6WRGp/2qISy1QczZpqJP5vmfydvx\n" +
                         "            Hq6o5X+nrb69sGOaBAvmjJ4cZBaIq+/4Yb+ufQCUM2DkacG/BjdEDpIoPHRA\n" +
                         "            fUnmjddxMnVKh2CW7gn7ZnmZUyasS9621UH2uNsfms3gfIK/1PRfbdrFuu5d\n" +
@@ -1000,8 +1002,8 @@ public class GoConfigMigrationIntegrationTest {
                         "            pKtgCp1Is/7ui+MGzKEyLCuO/LLMt0ChxWSN62vXiwdW3jl2HCEsLpb70FYR\n" +
                         "            Gj8eif3vuIB2rkOSvLkiAXqDFdEBEmb+GNV3nA4qOw==" +
                         "</license>\n" +
-                    "  </server>" +
-                "</cruise>";
+                        "  </server>" +
+                        "</cruise>";
 
         String migratedContent = migrateXmlString(configWithLicenseSection, 71);
         assertThat(migratedContent, not(containsString("license")));
@@ -1012,10 +1014,10 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldPerformNOOPWhenNoLicenseIsPresent_asPartOfMigration72() throws Exception {
         String licenseUser = "Go UAT ThoughtWorks";
         String configWithLicenseSection =
-                "<cruise schemaVersion='71'>"+
-                    "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">" +
-                    "  </server>" +
-                "</cruise>";
+                "<cruise schemaVersion='71'>" +
+                        "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">" +
+                        "  </server>" +
+                        "</cruise>";
 
         String migratedContent = migrateXmlString(configWithLicenseSection, 71);
         assertThat(migratedContent, not(containsString("license")));
@@ -1025,24 +1027,24 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldTrimLeadingAndTrailingWhitespaceFromCommands_asPartOfMigration73() throws Exception {
         String configXml =
-            "<cruise schemaVersion='72'>" +
-                "  <pipelines group='first'>" +
-                "    <pipeline name='Test'>" +
-                "      <materials>" +
-                "        <hg url='../manual-testing/ant_hg/dummy' />" +
-                "      </materials>" +
-                "      <stage name='Functional'>" +
-                "        <jobs>" +
-                "          <job name='Functional'>" +
-                "            <tasks>" +
-                "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
-                "            </tasks>" +
-                "           </job>" +
-                "        </jobs>" +
-                "      </stage>" +
-                "    </pipeline>" +
-                "  </pipelines>" +
-                "</cruise>";
+                "<cruise schemaVersion='72'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test'>" +
+                        "      <materials>" +
+                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                        "      </materials>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </pipelines>" +
+                        "</cruise>";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
@@ -1052,50 +1054,51 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldTrimLeadingAndTrailingWhitespaceFromCommandsInTemplates_asPartOfMigration73() throws Exception {
         String configXml =
-            "<cruise schemaVersion='72'>" +
-                "  <pipelines group='first'>" +
-                "    <pipeline name='Test' template='test_template'>" +
-                "      <materials>" +
-                "        <hg url='../manual-testing/ant_hg/dummy' />" +
-                "      </materials>" +
-                "     </pipeline>" +
-                "  </pipelines>" +
-                "  <templates>" +
-                "    <pipeline name='test_template'>" +
-                "      <stage name='Functional'>" +
-                "        <jobs>" +
-                "          <job name='Functional'>" +
-                "            <tasks>" +
-                "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
-                "            </tasks>" +
-                "           </job>" +
-                "        </jobs>" +
-                "      </stage>" +
-                "    </pipeline>" +
-                "  </templates>" +
-                "</cruise>";
+                "<cruise schemaVersion='72'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test' template='test_template'>" +
+                        "      <materials>" +
+                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                        "      </materials>" +
+                        "     </pipeline>" +
+                        "  </pipelines>" +
+                        "  <templates>" +
+                        "    <pipeline name='test_template'>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </templates>" +
+                        "</cruise>";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
         assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
+
     @Test
     public void shouldNotRemoveNonEmptyUserTags_asPartOfMigration78() throws Exception {
         String configXml =
                 "<cruise schemaVersion='77'>"
-                +"  <pipelines group='first'>"
-                +"    <authorization>"
-                +"       <view>"
-                +"         <user>abc</user>"
-                +"       </view>"
-                +"    </authorization>"
-                +"    <pipeline name='Test' template='test_template'>"
-                +"      <materials>"
-                +"        <hg url='../manual-testing/ant_hg/dummy' />"
-                +"      </materials>"
-                +"     </pipeline>"
-                +"  </pipelines>"
-                +"</cruise>";
+                        + "  <pipelines group='first'>"
+                        + "    <authorization>"
+                        + "       <view>"
+                        + "         <user>abc</user>"
+                        + "       </view>"
+                        + "    </authorization>"
+                        + "    <pipeline name='Test' template='test_template'>"
+                        + "      <materials>"
+                        + "        <hg url='../manual-testing/ant_hg/dummy' />"
+                        + "      </materials>"
+                        + "     </pipeline>"
+                        + "  </pipelines>"
+                        + "</cruise>";
         String migratedXml = migrateXmlString(configXml, 77);
         assertThat(migratedXml, containsString("<user>"));
     }
@@ -1104,24 +1107,24 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldRemoveEmptyTags_asPartOfMigration78() throws Exception {
         String configXml =
                 "<cruise schemaVersion='77'>"
-                +"  <pipelines group='first'>"
-                +"    <authorization>"
-                +"       <view>"
-                +"         <user>foo</user>"
-                +"         <user />"
-                +"         <user>        </user>"
-                +"       </view>"
-                +"       <operate>"
-                +"          <user></user>"
-                +"       </operate>"
-                +"    </authorization>"
-                +"    <pipeline name='Test' template='test_template'>"
-                +"      <materials>"
-                +"        <hg url='../manual-testing/ant_hg/dummy' />"
-                +"      </materials>"
-                +"     </pipeline>"
-                +"  </pipelines>"
-                +"</cruise>";
+                        + "  <pipelines group='first'>"
+                        + "    <authorization>"
+                        + "       <view>"
+                        + "         <user>foo</user>"
+                        + "         <user />"
+                        + "         <user>        </user>"
+                        + "       </view>"
+                        + "       <operate>"
+                        + "          <user></user>"
+                        + "       </operate>"
+                        + "    </authorization>"
+                        + "    <pipeline name='Test' template='test_template'>"
+                        + "      <materials>"
+                        + "        <hg url='../manual-testing/ant_hg/dummy' />"
+                        + "      </materials>"
+                        + "     </pipeline>"
+                        + "  </pipelines>"
+                        + "</cruise>";
         String migratedXml = migrateXmlString(configXml, 77);
         assertThat(StringUtils.countMatches(migratedXml, "<user>"), is(1));
     }
@@ -1130,19 +1133,19 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldRemoveEmptyTagsRecursively_asPartOfMigration78() throws Exception {
         String configXml =
                 "<cruise schemaVersion='77'>"
-                +"  <pipelines group='first'>"
-                +"    <authorization>"
-                +"       <view>"
-                +"         <user></user>"
-                +"       </view>"
-                +"    </authorization>"
-                +"    <pipeline name='Test' template='test_template'>"
-                +"      <materials>"
-                +"        <hg url='../manual-testing/ant_hg/dummy' />"
-                +"      </materials>"
-                +"     </pipeline>"
-                +"  </pipelines>"
-                +"</cruise>";
+                        + "  <pipelines group='first'>"
+                        + "    <authorization>"
+                        + "       <view>"
+                        + "         <user></user>"
+                        + "       </view>"
+                        + "    </authorization>"
+                        + "    <pipeline name='Test' template='test_template'>"
+                        + "      <materials>"
+                        + "        <hg url='../manual-testing/ant_hg/dummy' />"
+                        + "      </materials>"
+                        + "     </pipeline>"
+                        + "  </pipelines>"
+                        + "</cruise>";
         String migratedXml = migrateXmlString(configXml, 77);
         assertThat(migratedXml, not(containsString("<user>")));
         assertThat(migratedXml, not(containsString("<view>")));
@@ -1152,27 +1155,27 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void ShouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
         String configXml = "<cruise schemaVersion='84'>"
-                        +"  <pipelines group='first'>"
-                        +"    <pipeline name='up42'>"
-                        +"      <environmentvariables>"
-                        +"        <variable name=\" test  \">"
-                        +"          <value>foobar</value>"
-                        +"        </variable>"
-                        +"        <variable name=\"   PATH \" secure=\"true\">\n" +
-                        "          <encryptedValue>trMHp15AjUE=</encryptedValue>\n" +
-                        "        </variable>"
-                        +"      </environmentvariables>"
-                        +"      <materials>"
-                        +"        <hg url='../manual-testing/ant_hg/dummy' />"
-                        +"      </materials>"
-                        + "  <stage name='dist'>"
-                        + "    <jobs>"
-                        + "      <job name='test' />"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        +"     </pipeline>"
-                        +"  </pipelines>"
-                        +"</cruise>";
+                + "  <pipelines group='first'>"
+                + "    <pipeline name='up42'>"
+                + "      <environmentvariables>"
+                + "        <variable name=\" test  \">"
+                + "          <value>foobar</value>"
+                + "        </variable>"
+                + "        <variable name=\"   PATH \" secure=\"true\">\n" +
+                "          <encryptedValue>trMHp15AjUE=</encryptedValue>\n" +
+                "        </variable>"
+                + "      </environmentvariables>"
+                + "      <materials>"
+                + "        <hg url='../manual-testing/ant_hg/dummy' />"
+                + "      </materials>"
+                + "  <stage name='dist'>"
+                + "    <jobs>"
+                + "      <job name='test' />"
+                + "    </jobs>"
+                + "  </stage>"
+                + "     </pipeline>"
+                + "  </pipelines>"
+                + "</cruise>";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 84);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -1186,13 +1189,13 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldCreateProfilesFromAgentConfig_asPartOfMigration86And87() throws Exception {
         String configXml = "<cruise schemaVersion='85'>"
-                +"  <server serverId='dev-id'>"
-                +"  </server>"
-                +"  <pipelines group='first'>"
-                +"    <pipeline name='up42'>"
-                +"      <materials>"
-                +"        <hg url='../manual-testing/ant_hg/dummy' />"
-                +"      </materials>"
+                + "  <server serverId='dev-id'>"
+                + "  </server>"
+                + "  <pipelines group='first'>"
+                + "    <pipeline name='up42'>"
+                + "      <materials>"
+                + "        <hg url='../manual-testing/ant_hg/dummy' />"
+                + "      </materials>"
                 + "  <stage name='dist'>"
                 + "    <jobs>"
                 + "      <job name='test'>"
@@ -1207,7 +1210,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "  </stage>"
                 + "   </pipeline>"
                 + "  </pipelines>"
-                +"</cruise>";
+                + "</cruise>";
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 85);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -1228,13 +1231,13 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldCreateProfilesFromMultipleAgentConfigs_asPartOfMigration86And87() throws Exception {
         String configXml = "<cruise schemaVersion='85'>"
-                +"  <server serverId='dev-id'>"
-                +"  </server>"
-                +"  <pipelines group='first'>"
-                +"    <pipeline name='up42'>"
-                +"      <materials>"
-                +"        <hg url='../manual-testing/ant_hg/dummy' />"
-                +"      </materials>"
+                + "  <server serverId='dev-id'>"
+                + "  </server>"
+                + "  <pipelines group='first'>"
+                + "    <pipeline name='up42'>"
+                + "      <materials>"
+                + "        <hg url='../manual-testing/ant_hg/dummy' />"
+                + "      </materials>"
                 + "  <stage name='dist'>"
                 + "    <jobs>"
                 + "      <job name='test1'>"
@@ -1265,7 +1268,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "  </stage>"
                 + "   </pipeline>"
                 + "  </pipelines>"
-                +"</cruise>";
+                + "</cruise>";
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 85);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -1692,6 +1695,33 @@ public class GoConfigMigrationIntegrationTest {
 
         assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
         assertThat(materialConfig.filter().size(), is(0));
+
+    }
+
+    @Test
+    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() throws Exception {
+        String configXml = "<cruise schemaVersion='99'><server artifactsdir=\"artifacts\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
+                "    <security>\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>\n" +
+                "      <roles>\n" +
+                "        <role name=\"xyz\" />\n" +
+                "      </roles>\n" +
+                "      <admins>\n" +
+                "        <user>admin</user>\n" +
+                "      </admins>\n" +
+                "    </security>\n" +
+                "  </server>" +
+                "</cruise>";
+
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 99);
+        assertTrue(StringUtils.isNotBlank(cruiseConfig.server().getTokenGenerationKey()));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
@@ -1719,10 +1749,10 @@ public class GoConfigMigrationIntegrationTest {
     private File[] configFiles() {
         return configFile.getParentFile().listFiles(new FilenameFilter() {
 
-            public boolean accept(File file, String name) {
-                return name.startsWith("cruise-config.xml.");
-            }
-        }
+                                                        public boolean accept(File file, String name) {
+                                                            return name.startsWith("cruise-config.xml.");
+                                                        }
+                                                    }
         );
     }
 

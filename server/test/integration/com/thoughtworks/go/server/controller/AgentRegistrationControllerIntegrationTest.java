@@ -25,6 +25,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -38,14 +43,16 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-pages-servlet.xml"
 })
 public class AgentRegistrationControllerIntegrationTest {
-    @Autowired private AgentRegistrationController controller;
-    @Autowired private GoConfigService goConfigService;
+    @Autowired
+    private AgentRegistrationController controller;
+    @Autowired
+    private GoConfigService goConfigService;
 
     @Test
     public void shouldRegisterAgent() throws Exception {
         String uuid = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
-        controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, null, request);
+        controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
         AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
         assertThat(agentConfig.getHostname(), is("hostname"));
     }
@@ -54,8 +61,19 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldNotRegisterAgentWhenValidationFails() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         int totalAgentsBeforeRegistrationRequest = goConfigService.agents().size();
-        controller.agentRequest("hostname", null, "sandbox", "100", null, null, null, null, null, null, null, false, null, request);
+        controller.agentRequest("hostname", "", "sandbox", "100", null, null, null, null, null, null, null, false, token("", goConfigService.serverConfig().getTokenGenerationKey()), request);
         int totalAgentsAfterRegistrationRequest = goConfigService.agents().size();
         assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
+    }
+
+    private String token(String uuid, String tokenGenerationKey) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(tokenGenerationKey.getBytes(), "HmacSHA256");
+            mac.init(secretKey);
+            return Base64.getEncoder().encodeToString(mac.doFinal(uuid.getBytes()));
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

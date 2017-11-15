@@ -65,7 +65,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String EMPTY_STRING = "";
     public static final String BLANK_STRING = EMPTY_STRING;
-    public static final String ENFORCE_SERVERID_MUTABILITY = "go.enforce.serverId.immutability";
+    public static final String ENFORCE_SERVER_IMMUTABILITY = "go.enforce.server.immutability";
 
     public static final String CONFIGURATION_YES = "Y";
 
@@ -651,7 +651,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl("user.dir");
     }
 
-    public static final ThreadLocal<Boolean> enforceServerIdImmutability = new ThreadLocal<Boolean>() {
+    public static final ThreadLocal<Boolean> enforceServerImmutability = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
             return false;
@@ -662,8 +662,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_ENCRYPTION_API_MAX_REQUESTS.getValue();
     }
 
-    public boolean enforceServerIdImmutability() {
-        return CONFIGURATION_YES.equals(getPropertyImpl(ENFORCE_SERVERID_MUTABILITY, CONFIGURATION_YES)) || enforceServerIdImmutability.get();
+    public boolean enforceServerImmutability() {
+        return CONFIGURATION_YES.equals(getPropertyImpl(ENFORCE_SERVER_IMMUTABILITY, CONFIGURATION_YES)) || enforceServerImmutability.get();
     }
 
     public boolean enforceRevisionCompatibilityWithUpstream() {

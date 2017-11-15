@@ -99,7 +99,7 @@ public class GoConfigServiceTest {
 
     @Before
     public void setup() throws Exception {
-        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
+        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
 
         configRepo = mock(ConfigRepository.class);
         goConfigDao = mock(GoConfigDao.class);

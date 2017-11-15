@@ -127,15 +127,11 @@ public class StageTestRuns {
         return errorCounts;
     }
 
-    int count(TestStatus status) {
+     int count(TestStatus status)  {
         int count = 0;
-        for (FailingTestsInPipeline failingTestsInPipeline : failingTestsInPipelines) {
-            count += failingTestsInPipeline.count(status);
-        }
+        failingTestsInPipelines.stream().map(failingTestsInPipeline -> failingTestsInPipeline.count(status)).reduce(count, Integer::sum);
         return count;
-    }
-
-    public void addUser(int pipelineCounter, String pipelineLabel, String user) {
+    }public void addUser(int pipelineCounter, String pipelineLabel, String user) {
         add(pipelineCounter, pipelineLabel).addUser(user);
     }
 

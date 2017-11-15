@@ -145,7 +145,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         }
     }
 
-    private void scheduleRecentlyAddedMaterialsForUpdate() {
+    private void scheduleRecentlyAddedMaterialsForUpdate()  {
         Collection<Material> materialsBeforeConfigChange = dependencyMaterials.values();
 
         this.dependencyMaterials = dependencyMaterials();
@@ -154,12 +154,10 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
 
         Collection newMaterials = CollectionUtils.subtract(materialsAfterConfigChange, materialsBeforeConfigChange);
 
-        for (Object material : newMaterials) {
-            updateMaterial((Material) material);
-        }
-    }
-
-    private HashMap<String, Material> dependencyMaterials() {
+        newMaterials.forEach(material -> {
+updateMaterial((Material) material);
+});
+    }private HashMap<String, Material> dependencyMaterials() {
         HashMap<String, Material> map = new HashMap<>();
         for (DependencyMaterialConfig materialConfig : goConfigService.getSchedulableDependencyMaterials()) {
             String stageIdentifier = stageIdentifier(materialConfig.getPipelineName().toString(), materialConfig.getStageName().toString());

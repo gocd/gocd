@@ -85,15 +85,13 @@ public class PipelineTemplateConfigViewModel implements ParamsAttributeAware {
         return selectedPipelineName;
     }
 
-    public List<String> pipelineNames() {
+    public List<String> pipelineNames()  {
         List<String> names = new ArrayList<>();
-        for (PipelineConfig config : pipelineConfigs) {
-            names.add(config.name().toString());
-        }
+        pipelineConfigs.forEach(config -> {
+names.add(config.name().toString());
+});
         return names;
-    }
-
-    @Override
+    }@Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

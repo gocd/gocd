@@ -64,12 +64,10 @@ public class OauthPersistenceHelper {
         return this.template.load(entityClass, id);
     }
 
-    Collection dtoFromDomain(List<? extends OauthDomainEntity> list) {
+     Collection dtoFromDomain(List<? extends OauthDomainEntity> list)  {
         ArrayList dtos = new ArrayList();
-        for (OauthDomainEntity oauthClient : list) {
-            dtos.add(oauthClient.getDTO());
-        }
+        list.forEach(oauthClient -> {
+dtos.add(oauthClient.getDTO());
+});
         return dtos;
-    }
-
-}
+    }}

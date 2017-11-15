@@ -105,13 +105,11 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
         return scmPropertyConfiguration;
     }
 
-    private void populateConfiguration(Configuration configuration, com.thoughtworks.go.plugin.api.config.Configuration pluginConfiguration) {
-        for (ConfigurationProperty configurationProperty : configuration) {
-            pluginConfiguration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
-        }
-    }
-
-    private void updateAdditionalData(final long materialId, final Map<String, String> materialData) {
+    private void populateConfiguration(Configuration configuration, com.thoughtworks.go.plugin.api.config.Configuration pluginConfiguration)  {
+        configuration.forEach(configurationProperty -> {
+pluginConfiguration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+});
+    }private void updateAdditionalData(final long materialId, final Map<String, String> materialData) {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus transactionStatus) {
@@ -124,18 +122,16 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
         });
     }
 
-    private List<Modification> getModifications(List<SCMRevision> scmRevisions) {
+    private List<Modification> getModifications(List<SCMRevision> scmRevisions)  {
         Modifications modifications = new Modifications();
         if (scmRevisions == null || scmRevisions.isEmpty()) {
             return modifications;
         }
-        for (SCMRevision scmRevision : scmRevisions) {
-            modifications.add(getModification(scmRevision));
-        }
+        scmRevisions.forEach(scmRevision -> {
+modifications.add(getModification(scmRevision));
+});
         return modifications;
-    }
-
-    private Modification getModification(SCMRevision scmRevision) {
+    }private Modification getModification(SCMRevision scmRevision) {
         String additionalData = (scmRevision.getData() == null || scmRevision.getData().isEmpty()) ? null : JsonHelper.toJsonString(scmRevision.getData());
         Modification modification = new Modification(scmRevision.getUser(), scmRevision.getRevisionComment(), null,
                 scmRevision.getTimestamp(), scmRevision.getRevision(), additionalData);

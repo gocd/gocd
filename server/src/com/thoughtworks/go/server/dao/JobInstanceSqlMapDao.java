@@ -120,18 +120,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return getActiveJobs(getActiveJobIds());
     }
 
-    private List<ActiveJob> getActiveJobs(List<Long> activeJobIds) {
+    private List<ActiveJob> getActiveJobs(List<Long> activeJobIds)  {
         List<ActiveJob> activeJobs = new ArrayList<>();
-        for (Long activeJobId : activeJobIds) {
-            ActiveJob job = getActiveJob(activeJobId);
-            if (job != null) {
+        activeJobIds.stream().map(job -> getActiveJob(activeJobId)).filter(job -> job != null).forEach(job -> {
                 activeJobs.add(job);
-            }
-        }
+            });
         return activeJobs;
-    }
-
-    private ActiveJob getActiveJob(Long activeJobId) {
+    }private ActiveJob getActiveJob(Long activeJobId) {
         String activeJobKey = cacheKeyForActiveJob(activeJobId);
         ActiveJob activeJob = (ActiveJob) goCache.get(activeJobKey);
         if (activeJob == null) {
@@ -272,18 +267,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return (Integer) getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", arguments("uuid", uuid).asMap());
     }
 
-    private List<JobIdentifier> buildingJobs(List<Long> activeJobIds) {
+    private List<JobIdentifier> buildingJobs(List<Long> activeJobIds)  {
         List<JobIdentifier> buildingJobs = new ArrayList<>();
-        for (Long activeJobId : activeJobIds) {
-            JobIdentifier jobIdentifier = (JobIdentifier) getSqlMapClientTemplate().queryForObject("getBuildingJobIdentifier", activeJobId);
-            if (jobIdentifier != null) {
+        activeJobIds.stream().map(jobIdentifier -> (JobIdentifier) getSqlMapClientTemplate().queryForObject("getBuildingJobIdentifier", activeJobId)).filter(jobIdentifier -> jobIdentifier != null).forEach(jobIdentifier -> {
                 buildingJobs.add(jobIdentifier);
-            }
-        }
+            });
         return buildingJobs;
-    }
-
-    public JobInstance updateAssignedInfo(final JobInstance jobInstance) {
+    }public JobInstance updateAssignedInfo(final JobInstance jobInstance) {
         return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
@@ -403,28 +393,24 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return new JobInstances(results);
     }
 
-    public List<JobPlan> orderedScheduledBuilds() {
+    public List<JobPlan> orderedScheduledBuilds()  {
         List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
 
         List<JobPlan> plans = new ArrayList<>();
-        for (Long jobId : jobIds) {
-            String cacheKey = cacheKeyForJobPlan(jobId);
-            synchronized (cacheKey) {
-                JobPlan jobPlan = (JobPlan) goCache.get(cacheKey);
-                if (jobPlan == null) {
+        jobIds.forEach(jobId -> {
+String cacheKey = cacheKeyForJobPlan(jobId);
+JobPlan jobPlan = (JobPlan) goCache.get(cacheKey);
+if (jobPlan == null) {
                     jobPlan = _loadJobPlan(jobId);
                 }
-                if (jobPlan != null) {
+if (jobPlan != null) {
                     jobPlan = cloner.deepClone(jobPlan);
                     goCache.put(cacheKey, jobPlan);
                     plans.add(jobPlan);
                 }
-            }
-        }
+});
         return plans;
-    }
-
-    private JobPlan _loadJobPlan(Long jobId) {
+    }private JobPlan _loadJobPlan(Long jobId) {
         DefaultJobPlan jobPlan = (DefaultJobPlan) getSqlMapClientTemplate().queryForObject("scheduledPlan", arguments("id", jobId).asMap());
         if (jobPlan == null) {
             return null;

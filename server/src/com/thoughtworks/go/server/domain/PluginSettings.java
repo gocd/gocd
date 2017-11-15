@@ -55,22 +55,20 @@ public class PluginSettings {
         this.pluginId = pluginId;
     }
 
-    public Map<String, Map<String, String>> getSettingsMap() {
+    public Map<String, Map<String, String>> getSettingsMap()  {
         HashMap<String, Map<String, String>> map = new HashMap<>();
-        for (ConfigurationProperty configurationProperty : settingsMap) {
-            HashMap<String, String> valuesAndErrors = new HashMap<>();
-            String settingsKey = configurationProperty.getConfigKeyName();
-            valuesAndErrors.put(VALUE_KEY, configurationProperty.getConfigValue());
-            List<String> errorsFor = configurationProperty.errors().getAllOn(settingsKey);
-            if (errorsFor != null) {
+        settingsMap.forEach(configurationProperty -> {
+HashMap<String, String> valuesAndErrors = new HashMap<>();
+String settingsKey = configurationProperty.getConfigKeyName();
+valuesAndErrors.put(VALUE_KEY, configurationProperty.getConfigValue());
+List<String> errorsFor = configurationProperty.errors().getAllOn(settingsKey);
+if (errorsFor != null) {
                 valuesAndErrors.put(ERRORS_KEY, errorsFor.toString());
             }
-            map.put(settingsKey, valuesAndErrors);
-        }
+map.put(settingsKey, valuesAndErrors);
+});
         return map;
-    }
-
-    public List<ConfigurationProperty> getSecurePluginSettingsProperties(PluginInfo pluginInfo) {
+    }public List<ConfigurationProperty> getSecurePluginSettingsProperties(PluginInfo pluginInfo) {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
@@ -96,17 +94,15 @@ public class PluginSettings {
         settingsMap.addAll(configurationProperties);
     }
 
-    public void addConfigurations(PluginInfo pluginInfo, List<ConfigurationProperty> configurationProperties) {
+    public void addConfigurations(PluginInfo pluginInfo, List<ConfigurationProperty> configurationProperties)  {
         settingsMap.clear();
         if (pluginInfo != null) {
             ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-            for (ConfigurationProperty property : configurationProperties) {
-                settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, false));
-            }
+            configurationProperties.forEach(property -> {
+settingsMap.add(builder.create(property.getConfigKeyName(), property.getValue(), null, false));
+});
         }
-    }
-
-    private PluginConfiguration configPropertyFor(String configKeyName, PluggableInstanceSettings pluginSettings) {
+    }private PluginConfiguration configPropertyFor(String configKeyName, PluggableInstanceSettings pluginSettings) {
         return pluginSettings.getConfiguration(configKeyName);
     }
 
@@ -114,15 +110,13 @@ public class PluginSettings {
         return hasErrors;
     }
 
-    public Map<String, String> getSettingsAsKeyValuePair() {
+    public Map<String, String> getSettingsAsKeyValuePair()  {
         Map<String, String> settingsAsKeyValuePair = new HashMap<>();
-        for (ConfigurationProperty configurationProperty : settingsMap) {
-            settingsAsKeyValuePair.put(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue());
-        }
+        settingsMap.forEach(configurationProperty -> {
+settingsAsKeyValuePair.put(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue());
+});
         return settingsAsKeyValuePair;
-    }
-
-    public void populateSettingsMap(Plugin plugin) {
+    }public void populateSettingsMap(Plugin plugin) {
         for (String settingsKey : plugin.getAllConfigurationKeys()) {
             settingsMap.add(new ConfigurationProperty(new ConfigurationKey(settingsKey), new ConfigurationValue(plugin.getConfigurationValue(settingsKey))));
         }
@@ -154,15 +148,13 @@ public class PluginSettings {
         }
     }
 
-    public PluginSettingsConfiguration toPluginSettingsConfiguration() {
+    public PluginSettingsConfiguration toPluginSettingsConfiguration()  {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
-        for (ConfigurationProperty configurationProperty : settingsMap) {
-            configuration.add(new PluginSettingsProperty(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue()));
-        }
+        settingsMap.forEach(configurationProperty -> {
+configuration.add(new PluginSettingsProperty(configurationProperty.getConfigKeyName(), configurationProperty.getConfigValue()));
+});
         return configuration;
-    }
-
-    public String getValueFor(String settingsKey) {
+    }public String getValueFor(String settingsKey) {
         for (ConfigurationProperty configurationProperty : settingsMap) {
             if (configurationProperty.getConfigKeyName().equals(settingsKey)) {
                 return configurationProperty.getConfigValue();
@@ -180,15 +172,13 @@ public class PluginSettings {
         return errors().getAllOn(settingsKey);
     }
 
-    public List<String> getPluginSettingsKeys() {
+    public List<String> getPluginSettingsKeys()  {
         List<String> list = new ArrayList<>();
-        for (ConfigurationProperty configurationProperty : settingsMap) {
-            list.add(configurationProperty.getConfigKeyName());
-        }
+        settingsMap.forEach(configurationProperty -> {
+list.add(configurationProperty.getConfigKeyName());
+});
         return list;
-    }
-
-    public ConfigErrors errors() {
+    }public ConfigErrors errors() {
         return errors;
     }
 }

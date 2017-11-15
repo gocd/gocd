@@ -351,7 +351,7 @@ public class StageService implements StageRunFinder, StageFinder {
         return new FeedEntries(new ArrayList<>(stageEntries));
     }
 
-    private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries, String pipelineName, Username username) {
+    private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries, String pipelineName, Username username)  {
         List<Long> pipelineIds = new ArrayList<>();
         for (StageFeedEntry stageEntry : stageEntries) {
             pipelineIds.add(stageEntry.getPipelineId());
@@ -372,18 +372,16 @@ public class StageService implements StageRunFinder, StageFinder {
                     MingleConfig mingleConfig = pipelineConfig.getMingleConfig();
                     Set<String> cardNos = rev.getCardNumbersFromComments();
                     if (mingleConfig.isDefined()) {
-                        for (String cardNo : cardNos) {
-                            stageEntry.addCard(new MingleCard(mingleConfig, cardNo));
-                        }
+                        cardNos.forEach(cardNo -> {
+stageEntry.addCard(new MingleCard(mingleConfig, cardNo));
+});
                     }
                 } else {
                     LOGGER.debug("pipeline not found: {}", pipelineForRev);
                 }
             }
         }
-    }
-
-    public StageSummaryModels findStageHistoryForChart(String pipelineName, String stageName, int pageNumber, int pageSize, Username username) {
+    }public StageSummaryModels findStageHistoryForChart(String pipelineName, String stageName, int pageNumber, int pageSize, Username username) {
         int total = stageDao.getTotalStageCountForChart(pipelineName, stageName);
 
         Pagination pagination = Pagination.pageByNumber(pageNumber, total, pageSize);
@@ -480,7 +478,7 @@ public class StageService implements StageRunFinder, StageFinder {
         });
     }
 
-    public List<StageIdentifier> findRunForStage(StageIdentifier stageIdentifier) {
+    public List<StageIdentifier> findRunForStage(StageIdentifier stageIdentifier)  {
         String pipelineName = stageIdentifier.getPipelineName();
         String stageName = stageIdentifier.getStageName();
         double toNaturalOrder = pipelineDao.findPipelineByNameAndCounter(pipelineName, stageIdentifier.getPipelineCounter()).getNaturalOrder();
@@ -492,13 +490,11 @@ public class StageService implements StageRunFinder, StageFinder {
         if (failedStages.isEmpty() || !failedStages.get(0).equals(stageIdentifier)) {
             return finalIds;
         }
-        for (StageIdentifier identifier : failedStages) {
-            finalIds.add(identifier);
-        }
+        failedStages.forEach(identifier -> {
+finalIds.add(identifier);
+});
         return finalIds;
-    }
-
-    public boolean isStageActive(String pipelineName, String stageName) {
+    }public boolean isStageActive(String pipelineName, String stageName) {
         return stageDao.isStageActive(pipelineName, stageName);
     }
 

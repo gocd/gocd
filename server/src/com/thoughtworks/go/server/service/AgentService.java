@@ -129,15 +129,13 @@ public class AgentService {
         return toAgentViewModels(agentInstances.findRegisteredAgents());
     }
 
-    private AgentsViewModel toAgentViewModels(AgentInstances instances) {
+    private AgentsViewModel toAgentViewModels(AgentInstances instances)  {
         AgentsViewModel agents = new AgentsViewModel();
-        for (AgentInstance instance : instances) {
-            agents.add(toAgentViewModel(instance));
-        }
+        instances.forEach(instance -> {
+agents.add(toAgentViewModel(instance));
+});
         return agents;
-    }
-
-    private AgentViewModel toAgentViewModel(AgentInstance instance) {
+    }private AgentViewModel toAgentViewModel(AgentInstance instance) {
         return new AgentViewModel(instance, environmentConfigService.environmentsFor(instance.getUuid()));
     }
 

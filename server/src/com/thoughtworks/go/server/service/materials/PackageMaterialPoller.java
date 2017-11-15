@@ -98,9 +98,8 @@ public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
         return packageConfiguration;
     }
 
-    private void populateConfiguration(Configuration configuration, com.thoughtworks.go.plugin.api.config.Configuration pluginConfiguration) {
-        for (ConfigurationProperty configurationProperty : configuration) {
-            pluginConfiguration.add(new PackageMaterialProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
-        }
-    }
-}
+    private void populateConfiguration(Configuration configuration, com.thoughtworks.go.plugin.api.config.Configuration pluginConfiguration)  {
+        configuration.forEach(configurationProperty -> {
+pluginConfiguration.add(new PackageMaterialProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+});
+    }}

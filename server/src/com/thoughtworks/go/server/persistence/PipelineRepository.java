@@ -93,15 +93,11 @@ public class PipelineRepository extends HibernateDaoSupport {
                 return null;
             }
 
-            private void updateNaturalOrdering(Session session, List<PipelineTimelineEntry> pipelines) {
-                for (PipelineTimelineEntry pipeline : pipelines) {
-                    if (pipeline.hasBeenUpdated()) {
+            private void updateNaturalOrdering(Session session, List<PipelineTimelineEntry> pipelines)  {
+                pipelines.stream().filter(pipeline -> pipeline.hasBeenUpdated()).forEach(pipeline -> {
                         updateNaturalOrderForPipeline(session, pipeline.getId(), pipeline.naturalOrder());
-                    }
-                }
-            }
-
-            private List<Object[]> loadTimeline(SQLQuery query) {
+                    });
+            }private List<Object[]> loadTimeline(SQLQuery query) {
                 long startedAt = System.currentTimeMillis();
                 List<Object[]> matches = (List<Object[]>) query.list();
                 long duration = System.currentTimeMillis() - startedAt;
@@ -224,14 +220,14 @@ public class PipelineRepository extends HibernateDaoSupport {
         });
     }
 
-    private void addEntriesToPipelineTimeline(List<PipelineTimelineEntry> newEntries, PipelineTimeline pipelineTimeline, List<PipelineTimelineEntry> tempEntriesForRollback) {
-        for (PipelineTimelineEntry newEntry : newEntries) {
-            tempEntriesForRollback.add(newEntry);
-            pipelineTimeline.add(newEntry);
-        }
-    }
-
-    public long saveSelectedPipelines(PipelineSelections pipelineSelections) {
+    private void addEntriesToPipelineTimeline(List<PipelineTimelineEntry> newEntries, PipelineTimeline pipelineTimeline, List<PipelineTimelineEntry> tempEntriesForRollback)  {
+        newEntries.stream().map(newEntry -> {
+tempEntriesForRollback.add(newEntry);
+return newEntry;
+}).forEach(newEntry -> {
+pipelineTimeline.add(newEntry);
+});
+    }public long saveSelectedPipelines(PipelineSelections pipelineSelections) {
         removePipelineSelectionFromCacheForUserId(pipelineSelections);
         removePipelineSelectionFromCacheForCookie(pipelineSelections);
         getHibernateTemplate().saveOrUpdate(pipelineSelections);

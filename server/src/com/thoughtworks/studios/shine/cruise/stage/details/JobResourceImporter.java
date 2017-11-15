@@ -106,7 +106,7 @@ public class JobResourceImporter {
         return (bv == null) ? null : bv.getString("pathFromArtifactRoot");
     }
 
-    private List<String> unitTestArtifactPathsForJob(Graph graph, URIReference jobURI) {
+    private List<String> unitTestArtifactPathsForJob(Graph graph, URIReference jobURI)  {
         String selectArtifactPaths = GoOntology.URI_PREFIX +
                 "prefix xsd: <http://www.w3.org/2001/XMLSchema#> " +
 
@@ -121,13 +121,11 @@ public class JobResourceImporter {
         List<BoundVariables> bvs = graph.select(selectArtifactPaths);
 
         List<String> result = new ArrayList<>(bvs.size());
-        for (BoundVariables bv : bvs) {
-            result.add(bv.getString("artifactPath"));
-        }
+        bvs.forEach(bv -> {
+result.add(bv.getString("artifactPath"));
+});
         return result;
-    }
-
-    File[] getArtifactFilesOfType(String artifactsPathFromRoot, String jobArtifactPath, final String fileExtension) {
+    }File[] getArtifactFilesOfType(String artifactsPathFromRoot, String jobArtifactPath, final String fileExtension) {
         LOGGER.debug("getArtifactFilesOfType({}, {}, {})", artifactsPathFromRoot, jobArtifactPath, fileExtension);
 
         File jobArtifactFile = new File(artifactBaseDir, artifactsPathFromRoot + File.separator + jobArtifactPath);

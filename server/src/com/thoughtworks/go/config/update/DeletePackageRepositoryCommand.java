@@ -68,18 +68,16 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
         return canDeleteRepository;
     }
 
-    private List<String> populateList(Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines) {
+    private List<String> populateList(Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines)  {
         ArrayList<String> pipleines = new ArrayList<>();
         for(String key: packageUsageInPipelines.keySet()) {
             List<Pair<PipelineConfig, PipelineConfigs>> pairs = packageUsageInPipelines.get(key);
-            for(Pair<PipelineConfig, PipelineConfigs> pair : pairs) {
-                pipleines.add(pair.first().getName().toLower());
-            }
+            pairs.forEach(pair -> {
+pipleines.add(pair.first().getName().toLower());
+});
         }
         return pipleines;
-    }
-
-    @Override
+    }@Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(this.repository);
     }

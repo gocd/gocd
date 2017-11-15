@@ -103,18 +103,14 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
         };
     }
 
-    private Set<Material> materialsWithUpdateIntervalElapsed() {
+    private Set<Material> materialsWithUpdateIntervalElapsed()  {
         Set<Material> materialsForUpdate = new HashSet<>();
-        for (Material material : schedulableMaterials) {
-            if (hasUpdateIntervalElapsedForScmMaterial(material)) {
+        schedulableMaterials.stream().filter(material -> hasUpdateIntervalElapsedForScmMaterial(material)).forEach(material -> {
                 materialsForUpdate.add(material);
-            }
-        }
+            });
 
         return materialsForUpdate;
-    }
-
-    boolean hasUpdateIntervalElapsedForScmMaterial(Material material) {
+    }boolean hasUpdateIntervalElapsedForScmMaterial(Material material) {
         Long lastMaterialUpdateTime = materialLastUpdateTimeMap.get(material);
         if (lastMaterialUpdateTime != null) {
             boolean shouldUpdateMaterial = (DateTimeUtils.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;

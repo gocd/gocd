@@ -77,17 +77,11 @@ public class TestSuite {
         return tests.isEmpty();
     }
 
-    public int countOfStatus(TestStatus status) {
+    public int countOfStatus(TestStatus status)  {
         int count = 0;
-        for (TestInformation test : tests) {
-            if (status.equals(test.getStatus())) {
-                count += 1;
-            }
-        }
+        tests.stream().filter(test -> status.equals(test.getStatus())).map(_item -> 1).reduce(count, Integer::sum);
         return count;
-    }
-
-    public boolean contains(String testName) {
+    }public boolean contains(String testName) {
        for (TestInformation test : tests) {
             if(test.getName().equals(testName)) return true;
        }

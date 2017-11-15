@@ -96,7 +96,7 @@ describe("value_stream_map_renderer", function () {
         ]}
         new Graph_Renderer("#vsm-container").invoke(vsm);
 
-        assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container #sample .waiting').length, 1);
+        assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container #id_sample .waiting').length, 1);
     });
 
     xit("testShouldRenderGraphForASimplePipeline", function () {
@@ -271,13 +271,13 @@ describe("value_stream_map_renderer", function () {
         var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + deleted_pipeline + ']},{"nodes":[' + no_view_permission + ']},{"nodes":[' + current + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
 
-        assertEquals("pipeline without view permission is being shown.", true, jQuery("#vsm-container #no_view_permission h3").hasClass("restricted"));
-        assertEquals("pipeline without view permission is being shown.", 0, jQuery("#vsm-container #no_view_permission h3").find("a").length);
-        assertEquals("pipeline without view permission is being shown.", pipeline_no_permission_message, jQuery("#vsm-container #no_view_permission .message span").text());
+        assertEquals("pipeline without view permission is being shown.", true, jQuery("#vsm-container #id_no_view_permission h3").hasClass("restricted"));
+        assertEquals("pipeline without view permission is being shown.", 0, jQuery("#vsm-container #id_no_view_permission h3").find("a").length);
+        assertEquals("pipeline without view permission is being shown.", pipeline_no_permission_message, jQuery("#vsm-container #id_no_view_permission .message span").text());
 
-        assertEquals("details of deleted pipeline are shown.", true, jQuery("#vsm-container #deleted_pipeline h3").hasClass("deleted"));
-        assertEquals("details of deleted pipeline are shown.", 0, jQuery("#vsm-container #deleted_pipeline h3").find("a").length);
-        assertEquals("details of deleted pipeline are shown.", deleted_pipeline_message, jQuery("#vsm-container #deleted_pipeline .message span").text());
+        assertEquals("details of deleted pipeline are shown.", true, jQuery("#vsm-container #id_deleted_pipeline h3").hasClass("deleted"));
+        assertEquals("details of deleted pipeline are shown.", 0, jQuery("#vsm-container #id_deleted_pipeline h3").find("a").length);
+        assertEquals("details of deleted pipeline are shown.", deleted_pipeline_message, jQuery("#vsm-container #id_deleted_pipeline .message span").text());
     });
 
     if (window.navigator.userAgent.indexOf("MSIE")<=0) {
@@ -294,19 +294,19 @@ describe("value_stream_map_renderer", function () {
             var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
             new Graph_Renderer("#vsm-container").invoke(vsm);
 
-            assertEquals("material details are not populated correctly.", true, jQuery("#vsm-container #hg_fingerprint .material_revisions").hasClass("hg"));
-            assertEquals("material details are not populated correctly.", 2, jQuery('ul[data-materialname="hg_fingerprint"] li.instance').length);
+            assertEquals("material details are not populated correctly.", true, jQuery("#vsm-container #id_hg_fingerprint .material_revisions").hasClass("hg"));
+            assertEquals("material details are not populated correctly.", 2, jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').length);
 
             /*
              * material url
              */
-            assertEquals("material url is not populated correctly.", "../manual-testing/ant_hg/dummy", jQuery("#hg_fingerprint .material_type").html());
+            assertEquals("material url is not populated correctly.", "../manual-testing/ant_hg/dummy", jQuery("#id_hg_fingerprint .material_type").html());
 
             /*
              * material image
              */
-            var boundingRectOfMaterialNode = jQuery("#hg_fingerprint")[0].getBoundingClientRect();
-            var boundingRectOfMaterialImageNode = jQuery("#hg_fingerprint .material_type")[0].getBoundingClientRect();
+            var boundingRectOfMaterialNode = jQuery("#id_hg_fingerprint")[0].getBoundingClientRect();
+            var boundingRectOfMaterialImageNode = jQuery("#id_hg_fingerprint .material_type")[0].getBoundingClientRect();
             var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
             var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
             assertEquals("material image should be positioned at center of node", true, Math.abs(centerOfNode - centerOfImage) < 5);
@@ -315,24 +315,24 @@ describe("value_stream_map_renderer", function () {
             /*
              * hide/show revisions
              */
-            assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible'));
-            jQuery(jQuery("#hg_fingerprint .more")).trigger('click');
-            assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible'));
+            assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='id_hg_fingerprint']").is(':visible'));
+            jQuery("#id_hg_fingerprint .more").trigger('click');
+            assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='id_hg_fingerprint']").is(':visible'));
 
             /*
              first commit
              */
-            assertEquals("first revision is not populated correctly.", "Revision: revision1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim());
-            assertEquals("first comment is not populated correctly.", "comment1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim());
-            assertEquals("first user is not populated correctly.", "user1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim());
-            assertEquals("first modified_time is populated correctly.", "modified_time1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text());
+            assertEquals("first revision is not populated correctly.", "Revision: revision1", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim());
+            assertEquals("first comment is not populated correctly.", "comment1", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim());
+            assertEquals("first user is not populated correctly.", "user1", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim());
+            assertEquals("first modified_time is populated correctly.", "modified_time1", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text());
             /*
              second commit
              */
-            assertEquals("second revision is not populated correctly.", "Revision: revision2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim());
-            assertEquals("second comment is not populated correctly.", "comment2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim());
-            assertEquals("second user is not populated correctly.", "user2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim());
-            assertEquals("second modified_time is populated correctly.", "modified_time2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text());
+            assertEquals("second revision is not populated correctly.", "Revision: revision2", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim());
+            assertEquals("second comment is not populated correctly.", "comment2", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim());
+            assertEquals("second user is not populated correctly.", "user2", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim());
+            assertEquals("second modified_time is populated correctly.", "modified_time2", jQuery('ul[data-materialname="id_hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text());
         });
     }
 
@@ -352,18 +352,18 @@ describe("value_stream_map_renderer", function () {
             ]}
         ]}
         new Graph_Renderer("#vsm-container").invoke(vsm);
-        var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
-        var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
+        var boundingRectOfMaterialNode = jQuery("#id_pkg_id")[0].getBoundingClientRect();
+        var boundingRectOfMaterialImageNode = jQuery("#id_pkg_id .material_type")[0].getBoundingClientRect();
         var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
         var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
-        assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
+        assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="id_pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
         assertEquals("first comment is not populated correctly.", 'Built on server.<br>Trackback: <a href="google.com">google.com</a>',
-            jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html());
+            jQuery('ul[data-materialname="id_pkg_id"] li.instance').eq('0').find('div').eq('1').html());
         assertEquals("Brief comment is not correct", 'Built on server.<br>Trackback: <a href="google.com">google.com</a>',
-            jQuery('#pkg_id .material_revisions_label').html());
+            jQuery('#id_pkg_id .material_revisions_label').html());
         assertEquals("Brief comment is not correct", 'Built on server.\nTrackback: google.com',
-            jQuery('#pkg_id .material_revisions_label').attr("title"));
+            jQuery('#id_pkg_id .material_revisions_label').attr("title"));
     });
 
 
@@ -383,18 +383,18 @@ describe("value_stream_map_renderer", function () {
             ]}
         ]}
         new Graph_Renderer("#vsm-container").invoke(vsm);
-        var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
-        var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
+        var boundingRectOfMaterialNode = jQuery("#id_pkg_id")[0].getBoundingClientRect();
+        var boundingRectOfMaterialImageNode = jQuery("#id_pkg_id .material_type")[0].getBoundingClientRect();
         var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
         var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
-        assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
+        assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="id_pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
         assertEquals("first comment is not populated correctly.", 'Trackback: Not Provided',
-            jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html());
+            jQuery('ul[data-materialname="id_pkg_id"] li.instance').eq('0').find('div').eq('1').html());
         assertEquals("Brief comment is not correct", 'Trackback: Not Provided',
-            jQuery('#pkg_id .material_revisions_label').html());
+            jQuery('#id_pkg_id .material_revisions_label').html());
         assertEquals("Brief comment is not correct", 'Trackback: Not Provided',
-            jQuery('#pkg_id .material_revisions_label').attr("title"));
+            jQuery('#id_pkg_id .material_revisions_label').attr("title"));
     });
 
     if (window.navigator.userAgent.indexOf("MSIE")<=0) {
@@ -410,12 +410,12 @@ describe("value_stream_map_renderer", function () {
             var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + svn_material_1 + ',' + svn_material_2 + ']},{"nodes":[' + node_p1 + ']}]})');
             new Graph_Renderer("#vsm-container").invoke(vsm);
 
-            assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
-            assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
-            jQuery(jQuery("#svn_fingerprint_1 .more")).trigger('click');
-            jQuery(jQuery("#svn_fingerprint_2 .more")).trigger('click');
-            assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
-            assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
+            assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='id_svn_fingerprint_1']").is(':visible'));
+            assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='id_svn_fingerprint_2']").is(':visible'));
+            jQuery("#id_svn_fingerprint_1 .more").trigger('click');
+            jQuery("#id_svn_fingerprint_2 .more").trigger('click');
+            assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='id_svn_fingerprint_1']").is(':visible'));
+            assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='id_svn_fingerprint_2']").is(':visible'));
         });
     }
 
@@ -434,14 +434,14 @@ describe("value_stream_map_renderer", function () {
         var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
 
-        assertEquals("pipeline node name does not point to pipeline history page.", "/go/tab/pipeline/history/current", jQuery("#vsm-container #current h3 a").attr("href"));
-        assertEquals("label of a pipeline instance does not point to th vsm page.", "/go/pipelines/value_stream_map/current/1", jQuery("#vsm-container #current ul li h4 a").attr("href"));
-        assertEquals("pipeline node does not have all instances populated correctly.", 1, jQuery("#vsm-container #current ul").find("li.instance").length);
-        assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #current ul ul").find(".stage_bar").length);
+        assertEquals("pipeline node name does not point to pipeline history page.", "/go/tab/pipeline/history/current", jQuery("#vsm-container #id_current h3 a").attr("href"));
+        assertEquals("label of a pipeline instance does not point to th vsm page.", "/go/pipelines/value_stream_map/current/1", jQuery("#vsm-container #id_current ul li h4 a").attr("href"));
+        assertEquals("pipeline node does not have all instances populated correctly.", 1, jQuery("#vsm-container #id_current ul").find("li.instance").length);
+        assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #id_current ul ul").find(".stage_bar").length);
         assertEquals("stage details for pipeline instances are not populated correctly.", "/go/pipelines/current/1/defaultStage/1",
-            jQuery("#vsm-container #current ul ul li.stage_bar.Passed a").attr("href"));
-        assertEquals("stage hover message is not correctly populated", "defaultStage (took 1m 57.0s)", jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title'));
-        assertEquals("stage details for pipeline instances are not populated correctly.", 1, jQuery("#vsm-container #current ul ul li.stage_bar.Unknown > span").length);
+            jQuery("#vsm-container #id_current ul ul li.stage_bar.Passed a").attr("href"));
+        assertEquals("stage hover message is not correctly populated", "defaultStage (took 1m 57.0s)", jQuery("#vsm-container #id_current ul ul li.stage_bar.Passed").attr('title'));
+        assertEquals("stage details for pipeline instances are not populated correctly.", 1, jQuery("#vsm-container #id_current ul ul li.stage_bar.Unknown > span").length);
     });
 
 
@@ -464,9 +464,9 @@ describe("value_stream_map_renderer", function () {
         var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']},{"nodes":[' + downstream + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
 
-        assertEquals("pipeline should show all instance details.", "1 more...", jQuery("#downstream .show-more").find("a").text());
-        jQuery(jQuery("#downstream .show-more a")).trigger('click');
-        assertEquals("pipeline should show all instance details.", "1 less...", jQuery("#downstream .show-more").find("a").text());
+        assertEquals("pipeline should show all instance details.", "1 more...", jQuery("#id_downstream .show-more").find("a").text());
+        jQuery("#id_downstream .show-more a").trigger('click');
+        assertEquals("pipeline should show all instance details.", "1 less...", jQuery("#id_downstream .show-more").find("a").text());
     });
 
     it("shouldShowThePipelineRunDurationForACompeltedPipeline", function() {
@@ -484,7 +484,7 @@ describe("value_stream_map_renderer", function () {
       var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
       new Graph_Renderer("#vsm-container").invoke(vsm);
 
-      assertEquals("Duration: 2m 6.0s", jQuery("#p1 .duration").text());
+      assertEquals("Duration: 2m 6.0s", jQuery("#id_p1 .duration").text());
     });
 
   it("shouldShowThePipelineRunAsInProgressForAPipelineWhichIsInProgress", function() {
@@ -501,7 +501,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("Duration: In Progress", jQuery("#p1 .duration").text());
+    assertEquals("Duration: In Progress", jQuery("#id_p1 .duration").text());
   });
 
     function assertIfItIsStartNode(nodeId) {

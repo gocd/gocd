@@ -386,4 +386,5 @@ ext.versions = [
   felix    : '5.6.8',
   nanohttpd: '2.3.1',
   rack     : '1.1.21',
+  jgit     : '4.9.0.201710071750-r'
 ]

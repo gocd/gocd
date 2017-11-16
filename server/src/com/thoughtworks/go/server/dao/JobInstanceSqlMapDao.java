@@ -272,6 +272,11 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return (Integer) getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", arguments("uuid", uuid).asMap());
     }
 
+    @Override
+    public boolean isJobCompleted(JobIdentifier jobIdentifier) {
+        return mostRecentJobWithTransitions(jobIdentifier).isCompleted();
+    }
+
     private List<JobIdentifier> buildingJobs(List<Long> activeJobIds) {
         List<JobIdentifier> buildingJobs = new ArrayList<>();
         for (Long activeJobId : activeJobIds) {

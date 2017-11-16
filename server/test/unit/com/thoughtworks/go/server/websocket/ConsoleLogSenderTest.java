@@ -50,19 +50,19 @@ public class ConsoleLogSenderTest {
     private JobIdentifier jobIdentifier;
     private JobInstance jobInstance;
     private SocketHealthService socketHealthService;
+    private JobInstanceDao jobInstanceDao;
 
 
     @Before
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
         socketHealthService = mock(SocketHealthService.class);
-        JobInstanceDao jobInstanceDao = mock(JobInstanceDao.class);
+        jobInstanceDao = mock(JobInstanceDao.class);
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
         consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService);
         jobIdentifier = mock(JobIdentifier.class);
         jobInstance = mock(JobInstance.class);
-        when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
     }
 
     @Test
@@ -70,7 +70,8 @@ public class ConsoleLogSenderTest {
         String expected = "Expected output for this test";
         File console = makeConsoleFile(expected);
 
-        when(jobInstance.isCompleted()).thenReturn(true);
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
         when(consoleService.getStreamer(0L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 0L));
         when(consoleService.getStreamer(1L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 1L));
 
@@ -81,11 +82,12 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldSendfooConsoleLog() throws Exception {
-        when(jobInstance.isCompleted()).thenReturn(true);
-
         File fakeFile = mock(File.class);
-        when(fakeFile.exists()).thenReturn(false);
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(fakeFile);
+
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(false);
+
         String build = "build p1/s1/j1";
         when(jobIdentifier.toFullString()).thenReturn(build);
 
@@ -98,13 +100,12 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldSendConsoleLogInMultipleMessagesIfBuildInProgress() throws Exception {
-        when(jobInstance.isCompleted()).
-                thenReturn(false).
-                thenReturn(true);
-
         File fakeFile = mock(File.class);
-        when(fakeFile.exists()).thenReturn(true);
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(fakeFile);
+
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(false).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
+
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
                 thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
 
@@ -116,13 +117,12 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldSendConsoleLogEvenAfterBuildCompletion() throws Exception {
-        when(jobInstance.isCompleted()).
-                thenReturn(false).
-                thenReturn(true);
-
         File fakeFile = mock(File.class);
-        when(fakeFile.exists()).thenReturn(true);
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(fakeFile);
+
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(false).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
+
         when(consoleService.getStreamer(0L, jobIdentifier))
                 .thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
         when(consoleService.getStreamer(1L, jobIdentifier))
@@ -138,13 +138,15 @@ public class ConsoleLogSenderTest {
     @Test
     public void shouldNotSendMessagesWhenOutputHasNotAdvanced() throws Exception {
         File console = makeConsoleFile("First Output");
-        when(jobInstance.isCompleted()).thenReturn(false).thenReturn(true);
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(false).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
+
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
                 thenReturn(new ConsoleStreamer(console.toPath(), 0L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(jobInstance, times(3)).isCompleted();
+        verify(jobInstanceDao, times(3)).isJobCompleted(jobIdentifier);
         verify(socket, times(1)).send(anyObject());
     }
 
@@ -152,7 +154,8 @@ public class ConsoleLogSenderTest {
     public void shouldCloseSocketAfterProcessingMessage() throws Exception {
         File console = makeConsoleFile("foo");
 
-        when(jobInstance.isCompleted()).thenReturn(true);
+        when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(true);
+        when(consoleService.doesLogExist(jobIdentifier)).thenReturn(true);
         when(consoleService.getStreamer(0L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 0L));
         when(consoleService.getStreamer(1L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 1L));
 

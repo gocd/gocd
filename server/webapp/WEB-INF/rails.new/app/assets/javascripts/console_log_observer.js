@@ -17,12 +17,12 @@
   "use strict";
 
   function ConsoleLogObserver(url, transformer, options) {
-    var me   = this;
+    var me      = this;
     var enabled = false;
 
     var startLineNumber = 0;
-    var inFlight = false;
-    var finished = false;
+    var inFlight        = false;
+    var finished        = false;
 
     function acquireLock() {
       if (inFlight) return false;
@@ -42,7 +42,7 @@
       if (enabled) {
         // this function may have been called asynchronously (e.g. enabled set after WebSocket failure)
         // so if we weren't provided a jobResultJson through notify(), used the last saved value
-        jobResultJson = jobResultJson || deferredResult;
+        jobResultJson  = jobResultJson || deferredResult;
         deferredResult = null;
       } else {
         // save the result in case we activate and call this function at a later time
@@ -59,10 +59,10 @@
       if (!acquireLock()) return;
 
       $.ajax({
-        url:  url,
-        type: "GET",
+        url:      url,
+        type:     "GET",
         dataType: "text",
-        data: {"startLineNumber": startLineNumber}
+        data:     {"startLineNumber": startLineNumber}
       }).done(function processLogOutput(data, status, xhr) {
         var lineSet, slice, nextLine = JSON.parse(xhr.getResponseHeader("X-JSON") || "[]")[0];
 
@@ -88,7 +88,10 @@
         if (finished && options && "function" === typeof options.onComplete) {
           transformer.invoke(options.onComplete);
         }
-      }).fail($.noop).always(clearLock);
+      }).fail(function (res) {
+        // render error if any. Eg. Purged/Deleted console log
+        transformer.transform([res.responseText]);
+      }).always(clearLock);
     }
 
     this.notify = consumeBuildLog;

@@ -68,4 +68,6 @@ public interface JobInstanceDao {
     List<JobInstance> completedJobsOnAgent(String uuid, JobInstanceService.JobHistoryColumns jobHistoryColumns, SortOrder order, int offset, int limit);
 
     int totalCompletedJobsOnAgent(String uuid);
+
+    boolean isJobCompleted(JobIdentifier jobIdentifier);
 }

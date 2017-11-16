@@ -100,7 +100,7 @@ public class ConsoleLogSender {
 
             //send the remaining logs if any
             if (detectCompleted(jobIdentifier)) {
-                try(ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
+                try (ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
                     start += sendLogs(webSocket, consoleFileStreamer, jobIdentifier);
                     LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
                 }
@@ -113,30 +113,20 @@ public class ConsoleLogSender {
     }
 
     private boolean doesLogExists(JobIdentifier jobIdentifier) {
-        try {
-            return consoleService.consoleLogFile(jobIdentifier).exists();
-        } catch (IllegalArtifactLocationException e) {
-            return false;
-        }
+        return consoleService.doesLogExist(jobIdentifier);
     }
 
     private void waitForLogToExist(final SocketEndpoint websocket, final JobIdentifier jobIdentifier) throws Retryable.TooManyRetriesException {
         Retryable.retry(new Predicate<Integer>() {
             @Override
             public boolean test(Integer integer) {
-                try {
-                    return !websocket.isOpen() || consoleService.consoleLogFile(jobIdentifier).exists();
-                } catch (IllegalArtifactLocationException e) {
-                    LOGGER.error("Job identifier {} is not valid; Cannot resolve console log file", jobIdentifier, e);
-
-                    return true; // Stop trying
-                }
+                return !websocket.isOpen() || doesLogExists(jobIdentifier);
             }
         }, String.format("waiting for console log to exist for %s", jobIdentifier), 20);
     }
 
     private boolean detectCompleted(JobIdentifier jobIdentifier) throws Exception {
-        return jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier).isCompleted();
+        return jobInstanceDao.isJobCompleted(jobIdentifier);
     }
 
     private long sendLogs(final SocketEndpoint webSocket, final ConsoleConsumer console, final JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {

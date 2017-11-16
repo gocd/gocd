@@ -65,6 +65,7 @@
       }
 
       if (e.code === CONSOLE_LOG_DOES_NOT_EXISTS) {
+        transformer.transform([e.reason]);
         if (options && "function" === typeof options.onComplete) {
           transformer.invoke(options.onComplete);
         }

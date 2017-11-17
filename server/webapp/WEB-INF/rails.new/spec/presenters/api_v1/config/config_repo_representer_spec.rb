@@ -37,14 +37,9 @@ describe ApiV1::Config::ConfigRepoRepresenter do
           :type => 'git',
           :attributes => {
             :url => 'git://foo',
-            :destination => nil,
-            :filter => nil,
-            :invert_filter => false,
             :name => nil,
-            :auto_update => true,
             :branch => 'master',
-            :submodule_folder => nil,
-            :shallow_clone => false
+            :auto_update => true
           }
         },
         :configuration => []

@@ -62,19 +62,31 @@ import static org.mockito.Mockito.mock;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ConfigMaterialUpdaterIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private MaterialUpdateService materialUpdateService;
-    @Autowired private GoRepoConfigDataSource goRepoConfigDataSource;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private ConfigCache configCache;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialDatabaseUpdater materialDatabaseUpdater;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private MaterialUpdateService materialUpdateService;
+    @Autowired
+    private GoRepoConfigDataSource goRepoConfigDataSource;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private ConfigCache configCache;
+    @Autowired
+    private CachedGoConfig cachedGoConfig;
 
-    @Autowired private ConfigMaterialUpdateCompletedTopic configTopic;
+    @Autowired
+    private ConfigMaterialUpdateCompletedTopic configTopic;
 
     private MDUPerformanceLogger logger;
 
@@ -89,7 +101,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     private HgMaterial material;
     private MagicalGoConfigXmlWriter xmlWriter;
 
-    private  ConfigTestRepo configTestRepo;
+    private ConfigTestRepo configTestRepo;
 
     @Before
     public void setup() throws Exception {
@@ -100,8 +112,8 @@ public class ConfigMaterialUpdaterIntegrationTest {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
-        materialConfig = new HgMaterialConfig(hgRepo.projectRepositoryUrl(),"testHgRepo");
-        configHelper.addConfigRepo(new ConfigRepoConfig(materialConfig,"gocd-xml"));
+        materialConfig = new HgMaterialConfig(hgRepo.projectRepositoryUrl(), null);
+        configHelper.addConfigRepo(new ConfigRepoConfig(materialConfig, "gocd-xml"));
 
         logger = mock(MDUPerformanceLogger.class);
 
@@ -114,13 +126,12 @@ public class ConfigMaterialUpdaterIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        worker = new MaterialUpdateListener(configTopic,materialDatabaseUpdater,logger,goDiskSpaceMonitor);
+        worker = new MaterialUpdateListener(configTopic, materialDatabaseUpdater, logger, goDiskSpaceMonitor);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
         this.material = configTestRepo.getMaterial();
     }
-
 
 
     @After
@@ -132,8 +143,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     }
 
     @Test
-    public void shouldBeInProgressUntilParsedWhenValid() throws Exception
-    {
+    public void shouldBeInProgressUntilParsedWhenValid() throws Exception {
         materialUpdateService.updateMaterial(material);
 
         // because first result of parsing is left in repo data source
@@ -141,13 +151,13 @@ public class ConfigMaterialUpdaterIntegrationTest {
 
         assertInProgressState();
     }
+
     @Test
-    public void shouldBeInProgressUntilParsedWhenInvalid() throws Exception
-    {
+    public void shouldBeInProgressUntilParsedWhenInvalid() throws Exception {
         configTestRepo.addCodeToRepositoryAndPush("bogus.gocd.xml", "added bad config file",
                 "<?xml ve\"?>\n"
-                + "<cru>\n"
-                + "</cruise>");
+                        + "<cru>\n"
+                        + "</cruise>");
 
         materialUpdateService.updateMaterial(material);
 
@@ -160,18 +170,17 @@ public class ConfigMaterialUpdaterIntegrationTest {
     private void assertInProgressState() throws InterruptedException {
         int i = 0;
         while (goRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig) == null) {
-            if(!materialUpdateService.isInProgress(material))
+            if (!materialUpdateService.isInProgress(material))
                 Assert.fail("should be still in progress");
 
             Thread.sleep(1);
-            if(i++ > 10000)
+            if (i++ > 10000)
                 fail("material is hung - more than 10 seconds in progress");
         }
     }
 
     @Test
-    public void shouldParseEmptyRepository() throws Exception
-    {
+    public void shouldParseEmptyRepository() throws Exception {
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
@@ -189,15 +198,14 @@ public class ConfigMaterialUpdaterIntegrationTest {
         int i = 0;
         while (materialUpdateService.isInProgress(material)) {
             Thread.sleep(100);
-            if(i++ > 100)
+            if (i++ > 100)
                 fail("material is hung - more than 10 seconds in progress");
         }
     }
 
 
     @Test
-    public void shouldNotParseAgainWhenNoChangesInMaterial() throws Exception
-    {
+    public void shouldNotParseAgainWhenNoChangesInMaterial() throws Exception {
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
@@ -210,13 +218,12 @@ public class ConfigMaterialUpdaterIntegrationTest {
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
         PartialConfig partial2 = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
-        assertSame(partial,partial2);
+        assertSame(partial, partial2);
     }
 
 
     @Test
-    public void shouldParseAgainWhenChangesInMaterial() throws Exception
-    {
+    public void shouldParseAgainWhenChangesInMaterial() throws Exception {
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
@@ -224,7 +231,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         assertNotNull(revision);
         PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
 
-        hgRepo.commitAndPushFile("newFile.bla","could be config file");
+        hgRepo.commitAndPushFile("newFile.bla", "could be config file");
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
@@ -235,8 +242,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     }
 
     @Test
-    public void shouldParseAndLoadValidPartialConfig() throws Exception
-    {
+    public void shouldParseAndLoadValidPartialConfig() throws Exception {
         String fileName = "pipe1.gocd.xml";
 
         GoConfigMother mother = new GoConfigMother();
@@ -249,13 +255,12 @@ public class ConfigMaterialUpdaterIntegrationTest {
         waitForMaterialNotInProgress();
         PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotNull(partial);
-        assertThat(partial.getGroups().get(0).size(),is(1));
+        assertThat(partial.getGroups().get(0).size(), is(1));
         assertThat(partial.getGroups().get(0).get(0), is(pipelineConfig));
     }
 
     @Test
-    public void shouldMergePipelineFromValidConfigRepository() throws Exception
-    {
+    public void shouldMergePipelineFromValidConfigRepository() throws Exception {
         String fileName = "pipe1.gocd.xml";
 
         GoConfigMother mother = new GoConfigMother();
@@ -264,7 +269,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
-        Assert.assertThat(materialUpdateService.isInProgress(material),is(true));
+        Assert.assertThat(materialUpdateService.isInProgress(material), is(true));
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
 
@@ -275,8 +280,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     }
 
     @Test
-    public void shouldCheckoutNewMaterial() throws Exception
-    {
+    public void shouldCheckoutNewMaterial() throws Exception {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
@@ -287,14 +291,12 @@ public class ConfigMaterialUpdaterIntegrationTest {
         waitForMaterialNotInProgress();
 
         File flyweightDir = materialRepository.folderFor(material);
-        Assert.assertThat(flyweightDir.exists(),is(true));
-        Assert.assertThat(new File(flyweightDir,"pipe1.gocd.xml").exists(),is(true));
+        Assert.assertThat(flyweightDir.exists(), is(true));
+        Assert.assertThat(new File(flyweightDir, "pipe1.gocd.xml").exists(), is(true));
     }
 
-
     @Test
-    public void shouldCheckoutChangedInExistingMaterial() throws Exception
-    {
+    public void shouldCheckoutChangedInExistingMaterial() throws Exception {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
@@ -311,14 +313,13 @@ public class ConfigMaterialUpdaterIntegrationTest {
         waitForMaterialNotInProgress();
 
         File flyweightDir = materialRepository.folderFor(material);
-        Assert.assertThat(flyweightDir.exists(),is(true));
-        Assert.assertThat(new File(flyweightDir,"pipe1.gocd.xml").exists(),is(true));
-        Assert.assertThat("shouldContainFilesAddedLater",new File(flyweightDir,"pipe2.gocd.xml").exists(),is(true));
+        Assert.assertThat(flyweightDir.exists(), is(true));
+        Assert.assertThat(new File(flyweightDir, "pipe1.gocd.xml").exists(), is(true));
+        Assert.assertThat("shouldContainFilesAddedLater", new File(flyweightDir, "pipe2.gocd.xml").exists(), is(true));
     }
 
     @Test
-    public void shouldNotMergeFromInvalidConfigRepository_AndShouldKeepLastValidPart() throws Exception
-    {
+    public void shouldNotMergeFromInvalidConfigRepository_AndShouldKeepLastValidPart() throws Exception {
         String fileName = "pipe1.gocd.xml";
 
         GoConfigMother mother = new GoConfigMother();
@@ -333,7 +334,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         cachedGoConfig.forceReload();
 
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(true));
-        assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()),is(pipelineConfig));
+        assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()), is(pipelineConfig));
 
         configTestRepo.addCodeToRepositoryAndPush("badPipe.gocd.xml", "added bad config file", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"

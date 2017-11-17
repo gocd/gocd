@@ -19,9 +19,11 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.Task;
@@ -40,13 +42,17 @@ import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.core.IsEqual;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -73,6 +79,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -1467,6 +1475,223 @@ public class GoConfigMigrationIntegrationTest {
         assertStringsIgnoringCarriageReturnAreEqual(defaultPipelineAfterMigration, migrateXmlString(defaultPipeline, 97, 98));
         assertStringsIgnoringCarriageReturnAreEqual(lockedPipelineAfterMigration, migrateXmlString(lockedPipeline, 97, 98));
         assertStringsIgnoringCarriageReturnAreEqual(unLockedPipelineAfterMigration, migrateXmlString(unLockedPipeline, 97, 98));
+    }
+
+    @Test
+    public void shouldNotSupportedUncesseryMaterialFieldsAsPartOfMigration99() throws Exception {
+        String configXml = "<cruise schemaVersion='99'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "     <git url=\"https://github.com/tomzo/gocd-json-config-example.git\" dest=\"dest\"/>\n" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        String message = "Attribute 'dest' is not allowed to appear in element 'git'.";
+
+        try {
+            migrateXmlString(configXml, 99);
+            fail(String.format("Expected a failure. Reason: Cruise config file with version 98 is invalid. Unable to upgrade. Message:%s", message));
+        } catch (InvocationTargetException e) {
+            assertThat(e.getTargetException().getCause().getMessage(), is(message));
+        }
+    }
+
+    @Test
+    public void migration99_shouldMigrateGitMaterialsUnderConfigRepoAndRetainOnlyTheMinimalRequiredAttributes() throws Exception {
+        String configXml = "<cruise schemaVersion='98'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "      <git url=\"test-repo\" dest='dest' shallowClone='true' autoUpdate='true' invertFilter='true' materialName=\"foo\">\n" +
+                "        <filter>\n" +
+                "          <ignore pattern=\"asdsd\" />\n" +
+                "        </filter>\n" +
+                "      </git>" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("<filter>"));
+        assertThat(configXml, containsString("dest='dest'"));
+        assertThat(configXml, containsString("autoUpdate='true'"));
+        assertThat(configXml, containsString("invertFilter='true'"));
+        assertThat(configXml, containsString("shallowClone='true'"));
+
+        String migratedContent = migrateXmlString(configXml, 98);
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        GitMaterialConfig materialConfig = (GitMaterialConfig) cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+
+        assertThat(migratedContent, not(containsString("<filter>")));
+        assertThat(migratedContent, not(containsString("dest='dest'")));
+        assertThat(migratedContent, not(containsString("invertFilter='true'")));
+        assertThat(migratedContent, not(containsString("shallowClone='true'")));
+
+        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.filter().size(), is(0));
+        assertThat(materialConfig.isAutoUpdate(), is(true));
+        assertThat(materialConfig.isInvertFilter(), is(false));
+        assertThat(materialConfig.isShallowClone(), is(false));
+    }
+
+    @Test
+    public void migration99_shouldMigrateSvnMaterialsUnderConfigRepoAndRetainOnlyTheMinimalRequiredAttributes() throws Exception {
+        String configXml = "<cruise schemaVersion='98'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "      <svn url=\"test-repo\" dest='dest' autoUpdate='true' checkexternals='false' invertFilter='true' materialName=\"foo\">\n" +
+                "        <filter>\n" +
+                "          <ignore pattern=\"asdsd\" />\n" +
+                "        </filter>\n" +
+                "      </svn>" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("<filter>"));
+        assertThat(configXml, containsString("dest='dest'"));
+        assertThat(configXml, containsString("autoUpdate='true'"));
+        assertThat(configXml, containsString("invertFilter='true'"));
+
+        String migratedContent = migrateXmlString(configXml, 98);
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+
+        assertThat(migratedContent, not(containsString("<filter>")));
+        assertThat(migratedContent, not(containsString("dest='dest'")));
+        assertThat(migratedContent, not(containsString("invertFilter='true'")));
+
+        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.filter().size(), is(0));
+        assertThat(materialConfig.isAutoUpdate(), is(true));
+        assertThat(materialConfig.isInvertFilter(), is(false));
+    }
+
+    @Test
+    public void migration99_shouldMigrateP4MaterialsUnderConfigRepoAndRetainOnlyTheMinimalRequiredAttributes() throws Exception {
+        String configXml = "<cruise schemaVersion='98'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "      <p4 port=\"10.18.3.241:9999\" username=\"cruise\" password=\"password\" autoUpdate='true' invertFilter='true' dest=\"dest\">\n" +
+                "          <view><![CDATA[//depot/dev/... //lumberjack/...]]></view>\n" +
+                "        <filter>\n" +
+                "          <ignore pattern=\"asdsd\" />\n" +
+                "        </filter>\n" +
+                "      </p4>" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("dest=\"dest\""));
+        assertThat(configXml, containsString("<filter>"));
+        assertThat(configXml, containsString("autoUpdate='true'"));
+        assertThat(configXml, containsString("invertFilter='true'"));
+
+        String migratedContent = migrateXmlString(configXml, 98);
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+
+        assertThat(migratedContent, not(containsString("dest=\"dest\"")));
+        assertThat(migratedContent, not(containsString("<filter>")));
+        assertThat(migratedContent, not(containsString("invertFilter='true'")));
+
+        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.filter().size(), is(0));
+        assertThat(materialConfig.isAutoUpdate(), is(true));
+        assertThat(materialConfig.isInvertFilter(), is(false));
+    }
+
+    @Test
+    public void migration99_shouldMigrateHgMaterialsUnderConfigRepoAndRetainOnlyTheMinimalRequiredAttributes() throws Exception {
+        String configXml = "<cruise schemaVersion='98'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "      <hg url=\"test-repo\" dest='dest' autoUpdate='true' invertFilter='true' materialName=\"foo\">\n" +
+                "        <filter>\n" +
+                "          <ignore pattern=\"asdsd\" />\n" +
+                "        </filter>\n" +
+                "      </hg>" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("<filter>"));
+        assertThat(configXml, containsString("dest='dest'"));
+        assertThat(configXml, containsString("autoUpdate='true'"));
+        assertThat(configXml, containsString("invertFilter='true'"));
+
+        String migratedContent = migrateXmlString(configXml, 98);
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+
+        assertThat(migratedContent, not(containsString("<filter>")));
+        assertThat(migratedContent, not(containsString("dest='dest'")));
+        assertThat(migratedContent, not(containsString("invertFilter='true'")));
+
+        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.filter().size(), is(0));
+        assertThat(materialConfig.isAutoUpdate(), is(true));
+        assertThat(materialConfig.isInvertFilter(), is(false));
+    }
+
+    @Test
+    public void migration99_shouldMigrateTfsMaterialsUnderConfigRepoAndRetainOnlyTheMinimalRequiredAttributes() throws Exception {
+        String configXml = "<cruise schemaVersion='98'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "      <tfs url='tfsurl' dest='dest' autoUpdate='true' invertFilter='true' username='foo' password='bar' projectPath='project-path'>\n" +
+                "        <filter>\n" +
+                "          <ignore pattern=\"asdsd\" />\n" +
+                "        </filter>\n" +
+                "      </tfs>" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("<filter>"));
+        assertThat(configXml, containsString("dest='dest'"));
+        assertThat(configXml, containsString("autoUpdate='true'"));
+        assertThat(configXml, containsString("invertFilter='true'"));
+
+        String migratedContent = migrateXmlString(configXml, 98);
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+
+        assertThat(migratedContent, not(containsString("<filter>")));
+        assertThat(migratedContent, not(containsString("dest='dest'")));
+        assertThat(migratedContent, not(containsString("invertFilter='true'")));
+
+        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.filter().size(), is(0));
+        assertThat(materialConfig.isAutoUpdate(), is(true));
+        assertThat(materialConfig.isInvertFilter(), is(false));
+    }
+
+    @Test
+    public void migration99_shouldMigrateScmMaterialsUnderConfigRepoAndRetainOnlyTheMinimalRequiredAttributes() throws Exception {
+        String configXml = "<cruise schemaVersion='98'>" +
+                "<config-repos>\n" +
+                "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
+                "      <scm ref='some-ref' dest='dest'>\n" +
+                "        <filter>\n" +
+                "          <ignore pattern=\"asdsd\" />\n" +
+                "        </filter>\n" +
+                "      </scm>" +
+                "   </config-repo>\n" +
+                "</config-repos>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("<filter>"));
+        assertThat(configXml, containsString("dest='dest'"));
+
+        String migratedContent = migrateXmlString(configXml, 98);
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+
+        assertThat(migratedContent, not(containsString("<filter>")));
+        assertThat(migratedContent, not(containsString("dest='dest'")));
+
+        assertThat(materialConfig.getFolder(), is(Matchers.isNull()));
+        assertThat(materialConfig.filter().size(), is(0));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

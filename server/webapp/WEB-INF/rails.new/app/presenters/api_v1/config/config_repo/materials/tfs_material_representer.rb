@@ -31,7 +31,6 @@ module ApiV1
           property :encrypted_password, skip_nil: true, skip_parse: true
 
           property :project_path
-
         end
       end
     end

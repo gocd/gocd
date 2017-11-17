@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -63,6 +62,7 @@ import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.springframework.http.HttpStatus.*;
 
 @Controller
 public class AgentRegistrationController {
@@ -215,7 +215,7 @@ public class AgentRegistrationController {
 
         try {
             if (!Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
-                return new ResponseEntity<>("Not a valid token.", HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>("Not a valid token.", FORBIDDEN);
             }
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
@@ -223,14 +223,14 @@ public class AgentRegistrationController {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
             } else {
                 if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
-                    return new ResponseEntity<>(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId), HttpStatus.UNPROCESSABLE_ENTITY);
+                    return new ResponseEntity<>(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId), UNPROCESSABLE_ENTITY);
                 }
             }
 
             AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
 
             if (partialElasticAgentAutoregistrationInfo(elasticAgentId, elasticPluginId)) {
-                return new ResponseEntity<>("Elastic agents must submit both elasticAgentId and elasticPluginId.", HttpStatus.UNPROCESSABLE_ENTITY);
+                return new ResponseEntity<>("Elastic agents must submit both elasticAgentId and elasticPluginId.", UNPROCESSABLE_ENTITY);
             }
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
@@ -271,10 +271,10 @@ public class AgentRegistrationController {
 
             final HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            return new ResponseEntity<>(RegistrationJSONizer.toJson(keyEntry), httpHeaders, keyEntry.isValid() ? HttpStatus.OK : HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(RegistrationJSONizer.toJson(keyEntry), httpHeaders, keyEntry.isValid() ? OK : ACCEPTED);
         } catch (Exception e) {
             LOG.error("Error occurred during agent registration process: ", e);
-            return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), UNPROCESSABLE_ENTITY);
         }
     }
 
@@ -287,18 +287,14 @@ public class AgentRegistrationController {
 
     @RequestMapping(value = "/admin/agent/token", method = RequestMethod.GET)
     public ResponseEntity getToken(@RequestParam("uuid") String uuid) {
-        try {
-            if (StringUtils.isBlank(uuid)) {
-                throw new RuntimeException("UUID cannot be blank.");
-            }
-            final AgentInstance agentInstance = agentService.findAgent(uuid);
-            if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || goConfigService.hasAgent(uuid)) {
-                throw new RuntimeException("A token has already been issued for this agent.");
-            }
-            return new ResponseEntity<>(Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        if (StringUtils.isBlank(uuid)) {
+            return new ResponseEntity<>("UUID cannot be blank.", CONFLICT);
         }
+        final AgentInstance agentInstance = agentService.findAgent(uuid);
+        if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || goConfigService.hasAgent(uuid)) {
+            return new ResponseEntity<>("A token has already been issued for this agent.", CONFLICT);
+        }
+        return new ResponseEntity<>(Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
     }
 
     private void sendFile(InputStreamSrc input, HttpServletResponse response) throws IOException {

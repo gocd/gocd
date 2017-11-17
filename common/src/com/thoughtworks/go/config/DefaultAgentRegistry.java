@@ -57,6 +57,11 @@ public class DefaultAgentRegistry implements AgentRegistry {
     }
 
     @Override
+    public void deleteToken() {
+        tokenService.delete();
+    }
+
+    @Override
     public boolean guidPresent() {
         return guidService.dataPresent();
     }

@@ -53,6 +53,7 @@ import java.util.Base64;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 public class AgentRegistrationControllerTest {
     private final MockHttpServletRequest request = new MockHttpServletRequest();
@@ -277,7 +278,7 @@ public class AgentRegistrationControllerTest {
 
         final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
 
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.CONFLICT));
+        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
         assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
     }
 
@@ -290,7 +291,7 @@ public class AgentRegistrationControllerTest {
 
         final ResponseEntity responseEntity = controller.getToken("uuid-from-agent");
 
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.CONFLICT));
+        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
         assertThat(responseEntity.getBody(), is("A token has already been issued for this agent."));
     }
 
@@ -298,7 +299,7 @@ public class AgentRegistrationControllerTest {
     public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() throws Exception {
         final ResponseEntity responseEntity = controller.getToken("               ");
 
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.CONFLICT));
+        assertThat(responseEntity.getStatusCode(), is(CONFLICT));
         assertThat(responseEntity.getBody(), is("UUID cannot be blank."));
     }
 

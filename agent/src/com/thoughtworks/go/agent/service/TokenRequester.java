@@ -53,18 +53,23 @@ public class TokenRequester {
 
         try {
             CloseableHttpResponse response = httpClient.execute(getTokenRequest);
+            final String responseBody = responseBody(response);
             if (response.getStatusLine().getStatusCode() == SC_OK) {
                 LOGGER.info("The server has generated token for the agent.");
-                try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
-                    return IOUtils.toString(is, StandardCharsets.UTF_8);
-                }
+                return responseBody;
             } else {
                 LOGGER.error("Received status code from server {}", response.getStatusLine().getStatusCode());
-                LOGGER.error("Reason for failure {} ", response.getStatusLine().getReasonPhrase());
-                throw new RuntimeException(response.getStatusLine().getReasonPhrase());
+                LOGGER.error("Reason for failure {} ", responseBody);
+                throw new RuntimeException(responseBody);
             }
         } finally {
             getTokenRequest.releaseConnection();
+        }
+    }
+
+    private String responseBody(CloseableHttpResponse response) throws IOException {
+        try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
+            return IOUtils.toString(is, StandardCharsets.UTF_8);
         }
     }
 }

@@ -28,4 +28,6 @@ public interface AgentRegistry {
     boolean tokenPresent();
 
     void storeTokenToDisk(String token);
+
+    void deleteToken();
 }

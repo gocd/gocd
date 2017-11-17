@@ -91,4 +91,14 @@ public class DefaultAgentRegistryTest {
 
         assertThat(agentRegistry.token(), is("foo-token"));
     }
+
+    @Test
+    public void shouldDeleteTokenFromDisk() throws Exception {
+        assertThat(agentRegistry.token(), is(TOKEN));
+        assertTrue(agentRegistry.tokenPresent());
+
+        agentRegistry.deleteToken();
+
+        assertFalse(agentRegistry.tokenPresent());
+    }
 }

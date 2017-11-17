@@ -47,7 +47,7 @@ import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.security.CertificateUtil.md5Fingerprint;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.*;
 
 @Service
 public class SslInfrastructureService {
@@ -196,29 +196,36 @@ public class SslInfrastructureService {
 
             try {
                 CloseableHttpResponse response = httpClient.execute(postMethod);
-                if (getStatusCode(response) == SC_ACCEPTED) {
-                    LOGGER.debug("The server has accepted the registration request.");
-                    return Registration.createNullPrivateKeyEntry();
-                }
+                Registration key = Registration.createNullPrivateKeyEntry();
 
-                try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
-                    String responseBody = IOUtils.toString(is, StandardCharsets.UTF_8);
-
-                    if (getStatusCode(response) == 200) {
+                switch (getStatusCode(response)) {
+                    case SC_ACCEPTED:
+                        LOGGER.debug("The server has accepted the registration request.");
+                        break;
+                    case SC_FORBIDDEN:
+                        LOGGER.debug("Server denied registration request due to invalid token. Deleting existing token from disk.");
+                        agentRegistry.deleteToken();
+                        break;
+                    case SC_OK:
                         LOGGER.info("This agent is now approved by the server.");
-                        return readResponse(responseBody);
-                    } else {
-                        LOGGER.warn("The server sent a response that we could not understand. The HTTP status was {}. The response body was:\n{}", response.getStatusLine(), responseBody);
-                        return Registration.createNullPrivateKeyEntry();
-                    }
+                        key = RegistrationJSONizer.fromJson(responseBody(response));
+                        break;
+                    case SC_UNPROCESSABLE_ENTITY:
+                        LOGGER.error("Error occurred during agent registration process: {}", responseBody(response));
+                        break;
+                    default:
+                        LOGGER.warn("The server sent a response that we could not understand. The HTTP status was {}. The response body was:\n{}", response.getStatusLine(), responseBody(response));
                 }
+                return key;
             } finally {
                 postMethod.releaseConnection();
             }
         }
 
-        protected Registration readResponse(String responseBody) {
-            return RegistrationJSONizer.fromJson(responseBody);
+        private String responseBody(CloseableHttpResponse response) throws IOException {
+            try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
+                return IOUtils.toString(is, StandardCharsets.UTF_8);
+            }
         }
 
         protected int getStatusCode(CloseableHttpResponse response) {

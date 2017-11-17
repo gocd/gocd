@@ -33,6 +33,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
@@ -48,6 +49,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -82,6 +84,7 @@ public class SslInfrastructureServiceTest {
     private CloseableHttpResponse httpResponse;
     @Mock
     private URLService urlService;
+
     @Before
     public void setup() throws Exception {
         initMocks(this);
@@ -166,6 +169,26 @@ public class SslInfrastructureServiceTest {
         assertThat(findParam(nameValuePairs, "uuid").getValue(), is("some-uuid"));
         assertThat(findParam(nameValuePairs, "token").getValue(), is("some-token"));
 
+    }
+
+    @Test
+    public void shouldDeleteTokenFromDiskWhenServerRejectsTheRegistrationRequestWithForbiddenErrorCode() throws Exception {
+        final CloseableHttpResponse httpResponseForbidden = mock(CloseableHttpResponse.class);
+        final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
+        when(agentRegistry.uuid()).thenReturn("some-uuid");
+        when(agentRegistry.tokenPresent()).thenReturn(true);
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
+        when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.FORBIDDEN.value(), null));
+        when(httpResponse.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
+        when(httpResponseForbidden.getEntity()).thenReturn(new StringEntity("Not a valid token."));
+        when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
+        sslInfrastructureService.createSslInfrastructure();
+
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
+
+        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        verify(agentRegistry, times(1)).deleteToken();
+        verify(httpClient, times(2)).execute(any(HttpUriRequest.class));
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {

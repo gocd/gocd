@@ -27,7 +27,9 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -35,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,6 +51,9 @@ public class TokenRequesterTest {
     @Mock
     private GoAgentServerHttpClient httpClient;
     private TokenRequester tokenRequester;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -63,7 +70,7 @@ public class TokenRequesterTest {
         when(agentRegistry.uuid()).thenReturn("agent-uuid");
         when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(new StringEntity("token-from-server"));
-        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), 200, null));
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), SC_OK, null));
 
         final String token = tokenRequester.getToken();
 
@@ -74,6 +81,22 @@ public class TokenRequesterTest {
 
         assertThat(token, is("token-from-server"));
         assertThat(findParam(nameValuePairs, "uuid").getValue(), is("agent-uuid"));
+    }
+
+    @Test
+    public void shouldErrorOutIfServerRejectTheRequest() throws Exception {
+        final ArgumentCaptor<HttpRequestBase> argumentCaptor = ArgumentCaptor.forClass(HttpRequestBase.class);
+        final CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
+
+        when(agentRegistry.uuid()).thenReturn("agent-uuid");
+        when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
+        when(httpResponse.getEntity()).thenReturn(new StringEntity("A token has already been issued for this agent."));
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), SC_UNPROCESSABLE_ENTITY, null));
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("A token has already been issued for this agent.");
+
+        tokenRequester.getToken();
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {

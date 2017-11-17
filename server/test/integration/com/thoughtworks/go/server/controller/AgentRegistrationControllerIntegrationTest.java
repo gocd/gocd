@@ -50,6 +50,9 @@ import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -131,7 +134,7 @@ public class AgentRegistrationControllerIntegrationTest {
         int totalAgentsAfterRegistrationRequest = goConfigService.agents().size();
         assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
 
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.UNPROCESSABLE_ENTITY));
+        assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));
         assertThat(responseEntity.getBody(), is("Error occurred during agent registration process: UUID cannot be empty"));
     }
 
@@ -156,7 +159,7 @@ public class AgentRegistrationControllerIntegrationTest {
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
 
-        assertThat(responseEntity.getStatusCode(), Matchers.is(HttpStatus.CONFLICT));
+        assertThat(responseEntity.getStatusCode(), Matchers.is(CONFLICT));
         assertThat(responseEntity.getBody(), Matchers.is("A token has already been issued for this agent."));
     }
 
@@ -169,7 +172,7 @@ public class AgentRegistrationControllerIntegrationTest {
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
 
-        assertThat(responseEntity.getStatusCode(), Matchers.is(HttpStatus.CONFLICT));
+        assertThat(responseEntity.getStatusCode(), Matchers.is(CONFLICT));
         assertThat(responseEntity.getBody(), Matchers.is("A token has already been issued for this agent."));
     }
 
@@ -177,7 +180,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() throws Exception {
         final ResponseEntity responseEntity = controller.getToken("               ");
 
-        assertThat(responseEntity.getStatusCode(), Matchers.is(HttpStatus.CONFLICT));
+        assertThat(responseEntity.getStatusCode(), Matchers.is(CONFLICT));
         assertThat(responseEntity.getBody(), Matchers.is("UUID cannot be blank."));
     }
 
@@ -190,7 +193,7 @@ public class AgentRegistrationControllerIntegrationTest {
         AgentInstance agentInstance = agentService.findAgent(uuid);
 
         assertTrue(agentInstance.isNullAgent());
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.FORBIDDEN));
+        assertThat(responseEntity.getStatusCode(), is(FORBIDDEN));
         assertThat(responseEntity.getBody(), is("Not a valid token."));
     }
 

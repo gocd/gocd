@@ -18,21 +18,27 @@ package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicStatusLine;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,7 +59,7 @@ public class RemoteRegistrationRequesterTest {
     @Before
     public void setUp() throws Exception {
         tokenService = new TokenService();
-        tokenService.store("token");
+        tokenService.store("token-from-server");
     }
 
     @After
@@ -65,7 +71,11 @@ public class RemoteRegistrationRequesterTest {
     public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
         String url = "http://cruise.com/go";
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
-        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
+        final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
+        when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
+        when(response.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
+        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(response);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
@@ -81,7 +91,11 @@ public class RemoteRegistrationRequesterTest {
     public void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws IOException, ClassNotFoundException {
         String url = "http://cruise.com/go";
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
-        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
+        final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
+        when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
+        when(response.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
+        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(response);
 
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
@@ -115,6 +129,7 @@ public class RemoteRegistrationRequesterTest {
                     assertThat(getParameter(params, "agentAutoRegisterHostname"), is("agent01.example.com"));
                     assertThat(getParameter(params, "elasticAgentId"), is(elasticAgentId));
                     assertThat(getParameter(params, "elasticPluginId"), is(elasticPluginId));
+                    assertThat(getParameter(params, "token"), is("token-from-server"));
                     return true;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -143,12 +158,14 @@ public class RemoteRegistrationRequesterTest {
                 return statusCode;
             }
 
-            @Override
             protected Registration readResponse(String responseBody) {
                 return null;
             }
         };
     }
 
-
+    private Registration createRegistration() {
+        Registration certificates = AgentCertificateMother.agentCertificate();
+        return new Registration(certificates.getPrivateKey(), certificates.getChain());
+    }
 }

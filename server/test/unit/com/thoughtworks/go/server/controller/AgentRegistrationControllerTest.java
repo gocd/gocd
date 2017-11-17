@@ -40,7 +40,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -87,8 +86,7 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.agentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
-        ModelAndView modelAndView = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, token("blahAgent-uuid", serverConfig.getTokenGenerationKey()), request);
-        assertThat(modelAndView.getView().getContentType(), is("application/json"));
+        controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, token("blahAgent-uuid", serverConfig.getTokenGenerationKey()), request);
 
         verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new AgentConfig("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx", false));
     }
@@ -311,14 +309,11 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.agentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
-        ModelAndView modelAndView = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, "an-invalid-token", request);
+        ResponseEntity responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, "an-invalid-token", request);
 
-        assertThat(modelAndView.getView().getContentType(), is("application/json"));
+        assertThat(responseEntity.getBody(), is("Not a valid token."));
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.FORBIDDEN));
 
-        final MockHttpServletResponse response = new MockHttpServletResponse();
-        modelAndView.getView().render(null, null, response);
-
-        assertThat(response.getContentAsString(), is("{}"));
         verify(serverConfig, times(0)).shouldAutoRegisterAgentWith("someKey");
         verifyZeroInteractions(agentService);
         verifyZeroInteractions(agentConfigService);

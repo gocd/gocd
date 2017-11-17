@@ -103,7 +103,7 @@ public class SslInfrastructureService {
         }
     }
 
-    public void getTokenIfNecessary() throws IOException, InterruptedException {
+    protected void getTokenIfNecessary() throws IOException, InterruptedException {
         if (!agentRegistry.tokenPresent()) {
             LOGGER.info("[Agent Registration] Fetching token from server.");
             final String token = tokenRequester.getToken();

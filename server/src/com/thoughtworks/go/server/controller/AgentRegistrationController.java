@@ -39,14 +39,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
@@ -60,7 +60,6 @@ import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -196,19 +195,19 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.POST)
-    public ModelAndView agentRequest(@RequestParam("hostname") String hostname,
-                                     @RequestParam("uuid") String uuid,
-                                     @RequestParam("location") String location,
-                                     @RequestParam("usablespace") String usablespaceAsString,
-                                     @RequestParam("operatingSystem") String operatingSystem,
-                                     @RequestParam("agentAutoRegisterKey") String agentAutoRegisterKey,
-                                     @RequestParam("agentAutoRegisterResources") String agentAutoRegisterResources,
-                                     @RequestParam("agentAutoRegisterEnvironments") String agentAutoRegisterEnvironments,
-                                     @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
-                                     @RequestParam("elasticAgentId") String elasticAgentId,
-                                     @RequestParam("elasticPluginId") String elasticPluginId,
-                                     @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
-                                     @RequestParam("token") String token, HttpServletRequest request) throws IOException {
+    public ResponseEntity agentRequest(@RequestParam("hostname") String hostname,
+                                       @RequestParam("uuid") String uuid,
+                                       @RequestParam("location") String location,
+                                       @RequestParam("usablespace") String usablespaceAsString,
+                                       @RequestParam("operatingSystem") String operatingSystem,
+                                       @RequestParam("agentAutoRegisterKey") String agentAutoRegisterKey,
+                                       @RequestParam("agentAutoRegisterResources") String agentAutoRegisterResources,
+                                       @RequestParam("agentAutoRegisterEnvironments") String agentAutoRegisterEnvironments,
+                                       @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
+                                       @RequestParam("elasticAgentId") String elasticAgentId,
+                                       @RequestParam("elasticPluginId") String elasticPluginId,
+                                       @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
+                                       @RequestParam("token") String token, HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         Registration keyEntry;
@@ -216,7 +215,7 @@ public class AgentRegistrationController {
 
         try {
             if (!Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
-                throw new RuntimeException("Not a valid token.");
+                return new ResponseEntity<>("Not a valid token.", HttpStatus.FORBIDDEN);
             }
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
@@ -224,14 +223,14 @@ public class AgentRegistrationController {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
             } else {
                 if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
-                    throw new RuntimeException(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId));
+                    return new ResponseEntity<>(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId), HttpStatus.UNPROCESSABLE_ENTITY);
                 }
             }
 
             AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
 
             if (partialElasticAgentAutoregistrationInfo(elasticAgentId, elasticPluginId)) {
-                throw new RuntimeException("Elastic agents must submit both elasticAgentId and elasticPluginId");
+                return new ResponseEntity<>("Elastic agents must submit both elasticAgentId and elasticPluginId.", HttpStatus.UNPROCESSABLE_ENTITY);
             }
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
@@ -269,12 +268,21 @@ public class AgentRegistrationController {
             }
 
             keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);
-        } catch (Exception e) {
-            keyEntry = Registration.createNullPrivateKeyEntry();
-            LOG.error("Error occurred during agent registration process: ", e);
-        }
 
-        return render(keyEntry);
+            final HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            return new ResponseEntity<>(RegistrationJSONizer.toJson(keyEntry), httpHeaders, keyEntry.isValid() ? HttpStatus.OK : HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            LOG.error("Error occurred during agent registration process: ", e);
+            return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    private String getErrorMessage(Exception e) {
+        if (e instanceof GoConfigInvalidException) {
+            return ((GoConfigInvalidException) e).getAllErrorMessages();
+        }
+        return e.getMessage();
     }
 
     @RequestMapping(value = "/admin/agent/token", method = RequestMethod.GET)
@@ -291,23 +299,6 @@ public class AgentRegistrationController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
-    }
-
-
-    private ModelAndView render(final Registration registration) {
-        return new ModelAndView(new View() {
-            public String getContentType() {
-                return "application/json";
-            }
-
-            public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException {
-                response.setContentType(getContentType());
-                if (!registration.isValid()) {
-                    response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                }
-                response.getWriter().print(RegistrationJSONizer.toJson(registration));
-            }
-        });
     }
 
     private void sendFile(InputStreamSrc input, HttpServletResponse response) throws IOException {

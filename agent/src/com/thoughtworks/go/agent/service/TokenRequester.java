@@ -61,11 +61,10 @@ public class TokenRequester {
             } else {
                 LOGGER.error("Received status code from server {}", response.getStatusLine().getStatusCode());
                 LOGGER.error("Reason for failure {} ", response.getStatusLine().getReasonPhrase());
+                throw new RuntimeException(response.getStatusLine().getReasonPhrase());
             }
         } finally {
             getTokenRequest.releaseConnection();
         }
-
-        return null;
     }
 }

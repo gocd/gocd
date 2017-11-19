@@ -41,7 +41,6 @@
         <property name="interceptors">
             <list>
                 <ref bean="authorizationInterceptor"/>
-                <ref bean="tabInterceptor"/>
                 <ref bean="flashMessageInterceptor"/>
                 <ref bean="tokenInterceptor"/>
             </list>
@@ -57,11 +56,8 @@
     </aop:config>
 
     <!-- Interceptors -->
-    <bean id="tabInterceptor" class="com.thoughtworks.go.server.web.TabInterceptor" autowire="autodetect"/>
     <bean id="tokenInterceptor" class="com.thoughtworks.go.server.web.TokenInterceptor" autowire="autodetect"/>
     <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
-
-    <import resource="tabs/mycruise-tab.xml"/>
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 </beans>

@@ -288,8 +288,6 @@
                 /api/jobs/scheduled.xml=ROLE_SUPERVISOR
                 /admin/agents=ROLE_USER
                 /admin/**=ROLE_SUPERVISOR
-                /**/addresources.json=ROLE_SUPERVISOR
-                /**/registeragent.json=ROLE_SUPERVISOR
                 /api/feeds/**=ROLE_SUPERVISOR
                 /api/support=ROLE_SUPERVISOR
                 /api/pipelines.xml=ROLE_USER

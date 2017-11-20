@@ -25,9 +25,9 @@
     var failIfInitialConnectionFails = options.failIfInitialConnectionFails || true;
     var timeoutInterval              = options.timeoutInterval || WebSocketWrapper.TIMEOUT_DEFAULT;
     var timeoutStart                 = options.timeoutStart || WebSocketWrapper.TIMEOUT_START;
+    var WebSocketClass               = options.Websocket || WebSocket;
 
     var everConnectedUsingWebsocket = false;
-    var ws;
     var lastPingTime;
     var initTimer;
     var stopped;
@@ -46,25 +46,26 @@
     var init = function () {
       self.emit('beforeInitialize', options);
 
-      ws           = new WebSocket(options.url, options.protocols);
+      self.ws           = new WebSocketClass(options.url, options.protocols);
       lastPingTime = new Date();
       stopped      = false;
 
-      ws.addEventListener('open', function (e) {
+      self.ws.onopen = function (e) {
         everConnectedUsingWebsocket = true;
         self.emit('open', e);
-      });
+      };
 
-      ws.addEventListener('message', function (e) {
+      self.ws.onmessage = function (e) {
         if (isPingFrame(e.data)) {
           lastPingTime = new Date();
           // don't bubble the ping event, since it's only meant for the websocket
           return;
         }
-        self.emit('message', e);
-      });
 
-      ws.addEventListener('error', function (e) {
+        self.emit('message', e);
+      };
+
+      self.ws.onerror = function (e) {
         if (indefiniteRetry) {
           pingDetectionTimeoutTimer.done();
         }
@@ -74,9 +75,9 @@
           self.emit('error', e);
         }
         retryIfNeeded();
-      });
+      };
 
-      ws.addEventListener('close', function (e) {
+      self.ws.onclose = function (e) {
         if (indefiniteRetry) {
           pingDetectionTimeoutTimer.done();
         }
@@ -85,7 +86,7 @@
           return;
         }
         self.emit('close', e);
-      });
+      };
     };
 
     var retryIfNeeded = function () {
@@ -105,13 +106,13 @@
         window.clearTimeout(initTimer);
       }
 
-      initTimer = setTimeout(init, 5000);
+      initTimer = setTimeout(init, WebSocketWrapper.TIMEOUT_START);
     };
 
     var isPingFrame = function (data) {
       if (_.isString(data)) {
         try {
-          return JSON.parse(e.data)['type'] === 'ping'
+          return JSON.parse(data)['type'] === 'ping'
         } catch (e) {
           // ignore, maybe it's not json
         }
@@ -120,7 +121,7 @@
     };
 
     this.close = function (code, reason) {
-      ws.close(code, reason)
+      self.ws.close(code, reason);
     };
 
     this.stop = function (code, reason) {

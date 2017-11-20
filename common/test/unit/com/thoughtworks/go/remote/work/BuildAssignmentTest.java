@@ -32,28 +32,72 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class BuildAssignmentTest {
     @Test
-    public void shouldStartWithNoEnvironmentContext() throws Exception {
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<>(), null);
-        assertThat(buildAssignment.initialEnvironmentVariableContext(), is(new EnvironmentVariableContext()));
+    public void shouldInitializeEnvironmentContextFromJobPlan() throws Exception {
+        DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
+
+        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        variables.add("key1", "value1");
+        variables.add("key2", "value2");
+
+        defaultJobPlan.setVariables(variables);
+
+        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null);
+        EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
+
+        assertThat(context.getProperties().size(), is(2));
+        assertThat(context.getProperty("key1"), is("value1"));
+        assertThat(context.getProperty("key2"), is("value2"));
     }
 
     @Test
-    public void shouldEnhanceInitialEnvironmentContext() throws Exception {
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<>(), null);
+    public void shouldInitializeEnvironmentContextFromJobPlanWithTriggerVariablesOverridingEnvVariablesFromJob() throws Exception {
+        DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
+        EnvironmentVariablesConfig triggerVariables = new EnvironmentVariablesConfig();
+        triggerVariables.add("key1", "override");
+        triggerVariables.add("key3", "value3");
 
-        buildAssignment.enhanceEnvironmentVariables(new EnvironmentVariableContext("foo", "bar"));
+        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        variables.add("key1", "value1");
+        variables.add("key2", "value2");
 
-        assertThat(buildAssignment.initialEnvironmentVariableContext(), is(new EnvironmentVariableContext("foo", "bar")));
+        defaultJobPlan.setTriggerVariables(triggerVariables);
+        defaultJobPlan.setVariables(variables);
+
+        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null);
+        EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
+
+        assertThat(context.getProperties().size(), is(2));
+        assertThat(context.getProperty("key1"), is("override"));
+        assertThat(context.getProperty("key2"), is("value2"));
+    }
+
+    @Test
+    public void shouldIntializeEnvironmentContextWithJobPlanEnvironmentVariablesOveridingEnvVariablesFromTheEnvironment() throws Exception {
+        DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
+
+        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        variables.add("key1", "value_from_job_plan");
+        variables.add("key2", "value2");
+
+        defaultJobPlan.setVariables(variables);
+
+        EnvironmentVariableContext contextFromEnvironment = new EnvironmentVariableContext("key1", "value_from_environment");
+        contextFromEnvironment.setProperty("key3", "value3", false);
+
+        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, contextFromEnvironment);
+        EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
+
+        assertThat(context.getProperties().size(), is(3));
+        assertThat(context.getProperty("key1"), is("value_from_job_plan"));
+        assertThat(context.getProperty("key2"), is("value2"));
+        assertThat(context.getProperty("key3"), is("value3"));
     }
 
     @Test
@@ -65,7 +109,7 @@ public class BuildAssignmentTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(svn, hg);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null);
 
         assertThat(buildAssignment.getBuildApprover(), is("user1"));
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
@@ -84,7 +128,7 @@ public class BuildAssignmentTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null);
 
         assertThat(buildAssignment.getBuildApprover(), is("user1"));
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));

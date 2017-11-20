@@ -101,25 +101,6 @@ public class JobRunnerTest {
         verifyNoMoreInteractions(resolver);
     }
 
-    private BuildWork getWork(JobConfig jobConfig) {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().setArtifactsDir("logs");
-        String stageName = "mingle";
-        String pipelineName = "pipeline1";
-        config.addPipeline(BasicPipelineConfigs.DEFAULT_GROUP, new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(), new StageConfig(
-                new CaseInsensitiveString(stageName), new JobConfigs(jobConfig))));
-
-        String pipelineLabel = "100";
-        JobPlan jobPlan = JobInstanceMother.createJobPlan(jobConfig, new JobIdentifier(pipelineName, -2, pipelineLabel, stageName, "100", JOB_PLAN_NAME, 0L), new DefaultSchedulingContext());
-        jobPlan.setFetchMaterials(true);
-        jobPlan.setCleanWorkingDir(false);
-
-        List<Builder> builder = BuilderMother.createBuildersAssumingAllExecTasks(config, pipelineName, stageName, JOB_PLAN_NAME);
-
-        BuildAssignment buildAssignment = BuildAssignment.create(jobPlan, BuildCause.createWithEmptyModifications(), builder, new File(CruiseConfig.WORKING_BASE_DIR + pipelineName));
-        return new BuildWork(buildAssignment);
-    }
-
     @Test
     public void shouldDoNothingWhenJobIsNotCancelled() {
         runner.setWork(work);

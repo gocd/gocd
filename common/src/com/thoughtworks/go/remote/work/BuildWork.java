@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.RunIfConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -28,6 +27,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
@@ -35,7 +35,6 @@ import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.jdom2.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -58,27 +58,26 @@ public class BuildWork implements Work {
 
     private transient DefaultGoPublisher goPublisher;
     private transient TimeProvider timeProvider;
-    private transient JobPlan plan;
     private transient File workingDirectory;
     private transient MaterialRevisions materialRevisions;
     private transient Builders builders;
+    private final ArtifactsPublisher artifactsPublisher;
 
     public BuildWork(BuildAssignment assignment) {
         this.assignment = assignment;
+        artifactsPublisher = new ArtifactsPublisher();
     }
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
                             GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
-        timeProvider = new TimeProvider();
-        plan = assignment.getPlan();
-        agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
-                plan.getIdentifier().buildLocator()));
-        workingDirectory = assignment.getWorkingDirectory();
-        materialRevisions = assignment.materialRevisions();
-        goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),
-                remoteBuildRepository, agentRuntimeInfo);
+        JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
-        builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension);
+        this.timeProvider = new TimeProvider();
+        agentRuntimeInfo.busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
+        this.workingDirectory = assignment.getWorkingDirectory();
+        this.materialRevisions = assignment.materialRevisions();
+        this.goPublisher = new DefaultGoPublisher(goArtifactsManipulator, jobIdentifier, remoteBuildRepository, agentRuntimeInfo);
+        this.builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension);
     }
 
     public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
@@ -134,7 +133,7 @@ public class BuildWork implements Work {
         prepareJob(agentIdentifier, packageRepositoryExtension, scmExtension);
 
         setupEnvrionmentContext(environmentVariableContext);
-        plan.applyTo(environmentVariableContext);
+
         dumpEnvironmentVariables(environmentVariableContext);
 
         if (this.goPublisher.isIgnored()) {
@@ -168,7 +167,7 @@ public class BuildWork implements Work {
         goPublisher.reportCurrentStatus(Preparing);
 
         createWorkingDirectoryIfNotExist(workingDirectory);
-        if (!plan.shouldFetchMaterials()) {
+        if (!assignment.shouldFetchMaterials()) {
             goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Skipping material update since stage is configured not to fetch materials");
             return;
         }
@@ -192,7 +191,7 @@ public class BuildWork implements Work {
     private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
         context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
         context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover(), false);
-        plan.getIdentifier().populateEnvironmentVariables(context);
+        assignment.getJobIdentifier().populateEnvironmentVariables(context);
         materialRevisions.populateEnvironmentVariables(context, workingDirectory);
         return context;
     }
@@ -218,7 +217,7 @@ public class BuildWork implements Work {
         goPublisher.reportAction(DefaultGoPublisher.PUBLISH, "Start to upload");
 
         try {
-            plan.publishArtifacts(goPublisher, workingDirectory);
+            artifactsPublisher.publishArtifacts(goPublisher, workingDirectory, assignment.getArtifactPlans());
         } catch (Exception e) {
             LOGGER.error(null, e);
             goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, e.getMessage());
@@ -235,7 +234,7 @@ public class BuildWork implements Work {
     }
 
     private List<ArtifactPropertiesGenerator> getArtifactPropertiesGenerators() {
-        return plan.getPropertyGenerators();
+        return assignment.getPropertyGenerators();
     }
 
 
@@ -260,10 +259,10 @@ public class BuildWork implements Work {
     }
 
     public JobIdentifier identifierForLogging() {
-        if (assignment == null || assignment.getPlan() == null || assignment.getPlan().getIdentifier() == null) {
+        if (assignment == null || assignment.getJobIdentifier() == null) {
             return JobIdentifier.invalidIdentifier("Unknown", "Unknown", "Unknown", "Unknown", "Unknown");
         }
-        return assignment.getPlan().getIdentifier();
+        return assignment.getJobIdentifier();
     }
 
     public String toString() {
@@ -298,7 +297,7 @@ public class BuildWork implements Work {
     }
 
     private void createWorkingDirectoryIfNotExist(File buildWorkingDirectory) {
-        if (plan.shouldCleanWorkingDir() && buildWorkingDirectory.exists()) {
+        if (assignment.shouldCleanWorkingDir() && buildWorkingDirectory.exists()) {
             try {
                 FileUtils.cleanDirectory(buildWorkingDirectory);
                 goPublisher.consumeLineWithPrefix("Cleaning working directory \"" + buildWorkingDirectory.getAbsolutePath() + "\" since stage is configured to clean working directory");

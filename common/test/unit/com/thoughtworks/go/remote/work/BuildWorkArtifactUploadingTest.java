@@ -332,7 +332,7 @@ public class BuildWorkArtifactUploadingTest {
         List<Builder> builders = new ArrayList<>();
         builders.add(new CreateFileBuilder(fileToCreate));
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory);
+        return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory, new EnvironmentVariableContext());
     }
 
 

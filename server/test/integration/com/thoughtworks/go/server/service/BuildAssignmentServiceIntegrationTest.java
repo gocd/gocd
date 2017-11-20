@@ -442,7 +442,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
 
-        assertThat("should have set fetchMaterials on assignment", work.getAssignment().getPlan().shouldFetchMaterials(), is(true));
+        assertThat("should have set fetchMaterials on assignment", work.getAssignment().shouldFetchMaterials(), is(true));
     }
 
     /**

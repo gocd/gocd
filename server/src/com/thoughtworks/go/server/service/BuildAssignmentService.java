@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
@@ -156,8 +157,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
                         job.getIdentifier().buildLocator());
                 agentService.building(agent.getUuid(), buildingInfo);
                 LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier());
-                return buildWork;
 
+                return buildWork;
             }
         }
 
@@ -235,17 +236,16 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     private BuildSettings createBuildSettings(BuildAssignment assignment) {
         URLService urlService = new URLService(""); // generate path only url
-        JobPlan plan = assignment.getPlan();
-        JobIdentifier jobIdentifier = plan.getIdentifier();
+        JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
         BuildSettings buildSettings = new BuildSettings();
         buildSettings.setBuildId(String.valueOf(jobIdentifier.getBuildId()));
         buildSettings.setBuildLocatorForDisplay(jobIdentifier.buildLocatorForDisplay());
         buildSettings.setBuildLocator(jobIdentifier.buildLocator());
         buildSettings.setBuildCommand(new BuildComposer(assignment).compose());
-        buildSettings.setConsoleUrl(urlService.getUploadUrlOfAgent(plan.getIdentifier(), getConsoleOutputFolderAndFileNameUrl()));
-        buildSettings.setArtifactUploadBaseUrl(urlService.getUploadBaseUrlOfAgent(plan.getIdentifier()));
-        buildSettings.setPropertyBaseUrl(urlService.getPropertiesUrl(plan.getIdentifier(), ""));
+        buildSettings.setConsoleUrl(urlService.getUploadUrlOfAgent(jobIdentifier, getConsoleOutputFolderAndFileNameUrl()));
+        buildSettings.setArtifactUploadBaseUrl(urlService.getUploadBaseUrlOfAgent(jobIdentifier));
+        buildSettings.setPropertyBaseUrl(urlService.getPropertiesUrl(jobIdentifier, ""));
         return buildSettings;
     }
 
@@ -311,8 +311,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
                                 return NO_WORK;
                             }
 
-                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder());
-                            environmentConfigService.enhanceEnvironmentVariables(buildAssignment);
+                            EnvironmentVariableContext contextFromEnvironment = environmentConfigService.environmentVariableContextFor(job.getIdentifier().getPipelineName());
+
+                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment);
+
                             return new BuildWork(buildAssignment);
                         }
                     });

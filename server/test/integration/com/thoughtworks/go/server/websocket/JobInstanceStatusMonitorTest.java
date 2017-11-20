@@ -27,6 +27,7 @@ import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -132,8 +133,8 @@ public class JobInstanceStatusMonitorTest {
         assertThat(agent.messages.size(), is(1));
         Work work = MessageEncoding.decodeWork(agent.messages.get(0).getData());
         assertThat(work, instanceOf(BuildWork.class));
-        JobPlan jobPlan = ((BuildWork) work).getAssignment().getPlan();
-        final JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
+        BuildAssignment assignment = ((BuildWork) work).getAssignment();
+        final JobInstance instance = jobInstanceService.buildByIdWithTransitions(assignment.getJobIdentifier().getBuildId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -159,8 +160,8 @@ public class JobInstanceStatusMonitorTest {
         assertThat(agent.messages.size(), is(1));
         assertThat(MessageEncoding.decodeWork(agent.messages.get(0).getData()), instanceOf(BuildWork.class));
         BuildWork work = (BuildWork) MessageEncoding.decodeWork(agent.messages.get(0).getData());
-        JobPlan jobPlan = work.getAssignment().getPlan();
-        final JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
+        BuildAssignment assignment = work.getAssignment();
+        final JobInstance instance = jobInstanceService.buildByIdWithTransitions(assignment.getJobIdentifier().getBuildId());
         scheduleService.rescheduleJob(instance);
 
         assertThat(agent.messages.size(), is(2));

@@ -47,9 +47,9 @@ public class DefaultJobPlan implements JobPlan {
     protected DefaultJobPlan() {
     }
 
-    public DefaultJobPlan(Resources resources, ArtifactPlans plans,
-                          ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables, ElasticProfile elasticProfile) {
+    public DefaultJobPlan(Resources resources, ArtifactPlans plans, ArtifactPropertiesGenerators generators, long jobId,
+                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables,
+                          EnvironmentVariablesConfig triggerTimeVariables, ElasticProfile elasticProfile) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
@@ -83,44 +83,6 @@ public class DefaultJobPlan implements JobPlan {
 
     public JobIdentifier getIdentifier() {
         return identifier;
-    }
-
-    public void publishArtifacts(GoPublisher goPublisher, File workingDirectory) {
-        ArtifactPlans mergedPlans = mergePlansForTest();
-
-        List<ArtifactPlan> failedArtifact = new ArrayList<>();
-        for (ArtifactPlan artifactPlan : mergedPlans) {
-            try {
-                artifactPlan.publish(goPublisher, workingDirectory);
-            } catch (Exception e) {
-                failedArtifact.add(artifactPlan);
-            }
-        }
-        if (!failedArtifact.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            for (ArtifactPlan artifactPlan : failedArtifact) {
-                artifactPlan.printSrc(builder);
-            }
-            throw new RuntimeException(String.format("[%s] Uploading finished. Failed to upload %s", GoConstants.PRODUCT_NAME, builder));
-        }
-    }
-
-    private ArtifactPlans mergePlansForTest() {
-        TestArtifactPlan testArtifactPlan = null;
-        final ArtifactPlans mergedPlans = new ArtifactPlans();
-        for (ArtifactPlan artifactPlan : plans) {
-            if (artifactPlan.getArtifactType().isTest()) {
-                if (testArtifactPlan == null) {
-                    testArtifactPlan = new TestArtifactPlan(artifactPlan);
-                    mergedPlans.add(testArtifactPlan);
-                } else {
-                    testArtifactPlan.add(artifactPlan);
-                }
-            } else {
-                mergedPlans.add(artifactPlan);
-            }
-        }
-        return mergedPlans;
     }
 
     public List<ArtifactPropertiesGenerator> getPropertyGenerators() {

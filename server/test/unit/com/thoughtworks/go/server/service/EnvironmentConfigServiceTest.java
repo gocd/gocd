@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
+import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
@@ -43,6 +44,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -177,28 +179,6 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void shouldAddEnvironmentNameAsEnvironmentVariableToBuildAssignment() throws Exception {
-        environmentConfigService.sync(environments("uat", "prod"));
-
-        Mockito.when(mockBuildAssignment.getPlan()).thenReturn(jobForPipeline("uat-pipeline"));
-        environmentConfigService.enhanceEnvironmentVariables(mockBuildAssignment);
-
-        EnvironmentVariableContext expectedContext = new EnvironmentVariableContext();
-        expectedContext.setProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME, "uat", false);
-        Mockito.verify(mockBuildAssignment).enhanceEnvironmentVariables(expectedContext);
-    }
-
-    @Test
-    public void shouldNotAddEnvironmentNameAsEnvironmentVariableWhenNotInEnvironment() throws Exception {
-        environmentConfigService.sync(environments("uat", "prod"));
-
-        Mockito.when(mockBuildAssignment.getPlan()).thenReturn(jobForPipeline("no-env-pipeline"));
-        environmentConfigService.enhanceEnvironmentVariables(mockBuildAssignment);
-
-        Mockito.verify(mockBuildAssignment, never()).enhanceEnvironmentVariables(any(EnvironmentVariableContext.class));
-    }
-
-    @Test
     public void shouldFindPipelinesNamesForAGivenEnvironmentName() throws Exception {
         environmentConfigService.sync(environments("uat", "prod"));
         assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat")).size(), is(1));
@@ -236,13 +216,14 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void shouldAddEnvironmentVariablesDefinedInAnEnvironment() throws Exception {
+    public void shouldListEnvironmentVariablesDefinedForAaEnvironment() throws Exception {
         environmentConfigService.sync(environments("uat", "prod"));
 
-        Mockito.when(mockBuildAssignment.getPlan()).thenReturn(jobForPipeline("no-env-pipeline"));
-        environmentConfigService.enhanceEnvironmentVariables(mockBuildAssignment);
+        EnvironmentVariableContext environmentVariableContext = environmentConfigService.environmentVariableContextFor("uat-pipeline");
 
-        Mockito.verify(mockBuildAssignment, never()).enhanceEnvironmentVariables(any(EnvironmentVariableContext.class));
+        assertThat(environmentVariableContext.getProperties().size(), is(1));
+        assertThat(environmentVariableContext.getProperty("GO_ENVIRONMENT_NAME"), is("uat"));
+        assertNull(environmentConfigService.environmentVariableContextFor("non-existent-pipeline"));
     }
 
     @Test

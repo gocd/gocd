@@ -122,9 +122,8 @@ public class BuildWorkEnvironmentVariablesTest {
     @Test public void shouldMergeEnvironmentVariablesFromInitialContext() throws Exception {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs());
 
-        BuildAssignment buildAssigment = createAssignment();
-        buildAssigment.enhanceEnvironmentVariables(new EnvironmentVariableContext("foo", "bar"));
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildAssignment buildAssignment = createAssignment(new EnvironmentVariableContext("foo", "bar"));
+        BuildWork work = new BuildWork(buildAssignment);
         EnvironmentVariableContext environmentContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -163,7 +162,7 @@ public class BuildWorkEnvironmentVariablesTest {
         svnMaterial.setName(new CaseInsensitiveString("Cruise"));
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
 
-        BuildAssignment buildAssigment = createAssignment();
+        BuildAssignment buildAssigment = createAssignment(null);
         BuildWork work = new BuildWork(buildAssigment);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -189,7 +188,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     @Test
     public void shouldOutputEnvironmentVariablesIntoConsoleOut() throws Exception {
-        BuildAssignment buildAssigment = createAssignment();
+        BuildAssignment buildAssigment = createAssignment(null);
         BuildWork work = new BuildWork(buildAssigment);
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
@@ -223,13 +222,13 @@ public class BuildWorkEnvironmentVariablesTest {
         assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR_EXTERNAL"), is("4"));
     }
 
-    private BuildAssignment createAssignment() {
+    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) {
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
         builders.add(new CommandBuilder("ant", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
-        return BuildAssignment.create(plan, buildCause, builders, dir);
+        return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext);
     }
 
     private void setupHgRepo() throws IOException {
@@ -266,7 +265,7 @@ public class BuildWorkEnvironmentVariablesTest {
     private EnvironmentVariableContext doWorkWithMaterials(Materials materials) {
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
 
-        BuildAssignment buildAssigment = createAssignment();
+        BuildAssignment buildAssigment = createAssignment(null);
         BuildWork work = new BuildWork(buildAssigment);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 

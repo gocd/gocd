@@ -371,11 +371,13 @@ public class BuildWorkTest {
 
     @Test
     public void shouldSendAResultStatusToServerWhenAThrowableErrorIsThrown() throws Exception {
-        JobPlan jobPlan = mock(JobPlan.class);
-        when(jobPlan.shouldFetchMaterials()).thenThrow(new AssertionError());
-        when(jobPlan.getIdentifier()).thenReturn(JOB_IDENTIFIER);
+        BuildAssignment buildAssignment = mock(BuildAssignment.class);
+        when(buildAssignment.shouldFetchMaterials()).thenThrow(new AssertionError());
+        when(buildAssignment.initialEnvironmentVariableContext()).thenReturn(new EnvironmentVariableContext());
+        when(buildAssignment.getWorkingDirectory()).thenReturn(new File("current"));
+        when(buildAssignment.getJobIdentifier()).thenReturn(JOB_IDENTIFIER);
 
-        createBuildWorkWithJobPlan(jobPlan);
+        buildWork = new BuildWork(buildAssignment);
 
         try {
             buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
@@ -389,11 +391,13 @@ public class BuildWorkTest {
 
     @Test
     public void shouldSendAResultStatusToServerWhenAnExceptionIsThrown() throws Exception {
-        JobPlan jobPlan = mock(JobPlan.class);
-        when(jobPlan.shouldFetchMaterials()).thenThrow(new RuntimeException());
-        when(jobPlan.getIdentifier()).thenReturn(JOB_IDENTIFIER);
+        BuildAssignment buildAssignment = mock(BuildAssignment.class);
+        when(buildAssignment.shouldFetchMaterials()).thenThrow(new RuntimeException());
+        when(buildAssignment.initialEnvironmentVariableContext()).thenReturn(new EnvironmentVariableContext());
+        when(buildAssignment.getWorkingDirectory()).thenReturn(new File("current"));
+        when(buildAssignment.getJobIdentifier()).thenReturn(JOB_IDENTIFIER);
 
-        createBuildWorkWithJobPlan(jobPlan);
+        buildWork = new BuildWork(buildAssignment);
 
         try {
             buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
@@ -617,25 +621,9 @@ public class BuildWorkTest {
 
         BuildAssignment buildAssignment = BuildAssignment.create(jobPlan,
                 BuildCause.createWithEmptyModifications(),
-                builder, pipeline.defaultWorkingFolder()
-        );
+                builder, pipeline.defaultWorkingFolder(),
+                null);
         return new BuildWork(buildAssignment);
-    }
-
-    private void createBuildWorkWithJobPlan(JobPlan jobPlan) throws Exception {
-        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(ConfigFileFixture.withJob(CMD_NOT_EXIST)))).config;
-        JobConfig jobConfig = cruiseConfig.jobConfigByName(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, true);
-
-        final Stage stage = StageMother.custom(STAGE_NAME, new JobInstance(JOB_PLAN_NAME));
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
-        final Pipeline pipeline = new Pipeline(PIPELINE_NAME, buildCause, stage);
-        List<Builder> builder = builderFactory.buildersForTasks(pipeline, jobConfig.getTasks(), resolver);
-
-        BuildAssignment buildAssignment = BuildAssignment.create(jobPlan,
-                BuildCause.createWithEmptyModifications(),
-                builder, pipeline.defaultWorkingFolder()
-        );
-        buildWork = new BuildWork(buildAssignment);
     }
 
     @Test

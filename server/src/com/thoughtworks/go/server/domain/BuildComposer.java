@@ -73,7 +73,7 @@ public class BuildComposer {
 
 
     private BuildCommand harvestProperties() {
-        List<ArtifactPropertiesGenerator> generators = assignment.getPlan().getPropertyGenerators();
+        List<ArtifactPropertiesGenerator> generators = assignment.getPropertyGenerators();
         List<BuildCommand> commands = new ArrayList<>();
 
         for (ArtifactPropertiesGenerator generator : generators) {
@@ -117,7 +117,7 @@ public class BuildComposer {
 
     private BuildCommand uploadArtifacts() {
         List<BuildCommand> commands = new ArrayList<>();
-        for (ArtifactPlan ap : assignment.getPlan().getArtifactPlans()) {
+        for (ArtifactPlan ap : assignment.getArtifactPlans()) {
             commands.add(uploadArtifact(ap.getSrc(), ap.getDest(), ap.getArtifactType().isTest())
                     .setWorkingDirectory(workingDirectory()));
         }
@@ -130,7 +130,7 @@ public class BuildComposer {
 
     private BuildCommand generateTestReport() {
         List<String> srcs = new ArrayList<>();
-        for (ArtifactPlan ap : assignment.getPlan().getArtifactPlans()) {
+        for (ArtifactPlan ap : assignment.getArtifactPlans()) {
             if (ap.getArtifactType() == ArtifactType.unit) {
                 srcs.add(ap.getSrc());
             }
@@ -163,7 +163,7 @@ public class BuildComposer {
     }
 
     private BuildCommand updateMaterials() {
-        if (!assignment.getPlan().shouldFetchMaterials()) {
+        if (!assignment.shouldFetchMaterials()) {
             return echoWithPrefix("Skipping material update since stage is configured not to fetch materials");
         }
 
@@ -182,7 +182,7 @@ public class BuildComposer {
     }
 
     private BuildCommand cleanWorkingDir() {
-        if (!assignment.getPlan().shouldCleanWorkingDir()) {
+        if (!assignment.shouldCleanWorkingDir()) {
             return noop();
         }
         return BuildCommand.compose(
@@ -196,18 +196,17 @@ public class BuildComposer {
     }
 
     private JobIdentifier getJobIdentifier() {
-        return assignment.getPlan().getIdentifier();
+        return assignment.getJobIdentifier();
     }
 
     private EnvironmentVariableContext environmentVariableContext() {
-        JobPlan plan = assignment.getPlan();
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
         context.addAll(assignment.initialEnvironmentVariableContext());
         context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
         getJobIdentifier().populateEnvironmentVariables(context);
         assignment.materialRevisions().populateEnvironmentVariables(context, new File(workingDirectory()));
-        plan.applyTo(context);
+
         return context;
     }
 }

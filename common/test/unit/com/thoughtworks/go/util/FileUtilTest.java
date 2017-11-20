@@ -57,7 +57,7 @@ public class FileUtilTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         temporaryFolder.delete();
     }
 
@@ -259,12 +259,6 @@ public class FileUtilTest {
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldReturnFalseIfGivenFolderIsAbsolute() {
-        assertThat(FileUtil.isFolderInsideSandbox("c:\\foo"), is(false));
-    }
-
-    @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
     public void shouldReturnFalseForInvalidWindowsUNCFilePath() {
         assertThat(FileUtil.isAbsolutePath("\\\\host\\"), is(false));
         assertThat(FileUtil.isAbsolutePath("\\\\host"), is(false));
@@ -275,29 +269,6 @@ public class FileUtilTest {
     public void shouldReturnTrueForValidWindowsUNCFilePath() {
         assertThat(FileUtil.isAbsolutePath("\\\\host\\share"), is(true));
         assertThat(FileUtil.isAbsolutePath("\\\\host\\share\\dir"), is(true));
-    }
-
-    @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldReturnFalseIfGivenFolderIsAbsoluteUnderLinux() {
-        assertThat(FileUtil.isFolderInsideSandbox("/tmp"), is(false));
-    }
-
-    @Test
-    public void shouldReturnFalseIfGivenFolderWithRelativeTakesYouOutOfSandbox() {
-        assertThat(FileUtil.isFolderInsideSandbox("../tmp"), is(false));
-        assertThat(FileUtil.isFolderInsideSandbox("tmp/../../../pavan"), is(false));
-    }
-
-    @Test
-    public void shouldReturnTrueIfGivenFolderWithRelativeKeepsYouInsideSandbox() {
-        assertThat(FileUtil.isFolderInsideSandbox("tmp/../home/cruise"), is(true));
-    }
-
-    @Test
-    public void shouldReturnFalseEvenIfAnAbsolutePathKeepsYouInsideSandbox() {
-        File file = new File("somethingInsideCurrentFolder");
-        assertThat(FileUtil.isFolderInsideSandbox(file.getAbsolutePath()), is(false));
     }
 
     @Test

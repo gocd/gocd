@@ -21,22 +21,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.util.*;
 
 import static java.lang.System.getProperty;
 
@@ -423,21 +412,6 @@ public class FileUtil {
             throw new RuntimeException("FileUtil#createTempFolder - Could not create temp folder");
         }
         return dir;
-    }
-
-    public static boolean isFolderInsideSandbox(String path) {
-        File fileAtPath = new File(path);
-        if (fileAtPath.isAbsolute()) {
-            return false;
-        }
-        try {
-            if (!FileUtil.isSubdirectoryOf(new File("."), fileAtPath)) {
-                return false;
-            }
-        } catch (IOException e) {
-            ExceptionUtils.bomb("Dest folder specification is not valid. " + e.getMessage());
-        }
-        return true;
     }
 
     public static void writeToFile(InputStream stream, File dest) throws IOException {

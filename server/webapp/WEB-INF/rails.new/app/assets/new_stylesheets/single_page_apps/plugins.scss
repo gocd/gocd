@@ -106,6 +106,8 @@ $elastic-profile-icon-hover-color: #000;
     text-overflow: ellipsis;
     white-space:   nowrap;
     padding-right: 30px;
+    font-weight:   400;
+    font-size:     rem-calc(13px);
 
     .value {
       font-weight: 400;

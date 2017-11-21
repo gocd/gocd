@@ -120,6 +120,11 @@ $auth-config-icon-hover-color: #000;
   .plugin-id, .auth-config-id {
     display:   inline-block;
     min-width: 300px;
+
+    .value {
+      font-weight: 400;
+      font-size:   rem-calc(13px);
+    }
   }
   .key {
     font-weight: 600;

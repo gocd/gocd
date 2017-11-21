@@ -28,9 +28,9 @@
 </li>
 <li role="presentation">
     #if($plugin_spa_toggle_key)
-      <a href="$req.getContextPath()/admin/new_plugins">$l.localize("PLUGINS_TAB")</a>
-    #else
       <a href="$req.getContextPath()/admin/plugins">$l.localize("PLUGINS_TAB")</a>
+    #else
+      <a href="$req.getContextPath()/admin/old_plugins">$l.localize("PLUGINS_TAB")</a>
     #end
 </li>
 <li role="presentation">

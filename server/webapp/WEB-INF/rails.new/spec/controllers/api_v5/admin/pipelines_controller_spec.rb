@@ -676,8 +676,15 @@ describe ApiV5::Admin::PipelinesController do
         materials: [{type: "svn", attributes: {url: "http://some/svn/url", destination: "svnDir", filter: nil, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil}}],
         name: "pipeline1",
         origin: {
-          type: 'local',
-          file: 'cruise-config.xml'
+          _links: {
+            self: {
+              href: 'http://test.host/admin/config_xml'
+            },
+            doc: {
+              href: 'https://api.gocd.org/#get-configuration'
+            }
+          },
+          type: 'gocd'
         },
         environment_variables: [],
         parameters: [],

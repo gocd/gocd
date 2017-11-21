@@ -18,8 +18,6 @@ module ApiV5
   module Shared
     module ConfigOrigin
       class ConfigXmlOriginRepresenter < BaseRepresenter
-        alias_method :config_xml_config, :represented
-
         link :self do |opts|
           opts[:url_builder].config_view_url()
         end

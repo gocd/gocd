@@ -37,8 +37,7 @@ describe ApiV5::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
         doc: {
           href: 'https://api.gocd.org/#get-configuration'
         }
-      },
-      id: 'cruise-config.xml'
+      }
     }
   end
 end

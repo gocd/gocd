@@ -27,16 +27,10 @@ module ApiV5
         link :doc do |opts|
           'https://api.gocd.org/#get-configuration'
         end
-
         property :type, exec_context: :decorator
-        property :id, exec_context: :decorator
 
         def type
           'gocd'
-        end
-
-        def id
-          config_xml_config.displayName
         end
       end
     end

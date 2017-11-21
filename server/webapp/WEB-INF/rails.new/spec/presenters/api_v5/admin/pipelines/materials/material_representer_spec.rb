@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 default_branch = 'master'
 describe ApiV5::Admin::Pipelines::Materials::MaterialRepresenter do
   shared_examples_for 'materials' do

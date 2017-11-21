@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV5::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
   it 'should render local config origin' do

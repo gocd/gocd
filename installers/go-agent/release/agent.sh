@@ -95,7 +95,6 @@ AGENT_DIR="$(cd "$CWD" && pwd)"
 
 AGENT_MEM=${AGENT_MEM:-"128m"}
 AGENT_MAX_MEM=${AGENT_MAX_MEM:-"256m"}
-VNC=${VNC:-"N"}
 AGENT_WORK_DIR="${AGENT_WORK_DIR:-$AGENT_DIR}"
 
 
@@ -119,11 +118,8 @@ else
   PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
 fi
 
-if [ "$VNC" == "Y" ]; then
-    echo "[$(date)] Starting up VNC on :3"
-    /usr/bin/vncserver :3
-    DISPLAY=:3
-    export DISPLAY
+if [ ! -z ${VNC+x} ]; then
+  yell "Support for the variable VNC has been removed. Please see https://github.com/gocd/gocd/issues/4005#issuecomment-348138015 for alternatives."
 fi
 
 AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $GO_AGENT_SYSTEM_PROPERTIES"

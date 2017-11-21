@@ -15,7 +15,7 @@
  *************************GO-LICENSE-END***********************************#
 
 #set($_page_title="Current Activity")
-#set($extra_css_list = ['toolkit', 'pipeline-tab'])
+#set($extra_css_list = ['pipeline-tab'])
 #parse("shared/_header.vm")
 
 <textarea rows="0" cols="0" id="pipeline-list-template" style="display: none;">

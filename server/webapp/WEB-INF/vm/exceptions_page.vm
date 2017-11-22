@@ -16,7 +16,7 @@
 
 ## layout level variable
     #set ($title = 'Exception Detail - Cruise')
-    #set($extra_css_list = ['toolkit', 'pipeline-tab','transparent_message'])
+    #set($extra_css_list = ['pipeline-tab','transparent_message'])
     #parse("shared/_header.vm")
 
     #parse("shared/_flash_message.vm")

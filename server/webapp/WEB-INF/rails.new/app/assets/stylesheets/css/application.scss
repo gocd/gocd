@@ -28,14 +28,12 @@
  *
  *= require_self
  *= require "./reset-fonts-grids-fix"
- *= require "./agents-tab"
  *= require "./application"
  *= require "./application-old"
  *= require "./build_list"
  *= require "./changes"
  *= require "./global"
  *= require "./ie_hacks"
- *= require "./mbean_console"
  *= require "./menu"
  *= require "./pipeline-history"
  *= require "./pipeline-tab"
@@ -45,10 +43,8 @@
  *= require "./build_detail"
  *= require "./console-log"
  *= require "./build_detail_summary"
- *= require "./toolkit"
  *= require "./transparent_message"
  *= require "./ui"
- *= require "./mycruise-tab"
  *= require "./sub_tab"
  */
 

@@ -79,7 +79,7 @@ describe AdminController do
       expect(controller.send(:assert_load, :junk, "junk_value")).to be_truthy
       expect(controller.instance_variable_get('@junk')).to eq("junk_value")
     end
-    
+
     it "should error out on null assignment" do
       expect(controller).to receive(:action_has_layout?).and_return(true)
       expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
@@ -222,7 +222,7 @@ describe AdminController do
 
   it "should use flash-message to report successful save" do
     stub_save_for_success
-    expect(controller).to receive_redirect_to(/http:\/\/foo.bar\?fm=#{uuid_pattern}/)
+    expect(controller).to receive_redirect_to(/http:\/\/foo.bar\/\?fm=#{uuid_pattern}/)
     controller.send(:save_page, "md5", "http://foo.bar", {:action => "foo", :controller => "bar"}, UpdateCommand.new) {}
   end
 

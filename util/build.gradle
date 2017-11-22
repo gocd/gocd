@@ -21,7 +21,7 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-webmvc', version: project.versions.spring
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
-  compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+  compile group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
   testCompile group: 'junit', name: 'junit', version: project.versions.junit
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

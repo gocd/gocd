@@ -17,9 +17,9 @@
 description = 'GoCD Base'
 
 dependencies {
-  compile group: 'commons-io', name: 'commons-io', version: '2.5'
+  compile group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-  compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2') {
+  compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: project.versions.apacheHttpComponents) {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
   }

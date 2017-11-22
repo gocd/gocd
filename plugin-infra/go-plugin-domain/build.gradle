@@ -18,6 +18,6 @@ description = 'GoCD Plugins Domain'
 
 dependencies {
   compile project(':go-plugin-api')
-  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.4.0'
+  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
   testCompile project(':test-utils')
 }

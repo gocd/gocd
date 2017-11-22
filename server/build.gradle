@@ -108,7 +108,7 @@ dependencies {
     exclude(module: 'commons-collections')
   }
 
-  compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
+  compile group: 'commons-fileupload', name: 'commons-fileupload', version: project.versions.commonsFileUpload
 
   compile(group: 'org.hibernate', name: 'hibernate-annotations', version: '3.4.0.GA') {
     exclude(module: 'slf4j-api')
@@ -150,8 +150,8 @@ dependencies {
   }
   compile group: 'velocity-tools', name: 'velocity-tools-view', version: '1.2'
   compile group: 'com.google.guava', name: 'guava', version: '20.0'
-  compile group: 'com.sun.mail', name: 'mailapi', version: '1.5.6'
-  compile group: 'com.sun.mail', name: 'smtp', version: '1.5.6'
+  compile group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
+  compile group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
 
   // needed by jdom2 for some XPATH stuff
@@ -170,18 +170,18 @@ dependencies {
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
-  testCompile group: 'org.dbunit', name: 'dbunit', version: '2.5.1'
-  testCompile group: 'org.mozilla', name: 'rhino', version: '1.7.7'
+  testCompile group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit
+  testCompile group: 'org.mozilla', name: 'rhino', version: project.versions.rhino
   testCompile group: 'jmock', name: 'jmock-cglib', version: '1.1.0'
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config-server', configuration: 'testOutput')
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(path: ':test-utils')
   testCompile project(':jetty9')
-  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.4.0'
-  testCompile group: 'org.jsoup', name: 'jsoup', version: '1.8.1'
-  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: '1.7.0'
-  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.2.1'
+  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
+  testCompile group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
+  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: project.versions.jsonUnit
+  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnitMatchers
 }
 
 jar {
@@ -503,8 +503,8 @@ task verifyWar(type: VerifyJarTask) {
       "commons-collections-3.2.2.jar",
       "commons-dbcp-1.4.jar",
       "commons-digester-1.8.jar",
-      "commons-fileupload-1.3.2.jar",
-      "commons-io-2.5.jar",
+      "commons-fileupload-${project.versions.commonsFileUpload}.jar",
+      "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang-2.6.jar",
       "commons-net-2.0.jar",
       "commons-pool-1.5.6.jar",
@@ -525,16 +525,16 @@ task verifyWar(type: VerifyJarTask) {
       "go-plugin-api-internal-${project.version}.jar",
       "go-plugin-domain-${project.version}.jar",
       "go-plugin-infra-${project.version}.jar",
-      "gson-2.3.1.jar",
+      "gson-${project.versions.gson}.jar",
       "guava-20.0.jar",
       "h2-1.3.168.jar",
       "hibernate-annotations-3.4.0.GA.jar",
       "hibernate-commons-annotations-3.1.0.GA.jar",
       "hibernate-core-3.3.2.GA.jar",
       "hibernate-ehcache-3.3.2.GA.jar",
-      "httpclient-4.5.2.jar",
-      "httpcore-4.4.4.jar",
-      "httpmime-4.5.2.jar",
+      "httpclient-${project.versions.apacheHttpComponents}.jar",
+      "httpcore-4.4.6.jar",
+      "httpmime-${project.versions.apacheHttpComponents}.jar",
       "ibatis-sqlmap-2.3.4.726.jar",
       "jackson-annotations-2.5.0.jar",
       "jackson-core-2.5.0.jar",
@@ -556,7 +556,7 @@ task verifyWar(type: VerifyJarTask) {
       "json-utils-0.1.0.jar",
       "jta-1.1.jar",
       "kahadb-5.5.0.jar",
-      "mailapi-1.5.6.jar",
+      "mailapi-${project.versions.mail}.jar",
       "objenesis-1.2.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "org.eclipse.jgit-${project.versions.jgit}.jar",
@@ -567,7 +567,7 @@ task verifyWar(type: VerifyJarTask) {
       "rack_hack-${project.version}.jar",
       "sesame-onejar-2.3.1.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
-      "smtp-1.5.6.jar",
+      "smtp-${project.versions.mail}.jar",
       "spring-aop-${project.versions.spring}.jar",
       "spring-asm-${project.versions.spring}.jar",
       "spring-beans-${project.versions.spring}.jar",

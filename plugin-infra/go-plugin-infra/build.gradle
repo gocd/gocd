@@ -29,7 +29,7 @@ dependencies {
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   testCompile project(':test-utils')
-  testCompile group: 'org.ops4j.pax.tinybundles', name: 'tinybundles', version: '2.1.1'
+  testCompile group: 'org.ops4j.pax.tinybundles', name: 'tinybundles', version: '3.0.0'
 }
 
 clean {

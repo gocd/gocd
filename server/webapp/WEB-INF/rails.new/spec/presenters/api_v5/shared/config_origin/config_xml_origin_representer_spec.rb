@@ -29,8 +29,15 @@ describe ApiV5::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
 
   def expected_json
     {
-      type: 'local',
-      file: 'cruise-config.xml'
+      type: 'gocd',
+      _links: {
+        self: {
+          href: 'http://test.host/admin/config_xml'
+        },
+        doc: {
+          href: 'https://api.gocd.org/#get-configuration'
+        }
+      }
     }
   end
 end

@@ -19,32 +19,27 @@ require 'rails_helper'
 describe ApiV5::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
   it 'should render remote config origin' do
     git_material = GitMaterialConfig.new('https://github.com/config-repos/repo', 'master')
-    config_repo = RepoConfigOrigin.new(ConfigRepoConfig.new(git_material, 'json-plugin'), 'revision1')
-
+    config_repo = RepoConfigOrigin.new(ConfigRepoConfig.new(git_material, 'json-plugin', 'repo1'), 'revision1')
     actual_json = ApiV5::Shared::ConfigOrigin::ConfigRepoOriginRepresenter.new(config_repo).to_hash(url_builder: UrlBuilder.new)
-    material_json = ApiV5::Admin::Pipelines::Materials::GitMaterialRepresenter.new(git_material).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(expected_json)
   end
 
   def expected_json
     {
-      type: 'config repo',
-      repo: {
-        type: 'git',
-        attributes: {
-          url: 'https://github.com/config-repos/repo',
-          destination: nil,
-          filter: nil,
-          invert_filter: false,
-          name: nil,
-          auto_update: true,
-          branch: 'master',
-          submodule_folder: nil,
-          shallow_clone: false
+      type: 'config_repo',
+      _links: {
+        self: {
+          href: 'http://test.host/api/admin/config_repos/repo1'
         },
-        revision: 'revision1'
-      }
+        doc: {
+          href: 'https://api.gocd.org/#config-repos'
+        },
+        find: {
+          href: 'http://test.host/api/admin/config_repos/:id'
+        }
+      },
+      id: 'repo1'
     }
   end
 end

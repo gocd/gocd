@@ -45,8 +45,15 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
         lock_behavior: 'none',
         name: 'wunderbar',
         origin: {
-          type: 'local',
-          file: 'cruise-config.xml'
+          _links: {
+            self: {
+              href: 'http://test.host/admin/config_xml'
+            },
+            doc: {
+              href: 'https://api.gocd.org/#get-configuration'
+            }
+          },
+          type: 'gocd'
         },
         template: 'template1',
         parameters: [],
@@ -369,8 +376,15 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
       lock_behavior: 'none',
       name: 'wunderbar',
       origin: {
-        type: 'local',
-        file: 'cruise-config.xml'
+        _links: {
+          self: {
+            href: 'http://test.host/admin/config_xml'
+          },
+          doc: {
+            href: 'https://api.gocd.org/#get-configuration'
+          }
+        },
+        type: 'gocd'
       },
       template: nil,
       parameters: [],
@@ -393,8 +407,15 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
       lock_behavior: 'none',
       name: 'wunderbar',
       origin: {
-        type: 'local',
-        file: 'cruise-config.xml'
+        _links: {
+          self: {
+            href: 'http://test.host/admin/config_xml'
+          },
+          doc: {
+            href: 'https://api.gocd.org/#get-configuration'
+          }
+        },
+        type: 'gocd'
       },
       template: nil,
       parameters: [
@@ -468,8 +489,15 @@ describe ApiV5::Admin::Pipelines::PipelineConfigRepresenter do
       lock_behavior: 'none',
       name: 'wunderbar',
       origin: {
-        type: 'local',
-        file: 'cruise-config.xml'
+        _links: {
+          self: {
+            href: 'http://test.host/admin/config_xml'
+          },
+          doc: {
+            href: 'https://api.gocd.org/#get-configuration'
+          }
+        },
+        type: 'gocd'
       },
       template: nil,
       parameters: get_pipeline_config.getParams().collect { |j| ApiV5::Admin::Pipelines::ParamRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) },

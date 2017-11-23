@@ -30,24 +30,39 @@ import java.util.UUID;
 @ConfigTag("server")
 public class ServerConfig implements Validatable {
     public static final String SERVER_BACKUPS = "serverBackups";
-    @ConfigAttribute(value = "artifactsdir", alwaysWrite = true) private String artifactsDir = "artifacts";
-    @ConfigAttribute(value = "siteUrl", optional = true) private ServerSiteUrlConfig siteUrl = new ServerSiteUrlConfig();
-    @ConfigAttribute(value = "secureSiteUrl", optional = true) private ServerSiteUrlConfig secureSiteUrl = new ServerSiteUrlConfig();
-    @ConfigAttribute(value = "purgeStart", optional = true, allowNull = true) private Double purgeStart;
-    @ConfigAttribute(value = "purgeUpto", optional = true, allowNull = true) private Double purgeUpto;
-    @ConfigAttribute(value = "jobTimeout", optional = true) private String jobTimeout = "0";
-    @ConfigAttribute(value="agentAutoRegisterKey", optional = true, allowNull = true) private String agentAutoRegisterKey;
-    @ConfigAttribute(value="webhookSecret", optional = true, allowNull = true) private String webhookSecret;
-    @ConfigAttribute(value="commandRepositoryLocation", alwaysWrite = true) private String commandRepositoryLocation = "default";
+    @ConfigAttribute(value = "artifactsdir", alwaysWrite = true)
+    private String artifactsDir = "artifacts";
+    @ConfigAttribute(value = "siteUrl", optional = true)
+    private ServerSiteUrlConfig siteUrl = new ServerSiteUrlConfig();
+    @ConfigAttribute(value = "secureSiteUrl", optional = true)
+    private ServerSiteUrlConfig secureSiteUrl = new ServerSiteUrlConfig();
+    @ConfigAttribute(value = "purgeStart", optional = true, allowNull = true)
+    private Double purgeStart;
+    @ConfigAttribute(value = "purgeUpto", optional = true, allowNull = true)
+    private Double purgeUpto;
+    @ConfigAttribute(value = "jobTimeout", optional = true)
+    private String jobTimeout = "0";
+    @ConfigAttribute(value = "agentAutoRegisterKey", optional = true, allowNull = true)
+    private String agentAutoRegisterKey;
+    @ConfigAttribute(value = "webhookSecret", optional = true, allowNull = true)
+    private String webhookSecret;
+    @ConfigAttribute(value = "commandRepositoryLocation", alwaysWrite = true)
+    private String commandRepositoryLocation = "default";
 
-    @ConfigSubtag private ElasticConfig elasticConfig = new ElasticConfig();
+    @ConfigSubtag
+    private ElasticConfig elasticConfig = new ElasticConfig();
 
     @SkipParameterResolution
     @ConfigAttribute(value = "serverId", optional = true, allowNull = true)
     private String serverId;
 
-    @ConfigSubtag private SecurityConfig securityConfig = new SecurityConfig();
-    @ConfigSubtag private MailHost mailHost = new MailHost(new GoCipher());
+    @ConfigSubtag
+    private SecurityConfig securityConfig = new SecurityConfig();
+    @ConfigSubtag
+    private MailHost mailHost = new MailHost(new GoCipher());
+
+    @ConfigAttribute(value = "tokenGenerationKey", allowNull = true)
+    private String tokenGenerationKey;
 
     private ConfigErrors errors = new ConfigErrors();
 
@@ -86,6 +101,13 @@ public class ServerConfig implements Validatable {
     public void ensureWebhookSecretExists() {
         if (StringUtils.isBlank(webhookSecret)) {
             webhookSecret = UUID.randomUUID().toString();
+        }
+    }
+
+    @PostConstruct
+    public void ensureTokenGenerationKeyExists() {
+        if (StringUtils.isBlank(tokenGenerationKey)) {
+            tokenGenerationKey = UUID.randomUUID().toString();
         }
     }
 
@@ -242,7 +264,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSecureSiteUrl(String secureSiteUrl) {
-         this.secureSiteUrl = StringUtil.isBlank(secureSiteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(secureSiteUrl);
+        this.secureSiteUrl = StringUtil.isBlank(secureSiteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(secureSiteUrl);
     }
 
 
@@ -329,7 +351,7 @@ public class ServerConfig implements Validatable {
     }
 
     public String getTimeoutType() {
-       return "0".equals(jobTimeout) ? NEVER_TIMEOUT : OVERRIDE_TIMEOUT;
+        return "0".equals(jobTimeout) ? NEVER_TIMEOUT : OVERRIDE_TIMEOUT;
     }
 
     public String getAgentAutoRegisterKey() {
@@ -354,5 +376,9 @@ public class ServerConfig implements Validatable {
 
     public void setCommandRepositoryLocation(String location) {
         this.commandRepositoryLocation = location;
+    }
+
+    public String getTokenGenerationKey() {
+        return tokenGenerationKey;
     }
 }

@@ -18,5 +18,16 @@ package com.thoughtworks.go.config;
 
 public interface AgentRegistry {
     String uuid();
+
     String serverBaseUrl();
+
+    String token();
+
+    boolean guidPresent();
+
+    boolean tokenPresent();
+
+    void storeTokenToDisk(String token);
+
+    void deleteToken();
 }

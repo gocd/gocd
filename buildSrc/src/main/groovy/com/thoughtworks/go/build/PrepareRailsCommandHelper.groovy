@@ -60,16 +60,16 @@ class PrepareRailsCommandHelper {
 
   LinkedHashMap<String, Object> systemProperties() {
     [
-        'log4j.configuration'             : project.file('properties/test/config/log4j.properties'),
-        'always.reload.config.file'       : true,
-        'cruise.i18n.cache.life'          : 0,
-        'cruise.config.dir'               : testConfigDir,
-        'cruise.database.dir'             : testH2DbDir,
-        'plugins.go.provided.path'        : testBundledPluginsDir,
-        'plugins.external.provided.path'  : testExternalPluginsDir,
-        'plugins.work.path'               : testPluginsWorkDir,
-        'rails.use.compressed.js'         : false,
-        'go.enforce.serverId.immutability': 'N',
+      'log4j.configuration'           : project.file('properties/test/config/log4j.properties'),
+      'always.reload.config.file'     : true,
+      'cruise.i18n.cache.life'        : 0,
+      'cruise.config.dir'             : testConfigDir,
+      'cruise.database.dir'           : testH2DbDir,
+      'plugins.go.provided.path'      : testBundledPluginsDir,
+      'plugins.external.provided.path': testExternalPluginsDir,
+      'plugins.work.path'             : testPluginsWorkDir,
+      'rails.use.compressed.js'       : false,
+      'go.enforce.server.immutability': 'N',
     ]
   }
 

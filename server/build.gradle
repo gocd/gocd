@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import org.gradle.util.TextUtil
+
 import com.thoughtworks.go.build.VerifyJarTask
 import org.jruby.CompatVersion
 import org.eclipse.jgit.api.Git
@@ -58,14 +58,14 @@ configurations {
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
 
 def props = [
-  'go.enforce.serverId.immutability': 'N',
-  'rails.use.compressed.js'         : 'false',
-  'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
-  'db.host'                         : 'localhost',
-  'db.user'                         : 'sa',
-  'db.password'                     : '',
-  'db.name'                         : 'cruise',
-  'db.port'                         : ''
+  'go.enforce.server.immutability': 'N',
+  'rails.use.compressed.js'       : 'false',
+  'go.database.provider'          : 'com.thoughtworks.go.server.database.H2Database',
+  'db.host'                       : 'localhost',
+  'db.user'                       : 'sa',
+  'db.password'                   : '',
+  'db.name'                       : 'cruise',
+  'db.port'                       : ''
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props

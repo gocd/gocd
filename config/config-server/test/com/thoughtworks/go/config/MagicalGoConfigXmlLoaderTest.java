@@ -20,8 +20,8 @@ import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -31,7 +31,10 @@ import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
-import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
@@ -42,7 +45,8 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
@@ -75,10 +79,9 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
-import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
-import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
-import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED;
+import static com.thoughtworks.go.config.PipelineConfig.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -104,6 +107,7 @@ public class MagicalGoConfigXmlLoaderTest {
     private MagicalGoConfigXmlLoader xmlLoader;
     static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested";
     private ConfigCache configCache = new ConfigCache();
+    private final SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @Before
     public void setup() throws Exception {
@@ -113,6 +117,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @After
     public void tearDown() throws Exception {
+        systemEnvironment.setProperty("go.enforce.server.immutability", "N");
         RepositoryMetadataStoreHelper.clear();
     }
 
@@ -2895,6 +2900,7 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(list, hasItem(EnvironmentPipelineValidator.class.getCanonicalName()));
         assertThat(list, hasItem(ServerIdImmutabilityValidator.class.getCanonicalName()));
         assertThat(list, hasItem(CommandRepositoryLocationValidator.class.getCanonicalName()));
+        assertThat(list, hasItem(TokenGenerationKeyImmutabilityValidator.class.getCanonicalName()));
     }
 
     @Test
@@ -3824,6 +3830,28 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertXsdFailureDuringLoad(pipelineWithAttributes("name=\"pipelineWithWrongLockBehavior\" lockBehavior=\"some-random-value\"", CONFIG_SCHEMA_VERSION),
                 "Value 'some-random-value' is not facet-valid with respect to enumeration '[lockOnFailure, unlockWhenFinished, none]'. It must be a value from the enumeration.");
+    }
+
+    @Test
+    public void shouldDisallowModificationOfTokenGenerationKeyWhileTheServerIsOnline() throws Exception {
+        xmlLoader.loadConfigHolder(configWithTokenGenerationKey("something"));
+
+        systemEnvironment.setProperty("go.enforce.server.immutability", "Y");
+        assertFailureDuringLoad(configWithTokenGenerationKey("something-else"), "The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.", RuntimeException.class);
+    }
+
+    private String configWithTokenGenerationKey(final String key) {
+        final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) ListUtil.find(MagicalGoConfigXmlLoader.VALIDATORS, new Predicate<GoConfigValidator>() {
+            @Override
+            public boolean test(GoConfigValidator goConfigValidator) {
+                return goConfigValidator instanceof ServerIdImmutabilityValidator;
+            }
+        });
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruise schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
+                "<server serverId=\""+serverIdImmutabilityValidator.getServerId()+"\" tokenGenerationKey=\"" + key + "\"/>" +
+                "<pipelines>\n" +
+                "</pipelines>\n" +
+                "</cruise>";
     }
 
     private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {

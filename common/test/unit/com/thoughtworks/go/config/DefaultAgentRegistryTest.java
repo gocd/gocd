@@ -20,33 +20,85 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.*;
 
 public class DefaultAgentRegistryTest {
     private DefaultAgentRegistry agentRegistry;
     private static final String GUID = "guid";
+    private static final String TOKEN = "token";
+    private GuidService guidService;
+    private TokenService tokenService;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         agentRegistry = new DefaultAgentRegistry();
-        GuidService.storeGuid(GUID);
+        guidService = new GuidService();
+        tokenService = new TokenService();
+
+        guidService.store(GUID);
+        tokenService.store(TOKEN);
     }
 
-    @After public void tearDown() throws Exception {
-        GuidService.deleteGuid();
+    @After
+    public void tearDown() throws Exception {
+        guidService.delete();
+        tokenService.delete();
     }
 
-    @Test public void shouldCreateGuidIfOneNotAlreadySet() throws Exception {
-        GuidService.deleteGuid();
+    @Test
+    public void shouldCreateGuidIfOneNotAlreadySet() throws Exception {
+        guidService.delete();
         String guid = agentRegistry.uuid();
         assertNotNull(guid);
         assertThat(guid, is(agentRegistry.uuid()));
         assertThat(guid, is(not(GUID)));
     }
 
-    @Test public void shouldUseGuidThatAlreadyExists() throws Exception {
+    @Test
+    public void shouldUseGuidThatAlreadyExists() throws Exception {
         assertThat(agentRegistry.uuid(), is(GUID));
+    }
+
+    @Test
+    public void shouldCheckGuidPresent() throws Exception {
+        assertTrue(agentRegistry.guidPresent());
+
+        guidService.delete();
+        assertFalse(agentRegistry.guidPresent());
+    }
+
+    @Test
+    public void shouldGetTokenFromFile() throws Exception {
+        assertThat(agentRegistry.token(), is(TOKEN));
+    }
+
+    @Test
+    public void shouldCheckTokenPresent() throws Exception {
+        assertTrue(agentRegistry.tokenPresent());
+
+        tokenService.delete();
+
+        assertFalse(agentRegistry.tokenPresent());
+    }
+
+    @Test
+    public void shouldStoreTokenToDisk() throws Exception {
+        assertThat(agentRegistry.token(), is(TOKEN));
+
+        agentRegistry.storeTokenToDisk("foo-token");
+
+        assertThat(agentRegistry.token(), is("foo-token"));
+    }
+
+    @Test
+    public void shouldDeleteTokenFromDisk() throws Exception {
+        assertThat(agentRegistry.token(), is(TOKEN));
+        assertTrue(agentRegistry.tokenPresent());
+
+        agentRegistry.deleteToken();
+
+        assertFalse(agentRegistry.tokenPresent());
     }
 }

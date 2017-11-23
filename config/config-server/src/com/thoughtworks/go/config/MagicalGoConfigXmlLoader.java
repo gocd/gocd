@@ -49,6 +49,7 @@ import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
+    private static final SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
             new ConfigRepoPartialPreprocessor(),
@@ -60,7 +61,8 @@ public class MagicalGoConfigXmlLoader {
             new EnvironmentAgentValidator(),
             new EnvironmentPipelineValidator(),
             new ServerIdImmutabilityValidator(),
-            new CommandRepositoryLocationValidator(new SystemEnvironment())
+            new CommandRepositoryLocationValidator(systemEnvironment),
+            new TokenGenerationKeyImmutabilityValidator(systemEnvironment)
     );
 
     public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator) new UniqueOnCancelValidator());

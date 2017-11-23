@@ -30,7 +30,7 @@ dependencies {
 }
 
 test {
-  systemProperty('go.enforce.serverId.immutability', 'N')
+  systemProperty('go.enforce.server.immutability', 'N')
 }
 
 clean {

@@ -645,7 +645,7 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" />\n"
+            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" tokenGenerationKey=\"bar\" />\n"
             + "</cruise>\n";
 
     public static final String STAGE_WITH_EMPTY_AUTH = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -851,7 +851,7 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"bar\">\n"
+            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"bar\" tokenGenerationKey=\"foo\">\n"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" />\n"

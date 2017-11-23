@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
@@ -264,10 +264,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (myDirPath == null || otherSCMMaterialFolder == null) {
             return;
         }
-        File myDir = new File(myDirPath);
-        File otherDir = new File(otherSCMMaterialFolder);
         try {
-            if (FileUtil.isSubdirectoryOf(myDir, otherDir)) {
+            if (FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory(myDirPath, otherSCMMaterialFolder)) {
                 addError(FOLDER, "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
             }
         } catch (IOException e) {
@@ -286,7 +284,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (dest == null) {
             return;
         }
-        if (!(FileUtil.isFolderInsideSandbox(dest))) {
+        if (!(FilenameUtil.isNormalizedPathOutsideWorkingDir(dest))) {
             setDestinationFolderError(String.format("Dest folder '%s' is not valid. It must be a sub-directory of the working folder.", dest));
         }
     }

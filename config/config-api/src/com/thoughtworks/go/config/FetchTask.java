@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
@@ -318,7 +319,7 @@ public class FetchTask extends AbstractTask implements Serializable {
         if (path == null) {
             return;
         }
-        if (!FileUtil.isFolderInsideSandbox(path)) {
+        if (!FilenameUtil.isNormalizedPathOutsideWorkingDir(path)) {
             String parentType = validationContext.isWithinPipelines() ? "pipeline" : "template";
             CaseInsensitiveString parentName = validationContext.isWithinPipelines() ? validationContext.getPipeline().name() : validationContext.getTemplate().name();
             String message = String.format("Task of job '%s' in stage '%s' of %s '%s' has %s path '%s' which is outside the working directory.",

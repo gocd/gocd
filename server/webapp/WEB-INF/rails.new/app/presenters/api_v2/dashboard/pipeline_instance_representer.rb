@@ -24,29 +24,22 @@ module ApiV2
         opts[:url_builder].pipeline_instance_by_counter_api_url(pipeline_instance.getName(), pipeline_instance.getCounter())
       end
 
-      link :doc do
-        'https://api.go.cd/current/#get-pipeline-instance'
-      end
-
       link :history_url do |opts|
         opts[:url_builder].pipeline_history_url(pipeline_instance.getName())
       end
 
       link :vsm_url do |opts|
         opts[:url_builder].vsm_show_url(pipeline_instance.getName(), :pipeline_counter => pipeline_instance.getCounter())
-
       end
+
       link :compare_url do |opts|
         opts[:url_builder].compare_pipelines_url(:from_counter => pipeline_instance.getCounter()-1, :to_counter => pipeline_instance.getCounter(), :pipeline_name => pipeline_instance.getName())
       end
 
-      link :build_cause_url do |opts|
-        opts[:url_builder].build_cause_url(:pipeline_counter => pipeline_instance.getCounter(), :pipeline_name => pipeline_instance.getName())
-      end
-
       property :getLabel, as: :label
       property :getScheduledDate, as: :scheduled_at
-      property :getApprovedBy, as: :triggered_by
+      property :getApprovedByForDisplay, as: :triggered_by
+      property :getBuildCause, as: :build_cause, decorator: BuildCauseRepresenter
       collection :stages, embedded: true, exec_context: :decorator, decorator: StageRepresenter
 
       def stages

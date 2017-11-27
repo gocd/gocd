@@ -34,10 +34,6 @@ module ApiV2
                                                                    stage_name:    stage.getName, stage_counter: stage.getCounter)
       end
 
-      link :doc do
-        'https://api.go.cd/current/#get-stage-instance'
-      end
-
       property :getName, as: :name
       property :status, exec_context: :decorator
 

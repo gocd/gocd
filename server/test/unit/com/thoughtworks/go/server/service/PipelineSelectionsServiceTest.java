@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -65,7 +64,7 @@ public class PipelineSelectionsServiceTest {
 
     @Before
     public void setup() throws Exception {
-        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
+        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
 
         goConfigDao = mock(GoConfigDao.class);
         pipelineRepository = mock(PipelineRepository.class);

@@ -36,9 +36,8 @@ describe ApiV2::Dashboard::StageRepresenter do
     presenter   = ApiV2::Dashboard::StageRepresenter.new(stage_presenter_args)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc)
+    expect(actual_json).to have_links(:self)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/stages/pipeline-name/2/stage2/2')
-    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/current/#get-stage-instance')
 
     actual_json.delete(:_links)
     expect(actual_json.delete(:previous_stage)).to eq(ApiV2::Dashboard::StageRepresenter.new(presenter.previous_stage).to_hash(url_builder: UrlBuilder.new))
@@ -56,9 +55,8 @@ describe ApiV2::Dashboard::StageRepresenter do
     presenter   = ApiV2::Dashboard::StageRepresenter.new(stage_value)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc,)
+    expect(actual_json).to have_links(:self)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/stages/pipeline-name/2/stage2/2')
-    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/current/#get-stage-instance')
 
     actual_json.delete(:_links)
     expect(actual_json.delete(:previous_stage)).to eq(nil)

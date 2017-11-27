@@ -70,8 +70,8 @@
 
     <rule>
         <name>Plugins UI</name>
-        <from>^/admin/new_plugins$</from>
-        <to last="true">/rails/admin/new_plugins</to>
+        <from>^/admin/old_plugins$</from>
+        <to last="true">/rails/admin/old_plugins</to>
         <set name="rails_bound">true</set>
     </rule>
 

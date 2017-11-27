@@ -125,6 +125,11 @@ $role-icon-hover-color: #000;
   .auth-config-id, .role-name, .plugin-name {
     display:   inline-block;
     min-width: 300px;
+
+    .value {
+      font-weight: 400;
+      font-size:   rem-calc(13px);
+    }
   }
   .key {
     font-weight: 600;

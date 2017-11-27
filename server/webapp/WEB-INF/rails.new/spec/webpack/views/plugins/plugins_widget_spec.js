@@ -263,6 +263,18 @@ describe("PluginsWidget", () => {
         m.redraw();
         expect($('.reveal:visible')).toBeInDOM();
       });
+
+      it("should popup a new modal to allow creating plugin settings", () => {
+        jasmine.Ajax.stubRequest(`/go/api/admin/plugin_settings/${pluginSettingJSON.plugin_id}`, undefined, 'GET').andReturn({
+          responseText:    JSON.stringify({message: 'Not found'}),
+          status:          404
+        });
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
+
+        simulateEvent.simulate($root.find('.edit-plugin').get(0), 'click');
+        m.redraw();
+        expect($('.reveal:visible')).toBeInDOM();
+      });
     });
   });
 

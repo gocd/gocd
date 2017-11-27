@@ -45,10 +45,10 @@ Go::Application.routes.draw do
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
 
-  get "admin/plugins" => "admin/plugins/plugins#index", as: :plugins_listing
-  post 'admin/plugins' => 'admin/plugins/plugins#upload', as: :upload_plugin
-  get 'admin/plugins/settings/:plugin_id' => 'admin/plugins/plugins#edit_settings', constraints: {plugin_id: ALLOW_DOTS}, as: :edit_settings
-  post 'admin/plugins/settings/:plugin_id' => 'admin/plugins/plugins#update_settings', constraints: {plugin_id: ALLOW_DOTS}, as: :update_settings
+  get "admin/old_plugins" => "admin/plugins/plugins#index", as: :plugins_listing
+  post 'admin/old_plugins' => 'admin/plugins/plugins#upload', as: :upload_plugin
+  get 'admin/old_plugins/settings/:plugin_id' => 'admin/plugins/plugins#edit_settings', constraints: {plugin_id: ALLOW_DOTS}, as: :edit_settings
+  post 'admin/old_plugins/settings/:plugin_id' => 'admin/plugins/plugins#update_settings', constraints: {plugin_id: ALLOW_DOTS}, as: :update_settings
 
   ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
     get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"
@@ -345,7 +345,7 @@ Go::Application.routes.draw do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
     resources :elastic_profiles, only: [:index], controller: :elastic_profiles, as: :elastic_profiles
     resources :status_reports, only: [:show], controller: :status_reports, param: :plugin_id, as: :status_reports, constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false
-    resources :new_plugins, only: [:index], controller: :plugins, as: :plugins
+    resources :plugins, only: [:index], controller: :plugins, as: :plugins
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
       resources :roles, only: [:index], controller: :roles, as: :roles

@@ -79,7 +79,7 @@ const PluginRoleWidget = {
       pluginInfoView = (
         <div class="plugin-name">
           <span class="key">Plugin: </span>
-          <span class="value"><small>{pluginName}</small></span>
+          <span class="value">{pluginName}</span>
         </div>);
     }
 

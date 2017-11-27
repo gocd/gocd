@@ -23,8 +23,8 @@
       },
       {
         "key": "plugin_spa_toggle_key",
-        "description": "Links to plugin listing page go to the new plugins SPA. Default: disabled.",
-        "value": false
+        "description": "The plugin listing page will be the new plugins SPA. Default: enabled.",
+        "value": true
       }
   ]
 }

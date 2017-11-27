@@ -87,18 +87,7 @@ const PluginsWidget = {
     };
 
     this.edit = function (pluginInfo) {
-      const newPluginSetting   = Stream(new PluginSetting({pluginId: pluginInfo.id()}));
-      const setPluginSetting = function () {
-        if(vnode.attrs.pluginInfo) {
-          PluginSetting.get(pluginInfo.id()).then((pluginSetting) => {
-            newPluginSetting(pluginSetting);
-          }, () => {
-            newPluginSetting(new PluginSetting({pluginId: vnode.attrs.pluginInfo.id()}));
-          });
-        }
-      };
-      setPluginSetting();
-
+      const newPluginSetting   = Stream();
       const errorMessage = Stream();
       ctrl.clearMessage();
 
@@ -121,8 +110,13 @@ const PluginsWidget = {
         newPluginSetting(pluginSettingsFromRequest);
         errorMessage(null);
       };
+
+      const onFailure = function (error) {
+        errorMessage(error);
+        newPluginSetting(new PluginSetting({pluginId: pluginInfo.id()}));
+      };
       modal.render();
-      PluginSetting.get(pluginInfo.id()).then(onFulfilled, errorMessage).always(m.redraw);
+      PluginSetting.get(pluginInfo.id()).then(onFulfilled, onFailure).always(m.redraw);
     };
   },
 

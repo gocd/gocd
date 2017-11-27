@@ -81,8 +81,10 @@ public class BuildAssignment implements Serializable {
             buildAssignment.initialEnvironmentVariableContext().addAll(contextFromEnvironment);
         }
 
+        buildAssignment.initialEnvironmentVariableContext().setProperty("GO_TRIGGER_USER", buildAssignment.getBuildApprover(), false);
+        buildAssignment.getJobIdentifier().populateEnvironmentVariables(buildAssignment.initialEnvironmentVariableContext());
+        buildAssignment.materialRevisions().populateEnvironmentVariables(buildAssignment.initialEnvironmentVariableContext(), buildWorkingDirectory);
         plan.applyTo(buildAssignment.initialEnvironmentVariableContext());
-
         return buildAssignment;
     }
 

@@ -201,12 +201,7 @@ public class BuildComposer {
 
     private EnvironmentVariableContext environmentVariableContext() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
-
         context.addAll(assignment.initialEnvironmentVariableContext());
-        context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
-        getJobIdentifier().populateEnvironmentVariables(context);
-        assignment.materialRevisions().populateEnvironmentVariables(context, new File(workingDirectory()));
-
         return context;
     }
 }

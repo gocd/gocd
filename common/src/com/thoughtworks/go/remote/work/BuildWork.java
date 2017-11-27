@@ -188,12 +188,8 @@ public class BuildWork implements Work {
         return new ProcessOutputStreamConsumer<>(goPublisher, goPublisher);
     }
 
-    private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
+    private void setupEnvrionmentContext(EnvironmentVariableContext context) {
         context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
-        context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover(), false);
-        assignment.getJobIdentifier().populateEnvironmentVariables(context);
-        materialRevisions.populateEnvironmentVariables(context, workingDirectory);
-        return context;
     }
 
     private JobResult buildJob(EnvironmentVariableContext environmentVariableContext) {

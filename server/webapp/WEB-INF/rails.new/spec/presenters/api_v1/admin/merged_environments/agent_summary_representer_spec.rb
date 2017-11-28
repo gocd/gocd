@@ -43,18 +43,16 @@ describe ApiV1::Admin::MergedEnvironments::AgentSummaryRepresenter do
     {
       uuid: 'agent-uuid',
       origin: {
-        type: 'local',
-        file: {
-          _links: {
-            self: {
-              href: 'http://test.host/admin/config_xml'
-            },
-            doc: {
-              href: 'https://api.gocd.org/#get-configuration'
-            }
+        type: 'gocd',
+        _links: {
+          self: {
+            href: 'http://test.host/admin/config_xml'
           },
-          name: 'cruise-config.xml'
-        }
+          doc: {
+            href: 'https://api.gocd.org/#get-configuration'
+          }
+        },
+        id: 'cruise-config.xml'
       }
     }
   end

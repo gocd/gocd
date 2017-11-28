@@ -14,22 +14,30 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  module Shared
-    module ConfigOrigin
-      class ConfigXmlSummaryRepresenter < BaseRepresenter
-        alias_method :config_xml, :represented
+require 'rails_helper'
 
-        link :self do |opts|
-          opts[:url_builder].config_view_url()
-        end
+describe ApiV1::Admin::MergedEnvironments::ConfigOrigin::ConfigXmlOriginRepresenter do
+  it 'should render local config origin' do
+    presenter = ApiV1::Admin::MergedEnvironments::ConfigOrigin::ConfigXmlOriginRepresenter.new(get_config_xml_origin)
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+    expect(actual_json).to eq(expected_json)
+  end
 
-        link :doc do |opts|
-          'https://api.gocd.org/#get-configuration'
-        end
+  def get_config_xml_origin
+    FileConfigOrigin.new
+  end
 
-        property :displayName, as: :name
-      end
-    end
+  def expected_json
+    {
+      type: 'gocd',
+      _links: {
+        self: {
+          href: 'http://test.host/admin/config_xml'
+        }, doc: {
+          href: 'https://api.gocd.org/#get-configuration'
+        }
+      },
+      id: 'cruise-config.xml'
+    }
   end
 end

@@ -44,8 +44,8 @@ module ApiV1
                  exec_context: :decorator,
                  decorator: lambda {|origin, *|
                    (origin.instance_of? FileConfigOrigin) ?
-                     Shared::ConfigOrigin::ConfigXmlOriginRepresenter :
-                     Shared::ConfigOrigin::ConfigRepoOriginRepresenter
+                     ConfigOrigin::ConfigXmlOriginRepresenter :
+                     ConfigOrigin::ConfigRepoOriginRepresenter
                  }
 
         def origin

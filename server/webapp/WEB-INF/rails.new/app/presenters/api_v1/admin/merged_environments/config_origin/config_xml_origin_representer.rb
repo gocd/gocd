@@ -15,23 +15,30 @@
 ##########################################################################
 
 module ApiV1
-  module Shared
-    module ConfigOrigin
-      class ConfigRepoOriginRepresenter < BaseRepresenter
-        alias_method :config_repo_origin, :represented
+  module Admin
+    module MergedEnvironments
+      module ConfigOrigin
+        class ConfigXmlOriginRepresenter < BaseRepresenter
+          alias_method :config_xml_config, :represented
 
-        property :type, exec_context: :decorator
+          link :self do |opts|
+            opts[:url_builder].config_view_url()
+          end
 
-        property :repo,
-                 exec_context: :decorator,
-                 decorator: ApiV1::Shared::ConfigOrigin::ConfigRepoSummaryRepresenter
+          link :doc do |opts|
+            'https://api.gocd.org/#get-configuration'
+          end
 
-        def type
-          'config repo'
-        end
+          property :type, exec_context: :decorator
+          property :id, exec_context: :decorator
 
-        def repo
-          config_repo_origin.getConfigRepo
+          def type
+            'gocd'
+          end
+
+          def id
+            config_xml_config.displayName
+          end
         end
       end
     end

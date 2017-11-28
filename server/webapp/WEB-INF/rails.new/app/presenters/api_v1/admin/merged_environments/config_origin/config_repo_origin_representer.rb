@@ -15,24 +15,36 @@
 ##########################################################################
 
 module ApiV1
-  module Shared
-    module ConfigOrigin
-      class ConfigRepoSummaryRepresenter < BaseRepresenter
-        alias_method :config_repo, :represented
+  module Admin
+    module MergedEnvironments
+      module ConfigOrigin
+        class ConfigRepoOriginRepresenter < BaseRepresenter
+          alias_method :config_repo_origin, :represented
 
-        link :self do |opts|
-          opts[:url_builder].apiv1_admin_config_repo_url(id: config_repo.getId)
+          link :self do |opts|
+            opts[:url_builder].apiv1_admin_config_repo_url(id: id)
+          end
+
+          link :doc do |opts|
+            'https://api.gocd.org/#config-repos'
+          end
+
+          link :find do |opts|
+            opts[:url_builder].apiv1_admin_config_repo_url(id: '__id__').gsub(/__id__/, ':id')
+          end
+
+          property :type, exec_context: :decorator
+          property :id, exec_context: :decorator
+
+
+          def type
+            'config_repo'
+          end
+
+          def id
+            config_repo_origin.getConfigRepo.id
+          end
         end
-
-        link :doc do |opts|
-          'https://api.gocd.org/#config-repos'
-        end
-
-        link :find do |opts|
-          opts[:url_builder].apiv1_admin_config_repo_url(id: '__id__').gsub(/__id__/, ':id')
-        end
-
-        property :id
       end
     end
   end

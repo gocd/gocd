@@ -43,18 +43,16 @@ describe ApiV1::Admin::MergedEnvironments::EnvironmentVariableRepresenter do
       value: 'plain',
       secure: false,
       origin: {
-        type: 'local',
-        file: {
-          _links: {
-            self: {
-              href: 'http://test.host/admin/config_xml'
-            },
-            doc: {
-              href: 'https://api.gocd.org/#get-configuration'
-            }
+        type: 'gocd',
+        _links: {
+          self: {
+            href: 'http://test.host/admin/config_xml'
           },
-          name: 'cruise-config.xml'
-        }
+          doc: {
+            href: 'https://api.gocd.org/#get-configuration'
+          }
+        },
+        id: 'cruise-config.xml'
       }
     }
   end
@@ -65,18 +63,16 @@ describe ApiV1::Admin::MergedEnvironments::EnvironmentVariableRepresenter do
       name: 'secure',
       encrypted_value: GoCipher.new.encrypt('confidential'),
       origin: {
-        type: 'local',
-        file: {
-          _links: {
-            self: {
-              href: 'http://test.host/admin/config_xml'
-            },
-            doc: {
-              href: 'https://api.gocd.org/#get-configuration'
-            }
+        type: 'gocd',
+        _links: {
+          self: {
+            href: 'http://test.host/admin/config_xml'
           },
-          name: 'cruise-config.xml'
-        }
+          doc: {
+            href: 'https://api.gocd.org/#get-configuration'
+          }
+        },
+        id: 'cruise-config.xml'
       }
     }
   end

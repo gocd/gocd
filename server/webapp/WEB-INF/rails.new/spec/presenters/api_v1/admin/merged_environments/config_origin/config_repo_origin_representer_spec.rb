@@ -16,32 +16,30 @@
 
 require 'rails_helper'
 
-describe ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
+describe ApiV1::Admin::MergedEnvironments::ConfigOrigin::ConfigRepoOriginRepresenter do
   it 'should render remote config origin with hal representation' do
     config_repo = ConfigRepoConfig.new(GitMaterialConfig.new('https://github.com/config-repos/repo', 'master'), 'json-plugin', 'repo1')
     config_repo_origin = RepoConfigOrigin.new(config_repo, 'revision1')
-    actual_json = ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter.new(config_repo_origin).to_hash(url_builder: UrlBuilder.new)
+    actual_json = ApiV1::Admin::MergedEnvironments::ConfigOrigin::ConfigRepoOriginRepresenter.new(config_repo_origin).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(expected_json)
   end
 
   def expected_json
     {
-      type: 'config repo',
-      repo: {
-        _links: {
-          self: {
-            href: 'http://test.host/api/admin/config_repos/repo1'
-          },
-          doc: {
-            href: 'https://api.gocd.org/#config-repos'
-          },
-          find: {
-            href: 'http://test.host/api/admin/config_repos/:id'
-          }
+      type: 'config_repo',
+      _links: {
+        self: {
+          href: 'http://test.host/api/admin/config_repos/repo1'
         },
-        id: 'repo1'
-      }
+        doc: {
+          href: 'https://api.gocd.org/#config-repos'
+        },
+        find: {
+          href: 'http://test.host/api/admin/config_repos/:id'
+        }
+      },
+      id: 'repo1'
     }
   end
 end

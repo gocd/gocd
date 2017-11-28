@@ -590,7 +590,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
 
         return BuildAssignment.create(jobPlan,
                 BuildCause.createWithEmptyModifications(),
-                builder, pipeline.defaultWorkingFolder()
-        );
+                builder, pipeline.defaultWorkingFolder(),
+                null);
     }
 }

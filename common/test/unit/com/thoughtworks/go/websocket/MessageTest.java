@@ -28,6 +28,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -81,13 +82,13 @@ public class MessageTest {
         builder.add(new FetchArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "desc", jobPlan().getIdentifier(), "srcdir", "dest",
                 new FileHandler(workingDir, "src"),
                 new ChecksumFileHandler(workingDir)));
-        BuildAssignment assignment = BuildAssignment.create(jobPlan(), buildCause, builder, workingDir);
+        BuildAssignment assignment = BuildAssignment.create(jobPlan(), buildCause, builder, workingDir, new EnvironmentVariableContext());
 
         BuildWork work = new BuildWork(assignment);
         byte[] msg = MessageEncoding.encodeMessage(new Message(Action.assignWork, MessageEncoding.encodeWork(work)));
         Message decodedMsg = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
         BuildWork decodedWork = (BuildWork) MessageEncoding.decodeWork(decodedMsg.getData());
-        assertThat(decodedWork.getAssignment().getPlan().getPipelineName(), is("pipelineName"));
+        assertThat(decodedWork.getAssignment().getJobIdentifier().getPipelineName(), is("pipelineName"));
     }
 
 

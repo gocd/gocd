@@ -22,9 +22,7 @@ import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.GoPublisher;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
@@ -38,14 +36,11 @@ public interface JobPlan extends Serializable {
 
     String getName();
 
-
     boolean match(List<Resource> resources);
 
     long getJobId();
 
     JobIdentifier getIdentifier();
-
-    void publishArtifacts(GoPublisher goPublisher, File workingDirectory);
 
     List<ArtifactPropertiesGenerator> getPropertyGenerators();
 

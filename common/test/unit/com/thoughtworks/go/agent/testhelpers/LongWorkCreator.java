@@ -105,7 +105,7 @@ public class LongWorkCreator implements WorkCreator {
                     instance,
                     buildCause,
                     builder,
-                    new File(CruiseConfig.WORKING_BASE_DIR + PIPELINE_NAME));
+                    new File(CruiseConfig.WORKING_BASE_DIR + PIPELINE_NAME), null);
             return new BuildWork(buildAssignment);
         } catch (Exception e) {
             throw bomb(e);

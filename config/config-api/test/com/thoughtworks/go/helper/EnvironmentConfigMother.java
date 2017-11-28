@@ -19,6 +19,8 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 
 public class EnvironmentConfigMother {
     public static final String OMNIPRESENT_AGENT = "omnipresent-agent";
@@ -35,6 +37,11 @@ public class EnvironmentConfigMother {
         return new BasicEnvironmentConfig(new CaseInsensitiveString(name));
     }
 
+    public static BasicEnvironmentConfig remote(String name) {
+        BasicEnvironmentConfig env = environment(name);
+        env.setOrigins(new RepoConfigOrigin());
+        return env;
+    }
     public static BasicEnvironmentConfig environment(String name) {
         BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         uat.addPipeline(new CaseInsensitiveString(name + "-pipeline"));

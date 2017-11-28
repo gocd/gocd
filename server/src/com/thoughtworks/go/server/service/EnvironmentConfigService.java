@@ -35,6 +35,7 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -108,11 +109,13 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return null;
     }
 
-    public void enhanceEnvironmentVariables(BuildAssignment assignment) {
-        EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(assignment.getPlan().getPipelineName()));
+    public EnvironmentVariableContext environmentVariableContextFor(String pipelineName) {
+        EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
         if (environment != null) {
-            assignment.enhanceEnvironmentVariables(environment.createEnvironmentContext());
+            return environment.createEnvironmentContext();
         }
+
+        return null;
     }
 
     public Agents agentsForPipeline(final CaseInsensitiveString pipelineName) {

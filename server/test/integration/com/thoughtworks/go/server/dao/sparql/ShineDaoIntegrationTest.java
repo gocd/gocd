@@ -266,17 +266,17 @@ public class ShineDaoIntegrationTest {
         assertThat(failingTests7.size(), is(1));
         assertThat(failingTests7.get(0).getJobs().size(), is(2));
         assertThat(failingTests7.get(0).getJobs().get(0).getBuildName(), is("NixBuild"));
-        assertThat(failingTests7.get(0).getJobs().get(0).buildLocator(), is("foo-pipeline/3/bar-stage/1/NixBuild"));
-        assertThat(failingTests7.get(0).getJobs().get(1).buildLocator(), is("foo-pipeline/3/bar-stage/1/WinBuild"));
+        assertThat(failingTests7.get(0).getJobs().get(0).buildLocator(), is(String.format("%s/3/bar-stage/1/NixBuild", failureSetup.pipelineName())));
+        assertThat(failingTests7.get(0).getJobs().get(1).buildLocator(), is(String.format("%s/3/bar-stage/1/WinBuild", failureSetup.pipelineName())));
         List<TestInformation> failingTests6 = failingPipeline6.failingSuites().get(0).tests();
         assertThat(failingTests6.size(), is(2));
         assertThat(failingTests6.get(0).getJobs().size(), is(1));
         assertThat(failingTests6.get(0).getJobs().get(0).getBuildName(), is("WinBuild"));
-        assertThat(failingTests6.get(0).getJobs().get(0).buildLocator(), is("foo-pipeline/2/bar-stage/1/WinBuild"));
+        assertThat(failingTests6.get(0).getJobs().get(0).buildLocator(), is(String.format("%s/2/bar-stage/1/WinBuild", failureSetup.pipelineName())));
 
         assertThat(failingTests6.get(1).getJobs().size(), is(1));
         assertThat(failingTests6.get(1).getJobs().get(0).getBuildName(), is("WinBuild"));
-        assertThat(failingTests6.get(1).getJobs().get(0).buildLocator(), is("foo-pipeline/2/bar-stage/1/WinBuild"));
+        assertThat(failingTests6.get(1).getJobs().get(0).buildLocator(), is(String.format("%s/2/bar-stage/1/WinBuild", failureSetup.pipelineName())));
     }
 
     @Test

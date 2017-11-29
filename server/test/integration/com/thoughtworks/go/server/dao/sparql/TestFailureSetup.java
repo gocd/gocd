@@ -62,10 +62,14 @@ public class TestFailureSetup {
         this.materialRepository = materialRepository;
         this.transactionTemplate = transactionTemplate;
         this.hgMaterial = new HgMaterial("http://google.com", null);
-        this.pipelineConfig = PipelineMother.createPipelineConfig("foo-pipeline", new MaterialConfigs(hgMaterial.config()), "bar-stage");
+        this.pipelineConfig = PipelineMother.createPipelineConfig(UUID.randomUUID().toString(), new MaterialConfigs(hgMaterial.config()), "bar-stage");
         configHelper.addPipeline(pipelineConfig);
         this.dbHelper = dbHelper;
         this.pipelineTimeline = pipelineTimeline;
+    }
+
+    public String pipelineName(){
+        return pipelineConfig.name().toString();
     }
 
     public SavedStage setupPipelineInstance(final boolean failStage, final String overriddenLabel, final StubGoURLRepository goURLRepository) {

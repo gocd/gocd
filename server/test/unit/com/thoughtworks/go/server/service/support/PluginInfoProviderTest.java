@@ -1,0 +1,80 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.server.service.support;
+
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class PluginInfoProviderTest {
+
+    private PluginInfoProvider pluginInfoProvider;
+
+    @Mock
+    private DefaultPluginInfoFinder pluginInfoFinder;
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+        pluginInfoProvider = new PluginInfoProvider(pluginInfoFinder);
+    }
+
+    @Test
+    public void shouldGetPluginInformationAsJson() {
+        when(pluginInfoFinder.allPluginInfos(null))
+                .thenReturn(Arrays.asList(
+                        new PluginInfo(passwordFilePluginDescriptor(), "authorization", null),
+                        new PluginInfo(ldapPluginDescriptor(), "authorization", null)));
+
+        Map<String, Object> json = pluginInfoProvider.asJson();
+
+        Map<String, Object> expectedJson = new LinkedHashMap<>();
+        Map<String, Object> passwordFilePluginJson = new LinkedHashMap<>();
+        passwordFilePluginJson.put("id", "cd.go.authentication.passwordfile");
+        passwordFilePluginJson.put("type", "authorization");
+
+        Map<String, Object> ldapPluginJson = new LinkedHashMap<>();
+        ldapPluginJson.put("id", "cd.go.authentication.ldap");
+        ldapPluginJson.put("type", "authorization");
+
+        expectedJson.put("plugins", Arrays.asList(passwordFilePluginJson, ldapPluginJson));
+
+        assertThat(json, is(expectedJson));
+    }
+
+    private GoPluginDescriptor passwordFilePluginDescriptor() {
+        return new GoPluginDescriptor("cd.go.authentication.passwordfile", "1.0.1-48", null,
+                "/usr/gocd-filebased-authentication-plugin.jar", null, true);
+    }
+
+    private GoPluginDescriptor ldapPluginDescriptor() {
+        return new GoPluginDescriptor("cd.go.authentication.ldap", "1.1", null,
+                "/usr/gocd-ldap-authentication-plugin.jar", null, true);
+    }
+}

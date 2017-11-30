@@ -17,32 +17,51 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ConsoleOutViewTest {
+    private static final List<String> CHARSETS = Arrays.asList("utf-8", "utf-16", "ISO-8859-7", "IBM00858", "KOI8-R", "US-ASCII");
+
+    private String randomCharset;
 
     @Test
     public void setsUpContentEncoding() throws Exception {
-        ConsoleOutView view = new ConsoleOutView(mock(ConsoleConsumer.class));
+        ConsoleOutView view = new ConsoleOutView(mock(ConsoleConsumer.class), randomCharset());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         view.render(null, null, response);
-        assertThat(response.getCharacterEncoding(), is("UTF-8"));
+        assertThat(response.getCharacterEncoding(), is(randomCharset()));
     }
 
     @Test
     public void setsUpCharset() throws Exception {
-        ConsoleOutView view = new ConsoleOutView(mock(ConsoleConsumer.class));
+        ConsoleOutView view = new ConsoleOutView(mock(ConsoleConsumer.class), randomCharset());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         view.render(null, null, response);
         assertThat(response.getContentType(), is(view.getContentType()));
-        assertThat(view.getContentType(), is(GoConstants.RESPONSE_CHARSET));
+    }
+
+    @Test
+    public void getsContentType() throws Exception {
+        ConsoleOutView view = new ConsoleOutView(null, randomCharset());
+        assertThat(view.getContentType(), is("text/plain; charset=" + randomCharset()));
+    }
+
+    private String randomCharset() {
+        if (randomCharset == null) {
+            List<String> charsets = new ArrayList<>(CHARSETS);
+            Collections.shuffle(charsets);
+            randomCharset = charsets.get(new Random().nextInt(charsets.size()));
+        }
+
+        return randomCharset;
     }
 }

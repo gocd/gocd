@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -213,6 +214,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoBooleanSystemProperty REAUTHENTICATION_ENABLED = new GoBooleanSystemProperty("go.security.reauthentication.enabled", true);
     public static GoSystemProperty<Long> REAUTHENTICATION_TIME_INTERVAL = new GoLongSystemProperty("go.security.reauthentication.interval", 1800 * 1000L);
     public static GoSystemProperty<Boolean> CONSOLE_OUT_TO_STDOUT = new GoBooleanSystemProperty("go.console.stdout", false);
+    private static GoSystemProperty<String> CONSOLE_LOG_CHARSET = new GoStringSystemProperty("go.console.log.charset", "utf-8");
     private static GoSystemProperty<Boolean> AGENT_STATUS_API_ENABLED = new GoBooleanSystemProperty("go.agent.status.api.enabled", true);
     private static GoSystemProperty<String> AGENT_STATUS_API_BIND_HOST = new GoStringSystemProperty("go.agent.status.api.bind.host", "localhost");
     private static GoSystemProperty<Integer> AGENT_STATUS_API_BIND_PORT = new GoIntSystemProperty("go.agent.status.api.bind.port", 8152);
@@ -231,6 +233,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private volatile static Integer cruiseSSlPort;
     private volatile static String cruiseConfigDir;
     private volatile static Long databaseFullSizeLimit;
+    private volatile static Charset consoleLogCharsetAsCharset;
     private volatile static Long artifactFullSizeLimit;
     private volatile static Long diskSpaceCacheRefresherInterval;
     public static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
@@ -623,6 +626,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         cruiseConfigDir = null;
         databaseFullSizeLimit = null;
         artifactFullSizeLimit = null;
+        consoleLogCharsetAsCharset = null;
     }
 
     public String getWebappContextPath() {
@@ -693,6 +697,17 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public File getDefaultCommandRepository() {
         return new File(get(COMMAND_REPOSITORY_DIRECTORY), "default");
+    }
+
+    public String consoleLogCharset() {
+        return consoleLogCharsetAsCharset().name();
+    }
+
+    public Charset consoleLogCharsetAsCharset() {
+        if (consoleLogCharsetAsCharset == null) {
+            consoleLogCharsetAsCharset = Charset.forName(get(CONSOLE_LOG_CHARSET));
+        }
+        return consoleLogCharsetAsCharset;
     }
 
     public String getCommandRepositoryRootLocation() {

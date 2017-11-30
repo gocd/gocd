@@ -68,6 +68,7 @@ public class ArtifactsController {
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
+    private final String consoleLogCharset;
     private ArtifactsService artifactsService;
     private RestfulService restfulService;
     private ConsoleService consoleService;
@@ -86,6 +87,7 @@ public class ArtifactsController {
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
         this.zipViewFactory = zipViewFactory(zipArtifactCache);
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
+        this.consoleLogCharset = systemEnvironment.consoleLogCharset();
     }
 
 
@@ -258,7 +260,7 @@ public class ArtifactsController {
                 return logsNotFound(identifier);
             }
             ConsoleConsumer streamer = consoleService.getStreamer(start, identifier);
-            return new ModelAndView(new ConsoleOutView(streamer));
+            return new ModelAndView(new ConsoleOutView(streamer, consoleLogCharset));
         } catch (Exception e) {
             return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         }

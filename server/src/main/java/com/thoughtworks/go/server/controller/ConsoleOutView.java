@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
-import com.thoughtworks.go.util.GoConstants;
 import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,18 +29,20 @@ import java.util.function.Consumer;
 
 public class ConsoleOutView implements View {
     private ConsoleConsumer consumer;
+    private final String charset;
 
-    public ConsoleOutView(ConsoleConsumer consumer) {
+    public ConsoleOutView(ConsoleConsumer consumer, String charset) {
         this.consumer = consumer;
+        this.charset = charset;
     }
 
     public String getContentType() {
-        return GoConstants.RESPONSE_CHARSET;
+        return "text/plain; charset=" + charset;
     }
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(getContentType());
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(charset);
         try (final PrintWriter writer = response.getWriter()) {
             try {
                 consumer.stream(new Consumer<String>() {

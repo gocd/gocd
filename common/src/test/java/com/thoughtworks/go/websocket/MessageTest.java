@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class MessageTest {
                 new ChecksumFileHandler(workingDir)));
         BuildAssignment assignment = BuildAssignment.create(jobPlan(), buildCause, builder, workingDir, new EnvironmentVariableContext(), new ArtifactStores());
 
-        BuildWork work = new BuildWork(assignment);
+        BuildWork work = new BuildWork(assignment, "utf-8");
         byte[] msg = MessageEncoding.encodeMessage(new Message(Action.assignWork, MessageEncoding.encodeWork(work)));
         Message decodedMsg = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
         BuildWork decodedWork = (BuildWork) MessageEncoding.decodeWork(decodedMsg.getData());

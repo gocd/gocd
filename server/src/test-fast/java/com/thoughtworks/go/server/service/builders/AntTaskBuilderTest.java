@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ public class AntTaskBuilderTest {
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
         try {
-            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null);
+            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null,"utf-8");
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.util.Retryable;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.zip.GZIPOutputStream;
@@ -45,6 +46,7 @@ public class ConsoleLogSender {
     private static final int LOG_FILE_DOES_NOT_EXIST = 4410;
     private static final int BUF_SIZE = 1024 * 1024; // 1MB
     private static final int FILL_INTERVAL = 500;
+    private final Charset charset;
 
     @Autowired
     private ConsoleService consoleService;
@@ -56,10 +58,11 @@ public class ConsoleLogSender {
     private SocketHealthService socketHealthService;
 
     @Autowired
-    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService) {
+    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService, SystemEnvironment systemEnvironment) {
         this.consoleService = consoleService;
         this.jobInstanceDao = jobInstanceDao;
         this.socketHealthService = socketHealthService;
+        this.charset = systemEnvironment.consoleLogCharsetAsCharset();
     }
 
     public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
@@ -137,7 +140,7 @@ public class ConsoleLogSender {
             @Override
             public void accept(String line) {
                 try {
-                    byte[] bytes = line.getBytes(StandardCharsets.UTF_8);
+                    byte[] bytes = line.getBytes(charset);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(bytes.length);
                     byteArrayOutputStream.write(bytes);
                     byteArrayOutputStream.write('\n');

@@ -66,7 +66,8 @@ public class FetchPluggableArtifactBuilder extends Builder {
         this.metadataFileLocationOnServer = source;
     }
 
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
+    @Override
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
         downloadMetadataFile(publisher);
         try {
             pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), new ArtifactRequestProcessor(publisher));

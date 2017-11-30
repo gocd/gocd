@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class ArtifactsController {
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
-    private final String consoleLogCharset;
+    private final Charset consoleLogCharset;
     private ArtifactsService artifactsService;
     private RestfulService restfulService;
     private ConsoleService consoleService;
@@ -87,7 +88,7 @@ public class ArtifactsController {
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
         this.zipViewFactory = zipViewFactory(zipArtifactCache);
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
-        this.consoleLogCharset = systemEnvironment.consoleLogCharset();
+        this.consoleLogCharset = systemEnvironment.consoleLogCharsetAsCharset();
     }
 
 

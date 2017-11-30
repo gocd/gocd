@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class PluggableTaskConsoleTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        console = new PluggableTaskConsole(publisher);
+        console = new PluggableTaskConsole(publisher, "utf-8");
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
@@ -27,23 +28,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsoleLogSocketCreator implements WebSocketCreator {
 
-    @Autowired
     private final ConsoleLogSender handler;
-
-    @Autowired
     private final RestfulService restfulService;
+    private final String consoleLogCharset;
     private SocketHealthService socketHealthService;
 
     @Autowired
-    public ConsoleLogSocketCreator(ConsoleLogSender handler, RestfulService restfulService, SocketHealthService socketHealthService) {
+    public ConsoleLogSocketCreator(ConsoleLogSender handler, RestfulService restfulService, SocketHealthService socketHealthService, SystemEnvironment systemEnvironment) {
         this.handler = handler;
         this.restfulService = restfulService;
         this.socketHealthService = socketHealthService;
+        this.consoleLogCharset = systemEnvironment.consoleLogCharset();
     }
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        return new ConsoleLogSocket(handler, getJobIdentifier(req.getRequestPath()), socketHealthService);
+        return new ConsoleLogSocket(handler, getJobIdentifier(req.getRequestPath()), socketHealthService, consoleLogCharset);
     }
 
     private JobIdentifier getJobIdentifier(String requestPath) {

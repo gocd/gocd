@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// polyfills needed for IE
+//= require "lib/encoding-indexes.js"
+//= require "lib/encoding.js"
+
 (function ($) {
   "use strict";
 
@@ -21,6 +25,7 @@
     var CONSOLE_LOG_DOES_NOT_EXISTS = 4410;
     var CONSOLE_LOG_NOT_AVAILABLE   = 4004;
     var startLine                   = 0, socket;
+    var encoder;
 
     var details              = $(".job_details_content");
     var fallingBackToPolling = false;
@@ -48,12 +53,30 @@
         failIfInitialConnectionFails: true
       });
 
+      socket.on("message", grabEncoding);
       socket.on("message", renderLines);
       socket.on("initialConnectFailed", retryConnectionOrFallbackToPollingOnError);
       socket.on("close", maybeResumeOnClose);
       socket.on("beforeInitialize", function (options) {
         options.url = endpointUrl(startLine);
       });
+    }
+
+    function grabEncoding(e) {
+      if (_.isString(e.data)) {
+        var charset;
+
+        try {
+          charset = JSON.parse(e.data)['charset'];
+        } catch (e) {
+          // ignore, maybe it's not json
+        }
+
+        if (!_.isEmpty(charset)) {
+          encoder = new TextDecoder(charset);
+          socket.off('message', grabEncoding);
+        }
+      }
     }
 
     function retryConnectionOrFallbackToPollingOnError(e) {
@@ -86,13 +109,14 @@
     }
 
     function maybeGunzip(gzippedBuf) {
-      var inflator = new pako.Inflate({to: 'string'});
+      encoder.toString();
+      var inflator = new pako.Inflate();
       inflator.push(gzippedBuf, true);
 
       if (inflator.err) {
-        return String.fromCharCode.apply(null, gzippedBuf);
+        return encoder.decode(gzippedBuf);
       } else {
-        return inflator.result;
+        return encoder.decode(inflator.result);
       }
     }
 

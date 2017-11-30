@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,19 +120,19 @@ public class GoRepoConfigDataSourceIntegrationTest {
     private String setupExternalConfigRepo(File configRepo, String configRepoTestResource) throws IOException {
         ClassPathResource resource = new ClassPathResource(configRepoTestResource);
         FileUtils.copyDirectory(resource.getFile(), configRepo);
-        CommandLine.createCommandLine("git").withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb("");
-        CommandLine.createCommandLine("git").withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb("");
+        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb("");
+        CommandLine.createCommandLine("git").withEncoding("utf-8").withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb("");
         gitAddDotAndCommit(configRepo);
-        ConsoleResult consoleResult = CommandLine.createCommandLine("git").withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb("");
+        ConsoleResult consoleResult = CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb("");
 
         return consoleResult.outputAsString();
     }
 
     private void gitAddDotAndCommit(File configRepo) {
-        CommandLine.createCommandLine("git").withArg("add").withArg("-A").withArg(".").withWorkingDir(configRepo).runOrBomb("");
-        CommandLine.createCommandLine("git").withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb("");
-        CommandLine.createCommandLine("git").withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb("");
-        CommandLine.createCommandLine("git").withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb("");
+        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("add").withArg("-A").withArg(".").withWorkingDir(configRepo).runOrBomb("");
+        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb("");
+        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb("");
+        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb("");
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,11 @@ import java.util.Map;
 public class PluggableTaskConsole implements Console {
     public static final String MASK_VALUE = "********";
     private final DefaultGoPublisher publisher;
+    private final String consoleLogCharset;
 
-    public PluggableTaskConsole(DefaultGoPublisher publisher) {
+    public PluggableTaskConsole(DefaultGoPublisher publisher, String consoleLogCharset) {
         this.publisher = publisher;
+        this.consoleLogCharset = consoleLogCharset;
     }
 
     @Override
@@ -38,12 +40,12 @@ public class PluggableTaskConsole implements Console {
 
     @Override
     public void readErrorOf(InputStream in) {
-        StreamPumper.pump(in, publisher, "", null);
+        StreamPumper.pump(in, publisher, "", consoleLogCharset);
     }
 
     @Override
     public void readOutputOf(InputStream in) {
-        StreamPumper.pump(in, publisher, "", null);
+        StreamPumper.pump(in, publisher, "", consoleLogCharset);
     }
 
     @Override

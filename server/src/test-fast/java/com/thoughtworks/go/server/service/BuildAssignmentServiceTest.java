@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -57,7 +56,7 @@ public class BuildAssignmentServiceTest {
     @Mock
     private ElasticAgentPluginService elasticAgentPluginService;
     @Mock
-    private TimeProvider timeProvider;
+    private SystemEnvironment systemEnvironment;
     @Mock
     private AgentRemoteHandler agentRemoteHandler;
     @Mock
@@ -85,7 +84,7 @@ public class BuildAssignmentServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, timeProvider);
+        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, systemEnvironment);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,13 +92,13 @@ public class PluggableTaskBuilderTest {
         final int[] executeTaskCalled = new int[1];
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
-            protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
+            protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
                 executeTaskCalled[0]++;
                 return ExecutionResult.success("Test succeeded");
             }
         };
 
-        taskBuilder.build(goPublisher, variableContext, taskExtension, null, null);
+        taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
 
         assertThat(executeTaskCalled[0], is(1));
     }
@@ -120,7 +120,7 @@ public class PluggableTaskBuilderTest {
 
             @Override
             protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher,
-                                                            EnvironmentVariableContext environmentVariableContext) {
+                                                            EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
                 return taskExecutionContext;
             }
         };
@@ -129,7 +129,7 @@ public class PluggableTaskBuilderTest {
         when(taskExecutor.execute(executorTaskConfig, taskExecutionContext)).thenReturn(new ExecutionResult());
         when(task.executor()).thenReturn(taskExecutor);
 
-        taskBuilder.executeTask(task, null, null);
+        taskBuilder.executeTask(task, null, null, "utf-8");
 
         verify(task).config();
         verify(task).executor();
@@ -232,7 +232,7 @@ public class PluggableTaskBuilderTest {
 
         String workingDir = "test-directory";
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, workingDir);
-        TaskExecutionContext taskExecutionContext = taskBuilder.buildTaskContext(goPublisher, variableContext);
+        TaskExecutionContext taskExecutionContext = taskBuilder.buildTaskContext(goPublisher, variableContext, "utf-8");
 
         assertThat(taskExecutionContext instanceof PluggableTaskContext, is(true));
         assertThat(taskExecutionContext.workingDir(), is(workingDir));
@@ -244,7 +244,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
-            protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
+            protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
                 throw new RuntimeException("err");
             }
         };
@@ -257,7 +257,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null);
+            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -274,7 +274,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
-            protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
+            protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
                 return ExecutionResult.failure("err");
             }
         };
@@ -287,7 +287,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null);
+            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -303,7 +303,7 @@ public class PluggableTaskBuilderTest {
         taskExtension = mock(TaskExtension.class);
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
 
-        builder.build(goPublisher, variableContext, taskExtension, null, null);
+        builder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
         assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
     }
 
@@ -315,7 +315,7 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
 
         try {
-            builder.build(goPublisher, variableContext, taskExtension, null, null);
+            builder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
@@ -330,7 +330,7 @@ public class PluggableTaskBuilderTest {
 
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
         try {
-            builder.build(goPublisher, variableContext, taskExtension, null, null);
+            builder.build(goPublisher, variableContext, taskExtension, null, null, "utf-8");
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,14 @@ public class PluggableTaskContext implements TaskExecutionContext {
     private final DefaultGoPublisher publisher;
     private final EnvironmentVariableContext environmentVariableContext;
     private final String workingDir;
+    private final String consoleLogCharset;
 
     public PluggableTaskContext(DefaultGoPublisher publisher,
-                                EnvironmentVariableContext environmentVariableContext, String workingDir) {
+                                EnvironmentVariableContext environmentVariableContext, String workingDir, String consoleLogCharset) {
         this.publisher = publisher;
         this.environmentVariableContext = environmentVariableContext;
         this.workingDir = workingDir;
+        this.consoleLogCharset = consoleLogCharset;
     }
 
     @Override
@@ -41,7 +43,7 @@ public class PluggableTaskContext implements TaskExecutionContext {
 
     @Override
     public Console console() {
-        return new PluggableTaskConsole(publisher);
+        return new PluggableTaskConsole(publisher, consoleLogCharset);
     }
 
     @Override

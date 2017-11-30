@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,7 @@ public class BuildWorkEnvironmentVariablesTest {
     private P4Material p4Material;
     private P4Fixture p4Fixture;
     private P4Client p4Client;
+    private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @Before
     public void setUp() throws Exception {
@@ -161,7 +162,7 @@ public class BuildWorkEnvironmentVariablesTest {
         List<Builder> builders = new ArrayList<>();
         builders.add(new CommandBuilder("ant", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
         BuildAssignment assignment = BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
-        return new BuildWork(assignment);
+        return new BuildWork(assignment, systemEnvironment.consoleLogCharset());
     }
 
     private P4Material getP4Material() throws Exception {
@@ -178,7 +179,7 @@ public class BuildWorkEnvironmentVariablesTest {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs());
 
         BuildAssignment buildAssignment = createAssignment(new EnvironmentVariableContext("foo", "bar"));
-        BuildWork work = new BuildWork(buildAssignment);
+        BuildWork work = new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
         EnvironmentVariableContext environmentContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -217,7 +218,7 @@ public class BuildWorkEnvironmentVariablesTest {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
 
         BuildAssignment buildAssigment = createAssignment(null);
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
@@ -242,7 +243,7 @@ public class BuildWorkEnvironmentVariablesTest {
     @Test
     public void shouldOutputEnvironmentVariablesIntoConsoleOut() throws IOException {
         BuildAssignment buildAssigment = createAssignment(null);
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
 
@@ -319,7 +320,7 @@ public class BuildWorkEnvironmentVariablesTest {
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
 
         BuildAssignment buildAssigment = createAssignment(null);
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);

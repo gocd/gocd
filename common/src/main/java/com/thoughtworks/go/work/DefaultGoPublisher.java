@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,24 +40,26 @@ public class DefaultGoPublisher implements GoPublisher {
     private AgentIdentifier agentIdentifier;
     private BuildRepositoryRemote remoteBuildRepository;
     private final AgentRuntimeInfo agentRuntimeInfo;
+    private final String consoleLogCharset;
     private ConsoleOutputTransmitter consoleOutputTransmitter;
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
     private String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
                               BuildRepositoryRemote remoteBuildRepository,
-                              AgentRuntimeInfo agentRuntimeInfo) {
+                              AgentRuntimeInfo agentRuntimeInfo, String consoleLogCharset) {
         this.manipulator = manipulator;
         this.jobIdentifier = jobIdentifier;
         this.agentIdentifier = agentRuntimeInfo.getIdentifier();
         this.remoteBuildRepository = remoteBuildRepository;
         this.agentRuntimeInfo = agentRuntimeInfo;
+        this.consoleLogCharset = consoleLogCharset;
         init();
     }
 
     //do not put the logic into the constructor it is really hard to stub.
     protected void init() {
-        consoleOutputTransmitter = manipulator.createConsoleOutputTransmitter(jobIdentifier, agentIdentifier);
+        consoleOutputTransmitter = manipulator.createConsoleOutputTransmitter(jobIdentifier, agentIdentifier, consoleLogCharset);
     }
 
     @Override

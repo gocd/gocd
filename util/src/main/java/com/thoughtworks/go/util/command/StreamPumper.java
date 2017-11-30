@@ -1,11 +1,11 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -79,27 +79,17 @@ import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
-import static java.nio.charset.Charset.defaultCharset;
 
 
 public class StreamPumper implements Runnable {
 
     private BufferedReader in;
 
-
     private boolean completed;
     private final StreamConsumer streamConsumer;
     private final String prefix;
     private long lastHeard;
     private final Clock clock;
-
-    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix) {
-        this(in, streamConsumer, prefix, null);
-    }
-
-    StreamPumper(InputStream inputStream, StreamConsumer streamConsumer) {
-        this(inputStream, streamConsumer, "");
-    }
 
     private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding) {
         this(in, streamConsumer, prefix, encoding, new SystemTimeClock());
@@ -111,14 +101,9 @@ public class StreamPumper implements Runnable {
         this.clock = clock;
         this.lastHeard = System.currentTimeMillis();
         try {
-            if ( encoding==null){
-                this.in = new LineNumberReader(new InputStreamReader(in));
-            }
-            else {
-                this.in = new LineNumberReader(new InputStreamReader(in, encoding));
-            }
+            this.in = new LineNumberReader(new InputStreamReader(in, encoding));
         } catch (UnsupportedEncodingException e) {
-            bomb(format("Unable to use [%s] to decode stream.  The current charset is [%s]", encoding, defaultCharset()));
+            bomb(format("Unable to use [%s] to decode stream.", encoding));
         }
     }
 

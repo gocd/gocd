@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,13 +66,13 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {
                 @Override
                 public ExecutionResult execute(Task task, GoPluginDescriptor pluginDescriptor) {
-                    return executeTask(task, publisher, environmentVariableContext);
+                    return executeTask(task, publisher, environmentVariableContext, consoleLogCharset);
                 }
             });
         } catch (Exception e) {
@@ -90,8 +90,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     protected ExecutionResult executeTask(Task task,
                                           DefaultGoPublisher publisher,
-                                          EnvironmentVariableContext environmentVariableContext) {
-        final TaskExecutionContext taskExecutionContext = buildTaskContext(publisher, environmentVariableContext);
+                                          EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+        final TaskExecutionContext taskExecutionContext = buildTaskContext(publisher, environmentVariableContext, consoleLogCharset);
         JobConsoleLoggerInternal.setContext(taskExecutionContext);
 
         TaskConfig config = buildTaskConfig(task.config());
@@ -99,8 +99,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     }
 
     protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher,
-                                                    EnvironmentVariableContext environmentVariableContext) {
-        return new PluggableTaskContext(publisher, environmentVariableContext, workingDir);
+                                                    EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+        return new PluggableTaskContext(publisher, environmentVariableContext, workingDir, consoleLogCharset);
     }
 
     protected TaskConfig buildTaskConfig(TaskConfig config) {

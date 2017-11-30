@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,8 +210,8 @@ public class GoArtifactsManipulator {
 
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
-                                                                   AgentIdentifier agentIdentifier) {
+                                                                   AgentIdentifier agentIdentifier, String consoleLogCharset) {
         String consoleUrl = urlService.getUploadUrlOfAgent(jobIdentifier, getConsoleOutputFolderAndFileNameUrl());
-        return new ConsoleOutputTransmitter(new RemoteConsoleAppender(consoleUrl, httpService));
+        return new ConsoleOutputTransmitter(new RemoteConsoleAppender(consoleUrl, httpService, consoleLogCharset));
     }
 }

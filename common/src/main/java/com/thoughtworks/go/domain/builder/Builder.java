@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public abstract class Builder implements Serializable {
         return conditions.match(previousStatus);
     }
 
-    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) throws CruiseControlException;
+    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException;
 
     public String getDescription() {
         return description;
@@ -98,10 +98,10 @@ public abstract class Builder implements Serializable {
         return result;
     }
 
-    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) {
         publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
-            cancelBuilder.build(publisher, environmentVariableContext, taskExtension, artifactExtension, null);
+            cancelBuilder.build(publisher, environmentVariableContext, taskExtension, artifactExtension, null, consoleLogCharset);
             // As this message will output before the running task outputs its task status, do not use the same
             // wording (i.e. "Task status: %s") as the order of outputted lines may be confusing
             publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_PASS, "On Cancel Task completed");

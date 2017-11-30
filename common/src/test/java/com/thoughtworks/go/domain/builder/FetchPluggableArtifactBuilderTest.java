@@ -92,7 +92,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallPublisherToFetchMetadataFile() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, null, null, artifactExtension, registry);
+        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
 
         final ArgumentCaptor<FetchArtifactBuilder> argumentCaptor = ArgumentCaptor.forClass(FetchArtifactBuilder.class);
 
@@ -108,7 +108,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallArtifactExtension() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, null, null, artifactExtension, registry);
+        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
 
         verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
@@ -122,7 +122,7 @@ public class FetchPluggableArtifactBuilderTest {
         fileWriter.write(new Gson().toJson(metadata));
         fileWriter.close();
 
-        builder.build(publisher, null, null, artifactExtension, registry);
+        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
 
         verify(artifactExtension).fetchArtifact(eq("cd.go.s3"), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
@@ -136,7 +136,7 @@ public class FetchPluggableArtifactBuilderTest {
         fileWriter.write(new Gson().toJson(metadata));
         fileWriter.close();
 
-        builder.build(publisher, null, null, artifactExtension, registry);
+        builder.build(publisher, null, null, artifactExtension, registry, "utf-8");
 
 
         InOrder inOrder = inOrder(registry, artifactExtension);

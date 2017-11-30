@@ -65,15 +65,15 @@ public class ProcessManagerTest {
         when(processTwo.getErrorStream()).thenReturn(mock(InputStream.class));
         when(processTwo.getOutputStream()).thenReturn(mock(OutputStream.class));
         ConcurrentMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
-        wrapperForProcessOne = new ProcessWrapper(processOne, "tag1", null, inMemoryConsumer(), null, "ERROR: ");
+        wrapperForProcessOne = new ProcessWrapper(processOne, "tag1", null, inMemoryConsumer(), "utf-8", "ERROR: ");
         processMap.put(processOne, wrapperForProcessOne);
-        wrapperForProcessTwo = new ProcessWrapper(processTwo, "tag2", null, inMemoryConsumer(), null, "ERROR: ");
+        wrapperForProcessTwo = new ProcessWrapper(processTwo, "tag2", null, inMemoryConsumer(), "utf-8", "ERROR: ");
         processMap.put(processTwo, wrapperForProcessTwo);
     }
 
     @Test
     public void shouldAddToProcessListWhenNewProcessCreated() {
-        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), "test-tag", null,
+        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), "test-tag", "utf-8",
                 "ERROR: ");
         assertThat(processManager.getProcessMap().size(), is(3));
     }

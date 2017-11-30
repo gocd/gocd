@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.Action;
@@ -69,14 +69,14 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private final BuilderFactory builderFactory;
     private AgentRemoteHandler agentRemoteHandler;
     private final ElasticAgentPluginService elasticAgentPluginService;
-    private final TimeProvider timeProvider;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
                                   AgentService agentService, EnvironmentConfigService environmentConfigService,
                                   TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
                                   AgentRemoteHandler agentRemoteHandler,
-                                  ElasticAgentPluginService elasticAgentPluginService, TimeProvider timeProvider) {
+                                  ElasticAgentPluginService elasticAgentPluginService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
@@ -88,7 +88,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.builderFactory = builderFactory;
         this.agentRemoteHandler = agentRemoteHandler;
         this.elasticAgentPluginService = elasticAgentPluginService;
-        this.timeProvider = timeProvider;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public void initialize() {
@@ -237,6 +237,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
         BuildSettings buildSettings = new BuildSettings();
+        buildSettings.setConsoleLogCharset(systemEnvironment.consoleLogCharset());
         buildSettings.setBuildId(String.valueOf(jobIdentifier.getBuildId()));
         buildSettings.setBuildLocatorForDisplay(jobIdentifier.buildLocatorForDisplay());
         buildSettings.setBuildLocator(jobIdentifier.buildLocator());
@@ -314,7 +315,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                             final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                             BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment, requiredArtifactStores);
 
-                            return new BuildWork(buildAssignment);
+                            return new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
                         }
                     });
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
     }
 
     public StubGoPublisher(boolean shouldFail) {
-        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()));
+        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), "utf-8");
         this.shouldFail = shouldFail;
     }
 

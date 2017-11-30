@@ -16,6 +16,7 @@
 package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
 import org.apache.commons.lang.StringUtils;
@@ -83,6 +84,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         } else {
             commandLine = CommandLine.createCommandLine(cmd);
         }
+        commandLine.withEncoding(new SystemEnvironment().consoleLogCharset());
         return commandLine;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ public class BuildWork implements Work {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
 
     private final BuildAssignment assignment;
+    private final String consoleLogCharset;
 
     private transient DefaultGoPublisher goPublisher;
     private transient TimeProvider timeProvider;
@@ -58,8 +59,9 @@ public class BuildWork implements Work {
     private transient Builders builders;
     private ArtifactsPublisher artifactsPublisher;
 
-    public BuildWork(BuildAssignment assignment) {
+    public BuildWork(BuildAssignment assignment, String consoleLogCharset) {
         this.assignment = assignment;
+        this.consoleLogCharset = consoleLogCharset;
     }
 
     private void initialize(AgentWorkContext agentWorkContext) {
@@ -69,7 +71,7 @@ public class BuildWork implements Work {
         agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
-        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo());
+        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset);
         this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry(), workingDirectory);
         this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension(), agentWorkContext.getPluginRequestProcessorRegistry());
     }
@@ -132,7 +134,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        return completeJob(buildJob(environmentVariableContext));
+        return completeJob(buildJob(environmentVariableContext, consoleLogCharset));
     }
 
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
@@ -185,10 +187,10 @@ public class BuildWork implements Work {
         materialRevisions.populateAgentSideEnvironmentVariables(context, workingDirectory);
     }
 
-    private JobResult buildJob(EnvironmentVariableContext environmentVariableContext) {
+    private JobResult buildJob(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
         goPublisher.reportCurrentStatus(Building);
         goPublisher.reportAction("Start to build");
-        return execute(environmentVariableContext);
+        return execute(environmentVariableContext, consoleLogCharset);
     }
 
     private JobResult completeJob(JobResult result) {
@@ -216,8 +218,8 @@ public class BuildWork implements Work {
         return result;
     }
 
-    private JobResult execute(EnvironmentVariableContext environmentVariableContext) {
-        JobResult result = builders.build(environmentVariableContext);
+    private JobResult execute(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+        JobResult result = builders.build(environmentVariableContext, consoleLogCharset);
         goPublisher.reportCompleting(result);
         return result;
     }
@@ -240,7 +242,7 @@ public class BuildWork implements Work {
 
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
         agentruntimeInfo.cancel();
-        builders.cancel(environmentVariableContext);
+        builders.cancel(environmentVariableContext, consoleLogCharset);
     }
 
     public BuildAssignment getAssignment() {

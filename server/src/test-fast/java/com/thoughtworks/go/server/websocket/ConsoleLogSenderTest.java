@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
@@ -33,11 +34,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
@@ -51,6 +52,7 @@ public class ConsoleLogSenderTest {
     private JobInstance jobInstance;
     private SocketHealthService socketHealthService;
     private JobInstanceDao jobInstanceDao;
+    private SystemEnvironment systemEnvironment;
 
 
     @Before
@@ -60,7 +62,9 @@ public class ConsoleLogSenderTest {
         jobInstanceDao = mock(JobInstanceDao.class);
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
-        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService);
+        systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.consoleLogCharsetAsCharset()).thenReturn(UTF_8);
+        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService, systemEnvironment);
         jobIdentifier = mock(JobIdentifier.class);
         jobInstance = mock(JobInstance.class);
     }
@@ -77,7 +81,7 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough((expected + '\n').getBytes(StandardCharsets.UTF_8))));
+        verify(socket).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough((expected + '\n').getBytes(UTF_8))));
     }
 
     @Test
@@ -111,8 +115,8 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(UTF_8))));
     }
 
     @Test
@@ -130,9 +134,9 @@ public class ConsoleLogSenderTest {
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(StandardCharsets.UTF_8))));
-        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("More Output\n".getBytes(StandardCharsets.UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("First Output\n".getBytes(UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("Second Output\n".getBytes(UTF_8))));
+        verify(socket, times(1)).send(ByteBuffer.wrap(consoleLogSender.maybeGzipIfLargeEnough("More Output\n".getBytes(UTF_8))));
     }
 
     @Test
@@ -166,14 +170,14 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldNotGzipContentsLessThan512Bytes() throws Exception {
-        byte[] bytes = RandomStringUtils.randomAlphanumeric(511).getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = RandomStringUtils.randomAlphanumeric(511).getBytes(UTF_8);
         byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(bytes, equalTo(gzipped));
     }
 
     @Test
     public void shouldGzipContentsGreaterThan512Bytes() throws Exception {
-        byte[] bytes = RandomStringUtils.randomAlphanumeric(512).getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = RandomStringUtils.randomAlphanumeric(512).getBytes(UTF_8);
 
         byte[] gzipped = consoleLogSender.maybeGzipIfLargeEnough(bytes);
         assertThat(gzipped.length, lessThanOrEqualTo(bytes.length));

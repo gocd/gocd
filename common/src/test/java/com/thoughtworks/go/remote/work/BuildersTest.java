@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class BuildersTest {
 
         Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null, null, null);
         builders.setIsCancelled(true);
-        builders.build(environmentVariableContext);
+        builders.build(environmentVariableContext, "utf-8");
 
         assertThat(goPublisher.getMessage(), is(""));
     }
@@ -58,7 +58,7 @@ public class BuildersTest {
         Builders builders = new Builders(Collections.singletonList(builder), null, null, null, null);
 
         builders.setIsCancelled(true);
-        builders.build(environmentVariableContext);
+        builders.build(environmentVariableContext, "utf-8");
 
         Builders expected = new Builders(Collections.singletonList(builder), null, null, null, null);
         expected.setIsCancelled(true);
@@ -71,7 +71,7 @@ public class BuildersTest {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new StubBuilder(new RunIfConfigs(ANY));
         Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), null, null, null);
-        builders.build(environmentVariableContext);
-        builders.cancel(environmentVariableContext);
+        builders.build(environmentVariableContext, "utf-8");
+        builders.cancel(environmentVariableContext, "utf-8");
     }
 }

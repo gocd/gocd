@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class Builders {
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
-    public JobResult build(EnvironmentVariableContext environmentVariableContext) {
+    public JobResult build(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
         JobResult result = JobResult.Passed;
 
         for (Builder builder : builders) {
@@ -71,7 +71,7 @@ public class Builders {
                     String executeMessage = format("Task: %s", builder.getDescription());
                     goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
 
-                    builder.build(goPublisher, environmentVariableContext, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
+                    builder.build(goPublisher, environmentVariableContext, taskExtension, artifactExtension, pluginRequestProcessorRegistry, consoleLogCharset);
                 } catch (Exception e) {
                     result = taskStatus = JobResult.Failed;
                 }
@@ -110,10 +110,10 @@ public class Builders {
         return result;
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
         cancelStarted = true;
         synchronized (this) {
-            currentBuilder.cancel(goPublisher, environmentVariableContext, taskExtension, artifactExtension);
+            currentBuilder.cancel(goPublisher, environmentVariableContext, taskExtension, artifactExtension, consoleLogCharset);
             cancelFinished = true;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,10 +143,10 @@ public class ArtifactPropertiesGeneratorTest {
                 }
 
                 public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
-                                                                               AgentIdentifier agentIdentifier) {
+                                                                               AgentIdentifier agentIdentifier, String consoleLogCharset) {
                     return null;
                 }
-            }, new JobIdentifier(), null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()));
+            }, new JobIdentifier(), null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), "utf-8");
             this.sentContents = sentContents;
             this.sentErrors = sentErrors;
         }

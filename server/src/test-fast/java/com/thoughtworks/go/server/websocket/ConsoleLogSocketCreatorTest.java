@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.junit.Before;
@@ -34,7 +35,7 @@ public class ConsoleLogSocketCreatorTest {
         restfulService = mock(RestfulService.class);
 
         request = mock(ServletUpgradeRequest.class);
-        creator = new ConsoleLogSocketCreator(mock(ConsoleLogSender.class), restfulService, new SocketHealthService());
+        creator = new ConsoleLogSocketCreator(mock(ConsoleLogSender.class), restfulService, new SocketHealthService(), new SystemEnvironment());
     }
 
     @Test

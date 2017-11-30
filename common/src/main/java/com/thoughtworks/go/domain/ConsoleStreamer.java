@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.SystemEnvironment;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
@@ -53,7 +54,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
     public long stream(Consumer<String> action) throws IOException {
         long linesStreamed = 0L;
 
-        if (null == stream) stream = Files.lines(path, StandardCharsets.UTF_8).skip(start);
+        if (null == stream) stream = Files.lines(path, new SystemEnvironment().consoleLogCharsetAsCharset()).skip(start);
         if (null == iterator) iterator = stream.iterator();
 
         while (iterator.hasNext()) {

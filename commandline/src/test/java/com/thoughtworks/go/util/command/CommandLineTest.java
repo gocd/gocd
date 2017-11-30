@@ -90,7 +90,7 @@ public class CommandLineTest {
 
     @Test
     public void testToStrings() throws Exception {
-        final CommandLine cl = CommandLine.createCommandLine(EXEC_WITH_SPACES);
+        final CommandLine cl = CommandLine.createCommandLine(EXEC_WITH_SPACES).withEncoding("utf-8");
 
         cl.withArg(ARG_SPACES_NOQUOTES);
         cl.withArg(ARG_NOSPACES);
@@ -109,7 +109,7 @@ public class CommandLineTest {
 
     @Test
     public void testToStringMisMatchedQuote() {
-        final CommandLine cl2 = CommandLine.createCommandLine(EXEC_WITH_SPACES);
+        final CommandLine cl2 = CommandLine.createCommandLine(EXEC_WITH_SPACES).withEncoding("utf-8");
         final String argWithMismatchedDblQuote = "argMisMatch='singlequoted\"WithMismatchedDblQuote'";
         cl2.withArg(argWithMismatchedDblQuote);
         assertEquals("Should escape double quotes inside the string",
@@ -119,14 +119,14 @@ public class CommandLineTest {
 
     @Test
     public void shouldReportPasswordsOnTheLogAsStars() {
-        CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret"));
+        CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret")).withEncoding("utf-8");
         assertThat(line.toString(), not(containsString("secret")));
     }
 
     @Test
     public void shouldLogPasswordsOnTheLogAsStars() {
         try (LogFixture logFixture = logFixtureFor(ProcessManager.class, Level.DEBUG)) {
-            CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret"));
+            CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret")).withEncoding("utf-8");
             try {
                 line.runOrBomb(null);
             } catch (Exception e) {
@@ -140,7 +140,7 @@ public class CommandLineTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsFromStream() {
         try (LogFixture logFixture = logFixtureFor(CommandLine.class, Level.DEBUG)) {
-            CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
+            CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret")).withEncoding("utf-8");
             line.runOrBomb(null);
             assertThat(logFixture.getLog(), not(containsString("secret")));
             assertThat(logFixture.getLog(), containsString("=> ******"));
@@ -150,13 +150,13 @@ public class CommandLineTest {
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsOnExceptionThrown() throws IOException {
-        File dir = FileUtil.createTempFolder();
+        File dir = temporaryFolder.newFolder();
         File file = new File(dir, "test.sh");
         FileOutputStream out = new FileOutputStream(file);
         out.write("echo $1 && exit 10".getBytes());
         out.close();
 
-        CommandLine line = CommandLine.createCommandLine("/bin/sh").withArg(file.getAbsolutePath()).withArg(new PasswordArgument("secret"));
+        CommandLine line = CommandLine.createCommandLine("/bin/sh").withArg(file.getAbsolutePath()).withArg(new PasswordArgument("secret")).withEncoding("utf-8");
         try {
             line.runOrBomb(null);
         } catch (CommandLineException e) {
@@ -169,7 +169,8 @@ public class CommandLineTest {
     public void shouldLogPasswordsOnOutputAsStarsUnderLinux() throws IOException {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
-                .withArg(new PasswordArgument("secret"));
+                .withArg(new PasswordArgument("secret"))
+                .withEncoding("utf-8");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         InMemoryStreamConsumer displayOutputStreamConsumer = InMemoryStreamConsumer.inMemoryConsumer();
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
@@ -183,6 +184,7 @@ public class CommandLineTest {
     @RunIf(value = OSChecker.class, arguments = OSChecker.WINDOWS)
     public void shouldLogPasswordsOnOutputAsStarsUnderWindows() throws IOException {
         CommandLine line = CommandLine.createCommandLine("cmd")
+                .withEncoding("utf-8")
                 .withArg("/c")
                 .withArg("echo")
                 .withArg("My Password is:")
@@ -200,7 +202,8 @@ public class CommandLineTest {
     public void shouldShowPasswordsInToStringForDisplayAsStars() throws IOException {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
-                .withArg(new PasswordArgument("secret"));
+                .withArg(new PasswordArgument("secret"))
+                .withEncoding("utf-8");
         assertThat(line.toStringForDisplay(), not(containsString("secret")));
     }
 
@@ -213,7 +216,8 @@ public class CommandLineTest {
                 .withArg("My Password is:")
                 .withEnv(map)
                 .withArg(new PasswordArgument("secret"))
-                .withArg(new PasswordArgument("new-pwd"));
+                .withArg(new PasswordArgument("new-pwd"))
+                .withEncoding("utf-8");
 
         line.addInput(new String[]{"my pwd is: new-pwd "});
         assertThat(line.describe(), not(containsString("secret")));
@@ -226,7 +230,8 @@ public class CommandLineTest {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
                 .withArg("secret")
-                .withArg(new PasswordArgument("secret"));
+                .withArg(new PasswordArgument("secret"))
+                .withEncoding("utf-8");
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("ENV_PASSWORD", "secret", false);
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
@@ -261,7 +266,7 @@ public class CommandLineTest {
         File shellScript = createScript("hello-world.sh", "echo ${PWD}");
         assertThat(shellScript.setExecutable(true), is(true));
 
-        CommandLine line = CommandLine.createCommandLine("./hello-world.sh").withWorkingDir(subFolder);
+        CommandLine line = CommandLine.createCommandLine("./hello-world.sh").withWorkingDir(subFolder).withEncoding("utf-8");
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -276,7 +281,7 @@ public class CommandLineTest {
         File shellScript = createScript("hello-world.sh", "echo 'Hello World!'");
         assertThat(shellScript.setExecutable(true), is(true));
 
-        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder.getRoot());
+        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder.getRoot()).withEncoding("utf-8");
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -291,7 +296,8 @@ public class CommandLineTest {
 
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("Using the REAL echo")
-                .withWorkingDir(subFolder);
+                .withWorkingDir(subFolder)
+                .withEncoding("utf-8");
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -307,7 +313,7 @@ public class CommandLineTest {
         FileUtils.writeStringToFile(shellScript, "echo ${PWD}", UTF_8);
         assertThat(shellScript.setExecutable(true), is(true));
 
-        CommandLine line = CommandLine.createCommandLine("../hello-world.sh").withWorkingDir(subFolder);
+        CommandLine line = CommandLine.createCommandLine("../hello-world.sh").withWorkingDir(subFolder).withEncoding("utf-8");
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -325,11 +331,11 @@ public class CommandLineTest {
     @Test
     public void shouldReturnEchoResult() throws Exception {
         if (SystemUtils.IS_OS_WINDOWS) {
-            ConsoleResult result = CommandLine.createCommandLine("cmd").runOrBomb(null);
+            ConsoleResult result = CommandLine.createCommandLine("cmd").withEncoding("utf-8").runOrBomb(null);
             assertThat(result.outputAsString(), containsString("Windows"));
         } else {
             String expectedValue = "my input";
-            ConsoleResult result = CommandLine.createCommandLine("echo").withArgs(expectedValue).runOrBomb(null);
+            ConsoleResult result = CommandLine.createCommandLine("echo").withEncoding("utf-8").withArgs(expectedValue).runOrBomb(null);
             assertThat(result.outputAsString(), is(expectedValue));
 
         }
@@ -337,7 +343,7 @@ public class CommandLineTest {
 
     @Test(expected = Exception.class)
     public void shouldReturnThrowExceptionWhenCommandNotExist() throws Exception {
-        CommandLine.createCommandLine("something").runOrBomb(null);
+        CommandLine.createCommandLine("something").withEncoding("utf-8").runOrBomb(null);
 
     }
 
@@ -352,7 +358,7 @@ public class CommandLineTest {
 
     @Test
     public void shouldPrefixStderrOutput() {
-        CommandLine line = CommandLine.createCommandLine("rmdir").withArg("/a/directory/that/does/not/exist");
+        CommandLine line = CommandLine.createCommandLine("rmdir").withArg("/a/directory/that/does/not/exist").withEncoding("utf-8");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();

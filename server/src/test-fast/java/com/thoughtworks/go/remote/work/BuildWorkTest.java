@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -416,7 +416,7 @@ public class BuildWorkTest {
         when(buildAssignment.getWorkingDirectory()).thenReturn(new File("current"));
         when(buildAssignment.getJobIdentifier()).thenReturn(JOB_IDENTIFIER);
 
-        buildWork = new BuildWork(buildAssignment);
+        buildWork = new BuildWork(buildAssignment, "utf-8");
 
         try {
             buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
@@ -436,7 +436,7 @@ public class BuildWorkTest {
         when(buildAssignment.getWorkingDirectory()).thenReturn(new File("current"));
         when(buildAssignment.getJobIdentifier()).thenReturn(JOB_IDENTIFIER);
 
-        buildWork = new BuildWork(buildAssignment);
+        buildWork = new BuildWork(buildAssignment, "utf-8");
 
         try {
             buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
@@ -660,7 +660,7 @@ public class BuildWorkTest {
                 builder, pipeline.defaultWorkingFolder(),
                 null, cruiseConfig.getArtifactStores());
 
-        return new BuildWork(buildAssignment);
+        return new BuildWork(buildAssignment, "utf-8");
     }
 
     @Test

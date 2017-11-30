@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
     }
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
-                                                                   AgentIdentifier agentIdentifier) {
+                                                                   AgentIdentifier agentIdentifier, String consoleLogCharset) {
         return new ConsoleOutputTransmitter(new ConsoleAppender() {
             public void append(String content) throws IOException {
                     consoleOuts.add(content);

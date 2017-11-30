@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 public class RemoteConsoleAppender implements ConsoleAppender {
 
@@ -32,18 +31,21 @@ public class RemoteConsoleAppender implements ConsoleAppender {
 
     private String consoleUri;
     private HttpService httpService;
+    private final String charset;
 
-    public RemoteConsoleAppender(String consoleUri, HttpService httpService) {
+    public RemoteConsoleAppender(String consoleUri, HttpService httpService, String charset) {
         this.consoleUri = consoleUri;
         this.httpService = httpService;
+        this.charset = charset;
     }
 
     public void append(String content) throws IOException {
         HttpPut putMethod = new HttpPut(consoleUri);
         try {
             LOGGER.debug("Appending console to URL -> {}", consoleUri);
-            putMethod.setEntity(new StringEntity(content, Charset.defaultCharset()));
-            HttpService.setSizeHeader(putMethod, content.getBytes().length);
+            StringEntity entity = new StringEntity(content, charset);
+            putMethod.setEntity(entity);
+            HttpService.setSizeHeader(putMethod, entity.getContentLength());
             CloseableHttpResponse response = httpService.execute(putMethod);
             LOGGER.debug("Got {}", response.getStatusLine().getStatusCode());
         } finally {

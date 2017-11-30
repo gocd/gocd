@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,8 @@ public abstract class BaseCommandBuilder extends Builder {
         this.workingDir = workingDir;
     }
 
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry)
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset)
             throws CruiseControlException {
-        final long startTime = System.currentTimeMillis();
 
         if (!workingDir.isDirectory()) {
             String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
@@ -54,6 +53,7 @@ public abstract class BaseCommandBuilder extends Builder {
 
         ExecScript execScript = new ExecScript(errorString);
         CommandLine commandLine = buildCommandLine();
+        commandLine.withEncoding(consoleLogCharset);
 
         //TODO: Clean up this code and re-use the CommandLine code
         try {

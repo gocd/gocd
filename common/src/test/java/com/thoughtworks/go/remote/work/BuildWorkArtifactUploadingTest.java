@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,9 @@ public class BuildWorkArtifactUploadingTest {
     private EnvironmentVariableContext environmentVariableContext;
     private SvnMaterial svnMaterial;
     private SvnRepoFixture svnRepoFixture;
+
+    private SystemEnvironment systemEnvironment = new SystemEnvironment();
+
     File buildWorkingDirectory;
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;
@@ -113,7 +116,7 @@ public class BuildWorkArtifactUploadingTest {
 
         BuildAssignment buildAssigment = createAssignment(artifactPlans, new String[]{"logs/pic/fail.png", "logs/pic/pass.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -133,7 +136,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic/fail.png", "logs/pic/pass.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -157,7 +160,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic/fail.png", "logs/pic/pass.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -179,7 +182,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -204,7 +207,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -224,7 +227,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -244,7 +247,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
@@ -268,7 +271,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
@@ -291,7 +294,7 @@ public class BuildWorkArtifactUploadingTest {
 
         BuildAssignment buildAssigment = createAssignment(artifactPlans, new String[]{"target/pkg/"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
@@ -316,7 +319,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic/pass.png", "logs/pic-1/pass.png"});
 
-        BuildWork work = new BuildWork(buildAssigment);
+        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub(new ArrayList<>(),
                 new ArrayList<>(), new HttpServiceStub(), new URLService(), new ZipUtilThatRunsOutOfMemory());
 
@@ -362,7 +365,7 @@ public class BuildWorkArtifactUploadingTest {
         }
 
         public void build(DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
             try {
                 FileUtil.createFilesByPath(buildWorkingDirectory, files);
             } catch (IOException e) {

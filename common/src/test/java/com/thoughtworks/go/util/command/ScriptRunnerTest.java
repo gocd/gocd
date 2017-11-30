@@ -58,7 +58,7 @@ public class ScriptRunnerTest {
 
     @Test
     public void shouldReplaceSecretsInErrors() throws CheckedCommandLineException {
-        CommandLine command = CommandLine.createCommandLine("notexist").withArg("My password is ").withArg(
+        CommandLine command = CommandLine.createCommandLine("notexist").withEncoding("utf-8").withArg("My password is ").withArg(
                 new PasswordArgument("secret"));
         InMemoryConsumer output = new InMemoryConsumer();
         try {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public class DefaultWorkCreator implements WorkCreator {
             CruiseConfig config = GoConfigMother.pipelineHavingJob(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, ARTIFACT_FILE.getAbsolutePath(), ARTIFACT_FOLDER.getAbsolutePath());
             BuildCause buildCause = BuildCause.createWithEmptyModifications();
             BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME), new EnvironmentVariableContext(), new ArtifactStores());
-            return new BuildWork(buildAssignment);
+            return new BuildWork(buildAssignment, "utf-8");
         } catch (Exception e) {
             throw bomb(e);
         }

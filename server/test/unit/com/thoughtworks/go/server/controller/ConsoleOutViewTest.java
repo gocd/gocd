@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConsoleConsumer;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.mock;
 public class ConsoleOutViewTest {
     private static final List<String> CHARSETS = Arrays.asList("utf-8", "utf-16", "ISO-8859-7", "IBM00858", "KOI8-R", "US-ASCII");
 
-    private String randomCharset;
+    private Charset randomCharset;
 
     @Test
     public void setsUpContentEncoding() throws Exception {
@@ -55,11 +56,11 @@ public class ConsoleOutViewTest {
         assertThat(view.getContentType(), is("text/plain; charset=" + randomCharset()));
     }
 
-    private String randomCharset() {
+    private Charset randomCharset() {
         if (randomCharset == null) {
             List<String> charsets = new ArrayList<>(CHARSETS);
             Collections.shuffle(charsets);
-            randomCharset = charsets.get(new Random().nextInt(charsets.size()));
+            randomCharset = Charset.forName(charsets.get(new Random().nextInt(charsets.size())));
         }
 
         return randomCharset;

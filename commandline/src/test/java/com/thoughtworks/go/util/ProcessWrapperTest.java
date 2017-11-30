@@ -17,15 +17,15 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.util.command.*;
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,24 +37,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ProcessWrapperTest {
-    private File tempFolder;
-
-    @Before
-    public void setUp() throws Exception {
-        tempFolder = FileUtil.createTempFolder();
-        assertThat(tempFolder.exists(), is(true));
-    }
-
-    @After
-    public void teardown() throws Exception {
-        FileUtils.deleteQuietly(tempFolder);
-    }
 
     @Test
     public void shouldReturnTrueWhenAProcessIsRunning(){
         Process process = getMockedProcess(mock(OutputStream.class));
         when(process.exitValue()).thenThrow(new IllegalThreadStateException());
-        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), null, null);
+        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
         assertThat(processWrapper.isRunning(), is(true));
     }
 
@@ -62,7 +50,7 @@ public class ProcessWrapperTest {
     public void shouldReturnFalseWhenAProcessHasExited(){
         Process process = getMockedProcess(mock(OutputStream.class));
         when(process.exitValue()).thenReturn(1);
-        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), null, null);
+        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
         assertThat(processWrapper.isRunning(), is(false));
     }
 
@@ -70,7 +58,7 @@ public class ProcessWrapperTest {
     public void shouldTypeInputToConsole(){
         OutputStream processInputStream = new ByteArrayOutputStream();// mock(OutputStream.class);
         Process process = getMockedProcess(processInputStream);
-        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), null, null);
+        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
         ArrayList<String> inputs = new ArrayList<>();
         inputs.add("input1");
         inputs.add("input2");
@@ -84,7 +72,7 @@ public class ProcessWrapperTest {
 
     @Test
     public void shouldThrowExceptionWhenExecutableDoesNotExist() throws IOException {
-        CommandLine line = CommandLine.createCommandLine("doesnotexist");
+        CommandLine line = CommandLine.createCommandLine("doesnotexist").withEncoding("utf-8");
         try {
             ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
             line.execute(outputStreamConsumer, new EnvironmentVariableContext(), null);
@@ -98,7 +86,7 @@ public class ProcessWrapperTest {
 
     @Test
     public void shouldTryCommandWithTimeout() throws IOException {
-        CommandLine line = CommandLine.createCommandLine("doesnotexist");
+        CommandLine line = CommandLine.createCommandLine("doesnotexist").withEncoding("utf-8");
         try {
             line.waitForSuccess(100);
             fail("Expected Exception");
@@ -113,7 +101,7 @@ public class ProcessWrapperTest {
     public void shouldCollectOutput() throws Exception {
         String output = "SYSOUT: Hello World!";
         String error = "SYSERR: Some error happened!";
-        CommandLine line = CommandLine.createCommandLine("ruby").withArgs(script("echo"), output, error);
+        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("echo"), output, error);
         ConsoleResult result = run(line);
 
         assertThat("Errors: " + result.errorAsString(), result.returnValue(), is(0));
@@ -128,7 +116,7 @@ public class ProcessWrapperTest {
     @Test
     public void shouldAcceptInputString() throws Exception {
         String input = "SYSIN: Hello World!";
-        CommandLine line = CommandLine.createCommandLine("ruby").withArgs(script("echo-input"));
+        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("echo-input"));
         ConsoleResult result = run(line, input);
         assertThat(result.output(), contains(input));
         assertThat(result.error().size(), is(0));
@@ -138,7 +126,7 @@ public class ProcessWrapperTest {
     public void shouldBeAbleToCompleteInput() throws Exception {
         String input1 = "SYSIN: Line 1!";
         String input2 = "SYSIN: Line 2!";
-        CommandLine line = CommandLine.createCommandLine("ruby").withArgs(script("echo-all-input"));
+        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("echo-all-input"));
         ConsoleResult result = run(line, input1, input2);
         assertThat(result.returnValue(), is(0));
         assertThat(result.output(), contains("You said: " + input1));
@@ -148,7 +136,7 @@ public class ProcessWrapperTest {
 
     @Test
     public void shouldReportReturnValueIfProcessFails() {
-        CommandLine line = CommandLine.createCommandLine("ruby").withArgs(script("nonexistent-script"));
+        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("nonexistent-script"));
         ConsoleResult result = run(line);
         assertThat(result.returnValue(), is(1));
     }
@@ -156,7 +144,7 @@ public class ProcessWrapperTest {
     @Test
     public void shouldSetGoServerVariablesIfTheyExist() {
         System.setProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME", "999");
-        CommandLine line = CommandLine.createCommandLine("ruby").withArgs(script("dump-environment"));
+        CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("dump-environment"));
         ConsoleResult result = run(line);
         assertThat("Errors: " + result.errorAsString(), result.returnValue(), is(0));
         assertThat(result.output(), contains("GO_DEPENDENCY_LABEL_PIPELINE_NAME=999"));

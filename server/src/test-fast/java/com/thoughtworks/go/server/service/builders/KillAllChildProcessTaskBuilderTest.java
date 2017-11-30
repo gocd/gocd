@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class KillAllChildProcessTaskBuilderTest {
 
         long before = getSystemTime();
         Builder builder = new KillAllChildProcessTaskBuilder().createBuilder(builderFactory, new KillAllChildProcessTask(), null, null);
-        builder.build(publisher, environmentVariableContext, null, null, null);
+        builder.build(publisher, environmentVariableContext, null, null, null, "utf-8");
 
         assertThat(processWrapper.waitForExit(), is(greaterThan(0)));
         assertThat(getSystemTime() - before, is(lessThan(10 * 60 * 1000 * 1000 * 1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;

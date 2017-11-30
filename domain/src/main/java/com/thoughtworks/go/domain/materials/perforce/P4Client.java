@@ -72,7 +72,7 @@ public class P4Client extends SCMCommand {
     }
 
     public ConsoleResult version() {
-        CommandLine p4 = createCommandLine("p4").withArgs("-V");
+        CommandLine p4 = createCommandLine("p4").withArgs("-V").withEncoding("utf-8");
         return execute(p4);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class SleepWork implements Work {
         agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo("sleepwork", "sleepwork1"));
         boolean canceled = false;
         DefaultGoPublisher goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), new JobIdentifier(),
-                agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo());
+                agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), "utf-8");
 
         try {
             if (this.sleepInMilliSeconds > 0) {

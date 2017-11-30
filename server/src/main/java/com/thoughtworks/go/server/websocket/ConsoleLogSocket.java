@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -31,12 +32,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 @WebSocket
 public class ConsoleLogSocket implements SocketEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSocket.class);
+    private static final Gson GSON = new Gson();
 
     private final JobIdentifier jobIdentifier;
     private final ConsoleLogSender handler;
@@ -44,12 +47,14 @@ public class ConsoleLogSocket implements SocketEndpoint {
     private String sessionId;
     private String key;
     private SocketHealthService socketHealthService;
+    private final String consoleLogCharsetJSONMessage;
 
-    ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService) {
+    ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService, String consoleLogCharset) {
         this.handler = handler;
         this.jobIdentifier = jobIdentifier;
         this.key = String.format("%s:%d", jobIdentifier, hashCode());
         this.socketHealthService = socketHealthService;
+        this.consoleLogCharsetJSONMessage = GSON.toJson(Collections.singletonMap("charset", consoleLogCharset));
     }
 
     @OnWebSocketConnect
@@ -58,6 +63,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
         socketHealthService.register(this);
         LOGGER.debug("{} connected", sessionName());
 
+        session.getRemote().sendString(consoleLogCharsetJSONMessage);
 
         long start = parseStartLine(session.getUpgradeRequest());
         LOGGER.debug("{} sending logs for {} starting at line {}.", sessionName(), jobIdentifier, start);

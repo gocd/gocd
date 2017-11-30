@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class ConsoleOutView implements View {
     private ConsoleConsumer consumer;
-    private final String charset;
+    private final Charset charset;
 
-    public ConsoleOutView(ConsoleConsumer consumer, String charset) {
+    public ConsoleOutView(ConsoleConsumer consumer, Charset charset) {
         this.consumer = consumer;
         this.charset = charset;
     }
@@ -42,7 +43,7 @@ public class ConsoleOutView implements View {
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(getContentType());
-        response.setCharacterEncoding(charset);
+        response.setCharacterEncoding(charset.name());
         try (final PrintWriter writer = response.getWriter()) {
             try {
                 consumer.stream(new Consumer<String>() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private JobInstanceService jobInstanceService;
     @Autowired private PipelineService pipelineService;
     @Autowired private EnvironmentConfigService environmentConfigService;
-    @Autowired private TimeProvider timeProvider;
+    @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private BuilderFactory builderFactory;
     @Autowired private InstanceFactory instanceFactory;
@@ -357,7 +357,7 @@ public class BuildAssignmentServiceIntegrationTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, timeProvider);
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, systemEnvironment);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
@@ -400,7 +400,7 @@ public class BuildAssignmentServiceIntegrationTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, timeProvider);
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, systemEnvironment);
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();

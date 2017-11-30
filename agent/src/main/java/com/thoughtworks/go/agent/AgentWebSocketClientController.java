@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,9 +171,10 @@ public class AgentWebSocketClientController extends AgentController {
             buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
         } else {
             buildConsole = new ConsoleOutputTransmitter(
-                    new RemoteConsoleAppender(
-                            urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
-                            httpService)
+                new RemoteConsoleAppender(
+                    urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
+                    httpService,
+                    buildSettings.getConsoleLogCharset())
             );
         }
 

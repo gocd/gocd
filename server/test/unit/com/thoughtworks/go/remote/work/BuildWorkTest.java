@@ -184,6 +184,16 @@ public class BuildWorkTest {
             + "  </tasks>\n"
             + "</job>";
 
+    private static final String WITH_GO_SERVER_URL_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
+            + "  <environmentvariables>\n"
+            + "    <variable name=\"GO_SERVER_URL\">\n"
+            + "      <value>go_server_url_from_job</value>\n"
+            + "    </variable>\n"
+            + "  </environmentvariables>\n"
+            + "  <tasks>\n"
+            + "    <ant target=\"-help\" />\n"
+            + "  </tasks>\n"
+            + "</job>";
 
     private EnvironmentVariableContext environmentVariableContext;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
@@ -648,6 +658,18 @@ public class BuildWorkTest {
         } else {
             assertThat(consoleOut, containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
         }
+    }
+
+    @Test
+    public void shouldOverrideAgentGO_SERVER_URL_EnvironmentVariableIfDefinedInJob() throws Exception {
+        buildWork = (BuildWork) getWork(WITH_GO_SERVER_URL_ENV_VAR, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+
+        String consoleOut = artifactManipulator.consoleOut();
+
+        assertThat(consoleOut, containsString("[go] setting environment variable 'GO_SERVER_URL' to value 'somewhere-does-not-matter'"));
+        assertThat(consoleOut, containsString("[go] overriding environment variable 'GO_SERVER_URL' with value 'go_server_url_from_job'"));
     }
 
     @Test

@@ -668,7 +668,7 @@ public class BuildWorkTest {
 
         String consoleOut = artifactManipulator.consoleOut();
 
-        assertThat(consoleOut, containsString("[go] setting environment variable 'GO_SERVER_URL' to value 'somewhere-does-not-matter'"));
+        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
         assertThat(consoleOut, containsString("[go] overriding environment variable 'GO_SERVER_URL' with value 'go_server_url_from_job'"));
     }
 

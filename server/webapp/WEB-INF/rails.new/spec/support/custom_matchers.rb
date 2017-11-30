@@ -170,11 +170,11 @@ end
 RSpec::Matchers.define :have_links do |*link_names|
 
   failure_message do |hal_json|
-    @matcher.failure_message_for_should
+    @matcher.failure_message
   end
 
   failure_message_when_negated do |hal_json|
-    @matcher.failure_message_for_should_not
+    @matcher.failure_message_when_negated
   end
 
   description do |hal_json|
@@ -182,9 +182,8 @@ RSpec::Matchers.define :have_links do |*link_names|
   end
 
   match do |hal_json|
-    expect((hal_json[:_links] || {}).keys.collect(&:to_sym)).to match_array(link_names.collect(&:to_sym))
-    # @matcher = RSpec::Matchers::BuiltIn::MatchArray.new(link_names.collect(&:to_sym))
-    # @matcher.matches?((hal_json[:_links] || {}).keys.collect(&:to_sym))
+    @matcher = RSpec::Matchers::BuiltIn::ContainExactly.new(link_names.collect(&:to_sym))
+    @matcher.matches?((hal_json[:_links] || {}).keys.collect(&:to_sym))
   end
 end
 

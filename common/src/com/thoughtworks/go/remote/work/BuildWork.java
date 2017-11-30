@@ -84,7 +84,6 @@ public class BuildWork implements Work {
                        EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo,
                        PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension);
-        environmentVariableContext.addAll(assignment.initialEnvironmentVariableContext());
         try {
             JobResult result = build(environmentVariableContext, agentIdentifier, packageRepositoryExtension, scmExtension);
             reportCompletion(result);
@@ -190,6 +189,7 @@ public class BuildWork implements Work {
 
     private void setupEnvrionmentContext(EnvironmentVariableContext context) {
         context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
+        context.addAll(assignment.initialEnvironmentVariableContext());
     }
 
     private JobResult buildJob(EnvironmentVariableContext environmentVariableContext) {

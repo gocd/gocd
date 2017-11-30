@@ -17,20 +17,27 @@
 package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class PluginInfoProvider implements ServerInfoProvider {
 
     private final DefaultPluginInfoFinder pluginInfoFinder;
+    private final PluginManager pluginManager;
 
     @Autowired
-    public PluginInfoProvider(DefaultPluginInfoFinder pluginInfoFinder) {
+    public PluginInfoProvider(DefaultPluginInfoFinder pluginInfoFinder, PluginManager pluginManager) {
         this.pluginInfoFinder = pluginInfoFinder;
+        this.pluginManager = pluginManager;
     }
 
     @Override
@@ -41,9 +48,10 @@ public class PluginInfoProvider implements ServerInfoProvider {
     @Override
     public Map<String, Object> asJson() {
         List<Map<String, Object>> plugins = new ArrayList<>();
-        Collection<PluginInfo> pluginInfos = pluginInfoFinder.allPluginInfos(null);
-        for (PluginInfo pluginInfo : pluginInfos) {
-            Map<String, Object> pluginJson = getPluginJson(pluginInfo);
+        List<GoPluginDescriptor> goPluginDescriptors = pluginManager.plugins();
+        for (GoPluginDescriptor goPluginDescriptor : goPluginDescriptors) {
+            PluginInfo pluginInfo = pluginInfoFinder.pluginInfoFor(goPluginDescriptor.id());
+            Map<String, Object> pluginJson = getPluginJson(pluginInfo, goPluginDescriptor);
             plugins.add(pluginJson);
         }
         Map<String, Object> json = new LinkedHashMap<>();
@@ -51,10 +59,13 @@ public class PluginInfoProvider implements ServerInfoProvider {
         return json;
     }
 
-    private Map<String, Object> getPluginJson(PluginInfo pluginInfo) {
+    private Map<String, Object> getPluginJson(PluginInfo pluginInfo, GoPluginDescriptor goPluginDescriptor) {
         Map<String, Object> pluginJson = new LinkedHashMap<>();
-        pluginJson.put("id", pluginInfo.getDescriptor().id());
-        pluginJson.put("type", pluginInfo.getExtensionName());
+        pluginJson.put("id", goPluginDescriptor.id());
+        pluginJson.put("type", pluginInfo == null ? "" : pluginInfo.getExtensionName());
+        pluginJson.put("version", goPluginDescriptor.about().version());
+        pluginJson.put("bundled_plugin", goPluginDescriptor.isBundledPlugin());
+        pluginJson.put("status", goPluginDescriptor.getStatus());
         return pluginJson;
     }
 

@@ -69,17 +69,13 @@
  */
 package com.thoughtworks.go.util.command;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.TimeUnit;
-
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -97,19 +93,19 @@ public class StreamPumper implements Runnable {
     private long lastHeard;
     private final Clock clock;
 
-    public StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix) {
+    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix) {
         this(in, streamConsumer, prefix, null);
     }
 
-    public StreamPumper(InputStream inputStream, StreamConsumer streamConsumer) {
+    StreamPumper(InputStream inputStream, StreamConsumer streamConsumer) {
         this(inputStream, streamConsumer, "");
     }
 
-    public StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding) {
+    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding) {
         this(in, streamConsumer, prefix, encoding, new SystemTimeClock());
     }
 
-    public StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding, Clock clock) {
+    StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding, Clock clock) {
         this.streamConsumer = streamConsumer;
         this.prefix = prefix;
         this.clock = clock;

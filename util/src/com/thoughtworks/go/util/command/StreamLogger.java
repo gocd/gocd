@@ -19,8 +19,6 @@ package com.thoughtworks.go.util.command;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
-import java.io.InputStream;
-
 /**
  * Logs the content of a Stream line by line.
  */
@@ -33,31 +31,14 @@ public final class StreamLogger implements StreamConsumer {
         this.level = level;
     }
 
-    public static StreamConsumer getInfoLogger(Logger log) {
+    static StreamConsumer getInfoLogger(Logger log) {
         return new StreamLogger(log, Level.INFO);
     }
 
-    public static StreamPumper getInfoPumper(Logger log, InputStream info) {
-        return new StreamPumper(info, new StreamLogger(log, Level.INFO));
-    }
-
-    public static StreamPumper getInfoPumper(Logger log, Process process) {
-        return getInfoPumper(log, process.getInputStream());
-    }
-
-    public static StreamConsumer getWarnLogger(Logger log) {
+    static StreamConsumer getWarnLogger(Logger log) {
         return new StreamLogger(log, Level.WARN);
     }
 
-    public static StreamPumper getWarnPumper(Logger log, InputStream warn) {
-        return new StreamPumper(warn, new StreamLogger(log, Level.WARN));
-    }
-
-    public static StreamPumper getWarnPumper(Logger log, Process process) {
-        return getWarnPumper(log, process.getErrorStream());
-    }
-
-    /** {@inheritDoc} */
     public void consumeLine(String line) {
         switch(level){
             case ERROR:

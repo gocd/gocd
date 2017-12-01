@@ -42,8 +42,12 @@ public class FeatureToggleService {
     }
 
     public FeatureToggles allToggles() {
+        FeatureToggles allToggles = (FeatureToggles) goCache.get(USER_TOGGLES_CACHE_KEY);
+        if (allToggles != null) {
+            return allToggles;
+        }
         synchronized (USER_TOGGLES_CACHE_KEY) {
-            FeatureToggles allToggles = (FeatureToggles) goCache.get(USER_TOGGLES_CACHE_KEY);
+            allToggles = (FeatureToggles) goCache.get(USER_TOGGLES_CACHE_KEY);
             if (allToggles != null) {
                 return allToggles;
             }

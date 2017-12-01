@@ -35,7 +35,7 @@ public class FeatureToggleInfoProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 1.1;
+        return 12.5;
     }
 
     @Override

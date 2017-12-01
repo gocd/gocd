@@ -33,6 +33,7 @@ describe "/layouts/admin" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_user_a_template_admin?).and_return(false)
     allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
+    allow(view).to receive(:is_plugin_spa_toggle_enabled?).and_return(false)
     class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)

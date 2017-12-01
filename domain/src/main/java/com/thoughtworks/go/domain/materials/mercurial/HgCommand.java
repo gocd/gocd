@@ -59,19 +59,19 @@ public class HgCommand extends SCMCommand {
     }
 
     public String version() {
-        CommandLine hg = createCommandLine("hg").withArgs("version");
+        CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("utf-8");
         return execute(hg, "hg version check").outputAsString();
     }
 
 
     public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, UrlArgument repositoryUrl) {
         CommandLine hg = createCommandLine("hg").withArgs("clone").withArg("-b").withArg(branch).withArg(repositoryUrl)
-                .withArg(workingDir.getAbsolutePath()).withNonArgSecrets(secrets);
+                .withArg(workingDir.getAbsolutePath()).withNonArgSecrets(secrets).withEncoding("utf-8");
         return execute(hg, outputStreamConsumer);
     }
 
     public void checkConnection(UrlArgument repositoryURL) {
-        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets), repositoryURL.forDisplay());
+        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets).withEncoding("utf-8"), repositoryURL.forDisplay());
     }
 
     public void updateTo(Revision revision, ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -144,7 +144,7 @@ public class HgCommand extends SCMCommand {
     }
 
     private CommandLine hg(String... arguments) {
-        return createCommandLine("hg").withArgs(arguments).withNonArgSecrets(secrets).withWorkingDir(workingDir);
+        return createCommandLine("hg").withArgs(arguments).withNonArgSecrets(secrets).withWorkingDir(workingDir).withEncoding("UTF-8");
     }
 
     private static ConsoleResult execute(CommandLine hgCmd, String processTag) {

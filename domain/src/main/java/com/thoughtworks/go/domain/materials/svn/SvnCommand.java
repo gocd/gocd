@@ -219,7 +219,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     public String version() {
-        CommandLine svn = createCommandLine("svn").withArgs("--version");
+        CommandLine svn = svn(false).withArgs("--version");
         return executeCommand(svn).outputAsString();
     }
 

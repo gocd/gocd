@@ -156,7 +156,8 @@ public class P4Client extends SCMCommand {
 
         CommandLine line = createCommandLine("p4")
                 .withArgs(command).withArgs(params)
-                .withEnv(env);
+                .withEnv(env)
+                .withEncoding("UTF-8");
         if (hasPassword()) {
             line = line.withNonArgSecret(new PasswordArgument(p4passwd));
         }

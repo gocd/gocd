@@ -80,7 +80,7 @@ public class P4TestRepo extends TestRepo {
     }
 
     private void waitForP4dToStartup() throws Exception {
-        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "info");
+        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "info").withEncoding("utf-8");
         command.waitForSuccess(60 * 1000);
     }
 
@@ -112,13 +112,13 @@ public class P4TestRepo extends TestRepo {
     }
 
     public void stop() {
-        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "admin", "stop");
+        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "admin", "stop").withEncoding("utf-8");
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
         command.run(outputStreamConsumer,null);
     }
 
     private ProcessWrapper startP4dInRepo(File tempRepo) throws IOException, CheckedCommandLineException {
-        CommandLine command = createCommandLine("p4d").withArgs("-C0", "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port));
+        CommandLine command = createCommandLine("p4d").withArgs("-C0", "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port)).withEncoding("utf-8");
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
         return command.execute(outputStreamConsumer, new EnvironmentVariableContext(),null);
     }
@@ -228,7 +228,7 @@ public class P4TestRepo extends TestRepo {
         arrays.add(serverAndPort());
         arrays.addAll(Arrays.asList(args));
 
-        CommandLine command = createCommandLine("p4").withWorkingDir(workingDir).withArgs("-p", serverAndPort()).withArgs(args);
+        CommandLine command = createCommandLine("p4").withWorkingDir(workingDir).withArgs("-p", serverAndPort()).withArgs(args).withEncoding("utf-8");
         command.run(consumer2,null);
     }
 

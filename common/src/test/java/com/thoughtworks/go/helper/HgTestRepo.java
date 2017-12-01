@@ -105,7 +105,7 @@ public class HgTestRepo extends TestRepo {
     }
 
     private CommandLine hgAt(File workingFolder, String... arguments) {
-        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments);
+        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding("utf-8");
         hg.setWorkingDir(workingFolder);
         return hg;
     }

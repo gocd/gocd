@@ -34,7 +34,7 @@ public class ScriptRunnerTest {
     @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
     public void shouldReplaceSecretsOnTheOutputUnderLinux() throws CheckedCommandLineException {
         CommandLine command = CommandLine.createCommandLine("echo").withArg("My password is ").withArg(
-                new PasswordArgument("secret"));
+                new PasswordArgument("secret")).withEncoding("utf-8");
         InMemoryConsumer output = new InMemoryConsumer();
 
         command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
@@ -48,7 +48,8 @@ public class ScriptRunnerTest {
                 .withArg("/c")
                 .withArg("echo")
                 .withArg("My password is ")
-                .withArg(new PasswordArgument("secret"));
+                .withArg(new PasswordArgument("secret"))
+                .withEncoding("utf-8");
         InMemoryConsumer output = new InMemoryConsumer();
 
         command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
@@ -86,7 +87,7 @@ public class ScriptRunnerTest {
     public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
-        CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password");
+        CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding("utf-8");
         InMemoryConsumer output = new InMemoryConsumer();
         ExecScript script = new ExecScript("ERROR_STRING");
 

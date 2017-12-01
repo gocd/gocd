@@ -47,7 +47,7 @@ public class KillAllChildProcessTaskBuilderTest {
 
     @Test(timeout = 11 * 60 * 1000)//11 minutes
     public void shouldKillAllChildProcessOnbuild() throws Exception {
-        ProcessWrapper processWrapper = CommandLine.createCommandLine("sleep").withArg(String.valueOf(10 * 60)).execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
+        ProcessWrapper processWrapper = CommandLine.createCommandLine("sleep").withArg(String.valueOf(10 * 60)).withEncoding("utf-8").execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
                 null);//60 mins
 
         assertThat(processWrapper.isRunning(), is(true));

@@ -37,9 +37,11 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DateUtils.parseISO8601;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -56,8 +58,6 @@ public class HgMaterialTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private HgMaterial hgMaterial;
-    private static final Date FROM = parseISO8601("2008-03-03 18:40:37 +0800");
-    private static final Date TO = parseISO8601("2008-03-03 23:13:50 +0800");
     private HgTestRepo hgTestRepo;
     private File workingFolder;
     private InMemoryStreamConsumer outputStreamConsumer;

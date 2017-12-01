@@ -51,7 +51,8 @@ public class SvnRemoteRepository {
 
         port = RandomPort.find(toString());
         CommandLine svnserve = CommandLine.createCommandLine("svnserve")
-                .withArgs("-d", "--foreground", "--listen-port", Integer.toString(port), "-r", repo.projectRepositoryRoot().getCanonicalPath());
+                .withArgs("-d", "--foreground", "--listen-port", Integer.toString(port), "-r", repo.projectRepositoryRoot().getCanonicalPath())
+                .withEncoding("utf-8");
         consumer = inMemoryConsumer();
         processWrapper = svnserve.execute(consumer, new EnvironmentVariableContext(),null);
 

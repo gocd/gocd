@@ -44,8 +44,8 @@ public class HgCommandTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private static File serverRepo;
-    private static File clientRepo;
+    private File serverRepo;
+    private File clientRepo;
 
     private HgCommand hgCommand;
 
@@ -58,9 +58,9 @@ public class HgCommandTest {
 
     @Before
     public void setUp() throws IOException {
-        serverRepo = createTmpFolder("testHgServerRepo");
-        clientRepo = createTmpFolder("testHgClientRepo");
-        secondBranchWorkingCopy = createTmpFolder("second");
+        serverRepo = temporaryFolder.newFolder("testHgServerRepo");
+        clientRepo = temporaryFolder.newFolder("testHgClientRepo");
+        secondBranchWorkingCopy = temporaryFolder.newFolder("second");
 
         setUpServerRepoFromHgBundle(serverRepo, new File("../common/src/test/resources/data/hgrepo.hgbundle"));
         workingDirectory = new File(clientRepo.getPath());
@@ -187,13 +187,9 @@ public class HgCommandTest {
     }
 
     private CommandLine hg(File workingDir, String... arguments) {
-        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments);
+        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding("utf-8");
         hg.setWorkingDir(workingDir);
         return hg;
-    }
-
-    private File createTmpFolder(String folderName) throws IOException {
-        return temporaryFolder.newFolder(folderName, "repo");
     }
 
     private void commit(String message, File workingDir) {
@@ -234,7 +230,7 @@ public class HgCommandTest {
     private void setUpServerRepoFromHgBundle(File serverRepo, File hgBundleFile) {
         String[] input = new String[]{};
         CommandLine.createCommandLine("hg")
-                .withArgs("clone", hgBundleFile.getAbsolutePath(), serverRepo.getAbsolutePath()).runOrBomb(null, input);
+                .withArgs("clone", hgBundleFile.getAbsolutePath(), serverRepo.getAbsolutePath()).withEncoding("utf-8").runOrBomb(null, input);
     }
 
     private void makeACommitToSecondBranch() {

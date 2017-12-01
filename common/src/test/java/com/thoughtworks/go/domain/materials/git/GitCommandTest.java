@@ -646,6 +646,7 @@ public class GitCommandTest {
     private void executeOnDir(File dir, String command, String... args) {
         CommandLine commandLine = CommandLine.createCommandLine(command);
         commandLine.withArgs(args);
+        commandLine.withEncoding("utf-8");
         assertThat(dir.exists(), is(true));
         commandLine.setWorkingDir(dir);
         commandLine.runOrBomb(true, null);

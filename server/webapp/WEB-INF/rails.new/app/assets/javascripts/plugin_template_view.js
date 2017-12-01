@@ -45,7 +45,7 @@ var PluginTemplateView = function () {
         .directive('pluginTemplate', ['$compile', function ($compile) {
             return {
                 restrict: 'A',
-                link: function ($scope, $element, $attributes) {
+                compile: function ($element, $attributes) {
                     var namePrefix = $attributes['pluginTemplate'];
                     $element.find("[ng-model]").each(function (index, element) {
                         element.setAttribute("name", namePrefix + "[" + element.getAttribute("ng-model") + "]");
@@ -59,7 +59,6 @@ var PluginTemplateView = function () {
                         html = html.replace(new RegExp("GOINPUTNAME\\[" + inputName + "\\]", "g"), formName + "['" + element.getAttribute("name") + "']");
                     });
                     $element.html(html);
-                    $compile($element.contents())($scope);
                 }
             };
         }])

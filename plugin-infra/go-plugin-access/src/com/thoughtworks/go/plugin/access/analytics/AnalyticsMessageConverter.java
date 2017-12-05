@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.domain.common;
+package com.thoughtworks.go.plugin.access.analytics;
 
-public interface PluginConstants {
-    String AUTHORIZATION_EXTENSION = "authorization";
-    String ELASTIC_AGENT_EXTENSION = "elastic-agent";
-    String NOTIFICATION_EXTENSION = "notification";
-    String AUTHENTICATION_EXTENSION = "authentication";
-    String SCM_EXTENSION = "scm";
-    String PLUGGABLE_TASK_EXTENSION = "task";
-    String PACKAGE_MATERIAL_EXTENSION = "package-repository";
-    String CONFIG_REPO_EXTENSION = "configrepo";
-    String ANALYTICS_EXTENSION = "analytics";
+public interface AnalyticsMessageConverter {
+    com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody);
+
+    String getPipelineAnalyticsRequestBody(String pipelineName);
+
+    String getPipelineAnalyticsFromResponseBody(String responseBody);
 }

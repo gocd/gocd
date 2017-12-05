@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.domain.common;
+package com.thoughtworks.go.plugin.access.analytics.models;
 
-public interface PluginConstants {
-    String AUTHORIZATION_EXTENSION = "authorization";
-    String ELASTIC_AGENT_EXTENSION = "elastic-agent";
-    String NOTIFICATION_EXTENSION = "notification";
-    String AUTHENTICATION_EXTENSION = "authentication";
-    String SCM_EXTENSION = "scm";
-    String PLUGGABLE_TASK_EXTENSION = "task";
-    String PACKAGE_MATERIAL_EXTENSION = "package-repository";
-    String CONFIG_REPO_EXTENSION = "configrepo";
-    String ANALYTICS_EXTENSION = "analytics";
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+
+public class CapabilitiesTest {
+
+    @Test
+    public void shouldDeserializeFromJSON() throws Exception {
+        String json = "" +
+                "{\n" +
+                "  \"supports_pipeline_analytics\": \"true\"\n" +
+                "}";
+
+        Capabilities capabilities = Capabilities.fromJSON(json);
+
+        assertTrue(capabilities.supportsPipelineAnalytics());
+    }
 }

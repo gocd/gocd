@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.domain.common;
+package com.thoughtworks.go.plugin.access.analytics;
 
-public interface PluginConstants {
-    String AUTHORIZATION_EXTENSION = "authorization";
-    String ELASTIC_AGENT_EXTENSION = "elastic-agent";
-    String NOTIFICATION_EXTENSION = "notification";
-    String AUTHENTICATION_EXTENSION = "authentication";
-    String SCM_EXTENSION = "scm";
-    String PLUGGABLE_TASK_EXTENSION = "task";
-    String PACKAGE_MATERIAL_EXTENSION = "package-repository";
-    String CONFIG_REPO_EXTENSION = "configrepo";
-    String ANALYTICS_EXTENSION = "analytics";
+import java.util.Arrays;
+import java.util.List;
+
+public interface AnalyticsPluginConstants {
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(AnalyticsMessageConverterV1.VERSION);
+
+    String EXTENSION_NAME = "analytics";
+
+    String REQUEST_PREFIX = "go.cd.analytics";
+    String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
+    String REQUEST_GET_PIPELINE_ANALYTICS = REQUEST_PREFIX + ".get-pipeline-analytics";
 }

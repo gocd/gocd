@@ -88,7 +88,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
     public static final String CONFIGURATION_TYPE_TEMPLATE = "configurationType_template";
-    public static final String LABEL_TEMPLATE_FORMAT_MESSAGE = "Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.";
+    public static final String LABEL_TEMPLATE_FORMAT_MESSAGE = "Label should be composed of alphanumeric text, it can contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.";
     public static final String LABEL_TEMPLATE_ERROR_MESSAGE = "Invalid label '%s'. ".concat(LABEL_TEMPLATE_FORMAT_MESSAGE);
     public static final String BLANK_LABEL_TEMPLATE_ERROR_MESSAGE = "Label cannot be blank. ".concat(LABEL_TEMPLATE_FORMAT_MESSAGE);
 

@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractExtension implements GoPluginExtension {
@@ -66,6 +67,12 @@ public abstract class AbstractExtension implements GoPluginExtension {
     }
 
     public void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings) {
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+
+        if (!pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).supportsPluginSettingsNotification()) {
+            return;
+        }
+
         pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -73,6 +80,8 @@ public abstract class AbstractExtension implements GoPluginExtension {
             }
         });
     }
+
+    protected abstract List<String> goSupportedVersions();
 
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new DefaultPluginInteractionCallback<ValidationResult>() {
@@ -88,7 +97,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
         });
     }
 
-    public void registerHandler(String version, PluginSettingsJsonMessageHandler1_0 handler) {
+    public void registerHandler(String version, PluginSettingsJsonMessageHandler handler) {
         pluginSettingsMessageHandlerMap.put(version, handler);
     }
 }

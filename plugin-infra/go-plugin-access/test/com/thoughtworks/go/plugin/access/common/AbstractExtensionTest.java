@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.common;
 
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -30,14 +31,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
@@ -49,12 +53,18 @@ public class AbstractExtensionTest {
 
     private PluginRequestHelper pluginRequestHelper;
     private String extensionName;
-    private List<String> goSupportedVersions;
+    private static List<String> goSupportedVersions = Arrays.asList("1.0", "2.0");
     private String pluginId;
 
     private static class TestExtension extends AbstractExtension {
+
         protected TestExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
             super(pluginManager, pluginRequestHelper, extensionName);
+        }
+
+        @Override
+        protected List<String> goSupportedVersions() {
+            return goSupportedVersions;
         }
     }
 
@@ -64,7 +74,6 @@ public class AbstractExtensionTest {
 
         pluginId = "plugin_id";
         extensionName = "testExtension";
-        goSupportedVersions = Collections.singletonList("1.0");
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, extensionName);
         extension = new TestExtension(pluginManager, pluginRequestHelper, extensionName);
 
@@ -73,12 +82,12 @@ public class AbstractExtensionTest {
     }
 
     @Test
-    public void shouldNotifyOnSettingsChange() throws Exception {
-        String supportedVersion = "1.0";
+    public void shouldNotifySettingsChangeForPluginWhichSupportsNotification() throws Exception {
+        String supportedVersion = "2.0";
         Map<String, String> settings = Collections.singletonMap("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler1_0());
+        extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler2_0());
         when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(supportedVersion);
         when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
 
@@ -86,6 +95,19 @@ public class AbstractExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), extensionName,
                 supportedVersion, REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE, "{\"foo\":\"bar\"}");
+    }
+
+    @Test
+    public void shouldIgnoreSettingsChangeNotificationIfPluginDoesNotSupportsNotification() throws Exception {
+        String supportedVersion = "1.0";
+        Map<String, String> settings = Collections.singletonMap("foo", "bar");
+
+        extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler1_0());
+        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(supportedVersion);
+
+        extension.notifyPluginSettingsChange(pluginId, settings);
+
+        verify(pluginManager, times(0)).submitTo(anyString(), any(GoPluginApiRequest.class));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

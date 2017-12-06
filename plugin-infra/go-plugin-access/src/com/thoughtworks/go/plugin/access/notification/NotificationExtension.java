@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -89,5 +90,10 @@ public class NotificationExtension extends AbstractExtension {
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {
         return messageHandlerMap;
+    }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return goSupportedVersions;
     }
 }

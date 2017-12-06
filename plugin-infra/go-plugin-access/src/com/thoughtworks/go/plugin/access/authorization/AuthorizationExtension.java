@@ -240,4 +240,9 @@ public class AuthorizationExtension extends AbstractExtension {
             }
         });
     }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return SUPPORTED_VERSIONS;
+    }
 }

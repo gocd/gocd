@@ -30,4 +30,6 @@ public interface PluginSettingsJsonMessageHandler {
     String requestMessageForNotifyPluginSettingsChange(Map<String, String> pluginSettings);
 
     ValidationResult responseMessageForPluginSettingsValidation(String responseBody);
+
+    boolean supportsPluginSettingsNotification();
 }

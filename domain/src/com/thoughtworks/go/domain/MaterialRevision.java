@@ -243,6 +243,10 @@ public class MaterialRevision implements Serializable {
         material.populateEnvironmentContext(context, this, workingDir);
     }
 
+    public void populateAgentSideEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {
+        material.populateAgentSideEnvironmentContext(context, workingDir);
+    }
+
     public String getMaterialName() {
         return material.getDisplayName();
     }

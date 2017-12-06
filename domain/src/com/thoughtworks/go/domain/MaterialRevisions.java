@@ -323,6 +323,11 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
             revision.populateEnvironmentVariables(context, workingDir);
         }
     }
+    public void populateAgentSideEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {
+        for (MaterialRevision revision : this) {
+            revision.populateAgentSideEnvironmentVariables(context, workingDir);
+        }
+    }
 
     public Modifications getModifications(Material material) {
         for (MaterialRevision revision : revisions) {

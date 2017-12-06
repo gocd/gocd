@@ -22,12 +22,16 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.perforce.P4Client;
+import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -42,7 +46,9 @@ import com.thoughtworks.go.utils.SvnRepoFixture;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -79,11 +85,16 @@ public class BuildWorkEnvironmentVariablesTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private P4Material p4Material;
+    private P4Fixture p4Fixture;
+    private P4Client p4Client;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
         initMocks(this);
-        dir = new File("someFolder");
+        dir = temporaryFolder.newFolder("someFolder");
         environmentVariableContext = new EnvironmentVariableContext();
         svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo");
         svnRepoFixture.createRepository();
@@ -95,10 +106,13 @@ public class BuildWorkEnvironmentVariablesTest {
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
         setupHgRepo();
+        p4Fixture = new P4Fixture();
+        p4Material = getP4Material();
     }
 
     @After
     public void teardown() throws Exception {
+        p4Fixture.stop(p4Client);
         TestRepo.internalTearDown();
         hgTestRepo.tearDown();
         FileUtil.deleteFolder(dir);
@@ -117,6 +131,45 @@ public class BuildWorkEnvironmentVariablesTest {
         assertThat(environmentVariableContext.getProperty("GO_STAGE_COUNTER"), is("1"));
         assertThat(environmentVariableContext.getProperty("GO_JOB_NAME"), is(JOB_NAME));
         assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER"), is(TRIGGERED_BY_USER));
+    }
+
+    @Test
+    public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly() throws Exception {
+        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        BuildWork work = getBuildWorkWithP4MaterialRevision(p4Material);
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+
+        AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
+
+        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
+                new GoArtifactsManipulatorStub(),
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+
+
+        assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("10"));
+        assertThat(environmentVariableContext.getProperty("GO_SERVER_URL"), is("some_random_place"));
+        assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER"), is(TRIGGERED_BY_USER));
+        assertThat(environmentVariableContext.getProperty("GO_P4_CLIENT"), is(p4Material.clientName(dir)));
+    }
+
+    private BuildWork getBuildWorkWithP4MaterialRevision(P4Material p4Material) {
+        pipelineConfig.setMaterialConfigs(new Materials(p4Material).convertToConfigs());
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(p4Material, new Modification("user", "comment", "a@b.com", new Date(), "10")));
+        BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
+        List<Builder> builders = new ArrayList<>();
+        builders.add(new CommandBuilder("ant", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
+        BuildAssignment assignment = BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext);
+        return new BuildWork(assignment);
+    }
+
+    private P4Material getP4Material() throws Exception {
+        String view = "//depot/... //something/...";
+        P4TestRepo repo = P4TestRepo.createP4TestRepo();
+        repo.onSetup();
+        p4Fixture.setRepo(repo);
+        p4Client = p4Fixture.createClient();
+        return p4Fixture.material(view);
     }
 
     @Test public void shouldMergeEnvironmentVariablesFromInitialContext() throws Exception {

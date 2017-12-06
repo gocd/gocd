@@ -161,6 +161,8 @@ Go::Application.routes.draw do
 
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
+  get 'analytics/:plugin_id/:pipeline_name' => 'analytics#pipeline', constraints: {plugin_id: PLUGIN_ID_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_analytics
+
   scope 'pipelines' do
     defaults :no_layout => true do
       get 'material_search' => 'pipelines#material_search'

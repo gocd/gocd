@@ -16,7 +16,15 @@
 
 package com.thoughtworks.go.security;
 
+import org.apache.commons.lang.time.DateUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import javax.crypto.Cipher;
 import java.io.File;
+import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -24,32 +32,20 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.Date;
 
-import com.thoughtworks.go.util.TempFiles;
-import org.apache.commons.lang.time.DateUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.crypto.Cipher;
-
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class X509CertificateGeneratorTest {
-    private TempFiles tempFiles;
-    File keystore;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    private File keystore;
 
     @Before
-    public void setup() {
-        tempFiles = new TempFiles();
-        keystore = new File(tempFiles.createUniqueFolder("X509CertificateGeneratorTest"), "keystore");
-    }
-
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
+    public void setup() throws IOException {
+        keystore = temporaryFolder.newFile("keystore");
     }
 
     @Test

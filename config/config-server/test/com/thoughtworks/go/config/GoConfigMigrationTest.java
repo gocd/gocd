@@ -19,11 +19,14 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -38,8 +41,9 @@ import static org.mockito.Mockito.*;
 
 public class GoConfigMigrationTest {
     private GoConfigMigration goConfigMigration;
-    private TempFiles tempFiles;
     private ConfigRepository configRepo;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public static final String OLDER_VERSION_XML = "<cruise schemaVersion='" + (GoConstants.CONFIG_SCHEMA_VERSION - 1) + "' >\n"
             + "<server artifactsdir='artifactsDir' >"
@@ -64,8 +68,6 @@ public class GoConfigMigrationTest {
 
     @Before
     public void setUp() throws IOException {
-        tempFiles = new TempFiles();
-
         configRepo = mock(ConfigRepository.class);
         TimeProvider timeProvider = mock(TimeProvider.class);
         when(timeProvider.currentTime()).thenReturn(new Date());
@@ -75,14 +77,9 @@ public class GoConfigMigrationTest {
         goConfigMigration = new GoConfigMigration(configRepo, timeProvider, new ConfigCache(), registry);
     }
 
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
-    }
-
     @Test
     public void shouldCommitConfig_WithUsername_Upgrade() throws Exception {
-        File file = tempFiles.createFile("my-config.xml");
+        File file = temporaryFolder.newFile("my-config.xml");
         FileUtils.writeStringToFile(file, OLDER_VERSION_XML, UTF_8);
 
         final GoConfigRevision[] commitMade = new GoConfigRevision[1];

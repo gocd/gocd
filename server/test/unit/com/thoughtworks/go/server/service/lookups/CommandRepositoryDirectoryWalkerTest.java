@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service.lookups;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.helper.CommandSnippetMother;
@@ -29,17 +24,19 @@ import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -47,16 +44,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class CommandRepositoryDirectoryWalkerTest {
 
-    TempFiles tempFiles = new TempFiles();
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private File hiddenFolder;
     private File visibleReadableFolder;
     private File folderWithNoReadAccess;
@@ -68,19 +63,20 @@ public class CommandRepositoryDirectoryWalkerTest {
 
     @Before
     public void setUp() throws IOException {
-        hiddenFolder = tempFiles.mkdir(".hidden");
-        visibleReadableFolder = tempFiles.mkdir("visible");
-        folderWithNoReadAccess = tempFiles.mkdir("noReadAccess");
-        xmlFile = tempFiles.createFile("foo.xml");
-        docFile = tempFiles.createFile("foo.doc");
+        temporaryFolder.create();
+        hiddenFolder = temporaryFolder.newFolder(".hidden");
+        visibleReadableFolder = temporaryFolder.newFolder("visible");
+        folderWithNoReadAccess = temporaryFolder.newFolder("noReadAccess");
+        xmlFile = temporaryFolder.newFile("foo.xml");
+        docFile = temporaryFolder.newFile("foo.doc");
         serverHealthService = mock(ServerHealthService.class);
         walker = new CommandRepositoryDirectoryWalker(serverHealthService, mock(SystemEnvironment.class));
-        sampleDir = tempFiles.mkdir("sampleDir");
+        sampleDir = temporaryFolder.newFolder("sampleDir");
     }
 
     @After
     public void tearDown() {
-        tempFiles.cleanUp();
+        temporaryFolder.delete();
         sampleDir.delete();
     }
 
@@ -117,7 +113,7 @@ public class CommandRepositoryDirectoryWalkerTest {
 
     @Test
     public void shouldProcessXmlFilesInsideCommandRepo() throws Exception {
-        File command_repo = tempFiles.createUniqueFolder("command-repo");
+        File command_repo = temporaryFolder.newFolder("command-repo");
         File windows = TestFileUtil.createTestFolder(command_repo, "windows");
         FileUtils.writeStringToFile(new File(windows, "msbuild.xml"), CommandSnippetMother.validXMLSnippetContentForCommand("MsBuild"), UTF_8);
 
@@ -187,7 +183,7 @@ public class CommandRepositoryDirectoryWalkerTest {
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldUpdateServerHealthServiceIfACommandSnippetXMLIsUnReadableAndRemoveItOnceItsReadable() throws IOException {
-        File dirWithUnreadableFile = tempFiles.mkdir("dirWithUnreadableFile");
+        File dirWithUnreadableFile = temporaryFolder.newFolder("dirWithUnreadableFile");
         File unreadableFile = new File(dirWithUnreadableFile, "unreadable.xml");
         FileUtils.copyFile(xmlFile, unreadableFile);
 

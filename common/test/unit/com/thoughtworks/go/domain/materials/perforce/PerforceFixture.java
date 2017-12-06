@@ -16,25 +16,28 @@
 
 package com.thoughtworks.go.domain.materials.perforce;
 
-import java.io.File;
-
 import com.thoughtworks.go.helper.P4TestRepo;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
 
 public abstract class PerforceFixture {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     protected P4Client p4;
     protected static File clientFolder;
     public static final String DEFAULT_CLIENT_NAME = "p4test_1";
     protected P4Fixture p4Fixture;
     protected InMemoryStreamConsumer outputconsumer;
     protected File tempDir;
-    private TempFiles tmpFiles;
 
     @Before
     public void setUp() throws Exception {
@@ -46,8 +49,7 @@ public abstract class PerforceFixture {
         }
         outputconsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
         p4 = p4Fixture.createClient();
-        tmpFiles = new TempFiles();
-        tempDir = tmpFiles.mkdir("tempDir");
+        tempDir = temporaryFolder.newFolder();
     }
 
     protected abstract P4TestRepo createTestRepo() throws Exception;
@@ -56,7 +58,6 @@ public abstract class PerforceFixture {
     public void stopP4Server() {
         p4Fixture.stop(p4);
         FileUtils.deleteQuietly(clientFolder);
-        tmpFiles.cleanUp();
     }
 
     protected static String clientConfig(String clientName, File clientFolder) {

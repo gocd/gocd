@@ -16,23 +16,13 @@
 
 package com.thoughtworks.go.server.dao.sparql;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.testinfo.FailingTestsInPipeline;
-import com.thoughtworks.go.domain.testinfo.FailureDetails;
-import com.thoughtworks.go.domain.testinfo.StageTestRuns;
-import com.thoughtworks.go.domain.testinfo.TestInformation;
-import com.thoughtworks.go.domain.testinfo.TestStatus;
-import com.thoughtworks.go.domain.testinfo.TestSuite;
+import com.thoughtworks.go.domain.testinfo.*;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -44,7 +34,6 @@ import com.thoughtworks.go.server.service.result.SubsectionLocalizedOperationRes
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.studios.shine.cruise.builder.JunitXML;
 import com.thoughtworks.studios.shine.cruise.stage.StagesQuery;
 import com.thoughtworks.studios.shine.cruise.stage.StagesQueryCache;
@@ -55,11 +44,18 @@ import com.thoughtworks.studios.shine.net.StubGoURLRepository;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.studios.shine.cruise.builder.JunitXML.junitXML;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -90,7 +86,9 @@ public class ShineDaoIntegrationTest {
     @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private SystemEnvironment systemEnvironment;
 
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private StubGoURLRepository goURLRepository;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -104,8 +102,7 @@ public class ShineDaoIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         result = new SubsectionLocalizedOperationResult();
-        tempFiles = new TempFiles();
-        File tempFolder = tempFiles.createUniqueFolder("artifacts");
+        File tempFolder = temporaryFolder.newFolder("artifacts");
 
         String artifactsRoot = tempFolder.getAbsolutePath();
         stageStorage.clear();
@@ -124,7 +121,6 @@ public class ShineDaoIntegrationTest {
     }
 
     @After public void tearDown() throws Exception {
-        tempFiles.cleanUp();
         stagesQueryCache.clear();
         dbHelper.onTearDown();
     }

@@ -35,14 +35,15 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageStorage;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -63,8 +64,10 @@ import static org.mockito.Mockito.when;
 })
 public class BackgroundStageLoaderIntegrationTest {
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private StageStorage stageStorage;
-    private TempFiles tempFiles;
     private BackgroundStageLoader loader;
     private StageFinder stageFinder;
     private PipelineInstanceLoader pipelineInstanceLoader;
@@ -89,8 +92,7 @@ public class BackgroundStageLoaderIntegrationTest {
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        tempFiles = new TempFiles();
-        File tempFolder = tempFiles.createUniqueFolder("shine");
+        File tempFolder = temporaryFolder.newFolder("shine");
         stageStorage = new StageStorage(tempFolder.getAbsolutePath());
         stageStorage.clear();
         stageFinder = stageService;
@@ -105,7 +107,6 @@ public class BackgroundStageLoaderIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        tempFiles.cleanUp();
         configHelper.onTearDown();
         dbHelper.onTearDown();
     }

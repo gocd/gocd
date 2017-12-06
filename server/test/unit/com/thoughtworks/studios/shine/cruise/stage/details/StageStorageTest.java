@@ -17,15 +17,15 @@
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.studios.shine.ShineRuntimeException;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
@@ -34,21 +34,15 @@ import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
 public class StageStorageTest {
     private StageStorage stageStorage;
     private TempGraphFactory graphFactory;
-    private TempFiles tempFiles;
-
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
-        tempFiles = new TempFiles();
-        File tempFolder = tempFiles.createUniqueFolder("shine");
+        File tempFolder = temporaryFolder.newFolder("shine");
         stageStorage = new StageStorage(tempFolder.getAbsolutePath());
         stageStorage.clear();
         graphFactory = new InMemoryTempGraphFactory();
-    }
-
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
     }
 
     @Test

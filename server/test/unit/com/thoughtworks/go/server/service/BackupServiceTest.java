@@ -16,20 +16,21 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.util.Date;
-
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.ThrowingFn;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Matchers;
+
+import java.io.File;
+import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -40,7 +41,9 @@ import static org.mockito.Mockito.when;
 public class BackupServiceTest {
 
     private SystemEnvironment systemEnvironment;
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private ServerVersion serverVersion;
     private ConfigRepository configRepo;
     private Database databaseStrategy;
@@ -48,8 +51,7 @@ public class BackupServiceTest {
     @Before
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
-        tempFiles = new TempFiles();
-        when(systemEnvironment.getConfigDir()).thenReturn(tempFiles.createUniqueFile("config_dir").getAbsolutePath());
+        when(systemEnvironment.getConfigDir()).thenReturn(temporaryFolder.newFolder("config_dir").getAbsolutePath());
         serverVersion = mock(ServerVersion.class);
         configRepo = mock(ConfigRepository.class);
         databaseStrategy = mock(Database.class);

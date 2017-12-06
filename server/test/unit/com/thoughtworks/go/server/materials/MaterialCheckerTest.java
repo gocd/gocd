@@ -34,8 +34,6 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.util.TempFiles;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -53,19 +51,13 @@ import static org.mockito.Mockito.when;
 
 public class MaterialCheckerTest {
     private MaterialRepository materialRepository;
-    private TempFiles tempFiles;
     private ScmMaterial mockMaterial;
     private MaterialChecker materialChecker;
 
     @Before public void setUp() throws Exception {
         materialRepository = Mockito.mock(MaterialRepository.class);
-        tempFiles = new TempFiles();
         mockMaterial = Mockito.mock(ScmMaterial.class);
         materialChecker = new MaterialChecker(materialRepository);
-    }
-
-    @After public void teardown() throws Exception {
-        tempFiles.cleanUp();
     }
 
     @Test

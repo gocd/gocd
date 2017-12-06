@@ -16,35 +16,26 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.zip.ZipInputStream;
-
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class CommandRepositoryInitializerIntegrationTest {
-    private TempFiles tempFiles;
     private CommandRepositoryInitializer initializer;
 
     @Before
     public void setUp() {
-        tempFiles = new TempFiles();
         initializer = new CommandRepositoryInitializer(new SystemEnvironment(), new ZipUtil(), null);
-    }
-
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
     }
 
     @Test

@@ -23,13 +23,13 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
@@ -55,9 +55,8 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    public void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() {
-        TempFiles tempFiles = new TempFiles();
-        File p4_working_dir = tempFiles.mkdir("p4_working_dir");
+    public void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() throws IOException {
+        File p4_working_dir = temporaryFolder.newFolder("p4_working_dir");
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
         p4.setPassword("loser");
@@ -71,9 +70,8 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    public void shouldAddClientNameEnvironmentVariable() {
-        TempFiles tempFiles = new TempFiles();
-        File p4_working_dir = tempFiles.mkdir("p4_working_dir");
+    public void shouldAddClientNameEnvironmentVariable() throws IOException {
+        File p4_working_dir = temporaryFolder.newFolder("p4_working_dir");
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
         p4.setPassword("loser");

@@ -16,41 +16,35 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.zip.ZipInputStream;
-
 import com.thoughtworks.go.server.domain.Version;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.ZipUtil;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CommandRepositoryInitializerTest {
     private SystemEnvironment systemEnvironment;
     private ZipInputStream zipInputStream;
     private CommandRepositoryInitializer spy;
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private ZipUtil zipUtil;
     private ServerHealthService serverHealthService;
     private String VERSION_FILE = "version.txt";
@@ -66,12 +60,6 @@ public class CommandRepositoryInitializerTest {
 
         CommandRepositoryInitializer initializer = new CommandRepositoryInitializer(systemEnvironment, zipUtil, serverHealthService);
         spy = spy(initializer);
-        tempFiles = new TempFiles();
-    }
-
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
     }
 
     @Test
@@ -184,7 +172,7 @@ public class CommandRepositoryInitializerTest {
 
     @Test
     public void shouldUsePackagedRepositoryIfNoVersionFileIsFoundInInstalledDirectory() throws IOException {
-        File defaultDirectory = tempFiles.createUniqueFolder("default");
+        File defaultDirectory = temporaryFolder.newFolder("default");
         when(systemEnvironment.getDefaultCommandRepository()).thenReturn(defaultDirectory);
 
         doReturn(zipInputStream).when(spy).getPackagedRepositoryZipStream();

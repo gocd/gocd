@@ -35,7 +35,9 @@ import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
@@ -44,13 +46,16 @@ import org.h2.tools.Restore;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -88,7 +93,9 @@ public class BackupServiceH2IntegrationTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private File backupsDirectory;
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private byte[] originalCipher;
     private Username admin;
 
@@ -102,7 +109,6 @@ public class BackupServiceH2IntegrationTest {
         goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         FileUtils.deleteQuietly(backupsDirectory);
-        tempFiles = new TempFiles();
         originalCipher = new CipherProvider(systemEnvironment).getKey();
 
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
@@ -111,7 +117,6 @@ public class BackupServiceH2IntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        tempFiles.cleanUp();
         dbHelper.onTearDown();
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
         FileUtils.writeByteArrayToFile(systemEnvironment.getCipherFile(), originalCipher);
@@ -145,7 +150,7 @@ public class BackupServiceH2IntegrationTest {
 
     @Test
     @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldPerformDbBackupProperly() throws SQLException {
+    public void shouldPerformDbBackupProperly() throws SQLException, IOException {
         Pipeline expectedPipeline = saveAPipeline();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -153,7 +158,7 @@ public class BackupServiceH2IntegrationTest {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(localizer), is("Backup completed successfully."));
 
-        String location = tempFiles.createUniqueFolder("foo").getAbsolutePath();
+        String location = temporaryFolder.newFolder("foo").getAbsolutePath();
 
         Restore.execute(dbZip(), location, "cruise", false);
 

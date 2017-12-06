@@ -16,19 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.GoMailSender;
@@ -37,8 +24,8 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
+import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.CipherProvider;
@@ -62,7 +49,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -70,18 +59,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -112,7 +105,8 @@ public class BackupServiceIntegrationTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private File backupsDirectory;
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private byte[] originalCipher;
     private Username admin;
 
@@ -126,7 +120,6 @@ public class BackupServiceIntegrationTest {
         goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         cleanupBackups();
-        tempFiles = new TempFiles();
         originalCipher = new CipherProvider(systemEnvironment).getKey();
 
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
@@ -135,7 +128,6 @@ public class BackupServiceIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        tempFiles.cleanUp();
         dbHelper.onTearDown();
         cleanupBackups();
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
@@ -195,9 +187,9 @@ public class BackupServiceIntegrationTest {
         assertThat(result.message(localizer), is("Backup completed successfully."));
 
         File repoZip = backedUpFile("config-repo.zip");
-        File repoDir = tempFiles.createUniqueFolder("expanded-config-repo-backup");
+        File repoDir = temporaryFolder.newFolder("expanded-config-repo-backup");
         TestUtils.extractZipToDir(repoZip, repoDir);
-        File cloneDir = tempFiles.createUniqueFolder("cloned-config-repo-backup");
+        File cloneDir = temporaryFolder.newFolder("cloned-config-repo-backup");
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
 
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);

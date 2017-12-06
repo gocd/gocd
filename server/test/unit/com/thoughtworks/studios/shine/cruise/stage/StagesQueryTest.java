@@ -16,14 +16,8 @@
 
 package com.thoughtworks.studios.shine.cruise.stage;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.dao.sparql.RdfResultMapper;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageStorage;
 import com.thoughtworks.studios.shine.semweb.BoundVariables;
@@ -31,30 +25,32 @@ import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
 import com.thoughtworks.studios.shine.semweb.URIReference;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class StagesQueryTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private StageStorage graphLoader;
     private TempGraphFactory graphFactory;
-    private TempFiles tempFiles;
 
     @Before
     public void setUp() throws Exception {
-        tempFiles = new TempFiles();
-        File tempFolder = tempFiles.createUniqueFolder("shine");
+        File tempFolder = temporaryFolder.newFolder("shine");
         graphLoader = new StageStorage(tempFolder.getAbsolutePath());
         graphLoader.clear();
         graphFactory = new InMemoryTempGraphFactory();
-    }
-
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
     }
 
     @Test

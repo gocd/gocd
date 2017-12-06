@@ -28,15 +28,16 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.command.DevNull;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -44,7 +45,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MaterialAgentFactoryTest {
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;
     @Mock
@@ -53,18 +56,12 @@ public class MaterialAgentFactoryTest {
     @Before
     public void setUp() {
         initMocks(this);
-        tempFiles = new TempFiles();
-    }
-
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
     }
 
     @Test
-    public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() {
+    public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() throws IOException {
         String agentUuid = "uuid-01783738";
-        File workingDirectory = tempFiles.createUniqueFolder("");
+        File workingDirectory = temporaryFolder.newFolder("foo");
         MaterialAgentFactory factory = new MaterialAgentFactory(new ProcessOutputStreamConsumer(new DevNull(), new DevNull()), workingDirectory,
                 new AgentIdentifier("host", "1.1.1.1", agentUuid), packageRepositoryExtension, scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");

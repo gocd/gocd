@@ -27,16 +27,17 @@ import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.DataStructureUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class TfsMaterialTest {
-    private TempFiles tempFiles;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private TfsMaterial tfsMaterialFirstCollectionFirstProject;
     private TfsMaterial tfsMaterialFirstCollectionSecondProject;
     private final String DOMAIN = "domain";
@@ -62,19 +65,13 @@ public class TfsMaterialTest {
     @Before
     public void setUp() {
         GoCipher goCipher = mock(GoCipher.class);
-        tempFiles = new TempFiles();
         tfsMaterialFirstCollectionFirstProject = new TfsMaterial(goCipher, new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_FIRST_PROJECT);
         tfsMaterialFirstCollectionSecondProject = new TfsMaterial(goCipher, new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_SECOND_PROJECT);
     }
 
-    @After
-    public void tearDown() {
-        tempFiles.cleanUp();
-    }
-
     @Test
-    public void shouldShowLatestModification() {
-        File dir = tempFiles.createUniqueFolder("tfs-dir");
+    public void shouldShowLatestModification() throws IOException {
+        File dir = temporaryFolder.newFolder("tfs-dir");
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionSecondProject);
         TfsCommand tfsCommand = mock(TfsCommand.class);
@@ -88,8 +85,8 @@ public class TfsMaterialTest {
     }
 
     @Test
-    public void shouldLoadAllModificationsSinceAGivenRevision() {
-        File dir = tempFiles.createUniqueFolder("tfs-dir");
+    public void shouldLoadAllModificationsSinceAGivenRevision() throws IOException {
+        File dir = temporaryFolder.newFolder("tfs-dir");
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionFirstProject);
         TfsCommand tfsCommand = mock(TfsCommand.class);

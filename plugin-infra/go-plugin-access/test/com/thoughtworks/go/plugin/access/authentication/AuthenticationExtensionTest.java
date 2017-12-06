@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.authentication;
 
 import com.thoughtworks.go.plugin.access.authentication.models.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -37,6 +38,7 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,6 +74,11 @@ public class AuthenticationExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AuthenticationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
+    }
+
+    @Test
+    public void shouldExtendAbstractExtension() throws Exception {
+        assertTrue(authenticationExtension instanceof AbstractExtension);
     }
 
     @Test

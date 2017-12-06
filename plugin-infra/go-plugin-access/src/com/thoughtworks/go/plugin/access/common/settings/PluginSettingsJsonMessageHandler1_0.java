@@ -99,6 +99,11 @@ public class PluginSettingsJsonMessageHandler1_0 implements PluginSettingsJsonMe
     }
 
     @Override
+    public String requestMessageForNotifyPluginSettingsChange(Map<String, String> pluginSettings) {
+        return new GsonBuilder().create().toJson(pluginSettings);
+    }
+
+    @Override
     public ValidationResult responseMessageForPluginSettingsValidation(String responseBody) {
         return jsonResultMessageHandler.toValidationResult(responseBody);
     }

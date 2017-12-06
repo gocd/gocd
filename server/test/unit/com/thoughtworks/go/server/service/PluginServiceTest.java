@@ -51,6 +51,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -222,7 +223,52 @@ public class PluginServiceTest {
 
         Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
         verify(pluginDao).saveOrUpdate(plugin);
+    }
 
+    @Test
+    public void shouldNotifyPluginThatPluginSettingsHaveChangedAfterSaving() {
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("p2-k1", "v1");
+
+        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
+        pluginSettings.populateSettingsMap(parameterMap);
+
+        Username currentUser = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+
+        when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
+        when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+
+        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+
+        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
+        verify(pluginDao).saveOrUpdate(plugin);
+        verify(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
+    }
+
+    @Test
+    public void shouldIgnoreErrorsWhileNotifyingPluginSettingChange() throws Exception {
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("p2-k1", "v1");
+
+        PluginSettings pluginSettings = new PluginSettings("plugin-id-2");
+        pluginSettings.populateSettingsMap(parameterMap);
+
+        Username currentUser = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
+
+        when(configRepoExtension.canHandlePlugin("plugin-id-2")).thenReturn(true);
+        when(configRepoExtension.validatePluginSettings(eq("plugin-id-2"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        doThrow(new RuntimeException()).when(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
+
+        pluginService.createPluginSettings(currentUser, result, pluginSettings);
+
+        Plugin plugin = new Plugin("plugin-id-2", toJSON(parameterMap));
+        verify(pluginDao).saveOrUpdate(plugin);
+        verify(configRepoExtension).notifyPluginSettingsChange("plugin-id-2", pluginSettings.getSettingsAsKeyValuePair());
+        assertTrue(result.isSuccessful());
     }
 
     @Test

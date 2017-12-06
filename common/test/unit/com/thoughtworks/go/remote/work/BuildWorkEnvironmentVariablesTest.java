@@ -87,6 +87,9 @@ public class BuildWorkEnvironmentVariablesTest {
     private TaskExtension taskExtension;
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private P4Material p4Material;
+    private P4Fixture p4Fixture;
+    private P4Client p4Client;
 
     @Before
     public void setUp() throws Exception {
@@ -103,10 +106,13 @@ public class BuildWorkEnvironmentVariablesTest {
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
         setupHgRepo();
+        p4Fixture = new P4Fixture();
+        p4Material = getP4Material();
     }
 
     @After
     public void teardown() throws Exception {
+        p4Fixture.stop(p4Client);
         TestRepo.internalTearDown();
         hgTestRepo.tearDown();
         FileUtil.deleteFolder(dir);
@@ -130,7 +136,6 @@ public class BuildWorkEnvironmentVariablesTest {
     @Test
     public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly() throws Exception {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
-        P4Material p4Material = getP4Material();
         BuildWork work = getBuildWorkWithP4MaterialRevision(p4Material);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -160,11 +165,10 @@ public class BuildWorkEnvironmentVariablesTest {
 
     private P4Material getP4Material() throws Exception {
         String view = "//depot/... //something/...";
-        P4Fixture p4Fixture = new P4Fixture();
         P4TestRepo repo = P4TestRepo.createP4TestRepo();
         repo.onSetup();
         p4Fixture.setRepo(repo);
-        p4Fixture.createClient();
+        p4Client = p4Fixture.createClient();
         return p4Fixture.material(view);
     }
 

@@ -56,8 +56,7 @@ public class GoConstants {
     public static final String CRUISE_TIMESTAMP = "cruise_timestamp_";
 
     public static final String PRODUCT_NAME = "go";
-
-    public static final int CONFIG_SCHEMA_VERSION = 101;
+    public static final int CONFIG_SCHEMA_VERSION = 102;
 
     public static final String APPROVAL_SUCCESS = "success";
     public static final String APPROVAL_MANUAL = "manual";

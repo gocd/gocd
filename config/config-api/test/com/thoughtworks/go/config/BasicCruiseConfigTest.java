@@ -19,12 +19,17 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;

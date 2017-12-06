@@ -66,6 +66,9 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag
     @SkipParameterResolution
     private ConfigReposConfig configRepos = new ConfigReposConfig();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private ArtifactStores artifactStores = new ArtifactStores();
     @ConfigSubtag(label = "groups")
     private PipelineGroups groups = new PipelineGroups();
     @ConfigSubtag(label = "templates")
@@ -1537,5 +1540,13 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
     }
 
+    @Override
+    public ArtifactStores getArtifactStores() {
+        return artifactStores;
+    }
 
+    @Override
+    public void setArtifactStores(ArtifactStores artifactStores) {
+        this.artifactStores = artifactStores;
+    }
 }

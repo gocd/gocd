@@ -82,6 +82,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.PipelineConfig.*;
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -94,8 +95,7 @@ import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
@@ -3751,12 +3751,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "<pipeline name='some_pipeline'>"
                         + "    <materials>"
                         + "      <svn url='asdsa' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' dest='svn'>"
-                        +"<filter>\n" +
+                        + "<filter>\n" +
                         "            <ignore pattern='**/*' />\n" +
                         "          </filter>"
-                        +"</svn>"
-                        +"<tfs url='tfsurl' username='user' domain='domain' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' projectPath='path' dest='tfs' />"
-                        +"<p4 port='host:9999' username='user' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' dest='perforce'>\n" +
+                        + "</svn>"
+                        + "<tfs url='tfsurl' username='user' domain='domain' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' projectPath='path' dest='tfs' />"
+                        + "<p4 port='host:9999' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' dest='perforce'>\n" +
                         "          <view><![CDATA[view]]></view>\n" +
                         "        </p4>"
                         + "    </materials>"
@@ -3793,7 +3793,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         String content = config(
                 "<server artifactsdir='artifacts'>\n" +
-                        "    <mailhost hostname='host' port='25' username='user' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' tls='false' from='user@domain.com' admin='admin@domain.com' />\n" +
+                        "    <mailhost hostname='host' port='25' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' tls='false' from='user@domain.com' admin='admin@domain.com' />\n" +
                         "  </server>", 88);
 
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
@@ -3840,6 +3840,73 @@ public class MagicalGoConfigXmlLoaderTest {
         assertFailureDuringLoad(configWithTokenGenerationKey("something-else"), "The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.", RuntimeException.class);
     }
 
+    @Test
+    public void shouldDeserializeArtifactStores() {
+        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
+                "<artifactStores>\n" +
+                "    <artifactStore pluginId=\"foo\" id=\"bar\">\n" +
+                "        <property>\n" +
+                "            <key>ACCESS_KEY</key>\n" +
+                "            <value>dasdas</value>\n" +
+                "        </property>\n" +
+                "    </artifactStore>\n" +
+                "    <artifactStore pluginId=\"bar\" id=\"foo\">\n" +
+                "        <property>\n" +
+                "            <key>SECRET_ACCESS_KEY</key>\n" +
+                "            <value>$rrhsdhjf</value>\n" +
+                "        </property>\n" +
+                "    </artifactStore>\n" +
+                "</artifactStores>" +
+                "</cruise>";
+
+        final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
+        assertThat(cruiseConfig.getArtifactStores(), hasSize(2));
+        assertThat(cruiseConfig.getArtifactStores(), contains(
+                new ArtifactStore("bar", "foo", create("ACCESS_KEY", false, "dasdas")),
+                new ArtifactStore("foo", "bar", create("SECRET_ACCESS_KEY", false, "$rrhsdhjf"))
+        ));
+    }
+
+    @Test
+    public void shouldNotDeserializeWhenArtifactStoreIdIsNotDefined() {
+        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
+                "<artifactStores>\n" +
+                "    <artifactStore pluginId=\"foo\">\n" +
+                "        <property>\n" +
+                "            <key>ACCESS_KEY</key>\n" +
+                "            <value>dasdas</value>\n" +
+                "        </property>\n" +
+                "    </artifactStore>\n" +
+                "</artifactStores>" +
+                "</cruise>";
+
+        try {
+            ConfigMigrator.loadWithMigration(configXml);
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("\"Id\" is required for ArtifactStore:"));
+        }
+    }
+
+    @Test
+    public void shouldNotDeserializeWhenArtifactStorePluginIdIsNotDefined() {
+        String configXml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>" +
+                "<artifactStores>\n" +
+                "    <artifactStore id=\"foo\">\n" +
+                "        <property>\n" +
+                "            <key>ACCESS_KEY</key>\n" +
+                "            <value>dasdas</value>\n" +
+                "        </property>\n" +
+                "    </artifactStore>\n" +
+                "</artifactStores>" +
+                "</cruise>";
+
+        try {
+            ConfigMigrator.loadWithMigration(configXml);
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("\"Plugin id\" is required for ArtifactStore:"));
+        }
+    }
+
     private String configWithTokenGenerationKey(final String key) {
         final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) ListUtil.find(MagicalGoConfigXmlLoader.VALIDATORS, new Predicate<GoConfigValidator>() {
             @Override
@@ -3848,7 +3915,7 @@ public class MagicalGoConfigXmlLoaderTest {
             }
         });
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruise schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
-                "<server serverId=\""+serverIdImmutabilityValidator.getServerId()+"\" tokenGenerationKey=\"" + key + "\"/>" +
+                "<server serverId=\"" + serverIdImmutabilityValidator.getServerId() + "\" tokenGenerationKey=\"" + key + "\"/>" +
                 "<pipelines>\n" +
                 "</pipelines>\n" +
                 "</cruise>";

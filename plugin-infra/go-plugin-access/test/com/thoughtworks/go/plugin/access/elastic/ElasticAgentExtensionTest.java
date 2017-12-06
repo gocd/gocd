@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -44,6 +45,10 @@ public class ElasticAgentExtensionTest {
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
+    }
+    @Test
+    public void shouldExtendAbstractExtension() throws Exception {
+        assertTrue(new ElasticAgentExtension(pluginManager) instanceof AbstractExtension);
     }
 
     @Test

@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
+import java.util.Map;
+
 public interface GoPluginExtension {
 
     boolean canHandlePlugin(String pluginId);
@@ -30,4 +32,5 @@ public interface GoPluginExtension {
 
     ValidationResult validatePluginSettings(String pluginId, PluginSettingsConfiguration configuration);
 
+    void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings);
 }

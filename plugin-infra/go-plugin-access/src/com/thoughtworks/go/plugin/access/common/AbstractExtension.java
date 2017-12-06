@@ -65,6 +65,15 @@ public abstract class AbstractExtension implements GoPluginExtension {
         });
     }
 
+    public void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings) {
+        pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE, new DefaultPluginInteractionCallback<Void>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotifyPluginSettingsChange(pluginSettings);
+            }
+        });
+    }
+
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override

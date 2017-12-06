@@ -146,6 +146,7 @@ public class PluginService {
                         return;
                     }
                     savePluginSettingsFor(pluginSettings);
+                    notifyPluginSettingsChange(pluginSettings);
                 } catch (Exception e) {
                     if (e instanceof IllegalArgumentException) {
                         result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
@@ -156,6 +157,21 @@ public class PluginService {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void notifyPluginSettingsChange(PluginSettings pluginSettings) {
+        String pluginId = pluginSettings.getPluginId();
+
+        for (GoPluginExtension extension : extensions) {
+            if (extension.canHandlePlugin(pluginId)) {
+                try {
+                    extension.notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+                } catch (Exception e) {
+                    LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
+                }
+                break;
             }
         }
     }

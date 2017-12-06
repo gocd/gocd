@@ -20,4 +20,5 @@ public interface PluginSettingsConstants {
     public static final String REQUEST_PLUGIN_SETTINGS_CONFIGURATION = "go.plugin-settings.get-configuration";
     public static final String REQUEST_PLUGIN_SETTINGS_VIEW = "go.plugin-settings.get-view";
     public static final String REQUEST_VALIDATE_PLUGIN_SETTINGS = "go.plugin-settings.validate-configuration";
+    public static final String REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE = "go.plugin-settings.plugin-settings-changed";
 }

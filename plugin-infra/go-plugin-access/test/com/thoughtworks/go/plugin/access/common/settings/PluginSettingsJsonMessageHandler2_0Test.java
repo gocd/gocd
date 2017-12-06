@@ -18,16 +18,16 @@ package com.thoughtworks.go.plugin.access.common.settings;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class PluginSettingsJsonMessageHandler1_0Test extends PluginSettingsJsonMessageHandlerTestBase {
+public class PluginSettingsJsonMessageHandler2_0Test extends PluginSettingsJsonMessageHandlerTestBase {
     @Override
     protected PluginSettingsJsonMessageHandlerBase messageHandler() {
-        return new PluginSettingsJsonMessageHandler1_0();
+        return new PluginSettingsJsonMessageHandler2_0();
     }
 
     @Test
     public void shouldNotSupportSettingsNotification() throws Exception {
-        assertFalse(messageHandler.supportsPluginSettingsNotification());
+        assertTrue(messageHandler.supportsPluginSettingsNotification());
     }
 }

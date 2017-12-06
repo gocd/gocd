@@ -151,4 +151,9 @@ public class ElasticAgentExtension extends AbstractExtension {
             }
         });
     }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return SUPPORTED_VERSIONS;
+    }
 }

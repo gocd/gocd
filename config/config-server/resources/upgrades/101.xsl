@@ -28,7 +28,7 @@
 
     <xsl:template match="//server">
         <xsl:copy>
-            <xsl:apply-templates select="child::node()[not(self::elastic)]"/>
+            <xsl:apply-templates select="@* | child::node()[not(self::elastic)]"/>
         </xsl:copy>
         <xsl:apply-templates select="elastic"/>
     </xsl:template>

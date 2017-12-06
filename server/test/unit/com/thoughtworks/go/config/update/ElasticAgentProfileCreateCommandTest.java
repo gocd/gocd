@@ -61,7 +61,7 @@ public class ElasticAgentProfileCreateCommandTest {
         ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(null, elasticProfile, extension, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), equalTo(elasticProfile));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("foo"), equalTo(elasticProfile));
     }
 
     @Test

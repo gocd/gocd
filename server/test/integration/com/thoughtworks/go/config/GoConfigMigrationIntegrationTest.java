@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -1218,7 +1219,7 @@ public class GoConfigMigrationIntegrationTest {
 
         assertThat(migratedConfig.schemaVersion(), greaterThan(86));
 
-        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(1));
 
         ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "docker",
@@ -1274,7 +1275,7 @@ public class GoConfigMigrationIntegrationTest {
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         JobConfigs jobs = pipelineConfig.getStages().get(0).getJobs();
 
-        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(2));
 
         ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "docker",
@@ -1347,7 +1348,7 @@ public class GoConfigMigrationIntegrationTest {
         JobConfigs buildJobs = pipelineConfig.getStages().get(0).getJobs();
         JobConfigs distJobs = pipelineConfig.getStages().get(1).getJobs();
 
-        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(3));
 
         ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "docker",
@@ -1422,7 +1423,7 @@ public class GoConfigMigrationIntegrationTest {
         JobConfigs up42Jobs = up42.getStages().get(0).getJobs();
         JobConfigs up43Jobs = up43.getStages().get(0).getJobs();
 
-        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(2));
 
         ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "docker",
@@ -1722,6 +1723,98 @@ public class GoConfigMigrationIntegrationTest {
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 99);
         assertTrue(StringUtils.isNotBlank(cruiseConfig.server().getTokenGenerationKey()));
+    }
+
+    @Test
+    public void shouldMigrateElasticProfilesOutOfServerConfig_asPartOf100To101Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<cruise schemaVersion='100'>" +
+                "<server artifactsdir=\"artifacts\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
+                "<elastic jobStarvationTimeout=\"3\">\n" +
+                "      <profiles>\n" +
+                "        <profile id=\"dev-build\" pluginId=\"cd.go.contrib.elastic-agent.docker-swarm\">\n" +
+                "          <property>\n" +
+                "            <key>Image</key>\n" +
+                "            <value>bar</value>\n" +
+                "          </property>\n" +
+                "          <property>\n" +
+                "            <key>ReservedMemory</key>\n" +
+                "            <value>3GB</value>\n" +
+                "          </property>\n" +
+                "          <property>\n" +
+                "            <key>MaxMemory</key>\n" +
+                "            <value>3GB</value>\n" +
+                "          </property>\n" +
+                "        </profile>\n" +
+                "      </profiles>\n" +
+                "    </elastic>\n" +
+                "    <security allowOnlyKnownUsersToLogin=\"true\"></security>\n" +
+                "  </server>\n" +
+                "  <scms>\n" +
+                "    <scm id=\"c0758880-10f7-4f38-a0b0-f3dc31e5d907\" name=\"gocd\">\n" +
+                "      <pluginConfiguration id=\"github.pr\" version=\"1\"/>\n" +
+                "      <configuration>\n" +
+                "        <property>\n" +
+                "          <key>url</key>\n" +
+                "          <value>https://foo/bar</value>\n" +
+                "        </property>\n" +
+                "      </configuration>\n" +
+                "    </scm>\n" +
+                "  </scms>" +
+                "</cruise>";
+
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 100);
+        assertNotNull(cruiseConfig.getElasticConfig());
+        assertThat(cruiseConfig.getElasticConfig().getProfiles(), hasSize(1));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0), is(
+                new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
+                        ConfigurationPropertyMother.create("Image", false, "bar"),
+                        ConfigurationPropertyMother.create("ReservedMemory", false, "3GB"),
+                        ConfigurationPropertyMother.create("MaxMemory", false, "3GB")
+                )
+                )
+        );
+    }
+
+    @Test
+    public void shouldRetainAllOtherServerConfigElements_asPartOf100To101Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<cruise schemaVersion='100'>" +
+                "<server artifactsdir=\"artifacts\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
+                "<elastic jobStarvationTimeout=\"3\">\n" +
+                "      <profiles>\n" +
+                "        <profile id=\"dev-build\" pluginId=\"cd.go.contrib.elastic-agent.docker-swarm\">\n" +
+                "          <property>\n" +
+                "            <key>Image</key>\n" +
+                "            <value>bar</value>\n" +
+                "          </property>\n" +
+                "          <property>\n" +
+                "            <key>ReservedMemory</key>\n" +
+                "            <value>3GB</value>\n" +
+                "          </property>\n" +
+                "          <property>\n" +
+                "            <key>MaxMemory</key>\n" +
+                "            <value>3GB</value>\n" +
+                "          </property>\n" +
+                "        </profile>\n" +
+                "      </profiles>\n" +
+                "    </elastic>\n" +
+                "    <security allowOnlyKnownUsersToLogin=\"true\"></security>\n" +
+                "  </server>\n" +
+                "  <scms>\n" +
+                "    <scm id=\"c0758880-10f7-4f38-a0b0-f3dc31e5d907\" name=\"gocd\">\n" +
+                "      <pluginConfiguration id=\"github.pr\" version=\"1\"/>\n" +
+                "      <configuration>\n" +
+                "        <property>\n" +
+                "          <key>url</key>\n" +
+                "          <value>https://foo/bar</value>\n" +
+                "        </property>\n" +
+                "      </configuration>\n" +
+                "    </scm>\n" +
+                "  </scms>" +
+                "</cruise>";
+
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 100);
+        assertThat(cruiseConfig.server().security(), is(new SecurityConfig(true)));
+        assertThat(cruiseConfig.getSCMs(), hasSize(1));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

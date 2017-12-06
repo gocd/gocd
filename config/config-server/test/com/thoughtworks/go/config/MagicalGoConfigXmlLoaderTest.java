@@ -3636,10 +3636,10 @@ public class MagicalGoConfigXmlLoaderTest {
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithElasticProfile).configForEdit;
 
-        assertThat(cruiseConfig.server().getElasticConfig().getJobStarvationTimeout(), is(120000L));
-        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().size(), is(1));
+        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout(), is(120000L));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().size(), is(1));
 
-        ElasticProfile elasticProfile = cruiseConfig.server().getElasticConfig().getProfiles().find("foo");
+        ElasticProfile elasticProfile = cruiseConfig.getElasticConfig().getProfiles().find("foo");
         assertThat(elasticProfile, is(notNullValue()));
         assertThat(elasticProfile.getPluginId(), is("docker"));
         assertThat(elasticProfile.size(), is(1));

@@ -22,7 +22,10 @@ import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.domain.packagerepository.*;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -59,7 +62,7 @@ public class ConfigSaveValidationContextTest {
     public void shouldReturnAllMaterialsMatchingTheFingerprint() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         HgMaterialConfig hg = new HgMaterialConfig("url", null);
-        for (int i=0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
             cruiseConfig.addPipeline("defaultGroup", pipelineConfig);
         }
@@ -76,7 +79,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    public void shouldGetPipelineConfigByName(){
+    public void shouldGetPipelineConfigByName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
         assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1")), is(cruiseConfig.allPipelines().get(0)));
@@ -84,7 +87,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    public void shouldGetServerSecurityConfig(){
+    public void shouldGetServerSecurityConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -92,7 +95,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    public void shouldReturnIfTheContextBelongsToPipeline(){
+    public void shouldReturnIfTheContextBelongsToPipeline() {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicPipelineConfigs());
         assertThat(context.isWithinPipelines(), is(true));
         assertThat(context.isWithinTemplates(), is(false));
@@ -106,7 +109,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    public void shouldCheckForExistenceOfTemplate(){
+    public void shouldCheckForExistenceOfTemplate() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("t1")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -140,7 +143,7 @@ public class ConfigSaveValidationContextTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
-        cruiseConfig.setServerConfig(new ServerConfig(elasticConfig));
+        cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
         assertTrue(context.isValidProfileId("docker.unit-test"));
@@ -151,7 +154,7 @@ public class ConfigSaveValidationContextTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
-        cruiseConfig.setServerConfig(new ServerConfig(elasticConfig));
+        cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
         assertFalse(context.isValidProfileId("invalid.profile-id"));

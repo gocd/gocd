@@ -40,7 +40,7 @@ abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticPr
 
     @Override
     protected ElasticProfiles getPluginProfiles(CruiseConfig preprocessedConfig) {
-        return preprocessedConfig.server().getElasticConfig().getProfiles();
+        return preprocessedConfig.getElasticConfig().getProfiles();
     }
 
     @Override

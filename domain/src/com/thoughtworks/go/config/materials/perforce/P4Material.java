@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
@@ -223,10 +222,9 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName,this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }
 
-    @Override
-    public void populateEnvironmentContext(EnvironmentVariableContext environmentVariableContext, MaterialRevision materialRevision, final File baseDir) {
-        super.populateEnvironmentContext(environmentVariableContext, materialRevision, baseDir);
-        setVariableWithName(environmentVariableContext, clientName(baseDir), "GO_P4_CLIENT");
+    public void populateAgentSideEnvironmentContext(EnvironmentVariableContext environmentVariableContext, File baseDir) {
+        super.populateAgentSideEnvironmentContext(environmentVariableContext, baseDir);
+        setVariableWithName(environmentVariableContext, clientName(workingdir(baseDir)), "GO_P4_CLIENT");
     }
 
     @Override
@@ -301,11 +299,10 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return view.viewUsing(clientName);
     }
 
-    public String clientName(File baseDir) {
-        File workingdir = workingdir(baseDir);
-        String hash = FileUtil.filesystemSafeFileHash(workingdir);
+    public String clientName(File workingDir) {
+        String hash = FileUtil.filesystemSafeFileHash(workingDir);
         return "cruise-" + SystemUtil.getLocalhostName()
-                + "-" + workingdir.getName()
+                + "-" + workingDir.getName()
                 + "-" + hash;
     }
 

@@ -67,6 +67,8 @@ public interface Material extends Serializable {
 
     void populateEnvironmentContext(EnvironmentVariableContext context, MaterialRevision materialRevision, File workingDir);
 
+    void populateAgentSideEnvironmentContext(EnvironmentVariableContext context, File workingDir);
+
     String getDisplayName();
 
     String getType();

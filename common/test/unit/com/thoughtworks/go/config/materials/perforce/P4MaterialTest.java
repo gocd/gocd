@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
-import java.io.File;
-import java.util.Date;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
@@ -32,6 +28,10 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.Date;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
@@ -55,7 +55,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    public void shouldAddClientNameEnvironmentVariable() {
+    public void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() {
         TempFiles tempFiles = new TempFiles();
         File p4_working_dir = tempFiles.mkdir("p4_working_dir");
 
@@ -65,9 +65,23 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
         envVarCtx = new EnvironmentVariableContext();
         p4.populateEnvironmentContext(envVarCtx, new MaterialRevision(p4, new Modification("loser", "loserish commit", "loser@boozer.com", new Date(), "123")), p4_working_dir);
-        assertThat(envVarCtx.getProperty("GO_P4_CLIENT"), is(p4.clientName(p4_working_dir)));
+        assertThat(envVarCtx.getProperty("GO_REVISION"), is("123"));
+        assertThat(envVarCtx.getProperty("GO_TO_REVISION"), is("123"));
+        assertThat(envVarCtx.getProperty("GO_FROM_REVISION"), is("123"));
+    }
 
-        assertThat(envVarCtx.getProperty("GO_REVISION"), is("123")); //sanity check
+    @Test
+    public void shouldAddClientNameEnvironmentVariable() {
+        TempFiles tempFiles = new TempFiles();
+        File p4_working_dir = tempFiles.mkdir("p4_working_dir");
+
+        P4Material p4 = new P4Material("host:10", "beautiful", "user");
+        p4.setPassword("loser");
+        EnvironmentVariableContext envVarCtx;
+
+        envVarCtx = new EnvironmentVariableContext();
+        p4.populateAgentSideEnvironmentContext(envVarCtx, p4_working_dir);
+        assertThat(envVarCtx.getProperty("GO_P4_CLIENT"), is(p4.clientName(p4_working_dir)));
     }
 
     @Test
@@ -185,5 +199,14 @@ public class P4MaterialTest extends P4MaterialTestBase {
         assertThat(configuration.get("password"), is(nullValue()));
         assertThat(configuration.get("view"), is("view"));
         assertThat(configuration.get("use-tickets"), is(true));
+    }
+
+    @Test
+    public void shouldSetGO_P4_CLIENT_toTheClientName(){
+        P4Material material = new P4Material("host:1234", "view", "username", "destination");
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        File agentWorkingDirectory = new File("pipelines/pipeline-name");
+        material.populateAgentSideEnvironmentContext(environmentVariableContext, agentWorkingDirectory);
+        assertThat(environmentVariableContext.getProperty("GO_P4_CLIENT_DESTINATION"), is(material.clientName(material.workingdir(agentWorkingDirectory))));
     }
 }

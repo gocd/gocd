@@ -23,7 +23,9 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -199,5 +201,8 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
             PasswordAwareMaterial passwordConfig = (PasswordAwareMaterial) materialConfig;
             ((PasswordAwareMaterial) this).setPassword(passwordConfig.getPassword());
         }
+    }
+
+    public void populateAgentSideEnvironmentContext(EnvironmentVariableContext context, File workingDir) {
     }
 }

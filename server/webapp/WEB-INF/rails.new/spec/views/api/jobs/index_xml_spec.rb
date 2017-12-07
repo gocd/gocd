@@ -22,10 +22,10 @@ describe "/api/jobs" do
     @properties = com.thoughtworks.go.domain.Properties.new
     @properties.add(com.thoughtworks.go.domain.Property.new("foo", "value_of_property_foo"))
 
-    @plans = ArtifactPlans.new
-    @plans.add(ArtifactPlan.new("artifact", "blahartifact/path"))
-    @plans.add(ArtifactPlan.new("logs/log-artifact", "log-path"))
-    @plans.add(TestArtifactPlan.new("test.xml", ""))
+    @plans = ArrayList.new
+    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "artifact", "blahartifact/path"))
+    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "logs/log-artifact", "log-path"))
+    @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::unit, "test.xml", ""))
 
     @resources = Resources.new("linux, teapot")
 
@@ -48,7 +48,7 @@ describe "/api/jobs" do
 
     @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
-    
+
     view.extend Api::FeedsHelper
   end
 
@@ -117,10 +117,10 @@ describe "/api/jobs" do
       properties = com.thoughtworks.go.domain.Properties.new
       properties.add(com.thoughtworks.go.domain.Property.new("prop<er\"ty", "val<ue_of_prop\"erty_foo"))
 
-      plans = ArtifactPlans.new
-      plans.add(ArtifactPlan.new("artifact", "blah<artif\"act/path"))
-      plans.add(ArtifactPlan.new("logs/log-arti\"fact", "log-path"))
-      plans.add(TestArtifactPlan.new("te<s\"t.xml", ""))
+      plans = ArrayList.new
+      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "artifact", "blah<artif\"act/path"))
+      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "logs/log-arti\"fact", "log-path"))
+      plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::unit, "te<s\"t.xml", ""))
 
       variables = EnvironmentVariablesConfig.new
       variables.add("VARIA<BLE_NA\"ME", "varia<ble-val\"ue")

@@ -16,8 +16,7 @@
 package com.thoughtworks.go.server.persistence;
 
 
-import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.TestArtifactPlan;
+import com.thoughtworks.go.domain.ArtifactPlan;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -42,12 +41,6 @@ public class ArtifactPlanRepository extends HibernateDaoSupport {
     public void save(ArtifactPlan artifactPlan) {
         if (artifactPlan != null) {
             getHibernateTemplate().save(artifactPlan);
-        }
-    }
-
-    public void save(TestArtifactPlan testArtifactPlan) {
-        if (testArtifactPlan != null) {
-            save(testArtifactPlan);
         }
     }
 

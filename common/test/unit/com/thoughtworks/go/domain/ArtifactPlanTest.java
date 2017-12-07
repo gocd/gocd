@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -30,10 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -54,9 +47,10 @@ public class ArtifactPlanTest {
         FileUtils.deleteQuietly(testFolder);
     }
 
-    @Test public void shouldPublishArtifacts() throws Exception {
+    @Test
+    public void shouldPublishArtifacts() {
         final DefaultGoPublisher publisher = context.mock(DefaultGoPublisher.class);
-        final ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
+        final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
         context.checking(new Expectations() {
             {
                 one(publisher).upload(new File(testFolder, "src"), "dest");
@@ -68,112 +62,50 @@ public class ArtifactPlanTest {
     }
 
     @Test
-    public void shouldNormalizePath() throws Exception {
-        ArtifactPlan artifactPlan = new ArtifactPlan("folder\\src", "folder\\dest");
+    public void shouldNormalizePath() {
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "folder\\src", "folder\\dest");
         assertThat(artifactPlan.getSrc(), is("folder/src"));
         assertThat(artifactPlan.getDest(), is("folder/dest"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDest() {
-        ArtifactPlan artifactPlan = new ArtifactPlan("test/**/*/a.log", "logs");
-        assertThat(artifactPlan.destURL(new File("pipelines/pipelineA"),
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "test/**/*/a.log", "logs");
+        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/a/b/a.log")), is("logs/a/b"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingDoubleStart() {
-        ArtifactPlan artifactPlan = new ArtifactPlan("**/*/a.log", "logs");
-        assertThat(artifactPlan.destURL(new File("pipelines/pipelineA"),
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "**/*/a.log", "logs");
+        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/a/b/a.log")), is("logs/test/a/b"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathProvidedAreSame() {
-        ArtifactPlan artifactPlan = new ArtifactPlan("test/a/b/a.log", "logs");
-        assertThat(artifactPlan.destURL(new File("pipelines/pipelineA"),
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "test/a/b/a.log", "logs");
+        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/b/a.log")), is("logs"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingSingleStarToMatchFile() {
-        ArtifactPlan artifactPlan = new ArtifactPlan("test/a/b/*.log", "logs");
-        assertThat(artifactPlan.destURL(new File("pipelines/pipelineA"),
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "test/a/b/*.log", "logs");
+        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/test/a/b/a.log")), is("logs"));
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathMatchingAtTheRoot() {
-        ArtifactPlan artifactPlan = new ArtifactPlan("*.jar", "logs");
-        assertThat(artifactPlan.destURL(new File("pipelines/pipelineA"),
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "*.jar", "logs");
+        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
                 new File("pipelines/pipelineA/a.jar")), is("logs"));
     }
 
     @Test
     public void shouldTrimThePath() {
-        assertThat(new ArtifactPlan("pkg   ", "logs "),
-                is(new ArtifactPlan("pkg", "logs")));
-    }
-
-    @Test
-    public void shouldGiveTheEffectiveDestinationPath() {
-        assertThat(new ArtifactPlan("foo/bar", "").effectiveDestinationPath(), is("bar"));
-        assertThat(new ArtifactPlan("foo/bar", "blah/foo").effectiveDestinationPath(), is("blah/foo/bar"));
-        assertThat(new ArtifactPlan("foo/bar.xml", "").effectiveDestinationPath(), is("bar.xml"));
-        assertThat(new ArtifactPlan("foo/bar/blah.xml", "boo/baz").effectiveDestinationPath(), is("boo/baz/blah.xml"));
-        assertThat(new ArtifactPlan("foo/**/*blah.xml", "boo/baz").effectiveDestinationPath(), is("boo/baz/*blah.xml"));
-        assertThat(new ArtifactPlan("foo/**/*.xml", "boo/baz").effectiveDestinationPath(), is("boo/baz/*.xml"));
-        assertThat(new ArtifactPlan("foo/**/*", "boo/baz").effectiveDestinationPath(), is("boo/baz/*"));
-        assertThat(new ArtifactPlan("foo/**/*", "boo\\baz").effectiveDestinationPath(), is("boo/baz/*"));
-    }
-
-    @Test
-    public void validate_shouldFailIfSourceIsEmpty() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(null, "bar");
-        artifactPlan.validate(ConfigSaveValidationContext.forChain(new JobConfig("jobname")));
-        assertThat(artifactPlan.errors().on(ArtifactPlan.SRC), is("Job 'jobname' has an artifact with an empty source"));
-    }
-
-    @Test
-   public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
-        ArtifactPlan artifactPlan = new ArtifactPlan("foo/bar", "..");
-        artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
-    }
-
-    @Test
-    public void validate_shouldNotFailWhenDestinationIsNotSet() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(null, null);
-        artifactPlan.setSrc("source");
-        artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldErrorOutWhenDuplicateArtifactPlansExists() {
-        List<ArtifactPlan> plans = new ArrayList<>();
-        ArtifactPlan existingPlan = new ArtifactPlan("src", "dest");
-        plans.add(existingPlan);
-        ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
-
-        artifactPlan.validateUniqueness(plans);
-
-        assertThat(artifactPlan.errors().isEmpty(), is(false));
-        assertThat(artifactPlan.errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().isEmpty(), is(false));
-        assertThat(existingPlan.errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
-    }
-
-    @Test
-    public void shouldBeAbleToCreateACopyOfItself() throws Exception {
-        ArtifactPlan existingPlan = new ArtifactPlan("src1", "dest1");
-        existingPlan.setId(2);
-        existingPlan.setBuildId(10);
-        existingPlan.addError("abc", "def");
-
-        assertThat(existingPlan, equalTo(new ArtifactPlan(existingPlan)));
-        assertThat(existingPlan, equalTo(new Cloner().deepClone(existingPlan)));
+        assertThat(new ArtifactPlan(ArtifactType.file, "pkg   ", "logs "),
+                is(new ArtifactPlan(ArtifactType.file, "pkg", "logs")));
     }
 }

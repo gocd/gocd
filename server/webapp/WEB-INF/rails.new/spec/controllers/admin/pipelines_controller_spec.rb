@@ -307,7 +307,7 @@ describe Admin::PipelinesController do
 
       get :new
 
-      job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))].to_java(JobConfig))
+      job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))].to_java(JobConfig))
       pipeline = PipelineConfig.new(CaseInsensitiveString.new(""), MaterialConfigs.new, [StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)].to_java(StageConfig))
       expect(assigns[:pipeline_group]).to eq(BasicPipelineConfigs.new([pipeline].to_java(PipelineConfig)))
       expect(assigns[:pipeline]).to eq(pipeline)
@@ -537,7 +537,7 @@ describe Admin::PipelinesController do
       expect(assigns[:errors][0]).to eq("empty pipeline name")
       expect(assigns[:groups_json]).to eq([{"group" => "group1"}, {"group" => "group2"}].to_json)
       expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"}]")
-      job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))].to_java(JobConfig))
+      job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))].to_java(JobConfig))
       stage_config = StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)
       pipeline_config = PipelineConfig.new(CaseInsensitiveString.new(""), com.thoughtworks.go.config.materials.MaterialConfigs.new, [stage_config].to_java(StageConfig))
       expect(assigns[:pipeline]).to eq(pipeline_config)

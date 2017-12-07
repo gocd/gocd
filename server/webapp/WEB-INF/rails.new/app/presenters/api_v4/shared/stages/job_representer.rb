@@ -102,11 +102,11 @@ module ApiV4
         end
 
         def artifacts
-          job.artifactPlans
+          job.artifactConfigs
         end
 
         def artifacts=(value)
-          job.setArtifactPlans(com.thoughtworks.go.config.ArtifactPlans.new(value))
+          job.setArtifactConfigs(com.thoughtworks.go.config.ArtifactConfigs.new(value))
         end
 
         def environment_variables

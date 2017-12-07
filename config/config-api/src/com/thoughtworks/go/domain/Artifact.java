@@ -16,17 +16,14 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.Serializable;
-
 import com.thoughtworks.go.config.ConfigInterface;
 import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.work.GoPublisher;
+
+import java.io.Serializable;
 
 @ConfigInterface
 public interface Artifact extends Serializable, Validatable {
-    void publish(GoPublisher goPublisher, File rootPath);
-
     ArtifactType getArtifactType();
+
     String getArtifactTypeValue();
 }

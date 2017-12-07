@@ -161,7 +161,7 @@ public class PipelineConfigValidationTest {
     public void validate_shouldEnsureThatTemplateFollowsTheNameType() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("name"), new MaterialConfigs());
         pipelineConfig.setTemplateName(new CaseInsensitiveString(".Name"));
-        config.addPipeline("group",pipelineConfig);
+        config.addPipeline("group", pipelineConfig);
         pipelineConfig.validateTemplate(new PipelineTemplateConfig());
         assertThat(pipelineConfig.errors().isEmpty(), is(false));
         assertThat(pipelineConfig.errors().on(PipelineConfig.TEMPLATE_NAME), is("Invalid template name '.Name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
@@ -445,7 +445,7 @@ public class PipelineConfigValidationTest {
         p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.first().name()));
         JobConfig p2S2J2 = new JobConfig(new CaseInsensitiveString("j2"));
         p2S2J2.addTask(fetchTaskFromSamePipeline(p2));
-        p2.add(new StageConfig(new CaseInsensitiveString("stage2"),new JobConfigs(p2S2J2) ));
+        p2.add(new StageConfig(new CaseInsensitiveString("stage2"), new JobConfigs(p2S2J2)));
         p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.first().name()));
         p3.first().getJobs().first().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.first().name(), p1.first().getJobs().first().name(), "src", "dest"));
 
@@ -487,7 +487,7 @@ public class PipelineConfigValidationTest {
     }
 
     @Test
-    public void shouldCheckForPipelineNameUniqueness(){
+    public void shouldCheckForPipelineNameUniqueness() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         String group = "group";
         cruiseConfig.getGroups().add(new BasicPipelineConfigs(group, new Authorization()));
@@ -516,7 +516,7 @@ public class PipelineConfigValidationTest {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName));
         jobConfig.addTask(new AntTask());
         jobConfig.addTask(new ExecTask("command", "", "workingDir"));
-        jobConfig.artifactPlans().add(new ArtifactPlan("src", "dest"));
+        jobConfig.artifactConfigs().add(new ArtifactConfig("src", "dest"));
         jobConfig.addVariable("env1", "val1");
         jobConfig.addResource("powerful");
         JobConfigs jobConfigs = new JobConfigs(jobConfig);

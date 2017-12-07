@@ -31,7 +31,7 @@ module Admin
     def new
       assert_load :task_view_models, task_view_service.getTaskViewModels()
       load_resources_and_elastic_profile_ids_for_autocomplete
-      assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+      assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
       render layout: false
     end
 

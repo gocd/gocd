@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -29,7 +33,9 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -55,10 +61,10 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldMergeTestReportFilesAndUploadResult() throws Exception {
-        ArtifactPlans artifactPlans = new ArtifactPlans();
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        artifactPlans.add(new TestArtifactPlan("test1", "test"));
-        artifactPlans.add(new TestArtifactPlan("test2", "test"));
+        List<ArtifactPlan> artifactPlans = new ArrayList<>();
+        new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
 
         final File firstTestFolder = prepareTestFolder(workingFolder, "test1");
         final File secondTestFolder = prepareTestFolder(workingFolder, "test2");
@@ -74,10 +80,10 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldReportErrorWithTestArtifactSrcWhenUploadFails() throws Exception {
-        ArtifactPlans artifactPlans = new ArtifactPlans();
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        artifactPlans.add(new TestArtifactPlan("test1", "test"));
-        artifactPlans.add(new TestArtifactPlan("test2", "test"));
+        List<ArtifactPlan> artifactPlans = new ArrayList<>();
+        new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
 
         prepareTestFolder(workingFolder, "test1");
         prepareTestFolder(workingFolder, "test2");
@@ -92,14 +98,14 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldUploadFilesCorrectly() throws Exception {
-        ArtifactPlans artifactPlans = new ArtifactPlans();
+        List<ArtifactPlan> artifactPlans = new ArrayList<>();
         final File src1 = TestFileUtil.createTestFolder(workingFolder, "src1");
         TestFileUtil.createTestFile(src1, "test.txt");
-        artifactPlans.add(new ArtifactPlan(src1.getName(), "dest"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName(), "dest"));
         final File src2 = TestFileUtil.createTestFolder(workingFolder, "src2");
         TestFileUtil.createTestFile(src1, "test.txt");
 
-        artifactPlans.add(new ArtifactPlan(src2.getName(), "test"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src2.getName(), "test"));
         StubGoPublisher publisher = new StubGoPublisher();
 
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
@@ -115,12 +121,12 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldUploadFilesWhichMathedWildCard() throws Exception {
-        ArtifactPlans artifactPlans = new ArtifactPlans();
+        List<ArtifactPlan> artifactPlans = new ArrayList<>();
         final File src1 = TestFileUtil.createTestFolder(workingFolder, "src1");
         final File testFile1 = TestFileUtil.createTestFile(src1, "test1.txt");
         final File testFile2 = TestFileUtil.createTestFile(src1, "test2.txt");
         final File testFile3 = TestFileUtil.createTestFile(src1, "readme.pdf");
-        artifactPlans.add(new ArtifactPlan(src1.getName() + "/*", "dest"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName() + "/*", "dest"));
         StubGoPublisher publisher = new StubGoPublisher();
 
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);

@@ -27,12 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 
 @Component
 public class AnalyticsExtension extends AbstractExtension {
-
+    public static String EXTENSION_NAME = "analytics";
     private final HashMap<String, AnalyticsMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
@@ -71,5 +72,10 @@ public class AnalyticsExtension extends AbstractExtension {
 
     public AnalyticsMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
+    }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return SUPPORTED_VERSIONS;
     }
 }

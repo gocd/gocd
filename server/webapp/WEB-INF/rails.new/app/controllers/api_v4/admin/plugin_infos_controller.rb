@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV3
+module ApiV4
   module Admin
     class PluginInfosController < BaseController
 
@@ -27,6 +27,7 @@ module ApiV3
         'elastic',
         'configrepo',
         'authorization',
+        'analytics',
       ]
 
       java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo
@@ -65,6 +66,7 @@ module ApiV3
       def is_unsupported? plugin_info
         !plugin_info.nil? && !PLUGIN_TYPES_FOR_VERSION.include?(plugin_info.getExtensionName())
       end
+
     end
   end
 end

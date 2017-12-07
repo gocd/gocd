@@ -322,10 +322,10 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(plan.tasks(), sizeIs(1));
         AntTask builder = (AntTask) plan.tasks().first();
         assertThat(builder.getTarget(), is("all"));
-        final ArtifactPlans cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
-                "cardlist", true).artifactPlans();
+        final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
+                "cardlist", true).artifactConfigs();
         assertThat(cardListArtifacts.size(), is(1));
-        ArtifactPlan artifactPlan = cardListArtifacts.get(0);
+        ArtifactConfig artifactPlan = cardListArtifacts.get(0);
         assertThat(artifactPlan.getArtifactType(), is(ArtifactType.unit));
     }
 
@@ -364,7 +364,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactPlans().get(0).getSrc(), is("*"));
+        assertThat(plan.artifactConfigs().get(0).getSource(), is("*"));
     }
 
     @Test
@@ -372,7 +372,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs(" \t ")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactPlans().get(0).getSrc(), is("*"));
+        assertThat(plan.artifactConfigs().get(0).getSource(), is("*"));
     }
 
     @Test
@@ -380,7 +380,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("t ")));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactPlans().get(0).getSrc(), is("t "));
+        assertThat(plan.artifactConfigs().get(0).getSource(), is("t "));
     }
 
     @Test
@@ -393,7 +393,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</job>";
         JobConfig build = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), JobConfig.class);
         assertThat(build.name(), is(new CaseInsensitiveString("functional")));
-        assertThat(build.artifactPlans().size(), is(1));
+        assertThat(build.artifactConfigs().size(), is(1));
     }
 
 

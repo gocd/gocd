@@ -28,12 +28,12 @@ module ApiV4
         }
 
         ARTIFACT_TYPE_TO_ARTIFACT_CLASS_MAP = {
-          'test' => TestArtifactPlan,
-          'build' => ArtifactPlan
+          'test' => TestArtifactConfig,
+          'build' => ArtifactConfig
         }
 
-        property :src, as: :source
-        property :dest, as: :destination
+        property :source
+        property :destination
         property :type, exec_context: :decorator, skip_parse: true
 
         def type

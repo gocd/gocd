@@ -26,33 +26,34 @@ import java.util.Map;
 
 @ConfigTag("artifacts")
 @ConfigCollection(Artifact.class)
-public class ArtifactPlans extends BaseCollection<ArtifactPlan> implements Validatable, ParamsAttributeAware {
+public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements Validatable, ParamsAttributeAware {
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public ArtifactPlans() {
+    public ArtifactConfigs() {
     }
 
-    public ArtifactPlans(List<ArtifactPlan> plans) {
-        super(plans);
+    public ArtifactConfigs(List<ArtifactConfig> artifactConfigs) {
+        super(artifactConfigs);
     }
 
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 
-        for (ArtifactPlan artifactPlan : this) {
-            isValid = artifactPlan.validateTree(validationContext) && isValid;
+        for (ArtifactConfig artifactConfig : this) {
+            isValid = artifactConfig.validateTree(validationContext) && isValid;
         }
         return isValid;
     }
+
     public void validate(ValidationContext validationContext) {
         validateUniqueness();
     }
 
     private void validateUniqueness() {
-        List<ArtifactPlan> plans = new ArrayList<>();
-        for (ArtifactPlan artifactPlan : this) {
-            artifactPlan.validateUniqueness(plans);
+        List<ArtifactConfig> plans = new ArrayList<>();
+        for (ArtifactConfig artifactConfig : this) {
+            artifactConfig.validateUniqueness(plans);
         }
     }
 
@@ -71,19 +72,18 @@ public class ArtifactPlans extends BaseCollection<ArtifactPlan> implements Valid
         }
         List<Map> attrList = (List<Map>) attributes;
         for (Map attrMap : attrList) {
-            String source = (String) attrMap.get(ArtifactPlan.SRC);
-            String destination = (String) attrMap.get(ArtifactPlan.DEST);
+            String source = (String) attrMap.get(ArtifactConfig.SRC);
+            String destination = (String) attrMap.get(ArtifactConfig.DEST);
             if (source.trim().isEmpty() && destination.trim().isEmpty()) {
                 continue;
             }
             String type = (String) attrMap.get("artifactTypeValue");
 
-            if (TestArtifactPlan.TEST_PLAN_DISPLAY_NAME.equals(type)) {
-                this.add(new TestArtifactPlan(source, destination));
+            if (TestArtifactConfig.TEST_PLAN_DISPLAY_NAME.equals(type)) {
+                this.add(new TestArtifactConfig(source, destination));
             } else {
-                this.add(new ArtifactPlan(source, destination));
+                this.add(new ArtifactConfig(source, destination));
             }
         }
     }
-
 }

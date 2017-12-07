@@ -70,7 +70,7 @@ public class ConfigElementImplementationRegistrar {
     }
 
     private void registerBuiltinArtifactTypes() {
-        registry.registerImplementer(Artifact.class, TestArtifactPlan.class, ArtifactPlan.class);
+        registry.registerImplementer(Artifact.class, TestArtifactConfig.class, ArtifactConfig.class);
     }
 
     private void registerBuiltinConsoleOutputMatchers() {

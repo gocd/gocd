@@ -49,7 +49,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @ConfigSubtag
     private Resources resources = new Resources();
     @ConfigSubtag
-    private ArtifactPlans artifactPlans = new ArtifactPlans();
+    private ArtifactConfigs artifactConfigs = new ArtifactConfigs();
     @ConfigSubtag
     private ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators();
 
@@ -64,7 +64,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     public static final String RESOURCES = "resources";
     public static final String TABS = "tabs";
     public static final String ENVIRONMENT_VARIABLES = "variables";
-    public static final String ARTIFACT_PLANS = "artifactPlans";
+    public static final String ARTIFACT_CONFIGS = "artifactConfigs";
     public static final String DEFAULT_NAME = "defaultJob";
     public static final String TIMEOUT = "timeout";
     public static final String DEFAULT_TIMEOUT = "defaultTimeout";
@@ -87,14 +87,14 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.jobName = jobName;
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, Resources resources, ArtifactPlans artifactPlans) {
-        this(jobName, resources, artifactPlans, new Tasks());
+    public JobConfig(final CaseInsensitiveString jobName, Resources resources, ArtifactConfigs artifactConfigs) {
+        this(jobName, resources, artifactConfigs, new Tasks());
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, Resources resources, ArtifactPlans artifactPlans, Tasks tasks) {
+    public JobConfig(final CaseInsensitiveString jobName, Resources resources, ArtifactConfigs artifactConfigs, Tasks tasks) {
         this(jobName);
         this.resources = resources;
-        this.artifactPlans = artifactPlans;
+        this.artifactConfigs = artifactConfigs;
         this.tasks = tasks;
     }
 
@@ -103,13 +103,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.artifactPropertiesGenerators = artifactPropertiesGenerators;
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, Resources resources, ArtifactPlans artifactPlans, ArtifactPropertiesGenerators generators) {
-        this(jobName, resources, artifactPlans);
+    public JobConfig(final CaseInsensitiveString jobName, Resources resources, ArtifactConfigs artifactConfigs, ArtifactPropertiesGenerators generators) {
+        this(jobName, resources, artifactConfigs);
         this.artifactPropertiesGenerators = generators;
     }
 
     public JobConfig(String planName) {
-        this(new CaseInsensitiveString(planName), new Resources(), new ArtifactPlans());
+        this(new CaseInsensitiveString(planName), new Resources(), new ArtifactConfigs());
     }
 
     public CaseInsensitiveString name() {
@@ -146,7 +146,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (tasks != null ? !tasks.equals(jobConfig.tasks) : jobConfig.tasks != null) return false;
         if (tabs != null ? !tabs.equals(jobConfig.tabs) : jobConfig.tabs != null) return false;
         if (resources != null ? !resources.equals(jobConfig.resources) : jobConfig.resources != null) return false;
-        if (artifactPlans != null ? !artifactPlans.equals(jobConfig.artifactPlans) : jobConfig.artifactPlans != null)
+        if (artifactConfigs != null ? !artifactConfigs.equals(jobConfig.artifactConfigs) : jobConfig.artifactConfigs != null)
             return false;
         if (artifactPropertiesGenerators != null ? !artifactPropertiesGenerators.equals(jobConfig.artifactPropertiesGenerators) : jobConfig.artifactPropertiesGenerators != null)
             return false;
@@ -164,7 +164,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         result = 31 * result + (tasks != null ? tasks.hashCode() : 0);
         result = 31 * result + (tabs != null ? tabs.hashCode() : 0);
         result = 31 * result + (resources != null ? resources.hashCode() : 0);
-        result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);
+        result = 31 * result + (artifactConfigs != null ? artifactConfigs.hashCode() : 0);
         result = 31 * result + (artifactPropertiesGenerators != null ? artifactPropertiesGenerators.hashCode() : 0);
         result = 31 * result + (runOnAllAgents ? 1 : 0);
         result = 31 * result + (runInstanceCount != null ? runInstanceCount.hashCode() : 0);
@@ -185,12 +185,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return new Tasks(new NullTask());
     }
 
-    public ArtifactPlans artifactPlans() {
-        return artifactPlans;
+    public ArtifactConfigs artifactConfigs() {
+        return artifactConfigs;
     }
 
-    public void setArtifactPlans(ArtifactPlans artifactPlans) {
-        this.artifactPlans = artifactPlans;
+    public void setArtifactConfigs(ArtifactConfigs artifactConfigs) {
+        this.artifactConfigs = artifactConfigs;
     }
 
     public Tabs getTabs() {
@@ -308,7 +308,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public boolean hasTests() {
-        for (ArtifactPlan artifactPlan : artifactPlans) {
+        for (ArtifactConfig artifactPlan : artifactConfigs) {
             if (artifactPlan.getArtifactType().isTest()) {
                 return true;
             }
@@ -325,7 +325,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         isValid = resources.validateTree(contextForChildren) && isValid;
         isValid = artifactPropertiesGenerators.validateTree(contextForChildren) && isValid;
         isValid = tabs.validateTree(contextForChildren) && isValid;
-        isValid = artifactPlans.validateTree(contextForChildren) && isValid;
+        isValid = artifactConfigs.validateTree(contextForChildren) && isValid;
         return isValid;
     }
 
@@ -425,8 +425,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (attributesMap.containsKey(RESOURCES)) {
             resources.importFromCsv((String) attributesMap.get(RESOURCES));
         }
-        if (attributesMap.containsKey(ARTIFACT_PLANS)) {
-            artifactPlans.setConfigAttributes(attributesMap.get(ARTIFACT_PLANS));
+        if (attributesMap.containsKey(ARTIFACT_CONFIGS)) {
+            artifactConfigs.setConfigAttributes(attributesMap.get(ARTIFACT_CONFIGS));
         }
         setTimeoutAttribute(attributesMap);
         setJobRunTypeAttribute(attributesMap);

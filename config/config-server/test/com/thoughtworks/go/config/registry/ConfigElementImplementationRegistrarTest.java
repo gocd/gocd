@@ -34,14 +34,14 @@ import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.plugins.PluginExtensions;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.presentation.PluggableTaskViewModel;
-import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugins.PluginExtensions;
+import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
+import com.thoughtworks.go.presentation.PluggableTaskViewModel;
+import com.thoughtworks.go.presentation.TaskViewModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -57,8 +57,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ConfigElementImplementationRegistrarTest {
-    @Mock private PluginExtensions pluginExtns;
-    @Mock private PluginManager pluginManager;
+    @Mock
+    private PluginExtensions pluginExtns;
+    @Mock
+    private PluginManager pluginManager;
 
     private ConfigElementImplementationRegistry registry;
     private ConfigElementImplementationRegistrar registrar;
@@ -76,7 +78,7 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void testShouldProvideTheDefaultTaskConfigMappingsOnlyForBuiltInTasks() throws Exception {
+    public void testShouldProvideTheDefaultTaskConfigMappingsOnlyForBuiltInTasks() {
         List<Class<? extends Task>> tasks = new ArrayList<>();
         tasks.add(AntTask.class);
         tasks.add(NantTask.class);
@@ -89,7 +91,7 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void testShouldProvideTheDefaultMaterialConfigMappings() throws Exception {
+    public void testShouldProvideTheDefaultMaterialConfigMappings() {
         List<Class<? extends MaterialConfig>> materials = new ArrayList<>();
         materials.add(SvnMaterialConfig.class);
         materials.add(HgMaterialConfig.class);
@@ -104,16 +106,16 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void testShouldProvideTheDefaultArtifactsConfigMappings() throws Exception {
+    public void testShouldProvideTheDefaultArtifactsConfigMappings() {
         List<Class<? extends Artifact>> artifacts = new ArrayList<>();
-        artifacts.add(TestArtifactPlan.class);
-        artifacts.add(ArtifactPlan.class);
+        artifacts.add(TestArtifactConfig.class);
+        artifacts.add(ArtifactConfig.class);
 
         assertThat(registry.implementersOf(Artifact.class), is(artifacts));
     }
 
     @Test
-    public void testShouldProvideTheDefaultOutputMatcherConfigMappings() throws Exception {
+    public void testShouldProvideTheDefaultOutputMatcherConfigMappings() {
         List<Class<? extends OutputMatcher>> outputMatchers = new ArrayList<>();
         outputMatchers.add(BuildOutputMatcher.class);
 
@@ -121,7 +123,7 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void testShouldProvideTheDefaultAdminConfigMappings() throws Exception {
+    public void testShouldProvideTheDefaultAdminConfigMappings() {
         List<Class<? extends Admin>> admin = new ArrayList<>();
         admin.add(AdminUser.class);
         admin.add(AdminRole.class);
@@ -130,7 +132,7 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void shouldRegisterViewEnginesForAllTasks() throws Exception {
+    public void shouldRegisterViewEnginesForAllTasks() {
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new AntTask(), "ant");
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new ExecTask(), "exec");
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new FetchTask(), "fetch");
@@ -139,7 +141,7 @@ public class ConfigElementImplementationRegistrarTest {
     }
 
     @Test
-    public void shouldRegisterViewEngineForPluggableTask() throws Exception {
+    public void shouldRegisterViewEngineForPluggableTask() {
         TaskPreference taskPreference = mock(TaskPreference.class);
         TaskView view = mock(TaskView.class);
         when(taskPreference.getView()).thenReturn(view);

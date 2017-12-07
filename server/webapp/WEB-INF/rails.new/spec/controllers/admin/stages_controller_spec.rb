@@ -187,7 +187,7 @@ describe Admin::StagesController do
 
         get :new, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
 
-        new_job = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+        new_job = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
         new_stage = StageConfig.new(CaseInsensitiveString.new(""), JobConfigs.new([new_job].to_java(JobConfig)))
         actual_stage = assigns[:stage]
         expect(actual_stage).to eq(new_stage)

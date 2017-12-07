@@ -218,7 +218,7 @@ public class ConfigSaveValidationContext implements ValidationContext{
 
     @Override
     public boolean isValidProfileId(String profileId) {
-        return this.getCruiseConfig().server().getElasticConfig().getProfiles().find(profileId) != null;
+        return this.getCruiseConfig().getElasticConfig().getProfiles().find(profileId) != null;
     }
 
     @Override

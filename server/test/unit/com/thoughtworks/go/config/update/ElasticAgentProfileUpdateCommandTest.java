@@ -51,7 +51,7 @@ public class ElasticAgentProfileUpdateCommandTest {
 
     @Test
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
-        cruiseConfig.server().getElasticConfig().getProfiles().clear();
+        cruiseConfig.getElasticConfig().getProfiles().clear();
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "docker"), null, null, new HttpLocalizedOperationResult(), null, null);
         thrown.expect(PluginProfileNotFoundException.class);
         command.update(cruiseConfig);
@@ -62,10 +62,10 @@ public class ElasticAgentProfileUpdateCommandTest {
         ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
         ElasticProfile newProfile = new ElasticProfile("foo", "aws");
 
-        cruiseConfig.server().getElasticConfig().getProfiles().add(oldProfile);
+        cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), is(equalTo(newProfile)));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("foo"), is(equalTo(newProfile)));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ElasticAgentProfileUpdateCommandTest {
         ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
         ElasticProfile newProfile = new ElasticProfile("foo", "aws");
 
-        cruiseConfig.server().getElasticConfig().getProfiles().add(oldProfile);
+        cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
 

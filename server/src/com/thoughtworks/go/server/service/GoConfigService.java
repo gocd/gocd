@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -1021,6 +1022,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> getPackageUsageInPipelines() {
         return groups().getPackageUsageInPipelines();
+    }
+
+    public ElasticConfig getElasticConfig() {
+        return cruiseConfig().getElasticConfig();
+    }
+
+    public Long elasticJobStarvationThreshold() {
+        return getElasticConfig().getJobStarvationTimeout();
     }
 
     public abstract class XmlPartialSaver<T> {

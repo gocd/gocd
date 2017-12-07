@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -64,7 +65,7 @@ public class ElasticAgentPluginServiceTest {
     @Mock
     private ServerHealthService serverHealthService;
     @Mock
-    private ServerConfigService serverConfigService;
+    private GoConfigService goConfigService;
     @Mock
     private CreateAgentQueueHandler createAgentQueue;
     private TimeProvider timeProvider;
@@ -85,8 +86,8 @@ public class ElasticAgentPluginServiceTest {
         when(registry.has("missing")).thenReturn(false);
         when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<>());
         timeProvider = new TimeProvider();
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
-        when(serverConfigService.getAutoregisterKey()).thenReturn(autoRegisterKey);
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService);
+        when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
     @Test
@@ -117,8 +118,7 @@ public class ElasticAgentPluginServiceTest {
 
     @Test
     public void shouldCreateAgentForNewlyAddedJobPlansOnly() {
-        when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
-        when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
@@ -137,8 +137,7 @@ public class ElasticAgentPluginServiceTest {
 
     @Test
     public void shouldPostCreateAgentMessageWithTimeToLiveLesserThanJobStarvationThreshold() throws Exception {
-        when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
-        when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
 
@@ -153,7 +152,7 @@ public class ElasticAgentPluginServiceTest {
 
     @Test
     public void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
-        when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1, "docker");
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -198,7 +197,7 @@ public class ElasticAgentPluginServiceTest {
 
     @Test
     public void shouldRetryCreateAgentForJobForWhichAssociatedPluginIsMissing() {
-        when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1, "missing");
         service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
         service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again

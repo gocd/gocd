@@ -60,7 +60,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     private final EnvironmentConfigService environmentConfigService;
     private final CreateAgentQueueHandler createAgentQueue;
     private final ServerPingQueueHandler serverPingQueue;
-    private final ServerConfigService serverConfigService;
+    private final GoConfigService goConfigService;
     private final TimeProvider timeProvider;
     private final ServerHealthService serverHealthService;
     private final ConcurrentHashMap<Long, Long> map = new ConcurrentHashMap<>();
@@ -78,14 +78,14 @@ public class ElasticAgentPluginService implements JobStatusListener {
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
-            ServerConfigService serverConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService) {
+            GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
         this.environmentConfigService = environmentConfigService;
         this.createAgentQueue = createAgentQueue;
         this.serverPingQueue = serverPingQueue;
-        this.serverConfigService = serverConfigService;
+        this.goConfigService = goConfigService;
         this.timeProvider = timeProvider;
         this.serverHealthService = serverHealthService;
     }
@@ -132,7 +132,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
                     continue;
                 }
                 long lastTryTime = map.get(jobPlan.getJobId());
-                if ((timeProvider.currentTimeMillis() - lastTryTime) >= serverConfigService.elasticJobStarvationThreshold()) {
+                if ((timeProvider.currentTimeMillis() - lastTryTime) >= goConfigService.elasticJobStarvationThreshold()) {
                     starvingJobs.add(jobPlan);
                 }
             }
@@ -144,13 +144,13 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
         ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<>(), jobsThatRequireAgent, isElasticAgent());
 //      messageTimeToLive is lesser than the starvation threshold to ensure there are no duplicate create agent message
-        long messageTimeToLive = serverConfigService.elasticJobStarvationThreshold() - 10000;
+        long messageTimeToLive = goConfigService.elasticJobStarvationThreshold() - 10000;
 
         for (JobPlan plan : plansThatRequireElasticAgent) {
             map.put(plan.getJobId(), timeProvider.currentTimeMillis());
             if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()), messageTimeToLive);
+                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();

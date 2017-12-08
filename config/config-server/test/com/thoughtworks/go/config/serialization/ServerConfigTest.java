@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import static com.thoughtworks.go.helper.ConfigFileFixture.withServerConfig;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -40,8 +41,7 @@ public class ServerConfigTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(
-                ConfigFileFixture.withServerConfig(xml)))).config;
+        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(withServerConfig(xml)).config;
         MailHost mailHost = config.server().mailHost();
         assertThat(mailHost,
                 is(new MailHost("smtp.company.com", 25, "smtpuser", "password", true, true, "cruise@me.com", "jez@me.com")));

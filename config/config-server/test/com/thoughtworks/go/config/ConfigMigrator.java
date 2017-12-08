@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,12 +75,15 @@ public class ConfigMigrator {
     }
 
     public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws Exception {
-        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
         File tempFile = TestFileUtil.createTempFile("cruise-config.xml");
-        FileUtils.writeStringToFile(tempFile, FileUtil.readToEnd(input), UTF_8);
-        migrate(tempFile);
-        final FileInputStream inputStream = new FileInputStream(tempFile);
-        return xmlLoader.loadConfigHolder(FileUtil.readToEnd(inputStream));
+        try {
+            MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
+            FileUtils.copyInputStreamToFile(input, tempFile);
+            migrate(tempFile);
+            return xmlLoader.loadConfigHolder(FileUtils.readFileToString(tempFile, UTF_8));
+        } finally {
+          FileUtils.deleteQuietly(tempFile);
+        }
     }
 
     public static CruiseConfig load(String content) {

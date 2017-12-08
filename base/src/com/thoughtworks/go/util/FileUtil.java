@@ -22,7 +22,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 
@@ -46,25 +49,6 @@ public class FileUtil {
 
     public static boolean isDirectoryReadable(File directory) {
         return directory.canRead() && directory.canExecute() && directory.listFiles() != null;
-    }
-
-    public static String readToEnd(File file) throws IOException {
-        FileInputStream input = new FileInputStream(file);
-        return readToEnd(input);
-    }
-
-    public static String readToEnd(InputStream input) throws IOException {
-        try {
-            @SuppressWarnings("unchecked") List<String> list = IOUtils.readLines(input);
-            StringBuilder builder = new StringBuilder();
-            for (String line : list) {
-                builder.append(line);
-                builder.append(lineSeparator());
-            }
-            return builder.toString().trim();
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
     }
 
     public static boolean isHidden(File file) {
@@ -282,11 +266,6 @@ public class FileUtil {
         String fullPath = FilenameUtils.separatorsToUnix(file.getParentFile().getPath());
         String basePath = FilenameUtils.separatorsToUnix(rootPath.getPath());
         return StringUtils.removeStart(StringUtils.removeStart(fullPath, basePath), "/");
-    }
-
-    public static List<String> readLines(InputStream resource) throws IOException {
-        String output = readToEnd(resource);
-        return Arrays.asList(output.split("[\r\n]+"));
     }
 
     public static File createTempFolder() {

@@ -59,6 +59,7 @@ import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -124,7 +125,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteServerConfig() throws Exception {
         String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(xml))).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
         assertXmlEquals(xml, output.toString());
     }
@@ -718,7 +719,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = xmlLoader.loadConfigHolder(FileUtil.readToEnd(inputStream)).config;
+        CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
         assertThat(config.getGroups().size(), is(2));
         assertThat(config.getGroups().first().getGroup(), is("studios"));
     }
@@ -730,7 +731,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
-        CruiseConfig config = xmlLoader.loadConfigHolder(FileUtil.readToEnd(inputStream)).config;
+        CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
         JobConfig job = config.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
         assertThat(job.tasks().size(), Is.is(2));

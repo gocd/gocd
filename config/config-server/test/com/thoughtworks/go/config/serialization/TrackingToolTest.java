@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,10 @@ package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
-import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -42,7 +40,7 @@ public class TrackingToolTest {
 
     @Test
     public void shouldLoadTrackingtool() throws Exception {
-        CruiseConfig cruiseConfig = loader.loadConfigHolder(FileUtil.readToEnd(toInputStream(CONFIG_WITH_TRACKINGTOOL))).config;
+        CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingTool();
 
@@ -52,7 +50,7 @@ public class TrackingToolTest {
 
     @Test
     public void shouldWriteTrackingToolToConfig() throws Exception {
-        CruiseConfig cruiseConfig = loader.loadConfigHolder(FileUtil.readToEnd(toInputStream(CONFIG_WITH_TRACKINGTOOL))).config;
+        CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
 
         assertThat(writer.toXmlPartial(pipelineConfig), is(PIPELINE_WITH_TRACKINGTOOL));
@@ -60,7 +58,7 @@ public class TrackingToolTest {
 
     @Test
     public void shouldNotReturnNullWhenTrackingToolIsNotConfigured() throws Exception {
-        CruiseConfig cruiseConfig = loader.loadConfigHolder(FileUtil.readToEnd(toInputStream(ONE_PIPELINE))).config;
+        CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingTool();
 

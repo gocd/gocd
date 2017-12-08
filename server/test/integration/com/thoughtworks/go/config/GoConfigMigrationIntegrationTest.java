@@ -41,6 +41,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
@@ -60,6 +61,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +71,6 @@ import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.ConfigFileFixture.pipelineWithAttributes;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.FileUtil.readToEnd;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -238,7 +239,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldMigrateApprovalsCorrectlyBug2112() throws Exception {
         File bjcruise = new File("../common/test-resources/unit/data/bjcruise-cruise-config-1.0.xml");
         assertThat(bjcruise.exists(), is(true));
-        String xml = readToEnd(bjcruise);
+        String xml = FileUtils.readFileToString(bjcruise, StandardCharsets.UTF_8);
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(xml);
 
@@ -339,7 +340,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision22() throws Exception {
-        final String content = FileUtil.readToEnd(getClass().getResourceAsStream("cruise-config-escaping-migration-test-fixture.xml"));
+        final String content = IOUtils.toString(getClass().getResourceAsStream("cruise-config-escaping-migration-test-fixture.xml"), UTF_8);
 
         String migratedContent = migrateXmlString(content, 21, 22);
 
@@ -349,7 +350,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision28() throws Exception {
-        final String content = FileUtil.readToEnd(getClass().getResourceAsStream("no-tracking-tool-group-holder-config.xml"));
+        final String content = IOUtils.toString(getClass().getResourceAsStream("no-tracking-tool-group-holder-config.xml"), UTF_8);
 
         String migratedContent = migrateXmlString(content, 27);
 
@@ -359,7 +360,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision34() throws Exception {
-        final String content = FileUtil.readToEnd(getClass().getResourceAsStream("svn-p4-with-parameterized-passwords.xml"));
+        final String content = IOUtils.toString(getClass().getResourceAsStream("svn-p4-with-parameterized-passwords.xml"), UTF_8);
 
         String migratedContent = migrateXmlString(content, 22);
 
@@ -371,7 +372,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision35_escapeHash() throws Exception {
-        final String content = FileUtil.readToEnd(getClass().getResourceAsStream("escape_param_for_nant_p4.xml"));
+        final String content = IOUtils.toString(getClass().getResourceAsStream("escape_param_for_nant_p4.xml"), UTF_8).trim();
 
         String migratedContent = migrateXmlString(content, 22);
 

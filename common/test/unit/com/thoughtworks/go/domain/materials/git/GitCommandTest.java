@@ -29,26 +29,34 @@ import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.CommandLine;
+import com.thoughtworks.go.util.command.CommandLineException;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.Is;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.util.DateUtils.parseRFC822;
-import static com.thoughtworks.go.util.FileUtil.readLines;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.apache.commons.lang.time.DateUtils.setMilliseconds;
@@ -501,7 +509,10 @@ public class GitCommandTest {
 
     @Test
     public void shouldParseGitOutputCorrectly() throws IOException {
-        List<String> stringList = readLines(getClass().getResourceAsStream("git_sample_output.text"));
+        List<String> stringList;
+        try (InputStream resourceAsStream = getClass().getResourceAsStream("git_sample_output.text")) {
+            stringList = IOUtils.readLines(resourceAsStream, UTF_8);
+        }
 
         GitModificationParser parser = new GitModificationParser();
         List<Modification> mods = parser.parse(stringList);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class ExecTaskTest {
         try {
             ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-            new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(configXml)));
+            new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(configXml);
             fail("should throw exception if both 'args' attribute and 'arg' sub element are configured");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString(ExecTask.EXEC_CONFIG_ERROR));

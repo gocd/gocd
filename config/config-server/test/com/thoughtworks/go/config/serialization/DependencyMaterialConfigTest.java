@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.dependency.NewGoConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
@@ -76,7 +77,7 @@ public class DependencyMaterialConfigTest {
         writer.write(mother.cruiseConfig(), buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = loader.loadConfigHolder(FileUtil.readToEnd(inputStream)).config;
+        CruiseConfig config = loader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
 
         DependencyMaterialConfig material = (DependencyMaterialConfig) config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs().get(1);
         assertThat(material, is(originalMaterial));
@@ -98,7 +99,7 @@ public class DependencyMaterialConfigTest {
         writer.write(cruiseConfig, buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = loader.loadConfigHolder(FileUtil.readToEnd(inputStream)).config;
+        CruiseConfig config = loader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
 
         MaterialConfigs materialConfigs = config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs();
         assertThat(materialConfigs.get(0), is(instanceOf(DependencyMaterialConfig.class)));

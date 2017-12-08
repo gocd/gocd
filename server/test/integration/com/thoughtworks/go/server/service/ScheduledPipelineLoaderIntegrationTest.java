@@ -47,7 +47,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
@@ -68,6 +67,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
@@ -314,7 +314,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         assertThat(expiryTime.toDate().after(currentTime), is(true));
         assertThat(expiryTime.toDate().before(new Date(System.currentTimeMillis() + 5 * 60 * 1000 + 1)), is(true));
 
-        String logText = FileUtil.readToEnd(consoleService.consoleLogArtifact(reloadedJobInstance.getIdentifier()));
+        String logText = FileUtils.readFileToString(consoleService.consoleLogArtifact(reloadedJobInstance.getIdentifier()), UTF_8);
         assertThat(logText, containsString("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
         assertThat(logText, containsString("Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed."));
     }

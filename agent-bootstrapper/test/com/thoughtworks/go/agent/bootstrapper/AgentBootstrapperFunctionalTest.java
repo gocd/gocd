@@ -19,7 +19,6 @@ package com.thoughtworks.go.agent.bootstrapper;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
-import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -31,7 +30,8 @@ import java.io.*;
 import java.net.URL;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
-import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
+import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT_LAUNCHER;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
@@ -64,7 +64,7 @@ public class AgentBootstrapperFunctionalTest {
         try {
             AGENT_LAUNCHER_JAR.delete();
             new AgentBootstrapper().validate();
-            assertEquals("agent launcher from default files", FileUtil.readToEnd(AGENT_LAUNCHER_JAR));
+            assertEquals("agent launcher from default files", FileUtils.readFileToString(AGENT_LAUNCHER_JAR, UTF_8).trim());
         } finally {
             AGENT_LAUNCHER_JAR.delete();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 
-import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -71,7 +69,7 @@ public class MagicalGoConfigXmlLoaderFixture {
                         + "</pipeline>\n"
                         + "</pipelines>"
                         + "</cruise>\n";
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(FileUtil.readToEnd(toInputStream(pipelineXmlPartial))).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(pipelineXmlPartial).config;
         return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).materialConfigs();
     }
 

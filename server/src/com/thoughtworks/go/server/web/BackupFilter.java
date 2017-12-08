@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.web;
 
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.server.service.BackupService;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands redirecting all requests to a service unavailable page when the server is being backed up.
@@ -88,13 +90,12 @@ public class BackupFilter implements Filter {
 
     private void generateHTMLResponse(ServletResponse response) {
         String path = "backup_in_progress.html";
-        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
         response.setContentType("text/html");
-        try {
-            String content = FileUtil.readToEnd(resourceAsStream);
+        response.setCharacterEncoding("utf-8");
+        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
+            String content = IOUtils.toString(resourceAsStream, UTF_8);
             content = replaceStringLiterals(content);
             response.getWriter().print(content);
-            resourceAsStream.close();
         } catch (IOException e) {
             LOGGER.error("General IOException: {}", e.getMessage());
         }

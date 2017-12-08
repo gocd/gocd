@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -63,7 +64,7 @@ public class SvnRemoteRepository {
     public void addUser(String username, String password) throws Exception {
         enableAuthentication();
         File passwdFile = new File(repo.projectRepositoryRoot(), "conf/passwd");
-        String passwd = FileUtil.readToEnd(passwdFile);
+        String passwd = String.join(FileUtil.lineSeparator(), Files.readAllLines(passwdFile.toPath()));
         if (!(passwd.contains("\n[users]\n"))) {
             passwd = passwd + "\n[users]\n";
         }
@@ -73,8 +74,7 @@ public class SvnRemoteRepository {
 
     private void enableAuthentication() throws IOException {
         File confFile = new File(repo.projectRepositoryRoot(), "conf/svnserve.conf");
-        String passwd = FileUtil.readToEnd(confFile);
-        passwd = "[general]\n"
+        String passwd = "[general]\n"
                 + "anon-access = none\n"
                 + "auth-access = read\n"
                 + "auth-access = write\n"

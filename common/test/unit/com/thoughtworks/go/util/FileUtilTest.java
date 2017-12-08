@@ -19,7 +19,6 @@ package com.thoughtworks.go.util;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +29,6 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -55,15 +53,6 @@ public class FileUtilTest {
     @After
     public void tearDown() throws Exception {
         temporaryFolder.delete();
-    }
-
-    @Test
-    public void shouldReadTillEnd() throws Exception {
-        String content = "Hello" + FileUtil.lineSeparator() + "World";
-        File file = temporaryFolder.newFile("foo.txt");
-        FileUtils.writeStringToFile(file, content, Charset.defaultCharset());
-        String message = FileUtil.readToEnd(file);
-        assertThat(message, is(content));
     }
 
     @Test

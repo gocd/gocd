@@ -20,7 +20,7 @@ package com.thoughtworks.go.server.web;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.HttpChannel;
@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.*;
 
 public class BackupFilterTest {
@@ -81,7 +82,7 @@ public class BackupFilterTest {
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
 
-        String content = FileUtil.readToEnd(inputStream);
+        String content = IOUtils.toString(inputStream, UTF_8);
         content = backupFilter.replaceStringLiterals(content);
         Request request = request(HttpMethod.GET, "", "/go/agents");
 
@@ -99,7 +100,7 @@ public class BackupFilterTest {
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
 
-        String content = FileUtil.readToEnd(inputStream);
+        String content = IOUtils.toString(inputStream, UTF_8);
         content = backupFilter.replaceStringLiterals(content);
         Request request = request(HttpMethod.GET, "", "/go/server/messages.json");
 

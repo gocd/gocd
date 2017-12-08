@@ -67,6 +67,7 @@ import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -89,6 +90,7 @@ import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.io.IOUtils.toInputStream;
@@ -314,7 +316,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadAntBuilder() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(FileUtil.readToEnd(toInputStream(CONFIG_WITH_ANT_BUILDER))).config;
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(CONFIG_WITH_ANT_BUILDER).config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
         assertThat(plan.tasks(), sizeIs(1));
@@ -1764,7 +1766,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadLargeConfigFileInReasonableTime() throws Exception {
-        String content = FileUtil.readToEnd(getClass().getResourceAsStream("/data/big-cruise-config.xml"));
+        String content = IOUtils.toString(getClass().getResourceAsStream("/data/big-cruise-config.xml"), UTF_8);
 //        long start = System.currentTimeMillis();
         GoConfigHolder configHolder = ConfigMigrator.loadWithMigration(content);
 //        assertThat(System.currentTimeMillis() - start, lessThan(new Long(2000)));

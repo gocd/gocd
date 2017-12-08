@@ -22,11 +22,12 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -39,7 +40,7 @@ public class UniqueRunIfStatusValidatorTest {
     public void shouldThrowExceptionWhenThereIsMoreThanOneOnCancelInEachTask() throws Exception {
         try {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(ConfigFileFixture.CONTAINS_MULTI_SAME_STATUS_RUN_IF.getBytes());
-            new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(FileUtil.readToEnd(inputStream));
+            new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(IOUtils.toString(inputStream, UTF_8));
             fail();
         } catch (Exception e) {
             assertThat(e.getMessage(),
@@ -51,7 +52,7 @@ public class UniqueRunIfStatusValidatorTest {
     public void shouldPassWhenEachJobContainsOnCancel() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(ConfigMigrator.migrate(
                 ConfigFileFixture.CONTAINS_MULTI_DIFFERENT_STATUS_RUN_IF).getBytes());
-        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(FileUtil.readToEnd(inputStream)).config;
+        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
         assertThat(cruiseConfig, is(not(nullValue())));
     }
 }

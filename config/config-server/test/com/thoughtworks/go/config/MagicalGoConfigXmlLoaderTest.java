@@ -3582,7 +3582,6 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldSerializeJobElasticProfileId() throws Exception {
         String configWithJobElasticProfileId =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "<server>\n"
                         + "  <elastic jobStarvationTimeout=\"10\">\n"
                         + "    <profiles>\n"
                         + "      <profile id='unit-test' pluginId='aws'>\n"
@@ -3593,7 +3592,6 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      </profile>\n"
                         + "    </profiles>\n"
                         + "  </elastic>\n"
-                        + "</server>\n"
                         + "<pipelines group=\"first\">\n"
                         + "<pipeline name=\"pipeline\">\n"
                         + "  <materials>\n"
@@ -3620,7 +3618,6 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldSerializeElasticAgentProfiles() throws Exception {
         String configWithElasticProfile =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "<server artifactsdir='artifacts'>\n"
                         + "  <elastic jobStarvationTimeout=\"2\">\n"
                         + "    <profiles>\n"
                         + "      <profile id=\"foo\" pluginId=\"docker\">\n"
@@ -3631,15 +3628,14 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      </profile>\n"
                         + "    </profiles>\n"
                         + "  </elastic>\n"
-                        + "</server>\n"
                         + "</cruise>\n";
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithElasticProfile).configForEdit;
 
-        assertThat(cruiseConfig.server().getElasticConfig().getJobStarvationTimeout(), is(120000L));
-        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().size(), is(1));
+        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout(), is(120000L));
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().size(), is(1));
 
-        ElasticProfile elasticProfile = cruiseConfig.server().getElasticConfig().getProfiles().find("foo");
+        ElasticProfile elasticProfile = cruiseConfig.getElasticConfig().getProfiles().find("foo");
         assertThat(elasticProfile, is(notNullValue()));
         assertThat(elasticProfile.getPluginId(), is("docker"));
         assertThat(elasticProfile.size(), is(1));

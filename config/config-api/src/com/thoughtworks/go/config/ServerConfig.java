@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -48,9 +47,6 @@ public class ServerConfig implements Validatable {
     private String webhookSecret;
     @ConfigAttribute(value = "commandRepositoryLocation", alwaysWrite = true)
     private String commandRepositoryLocation = "default";
-
-    @ConfigSubtag
-    private ElasticConfig elasticConfig = new ElasticConfig();
 
     @SkipParameterResolution
     @ConfigAttribute(value = "serverId", optional = true, allowNull = true)
@@ -136,10 +132,6 @@ public class ServerConfig implements Validatable {
         this.agentAutoRegisterKey = agentAutoRegisterKey;
     }
 
-    public ServerConfig(ElasticConfig elasticConfig) {
-        this.elasticConfig = elasticConfig;
-    }
-
     public String artifactsDir() {
         return artifactsDir;
     }
@@ -166,10 +158,6 @@ public class ServerConfig implements Validatable {
 
     public void updateArtifactRoot(String path) {
         this.artifactsDir = path;
-    }
-
-    public ElasticConfig getElasticConfig() {
-        return elasticConfig;
     }
 
     @Override

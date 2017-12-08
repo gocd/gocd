@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -54,6 +55,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag
     @SkipParameterResolution
     private ServerConfig serverConfig = new ServerConfig();
+    @ConfigSubtag
+    private ElasticConfig elasticConfig = new ElasticConfig();
     @ConfigSubtag
     @SkipParameterResolution
     private com.thoughtworks.go.domain.packagerepository.PackageRepositories packageRepositories = new PackageRepositories();
@@ -176,6 +179,15 @@ public class BasicCruiseConfig implements CruiseConfig {
         serverConfig.ensureAgentAutoregisterKeyExists();
     }
 
+    @Override
+    public ElasticConfig getElasticConfig() {
+        return elasticConfig;
+    }
+
+    @Override
+    public void setElasticConfig(ElasticConfig elasticConfig) {
+        this.elasticConfig = elasticConfig;
+    }
 
     private interface CruiseStrategy {
         ConfigOrigin getOrigin();
@@ -1340,9 +1352,9 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines() {
-        if(allTemplatesWithAssociatedPipelines == null){
+        if (allTemplatesWithAssociatedPipelines == null) {
             allTemplatesWithAssociatedPipelines = new HashMap<>();
-            for (PipelineTemplateConfig templateConfig: getTemplates()) {
+            for (PipelineTemplateConfig templateConfig : getTemplates()) {
                 if (!allTemplatesWithAssociatedPipelines.containsKey(templateConfig.name())) {
                     allTemplatesWithAssociatedPipelines.put(templateConfig.name(), new HashMap<>());
                 }

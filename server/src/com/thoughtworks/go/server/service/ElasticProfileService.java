@@ -40,7 +40,7 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
 
     @Override
     protected PluginProfiles<ElasticProfile> getPluginProfiles() {
-        return goConfigService.serverConfig().getElasticConfig().getProfiles();
+        return goConfigService.getElasticConfig().getProfiles();
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {

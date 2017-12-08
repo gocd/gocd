@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -28,7 +29,10 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @understands the configuration for cruise
@@ -259,6 +263,10 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
      * Note: It does NOT guarantee that these partials are valid.
      */
     List<PartialConfig> getMergedPartials();
+
+    ElasticConfig getElasticConfig();
+
+    void setElasticConfig(ElasticConfig elasticConfig);
 
     CruiseConfig cloneForValidation();
 

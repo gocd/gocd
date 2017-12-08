@@ -83,7 +83,7 @@ public class GoServer {
         AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
-        server.setSessionAndCookieExpiryTimeout(systemEnvironment.sessionTimeoutInSeconds());
+        server.setSessionCookieConfig();
         return server;
     }
 

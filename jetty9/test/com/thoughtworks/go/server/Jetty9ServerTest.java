@@ -38,6 +38,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.net.ssl.SSLSocketFactory;
+import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -90,6 +91,9 @@ public class Jetty9ServerTest {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(true);
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
+        when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
+        when(systemEnvironment.sessionTimeoutInSeconds()).thenReturn(1234);
+
 
         SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
@@ -282,10 +286,27 @@ public class Jetty9ServerTest {
         int sessionTimeoutInSeconds = 1234;
 
         jetty9Server.configure();
-        jetty9Server.setSessionAndCookieExpiryTimeout(sessionTimeoutInSeconds);
+        jetty9Server.setSessionCookieConfig();
 
         WebAppContext webAppContext = getWebAppContext(jetty9Server);
         assertThat(webAppContext.getSessionHandler().getSessionManager().getMaxInactiveInterval(), is(1234));
+    }
+
+    @Test
+    public void shouldSetSessionCookieConfig() throws Exception {
+        when(systemEnvironment.isSessionCookieSecure()).thenReturn(true);
+        jetty9Server.configure();
+        jetty9Server.setSessionCookieConfig();
+
+        WebAppContext webAppContext = getWebAppContext(jetty9Server);
+        SessionCookieConfig sessionCookieConfig = webAppContext.getSessionHandler().getSessionManager().getSessionCookieConfig();
+        assertThat(sessionCookieConfig.isHttpOnly(), is(true));
+        assertThat(sessionCookieConfig.isSecure(), is(true));
+        assertThat(sessionCookieConfig.getMaxAge(), is(1234));
+
+        when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
+        jetty9Server.setSessionCookieConfig();
+        assertThat(sessionCookieConfig.isSecure(), is(false));
     }
 
     @Test

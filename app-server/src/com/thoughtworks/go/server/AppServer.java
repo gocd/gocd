@@ -33,7 +33,7 @@ public abstract class AppServer {
 
     abstract void addExtraJarsToClasspath(String extraClasspath);
 
-    abstract void setSessionAndCookieExpiryTimeout(int sessionAndCookieExpiryTimeout);
+    abstract void setSessionCookieConfig();
 
     abstract void setInitParameter(String name, String value);
 

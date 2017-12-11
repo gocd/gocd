@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
@@ -38,6 +39,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +77,11 @@ public abstract class NotificationExtensionTestBase {
     protected abstract PluginSettingsJsonMessageHandler pluginSettingsJSONMessageHandler();
 
     protected abstract JsonMessageHandler jsonMessageHandler();
+
+    @Test
+    public void shouldExtendAbstractExtension() throws Exception {
+        assertTrue(notificationExtension instanceof AbstractExtension);
+    }
 
     @Test
     public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {

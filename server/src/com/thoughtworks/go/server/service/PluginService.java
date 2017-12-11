@@ -146,6 +146,7 @@ public class PluginService {
                         return;
                     }
                     savePluginSettingsFor(pluginSettings);
+                    notifyPluginSettingsChange(pluginSettings);
                 } catch (Exception e) {
                     if (e instanceof IllegalArgumentException) {
                         result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getLocalizedMessage()));
@@ -155,6 +156,21 @@ public class PluginService {
                             result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private void notifyPluginSettingsChange(PluginSettings pluginSettings) {
+        String pluginId = pluginSettings.getPluginId();
+
+        for (GoPluginExtension extension : extensions) {
+            if (extension.canHandlePlugin(pluginId)) {
+                try {
+                    extension.notifyPluginSettingsChange(pluginId, pluginSettings.getSettingsAsKeyValuePair());
+                    break;
+                } catch (Exception e) {
+                    LOGGER.warn("Error notifying plugin - {} with settings change", pluginId, e);
                 }
             }
         }

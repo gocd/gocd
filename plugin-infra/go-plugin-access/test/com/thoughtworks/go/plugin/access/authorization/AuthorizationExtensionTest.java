@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -52,6 +53,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -75,6 +77,11 @@ public class AuthorizationExtensionTest {
         authorizationExtension = new AuthorizationExtension(pluginManager);
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
+    }
+
+    @Test
+    public void shouldExtendAbstractExtension() throws Exception {
+        assertTrue(authorizationExtension instanceof AbstractExtension);
     }
 
     @Test

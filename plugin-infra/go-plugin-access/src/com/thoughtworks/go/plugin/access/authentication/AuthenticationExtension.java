@@ -96,4 +96,9 @@ public class AuthenticationExtension extends AbstractExtension {
     Map<String, JsonMessageHandler> getMessageHandlerMap() {
         return messageHandlerMap;
     }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return goSupportedVersions;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import org.junit.Test;
 
-import java.util.Map;
+import static org.junit.Assert.assertTrue;
 
-public interface GoPluginExtension {
+public class PluginSettingsJsonMessageHandler2_0Test extends PluginSettingsJsonMessageHandlerTestBase {
+    @Override
+    protected PluginSettingsJsonMessageHandlerBase messageHandler() {
+        return new PluginSettingsJsonMessageHandler2_0();
+    }
 
-    boolean canHandlePlugin(String pluginId);
-
-    String extensionName();
-
-    PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId);
-
-    String getPluginSettingsView(String pluginId);
-
-    ValidationResult validatePluginSettings(String pluginId, PluginSettingsConfiguration configuration);
-
-    void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings);
+    @Test
+    public void shouldNotSupportSettingsNotification() throws Exception {
+        assertTrue(messageHandler.supportsPluginSettingsNotification());
+    }
 }

@@ -67,4 +67,8 @@ public class TaskExtension extends AbstractExtension {
         return task.validate(taskConfig);
     }
 
+    @Override
+    protected List<String> goSupportedVersions() {
+        return supportedVersions;
+    }
 }

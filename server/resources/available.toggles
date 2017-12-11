@@ -25,6 +25,11 @@
         "key": "plugin_spa_toggle_key",
         "description": "The plugin listing page will be the new plugins SPA. Default: enabled.",
         "value": true
+      },
+      {
+        "key": "quicker_dashboard_key",
+        "description": "To disable caching of dashboard information until the dashboard API goes live",
+        "value": false
       }
   ]
 }

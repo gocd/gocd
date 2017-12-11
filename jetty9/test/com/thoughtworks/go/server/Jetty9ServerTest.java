@@ -283,8 +283,6 @@ public class Jetty9ServerTest {
 
     @Test
     public void shouldSetSessionMaxInactiveInterval() throws Exception {
-        int sessionTimeoutInSeconds = 1234;
-
         jetty9Server.configure();
         jetty9Server.setSessionCookieConfig();
 

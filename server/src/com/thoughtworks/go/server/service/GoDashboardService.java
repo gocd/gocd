@@ -23,16 +23,18 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import com.thoughtworks.go.server.dashboard.*;
+import com.thoughtworks.go.server.dashboard.GoDashboardCache;
+import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /* Understands how to interact with the GoDashboardCache cache. */
 @Service
@@ -65,6 +67,9 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
+        if (!Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)) {
+            return;
+        }
         PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
         PipelineConfig pipelineConfig = group.findBy(pipelineName);
 
@@ -72,10 +77,16 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(PipelineConfig pipelineConfig) {
+        if (!Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)) {
+            return;
+        }
         updateCache(goConfigService.findGroupByPipeline(pipelineConfig.name()), pipelineConfig);
     }
 
     public void updateCacheForAllPipelinesIn(CruiseConfig config) {
+        if (!Toggles.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)) {
+            return;
+        }
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));
     }
 

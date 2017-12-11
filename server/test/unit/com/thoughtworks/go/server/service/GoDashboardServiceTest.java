@@ -28,6 +28,8 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.Clock;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +59,8 @@ public class GoDashboardServiceTest {
     private GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private FeatureToggleService featureToggleService;
 
     private GoDashboardService service;
 
@@ -69,7 +73,8 @@ public class GoDashboardServiceTest {
 
         configMother = new GoConfigMother();
         config = configMother.defaultCruiseConfig();
-
+        Toggles.initializeWith(featureToggleService);
+        when(featureToggleService.isToggleOn(Toggles.QUICKER_DASHBOARD_KEY)).thenReturn(true);
         service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService);
     }
 

@@ -8,10 +8,10 @@
                           :onsubmit => "return AjaxForm.jquery_ajax_submit(this, AjaxForm.ConfigFormEditHandler);",
                           :class => "popup_form"} do |f| %>
     <%= md5_field %>
-    <%= register_defaultable_list("job>artifactPlans") %>
+    <%= register_defaultable_list("job>artifactConfigs") %>
 
     <div class="fieldset">
-        <%= render :partial => "artifact_plans.html", :locals => {:scope => {:form => f, :collection => @job.artifactPlans()}} %>
+        <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :collection => @job.artifactConfigs()}} %>
     </div>
 
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

@@ -228,14 +228,14 @@ public class JobInstanceMother {
         return jobInstance;
     }
 
-	public static JobInstance instanceForRunMultipleInstance(String pipelineName, String stageName, String jobName, String pipelineLabel, int counter) {
-		String instanceName = RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker(jobName, counter);
-		JobInstance jobInstance = building(instanceName);
-		jobInstance.setRunMultipleInstance(true);
-		JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", instanceName, 0L);
-		jobInstance.setIdentifier(identifier);
-		return jobInstance;
-	}
+    public static JobInstance instanceForRunMultipleInstance(String pipelineName, String stageName, String jobName, String pipelineLabel, int counter) {
+        String instanceName = RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker(jobName, counter);
+        JobInstance jobInstance = building(instanceName);
+        jobInstance.setRunMultipleInstance(true);
+        JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", instanceName, 0L);
+        jobInstance.setIdentifier(identifier);
+        return jobInstance;
+    }
 
     public static JobInstance buildingInstance(String pipelineName, String stageName, String jobName,
                                                String pipelineLabel) {
@@ -246,11 +246,11 @@ public class JobInstanceMother {
     }
 
     public static DefaultJobPlan jobPlan(String jobName, long id) {
-        return new DefaultJobPlan(new Resources(new Resource("foo"), new Resource("bar")), new ArtifactPlans(), new ArtifactPropertiesGenerators(), id, defaultJobIdentifier(jobName), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(new Resources(new Resource("foo"), new Resource("bar")), new ArrayList<>(), new ArtifactPropertiesGenerators(), id, defaultJobIdentifier(jobName), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
     }
 
     public static JobPlan createJobPlan(JobConfig jobConfig, JobIdentifier jobIdentifier, SchedulingContext schedulingContext) {
-        return new DefaultJobPlan(jobConfig.resources(), jobConfig.artifactPlans(), jobConfig.getProperties(), -1,
+        return new DefaultJobPlan(jobConfig.resources(), ArtifactPlan.toArtifactPlans(jobConfig.artifactConfigs()), jobConfig.getProperties(), -1,
                 jobIdentifier, null, schedulingContext.overrideEnvironmentVariables(jobConfig.getVariables()).getEnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
     }
 }

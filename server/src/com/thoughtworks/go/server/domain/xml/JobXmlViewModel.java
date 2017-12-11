@@ -16,23 +16,16 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import java.io.IOException;
-
-import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.Property;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.XmlRepresentable;
-import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.domain.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
+
+import java.io.IOException;
 
 /**
  * @understands rendering xml representation of Job

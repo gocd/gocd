@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
@@ -40,6 +36,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -51,16 +51,23 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class RescheduleJobTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithTwoStages fixture;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private JobStatusCache jobStatusCache;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private JobStatusCache jobStatusCache;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
     public static final String JOB_NAME = "unit";
     private static final String STAGE_NAME = "mingle";
     private static final String PIPELINE_NAME = "studios";
@@ -89,7 +96,8 @@ public class RescheduleJobTest {
         final Pipeline pipeline = dbHelper.getPipelineDao().mostRecentPipeline(PIPELINE_NAME);
         //Need to do this in transaction because of caching
         dbHelper.txTemplate().execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 jobInstanceService.save(new StageIdentifier(pipeline.getName(), -2, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), hungJob);
             }
         });
@@ -104,7 +112,8 @@ public class RescheduleJobTest {
         hungJob.changeState(JobState.Completed, new Date());
         //Need to do this in transaction because of caching
         dbHelper.txTemplate().execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 jobInstanceService.save(new StageIdentifier(PIPELINE_NAME, -2, hungJob.getIdentifier().getPipelineLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), hungJob);
             }
         });
@@ -139,9 +148,9 @@ public class RescheduleJobTest {
         dbHelper.cancelStage(stage);
 
         Resources resources = new Resources(new Resource("r1"), new Resource("r2"));
-        ArtifactPlans artifactPlans = new ArtifactPlans(Arrays.asList(new ArtifactPlan("s1", "d1"), new ArtifactPlan("s2", "d2")));
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new ArtifactConfig("s1", "d1"), new ArtifactConfig("s2", "d2")));
         ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators(new ArtifactPropertiesGenerator("n1", "s1", "x1"), new ArtifactPropertiesGenerator("n2", "s2", "x2"));
-        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resources, artifactPlans, artifactPropertiesGenerators);
+        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resources, artifactConfigs, artifactPropertiesGenerators);
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
 

@@ -60,7 +60,7 @@ Enhancements:
 Bug Fixes:
 
 * Fix `RSpec::Support::RubyFeature.ripper_supported?` so it returns
-  `false` on Rubinius since the Rubinius team has no plans to support
+  `false` on Rubinius since the Rubinius team has no artifactPlans to support
   it. This prevents rspec-core from trying to load and use ripper to
   extract failure snippets. (Aaron Stone, #251)
 

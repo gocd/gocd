@@ -590,7 +590,7 @@ It renders a document following the Collection+JSON specs.
   "items":null}}
 ```
 
-We have big plans with this media format, as the object model in Roar plays nicely with Collection+JSON's API semantics.
+We have big artifactPlans with this media format, as the object model in Roar plays nicely with Collection+JSON's API semantics.
 
 
 ## Client-Side Support

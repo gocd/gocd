@@ -16,6 +16,11 @@
 
 package com.thoughtworks.go.domain;
 
+import java.io.File;
+import java.io.IOException;
+
+import com.thoughtworks.go.config.ArtifactPlan;
+import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -28,12 +33,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.verification.Times;
 
-import java.io.File;
-import java.io.IOException;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(JMock.class)
 public class TestArtifactPlanTest {
@@ -55,21 +59,20 @@ public class TestArtifactPlanTest {
 
     @Test
     public void shouldNotThrowExceptionIfFolderNotFound() throws Exception {
-        final MergedTestArtifactPlan compositeTestArtifact = new MergedTestArtifactPlan(
-                new ArtifactPlan(ArtifactType.unit, "some_random_path_that_does_not_exist", "testoutput")
-        );
+        final TestArtifactPlan compositeTestArtifact = new TestArtifactPlan(
+                new TestArtifactPlan("some_random_path_that_does_not_exist",
+                        "testoutput"));
         compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
-        verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR,
-                "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
+        verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR, "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
     }
 
     @Test
     public void shouldNotThrowExceptionIfUserSpecifiesNonFolderFileThatExistsAsSrc() throws Exception {
         final File nonFolderFileThatExists = TestFileUtil.createTestFile(TestFileUtil.createTempFolder("tempFolder"),
                 "nonFolderFileThatExists");
-        final ArtifactPlan compositeTestArtifact = new ArtifactPlan(
-                new ArtifactPlan(ArtifactType.unit, nonFolderFileThatExists.getPath(), "testoutput")
-        );
+        final TestArtifactPlan compositeTestArtifact = new TestArtifactPlan(
+                new TestArtifactPlan(nonFolderFileThatExists.getPath(),
+                        "testoutput"));
 
         compositeTestArtifact.publish(mockArtifactPublisher, rootPath);
         doNothing().when(mockArtifactPublisher).upload(any(File.class), any(String.class));
@@ -77,8 +80,8 @@ public class TestArtifactPlanTest {
 
     @Test
     public void shouldSupportGlobPatternsInSourcePath() {
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.unit, "**/*/a.log", "logs");
-        MergedTestArtifactPlan testArtifactPlan = new MergedTestArtifactPlan(artifactPlan);
+        ArtifactPlan artifactPlan = new ArtifactPlan( "**/*/a.log", "logs");
+        TestArtifactPlan testArtifactPlan = new TestArtifactPlan(artifactPlan);
 
         File first = new File("target/test/report/a.log");
         File second = new File("target/test/test/a/b/a.log");

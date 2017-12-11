@@ -61,24 +61,15 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class JobInstanceServiceTest {
-    @Mock
-    private JobInstanceDao jobInstanceDao;
-    @Mock
-    private JobResultTopic topic;
-    @Mock
-    private PropertiesService buildPropertiesService;
-    @Mock
-    private StageDao stageDao;
-    @Mock
-    private GoConfigService goConfigService;
-    @Mock
-    private CruiseConfig cruiseConfig;
-    @Mock
-    private SecurityService securityService;
-    @Mock
-    private PluginManager pluginManager;
-    @Mock
-    private ServerHealthService serverHealthService;
+    @Mock private JobInstanceDao jobInstanceDao;
+    @Mock private JobResultTopic topic;
+    @Mock private PropertiesService buildPropertiesService;
+    @Mock private StageDao stageDao;
+    @Mock private GoConfigService goConfigService;
+    @Mock private CruiseConfig cruiseConfig;
+	@Mock private SecurityService securityService;
+    @Mock private PluginManager pluginManager;
+    @Mock private ServerHealthService serverHealthService;
 
     private JobInstance job;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
@@ -355,7 +346,7 @@ public class JobInstanceServiceTest {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
                 resolver,
                 null, goConfigService, null, pluginManager, serverHealthService);
-        DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 7, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), 7, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
         when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7l));

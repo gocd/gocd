@@ -56,21 +56,21 @@
             </tr>
             </thead>
             <tbody>
-            <% if scope[:job].artifactConfigs().empty() %>
+            <% if scope[:job].artifactPlans().empty() %>
                 <tr>
                     <td align='center' colspan="3" class="name_value_cell"><%= l.string('NO_ARTIFACTS_CONFIGURED') %></td>
                 </tr>
             <% end %>
-            <% scope[:job].artifactConfigs().each do |artifact_config| %>
+            <% scope[:job].artifactPlans().each do |artifact_plan| %>
                 <tr>
                     <td class="name_value_cell">
-                        <%= artifact_config.getSource() %>
+                        <%= artifact_plan.getSrc() %>
                     </td>
                     <td class="name_value_cell">
-                        <%= artifact_config.getDestination() %>
+                        <%= artifact_plan.getDest() %>
                     </td>
                     <td class="name_value_cell">
-                        <%= artifact_config.getArtifactTypeValue() %>
+                        <%= artifact_plan.getArtifactTypeValue() %>
                     </td>
                 </tr>
             <% end %>

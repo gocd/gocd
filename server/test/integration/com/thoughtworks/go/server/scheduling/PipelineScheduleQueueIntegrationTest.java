@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import ch.qos.logback.classic.Level;
+import java.util.List;
+
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -37,6 +38,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
+import ch.qos.logback.classic.Level;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -50,18 +52,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.List;
-
-import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
+import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
+import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFilesAndTriggerAs;
+import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -289,10 +292,10 @@ public class PipelineScheduleQueueIntegrationTest {
     public void shouldSaveBuildPlansWhenScheduling() throws Exception {
         JobConfigs jobConfigs = new JobConfigs();
         Resources resources = new Resources(new Resource("resource1"));
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        ArtifactPlans artifactPlans = new ArtifactPlans();
         ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
         generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resources, artifactConfigs, generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resources, artifactPlans, generators);
         jobConfigs.add(jobConfig);
 
         StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -310,7 +313,7 @@ public class PipelineScheduleQueueIntegrationTest {
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         JobPlan plan = plans.get(0);
         assertThat(plan.getName(), is("test-job"));
-        assertThat(plan.getArtifactPlans(), is(artifactConfigs));
+        assertThat(plan.getArtifactPlans(), is(artifactPlans));
         assertThat(plan.getPropertyGenerators(), is(generators));
         assertThat(plan.getResources(), is(resources));
     }
@@ -320,10 +323,10 @@ public class PipelineScheduleQueueIntegrationTest {
         try (LogFixture logging = logFixtureFor(PipelineScheduleQueue.class, Level.DEBUG)) {
             JobConfigs jobConfigs = new JobConfigs();
             Resources resources = new Resources(new Resource("resource1"));
-            ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+            ArtifactPlans artifactPlans = new ArtifactPlans();
             ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
             generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resources, artifactConfigs, generators);
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resources, artifactPlans, generators);
             jobConfigs.add(jobConfig);
 
             StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -343,10 +346,10 @@ public class PipelineScheduleQueueIntegrationTest {
     public void shouldCreateJobsMatchingRealAgentsIfRunOnAllAgentsIsSet() throws Exception {
 
         JobConfigs jobConfigs = new JobConfigs();
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        ArtifactPlans artifactPlans = new ArtifactPlans();
         ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
         generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), artifactConfigs, generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), artifactPlans, generators);
         jobConfig.setRunOnAllAgents(true);
         jobConfigs.add(jobConfig);
 
@@ -376,7 +379,7 @@ public class PipelineScheduleQueueIntegrationTest {
         JobConfigs jobConfigs = new JobConfigs();
         ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
         generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), new ArtifactConfigs(), generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), new ArtifactPlans(), generators);
         jobConfig.setRunInstanceCount(3);
         jobConfigs.add(jobConfig);
 

@@ -236,8 +236,8 @@ describe ApiV5::Shared::Stages::JobRepresenter do
       ]
 
       ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ artifacts: artifacts })
-      expect(job_config.artifactConfigs.map(&:destination)).to eq(%w(pkg testoutput))
-      expect(job_config.artifactConfigs.map(&:getArtifactType).map(&:to_s)).to eq(%w(file unit))
+      expect(job_config.artifactPlans.map(&:dest)).to eq(%w(pkg testoutput))
+      expect(job_config.artifactPlans.map(&:getArtifactType).map(&:to_s)).to eq(%w(file unit))
     end
 
     it 'should raise exception when invalid artifact type is passed' do
@@ -279,9 +279,9 @@ describe ApiV5::Shared::Stages::JobRepresenter do
   it 'should map errors' do
     job_config = JobConfig.new
     job_config.setRunInstanceCount(-2);
-    plans      = ArtifactConfigs.new
-    plans.add(TestArtifactConfig.new(nil, '../foo'))
-    job_config.setArtifactConfigs(plans)
+    plans      = ArtifactPlans.new
+    plans.add(TestArtifactPlan.new(nil, '../foo'))
+    job_config.setArtifactPlans(plans)
     job_config.setTasks(com.thoughtworks.go.config.Tasks.new(FetchTask.new(CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), nil, nil)))
     job_config.setTabs(com.thoughtworks.go.config.Tabs.new(com.thoughtworks.go.config.Tab.new('coverage#1', '/Jcoverage/index.html'), com.thoughtworks.go.config.Tab.new('coverage#1', '/Jcoverage/path.html')))
     job_config.validateTree(PipelineConfigSaveValidationContext.forChain(true, "grp", PipelineConfig.new, StageConfig.new, job_config))

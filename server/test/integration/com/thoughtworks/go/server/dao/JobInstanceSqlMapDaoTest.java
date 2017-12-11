@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
@@ -36,6 +35,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import ch.qos.logback.classic.Level;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -622,7 +622,7 @@ public class JobInstanceSqlMapDaoTest {
         newest.setScheduledDate(date);
         jobInstanceDao.save(stageId, newest);
 
-        jobInstanceDao.save(newest.getId(), new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), -1, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null));
+        jobInstanceDao.save(newest.getId(), new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), -1, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null));
 
         return newest.getId();
     }
@@ -703,8 +703,7 @@ public class JobInstanceSqlMapDaoTest {
     public void shouldSaveResources() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         jobInstanceDao.save(instance.getId(), plan);
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
         assertThat(retrieved, is(plan));
@@ -715,8 +714,7 @@ public class JobInstanceSqlMapDaoTest {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
-        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
+        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
@@ -728,8 +726,7 @@ public class JobInstanceSqlMapDaoTest {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         ElasticProfile elasticProfile = null;
-        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
+        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
@@ -744,7 +741,7 @@ public class JobInstanceSqlMapDaoTest {
         EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
         variables.add("VARIABLE_NAME", "variable value");
         variables.add("TRIGGER_VAR", "junk val");
-        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(),
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArtifactPlans(),
                 new ArtifactPropertiesGenerators(), instance.getId(),
                 instance.getIdentifier(), null, variables, new EnvironmentVariablesConfig(), null);
         jobInstanceDao.save(instance.getId(), plan);
@@ -767,7 +764,7 @@ public class JobInstanceSqlMapDaoTest {
         EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
         variables.add("VARIABLE_NAME", "variable value");
         variables.add("TRIGGER_VAR", "junk val");
-        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(),
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArtifactPlans(),
                 new ArtifactPropertiesGenerators(), instance.getId(),
                 instance.getIdentifier(), null, variables, new EnvironmentVariablesConfig(), null);
         jobInstanceDao.save(instance.getId(), plan);
@@ -1016,10 +1013,10 @@ public class JobInstanceSqlMapDaoTest {
         assertThat(jobInstanceDao.totalCompletedJobsOnAgent(agentUuid), is(3));
     }
 
-    private List<ArtifactPlan> artifactPlans() {
-        List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, "src", "dest"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, "src1", "dest2"));
+    private ArtifactPlans artifactPlans() {
+        ArtifactPlans artifactPlans = new ArtifactPlans();
+        artifactPlans.add(new ArtifactPlan("src", "dest"));
+        artifactPlans.add(new ArtifactPlan("src1", "dest2"));
         return artifactPlans;
     }
 }

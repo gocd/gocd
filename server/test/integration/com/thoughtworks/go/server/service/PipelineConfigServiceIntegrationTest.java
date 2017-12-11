@@ -369,16 +369,16 @@ public class PipelineConfigServiceIntegrationTest {
     public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnArtifactPlans() throws GitAPIException {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactConfig artifactConfig = new ArtifactConfig("", "/foo");
-        artifactConfigs.add(artifactConfig);
-        jobConfig.setArtifactConfigs(artifactConfigs);
+        ArtifactPlans artifactPlans = new ArtifactPlans();
+        ArtifactPlan artifactPlan = new ArtifactPlan("", "/foo");
+        artifactPlans.add(artifactPlan);
+        jobConfig.setArtifactPlans(artifactPlans);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(artifactConfig.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
+        assertThat(artifactPlan.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
     }
 
     @Test

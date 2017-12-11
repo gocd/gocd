@@ -1703,7 +1703,7 @@ EXPLAIN for: SELECT "users".* FROM "users" INNER JOIN "posts" ON "posts"."user_i
 
 Eager loading may trigger more than one query under the hood, and some queries
 may need the results of previous ones. Because of that, `explain` actually
-executes the query, and then asks for the query artifactPlans. For example,
+executes the query, and then asks for the query plans. For example,
 
 ```ruby
 User.where(id: 1).includes(:posts).explain

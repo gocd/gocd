@@ -394,17 +394,17 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(migratedContent);
 
-        ArtifactConfigs artifactConfigs = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
-                new CaseInsensitiveString("bluemonkeybutt")).artifactConfigs();
+        ArtifactPlans artifactPlans = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
+                new CaseInsensitiveString("bluemonkeybutt")).artifactPlans();
 
-        assertEquals("from1", artifactConfigs.get(0).getSource());
-        assertEquals(artifactConfigs.get(0).getDestination(), "");
-        assertEquals("from2", artifactConfigs.get(1).getSource());
-        assertEquals("to2", artifactConfigs.get(1).getDestination());
-        assertEquals("from3", artifactConfigs.get(2).getSource());
-        assertEquals(artifactConfigs.get(2).getDestination(), "");
-        assertEquals("from4", artifactConfigs.get(3).getSource());
-        assertEquals("to4", artifactConfigs.get(3).getDestination());
+        assertEquals("from1", artifactPlans.get(0).getSrc());
+        assertEquals(artifactPlans.get(0).getDest(), "");
+        assertEquals("from2", artifactPlans.get(1).getSrc());
+        assertEquals("to2", artifactPlans.get(1).getDest());
+        assertEquals("from3", artifactPlans.get(2).getSrc());
+        assertEquals(artifactPlans.get(2).getDest(), "");
+        assertEquals("from4", artifactPlans.get(3).getSrc());
+        assertEquals("to4", artifactPlans.get(3).getDest());
     }
 
 

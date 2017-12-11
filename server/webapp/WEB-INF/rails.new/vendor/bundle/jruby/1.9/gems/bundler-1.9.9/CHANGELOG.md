@@ -1903,7 +1903,7 @@ Bugfixes:
 
 ## 0.9.11 (March 9, 2010)
 
-  - added roadmap with future development artifactPlans
+  - added roadmap with future development plans
 
 Features:
 

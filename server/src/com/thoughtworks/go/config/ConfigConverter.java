@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -94,7 +95,7 @@ public class ConfigConverter {
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setGroup(name);
         for (CRPipeline crPipeline : crPipelineGroup.getValue()) {
-            pipelineConfigs.add(toPipelineConfig(crPipeline, context));
+            pipelineConfigs.add(toPipelineConfig(crPipeline,context));
         }
         return pipelineConfigs;
     }
@@ -133,7 +134,7 @@ public class ConfigConverter {
 
     private void setCommonTaskMembers(AbstractTask task, CRTask crTask) {
         CRTask crTaskOnCancel = crTask.getOnCancel();
-        if (crTaskOnCancel != null)
+        if(crTaskOnCancel != null)
             task.setCancelTask(toAbstractTask(crTaskOnCancel));
         task.runIfConfigs = toRunIfConfigs(crTask.getRunIf());
     }
@@ -262,7 +263,7 @@ public class ConfigConverter {
         materialConfig.setName(toMaterialName(crMaterial.getName()));
     }
 
-    public MaterialConfig toMaterialConfig(CRMaterial crMaterial, PartialConfigLoadContext context) {
+    public MaterialConfig toMaterialConfig(CRMaterial crMaterial,PartialConfigLoadContext context) {
         if (crMaterial == null)
             throw new ConfigConvertionException("material cannot be null");
 
@@ -277,23 +278,24 @@ public class ConfigConverter {
         } else if (crMaterial instanceof CRPackageMaterial) {
             CRPackageMaterial crPackageMaterial = (CRPackageMaterial) crMaterial;
             return toPackageMaterial(crPackageMaterial);
-        } else if (crMaterial instanceof CRConfigMaterial) {
-            CRConfigMaterial crConfigMaterial = (CRConfigMaterial) crMaterial;
+        } else if(crMaterial instanceof CRConfigMaterial) {
+            CRConfigMaterial crConfigMaterial = (CRConfigMaterial)crMaterial;
             MaterialConfig repoMaterial = cloner.deepClone(context.configMaterial());
-            if (StringUtils.isNotEmpty(crConfigMaterial.getName()))
+            if(StringUtils.isNotEmpty(crConfigMaterial.getName()))
                 repoMaterial.setName(new CaseInsensitiveString(crConfigMaterial.getName()));
-            if (StringUtils.isNotEmpty(crConfigMaterial.getDestination()))
-                setDestination(repoMaterial, crConfigMaterial.getDestination());
-            if (crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
-                if (repoMaterial instanceof ScmMaterialConfig) {
-                    ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) repoMaterial;
+            if(StringUtils.isNotEmpty(crConfigMaterial.getDestination()))
+                setDestination(repoMaterial,crConfigMaterial.getDestination());
+            if(crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
+                if(repoMaterial instanceof ScmMaterialConfig) {
+                    ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig)repoMaterial;
                     scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
                     scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isWhitelist());
-                } else //must be a pluggable SCM
+                }
+                else //must be a pluggable SCM
                 {
-                    PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig) repoMaterial;
+                    PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig)repoMaterial;
                     pluggableSCMMaterial.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
-                    if (crConfigMaterial.getFilter().isWhitelist())
+                    if(crConfigMaterial.getFilter().isWhitelist())
                         throw new ConfigConvertionException("Plugable SCMs do not support whitelisting");
                 }
             }
@@ -304,11 +306,15 @@ public class ConfigConverter {
     }
 
     private void setDestination(MaterialConfig repoMaterial, String destination) {
-        if (repoMaterial instanceof ScmMaterialConfig) {
-            ((ScmMaterialConfig) repoMaterial).setFolder(destination);
-        } else if (repoMaterial instanceof PluggableSCMMaterialConfig) {
-            ((PluggableSCMMaterialConfig) repoMaterial).setFolder(destination);
-        } else
+        if(repoMaterial instanceof ScmMaterialConfig)
+        {
+            ((ScmMaterialConfig)repoMaterial).setFolder(destination);
+        }
+        else if(repoMaterial instanceof PluggableSCMMaterialConfig)
+        {
+            ((PluggableSCMMaterialConfig)repoMaterial).setFolder(destination);
+        }
+        else
             LOGGER.warn("Unknown material type {}", repoMaterial.getTypeForDisplay());
     }
 
@@ -457,13 +463,13 @@ public class ConfigConverter {
                 resources.add(new Resource(crResource));
             }
 
-        if (crJob.getElasticProfileId() != null)
+        if(crJob.getElasticProfileId() != null)
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
 
-        ArtifactConfigs artifactConfigs = jobConfig.artifactConfigs();
+        ArtifactPlans artifactPlans = jobConfig.artifactPlans();
         if (crJob.getArtifacts() != null)
             for (CRArtifact crArtifact : crJob.getArtifacts()) {
-                artifactConfigs.add(toArtifactConfig(crArtifact));
+                artifactPlans.add(toArtifactPlan(crArtifact));
             }
 
         ArtifactPropertiesGenerators artifactPropertiesGenerators = jobConfig.getProperties();
@@ -489,11 +495,13 @@ public class ConfigConverter {
         return jobConfig;
     }
 
-    public ArtifactConfig toArtifactConfig(CRArtifact crArtifact) {
-        if (crArtifact.getType() == CRArtifactType.test) {
-            return new TestArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
-        }
-        return new ArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
+    public ArtifactPlan toArtifactPlan(CRArtifact crArtifact) {
+        ArtifactType artType = crArtifact.getType() == CRArtifactType.build ?
+                ArtifactType.file : ArtifactType.unit;
+        if (crArtifact.getDestination() != null)
+            return new ArtifactPlan(artType, crArtifact.getSource(), crArtifact.getDestination());
+        else
+            return new ArtifactPlan(artType, crArtifact.getSource());
     }
 
     private Tab toTab(CRTab crTab) {
@@ -540,10 +548,10 @@ public class ConfigConverter {
         return jobConfigs;
     }
 
-    public PipelineConfig toPipelineConfig(CRPipeline crPipeline, PartialConfigLoadContext context) {
+    public PipelineConfig toPipelineConfig(CRPipeline crPipeline,PartialConfigLoadContext context) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         for (CRMaterial crMaterial : crPipeline.getMaterials()) {
-            materialConfigs.add(toMaterialConfig(crMaterial, context));
+            materialConfigs.add(toMaterialConfig(crMaterial,context));
         }
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(crPipeline.getName()), materialConfigs);
@@ -594,7 +602,7 @@ public class ConfigConverter {
 
     public TimerConfig toTimerConfig(CRTimer crTimer) {
         String spec = crTimer.getTimerSpec();
-        if (StringUtil.isBlank(spec))
+        if(StringUtil.isBlank(spec))
             throw new RuntimeException("timer schedule is not specified");
         return new TimerConfig(spec, crTimer.isOnlyOnChanges() == null ? false : crTimer.isOnlyOnChanges());
     }

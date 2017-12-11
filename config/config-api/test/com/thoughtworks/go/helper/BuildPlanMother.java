@@ -22,14 +22,14 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.ArtifactPlans;
 
 public class BuildPlanMother {
 
     public static JobConfigs jobConfigs(String... buildNames) {
         JobConfigs jobConfigs = new JobConfigs();
         for (String buildName : buildNames) {
-            jobConfigs.add(new JobConfig(new CaseInsensitiveString(buildName), new Resources(), new ArtifactConfigs()));
+            jobConfigs.add(new JobConfig(new CaseInsensitiveString(buildName), new Resources(), new ArtifactPlans()));
         }
         return jobConfigs;
     }
@@ -37,7 +37,7 @@ public class BuildPlanMother {
     public static JobConfigs withBuildPlans(String... jobConfigNames) {
         JobConfigs jobConfigs = new JobConfigs();
         for (String planName : jobConfigNames) {
-            jobConfigs.add(new JobConfig(new CaseInsensitiveString(planName), new Resources(), new ArtifactConfigs()));
+            jobConfigs.add(new JobConfig(new CaseInsensitiveString(planName), new Resources(), new ArtifactPlans()));
         }
         return jobConfigs;
     }

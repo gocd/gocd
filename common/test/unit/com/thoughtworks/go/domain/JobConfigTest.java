@@ -404,13 +404,13 @@ public class JobConfigTest {
         HashMap valueHashMap = new HashMap();
         valueHashMap.put("src", "dest");
         valueHashMap.put("src1", "dest1");
-        map.put(JobConfig.ARTIFACT_CONFIGS, valueHashMap);
-        ArtifactConfigs mockArtifactConfigs = mock(ArtifactConfigs.class);
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job-name"), new Resources(), mockArtifactConfigs);
+        map.put(JobConfig.ARTIFACT_PLANS, valueHashMap);
+        ArtifactPlans mockArtifactPlans = mock(ArtifactPlans.class);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job-name"), new Resources(), mockArtifactPlans);
 
         jobConfig.setConfigAttributes(map);
 
-        verify(mockArtifactConfigs).setConfigAttributes(valueHashMap);
+        verify(mockArtifactPlans).setConfigAttributes(valueHashMap);
     }
 
     @Test
@@ -465,7 +465,7 @@ public class JobConfigTest {
     public void shouldValidateTree(){
         Resources resources = mock(Resources.class);
         when(resources.iterator()).thenReturn(new Resources().iterator());
-        ArtifactConfigs artifactConfigs = mock(ArtifactConfigs.class);
+        ArtifactPlans artifactPlans = mock(ArtifactPlans.class);
         ArtifactPropertiesGenerators properties = mock(ArtifactPropertiesGenerators.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
@@ -473,11 +473,11 @@ public class JobConfigTest {
         when(tasks.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(resources.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(properties.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(artifactConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
+        when(artifactPlans.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(tabs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
         when(variables.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
 
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resources, artifactConfigs, tasks);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resources, artifactPlans, tasks);
         jobConfig.setTabs(tabs);
         jobConfig.setProperties(properties);
         jobConfig.setVariables(variables);
@@ -491,7 +491,7 @@ public class JobConfigTest {
         assertThat(childContext.getParent(), is(jobConfig));
         verify(resources).validateTree(childContext);
         verify(properties).validateTree(childContext);
-        verify(artifactConfigs).validateTree(childContext);
+        verify(artifactPlans).validateTree(childContext);
         verify(tabs).validateTree(childContext);
         verify(variables).validateTree(childContext);
     }
@@ -500,7 +500,7 @@ public class JobConfigTest {
     public void shouldFailValidationIfAnyDescendentIsInvalid(){
         Resources resources = mock(Resources.class);
         when(resources.iterator()).thenReturn(new Resources().iterator());
-        ArtifactConfigs artifactConfigs = mock(ArtifactConfigs.class);
+        ArtifactPlans artifactPlans = mock(ArtifactPlans.class);
         ArtifactPropertiesGenerators properties = mock(ArtifactPropertiesGenerators.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
@@ -508,11 +508,11 @@ public class JobConfigTest {
         when(tasks.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(resources.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(properties.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(artifactConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
+        when(artifactPlans.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(tabs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
         when(variables.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
 
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resources, artifactConfigs, tasks);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resources, artifactPlans, tasks);
         jobConfig.setTabs(tabs);
         jobConfig.setProperties(properties);
         jobConfig.setVariables(variables);
@@ -526,7 +526,7 @@ public class JobConfigTest {
         assertThat(childContext.getParent(), is(jobConfig));
         verify(resources).validateTree(childContext);
         verify(properties).validateTree(childContext);
-        verify(artifactConfigs).validateTree(childContext);
+        verify(artifactPlans).validateTree(childContext);
         verify(tabs).validateTree(childContext);
         verify(variables).validateTree(childContext);
     }

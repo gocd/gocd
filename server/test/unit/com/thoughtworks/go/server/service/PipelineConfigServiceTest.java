@@ -126,6 +126,25 @@ public class PipelineConfigServiceTest {
     }
 
     @Test
+    public void shouldReturnListOfPipelinesWhichAreNotCreatedFromTemplate() throws Exception {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("P1");
+        PipelineConfig p2 = PipelineConfigMother.pipelineConfigWithTemplate("P2", "template1");
+        Username username = new Username(new CaseInsensitiveString("user"));
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getGroups()).thenReturn(new PipelineGroups(new BasicPipelineConfigs("group1", null, p1),
+                new BasicPipelineConfigs("group2", null, p2)));
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group2")).thenReturn(true);
+
+        List<String> pipelineList = pipelineConfigService.pipelinesNotFromTemplate(username);
+        assertThat(pipelineList.size(), is(1));
+        assertThat(pipelineList.get(0), is("P1"));
+    }
+
+    @Test
     public void shouldGetAllViewablePipelineConfigs() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("P1");

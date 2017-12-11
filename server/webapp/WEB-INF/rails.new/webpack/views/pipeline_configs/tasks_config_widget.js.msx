@@ -69,7 +69,6 @@ const TasksConfigWidget = {
   },
 
   view (vnode) {
-
     const dragDropConfig = function (elem) {
       const onDrop = function () {
         const reorderedTasks = _.map($(elem.dom).find('.task-definition:not(.gu-mirror)'), (eachTaskElem) => {

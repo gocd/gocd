@@ -563,6 +563,34 @@ let f = {
     view (vnode) {
       return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
+  },
+
+  switch: {
+    view (vnode) {
+      const args = vnode.attrs;
+
+      const model     = deleteKeyAndReturnValue(args, 'model'),
+        modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+        disabled  = deleteKeyAndReturnValue(args, 'disabled'),
+        labelText = deleteKeyAndReturnValue(args, 'label'),
+        attrName  = deleteKeyAndReturnValue(args, 'attrName');
+
+      return (
+        <f.column {...args}
+                  class={`toggle-switch ${  args.class}`}>
+          <input id="toggle"
+                 class="cbx-toggle cbx-toggle-round-flat"
+                 type="checkbox"
+                 data-prop-name={attrName}
+                 data-model-type={modelType}
+                 disabled={disabled}
+                 checked={model[attrName]()}
+                 onchange={m.withAttr('checked', model[attrName])}/>
+          <label for="toggle"/>
+          <span>{labelText}</span>
+        </f.column>
+      );
+    }
   }
 };
 

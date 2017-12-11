@@ -1,0 +1,159 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m      = require('mithril');
+const _      = require('lodash');
+const Stream = require('mithril/stream');
+const f      = require('helpers/form_helper');
+
+const ComponentMixins = require('helpers/mithril_component_mixins');
+
+const Routes = require('gen/js-routes');
+
+const Template           = require('models/template_configs/template');
+const PipelineFlowWidget = require('views/pipeline_configs/pipeline_flow_widget');
+const ErrorsWidget       = require('views/pipeline_configs/errors_widget');
+const ApprovalWidget     = require('views/template_configs/approval_widget');
+
+
+const TemplateConfigWidget = {
+  oninit (vnode) {
+    const templateName = m.route.param('templateName') || vnode.attrs.templateName;
+
+    const self            = this;
+    self.etag             = Stream();
+    self.template         = Stream();
+    self.currentSelection = Stream();
+    self.vm               = new Template.vm();
+
+    ComponentMixins.HasViewModel.call(this);
+
+    const setTemplateAndPreserveSelection = function (newTemplate) {
+      const newSelection = newTemplate.stages().firstStage() || self.currentSelection();
+
+      self.template(newTemplate);
+      self.currentSelection(newSelection);
+    };
+
+    const extractEtag = function (xhr) {
+      if (xhr.status === 200) {
+        self.etag = Stream(xhr.getResponseHeader('ETag'));
+      }
+      return xhr.responseText;
+    };
+
+    self.reloadPage = function () {
+      const url = Routes.apiv3AdminTemplatePath({template_name: templateName}); //eslint-disable-line camelcase
+      Template.get(url, extractEtag).then(setTemplateAndPreserveSelection).always(m.redraw);
+    };
+
+    self.reloadPage();
+
+    self.onBack = function () {
+      m.route.set('default');
+    };
+
+    self.onSaveTemplate = function () {
+      self.vm.clearErrors();
+
+      if (!self.template().isValid()) {
+        self.vm.markClientSideErrors();
+        self.vm.saveDefault();
+        return;
+      }
+
+      self.vm.updating();
+
+      self.template().update(self.etag(), extractEtag).then((data) => {
+        setTemplateAndPreserveSelection(data);
+        self.vm.saveSuccess();
+      }, (data) => {
+        self.vm.saveFailed(data);
+        if (data.data) {
+          setTemplateAndPreserveSelection(Template.fromJSON(data.data));
+        }
+      }).always(m.redraw);
+    };
+  },
+
+  view (vnode) {
+    if (
+      _.isNil(vnode.state.template())) {
+      return (<div class="page-spinner"/>);
+    }
+    const errors = vnode.state.vm.hasErrors() ? (<ErrorsWidget errors={vnode.state.vm.errors()}/>) : undefined;
+
+    const header = (
+      <div class="header-panel">
+        <header class="page-header">
+          <f.row>
+            <f.column size={10}>
+              <h1>{vnode.state.template().name()}</h1>
+            </f.column>
+            <f.column size={1}>
+              <f.button onclick={vnode.state.onBack.bind(vnode.state)}>
+                Back
+              </f.button>
+            </f.column>
+            <f.column size={1}>
+              <f.button onclick={vnode.state.onSaveTemplate.bind(vnode.state)}
+                        class={`save-template ${  vnode.state.vm.saveState()}`}>
+                <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
+                Save
+              </f.button>
+            </f.column>
+          </f.row>
+        </header>
+      </div>
+    );
+
+    let auth;
+    if (vnode.attrs.isUserAdmin) {
+      auth = (
+        <f.row class="permissions">
+          <f.column end={true} size={12}>
+            <ApprovalWidget authorization={vnode.state.template().authorization}/>
+          </f.column>
+        </f.row>
+      );
+    }
+
+    return (
+      <form class='template-main'>
+        {header}
+        <div class='template-body'>
+          <f.row>
+            {errors}
+          </f.row>
+          {auth}
+          <f.row>
+            <f.column size={12}>
+              <PipelineFlowWidget class="stages"
+                                  pipeline={vnode.state.template}
+                                  currentSelection={vnode.state.currentSelection}
+                                  elasticProfiles={vnode.attrs.elasticProfiles}
+                                  pluginInfos={vnode.attrs.pluginInfos}
+                                  vm={vnode.state.vmState('templateFlowConfig')}
+              />
+            </f.column>
+          </f.row>
+        </div>
+      </form>
+    );
+  }
+};
+
+module.exports = TemplateConfigWidget;

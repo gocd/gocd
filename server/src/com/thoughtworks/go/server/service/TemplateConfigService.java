@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.config.update.DeleteTemplateConfigCommand;
+import com.thoughtworks.go.config.update.ExtractTemplateFromPipelineCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -110,6 +111,11 @@ public class TemplateConfigService {
         update(currentUser, result, command, templateConfig);
     }
 
+    public void extractFromPipeline(PipelineTemplateConfig template, String pipelineToExtractFrom, Username currentUser, HttpLocalizedOperationResult result){
+        ExtractTemplateFromPipelineCommand command = new ExtractTemplateFromPipelineCommand(template, pipelineToExtractFrom, currentUser, goConfigService, result);
+        update(currentUser, result, command, template);
+    }
+
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
         validatePluggableTasks(templateConfig);
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, securityService, result, md5, entityHashingService);
@@ -124,12 +130,12 @@ public class TemplateConfigService {
         }
     }
 
-    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command, PipelineTemplateConfig templateConfig) {
+    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command, PipelineTemplateConfig template) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", templateConfig.name(), e.getMessage()));
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", template, e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);

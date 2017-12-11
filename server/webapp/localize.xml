@@ -528,6 +528,7 @@
     <entry key="NONE">None</entry>
     <entry key="FEATURE_NOT_AVAILABLE">'{0}' feature is turned off. Please turn it on to use it.</entry>
     <entry key="PIPELINE_GROUP_NOT_FOUND">Pipeline group named ''{0}'' does not exist.</entry>
+    <entry key="PIPELINE_NOT_FOUND">Pipeline with name ''{0}'' does not exist.</entry>
     <entry key="PIPELINE_GROUP_NAME">Pipeline Group Name</entry>
     <entry key="TEMPLATE_NAME">Template Name</entry>
     <entry key="VIEW_PRIVILEGE">View</entry>

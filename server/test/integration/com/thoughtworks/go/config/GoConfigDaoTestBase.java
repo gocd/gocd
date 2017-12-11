@@ -104,10 +104,10 @@ public abstract class GoConfigDaoTestBase {
     public void shouldGetArtifactsFromBuildPlan() throws Exception {
         CruiseConfig cruiseConfig = GoConfigFileHelper.load(WITH_3_AGENT_CONFIG);
 
-        final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
-                "cardlist", true).artifactConfigs();
+        final ArtifactPlans cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
+                "cardlist", true).artifactPlans();
         assertThat(cardListArtifacts.size(), is(0));
-        assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "bluemonkeybutt", true).artifactConfigs().size(), is(1));
+        assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "bluemonkeybutt", true).artifactPlans().size(), is(1));
     }
 
     @Test

@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.domain.MergedTestArtifactPlan;
+import com.thoughtworks.go.config.ArtifactPlan;
+import com.thoughtworks.go.config.ArtifactPlans;
+import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.work.GoPublisher;
 
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class ArtifactsPublisher implements Serializable {
     public void publishArtifacts(GoPublisher goPublisher, File workingDirectory, List<ArtifactPlan> assignment) {
-        List<ArtifactPlan> mergedPlans = mergePlansForTest(assignment);
+        ArtifactPlans mergedPlans = mergePlansForTest(assignment);
 
         List<ArtifactPlan> failedArtifact = new ArrayList<>();
         for (ArtifactPlan artifactPlan : mergedPlans) {
@@ -41,19 +42,19 @@ public class ArtifactsPublisher implements Serializable {
         if (!failedArtifact.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             for (ArtifactPlan artifactPlan : failedArtifact) {
-                artifactPlan.printArtifactInfo(builder);
+                artifactPlan.printSrc(builder);
             }
             throw new RuntimeException(String.format("[%s] Uploading finished. Failed to upload %s", GoConstants.PRODUCT_NAME, builder));
         }
     }
 
-    private List<ArtifactPlan> mergePlansForTest(List<ArtifactPlan> artifactPlans) {
-        MergedTestArtifactPlan testArtifactPlan = null;
-        final List<ArtifactPlan> mergedPlans = new ArrayList<>();
+    private ArtifactPlans mergePlansForTest(List<ArtifactPlan> artifactPlans) {
+        TestArtifactPlan testArtifactPlan = null;
+        final ArtifactPlans mergedPlans = new ArtifactPlans();
         for (ArtifactPlan artifactPlan : artifactPlans) {
             if (artifactPlan.getArtifactType().isTest()) {
                 if (testArtifactPlan == null) {
-                    testArtifactPlan = new MergedTestArtifactPlan(artifactPlan);
+                    testArtifactPlan = new TestArtifactPlan(artifactPlan);
                     mergedPlans.add(testArtifactPlan);
                 } else {
                     testArtifactPlan.add(artifactPlan);

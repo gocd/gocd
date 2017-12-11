@@ -617,7 +617,7 @@ public class AgentInstanceTest {
 
     private DefaultJobPlan jobPlan(String pipelineName, String jobName, String resource, String uuid) {
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, 1, "1", "stage1", "1", jobName, 1L);
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(resource), new ArrayList<>(), null, 100, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(resource), new ArtifactPlans(), null, 100, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         plan.setAgentUuid(uuid);
         return plan;
     }

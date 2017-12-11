@@ -28,10 +28,10 @@ describe Admin::JobsController, "view" do
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["job-1", "job-2"].to_java(java.lang.String))
-      @artifact1 = ArtifactConfig.new('src', 'dest')
-      @artifact2 = ArtifactConfig.new('src2', 'dest2')
-      @pipeline.get(0).getJobs().get(0).artifactConfigs().add(@artifact1)
-      @pipeline.get(0).getJobs().get(0).artifactConfigs().add(@artifact2)
+      @artifact1 = ArtifactPlan.new('src', 'dest')
+      @artifact2 = ArtifactPlan.new('src2', 'dest2')
+      @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact1)
+      @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact2)
 
       expect(controller).to receive(:load_pipeline) do
         controller.instance_variable_set('@processed_cruise_config', @cruise_config)
@@ -70,8 +70,8 @@ describe Admin::JobsController, "view" do
       end
 
       it "should display errors on artifact" do
-        error = config_error(ArtifactConfig::SRC, "Source is wrong")
-        error.add(ArtifactConfig::DEST, "Dest is wrong")
+        error = config_error(ArtifactPlan::SRC, "Source is wrong")
+        error.add(ArtifactPlan::DEST, "Dest is wrong")
         set(@artifact1, "errors", error)
 
         get :edit, :stage_parent=> "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s

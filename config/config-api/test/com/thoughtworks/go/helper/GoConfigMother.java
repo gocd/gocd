@@ -220,7 +220,7 @@ public class GoConfigMother {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new Resources(), new ArtifactConfigs());
+        return new JobConfig(new CaseInsensitiveString(name), new Resources(), new ArtifactPlans());
     }
 
     public static BasicCruiseConfig cruiseConfigWithMailHost(MailHost mailHost) {
@@ -288,13 +288,13 @@ public class GoConfigMother {
         task.setWorkingDirectory(workingDir);
         job.addTask(task);
 
-        final ArtifactConfig artifactFile = new ArtifactConfig();
-        artifactFile.setSource(filePath);
-        job.artifactConfigs().add(artifactFile);
+        final ArtifactPlan artifactFile = new ArtifactPlan();
+        artifactFile.setSrc(filePath);
+        job.artifactPlans().add(artifactFile);
 
-        ArtifactConfig artifactDir = new ArtifactConfig();
-        artifactFile.setSource(directoryPath);
-        job.artifactConfigs().add(artifactDir);
+        ArtifactPlan artifactDir = new ArtifactPlan();
+        artifactFile.setSrc(directoryPath);
+        job.artifactPlans().add(artifactDir);
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(new SvnMaterialConfig("file:///foo", null, null, false)), new StageConfig(
                 new CaseInsensitiveString(stageName), new JobConfigs(job)));

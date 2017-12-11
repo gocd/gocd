@@ -486,7 +486,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Tasks allFetchTasks = new Tasks();
         allFetchTasks.add(new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("unit"), "foo.zip", "bar"));
         allFetchTasks.add(new FetchTask(new CaseInsensitiveString("uppest/upper-peer/downer"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("unit"), "bar.zip", "baz"));
-        configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(new CaseInsensitiveString("fetcher"), new Resources("fetcher"), new ArtifactConfigs(), allFetchTasks));
+        configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(new CaseInsensitiveString("fetcher"), new Resources("fetcher"), new ArtifactPlans(), allFetchTasks));
         PipelineConfig downest = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("downest"));
 
         DefaultSchedulingContext defaultSchedulingCtx = new DefaultSchedulingContext(DEFAULT_APPROVED_BY);

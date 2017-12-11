@@ -48,7 +48,7 @@ the data store component.
 This component is currently implemented as a simple Ruby marshalled flat namespace
 of object. The implementation is found in the single class {YARD::Registry}, which
 is the centralized repository for all data being parsed, stored and accessed. There
-are future artifactPlans to improve this storage mechanism to be backend agnostic and allow
+are future plans to improve this storage mechanism to be backend agnostic and allow
 for more robust storage.
 
 <a name="templates"></a>

@@ -18,8 +18,12 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.GoPublisher;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultJobPlan implements JobPlan {
@@ -29,7 +33,7 @@ public class DefaultJobPlan implements JobPlan {
     private JobIdentifier identifier;
 
     private Resources resources;
-    private List<ArtifactPlan> artifactPlans;
+    private ArtifactPlans plans;
     private ArtifactPropertiesGenerators generators;
     private String agentUuid;
     private EnvironmentVariablesConfig variables;
@@ -43,13 +47,13 @@ public class DefaultJobPlan implements JobPlan {
     protected DefaultJobPlan() {
     }
 
-    public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, ArtifactPropertiesGenerators generators, long jobId,
+    public DefaultJobPlan(Resources resources, ArtifactPlans plans, ArtifactPropertiesGenerators generators, long jobId,
                           JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables,
                           EnvironmentVariablesConfig triggerTimeVariables, ElasticProfile elasticProfile) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
-        this.artifactPlans = artifactPlans;
+        this.plans = plans;
         this.generators = generators;
         this.agentUuid = agentUuid;
         this.variables = variables;
@@ -86,13 +90,17 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public List<ArtifactPlan> getArtifactPlans() {
-        return artifactPlans;
+        return plans;
     }
 
     //USED BY IBatis - do NOT add to the interface
 
     public List<ArtifactPropertiesGenerator> getGenerators() {
         return generators;
+    }
+
+    public List<ArtifactPlan> getPlans() {
+        return plans;
     }
 
     public List<Resource> getResources() {
@@ -112,8 +120,8 @@ public class DefaultJobPlan implements JobPlan {
         this.identifier = identifier;
     }
 
-    public void setArtifactPlans(List<ArtifactPlan> artifactPlans) {
-        this.artifactPlans = artifactPlans;
+    public void setPlans(List<ArtifactPlan> plans) {
+        this.plans = new ArtifactPlans(plans);
     }
 
     public void setResources(List<Resource> resources) {
@@ -121,7 +129,7 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public String toString() {
-        return "[JobPlan " + "identifier=" + identifier + "resources=" + resources + " artifactConfigs=" + artifactPlans +
+        return "[JobPlan " + "identifier=" + identifier + "resources=" + resources + " plans=" + plans +
                 " generators=" + generators + "]";
     }
 
@@ -144,7 +152,7 @@ public class DefaultJobPlan implements JobPlan {
         if (identifier != null ? !identifier.equals(plan.identifier) : plan.identifier != null) {
             return false;
         }
-        if (artifactPlans != null ? !artifactPlans.equals(plan.artifactPlans) : plan.artifactPlans != null) {
+        if (plans != null ? !plans.equals(plan.plans) : plan.plans != null) {
             return false;
         }
         if (resources != null ? !resources.equals(plan.resources) : plan.resources != null) {
@@ -157,7 +165,7 @@ public class DefaultJobPlan implements JobPlan {
     public int hashCode() {
         int result;
         result = (resources != null ? resources.hashCode() : 0);
-        result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);
+        result = 31 * result + (plans != null ? plans.hashCode() : 0);
         result = 31 * result + (generators != null ? generators.hashCode() : 0);
         result = 31 * result + (int) (jobId ^ (jobId >>> 32));
         result = 31 * result + (identifier != null ? identifier.hashCode() : 0);

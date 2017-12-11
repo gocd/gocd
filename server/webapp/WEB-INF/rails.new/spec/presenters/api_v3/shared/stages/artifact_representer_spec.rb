@@ -18,16 +18,16 @@ require 'rails_helper'
 
 describe ApiV3::Shared::Stages::ArtifactRepresenter do
   it 'should serialize build artifact' do
-    presenter   = ApiV3::Shared::Stages::ArtifactRepresenter.new(ArtifactConfig.new('target/dist.jar', 'pkg'))
+    presenter   = ApiV3::Shared::Stages::ArtifactRepresenter.new(ArtifactPlan.new('target/dist.jar', 'pkg'))
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to eq(build_artifact_hash)
   end
 
   it 'should serialize test artifact' do
-    config = TestArtifactConfig.new
-    config.setSource('target/reports/**/*Test.xml')
-    config.setDestination('reports')
+    config = TestArtifactPlan.new
+    config.setSrc('target/reports/**/*Test.xml')
+    config.setDest('reports')
     presenter   = ApiV3::Shared::Stages::ArtifactRepresenter.new(config)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
@@ -35,21 +35,21 @@ describe ApiV3::Shared::Stages::ArtifactRepresenter do
   end
 
   it 'should deserialize test artifact' do
-    expected = TestArtifactConfig.new
-    expected.setSource('target/reports/**/*Test.xml')
-    expected.setDestination('reports')
+    expected = TestArtifactPlan.new
+    expected.setSrc('target/reports/**/*Test.xml')
+    expected.setDest('reports')
 
-    actual    = TestArtifactConfig.new
+    actual    = TestArtifactPlan.new
     presenter = ApiV3::Shared::Stages::ArtifactRepresenter.new(actual)
     presenter.from_hash(test_artifact_hash)
-    expect(actual.getSource).to eq(expected.getSource)
-    expect(actual.getDestination).to eq(expected.getDestination)
+    expect(actual.getSrc).to eq(expected.getSrc)
+    expect(actual.getDest).to eq(expected.getDest)
     expect(actual.getArtifactType).to eq(expected.getArtifactType)
     expect(actual).to eq(expected)
   end
 
   it 'should map errors' do
-    plan = TestArtifactConfig.new(nil, '../foo')
+    plan = TestArtifactPlan.new(nil, '../foo')
 
     plan.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g", PipelineConfig.new, StageConfig.new, JobConfig.new))
     presenter   = ApiV3::Shared::Stages::ArtifactRepresenter.new(plan)

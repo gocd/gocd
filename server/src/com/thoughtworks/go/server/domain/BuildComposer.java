@@ -15,6 +15,7 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.server.domain;
 
+import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
@@ -22,6 +23,7 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

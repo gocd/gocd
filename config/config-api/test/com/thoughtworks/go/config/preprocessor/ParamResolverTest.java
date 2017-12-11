@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.config.preprocessor;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -29,11 +32,10 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -230,7 +232,7 @@ public class ParamResolverTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
-        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new Resources(resource), new ArtifactConfigs()));
+        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new Resources(resource), new ArtifactPlans()));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 

@@ -50,7 +50,7 @@ public class PipelineConfigErrorCopier {
                 JobConfig fromJob = fromStage.jobConfigByConfigName(toJob.name());
                 copy(fromJob, toJob);
                 copyCollectionErrors(fromJob.getTasks(), toJob.getTasks());
-                copyCollectionErrors(fromJob.artifactConfigs(), toJob.artifactConfigs());
+                copyCollectionErrors(fromJob.artifactPlans(), toJob.artifactPlans());
                 copyCollectionErrors(fromJob.getTabs(), toJob.getTabs());
                 copyCollectionErrors(fromJob.getProperties(), toJob.getProperties());
                 copyCollectionErrors(fromJob.getVariables(), toJob.getVariables());

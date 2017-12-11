@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dao;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.database.Database;
@@ -209,7 +210,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private void loadJobPlanAssociatedEntities(DefaultJobPlan plan) {
-        plan.setArtifactPlans(artifactPlanRepository.findByBuildId(plan.getJobId()));
+        plan.setPlans(artifactPlanRepository.findByBuildId(plan.getJobId()));
         plan.setGenerators(artifactPropertiesGeneratorRepository.findByBuildId(plan.getJobId()));
         plan.setResources(resourceRepository.findByBuildId(plan.getJobId()));
         plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job));

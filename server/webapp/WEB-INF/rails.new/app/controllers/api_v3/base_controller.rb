@@ -17,9 +17,6 @@
 module ApiV3
   class BaseController < ::ApplicationController
 
-    class BadRequest < StandardError
-    end
-
     include AuthenticationHelper
 
     FORMATS                = [:json_hal_v3]
@@ -50,6 +47,7 @@ module ApiV3
     rescue_from RecordNotFound, with: :render_not_found_error
     rescue_from BadRequest,     with: :render_bad_request
     rescue_from UnprocessableEntity, with: :render_unprocessable_entity_error
+    rescue_from FailedDependency, with: :render_failed_dependency_error
 
     class << self
       def default_accepts_header
@@ -91,6 +89,10 @@ module ApiV3
 
     def render_unprocessable_entity_error(exception)
       render_message("Your request could not be processed. #{exception.message}", :unprocessable_entity)
+    end
+
+    def render_failed_dependency_error(exception)
+      render_message("Your request could not be processed. #{exception.message}", 424)
     end
   end
 end

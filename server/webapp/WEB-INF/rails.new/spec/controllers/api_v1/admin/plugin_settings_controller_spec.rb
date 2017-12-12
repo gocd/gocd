@@ -21,10 +21,13 @@ describe ApiV1::Admin::PluginSettingsController do
   include ApiV1::ApiVersionHelper
 
   before :each do
+    @plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
     @plugin_settings = PluginSettings.new("plugin.id.1")
     @plugin_settings.setPluginSettingsProperties([ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
     @plugin_service = double('plugin_service')
     @entity_hashing_service = double('entity_hashing_service')
+    @default_plugin_info_finder = double('default_plugin_info_finder')
+    allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
     allow(controller).to receive(:plugin_service).and_return(@plugin_service)
     allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
   end
@@ -87,15 +90,16 @@ describe ApiV1::Admin::PluginSettingsController do
 
       it 'should render the plugin settings for a specified plugin id' do
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(@plugin_info)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(@plugin_settings).and_return('md5')
 
         get_with_api_header :show, plugin_id: 'plugin.id.1'
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response({plugin_settings: @plugin_settings}, ApiV1::Config::PluginSettingsRepresenter))
+        expect(actual_response).to eq(expected_response({plugin_settings: @plugin_settings, plugin_info: @plugin_info}, ApiV1::Config::PluginSettingsRepresenter))
       end
 
-      it 'should render 404 for a non existent plugin' do
+      it 'should render 404 for non existent plugin settings' do
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.2').and_return(nil)
 
         get_with_api_header :show, plugin_id: 'plugin.id.2'
@@ -103,6 +107,14 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
+      it 'should render 424 for a non existent plugin' do
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
+
+        get_with_api_header :show, plugin_id: 'plugin.id.1'
+
+        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
+      end
     end
 
     describe "route" do
@@ -173,7 +185,7 @@ describe ApiV1::Admin::PluginSettingsController do
         login_as_admin
         @default_plugin_info_finder = double('default_plugin_info_finder')
         allow(controller).to receive(:default_plugin_info_finder).and_return(@default_plugin_info_finder)
-        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
+        allow(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
       end
 
       it 'should deserialize plugin settings from given object' do
@@ -204,6 +216,14 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(response).to have_api_message_response(422, "Save failed")
       end
 
+      it 'should render 424 for a non existent plugin' do
+        hash = {plugin_id: 'plugin.id.1'}
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
+
+        post_with_api_header :create, plugin_setting: hash
+
+        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
+      end
     end
 
     describe "route" do
@@ -328,6 +348,18 @@ describe ApiV1::Admin::PluginSettingsController do
         real_response = actual_response
         real_response.delete(:_links)
         expect(real_response).to eq(hash)
+      end
+
+
+      it 'should render 424 for a non existent plugin' do
+        controller.stub(:check_for_stale_request)
+        hash = {plugin_id: 'plugin.id.1'}
+        expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
+        expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('plugin.id.1').and_return(nil)
+
+        put_with_api_header :update, plugin_id: 'plugin.id.1', plugin_setting: hash
+
+        expect(response).to have_api_message_response(424, 'Your request could not be processed. The plugin with id plugin.id.1 is not loaded.')
       end
     end
 

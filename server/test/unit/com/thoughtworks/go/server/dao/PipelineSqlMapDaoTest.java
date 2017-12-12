@@ -16,18 +16,16 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -37,27 +35,37 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Random;
+
 import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class PipelineSqlMapDaoTest {
-
-    PipelineSqlMapDao pipelineSqlMapDao;
+    private PipelineSqlMapDao pipelineSqlMapDao;
     private GoCache goCache;
     private SqlMapClientTemplate sqlMapClientTemplate;
-    private SqlMapClient sqlMapClient;
     private MaterialRepository materialRepository;
+    private GoConfigDao configFileDao;
 
     @Before
     public void setUp() throws Exception {
         goCache = mock(GoCache.class);
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
-        sqlMapClient = mock(SqlMapClient.class);
         materialRepository = mock(MaterialRepository.class);
-        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, sqlMapClient, null, null, null, null, null);
+        configFileDao = mock(GoConfigDao.class);
+        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, null, null, null, configFileDao, null, null);
         pipelineSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
     }
 
@@ -81,7 +89,7 @@ public class PipelineSqlMapDaoTest {
         Map<String, Object> map = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).asMap();
         PipelineInstanceModel expected = mock(PipelineInstanceModel.class);
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryByNameAndCounter", map)).thenReturn(expected);
-        when(expected.getId()).thenReturn(1111l);
+        when(expected.getId()).thenReturn(1111L);
         when(materialRepository.findMaterialRevisionsForPipeline(expected.getId())).thenReturn(null);
 
         PipelineInstanceModel primed = pipelineSqlMapDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);//prime cache
@@ -136,4 +144,50 @@ public class PipelineSqlMapDaoTest {
         verify(mockTemplate, times(1)).queryForList(eq("getPipelineRange"), any());
     }
 
+    @Test
+    public void shouldGetAnEmptyListOfPIMsWhenActivePipelinesListDoesNotHavePIMsForRequestedPipeline() throws Exception {
+        String pipelineName = "pipeline-with-no-active-instances";
+
+        when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(pipelineName));
+        when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(new ArrayList<PipelineInstanceModel>());
+
+        PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(pipelineName);
+
+        assertTrue(models.isEmpty());
+    }
+
+    @Test
+    public void shouldGetAnListOfPIMsForPipelineWhenActivePipelinesListHasPIMsForRequestedPipeline() throws Exception {
+        String p1 = "pipeline-with-active-instances";
+        String p2 = "pipeline-with-no-active-instances";
+
+        PipelineInstanceModel pimForP1_1 = pimFor(p1, 1);
+        PipelineInstanceModel pimForP1_2 = pimFor(p1, 2);
+
+        when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(p1, p2));
+        when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(asList(pimForP1_1, pimForP1_2, pimFor(p2, 1), pimFor(p2, 2)));
+        when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", m("id", pimForP1_1.getId()))).thenReturn(pimForP1_1);
+        when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", m("id", pimForP1_2.getId()))).thenReturn(pimForP1_2);
+
+        PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(p1);
+
+        assertThat(models.size(), is(2));
+
+        assertThat(pimForP1_1.getName(), is(p1));
+        assertThat(pimForP1_1.getCounter(), is(1));
+
+        assertThat(pimForP1_2.getName(), is(p1));
+        assertThat(pimForP1_2.getCounter(), is(2));
+
+        verify(sqlMapClientTemplate).queryForList("allActivePipelines");
+        verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", m("id", pimForP1_1.getId()));
+        verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", m("id", pimForP1_2.getId()));
+        verifyNoMoreInteractions(sqlMapClientTemplate); /* Should not have loaded history for the other pipeline. */
+    }
+
+    private PipelineInstanceModel pimFor(String p1, int counter) {
+        PipelineInstanceModel model = new PipelineInstanceModel(p1, counter, String.valueOf(counter), BuildCause.createManualForced(), new StageInstanceModels());
+        model.setId(new Random().nextLong());
+        return model;
+    }
 }

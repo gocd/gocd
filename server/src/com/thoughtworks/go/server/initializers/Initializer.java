@@ -17,5 +17,15 @@
 package com.thoughtworks.go.server.initializers;
 
 public interface Initializer {
+    /**
+     * Register listeners, etc. Do not start background processing threads if any. If registered callbacks do any
+     * processing, stop them from doing so till startDaemon() is called.
+     */
     void initialize();
+
+    /**
+     * Start any background processing threads if necessary. Allow registered callbacks to process events. This is
+     * not called automatically in case of integration tests.
+     */
+    void startDaemon();
 }

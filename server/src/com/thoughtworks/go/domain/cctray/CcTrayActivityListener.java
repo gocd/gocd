@@ -27,31 +27,25 @@ import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
+import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor;
+import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-/* Listens to all activity that is needed to keep CCTray updated.
- *
- * Since this can happen from different threads, line up all of these events on to one thread,
- * for processing, and to make sure that the upstream processes are not blocked.
+/* Listens to all activity that is needed to keep CCTray updated and sets it up for processing.
  */
 @Component
 public class CcTrayActivityListener implements Initializer, JobStatusListener, StageStatusListener, ConfigChangedListener {
     private static Logger LOGGER = LoggerFactory.getLogger(CcTrayActivityListener.class);
-
     private final GoConfigService goConfigService;
     private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
     private final CcTrayStageStatusChangeHandler stageStatusChangeHandler;
     private final CcTrayConfigChangeHandler configChangeHandler;
 
-    private final BlockingQueue<Action> queue;
-    private Thread queueProcessor;
+    private final MultiplexingQueueProcessor processor;
 
     @Autowired
     public CcTrayActivityListener(GoConfigService goConfigService, CcTrayJobStatusChangeHandler jobStatusChangeHandler,
@@ -62,7 +56,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
         this.stageStatusChangeHandler = stageStatusChangeHandler;
         this.configChangeHandler = configChangeHandler;
 
-        this.queue = new LinkedBlockingQueue<>();
+        this.processor = new MultiplexingQueueProcessor("CCTray");
     }
 
     @Override
@@ -70,31 +64,26 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
         goConfigService.register(securityConfigChangeListener());
-        startQueueProcessor();
     }
 
-    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
-            @Override
-            public void onEntityConfigChange(final PipelineConfig pipelineConfig) {
-                queue.add(new Action() {
-                    @Override
-                    public void call() {
-                        configChangeHandler.call(pipelineConfig, goConfigService.findGroupNameByPipeline(pipelineConfig.name()));
-                    }
-                });
-            }
-        };
+    @Override
+    public void startDaemon() {
+        processor.start();
     }
 
     protected SecurityConfigChangeListener securityConfigChangeListener() {
         return new SecurityConfigChangeListener() {
             @Override
             public void onEntityConfigChange(Object entity) {
-                queue.add(new Action() {
+                processor.add(new Action() {
                     @Override
                     public void call() {
                         configChangeHandler.call(goConfigService.currentCruiseConfig());
+                    }
+
+                    @Override
+                    public String description() {
+                        return "security_config changed";
                     }
                 });
             }
@@ -105,12 +94,17 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     @Override
     public void jobStatusChanged(final JobInstance job) {
         LOGGER.debug("Adding CCTray activity for job into queue: {}", job);
-
-        queue.add(new Action() {
+        processor.add(new Action() {
             @Override
             public void call() {
                 LOGGER.debug("Handling CCTray activity for job: {}", job);
+
                 jobStatusChangeHandler.call(job);
+            }
+
+            @Override
+            public String description() {
+                return "job: " + job;
             }
         });
     }
@@ -118,53 +112,52 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     @Override
     public void stageStatusChanged(final Stage stage) {
         LOGGER.debug("Adding CCTray activity for stage into queue: {}", stage);
-
-        queue.add(new Action() {
+        processor.add(new Action() {
             @Override
             public void call() {
                 LOGGER.debug("Handling CCTray activity for stage: {}", stage);
+
                 stageStatusChangeHandler.call(stage);
+            }
+
+            @Override
+            public String description() {
+                return "stage: " + stage;
             }
         });
     }
 
     @Override
     public void onConfigChange(final CruiseConfig newConfig) {
-        LOGGER.debug("Adding CCTray activity for config change into queue.");
-
-        queue.add(new Action() {
+        processor.add(new Action() {
             @Override
             public void call() {
-                LOGGER.debug("Handling CCTray activity for config change.");
                 configChangeHandler.call(newConfig);
+            }
+
+            @Override
+            public String description() {
+                return "config change";
             }
         });
     }
 
-
-    private void startQueueProcessor() {
-        if (queueProcessor != null) {
-            throw new RuntimeException("Cannot start queue processor multiple times.");
-        }
-
-        queueProcessor = new Thread() {
+    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
             @Override
-            public void run() {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        queue.take().call();
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed to handle action in CCTray queue", e);
+            public void onEntityConfigChange(final PipelineConfig pipelineConfig) {
+                processor.add(new Action() {
+                    @Override
+                    public void call() {
+                        configChangeHandler.call(pipelineConfig);
                     }
-                }
+
+                    @Override
+                    public String description() {
+                        return "pipeline config: " + pipelineConfig;
+                    }
+                });
             }
         };
-        queueProcessor.setName("CCTray-Queue-Processor");
-        queueProcessor.setDaemon(true);
-        queueProcessor.start();
-    }
-
-    private interface Action {
-        void call();
     }
 }

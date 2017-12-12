@@ -78,11 +78,15 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
     public boolean includesPipeline(PipelineConfig pipeline) {
-        return includesPipeline(CaseInsensitiveString.str(pipeline.name()));
+        return includesPipeline(pipeline.name());
     }
 
     public boolean includesPipeline(String pipelineName) {
-        boolean isInCurrentSelection = caseInsensitivePipelineList().contains(new CaseInsensitiveString(pipelineName));
+        return includesPipeline(new CaseInsensitiveString(pipelineName));
+    }
+
+    public boolean includesPipeline(CaseInsensitiveString pipelineName) {
+        boolean isInCurrentSelection = caseInsensitivePipelineList().contains(pipelineName);
 
         if (isBlacklist) {
             return !isInCurrentSelection;

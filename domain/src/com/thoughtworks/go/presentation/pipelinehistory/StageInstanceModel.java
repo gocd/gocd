@@ -142,6 +142,9 @@ public class StageInstanceModel implements StageConfigurationModel {
     }
 
     public Date getScheduledDate() {
+        if(jobHistory.isEmpty()) {
+            return null;
+        }
         return jobHistory.getScheduledDate();
     }
 

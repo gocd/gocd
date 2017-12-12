@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
@@ -24,15 +25,20 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineStateDao;
+import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
+import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener.Event;
+import com.thoughtworks.go.util.LogFixture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class PipelineLockServiceTest {
@@ -204,5 +210,67 @@ public class PipelineLockServiceTest {
     @Test
     public void shouldRegisterItselfAsAConfigChangeListener() throws Exception {
         verify(goConfigService).register(pipelineLockService);
+    }
+
+    @Test
+    public void shouldNotifyListenersAfterPipelineIsLocked() throws Exception {
+        when(goConfigService.isLockable("pipeline1")).thenReturn(true);
+
+        PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
+
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("pipeline1", asList("stage1", "stage2"), asList("job1"));
+        pipelineLockService.registerListener(lockStatusChangeListener);
+        pipelineLockService.lockIfNeeded(pipeline);
+
+        verify(lockStatusChangeListener).lockStatusChanged(Event.lock("pipeline1"));
+    }
+
+    @Test
+    public void shouldNotifyListenersAfterPipelineIsUnlocked() throws Exception {
+        PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
+
+        pipelineLockService.registerListener(lockStatusChangeListener);
+        pipelineLockService.unlock("pipeline1");
+
+        verify(lockStatusChangeListener).lockStatusChanged(Event.unLock("pipeline1"));
+    }
+
+    @Test
+    public void shouldNotifyListenersAfterPipelineIsUnlockedUponConfigChange() throws Exception {
+        PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+
+        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("pipeline1"));
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
+        when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new PipelineNotFoundException("pipeline1 not found"));
+
+        pipelineLockService.registerListener(lockStatusChangeListener);
+        pipelineLockService.onConfigChange(cruiseConfig);
+
+        verify(lockStatusChangeListener).lockStatusChanged(Event.unLock("pipeline1"));
+    }
+
+    @Test
+    public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() throws Exception {
+        PipelineLockStatusChangeListener listener1 = mock(PipelineLockStatusChangeListener.class);
+        PipelineLockStatusChangeListener listener2 = mock(PipelineLockStatusChangeListener.class, "ListenerWhichFails");
+        doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.Matchers.<Event>anyObject());
+        PipelineLockStatusChangeListener listener3 = mock(PipelineLockStatusChangeListener.class);
+
+        try (LogFixture logFixture = logFixtureFor(PipelineLockService.class, Level.WARN)) {
+
+            pipelineLockService.registerListener(listener1);
+            pipelineLockService.registerListener(listener2);
+            pipelineLockService.registerListener(listener3);
+            pipelineLockService.unlock("pipeline1");
+
+            synchronized (logFixture) {
+                assertTrue(logFixture.getLog(), logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"));
+            }
+        }
+
+        verify(listener1).lockStatusChanged(Event.unLock("pipeline1"));
+        verify(listener2).lockStatusChanged(Event.unLock("pipeline1"));
+        verify(listener3).lockStatusChanged(Event.unLock("pipeline1"));
     }
 }

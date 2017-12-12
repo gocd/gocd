@@ -26,16 +26,24 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineStateDao;
+import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @understands how/whether to lock/unlock a pipeline instance
  */
 @Service
 public class PipelineLockService implements ConfigChangedListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineLockService.class);
     private final GoConfigService goConfigService;
     private PipelineStateDao pipelineStateDao;
+    private List<PipelineLockStatusChangeListener> listeners = new ArrayList<>();
 
     @Autowired
     public PipelineLockService(GoConfigService goConfigService, PipelineStateDao pipelineStateDao) {
@@ -65,6 +73,7 @@ public class PipelineLockService implements ConfigChangedListener {
     public void lockIfNeeded(Pipeline pipeline) {
         if (goConfigService.isLockable(pipeline.getName())) {
             pipelineStateDao.lockPipeline(pipeline);
+            notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
         }
     }
 
@@ -83,6 +92,7 @@ public class PipelineLockService implements ConfigChangedListener {
 
     public void unlock(String pipelineName) {
         pipelineStateDao.unlockPipeline(pipelineName);
+        notifyListeners(PipelineLockStatusChangeListener.Event.unLock(pipelineName));
     }
 
     public boolean canScheduleStageInPipeline(PipelineIdentifier pipeline) {
@@ -97,6 +107,24 @@ public class PipelineLockService implements ConfigChangedListener {
         for (String lockedPipeline : pipelineStateDao.lockedPipelines()) {
             if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(lockedPipeline)) || !newCruiseConfig.isPipelineLockable(lockedPipeline)) {
                 unlock(lockedPipeline);
+            }
+        }
+    }
+
+    public void registerListener(PipelineLockStatusChangeListener lockStatusChangeListener) {
+        listeners.add(lockStatusChangeListener);
+    }
+
+    private void notifyListeners(PipelineLockStatusChangeListener.Event event) {
+        for (PipelineLockStatusChangeListener listener : listeners) {
+            try {
+                LOGGER.debug("START  Notifying listener ({}) of event: {}", listener, event);
+
+                listener.lockStatusChanged(event);
+
+                LOGGER.debug("FINISH Notifying listener ({}) of event: {}", listener, event);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to notify listener ({}) of event: {}", listener, event);
             }
         }
     }

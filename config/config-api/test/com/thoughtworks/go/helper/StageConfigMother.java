@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.util.ReflectionUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class StageConfigMother {
     public static StageConfig oneBuildPlanWithResourcesAndMaterials(String stageName) {
@@ -31,16 +31,16 @@ public class StageConfigMother {
 
     public static StageConfig oneBuildPlanWithResourcesAndMaterials(String stageName, String buildName) {
         JobConfigs jobConfigs = new JobConfigs(new JobConfig(
-                new CaseInsensitiveString(buildName), new Resources(new Resource("Windows"), new Resource(".NET")), new ArtifactPlans()));
+                new CaseInsensitiveString(buildName), new Resources(new Resource("Windows"), new Resource(".NET")), new ArtifactConfigs()));
         return stageConfig(stageName, jobConfigs);
     }
 
     public static StageConfig twoBuildPlansWithResourcesAndMaterials(String stageName) {
         JobConfig windoze = new JobConfig(
-                new CaseInsensitiveString("WinBuild"), new Resources(new Resource("Windows"), new Resource(".NET")), new ArtifactPlans(Arrays.<ArtifactPlan>asList(new TestArtifactPlan("junit", "junit")))
+                new CaseInsensitiveString("WinBuild"), new Resources(new Resource("Windows"), new Resource(".NET")), new ArtifactConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
         );
         JobConfig linux = new JobConfig(
-                new CaseInsensitiveString("NixBuild"), new Resources(new Resource("Linux"), new Resource("java")), new ArtifactPlans(Arrays.<ArtifactPlan>asList(new TestArtifactPlan("junit", "junit")))
+                new CaseInsensitiveString("NixBuild"), new Resources(new Resource("Linux"), new Resource("java")), new ArtifactConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
         );
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);
         return stageConfig(stageName, jobConfigs);
@@ -108,9 +108,9 @@ public class StageConfigMother {
     }
 
     public static StageConfig stageConfigWithArtifact(String stageName, String jobName , ArtifactType artifactType){
-        ArtifactPlans artifactPlansWithTests = new ArtifactPlans();
-        artifactPlansWithTests.add(ArtifactPlan.create(artifactType, "src", "dest"));
-        JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new Resources("abc"), artifactPlansWithTests);
+        ArtifactConfigs artifactConfigsWithTests = new ArtifactConfigs();
+        artifactConfigsWithTests.add(ArtifactConfig.create(artifactType, "src", "dest"));
+        JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new Resources("abc"), artifactConfigsWithTests);
         StageConfig stage = new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
         return stage;
     }

@@ -74,18 +74,30 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class JobInstanceServiceIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private JobStatusCache jobStatusCache;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private StageService stageService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private ScheduleHelper scheduleHelper;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private StageDao stageDao;
-    @Autowired private InstanceFactory instanceFactory;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private JobStatusCache jobStatusCache;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private InstanceFactory instanceFactory;
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithTwoStages pipelineFixture;
@@ -470,7 +482,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.setRunInstanceCount(2);
         jobConfig.addResource("blah");
         jobConfig.getProperties().add(new ArtifactPropertiesGenerator("prop1", "props.xml", "//somepath"));
-        jobConfig.artifactPlans().add(new ArtifactPlan("src1", "dest1"));
+        jobConfig.artifactConfigs().add(new ArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
@@ -507,7 +519,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.setRunOnAllAgents(true);
         jobConfig.addResource("blah");
         jobConfig.getProperties().add(new ArtifactPropertiesGenerator("prop1", "props.xml", "//somepath"));
-        jobConfig.artifactPlans().add(new ArtifactPlan("src1", "dest1"));
+        jobConfig.artifactConfigs().add(new ArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(localAgentWithResources("blah"), localAgentWithResources("blah")));

@@ -26,8 +26,8 @@ module JavaImports
   java_import com.thoughtworks.go.config.MailHost unless defined? MailHost
   java_import com.thoughtworks.go.config.AgentConfig unless defined? AgentConfig
   java_import com.thoughtworks.go.config.Approval unless defined? Approval
-  java_import com.thoughtworks.go.config.ArtifactPlans unless defined? ArtifactPlans
-  java_import com.thoughtworks.go.config.ArtifactPlan unless defined? ArtifactPlan
+  java_import com.thoughtworks.go.config.ArtifactConfigs unless defined? ArtifactConfigs
+  java_import com.thoughtworks.go.config.ArtifactConfig unless defined? ArtifactConfig
   java_import com.thoughtworks.go.config.preprocessor.ParamSubstitutionHandler unless defined? ParamSubstitutionHandler
   java_import com.thoughtworks.go.domain.ArtifactType unless defined? ArtifactType
   java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
@@ -107,7 +107,7 @@ module JavaImports
   java_import com.thoughtworks.go.domain.Stage unless defined? Stage
   java_import com.thoughtworks.go.config.Tasks unless defined? Tasks
   java_import com.thoughtworks.go.domain.Task unless defined? Task
-  java_import com.thoughtworks.go.config.TestArtifactPlan unless defined? TestArtifactPlan
+  java_import com.thoughtworks.go.config.TestArtifactConfig unless defined? TestArtifactConfig
   java_import com.thoughtworks.go.domain.testinfo.FailureDetails unless defined? FailureDetails
   java_import com.thoughtworks.go.domain.testinfo.StageTestRuns unless defined? StageTestRuns
   java_import com.thoughtworks.go.domain.testinfo.TestStatus unless defined? TestStatus

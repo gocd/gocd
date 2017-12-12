@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.Resources;
@@ -40,6 +39,7 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -47,8 +47,10 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class JobInstanceSqlMapDaoCachingTest {
-    @Autowired private GoCache goCache;
-    @Autowired private JobInstanceSqlMapDao jobInstanceDao;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private JobInstanceSqlMapDao jobInstanceDao;
     private SqlMapClientTemplate mockTemplate;
 
     @Before
@@ -100,7 +102,9 @@ public class JobInstanceSqlMapDaoCachingTest {
         when(mockTemplate.queryForList(eq("scheduledPlanIds"))).thenReturn(Arrays.asList(1L, 2L));
 
         final DefaultJobPlan firstJob = jobPlan(1);
-        List<JobPlan> expectedPlans = new ArrayList<JobPlan>() {{ add(firstJob); }};
+        List<JobPlan> expectedPlans = new ArrayList<JobPlan>() {{
+            add(firstJob);
+        }};
         when(mockTemplate.queryForObject("scheduledPlan", arguments("id", 1L).asMap())).thenReturn(firstJob);
         when(mockTemplate.queryForObject("scheduledPlan", arguments("id", 2L).asMap())).thenReturn(null);
 
@@ -120,7 +124,10 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         final DefaultJobPlan firstJob = jobPlan(1);
         final DefaultJobPlan secondJob = jobPlan(2);
-        List<JobPlan> expectedPlans = new ArrayList<JobPlan>() {{ add(firstJob); add(secondJob); }};
+        List<JobPlan> expectedPlans = new ArrayList<JobPlan>() {{
+            add(firstJob);
+            add(secondJob);
+        }};
         when(mockTemplate.queryForObject("scheduledPlan", arguments("id", 1L).asMap())).thenReturn(firstJob);
         when(mockTemplate.queryForObject("scheduledPlan", arguments("id", 2L).asMap())).thenReturn(secondJob);
 
@@ -140,7 +147,9 @@ public class JobInstanceSqlMapDaoCachingTest {
         when(mockTemplate.queryForList(eq("scheduledPlanIds"))).thenReturn(Arrays.asList(1L));
 
         final DefaultJobPlan firstJob = jobPlan(1);
-        List<JobPlan> expectedPlans = new ArrayList<JobPlan>() {{ add(firstJob);}};
+        List<JobPlan> expectedPlans = new ArrayList<JobPlan>() {{
+            add(firstJob);
+        }};
         when(mockTemplate.queryForObject("scheduledPlan", arguments("id", 1L).asMap())).thenReturn(firstJob);
 
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
@@ -285,6 +294,6 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     private DefaultJobPlan jobPlan(long id) {
-        return new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), id, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), id, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
     }
 }

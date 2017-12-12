@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -54,10 +52,14 @@ public class ArtifactPlanRepositoryIntegrationTest {
     private static final String STAGE_NAME = "mingle";
     private static final String PIPELINE_NAME = "pipeline";
 
-    @Autowired private JobInstanceSqlMapDao jobInstanceDao;
-    @Autowired private ArtifactPlanRepository artifactPlanRepository;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private InstanceFactory instanceFactory;
+    @Autowired
+    private JobInstanceSqlMapDao jobInstanceDao;
+    @Autowired
+    private ArtifactPlanRepository artifactPlanRepository;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private InstanceFactory instanceFactory;
 
     private long stageId;
 
@@ -84,7 +86,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldSaveArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
         artifactPlan.setBuildId(jobInstance.getId());
 
         // Act
@@ -98,7 +100,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new ArtifactPlan("src", "dest");
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -114,7 +116,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedArtifactPlanWithTypeUnit() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new TestArtifactPlan("src", "dest");
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.unit, "src", "dest");
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -130,7 +132,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedTestArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new TestArtifactPlan();
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.unit, null, null);
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -148,7 +150,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
         // Arrange
         JobInstance firstJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "1"));
         JobInstance secondJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "2"));
-        ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
 
         // Act
         ArtifactPlan artifactPlanOfFirstJob = artifactPlanRepository.saveCopyOf(firstJobInstance.getId(), artifactPlan);

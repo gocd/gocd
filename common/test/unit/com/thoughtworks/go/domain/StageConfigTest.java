@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -29,6 +23,8 @@ import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
+
+import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -38,9 +34,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class StageConfigTest {
 
@@ -223,7 +217,7 @@ public class StageConfigTest {
         StageConfig newlyAddedStage = new StageConfig(new CaseInsensitiveString("."), new JobConfigs(newJob));
         pipelineConfig.addStageWithoutValidityAssertion(newlyAddedStage);
 
-        stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("con-job"), new Resources(), new ArtifactPlans(), new Tasks(new ExecTask("ls", "-la", "foo"))));
+        stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("con-job"), new Resources(), new ArtifactConfigs(), new Tasks(new ExecTask("ls", "-la", "foo"))));
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors.size(), is(4));

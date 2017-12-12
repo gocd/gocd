@@ -291,16 +291,16 @@ public class InstanceFactoryTest {
     @Test
     public void shouldCreateJobPlan() {
         Resources resources = new Resources();
-        ArtifactPlans artifactPlans = new ArtifactPlans();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resources, artifactPlans);
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resources, artifactConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is(new DefaultJobPlan(resources, artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
+        assertThat(plan, is(new DefaultJobPlan(resources, ArtifactPlan.toArtifactPlans(artifactConfigs), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
     }
 
     @Test
     public void shouldReturnBuildInstance() {
-        ArtifactPlans artifactPlans = new ArtifactPlans();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactPlans);
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
@@ -476,12 +476,12 @@ public class InstanceFactoryTest {
 	@Test
 	public void shouldFailWhenNoAgentsmatchAJob() throws Exception {
 		DefaultSchedulingContext context = new DefaultSchedulingContext("raghu/vinay", new Agents());
-		JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new Resources(), new ArtifactPlans());
+		JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new Resources(), new ArtifactConfigs());
 		fooJob.setRunOnAllAgents(true);
 		StageConfig stageConfig = new StageConfig(
 				new CaseInsensitiveString("blah-stage"), new JobConfigs(
 				fooJob,
-				new JobConfig(new CaseInsensitiveString("bar"), new Resources(), new ArtifactPlans())
+				new JobConfig(new CaseInsensitiveString("bar"), new Resources(), new ArtifactConfigs())
 		)
 		);
 		try {

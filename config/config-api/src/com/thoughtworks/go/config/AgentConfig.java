@@ -49,7 +49,7 @@ public class AgentConfig implements Validatable {
     private String elasticPluginId;
 
     @ConfigSubtag
-    private Resources resources = new Resources();
+    private ResourceConfigs resourceConfigs = new ResourceConfigs();
 
     private transient Boolean cachedIsFromLocalHost;
     private ConfigErrors errors = new ConfigErrors();
@@ -64,20 +64,20 @@ public class AgentConfig implements Validatable {
     }
 
     public AgentConfig(String uuid, String hostName, String ipAddress) {
-        this(uuid, hostName, ipAddress, new Resources());
+        this(uuid, hostName, ipAddress, new ResourceConfigs());
     }
 
-    public AgentConfig(String uuid, String hostName, String ipAddress, Resources resources) {
+    public AgentConfig(String uuid, String hostName, String ipAddress, ResourceConfigs resourceConfigs) {
         this.hostName = hostName;
         this.ipAddress = ipAddress;
         this.uuid = uuid;
-        this.resources = resources;
+        this.resourceConfigs = resourceConfigs;
     }
 
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
-        isValid = resources.validateTree(validationContext) && isValid;
+        isValid = resourceConfigs.validateTree(validationContext) && isValid;
         return isValid;
     }
     public void validate(ValidationContext validationContext) {
@@ -89,7 +89,7 @@ public class AgentConfig implements Validatable {
     }
 
     private void validateResources() {
-        if (isElastic() && !resources.isEmpty()) {
+        if (isElastic() && !resourceConfigs.isEmpty()) {
             errors.add("elasticAgentId", "Elastic agents cannot have resources.");
         }
     }
@@ -118,24 +118,24 @@ public class AgentConfig implements Validatable {
         return errors;
     }
 
-    public boolean hasAllResources(Collection<Resource> required) {
-        return this.resources.containsAll(required);
+    public boolean hasAllResources(Collection<ResourceConfig> required) {
+        return this.resourceConfigs.containsAll(required);
     }
 
-    public Resources getResources() {
-        return resources;
+    public ResourceConfigs getResourceConfigs() {
+        return resourceConfigs;
     }
 
-    public void addResource(Resource resource) {
-        this.resources.add(resource);
+    public void addResourceConfig(ResourceConfig resourceConfig) {
+        this.resourceConfigs.add(resourceConfig);
     }
 
-    public void removeResource(Resource resource) {
-        resources.remove(resource);
+    public void removeResource(ResourceConfig resourceConfig) {
+        resourceConfigs.remove(resourceConfig);
     }
 
-    public void setResources(Resources resources) {
-        this.resources = resources;
+    public void setResourceConfigs(ResourceConfigs resourceConfigs) {
+        this.resourceConfigs = resourceConfigs;
     }
 
     public void setIpAddress(String ipAddress) {
@@ -267,7 +267,7 @@ public class AgentConfig implements Validatable {
         if (elasticPluginId != null ? !elasticPluginId.equals(agentConfig.elasticPluginId) : agentConfig.elasticPluginId != null) {
             return false;
         }
-        return resources != null ? resources.equals(agentConfig.resources) : agentConfig.resources == null;
+        return resourceConfigs != null ? resourceConfigs.equals(agentConfig.resourceConfigs) : agentConfig.resourceConfigs == null;
 
     }
 
@@ -279,7 +279,7 @@ public class AgentConfig implements Validatable {
         result = 31 * result + (isDisabled != null ? isDisabled.hashCode() : 0);
         result = 31 * result + (elasticAgentId != null ? elasticAgentId.hashCode() : 0);
         result = 31 * result + (elasticPluginId != null ? elasticPluginId.hashCode() : 0);
-        result = 31 * result + (resources != null ? resources.hashCode() : 0);
+        result = 31 * result + (resourceConfigs != null ? resourceConfigs.hashCode() : 0);
         return result;
     }
 }

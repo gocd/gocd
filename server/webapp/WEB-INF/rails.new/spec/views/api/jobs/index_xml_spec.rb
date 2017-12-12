@@ -27,7 +27,7 @@ describe "/api/jobs" do
     @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "logs/log-artifact", "log-path"))
     @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::unit, "test.xml", ""))
 
-    @resources = Resources.new("linux, teapot")
+    @resources = com.thoughtworks.go.domain.Resources.new("linux, teapot")
 
     @variables = EnvironmentVariablesConfig.new
     @variables.add("VARIABLE_NAME", "variable-value")

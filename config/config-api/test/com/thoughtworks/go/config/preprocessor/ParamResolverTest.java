@@ -225,17 +225,17 @@ public class ParamResolverTest {
 
     @Test
     public void shouldAddErrorTheMessageOnTheRightFieldOfTheRightElement() throws NoSuchFieldException {
-        Resource resource = new Resource();
-        resource.setName("#{not-found}");
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.setName("#{not-found}");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
-        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new Resources(resource), new ArtifactConfigs()));
+        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new ResourceConfigs(resourceConfig), new ArtifactConfigs()));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
         assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
-        assertThat(resource.errors().on(JobConfig.RESOURCES), is("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it."));
+        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES), is("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it."));
     }
 
     @Test

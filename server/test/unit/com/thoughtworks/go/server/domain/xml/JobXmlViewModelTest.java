@@ -16,14 +16,9 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.Properties;
-import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.security.GoCipher;
 import org.dom4j.DocumentException;
@@ -31,6 +26,8 @@ import org.dom4j.dom.DOMDocument;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.mock;
@@ -55,7 +52,6 @@ public class JobXmlViewModelTest {
 
     @Test
     public void shouldMaskSecureVariables() throws IOException, DocumentException {
-
         EnvironmentVariableConfig envVariable = new EnvironmentVariableConfig(null, "stdVariable", "value1", false);
         EnvironmentVariableConfig secureEnvVariable = new EnvironmentVariableConfig(new GoCipher(), "secureVariable", "value2", true);
 
@@ -63,6 +59,7 @@ public class JobXmlViewModelTest {
         environmentVariablesConfig.add(envVariable);
         environmentVariablesConfig.add(secureEnvVariable);
         when(jobPlan.getVariables()).thenReturn(environmentVariablesConfig);
+        when(jobPlan.getResources()).thenReturn(new Resources());
 
         DOMDocument document = (DOMDocument) jobXmlViewModel.toXml(xmlWriterContext);
 
@@ -70,5 +67,4 @@ public class JobXmlViewModelTest {
                 "<environmentvariables><variable name=\"stdVariable\"><![CDATA[value1]]></variable><variable name=\"secureVariable\"><![CDATA[****]]></variable></environmentvariables>"));
 
     }
-
 }

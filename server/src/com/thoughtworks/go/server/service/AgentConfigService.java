@@ -275,7 +275,7 @@ public class AgentConfigService {
         }
 
         if (resources != null) {
-            command.addCommand(new UpdateResourcesCommand(uuid, new Resources(resources)));
+            command.addCommand(new UpdateResourcesCommand(uuid, new ResourceConfigs(resources)));
         }
 
         if (environments != null) {
@@ -364,8 +364,8 @@ public class AgentConfigService {
     }
 
     @Deprecated
-    public void updateAgentResources(final String uuid, final Resources resources) {
-        updateAgent(new UpdateResourcesCommand(uuid, resources), uuid, Username.ANONYMOUS);
+    public void updateAgentResources(final String uuid, final ResourceConfigs resourceConfigs) {
+        updateAgent(new UpdateResourcesCommand(uuid, resourceConfigs), uuid, Username.ANONYMOUS);
     }
 
     public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
@@ -384,7 +384,7 @@ public class AgentConfigService {
             uuids.add(uuid);
             if (goConfigService.hasAgent(uuid)) {
                 for (TriStateSelection selection : selections) {
-                    command.addCommand(new ModifyResourcesCommand(uuid, new Resource(selection.getValue()), selection.getAction()));
+                    command.addCommand(new ModifyResourcesCommand(uuid, new ResourceConfig(selection.getValue()), selection.getAction()));
                 }
             }
         }
@@ -466,29 +466,29 @@ public class AgentConfigService {
 
     public static class UpdateResourcesCommand implements UpdateConfigCommand {
         private final String uuid;
-        private final Resources resources;
+        private final ResourceConfigs resourceConfigs;
 
-        public UpdateResourcesCommand(String uuid, Resources resources) {
+        public UpdateResourcesCommand(String uuid, ResourceConfigs resourceConfigs) {
             this.uuid = uuid;
-            this.resources = resources;
+            this.resourceConfigs = resourceConfigs;
         }
 
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
-            agentConfig.setResources(resources);
+            agentConfig.setResourceConfigs(resourceConfigs);
             return cruiseConfig;
         }
     }
 
     public static class ModifyResourcesCommand implements UpdateConfigCommand {
         private final String uuid;
-        private final Resource resource;
+        private final ResourceConfig resourceConfig;
         private final TriStateSelection.Action action;
 
-        public ModifyResourcesCommand(String uuid, Resource resource, TriStateSelection.Action action) {
+        public ModifyResourcesCommand(String uuid, ResourceConfig resourceConfig, TriStateSelection.Action action) {
             this.uuid = uuid;
-            this.resource = resource;
+            this.resourceConfig = resourceConfig;
             this.action = action;
         }
 
@@ -496,9 +496,9 @@ public class AgentConfigService {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
             if (action.equals(TriStateSelection.Action.add)) {
-                agentConfig.addResource(resource);
+                agentConfig.addResourceConfig(resourceConfig);
             } else if (action.equals(TriStateSelection.Action.remove)) {
-                agentConfig.removeResource(resource);
+                agentConfig.removeResource(resourceConfig);
             } else if (action.equals(TriStateSelection.Action.nochange)) {
                 //do nothing
             } else {

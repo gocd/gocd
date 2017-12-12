@@ -73,7 +73,7 @@ module ApiV4
     end
 
     def resources
-      agent.getResources().resourceNames.to_a.sort unless agent.isElastic
+      agent.getResourceConfigs().resourceNames.to_a.sort unless agent.isElastic
     end
 
     def environments

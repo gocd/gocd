@@ -106,11 +106,11 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             }
 
             for (String r : resourcesToAdd) {
-                agentConfig.addResource(new Resource(r));
+                agentConfig.addResourceConfig(new ResourceConfig(r));
             }
 
             for (String r : resourcesToRemove) {
-                agentConfig.removeResource(new Resource(r));
+                agentConfig.removeResource(new ResourceConfig(r));
             }
 
             for (String environment : environmentsToAdd) {

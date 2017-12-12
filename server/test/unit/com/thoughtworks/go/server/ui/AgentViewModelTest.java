@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.DiskSpace;
@@ -171,17 +171,17 @@ public class AgentViewModelTest {
 
     @Test
     public void shouldMapErrors(){
-        Resource resource1 = new Resource("foo");
-        Resource resource2 = new Resource("bar");
-        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new Resources(resource1, resource2));
+        ResourceConfig resourceConfig1 = new ResourceConfig("foo");
+        ResourceConfig resourceConfig2 = new ResourceConfig("bar");
+        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
         agentConfig.addError(AgentConfig.IP_ADDRESS, "bad ip");
-        resource1.addError(Resource.NAME, "bad name for resource1");
-        resource2.addError(Resource.NAME, "bad name for resource2");
+        resourceConfig1.addError(ResourceConfig.NAME, "bad name for resource1");
+        resourceConfig2.addError(ResourceConfig.NAME, "bad name for resource2");
         AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class)));
         assertThat(model.errors().isEmpty(), is(false));
         assertThat(model.errors().on(AgentConfig.IP_ADDRESS), is("bad ip"));
-        assertThat(model.errors().getAllOn(Resource.NAME).contains("bad name for resource1"), is(true));
-        assertThat(model.errors().getAllOn(Resource.NAME).contains("bad name for resource2"), is(true));
+        assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource1"), is(true));
+        assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource2"), is(true));
     }
 
     private List<AgentViewModel> sort(Comparator<AgentViewModel> comparator, AgentViewModel... agentViewModels) {

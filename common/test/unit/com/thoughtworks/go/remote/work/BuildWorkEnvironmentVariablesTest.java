@@ -17,7 +17,10 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -172,7 +175,8 @@ public class BuildWorkEnvironmentVariablesTest {
         return p4Fixture.material(view);
     }
 
-    @Test public void shouldMergeEnvironmentVariablesFromInitialContext() throws Exception {
+    @Test
+    public void shouldMergeEnvironmentVariablesFromInitialContext() throws Exception {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs());
 
         BuildAssignment buildAssignment = createAssignment(new EnvironmentVariableContext("foo", "bar"));

@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,7 +32,7 @@ import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.utils.SerializationTester.serializeAndDeserialize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class DefaultJobPlanTest {
 
@@ -45,39 +46,6 @@ public class DefaultJobPlanTest {
         File file = new File(workingFolder, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
         file.createNewFile();
-    }
-
-    @Test
-    public void shouldMatchResourcesIfBuildPlanHasNoResources() {
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 0, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        Resources agentResources = new Resources(new Resource("Foo"));
-        assertTrue(plan.match(agentResources));
-    }
-
-    @Test
-    public void shouldMatchIfBuildPlanAndAgentHaveSameResources() {
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(new Resource("Foo")), new ArrayList<>(), new ArtifactPropertiesGenerators(), 0, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        assertTrue(plan.match(new Resources(new Resource("Foo"))));
-    }
-
-    @Test
-    public void shouldNotMatchIfAgentDonotContainBuildPlanResources() {
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(new Resource("Foo")), new ArrayList<>(), new ArtifactPropertiesGenerators(), 0, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        assertFalse(plan.match(new Resources(new Resource("Bar"))));
-    }
-
-    @Test
-    public void shouldMatchIfAgentAndBuildPlanResourcesIrrespectiveOfOrder() {
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(new Resource("Foo"), new Resource("Bar"), new Resource("car")), new ArrayList<>(), new ArtifactPropertiesGenerators(), 0, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-        assertTrue(plan.match(
-                new Resources(new Resource("Bar"), new Resource("car"), new Resource("Foo"))));
-    }
-
-    @Test
-    public void shouldMatchIfBothAgentAndBuildPlanHaveNotResources() {
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 0, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
-
-        assertTrue(plan.match(new Resources()));
     }
 
     @Test
@@ -95,14 +63,14 @@ public class DefaultJobPlanTest {
     @Test
     public void shouldRespectTriggerVariablesOverConfigVariables() {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", env(new String[]{"blah","foo"},new String[]{"value","bar"}), new EnvironmentVariablesConfig(), null);
-        original.setTriggerVariables(env(new String[]{"blah","another"},new String[]{"override","anotherValue"}));
+                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", env(new String[]{"blah", "foo"}, new String[]{"value", "bar"}), new EnvironmentVariablesConfig(), null);
+        original.setTriggerVariables(env(new String[]{"blah", "another"}, new String[]{"override", "anotherValue"}));
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         original.applyTo(variableContext);
-        assertThat(variableContext.getProperty("blah"),is("override"));
-        assertThat(variableContext.getProperty("foo"),is("bar"));
+        assertThat(variableContext.getProperty("blah"), is("override"));
+        assertThat(variableContext.getProperty("foo"), is("bar"));
         //becuase its a security issue to let operator set values for unconfigured variables
-        assertThat(variableContext.getProperty("another"),is(nullValue()));
+        assertThat(variableContext.getProperty("another"), is(nullValue()));
     }
 
     @Test

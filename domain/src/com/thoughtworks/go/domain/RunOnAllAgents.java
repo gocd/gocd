@@ -71,7 +71,7 @@ public class RunOnAllAgents implements JobType {
 
     public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig config, String stageName, final JobNameGenerator nameGenerator, final Clock clock,
                                    InstanceFactory instanceFactory) {
-        Collection<AgentConfig> agents = context.findAgentsMatching(config.resources());
+        Collection<AgentConfig> agents = context.findAgentsMatching(config.resourceConfigs());
         int counter = 0;
         for (AgentConfig agent : agents) {
             instanceFactory.reallyCreateJobInstance(config, jobs, agent.getUuid(), nameGenerator.generateName(++counter), true, false, context, clock);

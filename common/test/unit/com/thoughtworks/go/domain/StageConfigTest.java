@@ -217,7 +217,7 @@ public class StageConfigTest {
         StageConfig newlyAddedStage = new StageConfig(new CaseInsensitiveString("."), new JobConfigs(newJob));
         pipelineConfig.addStageWithoutValidityAssertion(newlyAddedStage);
 
-        stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("con-job"), new Resources(), new ArtifactConfigs(), new Tasks(new ExecTask("ls", "-la", "foo"))));
+        stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("con-job"), new ResourceConfigs(), new ArtifactConfigs(), new Tasks(new ExecTask("ls", "-la", "foo"))));
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors.size(), is(4));

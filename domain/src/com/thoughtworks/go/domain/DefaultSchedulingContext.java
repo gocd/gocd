@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 
 import java.util.HashMap;
@@ -57,10 +57,10 @@ public class DefaultSchedulingContext implements SchedulingContext {
         return approvedBy;
     }
 
-    public Agents findAgentsMatching(Resources resources) {
+    public Agents findAgentsMatching(ResourceConfigs resourceConfigs) {
         Agents found = new Agents();
         for (AgentConfig agent : agents) {
-            if (agent.hasAllResources(resources) && !agent.isDisabled()) {
+            if (agent.hasAllResources(resourceConfigs) && !agent.isDisabled()) {
                 found.add(agent);
             }
         }

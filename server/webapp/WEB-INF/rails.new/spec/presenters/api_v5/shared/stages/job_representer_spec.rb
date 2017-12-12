@@ -198,7 +198,7 @@ describe ApiV5::Shared::Stages::JobRepresenter do
       job_config = JobConfig.new
 
       ApiV5::Shared::Stages::JobRepresenter.new(job_config).from_hash({ resources: %w(java linux) })
-      expect(job_config.resources.map(&:name)).to eq(%w(java linux))
+      expect(job_config.resourceConfigs.map(&:name)).to eq(%w(java linux))
     end
 
     it 'should convert basic hash with task to Job' do

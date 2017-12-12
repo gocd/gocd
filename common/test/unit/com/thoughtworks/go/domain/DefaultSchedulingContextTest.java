@@ -16,18 +16,11 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
-import static com.thoughtworks.go.config.Resource.resources;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,7 +30,7 @@ public class DefaultSchedulingContextTest {
     @Test
     public void shouldFindNoAgentsIfNoneExist() throws Exception {
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", new Agents());
-        assertThat(context.findAgentsMatching(new Resources()), is(new Agents()));
+        assertThat(context.findAgentsMatching(new ResourceConfigs()), is(new Agents()));
     }
 
     @Test public void shouldFindAllAgentsIfNoResourcesAreSpecified() throws Exception {
@@ -45,7 +38,7 @@ public class DefaultSchedulingContextTest {
         AgentConfig windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
-        assertThat(context.findAgentsMatching(new Resources()), is(matchingAgents));
+        assertThat(context.findAgentsMatching(new ResourceConfigs()), is(matchingAgents));
     }
     
     @Test public void shouldOnlyFindAgentsThatMatchResourcesSpecified() throws Exception {
@@ -176,4 +169,11 @@ public class DefaultSchedulingContextTest {
         return new AgentConfig(uuid, "localhost", "127.0.0.1", resources(names));
     }
 
+	public static ResourceConfigs resources(String... names) {
+		ResourceConfigs resourceConfigs = new ResourceConfigs();
+		for (String name : names) {
+			resourceConfigs.add(new ResourceConfig(name));
+		}
+		return resourceConfigs;
+	}
 }

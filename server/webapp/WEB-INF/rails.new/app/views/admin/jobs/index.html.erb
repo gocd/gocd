@@ -17,7 +17,7 @@
     <% @jobs.each do |job_config| %>
         <tr>
             <td><%= link_to(job_config.name(), admin_tasks_listing_path(:job_name => job_config.name(), :current_tab => "tasks")) %></td>
-            <td><%= job_config.resources().join(', ') %></td>
+            <td><%= job_config.resourceConfigs().join(', ') %></td>
             <td><%= job_config.isRunOnAllAgents() ? l.string("YES") : l.string("NO") %></td>
             <td><%= job_config.isRunMultipleInstanceType() ? l.string("YES") : l.string("NO") %></td>
             <td class="remove">

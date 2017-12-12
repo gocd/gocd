@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.ui;
 
 import java.util.*;
 
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 import org.apache.commons.lang.StringUtils;
@@ -67,8 +67,8 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         return resources().resourceNames();
     }
 
-    public Resources resources() {
-        return agentInstance.getResources();
+    public ResourceConfigs resources() {
+        return agentInstance.getResourceConfigs();
     }
 
     public AgentStatus getStatus() {
@@ -216,8 +216,8 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
     public ConfigErrors errors() {
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.addAll(agentInstance.agentConfig().errors());
-        for (Resource resource : agentInstance.getResources()) {
-            configErrors.addAll(resource.errors());
+        for (ResourceConfig resourceConfig : agentInstance.getResourceConfigs()) {
+            configErrors.addAll(resourceConfig.errors());
         }
         return configErrors;
     }

@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -398,7 +401,8 @@ public class AgentInstanceTest {
     @Test
     public void shouldReturnFalseWhenAgentHasEnoughSpace() throws Exception {
         AgentInstance original = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment() {
-            @Override public long getAgentSizeLimit() {
+            @Override
+            public long getAgentSizeLimit() {
                 return 100 * 1024 * 1024;
             }
         });
@@ -413,7 +417,8 @@ public class AgentInstanceTest {
     @Test
     public void shouldReturnTrueWhenFreeDiskOnAgentIsLow() throws Exception {
         AgentInstance original = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment() {
-            @Override public long getAgentSizeLimit() {
+            @Override
+            public long getAgentSizeLimit() {
                 return 100 * 1024 * 1024;
             }
         });
@@ -447,7 +452,8 @@ public class AgentInstanceTest {
         assertThat(agentB.compareTo(agentA), greaterThan(0));
     }
 
-    @Test public void shouldNotBeEqualIfUuidIsNotEqual() throws Exception {
+    @Test
+    public void shouldNotBeEqualIfUuidIsNotEqual() throws Exception {
         AgentInstance agentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment);
         AgentInstance copyOfAgentA = new AgentInstance(new AgentConfig("UUID", "A", "127.0.0.1"),
                 LOCAL, systemEnvironment);
@@ -471,14 +477,16 @@ public class AgentInstanceTest {
         assertThat(agent.getBuildingInfo(), is(cancelled));
     }
 
-    @Test public void shouldReturnNullWhenNoMatchingJobs() throws Exception {
+    @Test
+    public void shouldReturnNullWhenNoMatchingJobs() throws Exception {
         AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment);
 
         JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<>());
         assertThat(matchingJob, is(nullValue()));
     }
 
-    @Test public void shouldReturnFirstMatchingJobPlan() throws Exception {
+    @Test
+    public void shouldReturnFirstMatchingJobPlan() throws Exception {
         AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment);
 
         List<JobPlan> plans = jobPlans("linux, svn", "linux, mercurial");
@@ -486,7 +494,8 @@ public class AgentInstanceTest {
         assertThat(matchingJob, is(plans.get(1)));
     }
 
-    @Test public void shouldReturnAJobPlanWithMatchingUuidSet() throws Exception {
+    @Test
+    public void shouldReturnAJobPlanWithMatchingUuidSet() throws Exception {
         AgentConfig config = agentConfig("linux, mercurial");
         AgentInstance agentInstance = new AgentInstance(config, LOCAL, systemEnvironment);
 
@@ -497,7 +506,8 @@ public class AgentInstanceTest {
         assertThat(matchingJob, is(job));
     }
 
-    @Test public void shouldNotReturnAJobWithMismatchedUuid() throws Exception {
+    @Test
+    public void shouldNotReturnAJobWithMismatchedUuid() throws Exception {
         AgentConfig config = agentConfig("linux, mercurial");
         AgentInstance agentInstance = new AgentInstance(config, LOCAL, systemEnvironment);
 
@@ -508,7 +518,8 @@ public class AgentInstanceTest {
         assertThat(matchingJob, is(nullValue()));
     }
 
-    @Test public void shouldSetAgentToIdleWhenItIsApproved() {
+    @Test
+    public void shouldSetAgentToIdleWhenItIsApproved() {
         AgentInstance pending = AgentInstanceMother.pending();
         AgentConfig config = new AgentConfig(pending.getUuid(), pending.getHostname(), pending.getIpAddress());
         pending.syncConfig(config);
@@ -516,7 +527,8 @@ public class AgentInstanceTest {
         assertThat(status, is(AgentStatus.Idle));
     }
 
-    @Test public void syncConfigShouldUpdateElasticAgentRuntimeInfo() {
+    @Test
+    public void syncConfigShouldUpdateElasticAgentRuntimeInfo() {
         AgentInstance agent = AgentInstanceMother.idle();
 
         AgentConfig agentConfig = new AgentConfig(agent.getUuid(), agent.getHostname(), agent.getIpAddress());
@@ -549,7 +561,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotMatchJobPlanIfJobRequiresElasticAgent_MatchingIsManagedByBuildAssignmentService(){
+    public void shouldNotMatchJobPlanIfJobRequiresElasticAgent_MatchingIsManagedByBuildAssignmentService() {
         AgentConfig agentConfig = new AgentConfig("uuid");
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
@@ -563,7 +575,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotMatchJobPlanIfTheAgentWasLaunchedByADifferentPluginFromThatConfiguredForTheJob(){
+    public void shouldNotMatchJobPlanIfTheAgentWasLaunchedByADifferentPluginFromThatConfiguredForTheJob() {
         AgentConfig agentConfig = new AgentConfig("uuid");
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
@@ -577,8 +589,8 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotMatchJobPlanIfTheAgentIsElasticAndJobHasResourcesDefined(){
-        AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "11.1.1.1", new Resources(new Resource("r1")));
+    public void shouldNotMatchJobPlanIfTheAgentIsElasticAndJobHasResourcesDefined() {
+        AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "11.1.1.1", new ResourceConfigs(new ResourceConfig("r1")));
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
         agentConfig.setElasticPluginId(elasticPluginId);
@@ -623,7 +635,7 @@ public class AgentInstanceTest {
     }
 
     private AgentConfig agentConfig(String resources) {
-        return new AgentConfig("UUID", "A", "127.0.0.1", new Resources(resources));
+        return new AgentConfig("UUID", "A", "127.0.0.1", new ResourceConfigs(resources));
     }
 
     private AgentRuntimeInfo buildingRuntimeInfo() {

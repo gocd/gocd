@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
@@ -35,8 +34,6 @@ public interface JobPlan extends Serializable {
 
     String getName();
 
-    boolean match(List<Resource> resources);
-
     long getJobId();
 
     JobIdentifier getIdentifier();
@@ -45,7 +42,7 @@ public interface JobPlan extends Serializable {
 
     List<ArtifactPlan> getArtifactPlans();
 
-    List<Resource> getResources();
+    Resources getResources();
 
     String getAgentUuid();
 

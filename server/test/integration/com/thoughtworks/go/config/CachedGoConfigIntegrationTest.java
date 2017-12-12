@@ -412,10 +412,10 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldReloadCachedConfigWhenWriting() throws Exception {
         cachedGoConfig.writeWithLock(updateFirstAgentResources("osx"));
-        assertThat(cachedGoConfig.currentConfig().agents().get(0).getResources().toString(), Matchers.is("osx"));
+        assertThat(cachedGoConfig.currentConfig().agents().get(0).getResourceConfigs().toString(), Matchers.is("osx"));
 
         cachedGoConfig.writeWithLock(updateFirstAgentResources("osx, firefox"));
-        assertThat(cachedGoConfig.currentConfig().agents().get(0).getResources().toString(), Matchers.is("firefox | osx"));
+        assertThat(cachedGoConfig.currentConfig().agents().get(0).getResourceConfigs().toString(), Matchers.is("firefox | osx"));
     }
 
     @Test
@@ -1155,7 +1155,7 @@ public class CachedGoConfigIntegrationTest {
         return new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) {
                 AgentConfig agentConfig = cruiseConfig.agents().get(0);
-                agentConfig.setResources(new Resources(resources));
+                agentConfig.setResourceConfigs(new ResourceConfigs(resources));
                 return cruiseConfig;
             }
         };

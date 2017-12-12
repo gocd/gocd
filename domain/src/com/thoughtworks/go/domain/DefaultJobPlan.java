@@ -69,10 +69,6 @@ public class DefaultJobPlan implements JobPlan {
         return identifier.getBuildName();
     }
 
-    public boolean match(List<Resource> resources) {
-        return resources.containsAll(this.resources);
-    }
-
     public long getJobId() {
         return jobId;
     }
@@ -95,10 +91,9 @@ public class DefaultJobPlan implements JobPlan {
         return generators;
     }
 
-    public List<Resource> getResources() {
+    public Resources getResources() {
         return resources;
     }
-
 
     public void setGenerators(List<ArtifactPropertiesGenerator> generators) {
         this.generators = new ArtifactPropertiesGenerators(generators);

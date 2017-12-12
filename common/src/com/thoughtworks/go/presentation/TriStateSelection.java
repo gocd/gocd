@@ -16,23 +16,11 @@
 
 package com.thoughtworks.go.presentation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.UserRoleMatcher;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
+
+import java.util.*;
 
 /**
  * @understands What values are selected on multiple agents
@@ -70,17 +58,17 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
         return enabled;
     }
 
-    public static List<TriStateSelection> forAgentsResources(Set<Resource> resources, Agents agents) {
-        return convert(resources, agents, new Assigner<Resource, AgentConfig>() {
-            public boolean shouldAssociate(AgentConfig agent, Resource resource) {
-                return agent.getResources().contains(resource);
+    public static List<TriStateSelection> forAgentsResources(Set<ResourceConfig> resourceConfigs, Agents agents) {
+        return convert(resourceConfigs, agents, new Assigner<ResourceConfig, AgentConfig>() {
+            public boolean shouldAssociate(AgentConfig agent, ResourceConfig resourceConfig) {
+                return agent.getResourceConfigs().contains(resourceConfig);
             }
 
-            public String identifier(Resource resource) {
-                return resource.getName();
+            public String identifier(ResourceConfig resourceConfig) {
+                return resourceConfig.getName();
             }
 
-            public boolean shouldEnable(AgentConfig agent, Resource resource) {
+            public boolean shouldEnable(AgentConfig agent, ResourceConfig resourceConfig) {
                 return true;
             }
         });

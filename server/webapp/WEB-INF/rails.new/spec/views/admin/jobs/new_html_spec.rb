@@ -143,7 +143,7 @@ describe "admin/jobs/new.html.erb" do
   end
 
   it "should render job tasks" do
-    assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
+    assign(:job, JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
 
     render
 
@@ -151,7 +151,7 @@ describe "admin/jobs/new.html.erb" do
   end
 
   it "should render job task instructions" do
-    assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
+    assign(:job, JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
 
     render
 

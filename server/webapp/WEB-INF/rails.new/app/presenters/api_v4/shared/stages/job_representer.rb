@@ -118,11 +118,11 @@ module ApiV4
         end
 
         def resources
-          job.resources.collect(&:name)
+          job.resourceConfigs.collect(&:name)
         end
 
         def resources=(values)
-          job.setResources(com.thoughtworks.go.config.Resources.new(values.map { |name| com.thoughtworks.go.config.Resource.new(name) }))
+          job.setResourceConfigs(ResourceConfigs.new(values.map { |name| ResourceConfig.new(name) }))
         end
 
         def tasks

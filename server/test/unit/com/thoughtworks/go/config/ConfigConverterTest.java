@@ -767,7 +767,7 @@ public class ConfigConverterTest {
         assertThat(jobConfig.name().toLower(), is("name"));
         assertThat(jobConfig.hasVariable("key"), is(true));
         assertThat(jobConfig.getTabs().first().getName(), is("tabname"));
-        assertThat(jobConfig.resources(), hasItem(new Resource("resource1")));
+        assertThat(jobConfig.resourceConfigs(), hasItem(new ResourceConfig("resource1")));
         assertThat(jobConfig.artifactConfigs(), hasItem(new ArtifactConfig("src", "dest")));
         assertThat(jobConfig.getProperties(), hasItem(new ArtifactPropertiesGenerator("name", "src", "path")));
         assertThat(jobConfig.isRunOnAllAgents(), is(false));
@@ -785,7 +785,7 @@ public class ConfigConverterTest {
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
         assertThat(jobConfig.getElasticProfileId(), is("myprofile"));
-        assertThat(jobConfig.resources().size(), is(0));
+        assertThat(jobConfig.resourceConfigs().size(), is(0));
     }
 
     @Test

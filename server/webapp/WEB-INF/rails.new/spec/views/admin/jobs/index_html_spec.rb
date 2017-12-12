@@ -23,8 +23,8 @@ describe "admin/jobs/index.html.erb" do
   before(:each) do
     @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-1", "job-2", "job-3"].to_java(java.lang.String))
     job_1 = @pipeline.get(0).getJobs().get(0)
-    job_1.resources().add(Resource.new("resource-1"))
-    job_1.resources().add(Resource.new("resource-2"))
+    job_1.resourceConfigs().add(ResourceConfig.new("resource-1"))
+    job_1.resourceConfigs().add(ResourceConfig.new("resource-2"))
     job_1.setRunOnAllAgents(true)
     job_2 = @pipeline.get(0).getJobs().get(1)
     job_2.setRunInstanceCount(2)

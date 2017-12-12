@@ -66,7 +66,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
-        AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new Resources("java"));
+        AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new ResourceConfigs("java"));
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
         AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, systemEnvironment);
@@ -75,7 +75,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pending(SystemEnvironment systemEnvironment) {
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid4", "CCeDev03", "10.18.5.3", new Resources(new Resource("db"),new Resource("web"))), false,
+        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid4", "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"),new ResourceConfig("web"))), false,
                 "/var/lib", 0L, "linux", false);
         AgentInstance pending = AgentInstance.createFromLiveAgent(runtimeInfo, systemEnvironment);
         pending.pending();
@@ -99,7 +99,7 @@ public class AgentInstanceMother {
 
 
     public static AgentInstance updateResources(AgentInstance agentInstance, String resources) {
-        agentInstance.agentConfig().setResources(new Resources(resources));
+        agentInstance.agentConfig().setResourceConfigs(new ResourceConfigs(resources));
         return agentInstance;
     }
 
@@ -139,7 +139,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateHostname(AgentInstance agentInstance, String hostname) {
         AgentConfig original = agentInstance.agentConfig();
-        agentInstance.syncConfig(new AgentConfig(original.getUuid(), hostname, original.getIpAddress(), original.getResources()));
+        agentInstance.syncConfig(new AgentConfig(original.getUuid(), hostname, original.getIpAddress(), original.getResourceConfigs()));
         return agentInstance;
     }
 
@@ -226,9 +226,9 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance agentWithConfigErrors() {
-        Resource resource1 = new Resource("foo%");
-        Resource resource2 = new Resource("bar$");
-        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new Resources(resource1, resource2));
+        ResourceConfig resourceConfig1 = new ResourceConfig("foo%");
+        ResourceConfig resourceConfig2 = new ResourceConfig("bar$");
+        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
         agentConfig.validateTree(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
         return agentInstance;

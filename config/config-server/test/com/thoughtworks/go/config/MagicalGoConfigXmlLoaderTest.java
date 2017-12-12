@@ -144,7 +144,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         JobConfig plan = stage1.jobConfigByInstanceName("plan1", true);
         assertThat(plan.name(), is(new CaseInsensitiveString("plan1")));
-        assertThat(plan.resources(), is(new Resources("tiger, lion")));
+        assertThat(plan.resourceConfigs(), is(new ResourceConfigs("tiger, lion")));
         assertThat(plan.getTabs().size(), is(2));
         assertThat(plan.getTabs().first().getName(), is("Emma"));
         assertThat(plan.getTabs().first().getPath(), is("logs/emma/index.html"));
@@ -3870,9 +3870,9 @@ public class MagicalGoConfigXmlLoaderTest {
     private StageConfig stageWithJobResource(String resourceName) {
         StageConfig stage = StageConfigMother.custom("stage", "job");
         JobConfigs configs = stage.allBuildPlans();
-        Resource resource = new Resource();
-        resource.setName(resourceName);
-        configs.get(0).resources().add(resource);
+        ResourceConfig resourceConfig = new ResourceConfig();
+        resourceConfig.setName(resourceName);
+        configs.get(0).resourceConfigs().add(resourceConfig);
         return stage;
     }
 }

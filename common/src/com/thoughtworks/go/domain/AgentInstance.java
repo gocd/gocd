@@ -17,8 +17,8 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
@@ -266,8 +266,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentConfig().getAgentIdentifier();
     }
 
-    public Resources getResources() {
-        return agentConfig().getResources();
+    public ResourceConfigs getResourceConfigs() {
+        return agentConfig().getResourceConfigs();
     }
 
     public String getIpAddress() {
@@ -291,7 +291,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
-        return !jobPlan.requiresElasticAgent() && !isElastic() && agentConfig.hasAllResources(jobPlan.getResources());
+        return !jobPlan.requiresElasticAgent() && !isElastic() && agentConfig.hasAllResources(jobPlan.getResources().toResourceConfigs());
     }
 
     public String getBuildLocator() {
@@ -343,8 +343,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
         result.errors = new ConfigErrors();
         result.errors.addAll(agentInConfig.errors());
-        for (Resource resource : agentInConfig.getResources()) {
-            result.errors.addAll(resource.errors());
+        for (ResourceConfig resourceConfig : agentInConfig.getResourceConfigs()) {
+            result.errors.addAll(resourceConfig.errors());
         }
         return result;
     }

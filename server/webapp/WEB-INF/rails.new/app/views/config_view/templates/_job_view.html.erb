@@ -13,7 +13,7 @@
                     <span class="key"><%= l.string("RESOURCES") %></span>
                     <span class="hint"><%= l.string("TOOLTIP_RESOURCES") %></span>
                 </label>
-                <span class="input value"><%= scope[:job].resources().isEmpty() ? l.string("NONE") :scope[:job].resources() %></span>
+                <span class="input value"><%= scope[:job].resourceConfigs().isEmpty() ? l.string("NONE") :scope[:job].resourceConfigs() %></span>
             </li>
             <li class="field job_timeout">
                 <label>

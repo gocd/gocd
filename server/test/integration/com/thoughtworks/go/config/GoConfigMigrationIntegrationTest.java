@@ -1766,10 +1766,10 @@ public class GoConfigMigrationIntegrationTest {
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 100);
         assertNotNull(cruiseConfig.getElasticConfig());
-        assertThat(cruiseConfig.server().getAgentAutoRegisterKey(),is("041b5c7e-dab2-11e5-a908-13f95f3c6ef6"));
-        assertThat(cruiseConfig.server().getWebhookSecret(),is("5f8b5eac-1148-4145-aa01-7b2934b6e1ab"));
-        assertThat(cruiseConfig.server().getCommandRepositoryLocation(),is("default"));
-        assertThat(cruiseConfig.server().artifactsDir(),is("artifactsDir"));
+        assertThat(cruiseConfig.server().getAgentAutoRegisterKey(), is("041b5c7e-dab2-11e5-a908-13f95f3c6ef6"));
+        assertThat(cruiseConfig.server().getWebhookSecret(), is("5f8b5eac-1148-4145-aa01-7b2934b6e1ab"));
+        assertThat(cruiseConfig.server().getCommandRepositoryLocation(), is("default"));
+        assertThat(cruiseConfig.server().artifactsDir(), is("artifactsDir"));
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), hasSize(1));
         assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0), is(
                 new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
@@ -1819,12 +1819,38 @@ public class GoConfigMigrationIntegrationTest {
                 "</cruise>";
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 100);
-        assertThat(cruiseConfig.server().getAgentAutoRegisterKey(),is("041b5c7e-dab2-11e5-a908-13f95f3c6ef6"));
-        assertThat(cruiseConfig.server().getWebhookSecret(),is("5f8b5eac-1148-4145-aa01-7b2934b6e1ab"));
-        assertThat(cruiseConfig.server().getCommandRepositoryLocation(),is("default"));
-        assertThat(cruiseConfig.server().artifactsDir(),is("artifactsDir"));
+        assertThat(cruiseConfig.server().getAgentAutoRegisterKey(), is("041b5c7e-dab2-11e5-a908-13f95f3c6ef6"));
+        assertThat(cruiseConfig.server().getWebhookSecret(), is("5f8b5eac-1148-4145-aa01-7b2934b6e1ab"));
+        assertThat(cruiseConfig.server().getCommandRepositoryLocation(), is("default"));
+        assertThat(cruiseConfig.server().artifactsDir(), is("artifactsDir"));
         assertThat(cruiseConfig.server().security(), is(new SecurityConfig(true)));
         assertThat(cruiseConfig.getSCMs(), hasSize(1));
+    }
+
+    @Test
+    public void shouldSkipParamResoulutionForElasticConfig_asPartOf100To101Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<cruise schemaVersion='100'>" +
+                "<server artifactsdir=\"artifactsDir\" agentAutoRegisterKey=\"041b5c7e-dab2-11e5-a908-13f95f3c6ef6\" webhookSecret=\"5f8b5eac-1148-4145-aa01-7b2934b6e1ab\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">\n" +
+                "<elastic jobStarvationTimeout=\"3\">\n" +
+                "      <profiles>\n" +
+                "        <profile id=\"dev-build\" pluginId=\"cd.go.contrib.elastic-agent.docker-swarm\">\n" +
+                "          <property>\n" +
+                "            <key>Image</key>\n" +
+                "            <value>#bar</value>\n" +
+                "          </property>\n" +
+                "        </profile>\n" +
+                "      </profiles>\n" +
+                "    </elastic>\n" +
+                "  </server>\n" +
+                "</cruise>";
+
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 100);
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0), is(
+                new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
+                        ConfigurationPropertyMother.create("Image", false, "#bar")
+                )
+                )
+        );
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

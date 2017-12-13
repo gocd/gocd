@@ -56,6 +56,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @SkipParameterResolution
     private ServerConfig serverConfig = new ServerConfig();
     @ConfigSubtag
+    @SkipParameterResolution
     private ElasticConfig elasticConfig = new ElasticConfig();
     @ConfigSubtag
     @SkipParameterResolution

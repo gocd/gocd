@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.ui.helper;
 
 import java.util.HashSet;
 
-import com.thoughtworks.go.config.Resource;
+import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.server.ui.AgentViewModel;
@@ -27,7 +27,7 @@ import com.thoughtworks.go.server.ui.AgentsViewModel;
 public class AgentsViewModelMother {
     public static AgentsViewModel getTwoAgents() {
         AgentInstance building = AgentInstanceMother.building();
-        building.getResources().add(new Resource("ruby"));
+        building.getResourceConfigs().add(new ResourceConfig("ruby"));
 
         AgentInstance idle = AgentInstanceMother.idle();
 

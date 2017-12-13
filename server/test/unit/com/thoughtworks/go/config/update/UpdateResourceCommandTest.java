@@ -34,12 +34,12 @@ public class UpdateResourceCommandTest {
 
         command.update(cruiseConfig);
 
-        Resources actualResources = cruiseConfig.agents().getAgentByUuid(uuid).getResources();
-        assertThat(actualResources.size(), is(5));
-        assertThat(actualResources, hasItem(new Resource("foo")));
-        assertThat(actualResources, hasItem(new Resource("bar")));
-        assertThat(actualResources, hasItem(new Resource("zoo")));
-        assertThat(actualResources, hasItem(new Resource("moo")));
-        assertThat(actualResources, hasItem(new Resource("blah")));
+        ResourceConfigs actualResourceConfigs = cruiseConfig.agents().getAgentByUuid(uuid).getResourceConfigs();
+        assertThat(actualResourceConfigs.size(), is(5));
+        assertThat(actualResourceConfigs, hasItem(new ResourceConfig("foo")));
+        assertThat(actualResourceConfigs, hasItem(new ResourceConfig("bar")));
+        assertThat(actualResourceConfigs, hasItem(new ResourceConfig("zoo")));
+        assertThat(actualResourceConfigs, hasItem(new ResourceConfig("moo")));
+        assertThat(actualResourceConfigs, hasItem(new ResourceConfig("blah")));
     }
 }

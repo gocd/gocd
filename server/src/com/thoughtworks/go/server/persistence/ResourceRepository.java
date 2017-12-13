@@ -16,20 +16,18 @@
 package com.thoughtworks.go.server.persistence;
 
 
-import com.thoughtworks.go.config.Resource;
+import com.thoughtworks.go.domain.Resource;
+import com.thoughtworks.go.domain.Resources;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @understands persisting and retrieving resource
  */
 @Service
 public class ResourceRepository extends HibernateDaoSupport {
-
     private static final String GET_RESOURCES_BY_BUILD_ID = "SELECT r FROM Resource r WHERE r.buildId = ? ORDER BY r.id";
 
     @Autowired
@@ -50,7 +48,7 @@ public class ResourceRepository extends HibernateDaoSupport {
         return copyOfResource;
     }
 
-    public List<Resource> findByBuildId(long buildId) {
-        return (List<Resource>) getHibernateTemplate().find(GET_RESOURCES_BY_BUILD_ID, buildId);
+    public Resources findByBuildId(long buildId) {
+        return new Resources(getHibernateTemplate().find(GET_RESOURCES_BY_BUILD_ID, buildId));
     }
 }

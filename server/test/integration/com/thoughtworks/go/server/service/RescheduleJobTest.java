@@ -148,10 +148,10 @@ public class RescheduleJobTest {
     public void shouldRescheduleBuildAlongWithAssociatedEntitiesCorrectly() throws Exception {
         dbHelper.cancelStage(stage);
 
-        Resources resources = new Resources(new Resource("r1"), new Resource("r2"));
+        ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
         ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new ArtifactConfig("s1", "d1"), new ArtifactConfig("s2", "d2")));
         ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators(new ArtifactPropertiesGenerator("n1", "s1", "x1"), new ArtifactPropertiesGenerator("n2", "s2", "x2"));
-        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resources, artifactConfigs, artifactPropertiesGenerators);
+        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs, artifactPropertiesGenerators);
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
 

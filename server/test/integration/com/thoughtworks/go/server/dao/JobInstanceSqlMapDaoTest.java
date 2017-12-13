@@ -712,7 +712,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldSaveJobAgentMetadata() throws Exception {
+    public void shouldSaveJobAgentMetadata() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
@@ -725,7 +725,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldNotThrowUpWhenJobAgentMetadataIsNull() throws Exception {
+    public void shouldNotThrowUpWhenJobAgentMetadataIsNull() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         ElasticProfile elasticProfile = null;
@@ -819,7 +819,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldLoadArtifactsAndResourcesForAssignment() throws Exception {
+    public void shouldLoadArtifactsAndResourcesForAssignment() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(projectOne));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         Resources resources = new Resources("one, two, three");
@@ -836,7 +836,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldLoadJobIdentifierForAssignment() throws Exception {
+    public void shouldLoadJobIdentifierForAssignment() {
         JobInstance jobInstance = scheduled(projectOne);
         jobInstanceDao.save(stageId, jobInstance);
 
@@ -845,7 +845,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldLoadAgentUuidForAssignment() throws Exception {
+    public void shouldLoadAgentUuidForAssignment() {
         JobInstance jobInstance = scheduled(projectOne);
         jobInstance.setAgentUuid("uuid1");
         jobInstanceDao.save(stageId, jobInstance);
@@ -855,7 +855,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldLoadRunOnAllAgentsForAssignment() throws Exception {
+    public void shouldLoadRunOnAllAgentsForAssignment() {
         JobInstance jobInstance = scheduled(projectOne);
         jobInstance.setRunOnAllAgents(true);
         jobInstanceDao.save(stageId, jobInstance);
@@ -900,7 +900,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldGetLatestInProgressBuildByAgentUuid() throws Exception {
+    public void shouldGetLatestInProgressBuildByAgentUuid() {
         JobInstance buildingJob = building(projectOne, new Date(1));
         final String uuid = "uuid";
         buildingJob.setAgentUuid(uuid);
@@ -944,7 +944,7 @@ public class JobInstanceSqlMapDaoTest {
 
 
     @Test
-    public void shouldIgnore() throws Exception {
+    public void shouldIgnore() {
         JobInstance instance = scheduled(projectOne);
         jobInstanceDao.save(stageId, instance);
         jobInstanceDao.ignore(instance);
@@ -954,7 +954,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldKnowIfBuildIdentifierIsValid() throws Exception {
+    public void shouldKnowIfBuildIdentifierIsValid() {
         assertThat(jobInstanceDao.isValid(PIPELINE_NAME, STAGE_NAME, JOB_NAME), is(true));
         assertThat(jobInstanceDao.isValid("unknown", STAGE_NAME, JOB_NAME), is(false));
     }

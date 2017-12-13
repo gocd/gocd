@@ -38,7 +38,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithJobNameAndEmptyResources() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new Resources(new Resource("Linux"), new Resource()), new ArtifactConfigs());
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig()), new ArtifactConfigs());
     }
 
     public static JobConfig jobConfig() {
@@ -56,7 +56,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new Resources(new Resource("Linux"), new Resource("Java")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig("src", "dest"))));
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactConfigs(Arrays.asList(new ArtifactConfig("src", "dest"))));
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {
@@ -69,7 +69,7 @@ public class JobConfigMother {
         JobConfig jobConfig = jobConfig();
         jobConfig.setName(UUID.randomUUID().toString());
         jobConfig.setRunInstanceCount((String)null);
-        jobConfig.resources().clear();
+        jobConfig.resourceConfigs().clear();
         return jobConfig;
     }
 }

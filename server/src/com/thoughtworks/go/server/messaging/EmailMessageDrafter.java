@@ -128,7 +128,7 @@ public class EmailMessageDrafter {
                         agentInstance.getLocation(),
                         agentInstance.getIpAddress(),
                         agentInstance.getOperatingSystem(),
-                        agentInstance.getResources(),
+                        agentInstance.getResourceConfigs(),
                         StringUtil.joinForDisplay(environments),
                         agentInstance.getLastHeardTime()), adminEmail);
     }

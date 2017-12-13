@@ -82,7 +82,7 @@ public abstract class GoConfigDaoTestBase {
         final AgentConfig approvedAgentConfig = agents.getAgentByUuid("3");
         assertThat(approvedAgentConfig.getHostname(), is("test3.com"));
         assertThat(approvedAgentConfig.getIpAddress(), is("192.168.0.3"));
-        assertThat(approvedAgentConfig.getResources().toString(), is("jdk1.4"));
+        assertThat(approvedAgentConfig.getResourceConfigs().toString(), is("jdk1.4"));
 
         final AgentConfig deniedAgentConfig = agents.getAgentByUuid("2");
         assertThat(deniedAgentConfig.isDisabled(), is(true));

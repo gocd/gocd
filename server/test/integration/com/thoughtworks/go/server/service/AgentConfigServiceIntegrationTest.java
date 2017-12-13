@@ -81,18 +81,18 @@ public class AgentConfigServiceIntegrationTest {
 
     @Test
     public void shouldAddAgentToConfigFile() throws Exception {
-        Resources resources = new Resources("java");
-        AgentConfig approvedAgentConfig = new AgentConfig(UUID.randomUUID().toString(), "test1", "192.168.0.1", resources);
-        AgentConfig deniedAgentConfig = new AgentConfig(UUID.randomUUID().toString(), "test2", "192.168.0.2", resources);
+        ResourceConfigs resourceConfigs = new ResourceConfigs("java");
+        AgentConfig approvedAgentConfig = new AgentConfig(UUID.randomUUID().toString(), "test1", "192.168.0.1", resourceConfigs);
+        AgentConfig deniedAgentConfig = new AgentConfig(UUID.randomUUID().toString(), "test2", "192.168.0.2", resourceConfigs);
         deniedAgentConfig.disable();
         agentConfigService.addAgent(approvedAgentConfig, Username.ANONYMOUS);
         agentConfigService.addAgent(deniedAgentConfig, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().contains(approvedAgentConfig), is(true));
-        assertThat(cruiseConfig.agents().getAgentByUuid(approvedAgentConfig.getUuid()).getResources(), is(resources));
+        assertThat(cruiseConfig.agents().getAgentByUuid(approvedAgentConfig.getUuid()).getResourceConfigs(), is(resourceConfigs));
         assertThat(cruiseConfig.agents().contains(deniedAgentConfig), is(true));
         assertThat(cruiseConfig.agents().getAgentByUuid(deniedAgentConfig.getUuid()).isDisabled(), is(Boolean.TRUE));
-        assertThat(cruiseConfig.agents().getAgentByUuid(deniedAgentConfig.getUuid()).getResources(), is(resources));
+        assertThat(cruiseConfig.agents().getAgentByUuid(deniedAgentConfig.getUuid()).getResourceConfigs(), is(resourceConfigs));
     }
 
     @Test
@@ -157,17 +157,17 @@ public class AgentConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateAgentResourcesToConfigFile() throws Exception {
-        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java"));
+        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new ResourceConfigs("java"));
         agentConfigService.addAgent(agentConfig, Username.ANONYMOUS);
-        Resources newResources = new Resources("firefox");
-        agentConfigService.updateAgentResources(agentConfig.getUuid(), newResources);
+        ResourceConfigs newResourceConfigs = new ResourceConfigs("firefox");
+        agentConfigService.updateAgentResources(agentConfig.getUuid(), newResourceConfigs);
         CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).getResources(), is(newResources));
+        assertThat(cruiseConfig.agents().get(0).getResourceConfigs(), is(newResourceConfigs));
     }
 
     @Test
     public void shouldUpdateAgentApprovalStatusByUuidToConfigFile() throws Exception {
-        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java"));
+        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new ResourceConfigs("java"));
         agentConfigService.addAgent(agentConfig, Username.ANONYMOUS);
         agentConfigService.updateAgentApprovalStatus(agentConfig.getUuid(), Boolean.TRUE, Username.ANONYMOUS);
 
@@ -177,14 +177,14 @@ public class AgentConfigServiceIntegrationTest {
 
     @Test
     public void shouldRemoveAgentResourcesInConfigFile() throws Exception {
-        AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), "test", "127.0.0.1", new Resources("java, resource1, resource2"));
+        AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), "test", "127.0.0.1", new ResourceConfigs("java, resource1, resource2"));
         agentConfigService.addAgent(agentConfig, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().hasAgent(agentConfig.getUuid()), is(true));
-        agentConfigService.updateAgentResources(agentConfig.getUuid(), new Resources("java"));
+        agentConfigService.updateAgentResources(agentConfig.getUuid(), new ResourceConfigs("java"));
         cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).getResources().size(), is(1));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).getResources().first(), is(new Resource("java")));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).getResourceConfigs().size(), is(1));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).getResourceConfigs().first(), is(new ResourceConfig("java")));
     }
 
     @Test
@@ -429,7 +429,7 @@ public class AgentConfigServiceIntegrationTest {
         List<String> uuids = Arrays.asList(elasticAgent.getUuid());
         List<String> resourcesToAdd = Arrays.asList("resource");
 
-        assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResources().isEmpty());
+        assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResourceConfigs().isEmpty());
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resourcesToAdd, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), TriState.FALSE);
         cruiseConfig = goConfigDao.load();
 
@@ -437,7 +437,7 @@ public class AgentConfigServiceIntegrationTest {
         expectedResult.badRequest(LocalizedMessage.string("CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT", uuids));
 
         assertThat(result, is(expectedResult));
-        assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResources().isEmpty());
+        assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResourceConfigs().isEmpty());
     }
 
     @Test
@@ -488,8 +488,8 @@ public class AgentConfigServiceIntegrationTest {
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
 
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources().size(), is(0));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResources().size(), is(0));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs().size(), is(0));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResourceConfigs().size(), is(0));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ArrayList<String> uuids = new ArrayList<>();
@@ -506,8 +506,8 @@ public class AgentConfigServiceIntegrationTest {
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("BULK_AGENT_UPDATE_SUCESSFUL"));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources().size(), is(2));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources(), containsInAnyOrder(new Resource("resource1"), new Resource("resource2")));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs().size(), is(2));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs(), containsInAnyOrder(new ResourceConfig("resource1"), new ResourceConfig("resource2")));
     }
 
     @Test
@@ -520,16 +520,16 @@ public class AgentConfigServiceIntegrationTest {
         agentInstances.add(agentInstance1);
         agentInstances.add(agentInstance2);
 
-        agentConfig1.addResource(new Resource("resource-1"));
-        agentConfig1.addResource(new Resource("resource-2"));
-        agentConfig2.addResource(new Resource("resource-2"));
+        agentConfig1.addResourceConfig(new ResourceConfig("resource-1"));
+        agentConfig1.addResourceConfig(new ResourceConfig("resource-2"));
+        agentConfig2.addResourceConfig(new ResourceConfig("resource-2"));
 
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
 
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources().size(), is(2));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResources().size(), is(1));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs().size(), is(2));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResourceConfigs().size(), is(1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ArrayList<String> uuids = new ArrayList<>();
@@ -545,9 +545,9 @@ public class AgentConfigServiceIntegrationTest {
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("BULK_AGENT_UPDATE_SUCESSFUL"));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources().size(), is(1));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources(), contains(new Resource("resource-1")));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResources().size(), is(0));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs().size(), is(1));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs(), contains(new ResourceConfig("resource-1")));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResourceConfigs().size(), is(0));
     }
 
     @Test
@@ -704,8 +704,8 @@ public class AgentConfigServiceIntegrationTest {
         assertThat(environment.getAgents().getUuids(), not(containsInAnyOrder(agentConfig1.getUuid(), agentConfig2.getUuid())));
         assertFalse(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
         assertFalse(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources().size(), is(0));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResources().size(), is(0));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs().size(), is(0));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResourceConfigs().size(), is(0));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ArrayList<String> uuids = new ArrayList<>();
@@ -723,8 +723,8 @@ public class AgentConfigServiceIntegrationTest {
         assertThat(result.toString(), containsString("BULK_AGENT_UPDATE_SUCESSFUL"));
         assertTrue(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
         assertTrue(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).isDisabled());
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResources(), contains(new Resource("resource1")));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResources(), contains(new Resource("resource1")));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).getResourceConfigs(), contains(new ResourceConfig("resource1")));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).getResourceConfigs(), contains(new ResourceConfig("resource1")));
         assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("Dev")).getAgents().getUuids(), containsInAnyOrder(agentConfig1.getUuid(), agentConfig2.getUuid()));
     }
 }

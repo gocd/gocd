@@ -17,11 +17,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -35,8 +31,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
@@ -106,11 +100,11 @@ public class ResourceRepositoryIntegrationTest {
         resourceRepository.save(savedResource);
 
         // Act
-        List<Resource> resourceList = resourceRepository.findByBuildId(jobInstance.getId());
+        Resources resources = resourceRepository.findByBuildId(jobInstance.getId());
 
         // Assert
-        assertThat(resourceList.size(), is(1));
-        assertThat(resourceList.get(0), is(savedResource));
+        assertThat(resources.size(), is(1));
+        assertThat(resources.get(0), is(savedResource));
     }
 
     @Test
@@ -126,12 +120,12 @@ public class ResourceRepositoryIntegrationTest {
         Resource resourceOfSecondJob = resourceRepository.saveCopyOf(secondJobInstance.getId(), resource);
 
         // Assert
-        List<Resource> firstJobResources = resourceRepository.findByBuildId(firstJobInstance.getId());
+        Resources firstJobResources = resourceRepository.findByBuildId(firstJobInstance.getId());
         assertThat(firstJobResources.size(), is(1));
         assertThat(firstJobResources.get(0).getId(), equalTo(resourceOfFirstJob.getId()));
         assertThat(firstJobResources, hasItem(resourceOfFirstJob));
 
-        List<Resource> secondJobResources = resourceRepository.findByBuildId(secondJobInstance.getId());
+        Resources secondJobResources = resourceRepository.findByBuildId(secondJobInstance.getId());
         assertThat(secondJobResources.size(), is(1));
         assertThat(secondJobResources, hasItem(resourceOfSecondJob));
 

@@ -518,7 +518,7 @@ public class PipelineConfigValidationTest {
         jobConfig.addTask(new ExecTask("command", "", "workingDir"));
         jobConfig.artifactConfigs().add(new ArtifactConfig("src", "dest"));
         jobConfig.addVariable("env1", "val1");
-        jobConfig.addResource("powerful");
+        jobConfig.addResourceConfig("powerful");
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
     }

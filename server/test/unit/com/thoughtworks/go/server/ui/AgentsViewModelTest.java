@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.ui;
 
 
-import com.thoughtworks.go.config.Resource;
+import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import org.junit.Test;
@@ -168,11 +168,11 @@ public class AgentsViewModelTest {
         AgentsViewModel agents = new AgentsViewModel();
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "CCeDev01");
         AgentInstanceMother.updateOS(idle, "macos");
-        idle.getResources().add(new Resource("foo"));
-        idle.getResources().add(new Resource("bar"));
+        idle.getResourceConfigs().add(new ResourceConfig("foo"));
+        idle.getResourceConfigs().add(new ResourceConfig("bar"));
         agents.add(new AgentViewModel(idle, "uat"));
         AgentInstance building = AgentInstanceMother.building();
-        building.getResources().add(new Resource("goofooboo"));
+        building.getResourceConfigs().add(new ResourceConfig("goofooboo"));
         agents.add(new AgentViewModel(building, "dev", "uat"));
         agents.add(new AgentViewModel(AgentInstanceMother.pending()));
         agents.add(new AgentViewModel(AgentInstanceMother.disabled(), "prod"));

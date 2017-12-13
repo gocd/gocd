@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.domain.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;

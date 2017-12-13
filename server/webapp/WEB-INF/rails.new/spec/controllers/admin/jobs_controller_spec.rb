@@ -22,7 +22,7 @@ describe Admin::JobsController do
   include TaskMother
 
   def add_resource(job_name, resource)
-    @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResource(resource)
+    @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResourceConfig(resource)
   end
 
   before :each do
@@ -131,7 +131,7 @@ describe Admin::JobsController do
         expect(assigns[:task_view_models]).to eq(tvms)
 
         actual_job_assigned = assigns[:job]
-        job_config_new = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+        job_config_new = JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
         expect(actual_job_assigned).to eq(job_config_new)
         expect(actual_job_assigned.tasks().first).to eq(AntTask.new)
         assert_template layout: false
@@ -296,7 +296,7 @@ describe Admin::JobsController do
 
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines"
 
-        expect(assigns[:job].resources().exportToCsv()).to eq("a, b, c, d, ")
+        expect(assigns[:job].resourceConfigs().exportToCsv()).to eq("a, b, c, d, ")
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
 

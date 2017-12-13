@@ -16,21 +16,16 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.WaitingJobPlan;
-import com.thoughtworks.go.domain.XmlRepresentable;
-import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.StringUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
+
+import java.io.IOException;
+import java.util.List;
 
 public class JobPlanXmlViewModel implements XmlRepresentable {
     private final List<WaitingJobPlan> jobPlans;

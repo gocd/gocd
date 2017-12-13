@@ -93,8 +93,8 @@ module JavaImports
   java_import com.thoughtworks.go.domain.PipelineIdentifier unless defined? PipelineIdentifier
   java_import com.thoughtworks.go.domain.PipelinePauseInfo unless defined? PipelinePauseInfo
   java_import com.thoughtworks.go.domain.PipelineTimelineEntry unless defined? PipelineTimelineEntry
-  java_import com.thoughtworks.go.config.Resources unless defined? Resources
-  java_import com.thoughtworks.go.config.Resource unless defined? Resource
+  java_import com.thoughtworks.go.config.ResourceConfigs unless defined? ResourceConfigs
+  java_import com.thoughtworks.go.config.ResourceConfig unless defined? ResourceConfig
   java_import com.thoughtworks.go.config.SecurityConfig unless defined? SecurityConfig
   java_import com.thoughtworks.go.config.ServerConfig unless defined? ServerConfig
   java_import com.thoughtworks.go.config.StageConfig unless defined? StageConfig

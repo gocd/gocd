@@ -19,7 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.Resource;
+import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
@@ -189,10 +189,10 @@ public class AgentsEntityConfigUpdateCommandTest {
 
         AgentInstance agentInstance = AgentInstanceMother.disabled();
         AgentConfig agentConfig = agentInstance.agentConfig();
-        agentConfig.addResource(new Resource("linux"));
+        agentConfig.addResourceConfig(new ResourceConfig("linux"));
 
         cruiseConfig.agents().add(agentConfig);
-        assertThat(agentConfig.getResources().resourceNames(), is(Arrays.asList("linux")));
+        assertThat(agentConfig.getResourceConfigs().resourceNames(), is(Arrays.asList("linux")));
 
         when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
 
@@ -201,7 +201,7 @@ public class AgentsEntityConfigUpdateCommandTest {
                 environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
         command.update(cruiseConfig);
 
-        assertThat(agentConfig.getResources().resourceNames(), is(Arrays.asList("firefox")));
+        assertThat(agentConfig.getResourceConfigs().resourceNames(), is(Arrays.asList("firefox")));
 
     }
 

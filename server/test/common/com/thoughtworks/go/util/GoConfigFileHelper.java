@@ -479,7 +479,7 @@ public class GoConfigFileHelper {
     }
 
     public StageConfig addJob(String pipelineName, String stageName, String jobName) {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName), new Resources(), new ArtifactConfigs());
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs(), new ArtifactConfigs());
         return addJobToStage(pipelineName, stageName, jobConfig);
     }
 
@@ -534,7 +534,7 @@ public class GoConfigFileHelper {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new Resources(), new ArtifactConfigs());
+        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactConfigs());
     }
 
 
@@ -856,16 +856,16 @@ public class GoConfigFileHelper {
         CruiseConfig config = loadForEdit();
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         for (String resource : resources) {
-            pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName)).addResource(resource);
+            pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName)).addResourceConfig(resource);
         }
         writeConfigFile(config);
     }
 
-    public void addAssociatedEntitiesForAJob(String pipelineName, String stageName, String jobName, Resources resources,
+    public void addAssociatedEntitiesForAJob(String pipelineName, String stageName, String jobName, ResourceConfigs resourceConfigs,
                                              ArtifactConfigs artifactConfigs, ArtifactPropertiesGenerators artifactPropertiesGenerators) {
         CruiseConfig config = loadForEdit();
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
-        ReflectionUtil.setField(jobConfig, "resources", resources);
+        ReflectionUtil.setField(jobConfig, "resourceConfigs", resourceConfigs);
         ReflectionUtil.setField(jobConfig, "artifactConfigs", artifactConfigs);
         ReflectionUtil.setField(jobConfig, "artifactPropertiesGenerators", artifactPropertiesGenerators);
         writeConfigFile(config);

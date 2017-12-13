@@ -20,7 +20,6 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.GoCache;

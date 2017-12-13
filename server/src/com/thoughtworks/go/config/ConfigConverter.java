@@ -451,10 +451,10 @@ public class ConfigConverter {
                 tabs.add(toTab(crTab));
             }
 
-        Resources resources = jobConfig.resources();
+        ResourceConfigs resourceConfigs = jobConfig.resourceConfigs();
         if (crJob.getResources() != null)
             for (String crResource : crJob.getResources()) {
-                resources.add(new Resource(crResource));
+                resourceConfigs.add(new ResourceConfig(crResource));
             }
 
         if (crJob.getElasticProfileId() != null)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,47 +16,47 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 @ConfigTag("resources")
-@ConfigCollection(Resource.class)
-public class Resources extends BaseCollection<Resource> implements Comparable<Resources>, Validatable {
+@ConfigCollection(ResourceConfig.class)
+public class ResourceConfigs extends BaseCollection<ResourceConfig> implements Comparable<ResourceConfigs>, Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public Resources() {
+    public ResourceConfigs() {
     }
 
-    public Resources(Resource... resources) {
-        super(resources);
+    public ResourceConfigs(ResourceConfig... resourceConfigs) {
+        super(resourceConfigs);
     }
 
-    public Resources(String resources) {
+    public ResourceConfigs(String resources) {
         String[] resourceArray = resources.split(",");
         for (String resource : resourceArray) {
             try {
-                add(new Resource(resource));
+                add(new ResourceConfig(resource));
             } catch (Exception e) {
                 continue;
             }
         }
     }
 
-    public Resources(List<Resource> resources) {
-        super(resources);
+    public ResourceConfigs(List<ResourceConfig> resourceConfigs) {
+        super(resourceConfigs);
     }
 
-    public boolean add(Resource resource) {
-        if (!this.contains(resource) && !StringUtils.isBlank(resource.getName())) {
-            super.add(resource);
+    public boolean add(ResourceConfig resourceConfig) {
+        if (!this.contains(resourceConfig) && !StringUtils.isBlank(resourceConfig.getName())) {
+            super.add(resourceConfig);
             return true;
         }
         return false;
@@ -64,8 +64,8 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
 
     public List<String> resourceNames() {
         Set<String> names = new TreeSet<>();
-        for (Resource resource : this) {
-            names.add(resource.getName());
+        for (ResourceConfig resourceConfig : this) {
+            names.add(resourceConfig.getName());
         }
         return new ArrayList<>(names);
     }
@@ -74,17 +74,18 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
         return StringUtil.joinForDisplay(resourceNames());
     }
 
-    public int compareTo(Resources other) {
-        return new AlphaAsciiCollectionComparator<Resource>().compare(this, other);
+    public int compareTo(ResourceConfigs other) {
+        return new AlphaAsciiCollectionComparator<ResourceConfig>().compare(this, other);
     }
 
     public boolean validateTree(ValidationContext validationContext) {
         boolean isValid = errors().isEmpty();
-        for (Resource resource : this) {
-            isValid = resource.validateTree(validationContext) && isValid;
+        for (ResourceConfig resourceConfig : this) {
+            isValid = resourceConfig.validateTree(validationContext) && isValid;
         }
         return isValid;
     }
+
     public void validate(ValidationContext validationContext) {
     }
 
@@ -113,8 +114,7 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
         clear();
         String[] resourceNames = csv.split(",");
         for (String resourceName : resourceNames) {
-            add(new Resource(resourceName.trim()));
+            add(new ResourceConfig(resourceName.trim()));
         }
     }
-
 }

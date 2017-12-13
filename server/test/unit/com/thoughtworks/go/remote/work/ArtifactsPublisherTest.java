@@ -18,11 +18,7 @@ package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.StubGoPublisher;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;

@@ -246,7 +246,7 @@ public class JobInstanceServiceIntegrationTest {
         StageConfig stageConfig = StageConfigMother.custom("dev", "build");
         JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
         jobConfig.setRunOnAllAgents(true);
-        jobConfig.addResource("non-existent");
+        jobConfig.addResourceConfig("non-existent");
         String uuid1 = UUID.randomUUID().toString();
         String uuid2 = UUID.randomUUID().toString();
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(new AgentConfig(uuid1), new AgentConfig(uuid2)));
@@ -481,7 +481,7 @@ public class JobInstanceServiceIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         jobConfig.setRunInstanceCount(2);
-        jobConfig.addResource("blah");
+        jobConfig.addResourceConfig("blah");
         jobConfig.getProperties().add(new ArtifactPropertiesGenerator("prop1", "props.xml", "//somepath"));
         jobConfig.artifactConfigs().add(new ArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
@@ -518,7 +518,7 @@ public class JobInstanceServiceIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         jobConfig.setRunOnAllAgents(true);
-        jobConfig.addResource("blah");
+        jobConfig.addResourceConfig("blah");
         jobConfig.getProperties().add(new ArtifactPropertiesGenerator("prop1", "props.xml", "//somepath"));
         jobConfig.artifactConfigs().add(new ArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");

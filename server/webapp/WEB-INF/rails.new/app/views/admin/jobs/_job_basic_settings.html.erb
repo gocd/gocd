@@ -10,9 +10,9 @@
         <div class="form_item_block">
             <%= scope[:form].label com.thoughtworks.go.config.JobConfig::RESOURCES, l.string("RESOURCES") %>
 
-                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RESOURCES, :class => "resources_auto_complete", :value => scope[:job].resources().exportToCsv() %>
+                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RESOURCES, :class => "resources_auto_complete", :value => scope[:job].resourceConfigs().exportToCsv() %>
                 <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RESOURCES") -%>"></div>
-                <%- scope[:job].resources().each do |resource| -%>
+                <%- scope[:job].resourceConfigs().each do |resource| -%>
                     <%= error_message_on(resource, com.thoughtworks.go.config.JobConfig::RESOURCES, :css_class => "form_error") -%>
                 <%- end -%>
 

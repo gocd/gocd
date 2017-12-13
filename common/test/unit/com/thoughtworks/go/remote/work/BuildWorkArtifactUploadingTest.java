@@ -19,7 +19,6 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;

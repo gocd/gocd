@@ -683,13 +683,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         updateConfig(command);
     }
 
-    public Set<Resource> getAllResources() {
+    public Set<ResourceConfig> getAllResources() {
         return getCurrentConfig().getAllResources();
     }
 
     public List<String> getResourceList() {
         ArrayList<String> resources = new ArrayList<>();
-        for (Resource res : getCurrentConfig().getAllResources()) {
+        for (ResourceConfig res : getCurrentConfig().getAllResources()) {
             resources.add(res.getName());
         }
         return resources;

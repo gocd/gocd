@@ -35,7 +35,7 @@ public class UpdateResourceCommand implements UpdateConfigCommand {
 
     public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
         AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
-        agentConfig.getResources().importFromCsv(resources);
+        agentConfig.getResourceConfigs().importFromCsv(resources);
         return cruiseConfig;
     }
 }

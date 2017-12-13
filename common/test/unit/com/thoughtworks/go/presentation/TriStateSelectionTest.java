@@ -23,8 +23,8 @@ import java.util.Set;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
@@ -34,21 +34,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TriStateSelectionTest {
-    private Set<Resource> resources;
+    private Set<ResourceConfig> resourceConfigs;
     private Agents agents;
 
     @Before
     public void before() {
-        resources = new HashSet<>();
-        resources.add(new Resource("one"));
-        resources.add(new Resource("two"));
+        resourceConfigs = new HashSet<>();
+        resourceConfigs.add(new ResourceConfig("one"));
+        resourceConfigs.add(new ResourceConfig("two"));
 
         agents = new Agents();
     }
 
     @Test
     public void shouldHaveActionRemoveIfThereAreNoAgents() {
-        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resources, agents);
+        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("one", TriStateSelection.Action.remove)));
         assertThat(selections, hasItem(new TriStateSelection("two", TriStateSelection.Action.remove)));
         assertThat(selections.size(), is(2));
@@ -56,41 +56,41 @@ public class TriStateSelectionTest {
 
     @Test
     public void shouldHaveActionAddIfAllAgentsHaveThatResource() {
-        resources.add(new Resource("all"));
-        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new Resources("all")));
-        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new Resources("all")));
+        resourceConfigs.add(new ResourceConfig("all"));
+        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new ResourceConfigs("all")));
+        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new ResourceConfigs("all")));
 
-        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resources, agents);
+        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("all", TriStateSelection.Action.add)));
     }
 
     @Test
     public void shouldBeNoChangeIfAllAgentsHaveThatResource() {
-        resources.add(new Resource("some"));
-        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new Resources("some")));
-        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new Resources()));
+        resourceConfigs.add(new ResourceConfig("some"));
+        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new ResourceConfigs("some")));
+        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new ResourceConfigs()));
 
-        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resources, agents);
+        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("some", TriStateSelection.Action.nochange)));
     }
 
     @Test
     public void shouldHaveActionRemoveIfNoAgentsHaveResource() {
-        resources.add(new Resource("none"));
-        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new Resources("one")));
-        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new Resources("two")));
+        resourceConfigs.add(new ResourceConfig("none"));
+        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new ResourceConfigs("one")));
+        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new ResourceConfigs("two")));
 
-        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resources, agents);
+        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("none", TriStateSelection.Action.remove)));
     }
 
     @Test
     public void shouldListResourceSelectionInAlhpaOrder() {
-        HashSet<Resource> resources = new HashSet<>();
-        resources.add(new Resource("B02"));
-        resources.add(new Resource("b01"));
-        resources.add(new Resource("a01"));
-        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resources, agents);
+        HashSet<ResourceConfig> resourceConfigs = new HashSet<>();
+        resourceConfigs.add(new ResourceConfig("B02"));
+        resourceConfigs.add(new ResourceConfig("b01"));
+        resourceConfigs.add(new ResourceConfig("a01"));
+        List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
 
         assertThat(selections.get(0), Matchers.is(new TriStateSelection("a01", TriStateSelection.Action.remove)));
         assertThat(selections.get(1), Matchers.is(new TriStateSelection("b01", TriStateSelection.Action.remove)));

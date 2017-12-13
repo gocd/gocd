@@ -104,7 +104,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener = Mockito.mock(JobStatusListener.class);
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-				null, pluginManager, serverHealthService, listener);
+                null, pluginManager, serverHealthService, listener);
         jobService.updateStateAndResult(job);
 
         verify(jobInstanceDao).updateStateAndResult(job);
@@ -290,64 +290,64 @@ public class JobInstanceServiceTest {
         assertThat(scheduledJob.isFailed(), is(true));
     }
 
-	@Test
-	public void shouldDelegateToDAO_getJobHistoryCount() {
-		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
-				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService);
+    @Test
+    public void shouldDelegateToDAO_getJobHistoryCount() {
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService);
 
-		jobService.getJobHistoryCount("pipeline", "stage", "job");
+        jobService.getJobHistoryCount("pipeline", "stage", "job");
 
-		verify(jobInstanceDao).getJobHistoryCount("pipeline", "stage", "job");
-	}
+        verify(jobInstanceDao).getJobHistoryCount("pipeline", "stage", "job");
+    }
 
-	@Test
-	public void shouldDelegateToDAO_findJobHistoryPage() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
+    @Test
+    public void shouldDelegateToDAO_findJobHistoryPage() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
-		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
-				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager, serverHealthService);
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager, serverHealthService);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", new HttpOperationResult());
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", new HttpOperationResult());
 
-		verify(jobInstanceDao).findJobHistoryPage("pipeline", "stage", "job", pagination.getPageSize(), pagination.getOffset());
-	}
+        verify(jobInstanceDao).findJobHistoryPage("pipeline", "stage", "job", pagination.getPageSize(), pagination.getOffset());
+    }
 
-	@Test
-	public void shouldPopulateErrorWhenPipelineNotFound_findJobHistoryPage() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
+    @Test
+    public void shouldPopulateErrorWhenPipelineNotFound_findJobHistoryPage() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
-		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
-				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager, serverHealthService);
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager, serverHealthService);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		HttpOperationResult result = new HttpOperationResult();
-		JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        HttpOperationResult result = new HttpOperationResult();
+        JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
 
-		assertThat(jobHistoryPage, is(nullValue()));
-		assertThat(result.httpCode(), is(404));
-	}
+        assertThat(jobHistoryPage, is(nullValue()));
+        assertThat(result.httpCode(), is(404));
+    }
 
-	@Test
-	public void shouldPopulateErrorWhenUnauthorized_findJobHistoryPage() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
+    @Test
+    public void shouldPopulateErrorWhenUnauthorized_findJobHistoryPage() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
-		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
-				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager, serverHealthService);
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager, serverHealthService);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		HttpOperationResult result = new HttpOperationResult();
-		JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        HttpOperationResult result = new HttpOperationResult();
+        JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
 
-		assertThat(jobHistoryPage, is(nullValue()));
-		assertThat(result.canContinue(), is(false));
-	}
+        assertThat(jobHistoryPage, is(nullValue()));
+        assertThat(result.canContinue(), is(false));
+    }
 
     @Test
     public void shouldLoadOriginalJobPlan() {
@@ -366,7 +366,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldRegisterANewListener() throws SQLException {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-				null, pluginManager, serverHealthService);
+                null, pluginManager, serverHealthService);
         JobStatusListener listener = mock(JobStatusListener.class);
         jobService.registerJobStateChangeListener(listener);
         jobService.updateStateAndResult(job);
@@ -378,7 +378,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldGetCompletedJobsOnAgentOnTheGivenPage() {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-				null, pluginManager, serverHealthService);
+                null, pluginManager, serverHealthService);
         ArrayList<JobInstance> expected = new ArrayList<>();
         when(jobInstanceDao.totalCompletedJobsOnAgent("uuid")).thenReturn(500);
         when(jobInstanceDao.completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 50, 50)).thenReturn(expected);
@@ -391,7 +391,7 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldRemoveJobRelatedServerHealthMessagesOnConfigChange(){
+    public void shouldRemoveJobRelatedServerHealthMessagesOnConfigChange() {
         ServerHealthService serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
@@ -403,7 +403,7 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldRemoveJobRelatedServerHealthMessagesOnPipelineConfigChange(){
+    public void shouldRemoveJobRelatedServerHealthMessagesOnPipelineConfigChange() {
         ServerHealthService serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));

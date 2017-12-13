@@ -1157,17 +1157,17 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Set<Resource> getAllResources() {
-        final HashSet<Resource> resources = new HashSet<>();
+    public Set<ResourceConfig> getAllResources() {
+        final HashSet<ResourceConfig> resourceConfigs = new HashSet<>();
         accept(new JobConfigVisitor() {
             public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
-                resources.addAll(jobConfig.resources());
+                resourceConfigs.addAll(jobConfig.resourceConfigs());
             }
         });
         for (AgentConfig agent : agents) {
-            resources.addAll(agent.getResources());
+            resourceConfigs.addAll(agent.getResourceConfigs());
         }
-        return resources;
+        return resourceConfigs;
     }
 
     @Override

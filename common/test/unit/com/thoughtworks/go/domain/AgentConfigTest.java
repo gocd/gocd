@@ -76,11 +76,11 @@ public class AgentConfigTest {
 
     @Test
     public void shouldValidateTree() {
-        Resource resource = new Resource("junk%");
-        AgentConfig agentConfig = new AgentConfig("uuid", "junk", "junk", new Resources(resource));
+        ResourceConfig resourceConfig = new ResourceConfig("junk%");
+        AgentConfig agentConfig = new AgentConfig("uuid", "junk", "junk", new ResourceConfigs(resourceConfig));
         boolean isValid = agentConfig.validateTree(ConfigSaveValidationContext.forChain(agentConfig));
         assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is("'junk' is an invalid IP address."));
-        assertThat(resource.errors().on(JobConfig.RESOURCES), contains("Resource name 'junk%' is not valid."));
+        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES), contains("Resource name 'junk%' is not valid."));
         assertThat(isValid, is(false));
     }
 
@@ -108,7 +108,7 @@ public class AgentConfigTest {
         AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "10.10.10.10");
         cruiseConfig.agents().add(agentConfig);
 
-        agentConfig.addResource(new Resource("foo"));
+        agentConfig.addResourceConfig(new ResourceConfig("foo"));
         assertThat(cruiseConfig.validateAfterPreprocess().isEmpty(), is(true));
     }
 
@@ -120,7 +120,7 @@ public class AgentConfigTest {
 
         agentConfig.setElasticPluginId("com.example.foo");
         agentConfig.setElasticAgentId("foobar");
-        agentConfig.addResource(new Resource("foo"));
+        agentConfig.addResourceConfig(new ResourceConfig("foo"));
         assertThat(cruiseConfig.validateAfterPreprocess().isEmpty(), is(false));
         assertEquals(1, agentConfig.errors().size());
         assertThat(agentConfig.errors().on("elasticAgentId"), is("Elastic agents cannot have resources."));

@@ -145,13 +145,13 @@ public class InstanceFactoryTest {
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_MANUAL));
     }
 
-	@Test
-	public void shouldSetFetchMaterialsFlagOnStageInstance() throws Exception {
-		StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
-		stageConfig.setFetchMaterials(false);
-		Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-		assertThat(instance.shouldFetchMaterials(), is(false));
-	}
+    @Test
+    public void shouldSetFetchMaterialsFlagOnStageInstance() throws Exception {
+        StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
+        stageConfig.setFetchMaterials(false);
+        Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
+        assertThat(instance.shouldFetchMaterials(), is(false));
+    }
 
     @Test
     public void shouldClear_DatabaseIds_State_and_Result_ForJobObjectHierarchy() {
@@ -176,7 +176,7 @@ public class InstanceFactoryTest {
         assertCopiedJob(newJava, 12l);
     }
 
-	@Test
+    @Test
     public void should_MaintainRerunOfReferences_InCaseOfMultipleCopyForRerunOperations() {
         Date old = new DateTime().minusDays(2).toDate();
         JobInstance rails = jobInstance(old, "rails", 7, 10);
@@ -290,11 +290,11 @@ public class InstanceFactoryTest {
 
     @Test
     public void shouldCreateJobPlan() {
-        Resources resources = new Resources();
+        ResourceConfigs resourceConfigs = new ResourceConfigs();
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resources, artifactConfigs);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is(new DefaultJobPlan(resources, ArtifactPlan.toArtifactPlans(artifactConfigs), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
+        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
     }
 
     @Test
@@ -311,32 +311,32 @@ public class InstanceFactoryTest {
         assertThat(jobInstance.getScheduledDate(), is(notNullValue()));
     }
 
-	@Test
-	public void shouldUseRightNameGenerator() {
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java", "html");
+    @Test
+    public void shouldUseRightNameGenerator() {
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java", "html");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.addResource("foobar");
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.addResourceConfig("foobar");
 
-		JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
-		javaConfig.setRunInstanceCount(2);
+        JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
+        javaConfig.setRunInstanceCount(2);
 
-		AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new Resources(new Resource("foobar")));
-		AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new Resources(new Resource("baz"), new Resource("foobar")));
-		AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new Resources(new Resource("crapyagent")));
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
+        AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
+        AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
+        AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
-		Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
+        Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
 
-		JobInstances jobInstances = stageInstance.getJobInstances();
-		assertThat(jobInstances.size(), is(5));
-		assertRunOnAllAgentsJobInstance(jobInstances.get(0), "rails-runOnAll-1");
-		assertRunOnAllAgentsJobInstance(jobInstances.get(1), "rails-runOnAll-2");
-		assertRunMultipleJobInstance(jobInstances.get(2), "java-runInstance-1");
-		assertRunMultipleJobInstance(jobInstances.get(3), "java-runInstance-2");
-		assertSimpleJobInstance(jobInstances.get(4), "html");
-	}
+        JobInstances jobInstances = stageInstance.getJobInstances();
+        assertThat(jobInstances.size(), is(5));
+        assertRunOnAllAgentsJobInstance(jobInstances.get(0), "rails-runOnAll-1");
+        assertRunOnAllAgentsJobInstance(jobInstances.get(1), "rails-runOnAll-2");
+        assertRunMultipleJobInstance(jobInstances.get(2), "java-runInstance-1");
+        assertRunMultipleJobInstance(jobInstances.get(3), "java-runInstance-2");
+        assertSimpleJobInstance(jobInstances.get(4), "html");
+    }
 
 	/*
 	SingleJobInstance
@@ -359,473 +359,473 @@ public class InstanceFactoryTest {
         assertThat(jobs.size(), is(1));
     }
 
-	@Test
-	public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForSingleInstanceJob() {
-		Date old = new DateTime().minusDays(2).toDate();
-		JobInstance rails = jobInstance(old, "rails", 7, 10);
-		JobInstance java = jobInstance(old, "java", 12, 22);
-		Stage stage = stage(9, rails, java);
-		Stage newStage = null;
+    @Test
+    public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForSingleInstanceJob() {
+        Date old = new DateTime().minusDays(2).toDate();
+        JobInstance rails = jobInstance(old, "rails", 7, 10);
+        JobInstance java = jobInstance(old, "java", 12, 22);
+        Stage stage = stage(9, rails, java);
+        Stage newStage = null;
 
-		CannotRerunJobException exception = null;
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"), new TimeProvider(),
-					"md5");
-			fail("should not schedule when job config does not exist anymore");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), CoreMatchers.is("rails"));
-		assertThat(newStage, CoreMatchers.is(nullValue()));
-	}
+        CannotRerunJobException exception = null;
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"), new TimeProvider(),
+                    "md5");
+            fail("should not schedule when job config does not exist anymore");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), CoreMatchers.is("rails"));
+        assertThat(newStage, CoreMatchers.is(nullValue()));
+    }
 
-	@Test
-	public void shouldClearAgentAssignment_ForSingleInstanceJobType() {
-		Date old = new DateTime().minusDays(2).toDate();
-		JobInstance rails = jobInstance(old, "rails", 7, 10);
-		JobInstance java = jobInstance(old, "java", 12, 22);
-		Stage stage = stage(9, rails, java);
-		Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
-				new TimeProvider(), "md5");
-		assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid(), CoreMatchers.is(nullValue()));
-		assertThat(newStage.getJobInstances().getByName("java").getAgentUuid(), CoreMatchers.is(not(nullValue())));
-	}
+    @Test
+    public void shouldClearAgentAssignment_ForSingleInstanceJobType() {
+        Date old = new DateTime().minusDays(2).toDate();
+        JobInstance rails = jobInstance(old, "rails", 7, 10);
+        JobInstance java = jobInstance(old, "java", 12, 22);
+        Stage stage = stage(9, rails, java);
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
+                new TimeProvider(), "md5");
+        assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid(), CoreMatchers.is(nullValue()));
+        assertThat(newStage.getJobInstances().getByName("java").getAgentUuid(), CoreMatchers.is(not(nullValue())));
+    }
 
-	@Test
-	public void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForSingleJobInstance() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForSingleJobInstance() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), null);
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), null);
 
-		Stage stage = createStageInstance(old, jobs);
-		Stage newStage = null;
+        Stage stage = createStageInstance(old, jobs);
+        Stage newStage = null;
 
-		railsConfig.setRunInstanceCount(10);
+        railsConfig.setRunInstanceCount(10);
 
-		CannotRerunJobException exception = null;
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), schedulingContext, stageConfig, new TimeProvider(), "md5");
-			fail("should not schedule since job config changed to run multiple instance");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), is("rails"));
-		assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run multiple instance'."));
-		assertThat(newStage, is(nullValue()));
-	}
+        CannotRerunJobException exception = null;
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            fail("should not schedule since job config changed to run multiple instance");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run multiple instance'."));
+        assertThat(newStage, is(nullValue()));
+    }
 
 	/*
 	RunOnAllAgents tests
 	*/
 
-	@Test
-	public void shouldCreateAJobForEachAgentIfRunOnAllAgentsIsTrue() throws Exception {
-		Agents agents = new Agents();
-		agents.add(new AgentConfig("uuid1"));
-		agents.add(new AgentConfig("uuid2"));
+    @Test
+    public void shouldCreateAJobForEachAgentIfRunOnAllAgentsIsTrue() throws Exception {
+        Agents agents = new Agents();
+        agents.add(new AgentConfig("uuid1"));
+        agents.add(new AgentConfig("uuid2"));
 
-		JobConfig jobConfig = new JobConfig("foo");
-		jobConfig.setRunOnAllAgents(true);
+        JobConfig jobConfig = new JobConfig("foo");
+        jobConfig.setRunOnAllAgents(true);
 
-		SchedulingContext context = mock(SchedulingContext.class);
-		when(context.getApprovedBy()).thenReturn("chris");
-		when(context.findAgentsMatching(new Resources())).thenReturn(agents);
-		when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
-		when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
+        SchedulingContext context = mock(SchedulingContext.class);
+        when(context.getApprovedBy()).thenReturn("chris");
+        when(context.findAgentsMatching(new ResourceConfigs())).thenReturn(agents);
+        when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
+        when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
 
-		RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stageName"), jobConfig, context, new TimeProvider(), jobNameGenerator);
+        RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stageName"), jobConfig, context, new TimeProvider(), jobNameGenerator);
 
-		assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo-runOnAll-1"))));
-		assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid1"))));
-		assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(true))));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo-runOnAll-1"))));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid1"))));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(true))));
 
-		assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo-runOnAll-1"))));
-		assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid2"))));
-		assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(true))));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo-runOnAll-1"))));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid2"))));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(true))));
 
-		assertThat(jobs.size(), is(2));
-	}
+        assertThat(jobs.size(), is(2));
+    }
 
-	@Test
-	public void shouldFailWhenDoesNotFindAnyMatchingAgents() throws Exception {
-		JobConfig jobConfig = new JobConfig("foo");
-		jobConfig.setRunOnAllAgents(true);
+    @Test
+    public void shouldFailWhenDoesNotFindAnyMatchingAgents() throws Exception {
+        JobConfig jobConfig = new JobConfig("foo");
+        jobConfig.setRunOnAllAgents(true);
 
-		SchedulingContext context = mock(SchedulingContext.class);
-		when(context.getApprovedBy()).thenReturn("chris");
-		when(context.findAgentsMatching(new Resources())).thenReturn(new ArrayList<>());
-		when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
-		when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
+        SchedulingContext context = mock(SchedulingContext.class);
+        when(context.getApprovedBy()).thenReturn("chris");
+        when(context.findAgentsMatching(new ResourceConfigs())).thenReturn(new ArrayList<>());
+        when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
+        when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
 
-		try {
-			RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-			instanceFactory.createJobInstance(new CaseInsensitiveString("myStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
+        try {
+            RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
+            instanceFactory.createJobInstance(new CaseInsensitiveString("myStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
-			fail("should have failed as no agents matched");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [myStage]."));
-		}
-	}
+            fail("should have failed as no agents matched");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [myStage]."));
+        }
+    }
 
-	@Test
-	public void shouldFailWhenNoAgentsmatchAJob() throws Exception {
-		DefaultSchedulingContext context = new DefaultSchedulingContext("raghu/vinay", new Agents());
-		JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new Resources(), new ArtifactConfigs());
-		fooJob.setRunOnAllAgents(true);
-		StageConfig stageConfig = new StageConfig(
-				new CaseInsensitiveString("blah-stage"), new JobConfigs(
-				fooJob,
-				new JobConfig(new CaseInsensitiveString("bar"), new Resources(), new ArtifactConfigs())
-		)
-		);
-		try {
-			instanceFactory.createStageInstance(stageConfig, context, "md5", new TimeProvider());
-			fail("expected exception but not thrown");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [blah-stage]."));
-		}
-	}
+    @Test
+    public void shouldFailWhenNoAgentsmatchAJob() throws Exception {
+        DefaultSchedulingContext context = new DefaultSchedulingContext("raghu/vinay", new Agents());
+        JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new ResourceConfigs(), new ArtifactConfigs());
+        fooJob.setRunOnAllAgents(true);
+        StageConfig stageConfig = new StageConfig(
+                new CaseInsensitiveString("blah-stage"), new JobConfigs(
+                fooJob,
+                new JobConfig(new CaseInsensitiveString("bar"), new ResourceConfigs(), new ArtifactConfigs())
+        )
+        );
+        try {
+            instanceFactory.createStageInstance(stageConfig, context, "md5", new TimeProvider());
+            fail("expected exception but not thrown");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [blah-stage]."));
+        }
+    }
 
-	@Test
-	public void shouldBomb_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll_WithTwoRunOnAllInstancesSelectedForRerun() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldBomb_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll_WithTwoRunOnAllInstancesSelectedForRerun() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.addResource("foobar");
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.addResourceConfig("foobar");
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-				new AgentConfig("abcd1234", "host", "127.0.0.2", new Resources(new Resource("foobar"))),
-				new AgentConfig("1234abcd", "ghost", "192.168.1.2", new Resources(new Resource("baz"), new Resource("foobar"))),
-				new AgentConfig("7890abdc", "lost", "10.4.3.55", new Resources(new Resource("crapyagent")))));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
+                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
 
-		RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		Stage stage = createStageInstance(old, jobs);
+        Stage stage = createStageInstance(old, jobs);
 
-		railsConfig.setRunOnAllAgents(false);
+        railsConfig.setRunOnAllAgents(false);
 
-		try {
-			instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
-			fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
-		} catch (IllegalArgumentException e) {
-			assertThat(e.getMessage(), CoreMatchers.is("Cannot schedule multiple instances of job named 'rails'."));
-		}
-	}
+        try {
+            instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), CoreMatchers.is("Cannot schedule multiple instances of job named 'rails'."));
+        }
+    }
 
-	@Test
-	public void should_NOT_ClearAgentAssignment_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void should_NOT_ClearAgentAssignment_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.addResource("foobar");
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.addResourceConfig("foobar");
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-				new AgentConfig("abcd1234", "host", "127.0.0.2", new Resources(new Resource("foobar"))),
-				new AgentConfig("1234abcd", "ghost", "192.168.1.2", new Resources(new Resource("baz"), new Resource("foobar"))),
-				new AgentConfig("7890abdc", "lost", "10.4.3.55", new Resources(new Resource("crapyagent")))));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
+                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
 
-		RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
-		Stage stage = createStageInstance(old, jobs);
+        RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        Stage stage = createStageInstance(old, jobs);
 
-		railsConfig.setRunOnAllAgents(false);
+        railsConfig.setRunOnAllAgents(false);
 
-		Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
 
-		assertThat(newStage.getJobInstances().size(), CoreMatchers.is(3));
+        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(3));
 
-		JobInstance newRailsJob = newStage.getJobInstances().getByName("rails");
-		assertNewJob(old, newRailsJob);
-		assertThat(newRailsJob.getAgentUuid(), CoreMatchers.is("abcd1234"));
+        JobInstance newRailsJob = newStage.getJobInstances().getByName("rails");
+        assertNewJob(old, newRailsJob);
+        assertThat(newRailsJob.getAgentUuid(), CoreMatchers.is("abcd1234"));
 
-		JobInstance copiedRailsJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
-		assertCopiedJob(copiedRailsJob, 102l);
-		assertThat(copiedRailsJob.getAgentUuid(), CoreMatchers.is("1234abcd"));
+        JobInstance copiedRailsJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
+        assertCopiedJob(copiedRailsJob, 102l);
+        assertThat(copiedRailsJob.getAgentUuid(), CoreMatchers.is("1234abcd"));
 
-		JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
-		assertCopiedJob(copiedJavaJob, 12l);
-		assertThat(copiedJavaJob.getAgentUuid(), CoreMatchers.is(not(nullValue())));
-	}
+        JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
+        assertCopiedJob(copiedJavaJob, 12l);
+        assertThat(copiedJavaJob.getAgentUuid(), CoreMatchers.is(not(nullValue())));
+    }
 
-	@Test
-	public void shouldClearAgentAssignment_ForRunOnAllAgentsJobType() {
-		Date old = new DateTime().minusDays(2).toDate();
-		JobInstance rails = jobInstance(old, "rails", 7, 10);
-		JobInstance java = jobInstance(old, "java", 12, 22);
-		Stage stage = stage(9, rails, java);
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.addResource("foobar");
-		Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents(
-				new AgentConfig("abcd1234", "host", "127.0.0.2", new Resources(new Resource("foobar"))),
-				new AgentConfig("1234abcd", "ghost", "192.168.1.2", new Resources(new Resource("baz"), new Resource("foobar"))),
-				new AgentConfig("7890abdc", "lost", "10.4.3.55", new Resources(new Resource("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
+    @Test
+    public void shouldClearAgentAssignment_ForRunOnAllAgentsJobType() {
+        Date old = new DateTime().minusDays(2).toDate();
+        JobInstance rails = jobInstance(old, "rails", 7, 10);
+        JobInstance java = jobInstance(old, "java", 12, 22);
+        Stage stage = stage(9, rails, java);
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.addResourceConfig("foobar");
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents(
+                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
 
-		assertThat(newStage.getJobInstances().size(), CoreMatchers.is(3));
+        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(3));
 
-		JobInstance newRailsFirstJob = newStage.getJobInstances().getByName("rails-runOnAll-1");
-		assertNewJob(old, newRailsFirstJob);
-		assertThat(newRailsFirstJob.getAgentUuid(), CoreMatchers.is("abcd1234"));
+        JobInstance newRailsFirstJob = newStage.getJobInstances().getByName("rails-runOnAll-1");
+        assertNewJob(old, newRailsFirstJob);
+        assertThat(newRailsFirstJob.getAgentUuid(), CoreMatchers.is("abcd1234"));
 
-		JobInstance newRailsSecondJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
-		assertNewJob(old, newRailsSecondJob);
-		assertThat(newRailsSecondJob.getAgentUuid(), CoreMatchers.is("1234abcd"));
+        JobInstance newRailsSecondJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
+        assertNewJob(old, newRailsSecondJob);
+        assertThat(newRailsSecondJob.getAgentUuid(), CoreMatchers.is("1234abcd"));
 
-		JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
-		assertCopiedJob(copiedJavaJob, 12l);
-		assertThat(copiedJavaJob.getAgentUuid(), CoreMatchers.is(not(nullValue())));
-	}
+        JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
+        assertCopiedJob(copiedJavaJob, 12l);
+        assertThat(copiedJavaJob.getAgentUuid(), CoreMatchers.is(not(nullValue())));
+    }
 
-	@Test
-	public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunOnAllAgentsJobInstance() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunOnAllAgentsJobInstance() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.addResource("foobar");
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.addResourceConfig("foobar");
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-				new AgentConfig("abcd1234", "host", "127.0.0.2", new Resources(new Resource("foobar"))),
-				new AgentConfig("1234abcd", "ghost", "192.168.1.2", new Resources(new Resource("baz"), new Resource("foobar"))),
-				new AgentConfig("7890abdc", "lost", "10.4.3.55", new Resources(new Resource("crapyagent")))));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
+                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
 
-		RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		Stage stage = createStageInstance(old, jobs);
-		Stage newStage = null;
+        Stage stage = createStageInstance(old, jobs);
+        Stage newStage = null;
 
-		CannotRerunJobException exception = null;
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"),
-					new TimeProvider(), "md5");
-			fail("should not schedule when job config does not exist anymore");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), CoreMatchers.is("rails"));
-		assertThat(newStage, CoreMatchers.is(nullValue()));
-	}
+        CannotRerunJobException exception = null;
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"),
+                    new TimeProvider(), "md5");
+            fail("should not schedule when job config does not exist anymore");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), CoreMatchers.is("rails"));
+        assertThat(newStage, CoreMatchers.is(nullValue()));
+    }
 
-	@Test
-	public void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForRunOnAllAgentsJobInstance() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForRunOnAllAgentsJobInstance() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.addResource("foobar");
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.addResourceConfig("foobar");
 
-		AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new Resources(new Resource("foobar")));
-		AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new Resources(new Resource("baz"), new Resource("foobar")));
-		AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new Resources(new Resource("crapyagent")));
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
+        AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
+        AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
+        AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
-		RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		Stage stage = createStageInstance(old, jobs);
-		Stage newStage = null;
+        Stage stage = createStageInstance(old, jobs);
+        Stage newStage = null;
 
-		railsConfig.setRunOnAllAgents(false);
-		railsConfig.setRunInstanceCount(10);
+        railsConfig.setRunOnAllAgents(false);
+        railsConfig.setRunInstanceCount(10);
 
-		CannotRerunJobException exception = null;
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
-			fail("should not schedule since job config changed to run multiple instance");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), is("rails"));
-		assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run multiple instance'."));
-		assertThat(newStage, is(nullValue()));
-	}
+        CannotRerunJobException exception = null;
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            fail("should not schedule since job config changed to run multiple instance");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run multiple instance'."));
+        assertThat(newStage, is(nullValue()));
+    }
 
 	/*
 	RunMultipleInstance tests
 	 */
 
-	@Test
-	public void shouldCreateJobInstancesCorrectly_RunMultipleInstance() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldCreateJobInstancesCorrectly_RunMultipleInstance() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunInstanceCount(3);
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunInstanceCount(3);
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
-		RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
-		assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
-		assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
-		assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
-		assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
-		assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
-		assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
-		assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
-		assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
+        assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
+        assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
+        assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
+        assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
+        assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
+        assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
 
-		Stage stage = createStageInstance(old, jobs);
+        Stage stage = createStageInstance(old, jobs);
 
-		JobInstances jobInstances = stage.getJobInstances();
-		assertThat(jobInstances.size(), is(4));
-		assertRunMultipleJobInstance(jobInstances.get(0), "rails-runInstance-1");
-		assertRunMultipleJobInstance(jobInstances.get(1), "rails-runInstance-2");
-		assertRunMultipleJobInstance(jobInstances.get(2), "rails-runInstance-3");
-		assertThat(jobInstances.get(3).getName(), is("java"));
-	}
+        JobInstances jobInstances = stage.getJobInstances();
+        assertThat(jobInstances.size(), is(4));
+        assertRunMultipleJobInstance(jobInstances.get(0), "rails-runInstance-1");
+        assertRunMultipleJobInstance(jobInstances.get(1), "rails-runInstance-2");
+        assertRunMultipleJobInstance(jobInstances.get(2), "rails-runInstance-3");
+        assertThat(jobInstances.get(3).getName(), is("java"));
+    }
 
-	@Test
-	public void shouldCreateJobInstancesCorrectly_RunMultipleInstance_Rerun() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldCreateJobInstancesCorrectly_RunMultipleInstance_Rerun() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunInstanceCount(3);
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunInstanceCount(3);
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
-		RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
-		assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
-		assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
-		assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
-		assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
-		assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
-		assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
-		assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
-		assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
+        assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
+        assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
+        assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
+        assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
+        assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
+        assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
 
-		Stage stage = createStageInstance(old, jobs);
+        Stage stage = createStageInstance(old, jobs);
 
-		Stage stageForRerun = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1", "rails-runInstance-2"), schedulingContext, stageConfig, clock, "md5");
-		JobInstances jobsForRerun = stageForRerun.getJobInstances();
+        Stage stageForRerun = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1", "rails-runInstance-2"), schedulingContext, stageConfig, clock, "md5");
+        JobInstances jobsForRerun = stageForRerun.getJobInstances();
 
-		assertThat(jobsForRerun.get(0).getName(), is("rails-runInstance-3"));
-		assertEnvironmentVariable(jobsForRerun.get(0), 0, "GO_JOB_RUN_INDEX", "3");
-		assertEnvironmentVariable(jobsForRerun.get(0), 1, "GO_JOB_RUN_COUNT", "3");
-		assertThat(jobsForRerun.get(2).getName(), is("rails-runInstance-1"));
-		assertEnvironmentVariable(jobsForRerun.get(2), 0, "GO_JOB_RUN_INDEX", "1");
-		assertEnvironmentVariable(jobsForRerun.get(2), 1, "GO_JOB_RUN_COUNT", "3");
-		assertThat(jobsForRerun.get(3).getName(), is("rails-runInstance-2"));
-		assertEnvironmentVariable(jobsForRerun.get(3), 0, "GO_JOB_RUN_INDEX", "2");
-		assertEnvironmentVariable(jobsForRerun.get(3), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobsForRerun.get(0).getName(), is("rails-runInstance-3"));
+        assertEnvironmentVariable(jobsForRerun.get(0), 0, "GO_JOB_RUN_INDEX", "3");
+        assertEnvironmentVariable(jobsForRerun.get(0), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobsForRerun.get(2).getName(), is("rails-runInstance-1"));
+        assertEnvironmentVariable(jobsForRerun.get(2), 0, "GO_JOB_RUN_INDEX", "1");
+        assertEnvironmentVariable(jobsForRerun.get(2), 1, "GO_JOB_RUN_COUNT", "3");
+        assertThat(jobsForRerun.get(3).getName(), is("rails-runInstance-2"));
+        assertEnvironmentVariable(jobsForRerun.get(3), 0, "GO_JOB_RUN_INDEX", "2");
+        assertEnvironmentVariable(jobsForRerun.get(3), 1, "GO_JOB_RUN_COUNT", "3");
 
-		assertThat(jobsForRerun.size(), is(4));
-		assertRunMultipleJobInstance(jobsForRerun.get(0), "rails-runInstance-3");
-		assertThat(jobsForRerun.get(1).getName(), is("java"));
-		assertReRunMultipleJobInstance(jobsForRerun.get(2), "rails-runInstance-1");
-		assertReRunMultipleJobInstance(jobsForRerun.get(3), "rails-runInstance-2");
-	}
+        assertThat(jobsForRerun.size(), is(4));
+        assertRunMultipleJobInstance(jobsForRerun.get(0), "rails-runInstance-3");
+        assertThat(jobsForRerun.get(1).getName(), is("java"));
+        assertReRunMultipleJobInstance(jobsForRerun.get(2), "rails-runInstance-1");
+        assertReRunMultipleJobInstance(jobsForRerun.get(3), "rails-runInstance-2");
+    }
 
-	@Test
-	public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunMultipleInstance() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunMultipleInstance() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunInstanceCount(3);
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunInstanceCount(3);
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
-		RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		Stage stage = createStageInstance(old, jobs);
-		Stage newStage = null;
+        Stage stage = createStageInstance(old, jobs);
+        Stage newStage = null;
 
-		CannotRerunJobException exception = null;
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, StageConfigMother.custom("dev", "java"),
-					new TimeProvider(), "md5");
-			fail("should not schedule when job config does not exist anymore");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), is("rails"));
-		assertThat(exception.getInformation(), is("Configuration for job doesn't exist."));
-		assertThat(newStage, is(nullValue()));
-	}
+        CannotRerunJobException exception = null;
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, StageConfigMother.custom("dev", "java"),
+                    new TimeProvider(), "md5");
+            fail("should not schedule when job config does not exist anymore");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(exception.getInformation(), is("Configuration for job doesn't exist."));
+        assertThat(newStage, is(nullValue()));
+    }
 
-	@Test
-	public void shouldNotRerun_WhenJobRunConfigIsChanged_ForRunMultipleInstance() {
-		Date old = new DateTime().minusDays(2).toDate();
-		StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
+    @Test
+    public void shouldNotRerun_WhenJobRunConfigIsChanged_ForRunMultipleInstance() {
+        Date old = new DateTime().minusDays(2).toDate();
+        StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-		JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
-		railsConfig.setRunInstanceCount(3);
+        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        railsConfig.setRunInstanceCount(3);
 
-		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
-		RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
+        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
-		Stage stage = createStageInstance(old, jobs);
-		Stage newStage = null;
+        Stage stage = createStageInstance(old, jobs);
+        Stage newStage = null;
 
-		railsConfig.setRunOnAllAgents(true);
-		railsConfig.setRunInstanceCount(0);
+        railsConfig.setRunOnAllAgents(true);
+        railsConfig.setRunInstanceCount(0);
 
-		CannotRerunJobException exception = null;
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
-			fail("should not schedule since job config changed to run multiple instance");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), is("rails"));
-		assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run on all agents'."));
-		assertThat(newStage, is(nullValue()));
+        CannotRerunJobException exception = null;
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            fail("should not schedule since job config changed to run multiple instance");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'run on all agents'."));
+        assertThat(newStage, is(nullValue()));
 
-		railsConfig.setRunOnAllAgents(false);
+        railsConfig.setRunOnAllAgents(false);
 
-		try {
-			newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
-			fail("should not schedule since job config changed to run multiple instance");
-		} catch (CannotRerunJobException e) {
-			exception = e;
-		}
-		assertThat(exception.getJobName(), is("rails"));
-		assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'simple'."));
-		assertThat(newStage, is(nullValue()));
-	}
+        try {
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            fail("should not schedule since job config changed to run multiple instance");
+        } catch (CannotRerunJobException e) {
+            exception = e;
+        }
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(exception.getInformation(), is("Run configuration for job has been changed to 'simple'."));
+        assertThat(newStage, is(nullValue()));
+    }
 
-	private Stage stage(long id, JobInstance... jobs) {
+    private Stage stage(long id, JobInstance... jobs) {
         Stage stage = new Stage("dev", new JobInstances(jobs), "anonymous", "manual", new TimeProvider());
         stage.setId(id);
         return stage;
     }
 
-	private Stage createStageInstance(Date old, JobInstances jobs) {
-		int jobId = 100;
-		for (JobInstance job : jobs) {
-			passJob(new Date(), ++jobId, jobId * 10, job);
-		}
+    private Stage createStageInstance(Date old, JobInstances jobs) {
+        int jobId = 100;
+        for (JobInstance job : jobs) {
+            passJob(new Date(), ++jobId, jobId * 10, job);
+        }
 
-		JobInstance java = jobInstance(old, "java", 12, 22);
-		jobs.add(java);
+        JobInstance java = jobInstance(old, "java", 12, 22);
+        jobs.add(java);
 
-		return stage(9, jobs.toArray(new JobInstance[0]));
-	}
+        return stage(9, jobs.toArray(new JobInstance[0]));
+    }
 
     private JobInstance jobInstance(final Date date, final String jobName, final int id, int transitionIdStart) {
         JobInstance jobInstance = new JobInstance(jobName, new TimeProvider() {
@@ -879,36 +879,36 @@ public class InstanceFactoryTest {
         return newSchedulingTransition;
     }
 
-	private void assertSimpleJobInstance(JobInstance jobInstance, String jobName) {
-		assertThat(jobInstance.getName(), is(jobName));
-		assertThat(jobInstance.isRunOnAllAgents(), is(false));
-		assertThat(jobInstance.isRunMultipleInstance(), is(false));
-		assertThat(jobInstance.isRerun(), is(false));
-	}
+    private void assertSimpleJobInstance(JobInstance jobInstance, String jobName) {
+        assertThat(jobInstance.getName(), is(jobName));
+        assertThat(jobInstance.isRunOnAllAgents(), is(false));
+        assertThat(jobInstance.isRunMultipleInstance(), is(false));
+        assertThat(jobInstance.isRerun(), is(false));
+    }
 
-	private void assertRunOnAllAgentsJobInstance(JobInstance jobInstance, String jobName) {
-		assertThat(jobInstance.getName(), is(jobName));
-		assertThat(jobInstance.isRunOnAllAgents(), is(true));
-		assertThat(jobInstance.isRunMultipleInstance(), is(false));
-		assertThat(jobInstance.isRerun(), is(false));
-	}
+    private void assertRunOnAllAgentsJobInstance(JobInstance jobInstance, String jobName) {
+        assertThat(jobInstance.getName(), is(jobName));
+        assertThat(jobInstance.isRunOnAllAgents(), is(true));
+        assertThat(jobInstance.isRunMultipleInstance(), is(false));
+        assertThat(jobInstance.isRerun(), is(false));
+    }
 
-	private void assertRunMultipleJobInstance(JobInstance jobInstance, String jobName) {
-		assertThat(jobInstance.getName(), is(jobName));
-		assertThat(jobInstance.isRunMultipleInstance(), is(true));
-		assertThat(jobInstance.isRunOnAllAgents(), is(false));
-		assertThat(jobInstance.isRerun(), is(false));
-	}
+    private void assertRunMultipleJobInstance(JobInstance jobInstance, String jobName) {
+        assertThat(jobInstance.getName(), is(jobName));
+        assertThat(jobInstance.isRunMultipleInstance(), is(true));
+        assertThat(jobInstance.isRunOnAllAgents(), is(false));
+        assertThat(jobInstance.isRerun(), is(false));
+    }
 
-	private void assertReRunMultipleJobInstance(JobInstance jobInstance, String jobName) {
-		assertThat(jobInstance.getName(), is(jobName));
-		assertThat(jobInstance.isRunMultipleInstance(), is(true));
-		assertThat(jobInstance.isRunOnAllAgents(), is(false));
-		assertThat(jobInstance.isRerun(), is(true));
-	}
+    private void assertReRunMultipleJobInstance(JobInstance jobInstance, String jobName) {
+        assertThat(jobInstance.getName(), is(jobName));
+        assertThat(jobInstance.isRunMultipleInstance(), is(true));
+        assertThat(jobInstance.isRunOnAllAgents(), is(false));
+        assertThat(jobInstance.isRerun(), is(true));
+    }
 
-	private void assertEnvironmentVariable(JobInstance jobInstance, int index, String name, String value) {
-		assertThat(jobInstance.getPlan().getVariables().get(index).getName(), is(name));
-		assertThat(jobInstance.getPlan().getVariables().get(index).getValue(), is(value));
-	}
+    private void assertEnvironmentVariable(JobInstance jobInstance, int index, String name, String value) {
+        assertThat(jobInstance.getPlan().getVariables().get(index).getName(), is(name));
+        assertThat(jobInstance.getPlan().getVariables().get(index).getValue(), is(value));
+    }
 }

@@ -316,7 +316,7 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.removePipeline(fixture.pipelineName);
 
         AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResource(new Resource("some-other-resource"));
+        agentConfig.addResourceConfig(new ResourceConfig("some-other-resource"));
 
         assertThat(buildAssignmentService.assignWorkToAgent(agent(agentConfig)), Matchers.is(BuildAssignmentService.NO_WORK));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
@@ -400,7 +400,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResource(new Resource("some-other-resource"));
+        agentConfig.addResourceConfig(new ResourceConfig("some-other-resource"));
 
         try {
             buildAssignmentService.assignWorkToAgent(agent(agentConfig));
@@ -487,7 +487,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Tasks allFetchTasks = new Tasks();
         allFetchTasks.add(new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("unit"), "foo.zip", "bar"));
         allFetchTasks.add(new FetchTask(new CaseInsensitiveString("uppest/upper-peer/downer"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("unit"), "bar.zip", "baz"));
-        configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(new CaseInsensitiveString("fetcher"), new Resources("fetcher"), new ArtifactConfigs(), allFetchTasks));
+        configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(new CaseInsensitiveString("fetcher"), new ResourceConfigs("fetcher"), new ArtifactConfigs(), allFetchTasks));
         PipelineConfig downest = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("downest"));
 
         DefaultSchedulingContext defaultSchedulingCtx = new DefaultSchedulingContext(DEFAULT_APPROVED_BY);
@@ -526,7 +526,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
         AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResource(new Resource("fetcher"));
+        agentConfig.addResourceConfig(new ResourceConfig("fetcher"));
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig));
 
         List<Builder> builders = work.getAssignment().getBuilders();
@@ -557,7 +557,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldNotScheduleIfAgentDoesNotHaveResources() throws Exception {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
-        plan.addResource("some-resource");
+        plan.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
@@ -574,12 +574,12 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldNotScheduleIfAgentDoesNotHaveMatchingResources() throws Exception {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
-        plan.addResource("some-resource");
+        plan.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
         AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResource(new Resource("some-other-resource"));
+        agentConfig.addResourceConfig(new ResourceConfig("some-other-resource"));
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(work, is(BuildAssignmentService.NO_WORK));
@@ -593,13 +593,13 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldScheduleIfAgentMatchingResources() throws Exception {
-        JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
-        plan.addResource("some-resource");
+        JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
+        jobConfig.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
         AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResource(new Resource("some-resource"));
+        agentConfig.addResourceConfig(new ResourceConfig("some-resource"));
 
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
@@ -609,8 +609,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
         JobPlan loadedPlan = jobInstanceDao.loadPlan(job.getId());
-        assertThat(loadedPlan.getResources(), is(plan.resources()));
-
+        assertThat(loadedPlan.getResources().toResourceConfigs(), is(jobConfig.resourceConfigs()));
 
         assertThat(job.getState(), is(JobState.Assigned));
         assertThat(job.getAgentUuid(), is(agentConfig.getUuid()));
@@ -619,14 +618,14 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldReScheduleToCorrectAgent() throws Exception {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
-        plan.addResource("some-resource");
+        plan.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResource(new Resource("some-resource"));
+        agentConfig.addResourceConfig(new ResourceConfig("some-resource"));
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 

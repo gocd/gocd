@@ -47,9 +47,9 @@ public class CruiseConfigTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(ConfigFileFixture.withJob(jobXml + jobXml2)).config;
-        assertThat(config.getAllResources(), hasItem(new Resource("one")));
-        assertThat(config.getAllResources(), hasItem(new Resource("two")));
-        assertThat(config.getAllResources(), hasItem(new Resource("three")));
+        assertThat(config.getAllResources(), hasItem(new ResourceConfig("one")));
+        assertThat(config.getAllResources(), hasItem(new ResourceConfig("two")));
+        assertThat(config.getAllResources(), hasItem(new ResourceConfig("three")));
         assertThat(config.getAllResources().size(), is(3));
     }
 

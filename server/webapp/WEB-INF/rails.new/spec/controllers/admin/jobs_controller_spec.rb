@@ -22,7 +22,7 @@ describe Admin::JobsController do
   include TaskMother
 
   def add_resource(job_name, resource)
-    @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResource(resource)
+    @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResourceConfig(resource)
   end
 
   before :each do

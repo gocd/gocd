@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.messaging.elasticagents;
 
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
 import java.util.Map;
@@ -25,13 +26,15 @@ public class CreateAgentMessage implements PluginAwareMessage {
     private final String autoregisterKey;
     private final String environment;
     private final Map<String, String> configuration;
+    private final JobIdentifier jobIdentifier;
     private final String pluginId;
 
-    public CreateAgentMessage(String autoregisterKey, String environment, ElasticProfile elasticProfile) {
+    public CreateAgentMessage(String autoregisterKey, String environment, ElasticProfile elasticProfile, JobIdentifier jobIdentifier) {
         this.autoregisterKey = autoregisterKey;
         this.environment = environment;
         this.pluginId = elasticProfile.getPluginId();
         this.configuration = elasticProfile.getConfigurationAsMap(true);
+        this.jobIdentifier = jobIdentifier;
     }
 
     public String autoregisterKey() {
@@ -58,5 +61,9 @@ public class CreateAgentMessage implements PluginAwareMessage {
 
     public Map<String, String> configuration() {
         return configuration;
+    }
+
+    public JobIdentifier jobIdentifier() {
+        return jobIdentifier;
     }
 }

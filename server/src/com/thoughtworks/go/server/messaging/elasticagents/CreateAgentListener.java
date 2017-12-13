@@ -29,6 +29,6 @@ public class CreateAgentListener implements GoMessageListener<CreateAgentMessage
 
     @Override
     public void onMessage(CreateAgentMessage message) {
-        elasticAgentPluginRegistry.createAgent(message.pluginId(), message.autoregisterKey(), message.environment(), message.configuration());
+        elasticAgentPluginRegistry.createAgent(message.pluginId(), message.autoregisterKey(), message.environment(), message.configuration(), message.jobIdentifier());
     }
 }

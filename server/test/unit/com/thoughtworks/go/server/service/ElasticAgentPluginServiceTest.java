@@ -120,7 +120,6 @@ public class ElasticAgentPluginServiceTest {
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
-        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
@@ -132,6 +131,7 @@ public class ElasticAgentPluginServiceTest {
         assertThat(createAgentMessage.pluginId(), is(plan2.getElasticProfile().getPluginId()));
         assertThat(createAgentMessage.configuration(), is(plan2.getElasticProfile().getConfigurationAsMap(true)));
         assertThat(createAgentMessage.environment(), is("env-2"));
+        assertThat(createAgentMessage.jobIdentifier(), is(plan2.getIdentifier()));
     }
 
     @Test

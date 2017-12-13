@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
@@ -150,7 +151,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
             map.put(plan.getJobId(), timeProvider.currentTimeMillis());
             if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile()), messageTimeToLive);
+                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile(), plan.getIdentifier()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();

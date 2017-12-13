@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -26,7 +27,7 @@ import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
 
-    String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration);
+    String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier);
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 

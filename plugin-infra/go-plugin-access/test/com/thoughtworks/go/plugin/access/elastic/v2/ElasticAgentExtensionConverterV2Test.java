@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v2;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -50,8 +51,26 @@ public class ElasticAgentExtensionConverterV2Test {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
-        String json = new ElasticAgentExtensionConverterV2().createAgentRequestBody("secret-key", "prod", configuration);
-        JSONAssert.assertEquals(json, "{\"auto_register_key\":\"secret-key\",\"properties\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"environment\":\"prod\"}", JSONCompareMode.NON_EXTENSIBLE);
+        JobIdentifier jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
+        jobIdentifier.setBuildId(100L);
+        String json = new ElasticAgentExtensionConverterV2().createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
+        JSONAssert.assertEquals(json, "{" +
+                "  \"auto_register_key\":\"secret-key\"," +
+                "  \"properties\":{" +
+                "    \"key1\":\"value1\"," +
+                "    \"key2\":\"value2\"" +
+                "    }," +
+                "  \"environment\":\"prod\"," +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"test-pipeline\",\n" +
+                "    \"pipeline_counter\": 1,\n" +
+                "    \"pipeline_label\": \"Test Pipeline\",\n" +
+                "    \"stage_name\": \"test-stage\",\n" +
+                "    \"stage_counter\": \"1\",\n" +
+                "    \"job_name\": \"test-job\",\n" +
+                "    \"job_id\": 100\n" +
+                "  }\n" +
+                "}", JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Test

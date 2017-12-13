@@ -50,7 +50,8 @@ import static com.thoughtworks.go.helper.PipelineMother.withSingleStageWithMater
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-acegi-security.xml"
+        "classpath:WEB-INF/applicationContext-acegi-security.xml",
+        "classpath:testPropertyConfigurer.xml"
 })
 public class JobStatusListenerTest  {
     @Autowired private StageService stageService;

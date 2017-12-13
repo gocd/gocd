@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.domain.user;
 
 import java.util.Arrays;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.Test;
 
 import static org.junit.Assert.assertThat;
@@ -38,8 +39,8 @@ public class PipelineSelectionsTest {
     @Test
     public void shouldIncludePipelinesCaseInsensitively_whenBlacklistIsEnabled() {
         PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline1"));
-        assertThat(pipelineSelections.includesPipeline("pipeline1"), is(false));
-        assertThat(pipelineSelections.includesPipeline("Pipeline1"), is(false));
+        assertThat(pipelineSelections.includesPipeline(new CaseInsensitiveString("pipeline1")), is(false));
+        assertThat(pipelineSelections.includesPipeline(new CaseInsensitiveString("Pipeline1")), is(false));
     }
 
     @Test

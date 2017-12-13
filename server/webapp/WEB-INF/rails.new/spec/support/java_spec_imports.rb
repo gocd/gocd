@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -125,4 +125,10 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor unless defined? ConfigParamPreprocessor
   java_import com.thoughtworks.go.config.PipelineConfig unless defined? PipelineConfig
   java_import com.thoughtworks.go.server.service.MaterialConfigConverter unless defined? MaterialConfigConverter
+  java_import com.thoughtworks.go.config.security.Permissions unless defined? Permissions
+  java_import com.thoughtworks.go.config.security.users.Everyone unless defined? Everyone
+  java_import com.thoughtworks.go.config.security.users.NoOne unless defined? NoOne
+  java_import com.thoughtworks.go.server.dashboard.GoDashboardPipeline unless defined? GoDashboardPipeline
+  java_import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter unless defined? TimeStampBasedCounter
+  java_import com.thoughtworks.go.util.SystemTimeClock unless defined? SystemTimeClock
 end

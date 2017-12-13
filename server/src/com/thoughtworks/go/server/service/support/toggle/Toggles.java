@@ -21,6 +21,7 @@ public class Toggles {
     public static String QUICK_EDIT_PAGE_DEFAULT = "quick_edit_page_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String PLUGIN_SPA_TOGGLE_KEY = "plugin_spa_toggle_key";
+    public static String QUICKER_DASHBOARD_KEY = "quicker_dashboard_key";
 
     private static FeatureToggleService service;
 

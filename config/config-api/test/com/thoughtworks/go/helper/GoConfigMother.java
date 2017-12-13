@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,16 @@ public class GoConfigMother {
     public void addRoleAsViewerOfPipelineGroup(CruiseConfig cruiseConfig, String roleName, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
         group.getAuthorization().getViewConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
+    }
+
+    public void addUserAsOperatorOfPipelineGroup(CruiseConfig cruiseConfig, String userName, String groupName) {
+        PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
+        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString(userName)));
+    }
+
+    public void addRoleAsOperatorOfPipelineGroup(CruiseConfig cruiseConfig, String roleName, String groupName) {
+        PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
+        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
     }
 
     public PipelineConfig addPipeline(CruiseConfig cruiseConfig,

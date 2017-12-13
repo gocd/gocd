@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import com.thoughtworks.go.domain.cctray.viewers.NoOne;
-import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;
@@ -40,7 +40,7 @@ public class ProjectStatus {
     private Date lastBuildTime;
     private String webUrl;
     public static final String DEFAULT_LAST_BUILD_LABEL = "1";
-    private volatile Viewers viewers;
+    private volatile Users viewers;
     private String cachedXmlRepresentation;
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
@@ -148,11 +148,11 @@ public class ProjectStatus {
         return element;
     }
 
-    public Viewers viewers() {
+    public Users viewers() {
         return viewers;
     }
 
-    public ProjectStatus updateViewers(Viewers viewers) {
+    public ProjectStatus updateViewers(Users viewers) {
         this.viewers = viewers;
         return this;
     }

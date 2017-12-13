@@ -67,6 +67,11 @@ public class CommandRepositoryInitializer implements Initializer {
         }
     }
 
+    @Override
+    public void startDaemon() {
+
+    }
+
     private boolean shouldUsePackagedRepository(File defaultDirectory) throws IOException {
         if (!defaultDirectory.exists()) {
             return true;

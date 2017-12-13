@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.Test;
 
+import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -32,9 +35,27 @@ public class PipelineGroupModelTest {
         assertThat(groupModel.containsPipeline("PIPELINE"), is(true));
     }
 
+    @Test
+    public void shouldCopyAllInternalsOfPipelineModelWhenCreatingANewOneIfNeeded() throws Exception {
+        PipelineGroupModel groupModel = new PipelineGroupModel("group");
+
+        PipelineModel expectedModel = addInstanceTo(new PipelineModel("p1", true, true, PipelinePauseInfo.notPaused()));
+        expectedModel.updateAdministrability(true);
+
+        groupModel.add(expectedModel);
+        PipelineModel actualModel = groupModel.getPipelineModel("p1");
+
+        String message = String.format("\nExpected: %s\nActual:   %s", reflectionToString(expectedModel), reflectionToString(actualModel));
+        assertThat(message, EqualsBuilder.reflectionEquals(actualModel, expectedModel), is(true));
+    }
+
     private PipelineModel pipelineModel(String pipelineName) {
         PipelineModel pipelineModel = new PipelineModel(pipelineName, true, true, PipelinePauseInfo.notPaused());
-        pipelineModel.addPipelineInstance(new PipelineInstanceModel(pipelineName, 1, "label", BuildCause.createManualForced(), new StageInstanceModels()));
+        return addInstanceTo(pipelineModel);
+    }
+
+    private PipelineModel addInstanceTo(PipelineModel pipelineModel) {
+        pipelineModel.addPipelineInstance(new PipelineInstanceModel(pipelineModel.getName(), 1, "label", BuildCause.createManualForced(), new StageInstanceModels()));
         return pipelineModel;
     }
 }

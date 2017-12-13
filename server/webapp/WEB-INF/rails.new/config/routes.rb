@@ -292,6 +292,8 @@ Go::Application.routes.draw do
         patch :update, on: :member
       end
 
+      get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
+
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

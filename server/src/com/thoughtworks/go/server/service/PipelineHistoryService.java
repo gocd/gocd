@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,13 +206,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     }
 
     private void appendFollowingStagesFromConfig(String pipelineName, StageInstanceModels stageHistory) {
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        StageInstanceModel lastStage = stageHistory.last();
-        StageConfig nextStage = lastStage == null ? pipelineConfig.getFirstStageConfig() : pipelineConfig.nextStage(new CaseInsensitiveString(lastStage.getName()));
-        while (nextStage != null && !stageHistory.hasStage(CaseInsensitiveString.str(nextStage.name()))) {
-            stageHistory.addFutureStage(CaseInsensitiveString.str(nextStage.name()), !nextStage.requiresApproval());
-            nextStage = pipelineConfig.nextStage(nextStage.name());
-        }
+        stageHistory.updateFutureStagesFrom(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)));
     }
 
     private void populateCanRunStatus(Username username, PipelineInstanceModel pipelineInstanceModel) {

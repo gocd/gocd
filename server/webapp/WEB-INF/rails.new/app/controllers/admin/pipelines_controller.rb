@@ -117,7 +117,7 @@ module Admin
         pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful() #The if check is important now as we want consistency across config and db save. If config save fails, we do not want to insert it in the DB.
 
         if @update_result.isSuccessful()
-          go_config_service.updateUserPipelineSelections(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
+          pipeline_selections_service.updateUserPipelineSelections(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
         end
 
         @original_cruise_config = @cruise_config
@@ -192,7 +192,7 @@ module Admin
         pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful()
 
         if @update_result.isSuccessful()
-          go_config_service.updateUserPipelineSelections(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
+          pipeline_selections_service.updateUserPipelineSelections(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
         end
       end
     end

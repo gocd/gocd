@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -34,6 +35,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class PipelinePauseService {
 
@@ -42,6 +46,7 @@ public class PipelinePauseService {
     private final SecurityService securityService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelinePauseService.class);
+    private List<PipelinePauseChangeListener> listeners = new ArrayList<>();
 
     @Autowired
     public PipelinePauseService(PipelineSqlMapDao pipelineSqlMapDao, GoConfigService goConfigService, SecurityService securityService) {
@@ -70,6 +75,36 @@ public class PipelinePauseService {
         }
     }
 
+    public void unpause(String pipelineName) {
+        unpause(pipelineName, UserHelper.getUserName(), new DefaultLocalizedOperationResult());
+    }
+
+    public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {
+        String unpauseByUserName = unpausedBy == null ? "" : unpausedBy.getUsername().toString();
+        if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
+            return;
+        }
+        try {
+            unpausePipeline(pipelineName, unpausedBy);
+        } catch (Exception e) {
+            LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
+            result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+        }
+    }
+
+    public void registerListener(PipelinePauseChangeListener pipelinePauseChangeListener) {
+        listeners.add(pipelinePauseChangeListener);
+    }
+
+    public PipelinePauseInfo pipelinePauseInfo(String pipelineName) {
+        PipelinePauseInfo pipelinePauseInfo = pipelineSqlMapDao.pauseState(pipelineName);
+        return pipelinePauseInfo == null ? PipelinePauseInfo.notPaused() : pipelinePauseInfo;
+    }
+
+    public boolean isPaused(String pipelineName) {
+        return pipelinePauseInfo(pipelineName).isPaused();
+    }
+
     private void pausePipeline(String pipelineName, String pauseCause, Username pauseBy) {
         String mutexPipelineName = mutexForPausePipeline(pipelineName);
         synchronized (mutexPipelineName) {
@@ -78,6 +113,7 @@ public class PipelinePauseService {
             String sanitizedPauseBy = pauseByDisplayName.substring(0, Math.min(255, pauseByDisplayName.length()));
             pipelineSqlMapDao.pause(pipelineName, sanitizedPauseCause, sanitizedPauseBy);
             LOGGER.info("[Pipeline Pause] Pipeline [{}] is paused by [{}] because [{}]", pipelineName, pauseBy, pauseCause);
+            notifyListeners(PipelinePauseChangeListener.Event.pause(pipelineName, pauseBy));
         }
     }
 
@@ -100,38 +136,13 @@ public class PipelinePauseService {
         return true;
     }
 
-    public void unpause(String pipelineName) {
-        unpause(pipelineName, UserHelper.getUserName(), new DefaultLocalizedOperationResult());
-    }
-
-    public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {
-        String unpauseByUserName = unpausedBy == null ? "" : unpausedBy.getUsername().toString();
-        if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
-            return;
-        }
-        try {
-            unpausePipeline(pipelineName, unpausedBy);
-        } catch (Exception e) {
-            LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
-            result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
-        }
-    }
-
     private void unpausePipeline(String pipelineName, Username unpausedBy) {
         String mutextPipelineName = mutexForPausePipeline(pipelineName);
         synchronized (mutextPipelineName) {
             pipelineSqlMapDao.unpause(pipelineName);
             LOGGER.info("[Pipeline Unpause] Pipeline [{}] is unpaused by [{}]", pipelineName, unpausedBy);
+            notifyListeners(PipelinePauseChangeListener.Event.unPause(pipelineName, unpausedBy));
         }
-    }
-
-    public PipelinePauseInfo pipelinePauseInfo(String pipelineName) {
-        PipelinePauseInfo pipelinePauseInfo = pipelineSqlMapDao.pauseState(pipelineName);
-        return pipelinePauseInfo == null ? PipelinePauseInfo.notPaused() : pipelinePauseInfo;
-    }
-
-    public boolean isPaused(String pipelineName) {
-        return pipelinePauseInfo(pipelineName).isPaused();
     }
 
     /*
@@ -140,5 +151,19 @@ public class PipelinePauseService {
      */
     public static String mutexForPausePipeline(String pipelineName) {
         return (PipelineSqlMapDao.class.getName() + "_mutexForPausePipeline_" + pipelineName).intern();
+    }
+
+    private void notifyListeners(PipelinePauseChangeListener.Event event) {
+        for (PipelinePauseChangeListener listener : listeners) {
+            try {
+                LOGGER.debug("START  Notifying listener ({}) of event: {}", listener, event);
+
+                listener.pauseStatusChanged(event);
+
+                LOGGER.debug("FINISH Notifying listener ({}) of event: {}", listener, event);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to notify listener ({}) of event: {}", listener, event);
+            }
+        }
     }
 }

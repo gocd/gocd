@@ -117,9 +117,14 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public String findGroupNameByPipeline(CaseInsensitiveString pipelineName) {
+        PipelineConfigs group = findGroupByPipeline(pipelineName);
+        return group == null ? null : group.getGroup();
+    }
+
+    public PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
         for (PipelineConfigs group : this) {
             if (group.hasPipeline(pipelineName)) {
-                return group.getGroup();
+                return group;
             }
         }
         return null;

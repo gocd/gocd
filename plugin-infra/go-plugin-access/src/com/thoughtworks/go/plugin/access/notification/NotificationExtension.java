@@ -21,8 +21,10 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ import static java.util.Arrays.asList;
 @Component
 public class NotificationExtension extends AbstractExtension {
     public static final String EXTENSION_NAME = "notification";
-    static final List<String> goSupportedVersions = asList("1.0", "2.0");
+    static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0");
 
     static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
@@ -55,6 +57,9 @@ public class NotificationExtension extends AbstractExtension {
 
         registerHandler("2.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("2.0", new JsonMessageHandler2_0());
+
+        registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
+        messageHandlerMap.put("3.0", new JsonMessageHandler3_0());
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {
@@ -89,5 +94,10 @@ public class NotificationExtension extends AbstractExtension {
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {
         return messageHandlerMap;
+    }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return goSupportedVersions;
     }
 }

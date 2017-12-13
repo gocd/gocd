@@ -77,4 +77,9 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public boolean isConfigRepoPlugin(String pluginId) {
         return pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, pluginId);
     }
+
+    @Override
+    protected List<String> goSupportedVersions() {
+        return goSupportedVersions;
+    }
 }

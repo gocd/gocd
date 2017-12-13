@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
+import java.util.Map;
+
 public interface PluginSettingsJsonMessageHandler {
     PluginSettingsConfiguration responseMessageForPluginSettingsConfiguration(String responseBody);
 
@@ -25,5 +27,9 @@ public interface PluginSettingsJsonMessageHandler {
 
     String requestMessageForPluginSettingsValidation(PluginSettingsConfiguration configuration);
 
-    public ValidationResult responseMessageForPluginSettingsValidation(String responseBody);
+    String requestMessageForNotifyPluginSettingsChange(Map<String, String> pluginSettings);
+
+    ValidationResult responseMessageForPluginSettingsValidation(String responseBody);
+
+    boolean supportsPluginSettingsNotification();
 }

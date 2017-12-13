@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -28,6 +29,7 @@ import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +59,11 @@ public class ConfigRepoExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+    }
+
+    @Test
+    public void shouldExtendAbstractExtension() throws Exception {
+        assertTrue(extension instanceof AbstractExtension);
     }
 
     @Test

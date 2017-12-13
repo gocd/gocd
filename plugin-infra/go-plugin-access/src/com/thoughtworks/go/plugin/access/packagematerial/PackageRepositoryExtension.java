@@ -167,4 +167,8 @@ public class PackageRepositoryExtension extends AbstractExtension {
         return messageHandlerMap.get(resolvedExtensionVersion);
     }
 
+    @Override
+    protected List<String> goSupportedVersions() {
+        return goSupportedVersions;
+    }
 }

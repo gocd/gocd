@@ -106,7 +106,7 @@ public class ServerBinaryDownloaderTest {
     @Test
     public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() throws Exception {
         exception.expect(Exception.class);
-        exception.expectMessage("Host name 'localhost' does not match the certificate subject provided by the peer");
+        exception.expectMessage("Certificate for <localhost> doesn't match any of the subject alternative names: []");
 
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("https://localhost:" + server.getSecurePort() + "/go/hello"), new File("testdata/test_cert.pem"),
                 SslVerificationMode.FULL);

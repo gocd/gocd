@@ -218,8 +218,8 @@ public class ElasticAgentPluginServiceTest {
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
 
-        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(true);
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(true));
+        when(registry.shouldAssignWork(any(), any(), any(), any(), null)).thenReturn(true);
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(true));
     }
 
     @Test
@@ -228,9 +228,9 @@ public class ElasticAgentPluginServiceTest {
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
-        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(false);
+        when(registry.shouldAssignWork(any(), any(), any(), any(), null)).thenReturn(false);
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(false));
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(false));
     }
 
     @Test
@@ -238,9 +238,9 @@ public class ElasticAgentPluginServiceTest {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
-        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(true);
+        when(registry.shouldAssignWork(any(), any(), any(), any(), null)).thenReturn(true);
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(false));
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(false));
     }
 
     private JobPlan plan(int jobId, String pluginId) {

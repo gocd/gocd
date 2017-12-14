@@ -20,10 +20,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.SchedulingContext;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -45,6 +42,7 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -101,8 +99,8 @@ public class BuildAssignmentServiceTest {
         profiles.put(elasticProfile2.getId(), elasticProfile2);
         schedulingContext = new DefaultSchedulingContext("me", new Agents(elasticAgent), profiles);
         when(jobInstanceService.orderedScheduledBuilds()).thenReturn(jobPlans);
-        when(environmentConfigService.filterJobsByAgent(Matchers.eq(jobPlans), Matchers.any(String.class))).thenReturn(jobPlans);
-        when(environmentConfigService.envForPipeline(Matchers.any(String.class))).thenReturn("");
+        when(environmentConfigService.filterJobsByAgent(Matchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
+        when(environmentConfigService.envForPipeline(any(String.class))).thenReturn("");
     }
 
     @Test
@@ -110,9 +108,8 @@ public class BuildAssignmentServiceTest {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan.getElasticProfile())).thenReturn(true);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan.getElasticProfile(), jobPlan.getIdentifier())).thenReturn(true);
         buildAssignmentService.onTimer();
-
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
         assertThat(matchingJob, is(jobPlan));
@@ -124,7 +121,7 @@ public class BuildAssignmentServiceTest {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan1);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan1.getElasticProfile())).thenReturn(false);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan1.getElasticProfile(), null)).thenReturn(false);
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
@@ -139,8 +136,8 @@ public class BuildAssignmentServiceTest {
         JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.first().getJobs().last(), schedulingContext);
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan1.getElasticProfile())).thenReturn(false);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan2.getElasticProfile())).thenReturn(true);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan1.getElasticProfile(), jobPlan1.getIdentifier())).thenReturn(false);
+        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), "", jobPlan2.getElasticProfile(), jobPlan2.getIdentifier())).thenReturn(true);
         buildAssignmentService.onTimer();
 
 
@@ -163,7 +160,7 @@ public class BuildAssignmentServiceTest {
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(regularAgentInstance);
         assertThat(matchingJob, is(regularJobPlan));
         assertThat(buildAssignmentService.jobPlans().size(), is(1));
-        verify(elasticAgentPluginService, never()).shouldAssignWork(Matchers.any(ElasticAgentMetadata.class), Matchers.any(String.class), Matchers.any(ElasticProfile.class));
+        verify(elasticAgentPluginService, never()).shouldAssignWork(any(ElasticAgentMetadata.class), any(String.class), any(ElasticProfile.class), any(JobIdentifier.class));
     }
 
 }

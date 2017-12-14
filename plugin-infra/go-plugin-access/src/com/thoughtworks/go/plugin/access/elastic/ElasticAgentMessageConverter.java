@@ -31,7 +31,7 @@ public interface ElasticAgentMessageConverter {
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 
-    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration);
+    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier);
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody);
 

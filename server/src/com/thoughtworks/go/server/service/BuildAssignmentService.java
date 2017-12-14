@@ -172,7 +172,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
             match = agent.firstMatching(filteredJobPlans);
         } else {
             for (JobPlan jobPlan : filteredJobPlans) {
-                if (jobPlan.requiresElasticAgent() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(jobPlan.getPipelineName()), jobPlan.getElasticProfile())) {
+                if (jobPlan.requiresElasticAgent() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(jobPlan.getPipelineName()), jobPlan.getElasticProfile(), jobPlan.getIdentifier())) {
                     match = jobPlan;
                     break;
                 }

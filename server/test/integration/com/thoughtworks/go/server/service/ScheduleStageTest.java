@@ -16,17 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -46,6 +38,9 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.containsString;
@@ -118,7 +113,7 @@ public class ScheduleStageTest {
 
         dbHelper.passStage(stage);
 
-        EnvironmentVariablesConfig expectedVariableOrder = new EnvironmentVariablesConfig();
+        EnvironmentVariables expectedVariableOrder = new EnvironmentVariables();
         expectedVariableOrder.add("pipelineEnv", "pipelineFoo");
         expectedVariableOrder.add("stageEnv", "stageBar");
         expectedVariableOrder.add("jobEnv", "jobBaz");
@@ -128,7 +123,7 @@ public class ScheduleStageTest {
     }
 
      @Test
-    public void shouldResolveEnvironmentVariablesForJobReRun() throws Exception {
+    public void shouldResolveEnvironmentVariablesForJobReRun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
        Stage oldStage = stageDao.stageByIdWithBuilds(pipeline.getStages().byName(fixture.devStage).getId());
@@ -150,7 +145,7 @@ public class ScheduleStageTest {
 
         Stage stage = scheduleService.rerunJobs(oldStage, a(fixture.JOB_FOR_DEV_STAGE), new HttpOperationResult());
 
-        EnvironmentVariablesConfig expectedVariableOrder = new EnvironmentVariablesConfig();
+        EnvironmentVariables expectedVariableOrder = new EnvironmentVariables();
         expectedVariableOrder.add("pipelineEnv", "pipelineFoo");
         expectedVariableOrder.add("stageEnv", "stageBar");
         expectedVariableOrder.add("jobEnv", "jobBaz");

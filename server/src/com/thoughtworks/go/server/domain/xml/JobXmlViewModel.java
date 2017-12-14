@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.domain.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -83,8 +82,8 @@ public class JobXmlViewModel implements XmlRepresentable {
 
         Element envVars = root.addElement("environmentvariables");
 
-        for (EnvironmentVariableConfig environmentVariableConfig : jobPlan.getVariables()) {
-            envVars.addElement("variable").addAttribute("name", environmentVariableConfig.getName()).addCDATA(environmentVariableConfig.getDisplayValue());
+        for (EnvironmentVariable environmentVariable : jobPlan.getVariables()) {
+            envVars.addElement("variable").addAttribute("name", environmentVariable.getName()).addCDATA(environmentVariable.getDisplayValue());
         }
 
         return document;

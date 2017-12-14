@@ -16,19 +16,14 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import java.io.IOException;
-
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.WaitingJobPlan;
-import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ArrayUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,10 +31,10 @@ public class JobPlanXmlViewModelTest {
 
     @Test
     public void shouldConvertJobPlanToXmlDocument() throws IOException, DocumentException {
-        EnvironmentVariableConfig secureEnvVariable = new EnvironmentVariableConfig(new GoCipher(), "secureVariable", "value2", true);
+        EnvironmentVariable secureEnvVariable = new EnvironmentVariable("secureVariable", "value2", true);
         DefaultJobPlan jobPlan1 = JobInstanceMother.jobPlan("job-1", 1);
         jobPlan1.setJobId(10);
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("some_var", "blah");
         variables.add(secureEnvVariable);
         jobPlan1.setVariables(variables);
@@ -49,20 +44,20 @@ public class JobPlanXmlViewModelTest {
         JobPlanXmlViewModel jobPlanXmlViewModel = new JobPlanXmlViewModel(ArrayUtil.asList(new WaitingJobPlan(jobPlan1, "envName"), new WaitingJobPlan(jobPlan2, null)));
 
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                                + "<scheduledJobs>"
-                                        + "<job name=\"job-1\" id=\"10\">"
-                                            + "<link rel=\"self\" href=\"http://baseurl/go/tab/build/detail/pipeline/1/stage/1/job-1\"/>"
-                                            + "<buildLocator>pipeline/1/stage/1/job-1</buildLocator>"
-                                            + "<environment>envName</environment>"
-                                            + "<resources><resource><![CDATA[foo]]></resource><resource><![CDATA[bar]]></resource></resources>"
-                                            + "<environmentVariables><variable name=\"some_var\">blah</variable><variable name=\"secureVariable\">****</variable></environmentVariables>"
-                                        + "</job>"
-                                        + "<job name=\"job-2\" id=\"11\">"
-                                            + "<link rel=\"self\" href=\"http://baseurl/go/tab/build/detail/pipeline/1/stage/1/job-2\"/>"
-                                            + "<buildLocator>pipeline/1/stage/1/job-2</buildLocator>"
-                                            + "<resources><resource><![CDATA[foo]]></resource><resource><![CDATA[bar]]></resource></resources>"
-                                        + "</job>"
-                                + "</scheduledJobs>" ;
+                + "<scheduledJobs>"
+                + "<job name=\"job-1\" id=\"10\">"
+                + "<link rel=\"self\" href=\"http://baseurl/go/tab/build/detail/pipeline/1/stage/1/job-1\"/>"
+                + "<buildLocator>pipeline/1/stage/1/job-1</buildLocator>"
+                + "<environment>envName</environment>"
+                + "<resources><resource><![CDATA[foo]]></resource><resource><![CDATA[bar]]></resource></resources>"
+                + "<environmentVariables><variable name=\"some_var\">blah</variable><variable name=\"secureVariable\">****</variable></environmentVariables>"
+                + "</job>"
+                + "<job name=\"job-2\" id=\"11\">"
+                + "<link rel=\"self\" href=\"http://baseurl/go/tab/build/detail/pipeline/1/stage/1/job-2\"/>"
+                + "<buildLocator>pipeline/1/stage/1/job-2</buildLocator>"
+                + "<resources><resource><![CDATA[foo]]></resource><resource><![CDATA[bar]]></resource></resources>"
+                + "</job>"
+                + "</scheduledJobs>";
 
         Document document = jobPlanXmlViewModel.toXml(new XmlWriterContext("http://baseurl/go", null, null, null, null));
         assertEquals(expectedXml, document.asXML());

@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.domain.EnvironmentVariables;
 
 public interface EnvironmentVariableDao {
-    void save(Long entityId, EnvironmentVariableType type, EnvironmentVariablesConfig variables);
+    void save(Long entityId, EnvironmentVariableType type, EnvironmentVariables variables);
 
-    EnvironmentVariablesConfig load(Long entityId, EnvironmentVariableType type);
+    EnvironmentVariables load(Long entityId, EnvironmentVariableType type);
 
     enum EnvironmentVariableType {
         Job,

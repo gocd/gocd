@@ -73,28 +73,48 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class ScheduleServiceIntegrationTest {
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private StageDao stageDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private PipelineScheduler buildCauseProducer;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private PipelineScheduledTopic pipelineScheduledTopic;
-    @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
-    @Autowired private StageService stageService;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private ScheduleHelper scheduleHelper;
-    @Autowired private AgentAssignment agentAssignment;
-    @Autowired private PipelineLockService pipelineLockService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoCache goCache;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private PipelinePauseService pipelinePauseService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private PipelineScheduler buildCauseProducer;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private PipelineScheduledTopic pipelineScheduledTopic;
+    @Autowired
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private AgentAssignment agentAssignment;
+    @Autowired
+    private PipelineLockService pipelineLockService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private PipelinePauseService pipelinePauseService;
 
     private PipelineConfig mingleConfig;
-	@Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     private static final String STAGE_NAME = "dev";
     private GoConfigFileHelper configHelper;
     public Subversion repository;
@@ -343,8 +363,8 @@ public class ScheduleServiceIntegrationTest {
         long jobId = pipeline.getFirstStage().getFirstJob().getId();
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
 
-        EnvironmentVariablesConfig variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariableConfig("K1", "V1"), new EnvironmentVariableConfig("K2", "V2"), new EnvironmentVariableConfig("K3", "V3")));
+        EnvironmentVariables variables = jobPlan.getVariables();
+        assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
 
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));//add
         configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig()); //delete
@@ -355,7 +375,7 @@ public class ScheduleServiceIntegrationTest {
         jobPlan = jobInstanceDao.loadPlan(jobId);
 
         variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariableConfig("K1_updated", "V1_updated"), new EnvironmentVariableConfig("K3", "V3_updated")));
+        assertThat(variables, hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K3", "V3_updated")));
     }
 
     @Test //#6815
@@ -371,13 +391,13 @@ public class ScheduleServiceIntegrationTest {
         long jobId = pipeline.getFirstStage().getFirstJob().getId();
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
 
-        EnvironmentVariablesConfig variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariableConfig("K1", "V1"), new EnvironmentVariableConfig("K2", "V2"), new EnvironmentVariableConfig("K3", "V3")));
+        EnvironmentVariables variables = jobPlan.getVariables();
+        assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunJobs(pipeline.getFirstStage(), Arrays.asList(job), new HttpOperationResult());
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
         assertThat(rerunStage.getFirstJob().getPlan().getVariables(),
-                hasItems(new EnvironmentVariableConfig("K1_updated", "V1_updated"), new EnvironmentVariableConfig("K2", "V2"), new EnvironmentVariableConfig("K3", "V3")));
+                hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
     }
 
     @Test //#6815
@@ -393,12 +413,12 @@ public class ScheduleServiceIntegrationTest {
         long jobId = pipeline.getFirstStage().getFirstJob().getId();
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
 
-        EnvironmentVariablesConfig variables = jobPlan.getVariables();
-        assertThat(variables, hasItems(new EnvironmentVariableConfig("K1", "V1"), new EnvironmentVariableConfig("K2", "V2"), new EnvironmentVariableConfig("K3", "V3")));
+        EnvironmentVariables variables = jobPlan.getVariables();
+        assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunStage(pipelineConfig.name().toString(), "1", stageName);
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
-        assertThat(rerunStage.getFirstJob().getPlan().getVariables(), hasItems(new EnvironmentVariableConfig("K1_updated", "V1_updated"), new EnvironmentVariableConfig("K2", "V2"), new EnvironmentVariableConfig("K3", "V3")));
+        assertThat(rerunStage.getFirstJob().getPlan().getVariables(), hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
     }
 
     @Test

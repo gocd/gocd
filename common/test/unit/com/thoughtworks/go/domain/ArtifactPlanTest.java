@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -26,7 +29,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -107,5 +113,20 @@ public class ArtifactPlanTest {
     public void shouldTrimThePath() {
         assertThat(new ArtifactPlan(ArtifactType.file, "pkg   ", "logs "),
                 is(new ArtifactPlan(ArtifactType.file, "pkg", "logs")));
+    }
+
+    @Test
+    public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
+        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(
+                new ArtifactConfig("source", "destination"),
+                new TestArtifactConfig("test-source", "test-destination")
+        ));
+
+        final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(artifactConfigs);
+
+        assertThat(artifactPlans, containsInAnyOrder(
+                new ArtifactPlan(ArtifactType.file,"source", "destination"),
+                new ArtifactPlan(ArtifactType.unit,"test-source", "test-destination")
+        ));
     }
 }

@@ -19,8 +19,8 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="com.thoughtworks.go.config" default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.config.EnvironmentVariableConfig" table="environmentVariables">
+<hibernate-mapping package="com.thoughtworks.go.domain" default-access="field" default-lazy="false">
+    <class name="com.thoughtworks.go.domain.EnvironmentVariable" table="environmentVariables">
         <cache usage="read-write"/>
         <id name="id" column="id">
             <generator class="identity"/>

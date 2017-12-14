@@ -16,15 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.*;
@@ -35,11 +27,7 @@ import com.thoughtworks.go.domain.materials.TestingMaterial;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.PipelineScheduleQueueMatcher;
-import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -61,13 +49,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -242,11 +230,11 @@ public class PipelineScheduleServiceTest {
         Pipeline pipeline = pipelineDao.mostRecentPipeline("go");
 
         Stage stage = scheduleService.scheduleStage(pipeline, "ft", "anonymous", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
-        EnvironmentVariablesConfig jobVariables = stage.getJobInstances().first().getPlan().getVariables();
+        EnvironmentVariables jobVariables = stage.getJobInstances().first().getPlan().getVariables();
         assertThat(jobVariables.size(), is(3)); //pipeline, stage, job, env is applied while creating work
-        assertThat(jobVariables, hasItem(new EnvironmentVariableConfig("PIPELINE_LVL", "pipeline value")));
-        assertThat(jobVariables, hasItem(new EnvironmentVariableConfig("STAGE_LVL", "stage value")));
-        assertThat(jobVariables, hasItem(new EnvironmentVariableConfig("JOB_LVL", "job value")));
+        assertThat(jobVariables, hasItem(new EnvironmentVariable("PIPELINE_LVL", "pipeline value")));
+        assertThat(jobVariables, hasItem(new EnvironmentVariable("STAGE_LVL", "stage value")));
+        assertThat(jobVariables, hasItem(new EnvironmentVariable("JOB_LVL", "job value")));
     }
 
 

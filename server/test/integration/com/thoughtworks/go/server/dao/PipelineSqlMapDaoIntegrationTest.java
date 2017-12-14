@@ -85,6 +85,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -93,19 +94,32 @@ import static org.junit.Assert.*;
         "classpath:testPropertyConfigurer.xml"
 })
 public class PipelineSqlMapDaoIntegrationTest {
-    @Autowired private StageDao stageDao;
-    @Autowired private PipelineSqlMapDao pipelineDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private DataSource dataSource;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoCache goCache;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private PipelinePauseService pipelinePauseService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private InstanceFactory instanceFactory;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private PipelineSqlMapDao pipelineDao;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private PipelinePauseService pipelinePauseService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private InstanceFactory instanceFactory;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
@@ -295,17 +309,17 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldPersistBuildCauseEnvironmentVariables() throws SQLException {
+    public void shouldPersistBuildCauseEnvironmentVariables() {
         MaterialRevisions materialRevisions = ModificationsMother.multipleModifications();
         BuildCause buildCause = BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS);
-        EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
-        environmentVariablesConfig.add(new EnvironmentVariableConfig("VAR1", "value one"));
-        environmentVariablesConfig.add(new EnvironmentVariableConfig("VAR2", "value two"));
-        buildCause.addOverriddenVariables(environmentVariablesConfig);
+        EnvironmentVariables environmentVariables = new EnvironmentVariables();
+        environmentVariables.add(new EnvironmentVariable("VAR1", "value one"));
+        environmentVariables.add(new EnvironmentVariable("VAR2", "value two"));
+        buildCause.addOverriddenVariables(environmentVariables);
         Pipeline pipeline = new Pipeline("Test", buildCause);
         save(pipeline);
         Pipeline loaded = pipelineDao.mostRecentPipeline("Test");
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("VAR1", "value one");
         variables.add("VAR2", "value two");
         assertThat(loaded.getBuildCause().getVariables(), is(variables));
@@ -313,7 +327,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldPersistMaterialsWithRealPassword() throws SQLException {
+    public void shouldPersistMaterialsWithRealPassword() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
         addRevision(materialRevisions, MaterialsMother.svnMaterial("http://username:password@localhost"));
@@ -722,7 +736,7 @@ public class PipelineSqlMapDaoIntegrationTest {
             PipelineConfig pipelineConfigWithDifferentCase = PipelineMother.createPipelineConfig("TWIST", twistConfig.materialConfigs(), "dev", "ft");
             goConfigDao.addPipeline(pipelineConfigWithDifferentCase, "pipelinesqlmapdaotest");
         }
-         PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
+        PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
         assertThat(pipelineHistories.size(), is(1));
         assertThat(pipelineHistories.get(0).getId(), is(twistPipeline.getId()));
         assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty(), is(false));
@@ -1571,30 +1585,30 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineIdentifiers, is(Matchers.empty()));
     }
 
-	@Test
-	public void shouldReturnListOfPipelineIdentifiersBasedOnAMaterialRevisionCorrectly() throws Exception {
-		GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
-		u.checkinInOrder(g1, "g_1", "g_2", "g_3");
+    @Test
+    public void shouldReturnListOfPipelineIdentifiersBasedOnAMaterialRevisionCorrectly() throws Exception {
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1", "g_2", "g_3");
 
-		ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(g1));
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(g1));
 
-		String p1_1 = u.runAndPass(p1, "g_2");
-		String p1_2 = u.runAndPass(p1, "g_3");
-		String p1_3 = u.runAndPass(p1, "g_2");
+        String p1_1 = u.runAndPass(p1, "g_2");
+        String p1_2 = u.runAndPass(p1, "g_3");
+        String p1_3 = u.runAndPass(p1, "g_2");
 
-		MaterialInstance g1Instance = materialRepository.findMaterialInstance(g1);
-		List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p1.config.name().toString(), g1Instance, "g_2");
+        MaterialInstance g1Instance = materialRepository.findMaterialInstance(g1);
+        List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p1.config.name().toString(), g1Instance, "g_2");
 
-		assertThat(pipelineIdentifiers.size(), is(2));
-		assertThat(pipelineIdentifiers, contains(new PipelineIdentifier(p1.config.name().toString(), 3, "3"), new PipelineIdentifier(p1.config.name().toString(), 1, "1")));
+        assertThat(pipelineIdentifiers.size(), is(2));
+        assertThat(pipelineIdentifiers, contains(new PipelineIdentifier(p1.config.name().toString(), 3, "3"), new PipelineIdentifier(p1.config.name().toString(), 1, "1")));
 
-		pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p1.config.name().toString(), g1Instance, "g_1");
+        pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p1.config.name().toString(), g1Instance, "g_1");
 
-		assertThat(pipelineIdentifiers, is(Matchers.empty()));
-	}
+        assertThat(pipelineIdentifiers, is(Matchers.empty()));
+    }
 
     @Test
-    /* THIS IS A BUG IN VSM. STAGE RERUNS ARE NOT SUPPORTED AND DOWNSTREAMS SHOW THE RUNS MADE OUT OF PREVIOUS STAGE RUN. CHANGE TEST EXPECTATION WHEN BUG IS FIXED POST 13.2 [Mingle #7385] (DUCK & SACHIN) */
+            /* THIS IS A BUG IN VSM. STAGE RERUNS ARE NOT SUPPORTED AND DOWNSTREAMS SHOW THE RUNS MADE OUT OF PREVIOUS STAGE RUN. CHANGE TEST EXPECTATION WHEN BUG IS FIXED POST 13.2 [Mingle #7385] (DUCK & SACHIN) */
     public void shouldReturnListOfDownstreamPipelineIdentifiersForARunOfUpstreamPipeline_AlthoughUpstreamHasHadAStageReRun() throws Exception {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
@@ -1613,7 +1627,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldInvalidateCachedPipelineHistoryViaNameAndCounterUponStageChangeCaseInsensitively()  throws Exception {
+    public void shouldInvalidateCachedPipelineHistoryViaNameAndCounterUponStageChangeCaseInsensitively() throws Exception {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 

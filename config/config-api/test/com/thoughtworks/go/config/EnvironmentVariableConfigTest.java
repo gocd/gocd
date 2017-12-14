@@ -30,7 +30,6 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -172,36 +171,6 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldGetSqlCriteriaForPlainTextEnvironmentVariable() throws InvalidCipherTextException {
-        String plainText = "value";
-        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "key", plainText, false);
-
-        Map<String, Object> sqlCriteria = environmentVariableConfig.getSqlCriteria();
-        assertThat(sqlCriteria.get("variableName"), is("key"));
-        assertThat(sqlCriteria.get("variableValue"), is(plainText));
-        assertThat(sqlCriteria.get("isSecure"), is(false));
-
-        verify(goCipher, never()).encrypt(plainText);
-    }
-
-    @Test
-    public void shouldGetSqlCriteriaForSecureEnvironmentVariable() throws InvalidCipherTextException {
-        String encryptedText = "encrypted";
-        String plainText = "plainText";
-        when(goCipher.encrypt(plainText)).thenReturn(encryptedText);
-        when(goCipher.decrypt(encryptedText)).thenReturn(plainText);
-        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "key", plainText, true);
-
-        Map<String, Object> sqlCriteria = environmentVariableConfig.getSqlCriteria();
-        assertThat(sqlCriteria.get("variableName"), is("key"));
-        assertThat(sqlCriteria.get("variableValue"), is(plainText));
-        assertThat(sqlCriteria.get("isSecure"), is(true));
-
-        verify(goCipher).encrypt(plainText);
-        verify(goCipher).decrypt(encryptedText);
-    }
-
-    @Test
     public void shouldAddPlainTextEnvironmentVariableToContext() {
         String key = "key";
         String plainText = "plainText";
@@ -282,7 +251,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldCopyEnvironmentVariableConfig(){
+    public void shouldCopyEnvironmentVariableConfig() {
         EnvironmentVariableConfig secureEnvironmentVariable = new EnvironmentVariableConfig(goCipher, "plain_key", "plain_value", true);
         EnvironmentVariableConfig copy = new EnvironmentVariableConfig(secureEnvironmentVariable);
         assertThat(copy.getName(), is(secureEnvironmentVariable.getName()));
@@ -292,7 +261,7 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
-    public void shouldNotConsiderErrorsForEqualsCheck(){
+    public void shouldNotConsiderErrorsForEqualsCheck() {
         EnvironmentVariableConfig config1 = new EnvironmentVariableConfig("name", "value");
         EnvironmentVariableConfig config2 = new EnvironmentVariableConfig("name", "value");
         config2.addError("name", "errrr");

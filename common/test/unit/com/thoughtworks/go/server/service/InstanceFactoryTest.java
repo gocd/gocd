@@ -110,8 +110,8 @@ public class InstanceFactoryTest {
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, ModificationsMother.forceBuild(pipelineConfig), context, "some-md5", new TimeProvider());
 
-        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(EnvironmentVariablesConfigMother.env("foo", "foo")));
-        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(EnvironmentVariablesConfigMother.env("foo", "bar")));
+        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("foo", "foo")))));
+        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("foo", "bar")))));
     }
 
     @Test
@@ -132,14 +132,14 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldSetAutoApprovalOnStageInstance() throws Exception {
+    public void shouldSetAutoApprovalOnStageInstance()  {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_SUCCESS));
     }
 
     @Test
-    public void shouldSetManualApprovalOnStageInstance() throws Exception {
+    public void shouldSetManualApprovalOnStageInstance()  {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.manualApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_MANUAL));
@@ -238,7 +238,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldAddEnvironmentVariablesPresentInTheScheduleContextToJobPlan() throws Exception {
+    public void shouldAddEnvironmentVariablesPresentInTheScheduleContextToJobPlan() {
         JobConfig jobConfig = new JobConfig("foo");
 
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
@@ -246,11 +246,11 @@ public class InstanceFactoryTest {
         SchedulingContext context = new DefaultSchedulingContext("Loser");
         context = context.overrideEnvironmentVariables(variablesConfig);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariableConfig("blahVar", "blahVal")));
+        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("blahVar", "blahVal")));
     }
 
     @Test
-    public void shouldOverrideEnvironmentVariablesPresentInTheScheduleContextToJobPlan() throws Exception {
+    public void shouldOverrideEnvironmentVariablesPresentInTheScheduleContextToJobPlan() {
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.add("blahVar", "blahVal");
         variablesConfig.add("differentVar", "differentVal");
@@ -268,13 +268,13 @@ public class InstanceFactoryTest {
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
         assertThat(plan.getVariables().size(), is(3));
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariableConfig("blahVar", "blahVal")));
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariableConfig("secondVar", "secondVal")));
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariableConfig("differentVar", "differentVal")));
+        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("blahVar", "blahVal")));
+        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("secondVar", "secondVal")));
+        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("differentVar", "differentVal")));
     }
 
     @Test
-    public void shouldAddEnvironmentVariablesToJobPlan() throws Exception {
+    public void shouldAddEnvironmentVariablesToJobPlan() {
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.add("blahVar", "blahVal");
 
@@ -285,7 +285,7 @@ public class InstanceFactoryTest {
 
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
-        assertThat(plan.getVariables(), hasItem(new EnvironmentVariableConfig("blahVar", "blahVal")));
+        assertThat(plan.getVariables(), hasItem(new EnvironmentVariable("blahVar", "blahVal")));
     }
 
     @Test
@@ -294,7 +294,7 @@ public class InstanceFactoryTest {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
+        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null)));
     }
 
     @Test

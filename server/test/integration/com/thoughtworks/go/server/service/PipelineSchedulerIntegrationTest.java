@@ -16,49 +16,44 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.server.dao.PipelineDao;
-import com.thoughtworks.go.server.scheduling.ScheduleHelper;
-import com.thoughtworks.go.server.scheduling.ScheduleOptions;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import org.junit.Assert;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
+import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.scheduling.ScheduleHelper;
+import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
@@ -150,8 +145,8 @@ public class PipelineSchedulerIntegrationTest {
         });
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(PIPELINE_MINGLE);
 
-        EnvironmentVariablesConfig overriddenVariables = buildCause.getVariables();
-        assertThat(overriddenVariables, is(env("KEY", "value")));
+        EnvironmentVariables overriddenVariables = buildCause.getVariables();
+        assertThat(overriddenVariables, is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("KEY", "value")))));
     }
 
 

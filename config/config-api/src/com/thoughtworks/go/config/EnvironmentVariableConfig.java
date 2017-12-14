@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -30,37 +29,30 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @understands an environment variable value that will be passed to a job when it is run
  */
 @ConfigTag("variable")
-public class EnvironmentVariableConfig extends PersistentObject implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable {
-    @ConfigAttribute(value = "name", optional = false)
-    private String name;
-
-    @ConfigAttribute(value = "secure", optional = true)
-    private boolean isSecure = false;
-
-    @ConfigSubtag
-    private VariableValueConfig value;
-
-    @ConfigSubtag
-    private EncryptedVariableValueConfig encryptedValue;
-
-    private long entityId;
-    private String entityType;
-
-    private final ConfigErrors configErrors = new ConfigErrors();
-
+public class EnvironmentVariableConfig implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable {
     public static final String NAME = "name";
     public static final String VALUE = "valueForDisplay";
     public static final String ENCRYPTEDVALUE = "encryptedValue";
     public static final String SECURE = "secure";
-    private GoCipher goCipher = null;
     public static final String ISCHANGED = "isChanged";
+
+    @ConfigAttribute(value = "name", optional = false)
+    private String name;
+    @ConfigAttribute(value = "secure", optional = true)
+    private boolean isSecure = false;
+    @ConfigSubtag
+    private VariableValueConfig value;
+    @ConfigSubtag
+    private EncryptedVariableValueConfig encryptedValue;
+
+    private final ConfigErrors configErrors = new ConfigErrors();
+    private GoCipher goCipher = null;
     private ConfigOrigin origin;
 
     public EnvironmentVariableConfig() {
@@ -166,7 +158,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         String currentVariableName = name.toLowerCase();
         String parentDisplayName = validationContext.getParentDisplayName();
         CaseInsensitiveString parentName = getParentNameFrom(validationContext);
-        if(!currentVariableName.trim().equals(currentVariableName)){
+        if (!currentVariableName.trim().equals(currentVariableName)) {
             configErrors.add(NAME, String.format("Environment Variable cannot start or end with spaces for %s '%s'.", parentDisplayName, parentName));
             return;
         }
@@ -191,22 +183,6 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     private CaseInsensitiveString getParentNameFrom(ValidationContext validationContext) {
         EnvironmentVariableScope parent = (EnvironmentVariableScope) validationContext.getParent();
         return parent.name();
-    }
-
-    /**
-     * We do this to avoid breaking encapsulation.
-     * We should remove this method when we move to Hibernate.
-     */
-    public Map<String, Object> getSqlCriteria() {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("variableName", name);
-        map.put("variableValue", getValue());
-        map.put("isSecure", isSecure);
-        return map;
-    }
-
-    public boolean hasName(String variableName) {
-        return name.equals(variableName);
     }
 
     public boolean validateTree(ValidationContext validationContext) {
@@ -237,8 +213,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     public void setIsSecure(boolean isSecure) {
         this.isSecure = isSecure;
     }
-
-
+    
     public boolean isPlain() {
         return !isSecure();
     }
@@ -343,21 +318,12 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         return value.getValue();
     }
 
-    public void setEntityId(Long entityId) {
-        this.entityId = entityId;
-    }
-
-    public void setEntityType(String entityType) {
-        this.entityType = entityType;
-    }
-
     @Override
     public ConfigOrigin getOrigin() {
         return origin;
     }
 
-    public boolean isRemote()
-    {
+    public boolean isRemote() {
         return origin != null && !origin.isLocal();
     }
 

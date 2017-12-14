@@ -110,6 +110,10 @@ public class InstanceFactory {
         if (elasticProfileId != null) {
             elasticProfile = context.getElasticProfile(elasticProfileId);
         }
-        return new DefaultJobPlan(new Resources(config.resourceConfigs()), ArtifactPlan.toArtifactPlans(config.artifactConfigs()), config.getProperties(), -1, identifier, null, context.overrideEnvironmentVariables(config.getVariables()).getEnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
+        final EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(context.overrideEnvironmentVariables(config.getVariables()).getEnvironmentVariablesConfig());
+
+        return new DefaultJobPlan(new Resources(config.resourceConfigs()),
+                ArtifactPlan.toArtifactPlans(config.artifactConfigs()),
+                config.getProperties(), -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile);
     }
 }

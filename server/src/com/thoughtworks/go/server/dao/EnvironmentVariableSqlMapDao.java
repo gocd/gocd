@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.domain.EnvironmentVariable;
+import com.thoughtworks.go.domain.EnvironmentVariables;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
@@ -30,6 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.util.List;
 
 @Component
 public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
@@ -42,11 +42,12 @@ public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public void save(final Long entityId, final EnvironmentVariableType type, final EnvironmentVariablesConfig variables) {
+    public void save(final Long entityId, final EnvironmentVariableType type, final EnvironmentVariables variables) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                for (EnvironmentVariableConfig variable : variables) {
-                    EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(variable);
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                for (EnvironmentVariable variable : variables) {
+                    EnvironmentVariable environmentVariableConfig = new EnvironmentVariable(variable.getName(), variable.getValue(), variable.isSecure());
                     environmentVariableConfig.setEntityId(entityId);
                     environmentVariableConfig.setEntityType(type.toString());
                     sessionFactory.getCurrentSession().save(environmentVariableConfig);
@@ -55,19 +56,16 @@ public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
         });
     }
 
-    public EnvironmentVariablesConfig load(final Long entityId, final EnvironmentVariableType type) {
-        List<EnvironmentVariableConfig> result = (List<EnvironmentVariableConfig>) transactionTemplate.execute(new TransactionCallback() {
+    public EnvironmentVariables load(final Long entityId, final EnvironmentVariableType type) {
+        List<EnvironmentVariable> result = (List<EnvironmentVariable>) transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus transactionStatus) {
-                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(EnvironmentVariableConfig.class).add(Restrictions.eq("entityId", entityId)).add(
+                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(EnvironmentVariable.class).add(Restrictions.eq("entityId", entityId)).add(
                         Restrictions.eq("entityType", type.toString())).addOrder(Order.asc("id"));
                 criteria.setCacheable(true);
                 return criteria.list();
             }
         });
-        for (EnvironmentVariableConfig var : result) {
-            var.ensureEncrypted();
-        }
-        return new EnvironmentVariablesConfig(result);
+        return new EnvironmentVariables(result);
     }
 }

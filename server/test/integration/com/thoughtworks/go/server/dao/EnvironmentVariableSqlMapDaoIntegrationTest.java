@@ -16,12 +16,8 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.Map;
-
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.security.GoCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
+import com.thoughtworks.go.domain.EnvironmentVariable;
+import com.thoughtworks.go.domain.EnvironmentVariables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.server.dao.EnvironmentVariableDao.EnvironmentVariableType.Job;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -43,7 +38,6 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class EnvironmentVariableSqlMapDaoIntegrationTest {
-
     @Autowired private EnvironmentVariableSqlMapDao dao;
     @Autowired private DatabaseAccessHelper dbHelper;
 
@@ -57,16 +51,15 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
         dbHelper.onTearDown();
     }
 
-
     @Test
     public void shouldSavePlainTextEnvironmentVariable() {
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         String plainText = "plainText";
         String key = "key";
-        variables.add(new EnvironmentVariableConfig(new GoCipher(), key, plainText, false));
+        variables.add(new EnvironmentVariable(key, plainText, false));
         dao.save(1L, Job, variables);
 
-        EnvironmentVariablesConfig actual = dao.load(1L, Job);
+        EnvironmentVariables actual = dao.load(1L, Job);
 
         assertThat(actual.get(0).getName(), is(key));
         assertThat(actual.get(0).getValue(), is(plainText));
@@ -74,23 +67,17 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveSecureEnvironmentVariable() throws InvalidCipherTextException {
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+    public void shouldSaveSecureEnvironmentVariable() {
+        EnvironmentVariables variables = new EnvironmentVariables();
         String plainText = "plainText";
         String key = "key";
-        GoCipher goCipher = new GoCipher();
-        variables.add(new EnvironmentVariableConfig(goCipher, key, plainText, true));
+        variables.add(new EnvironmentVariable(key, plainText, true));
         dao.save(1L, Job, variables);
 
-        EnvironmentVariablesConfig actual = dao.load(1L, Job);
+        EnvironmentVariables actual = dao.load(1L, Job);
 
         assertThat(actual.get(0).getName(), is(key));
         assertThat(actual.get(0).getValue(), is(plainText));
         assertThat(actual.get(0).isSecure(), is(true));
     }
-
-    private Map<String, Object> args(long id, EnvironmentVariableDao.EnvironmentVariableType type) {
-        return arguments("entityId", id).and("entityType", type).asMap();
-    }
-
 }

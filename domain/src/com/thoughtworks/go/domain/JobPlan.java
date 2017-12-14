@@ -17,7 +17,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
@@ -46,15 +45,15 @@ public interface JobPlan extends Serializable {
 
     String getAgentUuid();
 
-    EnvironmentVariablesConfig getVariables();
+    EnvironmentVariables getVariables();
 
     void applyTo(EnvironmentVariableContext variableContext);
 
-    void setVariables(EnvironmentVariablesConfig variables);
+    void setVariables(EnvironmentVariables variables);
 
     long getPipelineId();
 
-    void setTriggerVariables(EnvironmentVariablesConfig environmentVariablesConfig);
+    void setTriggerVariables(EnvironmentVariables environmentVariables);
 
     boolean shouldFetchMaterials();
 

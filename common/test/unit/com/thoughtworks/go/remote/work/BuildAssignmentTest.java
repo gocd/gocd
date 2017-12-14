@@ -19,7 +19,6 @@ package com.thoughtworks.go.remote.work;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -94,7 +93,7 @@ public class BuildAssignmentTest {
     public void shouldInitializeEnvironmentContextFromJobPlan() throws Exception {
         DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
 
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("key1", "value1");
         variables.add("key2", "value2");
 
@@ -111,11 +110,11 @@ public class BuildAssignmentTest {
     @Test
     public void shouldInitializeEnvironmentContextFromJobPlanWithTriggerVariablesOverridingEnvVariablesFromJob() throws Exception {
         DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
-        EnvironmentVariablesConfig triggerVariables = new EnvironmentVariablesConfig();
+        EnvironmentVariables triggerVariables = new EnvironmentVariables();
         triggerVariables.add("key1", "override");
         triggerVariables.add("key3", "value3");
 
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("key1", "value1");
         variables.add("key2", "value2");
 
@@ -134,7 +133,7 @@ public class BuildAssignmentTest {
     public void shouldIntializeEnvironmentContextWithJobPlanEnvironmentVariablesOveridingEnvVariablesFromTheEnvironment() throws Exception {
         DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
 
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("key1", "value_from_job_plan");
         variables.add("key2", "value2");
 
@@ -205,7 +204,7 @@ public class BuildAssignmentTest {
     }
 
     private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) {
-        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
@@ -254,7 +253,7 @@ public class BuildAssignmentTest {
 
     private DefaultJobPlan jobForPipeline(String pipelineName) {
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, 1, "1", "defaultStage", "1", "job1", 100L);
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 
     private void setupHgRepo() throws IOException {

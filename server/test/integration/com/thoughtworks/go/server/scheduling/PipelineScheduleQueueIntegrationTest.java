@@ -50,6 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
@@ -403,22 +404,23 @@ public class PipelineScheduleQueueIntegrationTest {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         pipelineConfig.setVariables(env("blahVariable", "blahValue"));
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
-        EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
-        environmentVariablesConfig.add(new EnvironmentVariableConfig("blahVariable", "blahOverride"));
-        cause.addOverriddenVariables(environmentVariablesConfig);
+        EnvironmentVariables environmentVariables = new EnvironmentVariables();
+        environmentVariables.add(new EnvironmentVariable("blahVariable", "blahOverride"));
+        cause.addOverriddenVariables(environmentVariables);
         saveRev(cause);
         queue.schedule(fixture.pipelineName, cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
-        assertThat(pipeline.scheduleTimeVariables(), is(env("blahVariable", "blahOverride")));
+        assertThat(pipeline.scheduleTimeVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("blahVariable", "blahOverride")))));
     }
 
     @Test
     public void shouldSaveCurrentConfigMD5OnStageWhenSchedulingAPipeline() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
-        EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
-        environmentVariablesConfig.add(new EnvironmentVariableConfig("blahVariable", "blahOverride"));
-        cause.addOverriddenVariables(environmentVariablesConfig);
+        EnvironmentVariables environmentVariables = new EnvironmentVariables();
+        environmentVariables.add(new EnvironmentVariable("blahVariable", "blahOverride"));
+        cause.addOverriddenVariables(environmentVariables
+        );
         saveRev(cause);
         queue.schedule(fixture.pipelineName, cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());

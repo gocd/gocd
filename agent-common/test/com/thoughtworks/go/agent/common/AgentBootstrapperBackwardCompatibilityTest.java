@@ -48,7 +48,7 @@ public class AgentBootstrapperBackwardCompatibilityTest {
         AgentBootstrapperBackwardCompatibility compatibility = new AgentBootstrapperBackwardCompatibility(args.toProperties());
 
         assertEquals(SystemUtils.IS_OS_WINDOWS ? "C:\\path\\to\\certfile" : "/path/to/certfile", compatibility.rootCertFileAsString());
-        assertEquals(new File("/path/to/certfile"), compatibility.rootCertFile());
+        assertEquals(new File("/path/to/certfile").getAbsoluteFile(), compatibility.rootCertFile());
         assertEquals(SslVerificationMode.NO_VERIFY_HOST, compatibility.sslVerificationMode());
         assertEquals("https://go.example.com:8154/go", compatibility.sslServerUrl("8154"));
     }

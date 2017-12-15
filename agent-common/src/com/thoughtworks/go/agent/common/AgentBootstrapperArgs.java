@@ -100,7 +100,7 @@ public class AgentBootstrapperArgs {
         AgentBootstrapperArgs that = (AgentBootstrapperArgs) o;
 
         if (serverUrl != null ? !serverUrl.equals(that.serverUrl) : that.serverUrl != null) return false;
-        if (rootCertFile != null ? !rootCertFile.equals(that.rootCertFile) : that.rootCertFile != null) return false;
+        if (rootCertFile != null ? !rootCertFile.getAbsoluteFile().equals(that.rootCertFile.getAbsoluteFile()) : that.rootCertFile != null) return false;
         return sslVerificationMode == that.sslVerificationMode;
     }
 

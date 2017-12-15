@@ -17,6 +17,7 @@
 package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -46,7 +47,7 @@ public class AgentBootstrapperBackwardCompatibilityTest {
         AgentBootstrapperArgs args = new AgentBootstrapperArgs(new URL("https://go.example.com:8154/go"), new File("/path/to/certfile"), AgentBootstrapperArgs.SslMode.NO_VERIFY_HOST);
         AgentBootstrapperBackwardCompatibility compatibility = new AgentBootstrapperBackwardCompatibility(args.toProperties());
 
-        assertEquals("/path/to/certfile", compatibility.rootCertFileAsString());
+        assertEquals(SystemUtils.IS_OS_WINDOWS ? "C:\\path\\to\\certfile" : "/path/to/certfile", compatibility.rootCertFileAsString());
         assertEquals(new File("/path/to/certfile"), compatibility.rootCertFile());
         assertEquals(SslVerificationMode.NO_VERIFY_HOST, compatibility.sslVerificationMode());
         assertEquals("https://go.example.com:8154/go", compatibility.sslServerUrl("8154"));

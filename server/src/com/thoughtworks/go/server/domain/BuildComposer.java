@@ -15,7 +15,6 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;

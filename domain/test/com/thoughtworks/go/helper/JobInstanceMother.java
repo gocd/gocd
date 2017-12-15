@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.*;
@@ -248,12 +247,15 @@ public class JobInstanceMother {
     }
 
     public static DefaultJobPlan jobPlan(String jobName, long id) {
-        return new DefaultJobPlan(new Resources(new Resource("foo"), new Resource("bar")), new ArrayList<>(), new ArtifactPropertiesGenerators(), id, defaultJobIdentifier(jobName), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        return new DefaultJobPlan(new Resources(new Resource("foo"), new Resource("bar")), new ArrayList<>(), new ArrayList<>(), id, defaultJobIdentifier(jobName), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 
     public static JobPlan createJobPlan(JobConfig jobConfig, JobIdentifier jobIdentifier, SchedulingContext schedulingContext) {
         final EnvironmentVariables environmentVariables = EnvironmentVariables.toEnvironmentVariables(schedulingContext.overrideEnvironmentVariables(jobConfig.getVariables()).getEnvironmentVariablesConfig());
-        return new DefaultJobPlan(new Resources(jobConfig.resourceConfigs()), ArtifactPlan.toArtifactPlans(jobConfig.artifactConfigs()), jobConfig.getProperties(), -1,
+        final List<ArtifactPropertiesGenerator> artifactPropertiesGenerators = ArtifactPropertiesGenerator.toArtifactProperties(jobConfig.getProperties());
+        final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(jobConfig.artifactConfigs());
+
+        return new DefaultJobPlan(new Resources(jobConfig.resourceConfigs()), artifactPlans, artifactPropertiesGenerators, -1,
                 jobIdentifier, null, environmentVariables, new EnvironmentVariables(), null);
     }
 }

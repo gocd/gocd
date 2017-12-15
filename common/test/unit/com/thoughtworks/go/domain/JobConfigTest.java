@@ -466,7 +466,7 @@ public class JobConfigTest {
         ResourceConfigs resourceConfigs = mock(ResourceConfigs.class);
         when(resourceConfigs.iterator()).thenReturn(new ResourceConfigs().iterator());
         ArtifactConfigs artifactConfigs = mock(ArtifactConfigs.class);
-        ArtifactPropertiesGenerators properties = mock(ArtifactPropertiesGenerators.class);
+        ArtifactPropertiesConfig properties = mock(ArtifactPropertiesConfig.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
@@ -501,7 +501,7 @@ public class JobConfigTest {
         ResourceConfigs resourceConfigs = mock(ResourceConfigs.class);
         when(resourceConfigs.iterator()).thenReturn(new ResourceConfigs().iterator());
         ArtifactConfigs artifactConfigs = mock(ArtifactConfigs.class);
-        ArtifactPropertiesGenerators properties = mock(ArtifactPropertiesGenerators.class);
+        ArtifactPropertiesConfig properties = mock(ArtifactPropertiesConfig.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);

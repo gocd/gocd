@@ -288,12 +288,12 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldSaveBuildPlansWhenScheduling() throws Exception {
+    public void shouldSaveBuildPlansWhenScheduling() {
         JobConfigs jobConfigs = new JobConfigs();
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
-        generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
+        generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, generators);
         jobConfigs.add(jobConfig);
 
@@ -318,13 +318,13 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldLogWithInfoIfPipelineISScheduled() throws Exception {
+    public void shouldLogWithInfoIfPipelineISScheduled() {
         try (LogFixture logging = logFixtureFor(PipelineScheduleQueue.class, Level.DEBUG)) {
             JobConfigs jobConfigs = new JobConfigs();
             ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
             ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-            ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
-            generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+            ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
+            generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
             JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, generators);
             jobConfigs.add(jobConfig);
 
@@ -342,12 +342,12 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     @Test
-    public void shouldCreateJobsMatchingRealAgentsIfRunOnAllAgentsIsSet() throws Exception {
+    public void shouldCreateJobsMatchingRealAgentsIfRunOnAllAgentsIsSet() {
 
         JobConfigs jobConfigs = new JobConfigs();
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
-        generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
+        generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactConfigs, generators);
         jobConfig.setRunOnAllAgents(true);
         jobConfigs.add(jobConfig);
@@ -376,8 +376,8 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
         JobConfigs jobConfigs = new JobConfigs();
-        ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
-        generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
+        generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactConfigs(), generators);
         jobConfig.setRunInstanceCount(3);
         jobConfigs.add(jobConfig);

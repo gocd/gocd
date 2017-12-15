@@ -769,7 +769,7 @@ public class ConfigConverterTest {
         assertThat(jobConfig.getTabs().first().getName(), is("tabname"));
         assertThat(jobConfig.resourceConfigs(), hasItem(new ResourceConfig("resource1")));
         assertThat(jobConfig.artifactConfigs(), hasItem(new ArtifactConfig("src", "dest")));
-        assertThat(jobConfig.getProperties(), hasItem(new ArtifactPropertiesGenerator("name", "src", "path")));
+        assertThat(jobConfig.getProperties(), hasItem(new ArtifactPropertyConfig("name", "src", "path")));
         assertThat(jobConfig.isRunOnAllAgents(), is(false));
         assertThat(jobConfig.getRunInstanceCount(), is("5"));
         assertThat(jobConfig.getTimeout(), is("120"));

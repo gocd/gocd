@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.stereotype.Component;
@@ -114,6 +115,6 @@ public class InstanceFactory {
 
         return new DefaultJobPlan(new Resources(config.resourceConfigs()),
                 ArtifactPlan.toArtifactPlans(config.artifactConfigs()),
-                config.getProperties(), -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile);
+                ArtifactPropertiesGenerator.toArtifactProperties(config.getProperties()), -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile);
     }
 }

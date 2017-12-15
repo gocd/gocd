@@ -207,12 +207,10 @@ public class ArtifactPlan extends PersistentObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (!(o instanceof ArtifactPlan)) return false;
 
         ArtifactPlan that = (ArtifactPlan) o;
 
-        if (buildId != that.buildId) return false;
         if (artifactType != that.artifactType) return false;
         if (src != null ? !src.equals(that.src) : that.src != null) return false;
         return dest != null ? dest.equals(that.dest) : that.dest == null;
@@ -220,9 +218,7 @@ public class ArtifactPlan extends PersistentObject {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) (buildId ^ (buildId >>> 32));
-        result = 31 * result + (artifactType != null ? artifactType.hashCode() : 0);
+        int result = artifactType != null ? artifactType.hashCode() : 0;
         result = 31 * result + (src != null ? src.hashCode() : 0);
         result = 31 * result + (dest != null ? dest.hashCode() : 0);
         return result;

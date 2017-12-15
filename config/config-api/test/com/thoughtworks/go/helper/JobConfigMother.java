@@ -51,7 +51,7 @@ public class JobConfigMother {
         job.artifactConfigs().add(new TestArtifactConfig("target/reports/**/*Test.xml", "reports"));
         job.addTab("coverage", "Jcoverage/index.html");
         job.addTab("something", "something/path.html");
-        job.getProperties().add(new ArtifactPropertiesGenerator("coverage.class", "target/emma/coverage.xml", "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"));
+        job.getProperties().add(new ArtifactPropertyConfig("coverage.class", "target/emma/coverage.xml", "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"));
         return job;
     }
 

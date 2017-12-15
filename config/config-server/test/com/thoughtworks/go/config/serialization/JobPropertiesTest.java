@@ -54,9 +54,9 @@ public class JobPropertiesTest {
         CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).configForEdit;
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).get(1).allBuildPlans().first();
         assertThat(jobConfig.getProperties().first(),
-                is(new ArtifactPropertiesGenerator("coverage", "reports/emma.html", "//coverage/class")));
+                is(new ArtifactPropertyConfig("coverage", "reports/emma.html", "//coverage/class")));
         assertThat(jobConfig.getProperties().get(1),
-                is(new ArtifactPropertiesGenerator("prop2", "test.xml", "//value")));
+                is(new ArtifactPropertyConfig("prop2", "test.xml", "//value")));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class JobPropertiesTest {
 
     @Test
     public void shouldNotWriteDuplicateJobProperties() throws Exception {
-        ArtifactPropertiesGenerator artifactProperties = new ArtifactPropertiesGenerator("coverage",
+        ArtifactPropertyConfig artifactProperties = new ArtifactPropertyConfig("coverage",
                 "reports/emma.html", "//coverage/class");
         CruiseConfig cruiseConfig = cruiseConfigWithProperties(artifactProperties, artifactProperties);
         try {
@@ -123,7 +123,7 @@ public class JobPropertiesTest {
         assertThat(new String(buffer.toByteArray()), not(containsString("properties")));
     }
 
-    private CruiseConfig cruiseConfigWithProperties(ArtifactPropertiesGenerator... artifactPropertieses)
+    private CruiseConfig cruiseConfigWithProperties(ArtifactPropertyConfig... artifactPropertieses)
             throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).configForEdit;
         JobConfig jobConfig = BuildPlanMother.withArtifactPropertiesGenerator(artifactPropertieses);

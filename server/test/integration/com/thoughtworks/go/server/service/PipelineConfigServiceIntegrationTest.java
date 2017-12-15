@@ -399,8 +399,8 @@ public class PipelineConfigServiceIntegrationTest {
     public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnProperties() throws GitAPIException {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
-        ArtifactPropertiesGenerators properties = new ArtifactPropertiesGenerators();
-        ArtifactPropertiesGenerator artifactPropertiesGenerator = new ArtifactPropertiesGenerator();
+        ArtifactPropertiesConfig properties = new ArtifactPropertiesConfig();
+        ArtifactPropertyConfig artifactPropertiesGenerator = new ArtifactPropertyConfig();
         properties.add(artifactPropertiesGenerator);
         jobConfig.setProperties(properties);
 

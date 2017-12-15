@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 describe("Dashboard Widget", () => {
-  const m             = require("mithril");
-  const Stream        = require("mithril/stream");
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
 
   const DashboardWidget = require("views/dashboard/dashboard_widget");
   const Dashboard       = require('models/dashboard/dashboard');
@@ -27,103 +27,104 @@ describe("Dashboard Widget", () => {
   afterEach(window.destroyDomElementForTest);
 
   const dashboardJson = {
-    "etag":            "b897620eb6406f8ac5d78ae959d4daed",
-    "pipeline_groups": [
-      {
-        "_links":    {
-          "self": {
-            "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
-          },
-          "doc":  {
-            "href": "https://api.go.cd/current/#pipeline-groups"
-          }
-        },
-        "name":      "first",
-        "pipelines": ["up42"]
-      }
-    ],
-    "pipelines":       [
-      {
-        "_links":                 {
-          "self":                 {
-            "href": "http://localhost:8153/go/api/pipelines/up42/history"
-          },
-          "doc":                  {
-            "href": "https://api.go.cd/current/#pipelines"
-          },
-          "settings_path":        {
-            "href": "http://localhost:8153/go/admin/pipelines/up42/general"
-          },
-          "trigger":              {
-            "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-          },
-          "trigger_with_options": {
-            "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-          },
-          "pause":                {
-            "href": "http://localhost:8153/go/api/pipelines/up42/pause"
-          },
-          "unpause":              {
-            "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
-          }
-        },
-        "name":                   "up42",
-        "last_updated_timestamp": 1510299695473,
-        "locked":                 false,
-        "pause_info":             {
-          "paused":       false,
-          "paused_by":    null,
-          "pause_reason": null
-        },
-        "_embedded":              {
-          "instances": [
-            {
-              "_links":       {
-                "self":            {
-                  "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
-                },
-                "doc":             {
-                  "href": "https://api.go.cd/current/#get-pipeline-instance"
-                },
-                "history_url":     {
-                  "href": "http://localhost:8153/go/api/pipelines/up42/history"
-                },
-                "vsm_url":         {
-                  "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-                },
-                "compare_url":     {
-                  "href": "http://localhost:8153/go/compare/up42/0/with/1"
-                },
-                "build_cause_url": {
-                  "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
-                }
-              },
-              "label":        "1",
-              "schedule_at":  "2017-11-10T07:25:28.539Z",
-              "triggered_by": "changes",
-              "_embedded":    {
-                "stages": [
-                  {
-                    "_links":       {
-                      "self": {
-                        "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
-                      },
-                      "doc":  {
-                        "href": "https://api.go.cd/current/#get-stage-instance"
-                      }
-                    },
-                    "name":         "up42_stage",
-                    "status":       "Failed",
-                    "approved_by":  "changes",
-                    "scheduled_at": "2017-11-10T07:25:28.539Z"
-                  }
-                ]
-              }
+    "_embedded": {
+      "pipeline_groups": [
+        {
+          "_links":    {
+            "self": {
+              "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
+            },
+            "doc":  {
+              "href": "https://api.go.cd/current/#pipeline-groups"
             }
-          ]
+          },
+          "name":      "first",
+          "pipelines": ["up42"]
         }
-      }
-    ]
+      ],
+      "pipelines":       [
+        {
+          "_links":                 {
+            "self":                 {
+              "href": "http://localhost:8153/go/api/pipelines/up42/history"
+            },
+            "doc":                  {
+              "href": "https://api.go.cd/current/#pipelines"
+            },
+            "settings_path":        {
+              "href": "http://localhost:8153/go/admin/pipelines/up42/general"
+            },
+            "trigger":              {
+              "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+            },
+            "trigger_with_options": {
+              "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
+            },
+            "pause":                {
+              "href": "http://localhost:8153/go/api/pipelines/up42/pause"
+            },
+            "unpause":              {
+              "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
+            }
+          },
+          "name":                   "up42",
+          "last_updated_timestamp": 1510299695473,
+          "locked":                 false,
+          "pause_info":             {
+            "paused":       false,
+            "paused_by":    null,
+            "pause_reason": null
+          },
+          "_embedded":              {
+            "instances": [
+              {
+                "_links":       {
+                  "self":            {
+                    "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
+                  },
+                  "doc":             {
+                    "href": "https://api.go.cd/current/#get-pipeline-instance"
+                  },
+                  "history_url":     {
+                    "href": "http://localhost:8153/go/api/pipelines/up42/history"
+                  },
+                  "vsm_url":         {
+                    "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
+                  },
+                  "compare_url":     {
+                    "href": "http://localhost:8153/go/compare/up42/0/with/1"
+                  },
+                  "build_cause_url": {
+                    "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
+                  }
+                },
+                "label":        "1",
+                "schedule_at":  "2017-11-10T07:25:28.539Z",
+                "triggered_by": "changes",
+                "_embedded":    {
+                  "stages": [
+                    {
+                      "_links":       {
+                        "self": {
+                          "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
+                        },
+                        "doc":  {
+                          "href": "https://api.go.cd/current/#get-stage-instance"
+                        }
+                      },
+                      "name":         "up42_stage",
+                      "status":       "Failed",
+                      "approved_by":  "changes",
+                      "scheduled_at": "2017-11-10T07:25:28.539Z"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   };
 
   const dashboard = Stream(new Dashboard(dashboardJson));
@@ -149,16 +150,16 @@ describe("Dashboard Widget", () => {
   });
 
   it("should render pipeline groups", () => {
-    const pipelineGroupsCount = dashboardJson.pipeline_groups.length;
+    const pipelineGroupsCount = dashboardJson._embedded.pipeline_groups.length;
     const pipelineGroups      = $root.find('.pipeline-group');
 
     expect(pipelineGroups.size()).toEqual(pipelineGroupsCount);
-    expect(pipelineGroups.get(0)).toContainText(dashboardJson.pipeline_groups[0].name);
+    expect(pipelineGroups.get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should render pipelines within each pipeline group", () => {
-    const pipelineName                      = dashboardJson.pipeline_groups[0].pipelines[0];
-    const pipelinesWithinPipelineGroupCount = dashboardJson.pipeline_groups[0].pipelines.length;
+    const pipelineName                      = dashboardJson._embedded.pipeline_groups[0].pipelines[0];
+    const pipelinesWithinPipelineGroupCount = dashboardJson._embedded.pipeline_groups[0].pipelines.length;
     const pipelinesWithinPipelineGroup      = $root.find('.pipeline-group .pipeline');
 
     expect(pipelinesWithinPipelineGroup.size()).toEqual(pipelinesWithinPipelineGroupCount);

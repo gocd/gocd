@@ -94,7 +94,7 @@ describe("Dashboard", () => {
     };
 
     const runningPipelineInstanceJson = {
-      "_links":       {
+      "_links":    {
         "self":            {
           "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
         },

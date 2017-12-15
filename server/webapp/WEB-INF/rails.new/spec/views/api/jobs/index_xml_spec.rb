@@ -29,7 +29,7 @@ describe "/api/jobs" do
 
     @resources = com.thoughtworks.go.domain.Resources.new("linux, teapot")
 
-    @variables = EnvironmentVariablesConfig.new
+    @variables = com.thoughtworks.go.domain.EnvironmentVariables.new
     @variables.add("VARIABLE_NAME", "variable-value")
 
     @job = JobInstanceMother::completed("job-name")
@@ -122,7 +122,7 @@ describe "/api/jobs" do
       plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::file, "logs/log-arti\"fact", "log-path"))
       plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactType::unit, "te<s\"t.xml", ""))
 
-      variables = EnvironmentVariablesConfig.new
+      variables = com.thoughtworks.go.domain.EnvironmentVariables.new
       variables.add("VARIA<BLE_NA\"ME", "varia<ble-val\"ue")
 
       @job = JobInstanceMother::completed("job<na\"me")

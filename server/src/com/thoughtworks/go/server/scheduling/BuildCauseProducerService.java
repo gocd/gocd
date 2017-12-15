@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.EnvironmentVariables;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -192,7 +193,7 @@ public class BuildCauseProducerService {
                 }
             }
             if (buildCause != null) {
-                buildCause.addOverriddenVariables(scheduleOptions.getVariables());
+                buildCause.addOverriddenVariables(EnvironmentVariables.toEnvironmentVariables(scheduleOptions.getVariables()));
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
             }
             if (isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged)) {

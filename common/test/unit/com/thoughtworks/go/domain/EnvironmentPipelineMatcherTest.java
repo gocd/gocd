@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Arrays;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentPipelineConfig;
 import com.thoughtworks.go.config.EnvironmentPipelinesConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import org.junit.Test;
-import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class EnvironmentPipelineMatcherTest {
 
@@ -43,6 +43,6 @@ public class EnvironmentPipelineMatcherTest {
     }
 
     private DefaultJobPlan jobPlan(String pipelineName) {
-        return new DefaultJobPlan(null, null, null, 0, new JobIdentifier(pipelineName, 0, "label", "stage", "1", "blahBuildName", 0L), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(null, null, null, 0, new JobIdentifier(pipelineName, 0, "label", "stage", "1", "blahBuildName", 0L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 }

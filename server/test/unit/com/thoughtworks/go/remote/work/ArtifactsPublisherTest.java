@@ -17,7 +17,6 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
@@ -58,7 +57,7 @@ public class ArtifactsPublisherTest {
     @Test
     public void shouldMergeTestReportFilesAndUploadResult() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
         artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
 
@@ -77,7 +76,7 @@ public class ArtifactsPublisherTest {
     @Test
     public void shouldReportErrorWithTestArtifactSrcWhenUploadFails() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
         artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
 

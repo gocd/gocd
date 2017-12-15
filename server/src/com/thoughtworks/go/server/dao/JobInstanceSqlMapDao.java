@@ -184,20 +184,20 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return jobInstance;
     }
 
-    public void save(long jobId, JobPlan plan) {
-        for (Resource resource : plan.getResources()) {
+    public void save(long jobId, JobPlan jobPlan) {
+        for (Resource resource : jobPlan.getResources()) {
             resourceRepository.saveCopyOf(jobId, resource);
         }
-        for (ArtifactPropertiesGenerator generator : plan.getPropertyGenerators()) {
+        for (ArtifactPropertiesGenerator generator : jobPlan.getPropertyGenerators()) {
             artifactPropertiesGeneratorRepository.saveCopyOf(jobId, generator);
         }
-        for (ArtifactPlan artifactPlan : plan.getArtifactPlans()) {
+        for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlans()) {
             artifactPlanRepository.saveCopyOf(jobId, artifactPlan);
         }
-        environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
+        environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, jobPlan.getVariables());
 
-        if (plan.requiresElasticAgent()) {
-            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, plan.getElasticProfile()));
+        if (jobPlan.requiresElasticAgent()) {
+            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, jobPlan.getElasticProfile()));
         }
     }
 

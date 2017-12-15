@@ -19,7 +19,6 @@ package com.thoughtworks.go.websocket;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -93,9 +92,8 @@ public class MessageTest {
         assertThat(decodedWork.getAssignment().getJobIdentifier().getPipelineName(), is("pipelineName"));
     }
 
-
     private DefaultJobPlan jobPlan() {
         JobIdentifier jobIdentifier = new JobIdentifier("pipelineName", 1, "1", "defaultStage", "1", "job1", 100L);
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 }

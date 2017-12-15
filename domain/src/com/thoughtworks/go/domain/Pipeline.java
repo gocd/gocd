@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.util.Date;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.label.PipelineLabel;
+
+import java.io.File;
+import java.util.Date;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.label.PipelineLabel.COUNT;
 
@@ -196,7 +195,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         this.naturalOrder = naturalOrder;
     }
 
-    public EnvironmentVariablesConfig scheduleTimeVariables() {
+    public EnvironmentVariables scheduleTimeVariables() {
         return buildCause.getVariables();
     }
 

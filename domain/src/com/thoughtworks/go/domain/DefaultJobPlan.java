@@ -32,8 +32,8 @@ public class DefaultJobPlan implements JobPlan {
     private List<ArtifactPlan> artifactPlans;
     private ArtifactPropertiesGenerators generators;
     private String agentUuid;
-    private EnvironmentVariablesConfig variables;
-    private EnvironmentVariablesConfig triggerVariables;
+    private EnvironmentVariables variables;
+    private EnvironmentVariables triggerVariables;
     private ElasticProfile elasticProfile;
     private boolean fetchMaterials = StageConfig.DEFAULT_FETCH_MATERIALS;
     private boolean cleanWorkingDir = StageConfig.DEFAULT_CLEAN_WORKING_DIR;
@@ -44,8 +44,8 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables,
-                          EnvironmentVariablesConfig triggerTimeVariables, ElasticProfile elasticProfile) {
+                          JobIdentifier identifier, String agentUuid, EnvironmentVariables variables,
+                          EnvironmentVariables triggerTimeVariables, ElasticProfile elasticProfile) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
@@ -163,11 +163,11 @@ public class DefaultJobPlan implements JobPlan {
         return agentUuid;
     }
 
-    public EnvironmentVariablesConfig getVariables() {
+    public EnvironmentVariables getVariables() {
         return variables;
     }
 
-    public void setVariables(EnvironmentVariablesConfig variables) {
+    public void setVariables(EnvironmentVariables variables) {
         this.variables = variables;
     }
 
@@ -175,8 +175,8 @@ public class DefaultJobPlan implements JobPlan {
         return pipelineId;
     }
 
-    public void setTriggerVariables(EnvironmentVariablesConfig environmentVariablesConfig) {
-        triggerVariables = environmentVariablesConfig;
+    public void setTriggerVariables(EnvironmentVariables environmentVariables) {
+        triggerVariables = environmentVariables;
     }
 
     public boolean shouldFetchMaterials() {

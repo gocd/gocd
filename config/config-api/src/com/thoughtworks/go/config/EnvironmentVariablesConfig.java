@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @understands environment variables that are passed to a running job
@@ -40,6 +40,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
     public EnvironmentVariablesConfig(List<EnvironmentVariableConfig> elements) {
         super(elements);
     }
+
     public EnvironmentVariablesConfig(EnvironmentVariableConfig[] elements) {
         super(elements);
     }
@@ -110,7 +111,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
 
     public boolean hasVariable(String variableName) {
         for (EnvironmentVariableConfig variableConfig : this) {
-            if (variableConfig.hasName(variableName)) {
+            if (variableConfig.getName().equals(variableName)) {
                 return true;
             }
         }

@@ -35,7 +35,7 @@ module ApiV4
         collection :environment_variables,
                    exec_context: :decorator,
                    decorator: Shared::EnvironmentVariableRepresenter,
-                   class: com.thoughtworks.go.config.EnvironmentVariableConfig
+                   class: EnvironmentVariableConfig
         collection :resources,
                    exec_context: :decorator,
                    skip_nil: true

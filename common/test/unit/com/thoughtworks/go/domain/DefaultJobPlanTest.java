@@ -17,7 +17,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,8 +26,8 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.utils.SerializationTester.serializeAndDeserialize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -50,10 +49,10 @@ public class DefaultJobPlanTest {
 
     @Test
     public void shouldApplyEnvironmentVariablesWhenRunningTheJob() {
-        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("VARIABLE_NAME", "variable value");
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), -1, null, null,
-                variables, new EnvironmentVariablesConfig(), null);
+                variables, new EnvironmentVariables(), null);
 
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         plan.applyTo(variableContext);
@@ -62,9 +61,13 @@ public class DefaultJobPlanTest {
 
     @Test
     public void shouldRespectTriggerVariablesOverConfigVariables() {
+        final EnvironmentVariables environmentVariables = new EnvironmentVariables(Arrays.asList(
+                new EnvironmentVariable("blah", "value"), new EnvironmentVariable("foo", "bar")));
+        final EnvironmentVariables triggerEnvironmentVariables = new EnvironmentVariables(Arrays.asList(
+                new EnvironmentVariable("blah", "override"), new EnvironmentVariable("another", "anotherValue")));
+
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", env(new String[]{"blah", "foo"}, new String[]{"value", "bar"}), new EnvironmentVariablesConfig(), null);
-        original.setTriggerVariables(env(new String[]{"blah", "another"}, new String[]{"override", "anotherValue"}));
+                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", environmentVariables, triggerEnvironmentVariables, null);
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         original.applyTo(variableContext);
         assertThat(variableContext.getProperty("blah"), is("override"));
@@ -76,7 +79,7 @@ public class DefaultJobPlanTest {
     @Test
     public void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null);
         DefaultJobPlan clone = (DefaultJobPlan) serializeAndDeserialize(original);
         assertThat(clone, is(original));
     }

@@ -21,10 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.Resources;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -513,7 +510,7 @@ public class EnvironmentConfigServiceTest {
 
     private DefaultJobPlan jobForPipeline(String pipelineName) {
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, 1, "1", "defaultStage", "1", "job1", 100L);
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 
     public static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {

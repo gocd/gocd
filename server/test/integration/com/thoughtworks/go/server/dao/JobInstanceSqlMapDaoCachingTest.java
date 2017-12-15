@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -271,7 +270,7 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldnotClearJobIdentifierFromCacheForAnyOtherJobStateChangeOtherThanRescheduledAsTheBuildIdDoesNotChange() throws Exception {
+    public void shouldNotClearJobIdentifierFromCacheForAnyOtherJobStateChangeOtherThanRescheduledAsTheBuildIdDoesNotChange() {
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
 
         JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
@@ -294,6 +293,6 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     private DefaultJobPlan jobPlan(long id) {
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), id, null, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), id, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 }

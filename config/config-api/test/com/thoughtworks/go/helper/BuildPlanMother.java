@@ -42,7 +42,7 @@ public class BuildPlanMother {
         return jobConfigs;
     }
 
-    public static JobConfig withArtifactPropertiesGenerator(ArtifactPropertyConfig... artifactPropertieses) {
-        return new JobConfig(new CaseInsensitiveString("job"), new ArtifactPropertiesConfig(artifactPropertieses));
+    public static JobConfig withArtifactPropertiesGenerator(ArtifactPropertyConfig... artifactPropertyConfigs) {
+        return new JobConfig(new CaseInsensitiveString("job"), new ArtifactPropertiesConfig(artifactPropertyConfigs));
     }
 }

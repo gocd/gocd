@@ -867,7 +867,7 @@ public class GoConfigFileHelper {
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
         ReflectionUtil.setField(jobConfig, "resourceConfigs", resourceConfigs);
         ReflectionUtil.setField(jobConfig, "artifactConfigs", artifactConfigs);
-        ReflectionUtil.setField(jobConfig, "artifactPropertiesGenerators", artifactPropertiesConfig);
+        ReflectionUtil.setField(jobConfig, "artifactPropertiesConfig", artifactPropertiesConfig);
         writeConfigFile(config);
     }
 

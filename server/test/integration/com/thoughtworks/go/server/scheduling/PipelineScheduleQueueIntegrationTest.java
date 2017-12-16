@@ -313,7 +313,7 @@ public class PipelineScheduleQueueIntegrationTest {
         JobPlan plan = plans.get(0);
         assertThat(plan.getName(), is("test-job"));
         assertThat(plan.getArtifactPlans(), is(artifactConfigs));
-        assertThat(plan.getPropertyGenerators(), is(generators));
+        assertThat(plan.getPropertyGenerators(), is(Arrays.asList(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"))));
         assertThat(plan.getResources().toResourceConfigs(), is(resourceConfigs));
     }
 

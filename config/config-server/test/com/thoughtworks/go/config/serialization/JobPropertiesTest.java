@@ -90,9 +90,9 @@ public class JobPropertiesTest {
 
     @Test
     public void shouldNotWriteDuplicateJobProperties() throws Exception {
-        ArtifactPropertyConfig artifactProperties = new ArtifactPropertyConfig("coverage",
+        ArtifactPropertyConfig artifactPropertyConfig = new ArtifactPropertyConfig("coverage",
                 "reports/emma.html", "//coverage/class");
-        CruiseConfig cruiseConfig = cruiseConfigWithProperties(artifactProperties, artifactProperties);
+        CruiseConfig cruiseConfig = cruiseConfigWithProperties(artifactPropertyConfig, artifactPropertyConfig);
         try {
             writer.write(cruiseConfig, new ByteArrayOutputStream(), false);
             fail("should not write two job properties with same name");
@@ -123,10 +123,10 @@ public class JobPropertiesTest {
         assertThat(new String(buffer.toByteArray()), not(containsString("properties")));
     }
 
-    private CruiseConfig cruiseConfigWithProperties(ArtifactPropertyConfig... artifactPropertieses)
+    private CruiseConfig cruiseConfigWithProperties(ArtifactPropertyConfig... artifactPropertyConfigs)
             throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).configForEdit;
-        JobConfig jobConfig = BuildPlanMother.withArtifactPropertiesGenerator(artifactPropertieses);
+        JobConfig jobConfig = BuildPlanMother.withArtifactPropertiesGenerator(artifactPropertyConfigs);
         cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().add(jobConfig);
         return cruiseConfig;
     }

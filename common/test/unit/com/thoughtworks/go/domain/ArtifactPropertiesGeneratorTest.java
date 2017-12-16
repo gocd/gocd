@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.ArtifactPropertiesConfig;
+import com.thoughtworks.go.config.ArtifactPropertyConfig;
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 public class ArtifactPropertiesGeneratorTest {
@@ -108,6 +111,21 @@ public class ArtifactPropertiesGeneratorTest {
 
         assertThat(sentContents.get(0),
                 containsString("Property " + "test_property" + " = target\\connectfour.jar created"));
+    }
+
+    @Test
+    public void shouldConvertArtifactPropertiesConfigToArtifactPropertiesGenerator() {
+        final ArtifactPropertiesConfig artifactPropertyConfigs = new ArtifactPropertiesConfig(
+                new ArtifactPropertyConfig("foo", "//foo", "xpath"),
+                new ArtifactPropertyConfig("bar", "//bar", "xpath")
+        );
+
+        final List<ArtifactPropertiesGenerator> artifactPropertiesGenerators = ArtifactPropertiesGenerator.toArtifactProperties(artifactPropertyConfigs);
+
+        assertThat(artifactPropertiesGenerators, containsInAnyOrder(
+                new ArtifactPropertiesGenerator("foo", "//foo", "xpath"),
+                new ArtifactPropertiesGenerator("bar", "//bar", "xpath")
+        ));
     }
 
     class GoPublisherImple extends DefaultGoPublisher {

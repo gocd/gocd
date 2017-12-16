@@ -35,6 +35,9 @@ public class ArtifactPropertiesGenerator extends PersistentObject {
     private String xpath;
     private long jobId;
 
+    public ArtifactPropertiesGenerator() {
+    }
+
     public ArtifactPropertiesGenerator(ArtifactPropertiesGenerator generator) {
         this(generator.name, generator.src, generator.xpath);
     }
@@ -133,6 +136,6 @@ public class ArtifactPropertiesGenerator extends PersistentObject {
                     artifactPropertyConfig.getXpath()
             ));
         }
-        return null;
+        return propertiesGenerators;
     }
 }

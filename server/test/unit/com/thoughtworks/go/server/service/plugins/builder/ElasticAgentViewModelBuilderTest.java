@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
@@ -32,6 +31,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -76,8 +76,8 @@ public class ElasticAgentViewModelBuilderTest {
         PluginInfo dockerPluginInfo = pluginInfos.get(0);
         PluginInfo awsPluginInfo = pluginInfos.get(1);
 
-        assertEquals(new PluginInfo(dockerPlugin, ElasticAgentPluginConstants.EXTENSION_NAME, null, null), dockerPluginInfo);
-        assertEquals(new PluginInfo(awsPlugin, ElasticAgentPluginConstants.EXTENSION_NAME, null, null), awsPluginInfo);
+        assertEquals(new PluginInfo(dockerPlugin, ELASTIC_AGENT_EXTENSION, null, null), dockerPluginInfo);
+        assertEquals(new PluginInfo(awsPlugin, ELASTIC_AGENT_EXTENSION, null, null), awsPluginInfo);
     }
 
     @Test

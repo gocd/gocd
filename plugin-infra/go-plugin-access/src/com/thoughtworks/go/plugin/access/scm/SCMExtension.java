@@ -35,11 +35,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
 import static java.util.Arrays.asList;
 
 @Component
 public class SCMExtension extends AbstractExtension {
-    public static final String EXTENSION_NAME = "scm";
     private static final List<String> goSupportedVersions = asList("1.0");
 
     public static final String REQUEST_SCM_CONFIGURATION = "scm-configuration";
@@ -54,7 +54,7 @@ public class SCMExtension extends AbstractExtension {
 
     @Autowired
     public SCMExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, SCM_EXTENSION), SCM_EXTENSION);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
         registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());

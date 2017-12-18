@@ -18,14 +18,13 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
+import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
 
@@ -33,6 +32,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
 
 @Deprecated
 class SCMViewModelBuilder implements ViewModelBuilder {
@@ -50,7 +51,7 @@ class SCMViewModelBuilder implements ViewModelBuilder {
 
             SCMPreference scmPreference = SCMMetadataStore.getInstance().preferenceFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(descriptor, SCMExtension.EXTENSION_NAME, scmPreference.getScmView().displayValue(), null, null));
+            pluginInfos.add(new PluginInfo(descriptor, SCM_EXTENSION, scmPreference.getScmView().displayValue(), null, null));
         }
         return pluginInfos;
     }
@@ -66,7 +67,7 @@ class SCMViewModelBuilder implements ViewModelBuilder {
         List<PluginConfiguration> pluginConfigurations = configurations(scmPreference.getScmConfigurations());
         PluginView pluginView = new PluginView(scmPreference.getScmView().template());
 
-        return new PluginInfo(descriptor, SCMExtension.EXTENSION_NAME, scmPreference.getScmView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
+        return new PluginInfo(descriptor, SCM_EXTENSION, scmPreference.getScmView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
     }
 
     private List<PluginConfiguration> configurations(SCMConfigurations scmConfigurations) {

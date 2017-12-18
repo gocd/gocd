@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static java.lang.String.format;
 
 @Component
@@ -48,13 +49,13 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1(), new JsonMessageHandlerForRequestProcessor1_0());
         addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2(), new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler,
-                            JsonMessageHandlerForRequestProcessor  jsonMessageHandlerForRequestProcessor) {
+                            JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
         registerJsonMessageHandlerForRequestProcessor(version, jsonMessageHandlerForRequestProcessor);

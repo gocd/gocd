@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 
 @Deprecated
 public class NotificationPluginInfo extends NewPluginInfo {
     public NotificationPluginInfo(GoPluginDescriptor plugin) {
-        super(plugin, NotificationExtension.EXTENSION_NAME);
+        super(plugin, NOTIFICATION_EXTENSION);
     }
 }

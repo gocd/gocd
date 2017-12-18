@@ -29,8 +29,8 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
@@ -57,7 +57,7 @@ public class ElasticAgentExtensionTest {
 
         final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("ecs.plugin", "1", about, null, null, false);
 
-        when(pluginManager.isPluginOfType(ElasticAgentPluginConstants.EXTENSION_NAME, "ecs.plugin")).thenReturn(true);
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, "ecs.plugin")).thenReturn(true);
         when(pluginManager.resolveExtensionVersion("ecs.plugin", Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
         when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
         when(pluginManager.submitTo(eq("ecs.plugin"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{\n" +
@@ -67,7 +67,7 @@ public class ElasticAgentExtensionTest {
         final String statusReport = new ElasticAgentExtension(pluginManager).getStatusReport("ecs.plugin");
 
         assertThat(statusReport, is("foo"));
-        assertThat(requestArgumentCaptor.getValue().extension(), is(ElasticAgentPluginConstants.EXTENSION_NAME));
+        assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));
         assertThat(requestArgumentCaptor.getValue().requestName(), is(ElasticAgentPluginConstants.REQUEST_STATUS_REPORT));
     }
 
@@ -77,7 +77,7 @@ public class ElasticAgentExtensionTest {
 
         final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("ecs.plugin", "1", about, null, null, false);
 
-        when(pluginManager.isPluginOfType(ElasticAgentPluginConstants.EXTENSION_NAME, "ecs.plugin")).thenReturn(true);
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, "ecs.plugin")).thenReturn(true);
         when(pluginManager.resolveExtensionVersion("ecs.plugin", Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
         when(pluginManager.getPluginDescriptorFor("ecs.plugin")).thenReturn(pluginDescriptor);
         when(pluginManager.submitTo(eq("ecs.plugin"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE,
@@ -86,7 +86,7 @@ public class ElasticAgentExtensionTest {
         Capabilities capabilities = new ElasticAgentExtension(pluginManager).getCapabilities("ecs.plugin");
 
         assertTrue(capabilities.supportsStatusReport());
-        assertThat(requestArgumentCaptor.getValue().extension(), is(ElasticAgentPluginConstants.EXTENSION_NAME));
+        assertThat(requestArgumentCaptor.getValue().extension(), is(ELASTIC_AGENT_EXTENSION));
         assertThat(requestArgumentCaptor.getValue().requestName(), is("go.cd.elastic-agent.get-capabilities"));
     }
 

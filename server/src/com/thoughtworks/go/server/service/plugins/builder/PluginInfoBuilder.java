@@ -16,15 +16,10 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
@@ -36,8 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
-import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.*;
 
 @Component
 @Deprecated
@@ -49,12 +43,12 @@ public class PluginInfoBuilder {
     public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,
                              NotificationPluginRegistry notificationPluginRegistry,
                              PluginManager pluginManager) {
-        pluginExtensionToBuilder.put(AuthenticationExtension.EXTENSION_NAME, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
-        pluginExtensionToBuilder.put(NotificationExtension.EXTENSION_NAME, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
+        pluginExtensionToBuilder.put(AUTHENTICATION_EXTENSION, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
+        pluginExtensionToBuilder.put(NOTIFICATION_EXTENSION, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
         pluginExtensionToBuilder.put(PACKAGE_MATERIAL_EXTENSION, new PackageViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(TaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewModelBuilder(ElasticAgentMetadataStore.instance()));
+        pluginExtensionToBuilder.put(PLUGGABLE_TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
+        pluginExtensionToBuilder.put(SCM_EXTENSION, new SCMViewModelBuilder(pluginManager));
+        pluginExtensionToBuilder.put(ELASTIC_AGENT_EXTENSION, new ElasticAgentViewModelBuilder(ElasticAgentMetadataStore.instance()));
         pluginExtensionToBuilder.put(AUTHORIZATION_EXTENSION, new AuthorizationViewModelBuilder(AuthorizationMetadataStore.instance()));
     }
 

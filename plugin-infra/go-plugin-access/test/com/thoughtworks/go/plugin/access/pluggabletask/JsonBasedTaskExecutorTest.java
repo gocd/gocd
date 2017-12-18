@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,10 +62,10 @@ public class JsonBasedTaskExecutorTest {
         handler = mock(JsonBasedTaskExtensionHandler.class);
         handlerHashMap.put("1.0", handler);
         final List<String> goSupportedVersions = asList("1.0");
-        pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, TaskExtension.TASK_EXTENSION);
+        pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, PLUGGABLE_TASK_EXTENSION);
         when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
-        when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);
     }
 
     @Test
@@ -79,7 +80,7 @@ public class JsonBasedTaskExecutorTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
-        assertThat(argument.getValue().extension(), is(TaskExtension.TASK_EXTENSION));
+        assertThat(argument.getValue().extension(), is(PLUGGABLE_TASK_EXTENSION));
         assertThat(argument.getValue().extensionVersion(), is(extensionVersion));
         assertThat(argument.getValue().requestName(), is(TaskExtension.EXECUTION_REQUEST));
     }

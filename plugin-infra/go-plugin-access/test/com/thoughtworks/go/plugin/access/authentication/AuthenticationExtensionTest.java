@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHENTICATION_EXTENSION;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
@@ -71,7 +72,7 @@ public class AuthenticationExtensionTest {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.isPluginOfType(AuthenticationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(AUTHENTICATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
     }
 
@@ -87,7 +88,7 @@ public class AuthenticationExtensionTest {
 
         PluginSettingsConfiguration response = authenticationExtension.getPluginSettingsConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHENTICATION_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -99,7 +100,7 @@ public class AuthenticationExtensionTest {
 
         String response = authenticationExtension.getPluginSettingsView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHENTICATION_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -113,7 +114,7 @@ public class AuthenticationExtensionTest {
 
         ValidationResult response = authenticationExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHENTICATION_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -125,7 +126,7 @@ public class AuthenticationExtensionTest {
 
         AuthenticationPluginConfiguration deserializedResponse = authenticationExtension.getPluginConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", AuthenticationExtension.REQUEST_PLUGIN_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHENTICATION_EXTENSION, "1.0", AuthenticationExtension.REQUEST_PLUGIN_CONFIGURATION, null);
         verify(jsonMessageHandler).responseMessageForPluginConfiguration(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -140,7 +141,7 @@ public class AuthenticationExtensionTest {
 
         User deserializedResponse = authenticationExtension.authenticateUser(PLUGIN_ID, username, password);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", AuthenticationExtension.REQUEST_AUTHENTICATE_USER, REQUEST_BODY);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHENTICATION_EXTENSION, "1.0", AuthenticationExtension.REQUEST_AUTHENTICATE_USER, REQUEST_BODY);
         verify(jsonMessageHandler).responseMessageForAuthenticateUser(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -154,7 +155,7 @@ public class AuthenticationExtensionTest {
 
         List<User> deserializedResponse = authenticationExtension.searchUser(PLUGIN_ID, searchTerm);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", AuthenticationExtension.REQUEST_SEARCH_USER, REQUEST_BODY);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHENTICATION_EXTENSION, "1.0", AuthenticationExtension.REQUEST_SEARCH_USER, REQUEST_BODY);
         verify(jsonMessageHandler).responseMessageForSearchUser(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }

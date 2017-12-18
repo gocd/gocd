@@ -17,12 +17,13 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 
 @Deprecated
 class ElasticAgentViewModelBuilder extends AbstractViewModelBuilder {
@@ -37,7 +38,7 @@ class ElasticAgentViewModelBuilder extends AbstractViewModelBuilder {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
         for (ElasticAgentPluginInfo pluginInfo : metadataStore.allPluginInfos()) {
-            pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), ElasticAgentPluginConstants.EXTENSION_NAME, null, null, image(pluginInfo.getImage())));
+            pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), ELASTIC_AGENT_EXTENSION, null, null, image(pluginInfo.getImage())));
         }
 
         return pluginInfos;
@@ -51,7 +52,7 @@ class ElasticAgentViewModelBuilder extends AbstractViewModelBuilder {
             return null;
         }
 
-        return new PluginInfo(pluginInfo.getDescriptor(), ElasticAgentPluginConstants.EXTENSION_NAME, null,
+        return new PluginInfo(pluginInfo.getDescriptor(), ELASTIC_AGENT_EXTENSION, null,
                 settings(pluginInfo.getProfileSettings()), image(pluginInfo.getImage()));
     }
 }

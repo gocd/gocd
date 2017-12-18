@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -24,6 +23,8 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 
 @Deprecated
 class NotificationViewModelBuilder implements ViewModelBuilder {
@@ -41,7 +42,7 @@ class NotificationViewModelBuilder implements ViewModelBuilder {
         for (String pluginId : notificationPluginRegistry.getNotificationPlugins()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(descriptor, NotificationExtension.EXTENSION_NAME, null, null, null));
+            pluginInfos.add(new PluginInfo(descriptor, NOTIFICATION_EXTENSION, null, null, null));
         }
         return pluginInfos;
     }
@@ -54,6 +55,6 @@ class NotificationViewModelBuilder implements ViewModelBuilder {
 
         GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-        return new PluginInfo(descriptor, NotificationExtension.EXTENSION_NAME, null, null, null);
+        return new PluginInfo(descriptor, NOTIFICATION_EXTENSION, null, null, null);
     }
 }

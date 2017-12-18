@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.plugin.controller;
 
 import com.google.common.collect.Sets;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
@@ -36,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHENTICATION_EXTENSION;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -104,7 +104,7 @@ public class PluginController {
     }
 
     private boolean isAuthPlugin(String pluginId) {
-        return pluginManager.isPluginOfType(AuthenticationExtension.EXTENSION_NAME, pluginId);
+        return pluginManager.isPluginOfType(AUTHENTICATION_EXTENSION, pluginId);
     }
 
     private Map<String, String> getParameterMap(HttpServletRequest request) {

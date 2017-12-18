@@ -17,8 +17,9 @@
 package com.thoughtworks.go.server.ui.plugins;
 
 import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 
 @Deprecated
 public class ElasticPluginInfo extends NewPluginInfo {
@@ -26,7 +27,7 @@ public class ElasticPluginInfo extends NewPluginInfo {
     private final Image image;
 
     public ElasticPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image) {
-        super(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME);
+        super(descriptor, ELASTIC_AGENT_EXTENSION);
         this.profileSettings = profileSettings;
         this.image = image;
     }

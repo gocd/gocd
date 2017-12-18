@@ -25,8 +25,6 @@ import java.util.List;
 public interface ElasticAgentPluginConstants {
     List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION, ElasticAgentExtensionConverterV2.VERSION);
 
-    String EXTENSION_NAME = "elastic-agent";
-
     String REQUEST_PREFIX = "go.cd.elastic-agent";
     String PROCESSOR_PREFIX = "go.processor.elastic-agents";
 

@@ -17,14 +17,13 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
+import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
 
@@ -32,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 
 @Deprecated
 class PluggableTaskViewModelBuilder implements ViewModelBuilder {
@@ -49,7 +50,7 @@ class PluggableTaskViewModelBuilder implements ViewModelBuilder {
 
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(descriptor, TaskExtension.TASK_EXTENSION, taskPreference.getView().displayValue(), null, null));
+            pluginInfos.add(new PluginInfo(descriptor, PLUGGABLE_TASK_EXTENSION, taskPreference.getView().displayValue(), null, null));
         }
         return pluginInfos;
     }
@@ -65,7 +66,7 @@ class PluggableTaskViewModelBuilder implements ViewModelBuilder {
         List<PluginConfiguration> pluginConfigurations = configurations(taskPreference.getConfig());
         PluginView pluginView = new PluginView(taskPreference.getView().template());
 
-        return new PluginInfo(descriptor, TaskExtension.TASK_EXTENSION, taskPreference.getView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
+        return new PluginInfo(descriptor, PLUGGABLE_TASK_EXTENSION, taskPreference.getView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
     }
 
     private List<PluginConfiguration> configurations(TaskConfig config) {

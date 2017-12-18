@@ -17,7 +17,6 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -29,11 +28,10 @@ import org.mockito.Mock;
 
 import java.util.HashMap;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,7 +59,7 @@ public class ConfigRepoExtensionTest {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
     }
 
@@ -77,7 +75,7 @@ public class ConfigRepoExtensionTest {
 
         CRParseResult response = extension.parseDirectory(PLUGIN_ID, "dir", null);
 
-        assertRequest(requestArgumentCaptor.getValue(), ConfigRepoExtension.EXTENSION_NAME, "1.0", ConfigRepoExtension.REQUEST_PARSE_DIRECTORY, null);
+        assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "1.0", ConfigRepoExtension.REQUEST_PARSE_DIRECTORY, null);
         verify(jsonMessageHandler).responseMessageForParseDirectory(responseBody);
         assertSame(response, deserializedResponse);
     }

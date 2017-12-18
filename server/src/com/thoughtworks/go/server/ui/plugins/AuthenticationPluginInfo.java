@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHENTICATION_EXTENSION;
 
 @Deprecated
 public class AuthenticationPluginInfo extends NewPluginInfo {
     public AuthenticationPluginInfo(PluginDescriptor descriptor) {
-        super(descriptor, AuthenticationExtension.EXTENSION_NAME);
+        super(descriptor, AUTHENTICATION_EXTENSION);
     }
 }

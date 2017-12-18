@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -27,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 
 @Component
 public class PluginSettingsMetadataLoader implements PluginChangeListener {
@@ -59,7 +60,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
 
             for (GoPluginExtension extension : extensions) {
                 if (extension.canHandlePlugin(pluginId)) {
-                    if (extension.extensionName().equals(TaskExtension.TASK_EXTENSION)) {
+                    if (extension.extensionName().equals(PLUGGABLE_TASK_EXTENSION)) {
                         isTaskPlugin = true;
                     } else {
                         configuration = extension.getPluginSettingsConfiguration(pluginId);

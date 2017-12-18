@@ -26,4 +26,5 @@ public interface PluginConstants {
     String PACKAGE_MATERIAL_EXTENSION = "package-repository";
     String CONFIG_REPO_EXTENSION = "configrepo";
     String ANALYTICS_EXTENSION = "analytics";
+    String ARTIFACT_EXTENSION = "artifact";
 }

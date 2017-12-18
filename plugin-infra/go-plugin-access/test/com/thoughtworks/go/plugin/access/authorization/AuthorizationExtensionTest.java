@@ -48,6 +48,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -72,7 +73,7 @@ public class AuthorizationExtensionTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.isPluginOfType(AuthorizationPluginConstants.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(AUTHORIZATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         authorizationExtension = new AuthorizationExtension(pluginManager);
 
@@ -91,7 +92,7 @@ public class AuthorizationExtensionTest {
 
         com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities = authorizationExtension.getCapabilities(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_GET_CAPABILITIES, null);
         assertThat(capabilities.getSupportedAuthType().toString(), is(SupportedAuthType.Password.toString()));
         assertThat(capabilities.canSearch(), is(true));
     }
@@ -103,7 +104,7 @@ public class AuthorizationExtensionTest {
 
         List<PluginConfiguration> authConfigMetadata = authorizationExtension.getAuthConfigMetadata(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_METADATA, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_GET_AUTH_CONFIG_METADATA, null);
 
         assertThat(authConfigMetadata.size(), is(2));
         assertThat(authConfigMetadata, containsInAnyOrder(
@@ -119,7 +120,7 @@ public class AuthorizationExtensionTest {
 
         String pluginConfigurationView = authorizationExtension.getAuthConfigView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_GET_AUTH_CONFIG_VIEW, null);
 
         assertThat(pluginConfigurationView, is("<div>This is view snippet</div>"));
     }
@@ -131,7 +132,7 @@ public class AuthorizationExtensionTest {
 
         ValidationResult validationResult = authorizationExtension.validateAuthConfig(PLUGIN_ID, Collections.emptyMap());
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_AUTH_CONFIG, "{}");
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_VALIDATE_AUTH_CONFIG, "{}");
 
         assertThat(validationResult.isSuccessful(), is(false));
         assertThat(validationResult.getErrors(), containsInAnyOrder(
@@ -148,7 +149,7 @@ public class AuthorizationExtensionTest {
 
         authorizationExtensionSpy.verifyConnection(PLUGIN_ID, Collections.emptyMap());
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VERIFY_CONNECTION, "{}");
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_VERIFY_CONNECTION, "{}");
 
         verify(authorizationExtensionSpy).verifyConnection(PLUGIN_ID, Collections.emptyMap());
     }
@@ -160,7 +161,7 @@ public class AuthorizationExtensionTest {
 
         List<PluginConfiguration> roleConfigurationMetadata = authorizationExtension.getRoleConfigurationMetadata(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ROLE_CONFIG_METADATA, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_GET_ROLE_CONFIG_METADATA, null);
 
         assertThat(roleConfigurationMetadata.size(), is(1));
         assertThat(roleConfigurationMetadata, containsInAnyOrder(
@@ -175,7 +176,7 @@ public class AuthorizationExtensionTest {
 
         String pluginConfigurationView = authorizationExtension.getRoleConfigurationView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ROLE_CONFIG_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_GET_ROLE_CONFIG_VIEW, null);
 
         assertThat(pluginConfigurationView, is("<div>This is view snippet</div>"));
     }
@@ -187,7 +188,7 @@ public class AuthorizationExtensionTest {
 
         ValidationResult validationResult = authorizationExtension.validateRoleConfiguration(PLUGIN_ID, Collections.emptyMap());
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_ROLE_CONFIG, "{}");
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_VALIDATE_ROLE_CONFIG, "{}");
 
         assertThat(validationResult.isSuccessful(), is(false));
         assertThat(validationResult.getErrors(), containsInAnyOrder(
@@ -233,7 +234,7 @@ public class AuthorizationExtensionTest {
 
         AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", authConfigs, pluginRoleConfigs);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
         assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
         assertThat(authenticationResponse.getRoles().get(0), is("blackbird"));
     }
@@ -265,7 +266,7 @@ public class AuthorizationExtensionTest {
 
         AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", authConfigs, null);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
         assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
         assertThat(authenticationResponse.getRoles().get(0), is("blackbird"));
     }
@@ -298,7 +299,7 @@ public class AuthorizationExtensionTest {
 
         List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))));
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_SEARCH_USERS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users, hasSize(1));
         assertThat(users, hasItem(new User("bob", "Bob", "bob@example.com")));
     }
@@ -314,7 +315,7 @@ public class AuthorizationExtensionTest {
                 "      }\n" +
                 "    }\n" +
                 "  ],\n" +
-                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n"+
+                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n" +
                 "}";
         String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
         SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", ConfigurationPropertyMother.create("url", false, "some-url"));
@@ -323,7 +324,7 @@ public class AuthorizationExtensionTest {
 
         String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
         assertThat(authorizationServerRedirectUrl, is("url_to_authorization_server"));
     }
 

@@ -22,8 +22,6 @@ import java.util.List;
 public interface AuthorizationPluginConstants {
     List<String> SUPPORTED_VERSIONS = Arrays.asList(AuthorizationMessageConverterV1.VERSION);
 
-    String EXTENSION_NAME = "authorization";
-
     String REQUEST_PREFIX = "go.cd.authorization";
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
     String REQUEST_GET_PLUGIN_ICON = REQUEST_PREFIX + ".get-icon";

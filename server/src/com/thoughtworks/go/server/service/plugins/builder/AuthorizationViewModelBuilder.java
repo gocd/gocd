@@ -17,13 +17,14 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 
 @Deprecated
 class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
@@ -40,7 +41,7 @@ class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
 
         for (AuthorizationPluginInfo pluginInfo : metadataStore.allPluginInfos()) {
             Image icon = image(pluginInfo.getImage());
-            pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), AuthorizationPluginConstants.EXTENSION_NAME, null, null, icon));
+            pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), AUTHORIZATION_EXTENSION, null, null, icon));
         }
 
         return pluginInfos;
@@ -54,7 +55,7 @@ class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
             return null;
         }
 
-        return new PluginInfo(pluginInfo.getDescriptor(), AuthorizationPluginConstants.EXTENSION_NAME, null,
+        return new PluginInfo(pluginInfo.getDescriptor(), AUTHORIZATION_EXTENSION, null,
                 settings(pluginInfo.getAuthConfigSettings()), settings(pluginInfo.getRoleSettings()), image(pluginInfo.getImage()));
     }
 }

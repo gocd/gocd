@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
@@ -30,7 +29,6 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMaterialMetadataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
@@ -52,6 +50,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Component
@@ -64,13 +64,13 @@ public class DefaultPluginInfoFinder {
     public DefaultPluginInfoFinder(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
 
-        builders.put(PackageRepositoryExtension.EXTENSION_NAME, PackageMaterialMetadataStore.instance());
+        builders.put(PACKAGE_MATERIAL_EXTENSION, PackageMaterialMetadataStore.instance());
         builders.put(TaskExtension.TASK_EXTENSION, PluggableTaskMetadataStore.instance());
         builders.put(SCMExtension.EXTENSION_NAME, NewSCMMetadataStore.instance());
         builders.put(AuthenticationExtension.EXTENSION_NAME, AuthenticationMetadataStore.instance());
         builders.put(NotificationExtension.EXTENSION_NAME, NotificationMetadataStore.instance());
         builders.put(ElasticAgentPluginConstants.EXTENSION_NAME, ElasticAgentMetadataStore.instance());
-        builders.put(AuthorizationPluginConstants.EXTENSION_NAME, AuthorizationMetadataStore.instance());
+        builders.put(AUTHORIZATION_EXTENSION, AuthorizationMetadataStore.instance());
         builders.put(ConfigRepoExtension.EXTENSION_NAME, ConfigRepoMetadataStore.instance());
         builders.put(AnalyticsExtension.EXTENSION_NAME, AnalyticsMetadataStore.instance());
     }

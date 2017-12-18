@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 
 @Deprecated
 public class AuthorizationPluginInfo extends NewPluginInfo {
@@ -29,7 +30,7 @@ public class AuthorizationPluginInfo extends NewPluginInfo {
     private final Capabilities capabilities;
 
     public AuthorizationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings authConfigSettings, PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities) {
-        super(descriptor, AuthorizationPluginConstants.EXTENSION_NAME);
+        super(descriptor, AUTHORIZATION_EXTENSION);
         this.authConfigSettings = authConfigSettings;
         this.roleSettings = roleSettings;
         this.image = image;

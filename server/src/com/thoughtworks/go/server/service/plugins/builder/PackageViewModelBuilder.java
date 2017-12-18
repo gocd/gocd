@@ -16,18 +16,23 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.packagematerial.*;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
+import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
 
 @Deprecated
 class PackageViewModelBuilder implements ViewModelBuilder {
@@ -40,10 +45,10 @@ class PackageViewModelBuilder implements ViewModelBuilder {
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for(String pluginId : PackageMetadataStore.getInstance().pluginIds()) {
+        for (String pluginId : PackageMetadataStore.getInstance().pluginIds()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(descriptor, PackageRepositoryExtension.EXTENSION_NAME, null, null, null));
+            pluginInfos.add(new PluginInfo(descriptor, PACKAGE_MATERIAL_EXTENSION, null, null, null));
         }
         return pluginInfos;
     }
@@ -52,7 +57,7 @@ class PackageViewModelBuilder implements ViewModelBuilder {
         String PACKAGE_CONFIGRATION_TYPE = "package";
         String REPOSITORY_CONFIGRATION_TYPE = "repository";
 
-        if(!PackageMetadataStore.getInstance().hasPreferenceFor(pluginId)) {
+        if (!PackageMetadataStore.getInstance().hasPreferenceFor(pluginId)) {
             return null;
         }
 
@@ -60,15 +65,15 @@ class PackageViewModelBuilder implements ViewModelBuilder {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
         pluginConfigurations.addAll(configurations(PackageMetadataStore.getInstance().getMetadata(pluginId), PACKAGE_CONFIGRATION_TYPE));
-        pluginConfigurations.addAll(configurations(RepositoryMetadataStore.getInstance().getMetadata(pluginId),  REPOSITORY_CONFIGRATION_TYPE));
+        pluginConfigurations.addAll(configurations(RepositoryMetadataStore.getInstance().getMetadata(pluginId), REPOSITORY_CONFIGRATION_TYPE));
 
-        return new PluginInfo(descriptor, PackageRepositoryExtension.EXTENSION_NAME, null, new PluggableInstanceSettings(pluginConfigurations));
+        return new PluginInfo(descriptor, PACKAGE_MATERIAL_EXTENSION, null, new PluggableInstanceSettings(pluginConfigurations));
     }
 
     private List<PluginConfiguration> configurations(PackageConfigurations packageConfigurations, String type) {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
 
-        for(PackageConfiguration configuration: packageConfigurations.list()) {
+        for (PackageConfiguration configuration : packageConfigurations.list()) {
             Map<String, Object> metaData = new HashMap<>();
 
             metaData.put(REQUIRED_OPTION, configuration.getOption(Property.REQUIRED));

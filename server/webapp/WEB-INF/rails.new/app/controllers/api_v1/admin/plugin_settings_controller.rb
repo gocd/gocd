@@ -22,13 +22,13 @@ module ApiV1
       before_action :check_for_stale_request, only: [:update]
 
       def show
-        json = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: @plugin_settings, plugin_info: default_plugin_info_finder.pluginInfoFor(@plugin_settings.getPluginId)}).to_hash(url_builder: self)
+        json = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: @plugin_settings, plugin_info: load_plugin_info(@plugin_settings.getPluginId)}).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json if stale?(etag: etag_for(@plugin_settings))
       end
 
       def create
         result = HttpLocalizedOperationResult.new
-        object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: default_plugin_info_finder.pluginInfoFor(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
+        object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: load_plugin_info(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
         @plugin_settings = object[:plugin_settings]
         plugin_service.createPluginSettings(current_user, result, @plugin_settings)
         handle_create_or_update_response(result, @plugin_settings)
@@ -36,7 +36,7 @@ module ApiV1
 
       def update
         result = HttpLocalizedOperationResult.new
-        object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: default_plugin_info_finder.pluginInfoFor(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
+        object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: load_plugin_info(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
         @plugin_settings = object[:plugin_settings]
         plugin_service.updatePluginSettings(current_user, result, @plugin_settings, etag_for(@plugin_settings))
         handle_create_or_update_response(result, @plugin_settings)
@@ -45,13 +45,21 @@ module ApiV1
       protected
 
       def handle_create_or_update_response(result, updated_plugin_settings)
-        json = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: updated_plugin_settings, plugin_info: default_plugin_info_finder.pluginInfoFor(updated_plugin_settings.getPluginId)}).to_hash(url_builder: self)
+        json = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: updated_plugin_settings, plugin_info: load_plugin_info(updated_plugin_settings.getPluginId)}).to_hash(url_builder: self)
         if result.isSuccessful
           response.etag = [etag_for(updated_plugin_settings)]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result, {data: json})
         end
+      end
+
+      def load_plugin_info(plugin_id)
+        plugin_info = default_plugin_info_finder.pluginInfoFor(plugin_id)
+        if plugin_info
+          return plugin_info
+        end
+        raise FailedDependency.new("The plugin with id #{plugin_id} is not loaded.")
       end
 
       def load_plugin_settings

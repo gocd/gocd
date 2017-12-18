@@ -366,7 +366,7 @@ describe ApiV4::Admin::Pipelines::PipelineConfigRepresenter do
       errors: {
         materials: ['A pipeline must have at least one material'],
         pipeline: ["Pipeline 'wunderbar' does not have any stages configured. A pipeline must have at least one stage."],
-        label_template: ["Label cannot be blank. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]
+        label_template: ["Label cannot be blank. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]
       }
     }
   end

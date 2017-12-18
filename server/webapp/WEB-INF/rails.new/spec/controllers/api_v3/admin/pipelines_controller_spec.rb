@@ -331,7 +331,7 @@ describe ApiV3::Admin::PipelinesController do
         allow(result).to receive(:httpCode).and_return(406)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
 
-        @pipeline.addError("labelTemplate", PipelineConfig::LABEL_TEMPLATE_ERROR_MESSAGE)
+        @pipeline.addError("labelTemplate", PipelineConfig::LABEL_TEMPLATE_ERROR_MESSAGE % 'foo bar')
         allow(controller).to receive(:get_pipeline_from_request) do
           controller.instance_variable_set(:@pipeline_config_from_request, @pipeline)
         end
@@ -492,7 +492,7 @@ describe ApiV3::Admin::PipelinesController do
         allow(result).to receive(:httpCode).and_return(406)
         allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
 
-        @pipeline.addError("labelTemplate", PipelineConfig::LABEL_TEMPLATE_ERROR_MESSAGE)
+        @pipeline.addError("labelTemplate", PipelineConfig::LABEL_TEMPLATE_ERROR_MESSAGE % 'foo bar')
         allow(controller).to receive(:get_pipeline_from_request) do
           controller.instance_variable_set(:@pipeline_config_from_request, @pipeline)
         end
@@ -669,7 +669,7 @@ describe ApiV3::Admin::PipelinesController do
     def expected_data_with_validation_errors
       {
         enable_pipeline_locking: false,
-        errors: {label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]},
+        errors: {label_template: ["Invalid label 'foo bar'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]},
         label_template: "${COUNT}",
         materials: [{type: "svn", attributes: {url: "http://some/svn/url", destination: "svnDir", filter: nil, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil}}],
         name: "pipeline1",

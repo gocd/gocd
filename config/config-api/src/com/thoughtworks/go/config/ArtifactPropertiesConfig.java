@@ -16,31 +16,31 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.List;
+
 @ConfigTag("properties")
-@ConfigCollection(ArtifactPropertiesGenerator.class)
-public class ArtifactPropertiesGenerators extends BaseCollection<ArtifactPropertiesGenerator> implements Validatable {
+@ConfigCollection(ArtifactPropertyConfig.class)
+public class ArtifactPropertiesConfig extends BaseCollection<ArtifactPropertyConfig> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public ArtifactPropertiesGenerators() {
+    public ArtifactPropertiesConfig() {
     }
 
-    public ArtifactPropertiesGenerators(ArtifactPropertiesGenerator... artifactPropertieses) {
-        super(artifactPropertieses);
+    public ArtifactPropertiesConfig(ArtifactPropertyConfig... artifactPropertiesGenerators) {
+        super(artifactPropertiesGenerators);
     }
 
-    public ArtifactPropertiesGenerators(List<ArtifactPropertiesGenerator> generators) {
+    public ArtifactPropertiesConfig(List<ArtifactPropertyConfig> generators) {
         super(generators);
     }
 
     public boolean validateTree(ValidationContext validationContext) {
         boolean isValid = errors().isEmpty();
 
-        for (ArtifactPropertiesGenerator artifactPropertiesGenerator : this) {
+        for (ArtifactPropertyConfig artifactPropertiesGenerator : this) {
             isValid = artifactPropertiesGenerator.validateTree(validationContext) && isValid;
         }
         return isValid;

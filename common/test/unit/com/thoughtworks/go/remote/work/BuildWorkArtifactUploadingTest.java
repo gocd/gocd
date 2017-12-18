@@ -17,7 +17,6 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -332,7 +331,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "");
         List<Builder> builders = new ArrayList<>();
         builders.add(new CreateFileBuilder(fileToCreate));
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory, new EnvironmentVariableContext());
     }
 

@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
@@ -355,7 +357,7 @@ public class JobInstanceServiceTest {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
                 resolver,
                 null, goConfigService, null, pluginManager, serverHealthService);
-        DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
         when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7l));

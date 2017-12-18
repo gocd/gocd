@@ -466,10 +466,10 @@ public class ConfigConverter {
                 artifactConfigs.add(toArtifactConfig(crArtifact));
             }
 
-        ArtifactPropertiesGenerators artifactPropertiesGenerators = jobConfig.getProperties();
+        ArtifactPropertiesConfig artifactPropertiesConfig = jobConfig.getProperties();
         if (crJob.getArtifactPropertiesGenerators() != null)
             for (CRPropertyGenerator crPropertyGenerator : crJob.getArtifactPropertiesGenerators()) {
-                artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator(
+                artifactPropertiesConfig.add(new ArtifactPropertyConfig(
                         crPropertyGenerator.getName(), crPropertyGenerator.getSrc(), crPropertyGenerator.getXpath()));
             }
 

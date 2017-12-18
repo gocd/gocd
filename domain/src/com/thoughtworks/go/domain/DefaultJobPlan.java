@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultJobPlan implements JobPlan {
@@ -30,7 +31,7 @@ public class DefaultJobPlan implements JobPlan {
 
     private Resources resources;
     private List<ArtifactPlan> artifactPlans;
-    private ArtifactPropertiesGenerators generators;
+    private List<ArtifactPropertiesGenerator> generators;
     private String agentUuid;
     private EnvironmentVariables variables;
     private EnvironmentVariables triggerVariables;
@@ -43,7 +44,7 @@ public class DefaultJobPlan implements JobPlan {
     protected DefaultJobPlan() {
     }
 
-    public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, ArtifactPropertiesGenerators generators, long jobId,
+    public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, List<ArtifactPropertiesGenerator> generators, long jobId,
                           JobIdentifier identifier, String agentUuid, EnvironmentVariables variables,
                           EnvironmentVariables triggerTimeVariables, ElasticProfile elasticProfile) {
         this.jobId = jobId;
@@ -96,7 +97,7 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public void setGenerators(List<ArtifactPropertiesGenerator> generators) {
-        this.generators = new ArtifactPropertiesGenerators(generators);
+        this.generators = new ArrayList<>(generators);
     }
 
     public void setJobId(long jobId) {

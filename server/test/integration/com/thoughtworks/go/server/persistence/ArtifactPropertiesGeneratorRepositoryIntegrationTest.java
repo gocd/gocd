@@ -16,12 +16,8 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;

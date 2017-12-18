@@ -17,7 +17,6 @@
 
 package com.thoughtworks.go.websocket;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
@@ -94,6 +93,6 @@ public class MessageTest {
 
     private DefaultJobPlan jobPlan() {
         JobIdentifier jobIdentifier = new JobIdentifier("pipelineName", 1, "1", "defaultStage", "1", "job1", 100L);
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 }

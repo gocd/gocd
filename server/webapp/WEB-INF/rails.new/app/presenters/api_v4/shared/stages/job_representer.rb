@@ -59,7 +59,7 @@ module ApiV4
                      Shared::Stages::ArtifactRepresenter.get_class_for_artifact_type(fragment[:type] || fragment['type'])
                    }
 
-        collection :properties, exec_context: :decorator, decorator: Shared::Stages::PropertyConfigRepresenter, class: com.thoughtworks.go.config.ArtifactPropertiesGenerator, render_empty: false
+        collection :properties, exec_context: :decorator, decorator: Shared::Stages::PropertyConfigRepresenter, class: com.thoughtworks.go.config.ArtifactPropertyConfig, render_empty: false
 
         def run_instance_count
           if job.getRunInstanceCount.present?
@@ -146,7 +146,7 @@ module ApiV4
         end
 
         def properties=(value)
-          job.setProperties(com.thoughtworks.go.config.ArtifactPropertiesGenerators.new(value))
+          job.setProperties(com.thoughtworks.go.config.ArtifactPropertiesConfig.new(value))
         end
       end
     end

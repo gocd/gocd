@@ -18,7 +18,7 @@ require 'rails_helper'
 
 describe ApiV3::Shared::Stages::PropertyConfigRepresenter do
   before :each do
-    @property = com.thoughtworks.go.config.ArtifactPropertiesGenerator.new('foo', 'target/emma/coverage.xml', 'substring-before(//report/data/all/coverage[starts-with(@type,class)]/@value, %)')
+    @property = com.thoughtworks.go.config.ArtifactPropertyConfig.new('foo', 'target/emma/coverage.xml', 'substring-before(//report/data/all/coverage[starts-with(@type,class)]/@value, %)')
   end
 
   it 'should serialize property' do
@@ -29,7 +29,7 @@ describe ApiV3::Shared::Stages::PropertyConfigRepresenter do
   end
 
   it 'should deserialize test artifact' do
-    actual    = com.thoughtworks.go.config.ArtifactPropertiesGenerator.new
+    actual    = com.thoughtworks.go.config.ArtifactPropertyConfig.new
     presenter = ApiV3::Shared::Stages::PropertyConfigRepresenter.new(actual)
     presenter.from_hash(property_hash)
     expect(actual.getSrc).to eq(@property.getSrc)

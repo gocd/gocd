@@ -92,7 +92,7 @@ public class RescheduleJobTest {
     }
 
     @Test
-    public void rescheduleBuildShouldUpdateCache() throws Exception {
+    public void rescheduleBuildShouldUpdateCache() {
         final JobInstance hungJob = stage.getJobInstances().get(0);
         final Pipeline pipeline = dbHelper.getPipelineDao().mostRecentPipeline(PIPELINE_NAME);
         //Need to do this in transaction because of caching
@@ -108,7 +108,7 @@ public class RescheduleJobTest {
     }
 
     @Test
-    public void rescheduleBuildShouldNotRescheduleIfReloadedJobIsCompleted() throws Exception {
+    public void rescheduleBuildShouldNotRescheduleIfReloadedJobIsCompleted() {
         final JobInstance hungJob = stage.getJobInstances().get(0);
         hungJob.changeState(JobState.Completed, new Date());
         //Need to do this in transaction because of caching
@@ -127,7 +127,7 @@ public class RescheduleJobTest {
     }
 
     @Test
-    public void rescheduleHungBuildShouldScheduleNewBuild() throws Exception {
+    public void rescheduleHungBuildShouldScheduleNewBuild()  {
         JobInstance hungJob = stage.getJobInstances().get(0);
         dbHelper.getBuildInstanceDao().save(stage.getId(), hungJob);
         scheduleService.rescheduleJob(hungJob);
@@ -145,13 +145,13 @@ public class RescheduleJobTest {
     }
 
     @Test
-    public void shouldRescheduleBuildAlongWithAssociatedEntitiesCorrectly() throws Exception {
+    public void shouldRescheduleBuildAlongWithAssociatedEntitiesCorrectly()  {
         dbHelper.cancelStage(stage);
 
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
         ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new ArtifactConfig("s1", "d1"), new ArtifactConfig("s2", "d2")));
-        ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators(new ArtifactPropertiesGenerator("n1", "s1", "x1"), new ArtifactPropertiesGenerator("n2", "s2", "x2"));
-        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs, artifactPropertiesGenerators);
+        ArtifactPropertiesConfig artifactPropertiesConfig = new ArtifactPropertiesConfig(new ArtifactPropertyConfig("n1", "s1", "x1"), new ArtifactPropertyConfig("n2", "s2", "x2"));
+        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs, artifactPropertiesConfig);
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
 

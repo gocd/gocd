@@ -67,7 +67,7 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Resource)) return false;
 
         Resource resource = (Resource) o;
 
@@ -76,8 +76,6 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (getName() != null ? getName().toLowerCase().hashCode() : 0);
-        return result;
+        return getName() != null ? getName().hashCode() : 0;
     }
 }

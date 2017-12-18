@@ -132,14 +132,14 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldSetAutoApprovalOnStageInstance()  {
+    public void shouldSetAutoApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_SUCCESS));
     }
 
     @Test
-    public void shouldSetManualApprovalOnStageInstance()  {
+    public void shouldSetManualApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.manualApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_MANUAL));
@@ -294,7 +294,7 @@ public class InstanceFactoryTest {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null)));
+        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), new ArrayList<>(), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null)));
     }
 
     @Test

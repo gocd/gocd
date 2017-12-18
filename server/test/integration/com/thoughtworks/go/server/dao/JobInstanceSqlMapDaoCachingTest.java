@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -293,6 +292,6 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     private DefaultJobPlan jobPlan(long id) {
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), id, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), id, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
     }
 }

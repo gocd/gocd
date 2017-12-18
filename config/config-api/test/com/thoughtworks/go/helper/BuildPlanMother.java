@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
+import com.thoughtworks.go.config.ArtifactPropertyConfig;
+import com.thoughtworks.go.config.ArtifactPropertiesConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
@@ -42,7 +42,7 @@ public class BuildPlanMother {
         return jobConfigs;
     }
 
-    public static JobConfig withArtifactPropertiesGenerator(ArtifactPropertiesGenerator... artifactPropertieses) {
-        return new JobConfig(new CaseInsensitiveString("job"), new ArtifactPropertiesGenerators(artifactPropertieses));
+    public static JobConfig withArtifactPropertiesGenerator(ArtifactPropertyConfig... artifactPropertyConfigs) {
+        return new JobConfig(new CaseInsensitiveString("job"), new ArtifactPropertiesConfig(artifactPropertyConfigs));
     }
 }

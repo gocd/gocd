@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -101,7 +100,7 @@ public class BuildAssignment implements Serializable {
         return initialContext;
     }
 
-    public String getBuildApprover(){
+    public String getBuildApprover() {
         return approver;
     }
 

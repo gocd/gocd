@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,7 +50,7 @@ public class DefaultJobPlanTest {
     public void shouldApplyEnvironmentVariablesWhenRunningTheJob() {
         EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("VARIABLE_NAME", "variable value");
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArtifactPropertiesGenerators(), -1, null, null,
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, null, null,
                 variables, new EnvironmentVariables(), null);
 
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
@@ -67,7 +66,7 @@ public class DefaultJobPlanTest {
                 new EnvironmentVariable("blah", "override"), new EnvironmentVariable("another", "anotherValue")));
 
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", environmentVariables, triggerEnvironmentVariables, null);
+                new ArrayList<>(), 0, new JobIdentifier(), "uuid", environmentVariables, triggerEnvironmentVariables, null);
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         original.applyTo(variableContext);
         assertThat(variableContext.getProperty("blah"), is("override"));
@@ -79,7 +78,7 @@ public class DefaultJobPlanTest {
     @Test
     public void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArtifactPropertiesGenerators(), 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null);
+                new ArrayList<>(), 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null);
         DefaultJobPlan clone = (DefaultJobPlan) serializeAndDeserialize(original);
         assertThat(clone, is(original));
     }

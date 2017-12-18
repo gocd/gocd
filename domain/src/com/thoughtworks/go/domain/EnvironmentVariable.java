@@ -112,8 +112,7 @@ public class EnvironmentVariable extends PersistentObject {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (isSecure ? 1 : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;

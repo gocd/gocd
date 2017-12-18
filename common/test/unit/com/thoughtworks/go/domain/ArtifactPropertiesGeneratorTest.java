@@ -16,53 +16,54 @@
 
 package com.thoughtworks.go.domain;
 
-import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
+import com.thoughtworks.go.config.ArtifactPropertiesConfig;
+import com.thoughtworks.go.config.ArtifactPropertyConfig;
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 
 public class ArtifactPropertiesGeneratorTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private List<String> sentContents;
     private ArtifactPropertiesGenerator generator;
     private GoPublisherImple goPublisherImple;
     private File workspace;
     private ArrayList<String> sentErrors;
-    private static final String TEST_PROPERTY = "test_property";
 
     @Before
     public void setUp() throws Exception {
-        this.workspace = TestFileUtil.createUniqueTempFolder("workspace");
+        this.workspace = temporaryFolder.newFolder("workspace");
 
         this.sentContents = new ArrayList<>();
         this.sentErrors = new ArrayList<>();
         goPublisherImple = new GoPublisherImple(sentContents, sentErrors);
-
     }
 
     @Test
-    public void shouldReportFailureWhenArtifactFileDoesNotExist() throws IOException {
+    public void shouldReportFailureWhenArtifactFileDoesNotExist() {
         File workspaceNotExist = new File("dir-not-exist");
         File srcFile = new File(workspaceNotExist, "file.xml");
-        generator = new ArtifactPropertiesGenerator(TEST_PROPERTY, srcFile.getName(), null);
+        generator = new ArtifactPropertiesGenerator("test_property", srcFile.getName(), null);
 
         generator.generate(goPublisherImple, workspaceNotExist);
         assertThat(sentContents.get(0), containsString("Failed to create property"));
@@ -74,7 +75,7 @@ public class ArtifactPropertiesGeneratorTest {
         File srcFile = createSrcFile();
         String noNodeCanMatch = "//HTML";
 
-        generator = new ArtifactPropertiesGenerator(TEST_PROPERTY, srcFile.getName(), noNodeCanMatch);
+        generator = new ArtifactPropertiesGenerator("test_property", srcFile.getName(), noNodeCanMatch);
         generator.generate(goPublisherImple, workspace);
 
         assertThat(sentContents.get(0), containsString("Failed to create property"));
@@ -84,7 +85,7 @@ public class ArtifactPropertiesGeneratorTest {
     @Test
     public void shouldReportNotingMatchedWhenXPATHisNotValid() throws IOException {
         String noNodeCanMatch = "////////HTML";
-        generator = new ArtifactPropertiesGenerator(TEST_PROPERTY, createSrcFile().getName(), noNodeCanMatch);
+        generator = new ArtifactPropertiesGenerator("test_property", createSrcFile().getName(), noNodeCanMatch);
 
         generator.generate(goPublisherImple, workspace);
 
@@ -94,68 +95,38 @@ public class ArtifactPropertiesGeneratorTest {
     @Test
     public void shouldReportPropertyIsCreated() throws Exception {
         String validXpath = "//buildplan/@name";
-        generator = new ArtifactPropertiesGenerator(TEST_PROPERTY, createSrcFile().getName(), validXpath);
+        generator = new ArtifactPropertiesGenerator("test_property", createSrcFile().getName(), validXpath);
 
         generator.generate(goPublisherImple, workspace);
 
-        assertThat(sentContents.get(0), containsString("Property " + TEST_PROPERTY + " = test created"));
+        assertThat(sentContents.get(0), containsString("Property " + "test_property" + " = test created"));
     }
 
     @Test
     public void shouldReportFirstMatchedProperty() throws Exception {
         String multipleMatchXPATH = "//artifact/@src";
-        generator = new ArtifactPropertiesGenerator(TEST_PROPERTY, createSrcFile().getName(), multipleMatchXPATH);
+        generator = new ArtifactPropertiesGenerator("test_property", createSrcFile().getName(), multipleMatchXPATH);
 
         generator.generate(goPublisherImple, workspace);
 
         assertThat(sentContents.get(0),
-                containsString("Property " + TEST_PROPERTY + " = target\\connectfour.jar created"));
+                containsString("Property " + "test_property" + " = target\\connectfour.jar created"));
     }
 
     @Test
-    public void shouldAddErrorToErrorCollection() throws IOException {
-        String multipleMatchXPATH = "//artifact/@src";
-        generator = new ArtifactPropertiesGenerator(TEST_PROPERTY, createSrcFile().getName(), multipleMatchXPATH);
-        generator.addError("src", "Source invalid");
-        assertThat(generator.errors().on("src"), is("Source invalid"));
+    public void shouldConvertArtifactPropertiesConfigToArtifactPropertiesGenerator() {
+        final ArtifactPropertiesConfig artifactPropertyConfigs = new ArtifactPropertiesConfig(
+                new ArtifactPropertyConfig("foo", "//foo", "xpath"),
+                new ArtifactPropertyConfig("bar", "//bar", "xpath")
+        );
+
+        final List<ArtifactPropertiesGenerator> artifactPropertiesGenerators = ArtifactPropertiesGenerator.toArtifactProperties(artifactPropertyConfigs);
+
+        assertThat(artifactPropertiesGenerators, containsInAnyOrder(
+                new ArtifactPropertiesGenerator("foo", "//foo", "xpath"),
+                new ArtifactPropertiesGenerator("bar", "//bar", "xpath")
+        ));
     }
-
-    @Test
-    public void shouldBeAbleToCreateACopyOfItself() throws Exception {
-        ArtifactPropertiesGenerator existingGenerator = new ArtifactPropertiesGenerator("prop1", "props.xml", "//some_xpath");
-        existingGenerator.setId(2);
-        existingGenerator.setJobId(10);
-        existingGenerator.addError("abc", "def");
-
-        assertThat(existingGenerator, equalTo(new ArtifactPropertiesGenerator(existingGenerator)));
-        assertThat(existingGenerator, equalTo(new Cloner().deepClone(existingGenerator)));
-    }
-
-    @Test
-    public void shouldValidateThatNameIsMandatory(){
-        ArtifactPropertiesGenerator generator = new ArtifactPropertiesGenerator(null, "props.xml", "//some_xpath");
-        generator.validateTree(null);
-        assertThat(generator.errors().on(ArtifactPropertiesGenerator.NAME), containsString("Invalid property name 'null'."));
-    }
-
-    private File createSrcFile() throws IOException {
-        String content = "<buildplans>\n"
-                + "          <buildplan name=\"test\">\n"
-                + "            <artifacts>\n"
-                + "              <artifact src=\"target\\connectfour.jar\" dest=\"dist\\jars\" />\n"
-                + "              <artifact src=\"target\\test-results\" dest=\"testoutput\" type=\"junit\" />\n"
-                + "              <artifact src=\"build.xml\" />\n"
-                + "            </artifacts>\n"
-                + "            <tasks>\n"
-                + "              <ant workingdir=\"dev\" target=\"all\" />\n"
-                + "            </tasks>\n"
-                + "          </buildplan>\n"
-                + "        </buildplans>";
-        File file = new File(workspace, "xmlfile");
-        FileUtils.writeStringToFile(file, content, "UTF-8");
-        return file;
-    }
-
 
     class GoPublisherImple extends DefaultGoPublisher {
         private final List<String> sentContents;
@@ -164,7 +135,7 @@ public class ArtifactPropertiesGeneratorTest {
         public GoPublisherImple(List<String> sentContents, List<String> sentErrors) {
             super(new GoArtifactsManipulator(null, null, null) {
                 public void publish(GoPublisher goPublisher, File dest, File source,
-                                   JobIdentifier jobIdentifier) {
+                                    JobIdentifier jobIdentifier) {
                 }
 
                 public void setProperty(JobIdentifier jobIdentifier, Property property) throws
@@ -188,5 +159,23 @@ public class ArtifactPropertiesGeneratorTest {
         public void reportErrorMessage(String message, Exception e) {
             sentErrors.add(message);
         }
+    }
+
+    private File createSrcFile() throws IOException {
+        String content = "<buildplans>\n"
+                + "          <buildplan name=\"test\">\n"
+                + "            <artifacts>\n"
+                + "              <artifact src=\"target\\connectfour.jar\" dest=\"dist\\jars\" />\n"
+                + "              <artifact src=\"target\\test-results\" dest=\"testoutput\" type=\"junit\" />\n"
+                + "              <artifact src=\"build.xml\" />\n"
+                + "            </artifacts>\n"
+                + "            <tasks>\n"
+                + "              <ant workingdir=\"dev\" target=\"all\" />\n"
+                + "            </tasks>\n"
+                + "          </buildplan>\n"
+                + "        </buildplans>";
+        File file = new File(workspace, "xmlfile");
+        FileUtils.writeStringToFile(file, content, "UTF-8");
+        return file;
     }
 }

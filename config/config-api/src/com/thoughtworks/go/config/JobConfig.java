@@ -308,8 +308,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public boolean hasTests() {
-        for (ArtifactConfig artifactPlan : artifactConfigs) {
-            if (artifactPlan.getArtifactType().isTest()) {
+        for (Artifact artifact : artifactConfigs) {
+            if (artifact.getArtifactType().isTest()) {
                 return true;
             }
         }

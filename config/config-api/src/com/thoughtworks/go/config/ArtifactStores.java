@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-@ConfigTag("authConfigs")
-@ConfigCollection(SecurityAuthConfig.class)
-public class SecurityAuthConfigs extends PluginProfiles<SecurityAuthConfig> implements Validatable {
-
-    public SecurityAuthConfigs() {
+@ConfigTag("artifactStores")
+@ConfigCollection(ArtifactStore.class)
+public class ArtifactStores extends PluginProfiles<ArtifactStore> implements Validatable {
+    public ArtifactStores() {
     }
 
-    public SecurityAuthConfigs(SecurityAuthConfig... configs) {
-        super(configs);
+    public ArtifactStores(ArtifactStore... artifactStores) {
+        super(artifactStores);
     }
 }

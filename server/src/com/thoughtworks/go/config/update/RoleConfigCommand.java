@@ -170,6 +170,11 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
             public boolean shouldNotCheckRole() {
                 return false;
             }
+
+            @Override
+            public ArtifactStores artifactStores() {
+                return null;
+            }
         };
     }
 

@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 
-public abstract class DelegatingValidationContext implements ValidationContext{
+public abstract class DelegatingValidationContext implements ValidationContext {
 
     private ValidationContext validationContext;
 
@@ -110,4 +110,8 @@ public abstract class DelegatingValidationContext implements ValidationContext{
         return validationContext.isWithinTemplates();
     }
 
+    @Override
+    public ArtifactStores artifactStores() {
+        return validationContext.artifactStores();
+    }
 }

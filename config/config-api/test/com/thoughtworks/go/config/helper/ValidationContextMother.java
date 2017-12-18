@@ -125,6 +125,11 @@ public class ValidationContextMother {
             public boolean shouldNotCheckRole() {
                 return false;
             }
+
+            @Override
+            public ArtifactStores artifactStores() {
+                return null;
+            }
         };
     }
 }

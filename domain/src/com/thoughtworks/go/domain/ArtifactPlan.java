@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.Artifact;
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -48,8 +50,15 @@ public class ArtifactPlan extends PersistentObject {
     public ArtifactPlan() {
     }
 
-    public ArtifactPlan(ArtifactConfig artifactConfig) {
-        this(artifactConfig.getArtifactType(), artifactConfig.getSource(), artifactConfig.getDestination());
+    public ArtifactPlan(Artifact artifact) {
+        if (artifact instanceof PluggableArtifactConfig) {
+            //TODO:
+        } else {
+            ArtifactConfig artifactConfig = (ArtifactConfig) artifact;
+            this.artifactType = artifactConfig.getArtifactType();
+            setSrc(src);
+            setDest(dest);
+        }
     }
 
     public ArtifactPlan(ArtifactPlan artifactPlan) {
@@ -198,8 +207,8 @@ public class ArtifactPlan extends PersistentObject {
 
     public static List<ArtifactPlan> toArtifactPlans(ArtifactConfigs artifactConfigs) {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : artifactConfigs) {
-            artifactPlans.add(new ArtifactPlan(artifactConfig));
+        for (Artifact artifact : artifactConfigs) {
+            artifactPlans.add(new ArtifactPlan(artifact));
         }
         return artifactPlans;
     }

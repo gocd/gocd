@@ -22,6 +22,8 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.v1.ElasticAgentExtensionConverterV1;
 import com.thoughtworks.go.plugin.access.elastic.v2.ElasticAgentExtensionConverterV2;
@@ -43,12 +45,16 @@ import static java.lang.String.format;
 public class ElasticAgentExtension extends AbstractExtension {
 
     private final HashMap<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
+    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
         addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2());
+
+        jsonMessageHandlersForRequestProcessor.put(ElasticAgentExtensionConverterV1.VERSION, new JsonMessageHandlerForRequestProcessor1_0());
+        jsonMessageHandlersForRequestProcessor.put(ElasticAgentExtensionConverterV2.VERSION, new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler) {
@@ -151,6 +157,11 @@ public class ElasticAgentExtension extends AbstractExtension {
                 return converter.getCapabilitiesFromResponseBody(responseBody);
             }
         });
+    }
+
+    @Override
+    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
     }
 
     @Override

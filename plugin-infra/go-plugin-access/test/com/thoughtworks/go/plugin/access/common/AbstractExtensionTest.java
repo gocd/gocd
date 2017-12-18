@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.common;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -31,10 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
@@ -60,6 +58,11 @@ public class AbstractExtensionTest {
 
         protected TestExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
             super(pluginManager, pluginRequestHelper, extensionName);
+        }
+
+        @Override
+        protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+            return null;
         }
 
         @Override

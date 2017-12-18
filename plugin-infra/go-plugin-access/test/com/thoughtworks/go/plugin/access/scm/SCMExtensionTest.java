@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -239,6 +241,19 @@ public class SCMExtensionTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Interaction with plugin with id 'plugin-id' implementing 'scm' extension failed while requesting for 'check-scm-connection'. Reason: [exception-from-plugin]"));
         }
+    }
+
+    @Test
+    public void shouldSerializePluginSettingsToJSON() throws Exception {
+        String pluginId = "plugin_id";
+        HashMap<String, String> pluginSettings = new HashMap<>();
+        pluginSettings.put("key1", "val1");
+        pluginSettings.put("key2", "val2");
+
+        when(pluginManager.resolveExtensionVersion(pluginId, scmExtension.goSupportedVersions())).thenReturn("1.0");
+        String pluginSettingsJSON = scmExtension.pluginSettingsJSON(pluginId, pluginSettings);
+
+        assertThat(pluginSettingsJSON, CoreMatchers.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

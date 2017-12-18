@@ -19,11 +19,19 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
+import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.HashMap;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 public class NotificationExtensionTestForV1 extends NotificationExtensionTestBase {
     @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandlerv1;
+
     @Mock
     private JsonMessageHandler1_0 jsonMessageHandlerv1;
 
@@ -40,5 +48,20 @@ public class NotificationExtensionTestForV1 extends NotificationExtensionTestBas
     @Override
     protected JsonMessageHandler jsonMessageHandler() {
         return jsonMessageHandlerv1;
+    }
+
+    @Test
+    public void shouldSerializePluginSettingsToJSON() throws Exception {
+        String pluginId = "plugin_id";
+        HashMap<String, String> pluginSettings = new HashMap<>();
+        pluginSettings.put("k1", "value1");
+        pluginSettings.put("k2", "value2");
+
+        NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
+
+        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
+        String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
+
+        assertThat(pluginSettingsJSON, is("{\"k1\":\"value1\",\"k2\":\"value2\"}"));
     }
 }

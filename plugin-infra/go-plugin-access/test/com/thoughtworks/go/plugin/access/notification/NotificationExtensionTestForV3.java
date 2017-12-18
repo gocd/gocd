@@ -32,10 +32,13 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +65,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
     }
 
     @Test
-    public void shouldNotifySettingsChangeForPluginWhichSupportsNotification() throws Exception {
+    public void shouldNotifyPluginSettingsChange() throws Exception {
         String supportedVersion = "3.0";
         Map<String, String> settings = Collections.singletonMap("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
@@ -76,6 +79,21 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
 
         assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME,
                 supportedVersion, REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE, "{\"foo\":\"bar\"}");
+    }
+
+    @Test
+    public void shouldSerializePluginSettingsToJSON() throws Exception {
+        String pluginId = "plugin_id";
+        HashMap<String, String> pluginSettings = new HashMap<>();
+        pluginSettings.put("key1", "val1");
+        pluginSettings.put("key2", "val2");
+
+        NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
+
+        when(pluginManager.resolveExtensionVersion(pluginId, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
+        String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
+
+        assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

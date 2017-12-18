@@ -16,8 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v1;
 
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -29,6 +32,8 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ElasticAgentExtensionConverterV1Test {
 
@@ -100,6 +105,22 @@ public class ElasticAgentExtensionConverterV1Test {
         com.thoughtworks.go.plugin.domain.common.Image image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
+    }
+
+    @Test
+    public void shouldSerializePluginSettingsToJSON() throws Exception {
+        String pluginId = "plugin_id";
+        HashMap<String, String> pluginSettings = new HashMap<>();
+        pluginSettings.put("key1", "val1");
+        pluginSettings.put("key2", "val2");
+        PluginManager pluginManager = mock(PluginManager.class);
+
+        ElasticAgentExtension elasticAgentExtension = new ElasticAgentExtension(pluginManager);
+
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0", "2.0"))).thenReturn("1.0");
+        String pluginSettingsJSON = elasticAgentExtension.pluginSettingsJSON(pluginId, pluginSettings);
+
+        assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
     private AgentMetadata elasticAgent() {

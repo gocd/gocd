@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -35,52 +36,63 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
+import static java.lang.String.format;
 
 @Component
 public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginSettingsRequestProcessor.class);
 
     public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
-    private static final List<String> goSupportedVersions = asList("1.0", "2.0");
 
     private PluginSqlMapDao pluginSqlMapDao;
+    private final List<GoPluginExtension> extensions;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry, PluginSqlMapDao pluginSqlMapDao) {
+    public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry, PluginSqlMapDao pluginSqlMapDao, List<GoPluginExtension> extensions) {
         this.pluginSqlMapDao = pluginSqlMapDao;
+        this.extensions = extensions;
         registry.registerProcessorFor(GET_PLUGIN_SETTINGS, this);
-        this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
-        this.messageHandlerMap.put("2.0", new JsonMessageHandler1_0());
     }
 
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         try {
-            String version = goPluginApiRequest.apiVersion();
-            if (!goSupportedVersions.contains(version)) {
-                throw new RuntimeException(String.format("Unsupported '%s' API version: %s. Supported versions: %s", goPluginApiRequest.api(), version, goSupportedVersions));
-            }
-
             if (goPluginApiRequest.api().equals(GET_PLUGIN_SETTINGS)) {
-                return handlePluginSettingsGetRequest(pluginDescriptor.id(), goPluginApiRequest);
+                GoPluginExtension extension = extensionFor(pluginDescriptor.id());
+
+                PluginSettings pluginSettings = pluginSettingsFor(pluginDescriptor.id());
+
+                DefaultGoApiResponse response = new DefaultGoApiResponse(200);
+                response.setResponseBody(extension.pluginSettingsJSON(pluginDescriptor.id(), pluginSettings.getSettingsAsKeyValuePair()));
+
+                return response;
             }
         } catch (Exception e) {
-            LOGGER.error("Error occurred while authenticating user", e);
+            LOGGER.error(format("Error processing PluginSettings request from plugin: %s.", pluginDescriptor.id()), e);
         }
         return new DefaultGoApiResponse(400);
     }
 
-    private GoApiResponse handlePluginSettingsGetRequest(String pluginId, GoApiRequest goPluginApiRequest) {
+    private PluginSettings pluginSettingsFor(String pluginId) {
         Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
         PluginSettings pluginSettings = new PluginSettings(pluginId);
         if (!(plugin instanceof NullPlugin)) {
             pluginSettings.populateSettingsMap(plugin);
         }
-        DefaultGoApiResponse response = new DefaultGoApiResponse(200);
-        response.setResponseBody(messageHandlerMap.get(goPluginApiRequest.apiVersion()).responseMessagePluginSettingsGet(pluginSettings));
-        return response;
+
+        return pluginSettings;
+    }
+
+    private GoPluginExtension extensionFor(String pluginId) {
+        for(GoPluginExtension extension : extensions) {
+            if(extension.canHandlePlugin(pluginId)){
+                return extension;
+            }
+        }
+
+        throw new IllegalArgumentException(format(
+                "Plugin '%s' is not supported by any extension point", pluginId));
     }
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {

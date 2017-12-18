@@ -81,6 +81,14 @@ public abstract class AbstractExtension implements GoPluginExtension {
         });
     }
 
+    @Override
+    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions());
+        return jsonMessageHandlerForRequestProcessor(resolvedExtensionVersion).pluginSettingsToJSON(pluginSettings);
+    }
+
+    protected abstract JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion);
+
     protected abstract List<String> goSupportedVersions();
 
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {

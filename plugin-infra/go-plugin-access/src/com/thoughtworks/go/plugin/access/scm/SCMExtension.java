@@ -21,6 +21,8 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -49,12 +51,14 @@ public class SCMExtension extends AbstractExtension {
     public static final String REQUEST_CHECKOUT = "checkout";
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
+    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     @Autowired
     public SCMExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        jsonMessageHandlersForRequestProcessor.put("1.0", new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     public SCMPropertyConfiguration getSCMConfiguration(String pluginId) {
@@ -153,6 +157,11 @@ public class SCMExtension extends AbstractExtension {
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {
         return messageHandlerMap;
+    }
+
+    @Override
+    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
     }
 
     @Override

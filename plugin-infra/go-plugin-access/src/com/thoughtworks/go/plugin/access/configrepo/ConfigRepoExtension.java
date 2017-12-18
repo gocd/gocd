@@ -20,6 +20,8 @@ import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
@@ -42,12 +44,14 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     private static final List<String> goSupportedVersions = asList("1.0");
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
+    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     @Autowired
     public ConfigRepoExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME),EXTENSION_NAME);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
+        jsonMessageHandlersForRequestProcessor.put("1.0", new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     @Override
@@ -76,6 +80,11 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     public boolean isConfigRepoPlugin(String pluginId) {
         return pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, pluginId);
+    }
+
+    @Override
+    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
     }
 
     @Override

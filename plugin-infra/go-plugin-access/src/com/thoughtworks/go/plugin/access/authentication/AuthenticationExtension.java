@@ -23,6 +23,8 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor1_0;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,12 +46,14 @@ public class AuthenticationExtension extends AbstractExtension {
     public static final String REQUEST_SEARCH_USER = "go.authentication.search-user";
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
+    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     @Autowired
     public AuthenticationExtension(PluginManager defaultPluginManager) {
         super(defaultPluginManager, new PluginRequestHelper(defaultPluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
         this.registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        jsonMessageHandlersForRequestProcessor.put("1.0", new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     public AuthenticationPluginConfiguration getPluginConfiguration(String pluginId) {
@@ -95,6 +99,11 @@ public class AuthenticationExtension extends AbstractExtension {
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {
         return messageHandlerMap;
+    }
+
+    @Override
+    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
     }
 
     @Override

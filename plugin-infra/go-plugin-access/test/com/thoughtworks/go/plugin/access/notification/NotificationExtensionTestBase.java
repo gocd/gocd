@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static java.util.Arrays.asList;

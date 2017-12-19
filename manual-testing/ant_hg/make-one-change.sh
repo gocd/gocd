@@ -2,7 +2,7 @@
 if [ "$USER" == '' ]; then
     USER=ManualUser
 fi
-if ["$FOLDER" == '']; then
+if [ "$FOLDER" == '' ]; then
   echo 
   FOLDER=dummy
 fi

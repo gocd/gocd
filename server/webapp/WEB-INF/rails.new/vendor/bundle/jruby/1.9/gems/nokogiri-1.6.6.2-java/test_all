@@ -45,18 +45,18 @@ function rvm_use {
 function generate_parser_and_tokenizer {
     old_ruby=$current_ruby
     rvm_use ruby-1.9.3
-    bundle exec rake generate 2>&1 > /dev/null
+    bundle exec rake generate > /dev/null 2>&1
     rvm_use $old_ruby
 }
 
 function clean {
-    bundle exec rake clean clobber 2>&1 > /dev/null
+    bundle exec rake clean clobber > /dev/null 2>&1
 }
 
 function compile {
     echo "** compiling ..."
     # generate_parser_and_tokenizer
-    bundle exec rake compile 2>&1 > /dev/null
+    bundle exec rake compile > /dev/null 2>&1
 }
 
 for ruby in $RUBIES ; do

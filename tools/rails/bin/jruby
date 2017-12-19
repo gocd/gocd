@@ -44,7 +44,7 @@ fi
 
 export JRUBY_OPTS="${JRUBY_OPTS} -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compat.version=2.0 -J-Djruby.compile.invokedynamic=false -J-Djruby.compile.mode=OFF"
 
-jruby_cp=$(echo ${combined_classpath_items[@]} | awk ' !x[$0]++' | tr ' ' ':')
+jruby_cp=$(echo "${combined_classpath_items[@]}" | awk ' !x[$0]++' | tr ' ' ':')
 
 if [ -z "${jruby_cp}" ]; then
     ${JRUBY_BASE}/bin/jruby "${argv[@]}"

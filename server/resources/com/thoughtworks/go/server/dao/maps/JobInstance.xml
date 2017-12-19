@@ -168,12 +168,8 @@
     </resultMap>
 
     <select id="select-job-plan" resultMap="select-job-plan">
-        SELECT b.*, b.id as buildId,
-            a.id as artifactId, a.src as artifactSrc, a.dest as artifactDest, a.artifactType
-        FROM _builds b
-        LEFT JOIN artifactPlans a ON b.id = a.buildId
+        SELECT b.*, b.id as buildId FROM _builds b
         WHERE b.id = #jobId#
-        ORDER BY b.scheduledDate ASC
     </select>
 
     <select id="scheduledPlan" resultMap="select-job-plan">

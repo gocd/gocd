@@ -105,7 +105,7 @@ class WindowsPackagingTask extends DefaultTask {
   }
 
   def defaultJreLocation() {
-    is32Bit ? "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jre-8u102-windows-i586.tar.gz" : "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jre-8u102-windows-x64.tar.gz"
+    is32Bit ? "http://download.oracle.com/otn-pub/java/jdk/8u152-b16/aa0333dd3019491ca4f6ddbe78cdb6d0/jre-8u152-windows-i586.tar.gz" : "http://download.oracle.com/otn-pub/java/jdk/8u152-b16/aa0333dd3019491ca4f6ddbe78cdb6d0/jre-8u152-windows-x64.tar.gz"
   }
 
   def specifiedJreLocation() {

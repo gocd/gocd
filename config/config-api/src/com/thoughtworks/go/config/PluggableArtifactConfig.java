@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -62,7 +64,7 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
 
     @Override
     public ArtifactType getArtifactType() {
-        return ArtifactType.file;
+        return ArtifactType.plugin;
     }
 
     @Override
@@ -109,6 +111,14 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
             }
         }
         existingArtifactList.add(this);
+    }
+
+    public String toJSON() {
+        final HashMap<String, Object> artifactStoreAsHashMap = new HashMap<>();
+        artifactStoreAsHashMap.put("id", getId());
+        artifactStoreAsHashMap.put("storeId", getStoreId());
+        artifactStoreAsHashMap.put("configuration", getConfigurationAsMap(true));
+        return new Gson().toJson(artifactStoreAsHashMap);
     }
 
     @Override

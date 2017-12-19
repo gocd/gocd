@@ -36,7 +36,7 @@ public class PluggableArtifactConfigTest {
 
         assertThat(artifactConfig.getId(), is("Artifact-ID"));
         assertThat(artifactConfig.getStoreId(), is("Store-ID"));
-        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.file));
+        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.plugin));
         assertThat(artifactConfig.getArtifactTypeValue(), is("Pluggable Artifact"));
         assertThat(artifactConfig.get(0), is(create("Foo", false, "Bar")));
     }
@@ -87,5 +87,14 @@ public class PluggableArtifactConfigTest {
 
         assertThat(newConfig.errors().on("id"), is("Duplicate pluggable artifacts  configuration defined."));
         assertThat(existingConfig.errors().on("id"), is("Duplicate pluggable artifacts  configuration defined."));
+    }
+
+    @Test
+    public void shouldSerializeToJson() {
+        final PluggableArtifactConfig config = new PluggableArtifactConfig("id1", "Store-ID", create("Foo", false, "Bar"));
+
+        final String actual = config.toJSON();
+
+        assertThat(actual, is("{\"configuration\":{\"Foo\":\"Bar\"},\"id\":\"id1\",\"storeId\":\"Store-ID\"}"));
     }
 }

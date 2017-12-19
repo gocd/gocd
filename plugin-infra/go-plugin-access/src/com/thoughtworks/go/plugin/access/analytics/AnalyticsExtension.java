@@ -70,6 +70,15 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
+    public String getStaticAssets(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_STATIC_ASSETS, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getStaticAssets(responseBody);
+            }
+        });
+    }
+
     public AnalyticsMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
     }

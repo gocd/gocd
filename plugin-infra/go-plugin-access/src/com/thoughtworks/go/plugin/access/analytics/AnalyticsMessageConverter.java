@@ -22,4 +22,6 @@ public interface AnalyticsMessageConverter {
     String getPipelineAnalyticsRequestBody(String pipelineName);
 
     String getPipelineAnalyticsFromResponseBody(String responseBody);
+
+    String getStaticAssets(String responseBody);
 }

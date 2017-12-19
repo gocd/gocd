@@ -31,8 +31,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 
-import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.REQUEST_GET_CAPABILITIES;
-import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.REQUEST_GET_PIPELINE_ANALYTICS;
+import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -83,6 +82,27 @@ public class AnalyticsExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PIPELINE_ANALYTICS, "{\"pipeline_name\": \"test_pipeline\"}");
 
         assertThat(pipelineAnalytics, is("<div>This is view snippet</div>"));
+    }
+
+    @Test
+    public void shouldFetchStaticAssets() throws Exception {
+        String responseBody = "{ \"assets\": \"assets payload\" }";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        String assets = analyticsExtension.getStaticAssets(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_STATIC_ASSETS, null);
+
+        assertThat(assets, is("assets payload"));
+    }
+
+    @Test
+    public void shouldErrorOutInAbsenceOfStaticAssets() throws Exception {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("No assets defined!");
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{}"));
+
+        analyticsExtension.getStaticAssets(PLUGIN_ID);
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

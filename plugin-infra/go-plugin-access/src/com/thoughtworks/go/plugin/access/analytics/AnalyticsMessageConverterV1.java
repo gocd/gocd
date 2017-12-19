@@ -48,4 +48,15 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
         }
         return analytics;
     }
+
+    @Override
+    public String getStaticAssets(String responseBody) {
+        String assets = (String) new Gson().fromJson(responseBody, Map.class).get("assets");
+
+        if (StringUtils.isBlank(assets)) {
+            throw new RuntimeException("No assets defined!");
+        }
+
+        return assets;
+    }
 }

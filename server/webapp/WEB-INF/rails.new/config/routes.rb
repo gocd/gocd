@@ -230,6 +230,11 @@ Go::Application.routes.draw do
         patch :update, on: :member
       end
 
+      constraints pipeline_name: PIPELINE_NAME_FORMAT do
+        post 'pipelines/:pipeline_name/pause' => 'pipeline_operation#pause', constraints: HeaderConstraint.new, as: :pause_pipeline
+        post 'pipelines/:pipeline_name/unpause' => 'pipeline_operation#unpause', constraints: HeaderConstraint.new, as: :unpause_pipeline
+      end
+
       namespace :elastic do
         resources :profiles, param: :profile_id, only: [:create, :index, :show, :destroy, :update], constraints: {profile_id: ELASTIC_AGENT_PROFILE_ID_FORMAT}
       end

@@ -48,4 +48,6 @@ public interface LocalizedOperationResult {
     void notImplemented(Localizable localizable);
 
     void unprocessableEntity(Localizable localizable);
+
+    void preconditionFailed(Localizable localizable);
 }

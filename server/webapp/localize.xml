@@ -794,4 +794,8 @@
     <entry key="CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT">Resources on elastic agents with uuids [{0}] can not be updated.</entry>
     <entry key="PENDING_AGENT_INVALID_OPERATION">Pending agents [{0}] must be explicitly enabled or disabled when performing any operations on them</entry>
     <entry key="NO_OPERATION_PERFORMED_ON_AGENTS">No Operation performed on agents.</entry>
+    <entry key="PIPELINE_PAUSE_SUCCESSFUL">Pipeline ''{0}'' paused successfully.</entry>
+    <entry key="PIPELINE_UNPAUSE_SUCCESSFUL">Pipeline ''{0}'' unpaused successfully.</entry>
+    <entry key="PIPELINE_ALREADY_PAUSED">Failed to pause pipeline ''{0}''. Pipeline ''{0}'' is already paused.</entry>
+    <entry key="PIPELINE_ALREADY_UNPAUSED">Failed to unpause pipeline ''{0}''. Pipeline ''{0}'' is already unpaused.</entry>
 </properties>

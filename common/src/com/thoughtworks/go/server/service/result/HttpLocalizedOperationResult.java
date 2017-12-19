@@ -61,6 +61,12 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         this.httpCode = HttpStatus.SC_UNPROCESSABLE_ENTITY;
     }
 
+    @Override
+    public void preconditionFailed(Localizable message) {
+        this.message = message;
+        this.httpCode = HttpStatus.SC_PRECONDITION_FAILED;
+    }
+
     public void unauthorized(Localizable message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;

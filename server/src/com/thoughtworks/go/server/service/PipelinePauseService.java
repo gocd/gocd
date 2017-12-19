@@ -67,12 +67,21 @@ public class PipelinePauseService {
         if (StringUtils.isBlank(pauseCause)) {
             pauseCause = "";
         }
+        if (isPipelinePaused(pipelineName)) {
+            result.preconditionFailed(LocalizedMessage.string("PIPELINE_ALREADY_PAUSED", pipelineName));
+            return;
+        }
         try {
             pausePipeline(pipelineName, pauseCause, pausedBy);
+            result.setMessage(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", pipelineName));
         } catch (Exception e) {
             LOGGER.error("[Pipeline Pause] Failed to pause pipeline", e);
             result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
         }
+    }
+
+    private boolean isPipelinePaused(String pipelineName) {
+        return pipelineSqlMapDao.pauseState(pipelineName).isPaused();
     }
 
     public void unpause(String pipelineName) {
@@ -84,8 +93,13 @@ public class PipelinePauseService {
         if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
             return;
         }
+        if (!isPipelinePaused(pipelineName)) {
+            result.preconditionFailed(LocalizedMessage.string("PIPELINE_ALREADY_UNPAUSED", pipelineName));
+            return;
+        }
         try {
             unpausePipeline(pipelineName, unpausedBy);
+            result.setMessage(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", pipelineName));
         } catch (Exception e) {
             LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
             result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));

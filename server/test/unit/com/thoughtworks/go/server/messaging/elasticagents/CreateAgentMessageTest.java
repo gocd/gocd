@@ -34,7 +34,7 @@ public class CreateAgentMessageTest {
     public void shouldGetPluginId() {
         List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         ElasticProfile jobAgentConfig = new ElasticProfile("foo", "plugin-id", properties);
-        CreateAgentMessage message = new CreateAgentMessage("key", "env", jobAgentConfig);
+        CreateAgentMessage message = new CreateAgentMessage("key", "env", jobAgentConfig, null);
         assertThat(message.pluginId(), is(jobAgentConfig.getPluginId()));
         Map<String, String> configurationAsMap = jobAgentConfig.getConfigurationAsMap(true);
         assertThat(message.configuration(), is(configurationAsMap));

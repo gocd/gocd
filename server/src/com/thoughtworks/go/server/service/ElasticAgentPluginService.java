@@ -18,12 +18,14 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
@@ -44,10 +46,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -150,7 +149,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
             map.put(plan.getJobId(), timeProvider.currentTimeMillis());
             if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile()), messageTimeToLive);
+                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile(), plan.getIdentifier()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
@@ -173,8 +172,11 @@ public class ElasticAgentPluginService implements JobStatusListener {
         };
     }
 
-    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile) {
-        return elasticProfile.getPluginId().equals(metadata.elasticPluginId()) && elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), environment, elasticProfile.getConfigurationAsMap(true));
+    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, JobIdentifier identifier) {
+        GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
+        Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true);
+        boolean shouldAssignWork = elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, identifier);
+        return elasticProfile.getPluginId().equals(metadata.elasticPluginId()) && shouldAssignWork;
     }
 
     @Override

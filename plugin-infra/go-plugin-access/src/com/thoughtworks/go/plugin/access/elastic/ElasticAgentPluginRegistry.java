@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.AbstractPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
@@ -33,11 +34,11 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         super(pluginManager, elasticAgentExtension);
     }
 
-    public void createAgent(final String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration) {
+    public void createAgent(final String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
         PluginDescriptor plugin = findPlugin(pluginId);
         if (plugin != null) {
             LOGGER.debug("Processing create agent for plugin: {} with environment: {} with configuration: {}", pluginId, environment, configuration);
-            extension.createAgent(pluginId, autoRegisterKey, environment, configuration);
+            extension.createAgent(pluginId, autoRegisterKey, environment, configuration, jobIdentifier);
             LOGGER.debug("Done processing create agent for plugin: {} with environment: {} with configuration: {}", pluginId, environment, configuration);
         } else {
             LOGGER.warn("Could not find plugin with id: {}", pluginId);
@@ -50,9 +51,9 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         LOGGER.debug("Done processing server ping for plugin {}", pluginId);
     }
 
-    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration) {
+    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
         LOGGER.debug("Processing should assign work for plugin: {} with agent: {} with environment: {} with configuration: {}", plugin.id(), agent, environment, configuration);
-        boolean result = extension.shouldAssignWork(plugin.id(), agent, environment, configuration);
+        boolean result = extension.shouldAssignWork(plugin.id(), agent, environment, configuration, identifier);
         LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} with environment: {} with configuration {}", result, plugin.id(), agent, environment, configuration);
         return result;
     }

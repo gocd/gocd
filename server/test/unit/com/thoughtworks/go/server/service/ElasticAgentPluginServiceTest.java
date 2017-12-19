@@ -119,7 +119,6 @@ public class ElasticAgentPluginServiceTest {
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
-        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
@@ -131,6 +130,7 @@ public class ElasticAgentPluginServiceTest {
         assertThat(createAgentMessage.pluginId(), is(plan2.getElasticProfile().getPluginId()));
         assertThat(createAgentMessage.configuration(), is(plan2.getElasticProfile().getConfigurationAsMap(true)));
         assertThat(createAgentMessage.environment(), is("env-2"));
+        assertThat(createAgentMessage.jobIdentifier(), is(plan2.getIdentifier()));
     }
 
     @Test
@@ -217,8 +217,8 @@ public class ElasticAgentPluginServiceTest {
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
 
-        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(true);
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(true));
+        when(registry.shouldAssignWork(any(), any(), any(), any(), null)).thenReturn(true);
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(true));
     }
 
     @Test
@@ -227,9 +227,9 @@ public class ElasticAgentPluginServiceTest {
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
-        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(false);
+        when(registry.shouldAssignWork(any(), any(), any(), any(), null)).thenReturn(false);
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(false));
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(false));
     }
 
     @Test
@@ -237,9 +237,9 @@ public class ElasticAgentPluginServiceTest {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
-        when(registry.shouldAssignWork(any(), any(), any(), any())).thenReturn(true);
+        when(registry.shouldAssignWork(any(), any(), any(), any(), null)).thenReturn(true);
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile), is(false));
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null), is(false));
     }
 
     private JobPlan plan(int jobId, String pluginId) {

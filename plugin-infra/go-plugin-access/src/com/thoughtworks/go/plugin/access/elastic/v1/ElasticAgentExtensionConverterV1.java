@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic.v1;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
@@ -39,7 +40,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     public static final String VERSION = "1.0";
 
     @Override
-    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration) {
+    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("auto_register_key", autoRegisterKey);
         JsonObject properties = new JsonObject();
@@ -52,7 +53,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration) {
+    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
         JsonObject jsonObject = new JsonObject();
         JsonObject properties = new JsonObject();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {

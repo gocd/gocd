@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic.v2;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
@@ -40,7 +41,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
     public static final String VERSION = "2.0";
 
     @Override
-    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration) {
+    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("auto_register_key", autoRegisterKey);
         JsonObject properties = new JsonObject();
@@ -49,11 +50,25 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         }
         jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
+        jsonObject.add("job_identifier", jobIdentifierJson(jobIdentifier));
+
         return GSON.toJson(jsonObject);
     }
 
+    private JsonObject jobIdentifierJson(JobIdentifier jobIdentifier) {
+        JsonObject jobIdentifierJson = new JsonObject();
+        jobIdentifierJson.addProperty("pipeline_name", jobIdentifier.getPipelineName());
+        jobIdentifierJson.addProperty("pipeline_label", jobIdentifier.getPipelineLabel());
+        jobIdentifierJson.addProperty("pipeline_counter", jobIdentifier.getPipelineCounter());
+        jobIdentifierJson.addProperty("stage_name", jobIdentifier.getStageName());
+        jobIdentifierJson.addProperty("stage_counter", jobIdentifier.getStageCounter());
+        jobIdentifierJson.addProperty("job_name", jobIdentifier.getBuildName());
+        jobIdentifierJson.addProperty("job_id", jobIdentifier.getBuildId());
+        return jobIdentifierJson;
+    }
+
     @Override
-    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration) {
+    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
         JsonObject jsonObject = new JsonObject();
         JsonObject properties = new JsonObject();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
@@ -62,6 +77,7 @@ public class ElasticAgentExtensionConverterV2 implements ElasticAgentMessageConv
         jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
         jsonObject.add("agent", elasticAgent.toJSON());
+        jsonObject.add("job_identifier", jobIdentifierJson(identifier));
         return GSON.toJson(jsonObject);
     }
 

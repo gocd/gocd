@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
@@ -55,11 +56,11 @@ public class ElasticAgentExtension extends AbstractExtension {
         messageHandlerMap.put(version, extensionHandler);
     }
 
-    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration) {
+    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, environment, configuration);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, environment, configuration, jobIdentifier);
             }
         });
     }
@@ -68,12 +69,12 @@ public class ElasticAgentExtension extends AbstractExtension {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
     }
 
-    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration) {
+    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, JobIdentifier identifier) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, environment, configuration);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, environment, configuration, identifier);
             }
 
             @Override

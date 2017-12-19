@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v2;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.json.JSONException;
+import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -32,6 +34,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class ElasticAgentExtensionConverterV2Test {
+    private JobIdentifier jobIdentifier;
+
+    @Before
+    public void setUp() throws Exception {
+        jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
+        jobIdentifier.setBuildId(100L);
+    }
 
     @Test
     public void shouldUnJSONizeCanHandleResponseBody() throws Exception {
@@ -50,16 +59,54 @@ public class ElasticAgentExtensionConverterV2Test {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
-        String json = new ElasticAgentExtensionConverterV2().createAgentRequestBody("secret-key", "prod", configuration);
-        JSONAssert.assertEquals(json, "{\"auto_register_key\":\"secret-key\",\"properties\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"environment\":\"prod\"}", JSONCompareMode.NON_EXTENSIBLE);
+        String json = new ElasticAgentExtensionConverterV2().createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
+        JSONAssert.assertEquals(json, "{" +
+                "  \"auto_register_key\":\"secret-key\"," +
+                "  \"properties\":{" +
+                "    \"key1\":\"value1\"," +
+                "    \"key2\":\"value2\"" +
+                "    }," +
+                "  \"environment\":\"prod\"," +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"test-pipeline\",\n" +
+                "    \"pipeline_counter\": 1,\n" +
+                "    \"pipeline_label\": \"Test Pipeline\",\n" +
+                "    \"stage_name\": \"test-stage\",\n" +
+                "    \"stage_counter\": \"1\",\n" +
+                "    \"job_name\": \"test-job\",\n" +
+                "    \"job_id\": 100\n" +
+                "  }\n" +
+                "}", JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Test
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
-        String json = new ElasticAgentExtensionConverterV2().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration);
-        JSONAssert.assertEquals(json, "{\"environment\":\"prod\",\"agent\":{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"},\"properties\":{\"property_name\":\"property_value\"}}", JSONCompareMode.NON_EXTENSIBLE);
+        String actual = new ElasticAgentExtensionConverterV2().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
+        String expected = "{" +
+                "  \"environment\":\"prod\"," +
+                "  \"agent\":{" +
+                "    \"agent_id\":\"42\"," +
+                "    \"agent_state\":\"Idle\"," +
+                "    \"build_state\":\"Idle\"," +
+                "    \"config_state\":\"Enabled\"" +
+                "  }," +
+                "  \"properties\":{" +
+                "    \"property_name\":\"property_value\"" +
+                "  }," +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"test-pipeline\",\n" +
+                "    \"pipeline_counter\": 1,\n" +
+                "    \"pipeline_label\": \"Test Pipeline\",\n" +
+                "    \"stage_name\": \"test-stage\",\n" +
+                "    \"stage_counter\": \"1\",\n" +
+                "    \"job_name\": \"test-job\",\n" +
+                "    \"job_id\": 100\n" +
+                "  }\n" +
+                "}";
+
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Test

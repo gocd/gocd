@@ -84,7 +84,7 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldGetArtifactStoreMetdataFromPlugin() {
+    public void shouldGetArtifactStoreMetadataFromPlugin() {
         String responseBody = "[{\"key\":\"BUCKET_NAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"AWS_ACCESS_KEY\",\"metadata\":{\"required\":true,\"secure\":true}}]";
         final ArtifactExtension artifactExtension = new ArtifactExtension(pluginManager);
         final ArgumentCaptor<GoPluginApiRequest> captor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
@@ -109,7 +109,7 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldGetPublishArtifactMetdataFromPlugin() {
+    public void shouldGetPublishArtifactMetadataFromPlugin() {
         String responseBody = "[{\"key\":\"FILENAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"VERSION\",\"metadata\":{\"required\":true,\"secure\":true}}]";
         final ArtifactExtension artifactExtension = new ArtifactExtension(pluginManager);
         final ArgumentCaptor<GoPluginApiRequest> captor = ArgumentCaptor.forClass(GoPluginApiRequest.class);

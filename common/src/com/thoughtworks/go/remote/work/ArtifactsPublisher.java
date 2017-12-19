@@ -17,7 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.domain.MergedTestArtifactPlan;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.work.GoPublisher;
 
@@ -27,8 +27,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArtifactsPublisher implements Serializable {
+    private ArtifactPlanFilter artifactPlanFilter;
+    private final ArtifactExtension artifactExtension;
+
+    public ArtifactsPublisher(ArtifactPlanFilter artifactPlanFilter, ArtifactExtension artifactExtension) {
+        this.artifactPlanFilter = artifactPlanFilter;
+        this.artifactExtension = artifactExtension;
+    }
+    
+    public ArtifactsPublisher(ArtifactExtension artifactExtension) {
+        this(new ArtifactPlanFilter(), artifactExtension);
+    }
+
     public void publishArtifacts(GoPublisher goPublisher, File workingDirectory, List<ArtifactPlan> assignment) {
-        List<ArtifactPlan> mergedPlans = mergePlansForTest(assignment);
+        final List<ArtifactPlan> pluggableArtifactPlans = artifactPlanFilter.getPluggableArtifactPlans(assignment);
+
+
+        final List<ArtifactPlan> mergedPlans = artifactPlanFilter.getBuiltInMergedArtifactPlans(assignment);
 
         List<ArtifactPlan> failedArtifact = new ArrayList<>();
         for (ArtifactPlan artifactPlan : mergedPlans) {
@@ -38,6 +53,8 @@ public class ArtifactsPublisher implements Serializable {
                 failedArtifact.add(artifactPlan);
             }
         }
+
+
         if (!failedArtifact.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             for (ArtifactPlan artifactPlan : failedArtifact) {
@@ -45,23 +62,5 @@ public class ArtifactsPublisher implements Serializable {
             }
             throw new RuntimeException(String.format("[%s] Uploading finished. Failed to upload %s", GoConstants.PRODUCT_NAME, builder));
         }
-    }
-
-    private List<ArtifactPlan> mergePlansForTest(List<ArtifactPlan> artifactPlans) {
-        MergedTestArtifactPlan testArtifactPlan = null;
-        final List<ArtifactPlan> mergedPlans = new ArrayList<>();
-        for (ArtifactPlan artifactPlan : artifactPlans) {
-            if (artifactPlan.getArtifactType().isTest()) {
-                if (testArtifactPlan == null) {
-                    testArtifactPlan = new MergedTestArtifactPlan(artifactPlan);
-                    mergedPlans.add(testArtifactPlan);
-                } else {
-                    testArtifactPlan.add(artifactPlan);
-                }
-            } else {
-                mergedPlans.add(artifactPlan);
-            }
-        }
-        return mergedPlans;
     }
 }

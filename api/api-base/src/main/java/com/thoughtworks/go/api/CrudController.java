@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.api;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;

@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-public class PluginProfileNotFoundException extends RuntimeException {
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+
+public class PluginProfileNotFoundException extends RecordNotFoundException {
     public PluginProfileNotFoundException() {
     }
 

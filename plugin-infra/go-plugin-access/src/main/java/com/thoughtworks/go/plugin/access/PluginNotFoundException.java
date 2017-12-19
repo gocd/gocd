@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.plugin.access;
 
-public class PluginNotFoundException extends RuntimeException {
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+
+public class PluginNotFoundException extends RecordNotFoundException {
 
     public PluginNotFoundException(String message) {
         super(message);

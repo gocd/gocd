@@ -34,6 +34,8 @@ junitPlatform {
 junitPlatformTest {
   outputs.upToDateWhen { false }
 
+  systemProperties(["json-unit.libraries": "gson"])
+
   doFirst {
     classpath += rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
   }

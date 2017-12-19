@@ -16,5 +16,7 @@
 
 package com.thoughtworks.go.server.exceptions;
 
-public class UserNotFoundException extends RuntimeException {
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+
+public class UserNotFoundException extends RecordNotFoundException {
 }

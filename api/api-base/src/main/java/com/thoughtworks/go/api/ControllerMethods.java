@@ -18,10 +18,14 @@ package com.thoughtworks.go.api;
 
 import cd.go.jrepresenter.RequestContext;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.thoughtworks.go.api.util.HaltMessages.notFoundMessage;
@@ -74,4 +78,10 @@ public interface ControllerMethods {
         }
         res.header("ETag", '"' + value + '"');
     }
+
+    default Map renderHTTPOperationResult(HttpLocalizedOperationResult result, Response response, Localizer localizer) {
+        response.status(result.httpCode());
+        return Collections.singletonMap("message", result.message(localizer));
+    }
+
 }

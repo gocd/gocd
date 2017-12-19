@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.config;
 
-public class StageNotFoundException extends RuntimeException {
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+
+public class StageNotFoundException extends RecordNotFoundException {
     private final String pipelineName;
     private final String stageName;
 

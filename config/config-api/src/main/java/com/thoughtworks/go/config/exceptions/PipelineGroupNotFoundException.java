@@ -16,11 +16,13 @@
 
 package com.thoughtworks.go.config.exceptions;
 
-public class PipelineGroupNotFoundException extends RuntimeException {
+public class PipelineGroupNotFoundException extends RecordNotFoundException {
+
     public PipelineGroupNotFoundException() {
     }
 
     public PipelineGroupNotFoundException(String message) {
         super(message);
     }
+
 }

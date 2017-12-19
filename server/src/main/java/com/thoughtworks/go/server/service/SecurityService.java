@@ -126,6 +126,9 @@ public class SecurityService {
     }
 
     public boolean isUserAdmin(Username username) {
+        if (!isSecurityEnabled()) {
+            return true;
+        }
         return goConfigService.isUserAdmin(username);
     }
 

@@ -17,8 +17,10 @@
 package com.thoughtworks.go.api
 
 import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
+import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
 import org.springframework.security.GrantedAuthority
 import org.springframework.security.context.SecurityContextHolder
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.when
 
 trait SecurityServiceTrait {
   SecurityService securityService = mock(SecurityService.class)
+  GoConfigService goConfigService = mock(GoConfigService.class)
 
   void loginAsAdmin() {
     GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
@@ -59,6 +62,7 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToEditTemplate(any(), eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any(), eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
+    when(goConfigService.groups()).thenReturn(new PipelineGroups())
   }
 
   void loginAsAnonymous() {
@@ -69,6 +73,7 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToEditTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any(), eq(Username.ANONYMOUS))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates()).thenReturn(false)
+    when(goConfigService.groups()).thenReturn(new PipelineGroups())
   }
 
   void enableSecurity() {
@@ -84,7 +89,27 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(true)
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(true)
-    when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(true)
+
+    PipelineGroups groups = mock(PipelineGroups.class)
+    when(goConfigService.groups()).thenReturn(groups)
+    when(groups.hasGroup(any())).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any())).thenReturn(true)
+  }
+
+  void loginAsGroupOperateUser() {
+    GoUserPrinciple principal = new GoUserPrinciple("username", "Display", "password", true, true, true, true, new GrantedAuthority[0], null)
+    Username username = new Username(principal.username, principal.displayName)
+    TestingAuthenticationToken authentication = new TestingAuthenticationToken(principal, null, null);
+    SecurityContextHolder.getContext().setAuthentication(authentication)
+
+    when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.isUserGroupAdmin(username)).thenReturn(false)
+    when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
+
+    PipelineGroups groups = mock(PipelineGroups.class)
+    when(goConfigService.groups()).thenReturn(groups)
+    when(groups.hasGroup(any())).thenReturn(true)
+    when(securityService.hasOperatePermissionForGroup(any() as CaseInsensitiveString, any())).thenReturn(true)
   }
 
   void disableSecurity() {

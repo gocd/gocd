@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.config;
 
-public class PipelineNotFoundException extends RuntimeException {
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+
+public class PipelineNotFoundException extends RecordNotFoundException {
 
     public PipelineNotFoundException(String message) {
         super(message);

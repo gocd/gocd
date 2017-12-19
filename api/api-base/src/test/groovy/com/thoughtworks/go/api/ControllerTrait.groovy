@@ -19,10 +19,15 @@ package com.thoughtworks.go.api
 import cd.go.jrepresenter.RequestContext
 import cd.go.jrepresenter.TestRequestContext
 import com.thoughtworks.go.api.mocks.*
+import com.thoughtworks.go.i18n.Localizer
+import org.junit.jupiter.api.BeforeEach
+import org.mockito.invocation.InvocationOnMock
 import spark.servlet.SparkFilter
 
 import javax.servlet.FilterConfig
 
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyVararg
 import static org.mockito.Mockito.*
 
 trait ControllerTrait<T extends SparkController> {
@@ -33,6 +38,7 @@ trait ControllerTrait<T extends SparkController> {
   MockHttpServletRequest request
   MockHttpServletResponse response
   RequestContext requestContext = new TestRequestContext();
+  Localizer localizer = mock(Localizer.class)
 
   void get(String path) {
     sendRequest('get', path, [:], null)
@@ -138,4 +144,11 @@ trait ControllerTrait<T extends SparkController> {
   }
 
   abstract T createControllerInstance()
+
+  @BeforeEach
+  void setupLocalizer() {
+    when(localizer.localize(any() as String, anyVararg())).then({ InvocationOnMock invocation ->
+      return invocation.getArguments().first()
+    })
+  }
 }

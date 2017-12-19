@@ -16,7 +16,7 @@
 
 rootProject.name = 'gocd'
 include ':jar-class-loader'
-include ':api:api-base', ':api:api-plugin-images', ':api:api-roles-config-v1'
+include ':api:api-base', ':api:api-plugin-images', ':api:api-roles-config-v1', ':api:api-pipeline-operations-v1'
 include ':base'
 include ':util'
 include ':test-utils'

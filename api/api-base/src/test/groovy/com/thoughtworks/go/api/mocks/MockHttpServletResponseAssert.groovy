@@ -93,6 +93,10 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
     return hasStatus(200)
   }
 
+  MockHttpServletResponseAssert isPreconditionFailed() {
+    return hasStatus(412)
+  }
+
   MockHttpServletResponseAssert isNotModified() {
     return hasStatus(304).hasEtag(null).hasNoBody()
   }
@@ -108,10 +112,6 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
 
   MockHttpServletResponseAssert isUnprocessibleEntity() {
     return hasStatus(422)
-  }
-
-  MockHttpServletResponseAssert preConditionFailed() {
-    return hasStatus(412)
   }
 
   MockHttpServletResponseAssert isBadRequest() {
@@ -140,5 +140,9 @@ class MockHttpServletResponseAssert extends AbstractObjectAssert<MockHttpServlet
   MockHttpServletResponseAssert hasBody(String contents) {
     Assertions.assertThat(actual.getContentAsString()).isEqualTo(contents)
     return this
+  }
+
+  MockHttpServletResponseAssert isConflict() {
+    return hasStatus(409)
   }
 }

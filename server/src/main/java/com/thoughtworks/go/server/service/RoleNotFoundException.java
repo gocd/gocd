@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-public class RoleNotFoundException extends RuntimeException {
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+
+public class RoleNotFoundException extends RecordNotFoundException {
     public RoleNotFoundException() {
     }
 

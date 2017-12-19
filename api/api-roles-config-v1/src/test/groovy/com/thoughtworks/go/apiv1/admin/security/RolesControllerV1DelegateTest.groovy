@@ -37,8 +37,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static HaltMessages.entityAlreadyExistsMessage
-import static HaltMessages.etagDoesNotMatch
+import static com.thoughtworks.go.api.util.HaltMessages.entityAlreadyExistsMessage
+import static com.thoughtworks.go.api.util.HaltMessages.etagDoesNotMatch
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -52,14 +54,13 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
   @Mock
   private RoleConfigService roleConfigService
-  @Mock
-  private Localizer localizer
+
   @Mock
   private EntityHashingService entityHashingService
 
   @Override
   RolesControllerV1Delegate createControllerInstance() {
-    new RolesControllerV1Delegate(roleConfigService, new AuthenticationHelper(securityService), entityHashingService, localizer)
+    new RolesControllerV1Delegate(roleConfigService, new AuthenticationHelper(goConfigService, securityService), entityHashingService, localizer)
   }
 
   @Nested
@@ -414,10 +415,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED"))
         })
 
-        when(localizer.localize(any() as String, anyVararg())).then({ InvocationOnMock invocation ->
-          return invocation.getArguments().first()
-        })
-
         postWithApiHeader(controller.controllerPath(), RoleMapper.toJSON(role, requestContext))
 
         assertThatResponse()
@@ -556,8 +553,7 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
 
         putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'some-string'], RoleMapper.toJSON(role, requestContext))
 
-        assertThatResponse()
-          .preConditionFailed()
+        assertThatResponse().isPreconditionFailed()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(etagDoesNotMatch("role", "blackbird"))
       }
@@ -672,10 +668,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'role', role.getName()))
         }).when(roleConfigService).delete(any(), eq(role), any())
 
-        when(localizer.localize(any() as String, anyVararg())).then({ InvocationOnMock invocation ->
-          return invocation.getArguments().first()
-        })
-
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
 
         assertThatResponse()
@@ -694,10 +686,6 @@ class RolesControllerV1DelegateTest implements SecurityServiceTrait, ControllerT
           HttpLocalizedOperationResult result = invocation.arguments.last()
           result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", 'validation error'))
         }).when(roleConfigService).delete(any(), eq(role), any())
-
-        when(localizer.localize(any() as String, anyVararg())).then({ InvocationOnMock invocation ->
-          return invocation.getArguments().first()
-        })
 
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
 

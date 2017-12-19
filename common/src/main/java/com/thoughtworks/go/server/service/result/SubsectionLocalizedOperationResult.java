@@ -44,6 +44,11 @@ public class SubsectionLocalizedOperationResult implements LocalizedOperationRes
         this.message = message;
     }
 
+    @Override
+    public void preconditionFailed(Localizable localizable) {
+        throw new UnsupportedOperationException("not supported");
+    }
+
     public void conflict(Localizable message) {
         throw new UnsupportedOperationException("not supported");
     }
@@ -61,7 +66,7 @@ public class SubsectionLocalizedOperationResult implements LocalizedOperationRes
     }
 
     public void setMessage(Localizable message) {
-        this.message=message;
+        this.message = message;
     }
 
     @Override

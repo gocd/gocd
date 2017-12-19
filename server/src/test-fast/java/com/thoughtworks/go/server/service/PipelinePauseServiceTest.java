@@ -18,7 +18,9 @@ package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener.Event;
@@ -57,6 +59,7 @@ public class PipelinePauseServiceTest {
         goConfigService = new GoConfigService(goConfigDao, null, (GoConfigMigration) null, null, null, null, null, null, null, null);
         securityService = mock(SecurityService.class);
         pipelinePauseService = new PipelinePauseService(pipelineDao, goConfigService, securityService);
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));
     }
 
     private void setUpValidPipelineWithAuth() {
@@ -94,6 +97,8 @@ public class PipelinePauseServiceTest {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(true, "", VALID_USER.getUsername().toString()));
 
         pipelinePauseService.unpause(VALID_PIPELINE, VALID_USER, result);
         verify(pipelineDao).unpause(VALID_PIPELINE);
@@ -149,6 +154,8 @@ public class PipelinePauseServiceTest {
         setUpValidPipelineWithAuth();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(true, "", VALID_USER.getUsername().toString()));
 
         doThrow(new RuntimeException("Failed to unpause")).when(pipelineDao).unpause(VALID_PIPELINE);
 
@@ -223,6 +230,7 @@ public class PipelinePauseServiceTest {
 
         pipelinePauseService.registerListener(listener1);
         pipelinePauseService.registerListener(listener2);
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(true, "", VALID_USER.getUsername().toString()));
         pipelinePauseService.unpause(VALID_PIPELINE, VALID_USER, new HttpLocalizedOperationResult());
 
         verify(listener1).pauseStatusChanged(Event.unPause(VALID_PIPELINE, VALID_USER));
@@ -260,4 +268,56 @@ public class PipelinePauseServiceTest {
         verify(listener3).pauseStatusChanged(Event.pause(VALID_PIPELINE, VALID_USER));
 
     }
+
+    @Test
+    public void shouldNotPausePipelineWhenPipelineIsAlreadyPaused() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(true, "", VALID_USER.getUsername().toString()));
+        pipelinePauseService.pause(VALID_PIPELINE, null, VALID_USER, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(409));
+    }
+
+    @Test
+    public void shouldNotUnpausePipelineWhenPipelineIsAlreadyUnaused() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));
+        pipelinePauseService.unpause(VALID_PIPELINE, VALID_USER, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(409));
+    }
+
+    @Test
+    public void shouldPopulatePausePipelineSuccessResult() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelinePauseService.pause(VALID_PIPELINE, null, VALID_USER, result);
+
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.httpCode(), is(SC_OK));
+
+        assertThat(result.localizable(), is(LocalizedMessage.string("PIPELINE_PAUSE_SUCCESSFUL", VALID_PIPELINE)));
+    }
+
+    @Test
+    public void shouldPopulateUnpausePipelineSuccessResult() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(true, "", VALID_USER.getUsername().toString()));
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelinePauseService.unpause(VALID_PIPELINE, VALID_USER, result);
+
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.httpCode(), is(SC_OK));
+
+        assertThat(result.localizable(), is(LocalizedMessage.string("PIPELINE_UNPAUSE_SUCCESSFUL", VALID_PIPELINE)));
+    }
+
 }

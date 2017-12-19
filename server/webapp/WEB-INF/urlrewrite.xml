@@ -83,6 +83,13 @@
     </rule>
 
     <rule>
+        <name>Dashboard UI</name>
+        <from>^/dashboard$</from>
+        <to last="true">/rails/new_dashboard</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>  
         <name>Rails Security Auth Config UI</name>
         <from>^/admin/security/auth_configs$</from>
         <to last="true">/rails/admin/security/auth_configs</to>

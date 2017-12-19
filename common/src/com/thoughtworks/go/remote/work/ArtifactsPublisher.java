@@ -28,13 +28,16 @@ import java.util.List;
 
 public class ArtifactsPublisher implements Serializable {
     private ArtifactPlanFilter artifactPlanFilter;
-    private final ArtifactExtension artifactExtension;
+    private ArtifactExtension artifactExtension;
+
+    public ArtifactsPublisher() {
+    }
 
     public ArtifactsPublisher(ArtifactPlanFilter artifactPlanFilter, ArtifactExtension artifactExtension) {
         this.artifactPlanFilter = artifactPlanFilter;
         this.artifactExtension = artifactExtension;
     }
-    
+
     public ArtifactsPublisher(ArtifactExtension artifactExtension) {
         this(new ArtifactPlanFilter(), artifactExtension);
     }

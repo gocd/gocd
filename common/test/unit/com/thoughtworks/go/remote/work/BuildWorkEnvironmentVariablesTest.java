@@ -17,6 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -160,7 +161,7 @@ public class BuildWorkEnvironmentVariablesTest {
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
         builders.add(new CommandBuilder("ant", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
-        BuildAssignment assignment = BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext);
+        BuildAssignment assignment = BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
         return new BuildWork(assignment);
     }
 
@@ -283,7 +284,7 @@ public class BuildWorkEnvironmentVariablesTest {
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
         builders.add(new CommandBuilder("ant", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
-        return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext);
+        return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
     }
 
     private void setupHgRepo() throws IOException {

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -98,7 +99,7 @@ public class BuildAssignmentTest {
 
         defaultJobPlan.setVariables(variables);
 
-        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null);
+        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null, new ArtifactStores());
         EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
 
         assertThat(context.getProperties().size(), is(9));
@@ -120,7 +121,7 @@ public class BuildAssignmentTest {
         defaultJobPlan.setTriggerVariables(triggerVariables);
         defaultJobPlan.setVariables(variables);
 
-        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null);
+        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null, new ArtifactStores());
         EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
 
         assertThat(context.getProperties().size(), is(9));
@@ -141,7 +142,7 @@ public class BuildAssignmentTest {
         EnvironmentVariableContext contextFromEnvironment = new EnvironmentVariableContext("key1", "value_from_environment");
         contextFromEnvironment.setProperty("key3", "value3", false);
 
-        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, contextFromEnvironment);
+        BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, contextFromEnvironment, new ArtifactStores());
         EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
 
         assertThat(context.getProperties().size(), is(10));
@@ -159,7 +160,7 @@ public class BuildAssignmentTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(svn, hg);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null, new ArtifactStores());
 
         assertThat(buildAssignment.getBuildApprover(), is("user1"));
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
@@ -178,7 +179,7 @@ public class BuildAssignmentTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null, new ArtifactStores());
 
         assertThat(buildAssignment.getBuildApprover(), is("user1"));
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
@@ -208,7 +209,7 @@ public class BuildAssignmentTest {
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
         builders.add(new CommandBuilder("ls", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
-        return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext);
+        return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
     }
 
     private MaterialRevisions materialRevisions() {

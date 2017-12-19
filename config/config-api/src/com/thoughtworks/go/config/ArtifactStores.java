@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.Set;
+
 @ConfigTag("artifactStores")
 @ConfigCollection(ArtifactStore.class)
 public class ArtifactStores extends PluginProfiles<ArtifactStore> implements Validatable {
@@ -24,5 +26,15 @@ public class ArtifactStores extends PluginProfiles<ArtifactStore> implements Val
 
     public ArtifactStores(ArtifactStore... artifactStores) {
         super(artifactStores);
+    }
+
+    public ArtifactStores getArtifactStores(Set<String> storeIds) {
+        final ArtifactStores artifactStores = new ArtifactStores();
+        for (ArtifactStore artifactStore : this) {
+            if (storeIds.contains(artifactStore.getId())) {
+                artifactStores.add(artifactStore);
+            }
+        }
+        return artifactStores;
     }
 }

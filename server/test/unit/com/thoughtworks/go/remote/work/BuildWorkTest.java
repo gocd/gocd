@@ -18,10 +18,7 @@ package com.thoughtworks.go.remote.work;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -630,7 +627,7 @@ public class BuildWorkTest {
         BuildAssignment buildAssignment = BuildAssignment.create(jobPlan,
                 BuildCause.createWithEmptyModifications(),
                 builder, pipeline.defaultWorkingFolder(),
-                null);
+                null, new ArtifactStores());
         return new BuildWork(buildAssignment);
     }
 

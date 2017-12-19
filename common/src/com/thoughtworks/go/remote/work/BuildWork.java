@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -61,11 +60,11 @@ public class BuildWork implements Work {
     private transient File workingDirectory;
     private transient MaterialRevisions materialRevisions;
     private transient Builders builders;
-    private final ArtifactsPublisher artifactsPublisher;
+    private ArtifactsPublisher artifactsPublisher;
+    private ArtifactStores artifactStores;
 
     public BuildWork(BuildAssignment assignment) {
         this.assignment = assignment;
-        artifactsPublisher = new ArtifactsPublisher();
     }
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
@@ -78,6 +77,8 @@ public class BuildWork implements Work {
         this.materialRevisions = assignment.materialRevisions();
         this.goPublisher = new DefaultGoPublisher(goArtifactsManipulator, jobIdentifier, remoteBuildRepository, agentRuntimeInfo);
         this.builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension);
+        this.artifactStores = assignment.getArtifactStores();
+        artifactsPublisher = new ArtifactsPublisher();
     }
 
     public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,

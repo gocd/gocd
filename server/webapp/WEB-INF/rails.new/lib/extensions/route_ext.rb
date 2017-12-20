@@ -17,14 +17,11 @@
 module RouteExt
 
   def url_for(options = {}, route_name = nil, url_strategy = ActionDispatch::Routing::RouteSet::UNKNOWN)
-    if options.respond_to?(:has_key?)
-      force_ssl = (options[:protocol] == "https://")
-    end
     sorted_options_for_cache_key = java.util.TreeMap.new(options)
     cache_key = ActiveSupport::Cache.expand_cache_key(sorted_options_for_cache_key)
 
     unless url = Services.go_cache.get(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY, cache_key)
-      url = Services.server_config_service.siteUrlFor(super(options, route_name, url_strategy), force_ssl || false)
+      url = super
       Services.go_cache.put(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY, cache_key, url)
     end
     url

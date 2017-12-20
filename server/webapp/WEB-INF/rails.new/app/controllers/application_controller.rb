@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
 
   def url_options_with_flash(msg, options)
     params = options[:params] || {}
-    options.merge(:params => params.merge(:fm => set_flash_message(msg, options.delete(:class)))).reverse_merge(only_path: true)
+    options.merge(:params => params.merge(:fm => set_flash_message(msg, options.delete(:class))))
   end
 
   def set_flash_message(msg, klass)

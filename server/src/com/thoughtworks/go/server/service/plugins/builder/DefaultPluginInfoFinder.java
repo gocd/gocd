@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
+import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
@@ -70,6 +72,7 @@ public class DefaultPluginInfoFinder {
         builders.put(ElasticAgentPluginConstants.EXTENSION_NAME, ElasticAgentMetadataStore.instance());
         builders.put(AuthorizationPluginConstants.EXTENSION_NAME, AuthorizationMetadataStore.instance());
         builders.put(ConfigRepoExtension.EXTENSION_NAME, ConfigRepoMetadataStore.instance());
+        builders.put(AnalyticsExtension.EXTENSION_NAME, AnalyticsMetadataStore.instance());
     }
 
     public PluginInfo pluginInfoFor(String pluginId) {

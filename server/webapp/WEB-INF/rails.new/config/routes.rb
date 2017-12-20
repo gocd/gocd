@@ -161,6 +161,8 @@ Go::Application.routes.draw do
 
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
+  get 'analytics/:plugin_id/:pipeline_name' => 'analytics#pipeline', constraints: {plugin_id: PLUGIN_ID_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_analytics
+
   scope 'pipelines' do
     defaults :no_layout => true do
       get 'material_search' => 'pipelines#material_search'
@@ -316,6 +318,7 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
 
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do

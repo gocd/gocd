@@ -16,9 +16,9 @@
 
 require 'rails_helper'
 
-describe ApiV3::Admin::PluginInfosController do
+describe ApiV4::Admin::PluginInfosController do
   include ApiHeaderSetupTeardown
-  include ApiV3::ApiVersionHelper
+  include ApiV4::ApiVersionHelper
 
   before(:each) do
     @default_plugin_info_finder = double('default_plugin_info_finder')
@@ -97,7 +97,7 @@ describe ApiV3::Admin::PluginInfosController do
       get_with_api_header :index
 
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response([plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
+      expect(actual_response).to eq(expected_response([plugin_info], ApiV4::Plugin::PluginInfosRepresenter))
     end
 
     it 'should list bad plugins when `include_bad` param is true' do
@@ -118,7 +118,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       get_with_api_header :index, include_bad: true
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response([good_plugin_info, bad_plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
+      expect(actual_response).to eq(expected_response([good_plugin_info, bad_plugin_info], ApiV4::Plugin::PluginInfosRepresenter))
     end
 
     it 'should filter plugin_infos by type' do
@@ -133,23 +133,23 @@ describe ApiV3::Admin::PluginInfosController do
       get_with_api_header :index, type: 'scm'
 
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response([plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
+      expect(actual_response).to eq(expected_response([plugin_info], ApiV4::Plugin::PluginInfosRepresenter))
     end
 
     it 'should filter unsupported plugin extensions' do
       vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
-
       notification_plugin_info = com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings)
-      analytics_plugin_info = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, nil, nil, nil)
+      unsupported_plugin_info = instance_double('unsupported_plugin')
 
-      expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([notification_plugin_info, analytics_plugin_info])
+      expect(unsupported_plugin_info).to receive(:getExtensionName).and_return('unsupported')
+      expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([notification_plugin_info, unsupported_plugin_info])
 
       get_with_api_header :index, type: 'scm'
 
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response([notification_plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
+      expect(actual_response).to eq(expected_response([notification_plugin_info], ApiV4::Plugin::PluginInfosRepresenter))
     end
 
     it 'should be a unprocessible entity for a invalid plugin type' do
@@ -165,7 +165,7 @@ describe ApiV3::Admin::PluginInfosController do
     describe "route" do
       describe "with_header" do
         it 'should route to the index action of plugin_infos controller' do
-          expect(:get => 'api/admin/plugin_info').to route_to(action: 'index', controller: 'api_v3/admin/plugin_infos')
+          expect(:get => 'api/admin/plugin_info').to route_to(action: 'index', controller: 'api_v4/admin/plugin_infos')
         end
       end
 
@@ -174,7 +174,7 @@ describe ApiV3::Admin::PluginInfosController do
           teardown_header
         end
         it 'should not route to index action of plugin_infos controller without header' do
-          expect(:get => 'api/admin/plugin_info').to_not route_to(action: 'index', controller: 'api_v3/admin/plugin_infos')
+          expect(:get => 'api/admin/plugin_info').to_not route_to(action: 'index', controller: 'api_v4/admin/plugin_infos')
           expect(:get => 'api/admin/plugin_info').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_info')
         end
       end
@@ -198,7 +198,7 @@ describe ApiV3::Admin::PluginInfosController do
       get_with_api_header :show, id: 'plugin_id'
 
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(plugin_info, ApiV3::Plugin::PluginInfoRepresenter))
+      expect(actual_response).to eq(expected_response(plugin_info, ApiV4::Plugin::PluginInfoRepresenter))
     end
 
     it 'should fetch a bad plugin info if plugin is bad' do
@@ -214,14 +214,14 @@ describe ApiV3::Admin::PluginInfosController do
 
       get_with_api_header :show, id: 'bad.plugin'
       expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(bad_plugin_info, ApiV3::Plugin::PluginInfoRepresenter))
+      expect(actual_response).to eq(expected_response(bad_plugin_info, ApiV4::Plugin::PluginInfoRepresenter))
     end
 
     it 'should return 404 for unsupported plugins' do
-      descriptor = GoPluginDescriptor.new('unsupported.plugin', '1.0', nil, nil, nil, false)
-      analytics_plugin_info = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, nil, nil, nil)
+      unsupported_plugin_info = instance_double('unsupported_plugin')
 
-      expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('unsupported.plugin').and_return(analytics_plugin_info)
+      expect(unsupported_plugin_info).to receive(:getExtensionName).and_return('unsupported')
+      expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('unsupported.plugin').and_return(unsupported_plugin_info)
 
       get_with_api_header :show, id: 'unsupported.plugin'
 
@@ -243,23 +243,23 @@ describe ApiV3::Admin::PluginInfosController do
       describe "with_header" do
 
         it 'should route to the show action of plugin_infos controller for alphanumeric plugin id' do
-          expect(:get => 'api/admin/plugin_info/foo123bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo123bar')
+          expect(:get => 'api/admin/plugin_info/foo123bar').to route_to(action: 'show', controller: 'api_v4/admin/plugin_infos', id: 'foo123bar')
         end
 
         it 'should route to the show action of plugin_infos controller for plugin id with hyphen' do
-          expect(:get => 'api/admin/plugin_info/foo-123-bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo-123-bar')
+          expect(:get => 'api/admin/plugin_info/foo-123-bar').to route_to(action: 'show', controller: 'api_v4/admin/plugin_infos', id: 'foo-123-bar')
         end
 
         it 'should route to the show action of plugin_infos controller for plugin id with underscore' do
-          expect(:get => 'api/admin/plugin_info/foo_123_bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo_123_bar')
+          expect(:get => 'api/admin/plugin_info/foo_123_bar').to route_to(action: 'show', controller: 'api_v4/admin/plugin_infos', id: 'foo_123_bar')
         end
 
         it 'should route to the show action of plugin_infos controller for plugin id with dots' do
-          expect(:get => 'api/admin/plugin_info/foo.123.bar').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'foo.123.bar')
+          expect(:get => 'api/admin/plugin_info/foo.123.bar').to route_to(action: 'show', controller: 'api_v4/admin/plugin_infos', id: 'foo.123.bar')
         end
 
         it 'should route to the show action of plugin_infos controller for capitalized plugin id' do
-          expect(:get => 'api/admin/plugin_info/FOO').to route_to(action: 'show', controller: 'api_v3/admin/plugin_infos', id: 'FOO')
+          expect(:get => 'api/admin/plugin_info/FOO').to route_to(action: 'show', controller: 'api_v4/admin/plugin_infos', id: 'FOO')
         end
       end
 
@@ -268,7 +268,7 @@ describe ApiV3::Admin::PluginInfosController do
           teardown_header
         end
         it 'should not route to show action of plugin_infos controller without header' do
-          expect(:get => 'api/admin/plugin_info/abc').to_not route_to(action: 'show', controller: 'api_v3/admin/plugin_infos')
+          expect(:get => 'api/admin/plugin_info/abc').to_not route_to(action: 'show', controller: 'api_v4/admin/plugin_infos')
           expect(:get => 'api/admin/plugin_info/abc').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_info/abc')
         end
       end

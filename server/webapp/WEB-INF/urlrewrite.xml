@@ -123,6 +123,14 @@
     </rule>
 
     <rule>
+        <name>Rails Analytics API</name>
+        <from>^/analytics/(.*)$</from>
+        <to last="true">/rails/analytics/$1</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+
+    <rule>
         <name>Rails Users Show and Delete API</name>
         <from>^/api/users/(.*)$</from>
         <to last="true">/rails/api/users/${escape:$1}</to>

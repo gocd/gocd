@@ -44,6 +44,7 @@ module Services
   services(
     :admin_service,
     :agent_service,
+    :analytics_extension,
     :artifacts_dir_holder,
     :artifacts_service,
     :backup_service,

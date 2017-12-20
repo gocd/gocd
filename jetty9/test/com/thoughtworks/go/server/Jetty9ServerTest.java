@@ -93,6 +93,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
         when(systemEnvironment.sessionTimeoutInSeconds()).thenReturn(1234);
+        when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
 
 
         SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
@@ -284,7 +285,7 @@ public class Jetty9ServerTest {
     @Test
     public void shouldSetSessionMaxInactiveInterval() throws Exception {
         jetty9Server.configure();
-        jetty9Server.setSessionCookieConfig();
+        jetty9Server.setSessionConfig();
 
         WebAppContext webAppContext = getWebAppContext(jetty9Server);
         assertThat(webAppContext.getSessionHandler().getSessionManager().getMaxInactiveInterval(), is(1234));
@@ -294,16 +295,16 @@ public class Jetty9ServerTest {
     public void shouldSetSessionCookieConfig() throws Exception {
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true);
         jetty9Server.configure();
-        jetty9Server.setSessionCookieConfig();
+        jetty9Server.setSessionConfig();
 
         WebAppContext webAppContext = getWebAppContext(jetty9Server);
         SessionCookieConfig sessionCookieConfig = webAppContext.getSessionHandler().getSessionManager().getSessionCookieConfig();
         assertThat(sessionCookieConfig.isHttpOnly(), is(true));
         assertThat(sessionCookieConfig.isSecure(), is(true));
-        assertThat(sessionCookieConfig.getMaxAge(), is(1234));
+        assertThat(sessionCookieConfig.getMaxAge(), is(5678));
 
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
-        jetty9Server.setSessionCookieConfig();
+        jetty9Server.setSessionConfig();
         assertThat(sessionCookieConfig.isSecure(), is(false));
     }
 

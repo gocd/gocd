@@ -109,14 +109,13 @@ public class Jetty9Server extends AppServer {
     }
 
     @Override
-    public void setSessionCookieConfig() {
-        int sessionAndCookieExpiryTimeout = systemEnvironment.sessionTimeoutInSeconds();
+    public void setSessionConfig() {
         SessionManager sessionManager = webAppContext.getSessionHandler().getSessionManager();
         SessionCookieConfig sessionCookieConfig = sessionManager.getSessionCookieConfig();
         sessionCookieConfig.setHttpOnly(true);
         sessionCookieConfig.setSecure(systemEnvironment.isSessionCookieSecure());
-        sessionCookieConfig.setMaxAge(sessionAndCookieExpiryTimeout);
-        sessionManager.setMaxInactiveInterval(sessionAndCookieExpiryTimeout);
+        sessionCookieConfig.setMaxAge(systemEnvironment.sessionCookieMaxAgeInSeconds());
+        sessionManager.setMaxInactiveInterval(systemEnvironment.sessionTimeoutInSeconds());
     }
 
     @Override

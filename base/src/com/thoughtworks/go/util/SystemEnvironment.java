@@ -139,6 +139,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
     public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", 300);
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.session.timeout.seconds", 60 * 60 * 24 * 14);
+    public static final GoSystemProperty<Integer> GO_SERVER_SESSION_COOKIE_MAX_AGE_IN_SECONDS = new GoIntSystemProperty("go.sessioncookie.maxage.seconds", 60 * 60 * 24 * 14);
     public static final GoSystemProperty<Boolean> GO_SERVER_SESSION_COOKIE_SECURE = new GoBooleanSystemProperty("go.sessioncookie.secure", false);
 
     public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
@@ -816,6 +817,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int sessionTimeoutInSeconds() {
         return GO_SERVER_SESSION_TIMEOUT_IN_SECONDS.getValue();
+    }
+    public int sessionCookieMaxAgeInSeconds() {
+        return GO_SERVER_SESSION_COOKIE_MAX_AGE_IN_SECONDS.getValue();
     }
     public boolean isSessionCookieSecure() {
         return GO_SERVER_SESSION_COOKIE_SECURE.getValue();

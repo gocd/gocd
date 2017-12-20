@@ -35,7 +35,7 @@ public class AppServerStub extends AppServer {
     }
 
     @Override
-    void setSessionCookieConfig() {
+    void setSessionConfig() {
         calls.put("setSessionCookieConfig", "something");
     }
 

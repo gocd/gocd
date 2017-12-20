@@ -110,6 +110,28 @@ public class ElasticAgentExtensionConverterV2Test {
     }
 
     @Test
+    public void shouldJSONizeStatusReportRequestBody() throws Exception {
+        String json = new ElasticAgentExtensionConverterV2().statusReportRequestBody(jobIdentifier);
+        JSONAssert.assertEquals(json, "{" +
+                "  \"job_identifier\": {\n" +
+                "    \"pipeline_name\": \"test-pipeline\",\n" +
+                "    \"pipeline_counter\": 1,\n" +
+                "    \"pipeline_label\": \"Test Pipeline\",\n" +
+                "    \"stage_name\": \"test-stage\",\n" +
+                "    \"stage_counter\": \"1\",\n" +
+                "    \"job_name\": \"test-job\",\n" +
+                "    \"job_id\": 100\n" +
+                "  }\n" +
+                "}", JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+    @Test
+    public void shouldJSONizeStatusReportRequestBodyForNoJobIdentifier() throws Exception {
+        String json = new ElasticAgentExtensionConverterV2().statusReportRequestBody(null);
+        JSONAssert.assertEquals(json, "{}", JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+    @Test
     public void shouldJSONizesListAgentsResponseBody() throws Exception {
         String json = new ElasticAgentExtensionConverterV2().listAgentsResponseBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
         JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", JSONCompareMode.NON_EXTENSIBLE);

@@ -48,4 +48,6 @@ public interface ElasticAgentMessageConverter {
     String validateRequestBody(Map<String, String> configuration);
 
     com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
+
+    String statusReportRequestBody(JobIdentifier identifier);
 }

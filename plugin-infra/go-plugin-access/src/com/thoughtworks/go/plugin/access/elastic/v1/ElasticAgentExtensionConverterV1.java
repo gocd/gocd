@@ -103,6 +103,11 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
+    public String statusReportRequestBody(JobIdentifier identifier) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public ValidationResult getValidationResultResponseFromBody(String responseBody) {
         return new JSONResultMessageHandler().toValidationResult(responseBody);
     }

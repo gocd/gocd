@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.ZipUtil;
-import org.eclipse.jgit.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.zip.ZipInputStream;
 
 @Component
@@ -83,7 +83,7 @@ public class PluginAssetsLoader implements ServletContextAware, PluginChangeList
         }
 
         try {
-            ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(Base64.decode(data)));
+            ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(data.getBytes())));
 
             zipUtil.unzip(zipInputStream, new File(pluginStaticAssetsDirPath(pluginId)));
         } catch (IOException e) {

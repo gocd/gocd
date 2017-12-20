@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service.plugins;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -28,17 +27,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import javax.servlet.ServletContext;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -143,8 +140,6 @@ public class PluginAssetsLoaderTest {
     }
 
     private String testDataZipArchive() throws IOException {
-        StringWriter sw = new StringWriter();
-        IOUtils.copy(new Base64InputStream(getClass().getResourceAsStream("/plugin_cache_test.zip"), true), sw, Charset.defaultCharset());
-        return sw.toString();
+        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResourceAsStream("/plugin_cache_test.zip"))));
     }
 }

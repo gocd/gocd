@@ -20,7 +20,7 @@ class AnalyticsController < ApplicationController
   before_action :check_user_can_see_pipeline
 
   def pipeline
-    render :text => "<div> #{analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name])} </div>"
+    render :text => "#{analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name])}"
   rescue => e
     render_plugin_error e
   end

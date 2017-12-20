@@ -24,7 +24,6 @@ module ApiV4
                inherit: false,
                class: Capabilities,
                decorator: AnalyticsCapabilitiesRepresenter
-
     end
   end
 end

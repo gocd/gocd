@@ -332,6 +332,41 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       end
   end
 
+  describe 'analytics plugin info' do
+    it 'should serialize analytics plugin info to JSON' do
+      vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
+      descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
+
+      image = com.thoughtworks.go.plugin.domain.common.Image.new('foo', Base64.strict_encode64('bar'), "945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756")
+
+      plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('plugin_view_template')
+      plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+      plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', plugin_metadata)], plugin_view)
+      capabilities = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new(true)
+
+      plugin_info = com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo.new(descriptor, image, capabilities, plugin_settings)
+      actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json).to have_link(:image).with_url('http://test.host/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
+      actual_json.delete(:_links)
+
+      expect(actual_json).to eq({
+                                  id: 'foo.example',
+                                  type: 'analytics',
+                                  plugin_file_location: '/path/to/foo.jar',
+                                  bundled_plugin: false,
+                                  status: {
+                                    state: 'active'
+                                  },
+                                  about: about_json,
+                                  extension_info: {
+                                    plugin_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(plugin_settings).to_hash(url_builder: UrlBuilder.new),
+                                    capabilities: ApiV4::Plugin::AnalyticsCapabilitiesRepresenter.new(capabilities).to_hash(url_builder: UrlBuilder.new)
+                                  }
+                                })
+    end
+  end
+
   def about_json
     {
       name: 'Foo plugin',

@@ -30,7 +30,8 @@ module ApiV4
         com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo => AnalyticsPluginInfoRepresenter,
       }
 
-      PLUGIN_INFO_WITH_IMAGE = [com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo, com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo]
+      PLUGIN_INFO_WITH_IMAGE = [com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo, com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo,
+                                com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo]
 
       alias_method :plugin, :represented
 

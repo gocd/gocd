@@ -71,7 +71,7 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
-    Image getIcon(String pluginId) {
+    public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, AnalyticsPluginConstants.REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {

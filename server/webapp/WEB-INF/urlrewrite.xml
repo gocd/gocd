@@ -123,7 +123,7 @@
     </rule>
 
     <rule>
-        <name>Rails Users Index and Delete API</name>
+        <name>Rails Analytics API</name>
         <from>^/analytics/(.*)$</from>
         <to last="true">/rails/analytics/$1</to>
         <set name="rails_bound">true</set>

@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.eclipse.jgit.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
@@ -36,7 +38,7 @@ import java.util.zip.ZipInputStream;
 
 @Component
 public class PluginAssetsLoader implements ServletContextAware, PluginChangeListener {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginAssetsLoader.class);
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;
     private ZipUtil zipUtil;
@@ -72,9 +74,11 @@ public class PluginAssetsLoader implements ServletContextAware, PluginChangeList
     }
 
     private void cacheStaticAssets(String pluginId) {
+        LOGGER.info("Caching static assets for plugin: {}", pluginId);
         String data = this.analyticsExtension.getStaticAssets(pluginId);
 
         if (StringUtil.isBlank(data)) {
+            LOGGER.info("No static assets found for plugin: {}", pluginId);
             return;
         }
 
@@ -82,16 +86,17 @@ public class PluginAssetsLoader implements ServletContextAware, PluginChangeList
             ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(Base64.decode(data)));
 
             zipUtil.unzip(zipInputStream, new File(pluginStaticAssetsDirPath(pluginId)));
-        } catch (IOException ignored) {
-            System.out.println(ignored.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("Failed to extract static assets from plugin: {}", pluginId, e);
         }
     }
 
     private void deleteExistingAssets(String pluginId) {
+        LOGGER.info("Deleting cached static assets for plugin: {}", pluginId);
         try {
             FileUtil.deleteDirectoryNoisily(new File(pluginStaticAssetsDirPath(pluginId)));
         } catch (IOException e) {
-
+            LOGGER.error("Failed to delete cached static assets for plugin: {}", pluginId, e);
         }
     }
 }

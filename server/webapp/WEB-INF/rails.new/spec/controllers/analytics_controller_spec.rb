@@ -51,13 +51,14 @@ describe AnalyticsController do
     it 'should render analytics for a pipeline' do
       analytics_extension = instance_double('AnalyticsExtension')
 
-      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_return('pipeline_analytics')
+      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_return('{"data": "pipeline_analytics"}')
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
 
       get :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name'
 
       expect(response).to be_ok
-      expect(response.body).to eq('pipeline_analytics')
+      expect(response.body).to eq('{"data": "pipeline_analytics"}')
+      expect(response.content_type).to eq('application/json')
     end
 
     it 'should render error template on error' do

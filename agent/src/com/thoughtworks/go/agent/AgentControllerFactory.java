@@ -20,6 +20,7 @@ import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -47,6 +48,7 @@ public class AgentControllerFactory {
     private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
+    private final ArtifactExtension artifactExtension;
     private final HttpService httpService;
     private final WebSocketClientHandler webSocketClientHandler;
     private final WebSocketSessionHandler sessionHandler;
@@ -66,7 +68,7 @@ public class AgentControllerFactory {
             PackageRepositoryExtension packageRepositoryExtension,
             SCMExtension scmExtension,
             TaskExtension taskExtension,
-            HttpService httpService,
+            ArtifactExtension artifactExtension, HttpService httpService,
             WebSocketClientHandler webSocketClientHandler,
             WebSocketSessionHandler sessionHandler,
             AgentHealthHolder agentHealthHolder) {
@@ -81,6 +83,7 @@ public class AgentControllerFactory {
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
+        this.artifactExtension = artifactExtension;
         this.httpService = httpService;
         this.webSocketClientHandler = webSocketClientHandler;
         this.sessionHandler = sessionHandler;
@@ -102,6 +105,7 @@ public class AgentControllerFactory {
                     packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
+                    artifactExtension,
                     httpService,
                     webSocketClientHandler,
                     sessionHandler,
@@ -120,6 +124,7 @@ public class AgentControllerFactory {
                     packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
+                    artifactExtension,
                     agentHealthHolder);
         }
     }

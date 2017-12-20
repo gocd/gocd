@@ -49,7 +49,7 @@ public class ArtifactPlan extends PersistentObject {
     private ArtifactType artifactType;
     private String src;
     private String dest;
-    private String pluggableArtifactConfigurationJson;
+    private String pluggableArtifactConfigJson;
     private static final String MERGED_TEST_RESULT_FOLDER = "result";
     protected final List<ArtifactPlan> testArtifactPlansForMerging = new ArrayList<>();
 
@@ -59,7 +59,7 @@ public class ArtifactPlan extends PersistentObject {
     public ArtifactPlan(Artifact artifact) {
         this.artifactType = artifact.getArtifactType();
         if (artifact instanceof PluggableArtifactConfig) {
-            this.pluggableArtifactConfigurationJson = ((PluggableArtifactConfig) artifact).toJSON();
+            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifact).toJSON();
         } else {
             ArtifactConfig artifactConfig = (ArtifactConfig) artifact;
             setSrc(artifactConfig.getSource());
@@ -69,6 +69,7 @@ public class ArtifactPlan extends PersistentObject {
 
     public ArtifactPlan(ArtifactPlan artifactPlan) {
         this(artifactPlan.artifactType, artifactPlan.src, artifactPlan.dest);
+        this.pluggableArtifactConfigJson = artifactPlan.pluggableArtifactConfigJson;
     }
 
     public ArtifactPlan(ArtifactType artifactType, String src, String dest) {
@@ -79,7 +80,7 @@ public class ArtifactPlan extends PersistentObject {
 
     public ArtifactPlan(ArtifactType plugin, String pluggableArtifactConfigJson) {
         artifactType = plugin;
-        this.pluggableArtifactConfigurationJson = pluggableArtifactConfigJson;
+        this.pluggableArtifactConfigJson = pluggableArtifactConfigJson;
     }
 
     public long getBuildId() {
@@ -227,7 +228,7 @@ public class ArtifactPlan extends PersistentObject {
     public Map<String, Object> getPluggableArtifactConfiguration() {
         final Type type = new TypeToken<Map<String, Object>>() {
         }.getType();
-        return GSON.fromJson(pluggableArtifactConfigurationJson, type);
+        return GSON.fromJson(pluggableArtifactConfigJson, type);
     }
 
     @Override
@@ -241,7 +242,7 @@ public class ArtifactPlan extends PersistentObject {
         if (artifactType != that.artifactType) return false;
         if (src != null ? !src.equals(that.src) : that.src != null) return false;
         if (dest != null ? !dest.equals(that.dest) : that.dest != null) return false;
-        return pluggableArtifactConfigurationJson != null ? pluggableArtifactConfigurationJson.equals(that.pluggableArtifactConfigurationJson) : that.pluggableArtifactConfigurationJson == null;
+        return pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.equals(that.pluggableArtifactConfigJson) : that.pluggableArtifactConfigJson == null;
     }
 
     @Override
@@ -250,7 +251,7 @@ public class ArtifactPlan extends PersistentObject {
         result = 31 * result + (artifactType != null ? artifactType.hashCode() : 0);
         result = 31 * result + (src != null ? src.hashCode() : 0);
         result = 31 * result + (dest != null ? dest.hashCode() : 0);
-        result = 31 * result + (pluggableArtifactConfigurationJson != null ? pluggableArtifactConfigurationJson.hashCode() : 0);
+        result = 31 * result + (pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.hashCode() : 0);
         return result;
     }
 }

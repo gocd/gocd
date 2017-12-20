@@ -34,7 +34,7 @@
         <param name="type">12</param>
       </type>
     </property>
-    <property name="pluggableArtifactConfigurationJson"/>
+    <property name="pluggableArtifactConfigJson"/>
   </class>
 </hibernate-mapping>
 

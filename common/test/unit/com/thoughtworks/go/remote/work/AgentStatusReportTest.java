@@ -32,7 +32,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class AgentStatusReportingIntegrationTest {
+public class AgentStatusReportTest {
     private AgentIdentifier agentIdentifier;
     private EnvironmentVariableContext environmentVariableContext;
     private GoArtifactsManipulatorStub artifactManipulator;
@@ -59,7 +59,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension, null);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -73,7 +73,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension, null);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -88,7 +88,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeWhenAgentRunningUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension, null);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));

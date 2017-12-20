@@ -122,7 +122,7 @@ public class PluginsZipTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown()  {
         temporaryFolder.delete();
     }
 
@@ -143,7 +143,7 @@ public class PluginsZipTest {
     }
 
     @Test
-    public void shouldGetChecksumIfFileWasCreated() throws Exception {
+    public void shouldGetChecksumIfFileWasCreated() {
         pluginsZip.create();
         String md5 = pluginsZip.md5();
         assertThat(md5, is(notNullValue()));
@@ -199,7 +199,7 @@ public class PluginsZipTest {
 
 
     @Test
-    public void shouldCreatePluginsWhenTaskPluginsAreAdded() throws Exception {
+    public void shouldCreatePluginsWhenTaskPluginsAreAdded()  {
         GoPluginDescriptor plugin = new GoPluginDescriptor("curl-task-plugin", null, null, null, null, false);
         when(pluginManager.isPluginOfType("task", plugin.id())).thenReturn(true);
         pluginsZip.pluginLoaded(plugin);
@@ -207,19 +207,19 @@ public class PluginsZipTest {
     }
 
     @Test
-    public void shouldCreatePluginsWhenTaskPluginsAreRemoved() throws Exception {
+    public void shouldCreatePluginsWhenTaskPluginsAreRemoved()  {
         pluginsZip.pluginUnLoaded(externalTaskPlugin);
         verify(pluginsZip, times(1)).create();
     }
 
     @Test
-    public void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsAdded() throws Exception {
+    public void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsAdded()  {
         pluginsZip.pluginLoaded(externalElasticAgentPlugin);
         verify(pluginsZip, never()).create();
     }
 
     @Test
-    public void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsRemoved() throws Exception {
+    public void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsRemoved()  {
         pluginsZip.pluginUnLoaded(externalElasticAgentPlugin);
         verify(pluginsZip, never()).create();
     }

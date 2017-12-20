@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.artifact;
 
-import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPlugi
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 
+@Component
 public class ArtifactExtension extends AbstractExtension {
     private final HashMap<String, ArtifactMessageConverter> messageHandlerMap = new HashMap<>();
 
@@ -86,11 +88,11 @@ public class ArtifactExtension extends AbstractExtension {
     }
 
 
-    public Map<String, Object> publishArtifact(String pluginId, ArtifactStores artifactStores, List<ArtifactPlan> artifactPlans) {
+    public Map<String, Object> publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<Map<String, Object>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStores, artifactPlans);
+                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans);
             }
 
             @Override

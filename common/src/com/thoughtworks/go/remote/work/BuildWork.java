@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -61,14 +61,13 @@ public class BuildWork implements Work {
     private transient MaterialRevisions materialRevisions;
     private transient Builders builders;
     private ArtifactsPublisher artifactsPublisher;
-    private ArtifactStores artifactStores;
 
     public BuildWork(BuildAssignment assignment) {
         this.assignment = assignment;
     }
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
-                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
         JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
         this.timeProvider = new TimeProvider();
@@ -77,14 +76,13 @@ public class BuildWork implements Work {
         this.materialRevisions = assignment.materialRevisions();
         this.goPublisher = new DefaultGoPublisher(goArtifactsManipulator, jobIdentifier, remoteBuildRepository, agentRuntimeInfo);
         this.builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension);
-        this.artifactStores = assignment.getArtifactStores();
-        artifactsPublisher = new ArtifactsPublisher();
+        this.artifactsPublisher = new ArtifactsPublisher(artifactExtension, assignment.getArtifactStores());
     }
 
     public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
                        EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo,
-                       PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
-        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension);
+                       PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
+        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension, artifactExtension);
         try {
             JobResult result = build(environmentVariableContext, agentIdentifier, packageRepositoryExtension, scmExtension);
             reportCompletion(result);

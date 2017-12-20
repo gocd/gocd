@@ -136,7 +136,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly() throws Exception {
+    public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly()  {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
         BuildWork work = getBuildWorkWithP4MaterialRevision(p4Material);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
@@ -145,7 +145,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
 
         assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("10"));
@@ -175,7 +175,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldMergeEnvironmentVariablesFromInitialContext() throws Exception {
+    public void shouldMergeEnvironmentVariablesFromInitialContext()  {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs());
 
         BuildAssignment buildAssignment = createAssignment(new EnvironmentVariableContext("foo", "bar"));
@@ -184,7 +184,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), new GoArtifactsManipulatorStub(),
-                environmentContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         assertEnvironmentContext(environmentContext, "foo", is("bar"));
     }
@@ -214,7 +214,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldUseSvnMaterialNameIfPresent() throws Exception {
+    public void shouldUseSvnMaterialNameIfPresent()  {
         svnMaterial.setName(new CaseInsensitiveString("Cruise"));
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
 
@@ -227,13 +227,13 @@ public class BuildWorkEnvironmentVariablesTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         assertThat(environmentVariableContext.getProperty("GO_REVISION_CRUISE"), is("3"));
     }
 
     @Test
-    public void shouldSetUpRevisionIntoEnvironmentContextCorrectlyForMutipleMaterial() throws Exception {
+    public void shouldSetUpRevisionIntoEnvironmentContextCorrectlyForMutipleMaterial()  {
         svnMaterial.setFolder("svn-Dir");
 
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials(svnMaterial, hgMaterial));
@@ -243,7 +243,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldOutputEnvironmentVariablesIntoConsoleOut() throws Exception {
+    public void shouldOutputEnvironmentVariablesIntoConsoleOut()  {
         BuildAssignment buildAssigment = createAssignment(null);
         BuildWork work = new BuildWork(buildAssigment);
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
@@ -251,7 +251,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_SERVER_URL", "some_random_place"));
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_NAME", PIPELINE_NAME));
@@ -265,7 +265,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetEnvironmentVariableForSvnExternal() throws Exception {
+    public void shouldSetEnvironmentVariableForSvnExternal()  {
         svnRepoFixture.createExternals(svnRepoFixture.getEnd2EndRepoUrl());
 
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl(), null, null, true);
@@ -328,7 +328,7 @@ public class BuildWorkEnvironmentVariablesTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
         return environmentVariableContext;
     }
 }

@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.matchers.RegexMatcher;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -38,10 +39,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.HttpVersion;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,12 +90,10 @@ public class AgentWebSocketClientControllerTest {
     @Mock
     private TaskExtension taskExtension;
     @Mock
+    private ArtifactExtension artifactExtension;
+    @Mock
     private HttpService httpService;
-    @Mock
-    private HttpClient httpClient;
     private AgentWebSocketClientController agentController;
-    @Mock
-    private RemoteEndpoint remoteEndpoint;
     @Mock
     private WebSocketClientHandler webSocketClientHandler;
     @Mock
@@ -430,6 +427,7 @@ public class AgentWebSocketClientControllerTest {
                 packageRepositoryExtension,
                 scmExtension,
                 taskExtension,
+                artifactExtension,
                 httpService,
                 webSocketClientHandler, webSocketSessionHandler, null);
         return controller;

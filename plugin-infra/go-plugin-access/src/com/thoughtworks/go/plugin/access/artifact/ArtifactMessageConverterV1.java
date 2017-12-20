@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -36,28 +35,26 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     private static final Gson GSON = new Gson();
 
     @Override
-    public String publishArtifactMessage(ArtifactStores artifactStores, List<ArtifactPlan> artifactPlans) {
-        final HashMap<String, Object> messageObject = new HashMap<>();
-        messageObject.put("artifactStores", getArtifactStore(artifactStores));
-        messageObject.put("artifactPlans", getArtifactPlans(artifactPlans));
+    public String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
+        final ArrayList<Map> messageObject = new ArrayList<>();
+        for (Map.Entry<ArtifactStore, List<ArtifactPlan>> entry : artifactStoreToArtifactPlans.entrySet()) {
+            messageObject.add(getArtifactStore(entry.getKey(), entry.getValue()));
+        }
         return GSON.toJson(messageObject);
+    }
+
+    private Map getArtifactStore(ArtifactStore artifactStore, List<ArtifactPlan> artifactPlans) {
+        final HashMap<String, Object> artifactStoreAndPlans = new HashMap<>();
+        artifactStoreAndPlans.put("id", artifactStore.getId());
+        artifactStoreAndPlans.put("configuration", artifactStore.getConfigurationAsMap(true));
+        artifactStoreAndPlans.put("artifact_plans", getArtifactPlans(artifactPlans));
+        return artifactStoreAndPlans;
     }
 
     private List<Map<String, Object>> getArtifactPlans(List<ArtifactPlan> artifactPlans) {
         List<Map<String, Object>> list = new ArrayList<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
             list.add(artifactPlan.getPluggableArtifactConfiguration());
-        }
-        return list;
-    }
-
-    private List<Map<String, Object>> getArtifactStore(ArtifactStores artifactStores) {
-        final List<Map<String, Object>> list = new ArrayList<>();
-        for (ArtifactStore artifactStore : artifactStores) {
-            final HashMap<String, Object> artifactStoreAsHashMap = new HashMap<>();
-            artifactStoreAsHashMap.put("id", artifactStore.getId());
-            artifactStoreAsHashMap.put("configuration", artifactStore.getConfigurationAsMap(true));
-            list.add(artifactStoreAsHashMap);
         }
         return list;
     }

@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -27,14 +31,16 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ArtifactsPublisherTest {
 
@@ -43,10 +49,16 @@ public class ArtifactsPublisherTest {
 
     private File workingFolder;
     private ArtifactsPublisher artifactsPublisher;
+    private ArtifactExtension artifactExtension;
+    private StubGoPublisher publisher;
 
     @Before
     public void setUp() throws IOException {
-        artifactsPublisher = new ArtifactsPublisher();
+        artifactExtension = mock(ArtifactExtension.class);
+        publisher = new StubGoPublisher();
+
+        artifactsPublisher = new ArtifactsPublisher(artifactExtension, new ArtifactStores());
+
         workingFolder = temporaryFolder.newFolder("temporaryFolder");
         File file = new File(workingFolder, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
@@ -63,7 +75,6 @@ public class ArtifactsPublisherTest {
         final File firstTestFolder = prepareTestFolder(workingFolder, "test1");
         final File secondTestFolder = prepareTestFolder(workingFolder, "test2");
 
-        StubGoPublisher publisher = new StubGoPublisher();
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
 
         publisher.assertPublished(firstTestFolder.getAbsolutePath(), "test");
@@ -82,9 +93,9 @@ public class ArtifactsPublisherTest {
         prepareTestFolder(workingFolder, "test1");
         prepareTestFolder(workingFolder, "test2");
 
-        StubGoPublisher publisherThatShouldFail = new StubGoPublisher(true);
+        publisher.setShouldFail(true);
         try {
-            artifactsPublisher.publishArtifacts(publisherThatShouldFail, workingFolder, artifactPlans);
+            artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Failed to upload [test1, test2]"));
         }
@@ -121,7 +132,6 @@ public class ArtifactsPublisherTest {
         final File testFile2 = TestFileUtil.createTestFile(src1, "test2.txt");
         final File testFile3 = TestFileUtil.createTestFile(src1, "readme.pdf");
         artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName() + "/*", "dest"));
-        StubGoPublisher publisher = new StubGoPublisher();
 
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
 
@@ -133,6 +143,21 @@ public class ArtifactsPublisherTest {
             }
         };
         assertThat(publisher.publishedFiles(), is(expectedFiles));
+    }
+
+    @Test
+    public void shouldPublishPluggableArtifacts() {
+        final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
+        final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+        List<ArtifactPlan> artifactPlans = Arrays.asList(
+                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car"))),
+                new ArtifactPlan(new PluggableArtifactConfig("test-reports", "s3", create("junit", false, "junit.xml")))
+        );
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+
+        verify(artifactExtension).publishArtifact(eq("cd.go.s3"), any(Map.class));
     }
 
     private File prepareTestFolder(File workingFolder, String folderName) throws Exception {

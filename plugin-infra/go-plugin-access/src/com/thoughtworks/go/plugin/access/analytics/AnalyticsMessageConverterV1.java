@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access.analytics;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.access.analytics.models.Capabilities;
+import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -58,5 +60,10 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
         }
 
         return assets;
+    }
+
+    @Override
+    public Image getImageResponseFromBody(String responseBody) {
+        return new ImageDeserializer().fromJSON(responseBody);
     }
 }

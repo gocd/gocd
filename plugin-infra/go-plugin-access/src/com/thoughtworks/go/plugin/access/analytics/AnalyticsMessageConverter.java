@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
+import com.thoughtworks.go.plugin.domain.common.Image;
+
 public interface AnalyticsMessageConverter {
     com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
@@ -24,4 +26,6 @@ public interface AnalyticsMessageConverter {
     String getPipelineAnalyticsFromResponseBody(String responseBody);
 
     String getStaticAssets(String responseBody);
+
+    Image getImageResponseFromBody(String responseBody);
 }

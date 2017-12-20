@@ -41,7 +41,7 @@ public class AnalyticsPluginInfoBuilder implements PluginInfoBuilder<AnalyticsPl
         PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, extension);
         Image image = image(descriptor.id());
 
-        return new AnalyticsPluginInfo(null, null, capabilities, null);
+        return new AnalyticsPluginInfo(descriptor, image, capabilities, pluginSettingsAndView);
     }
 
     private Capabilities capabilities(String pluginId) {
@@ -49,7 +49,7 @@ public class AnalyticsPluginInfoBuilder implements PluginInfoBuilder<AnalyticsPl
     }
 
     private Image image(String pluginId) {
-        return null;
+        return extension.getIcon(pluginId);
     }
 }
 

@@ -17,7 +17,6 @@
 require 'rails_helper'
 
 describe ApiV4::Admin::PluginInfosController do
-  include ApiHeaderSetupTeardown
   include ApiV4::ApiVersionHelper
 
   before(:each) do

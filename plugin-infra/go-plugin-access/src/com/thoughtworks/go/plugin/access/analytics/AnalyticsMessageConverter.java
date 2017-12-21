@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
-import com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 
 public interface AnalyticsMessageConverter {

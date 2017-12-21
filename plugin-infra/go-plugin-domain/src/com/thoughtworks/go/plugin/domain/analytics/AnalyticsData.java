@@ -23,6 +23,11 @@ public class AnalyticsData {
     String data;
     String viewPath;
 
+    public AnalyticsData(String data, String viewPath) {
+        this.data = data;
+        this.viewPath = viewPath;
+    }
+
     public String getData() {
         return data;
     }
@@ -34,7 +39,8 @@ public class AnalyticsData {
     public Map<String, String> toMap() {
         HashMap<String, String> m = new HashMap<>();
         m.put("data", data);
-        m.put("viewPath", viewPath);
+        m.put("view_path", viewPath);
+
         return m;
     }
 }

@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
-import com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.core.Is;
 import org.json.JSONException;
@@ -75,7 +75,7 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_GetPipelineAnalytics() throws Exception {
-        String responseBody = "{ \"viewPath\": \"path/to/view\", \"data\": \"{}\" }";
+        String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         AnalyticsData pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");

@@ -22,7 +22,7 @@ var Analytics = {
                       "onShow": function() {
                           var frame = document.getElementById("analytics-frame");
                           frame.onload = function() {
-                            var x = { data: r.data, counter: data.pipeline_counter, pipeline_name: data.pipeline_name, plugin_id: data.plugin_id  };
+                            var x = { data: JSON.parse(r.data), counter: data.pipeline_counter, pipeline_name: data.pipeline_name, plugin_id: data.plugin_id  };
                             frame.contentWindow.postMessage(x, "*");
                           }
                       }

@@ -34,4 +34,10 @@ public class AnalyticsMetadataStore extends MetadataStore<AnalyticsPluginInfo> {
         return store;
     }
 
+    public void updateAssetsPath(String pluginId, String assetPath) {
+        AnalyticsPluginInfo pluginInfo = getPluginInfo(pluginId);
+        if (pluginInfo != null) {
+            pluginInfo.setStaticAssetsPath(assetPath);
+        }
+    }
 }

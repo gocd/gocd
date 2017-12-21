@@ -16,17 +16,14 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataLoader;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginInfoBuilder;
+import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -69,6 +66,25 @@ public class AnalyticsMetadataLoaderTest {
     }
 
     @Test
+    public void onPluginLoad_shouldNotifyPluginMetadataLoadListeners() throws Exception {
+        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
+        PluginMetadataChangeListener pluginMetadataChangeListener = mock(PluginMetadataChangeListener.class);
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
+
+        when(extension.canHandlePlugin(descriptor.id())).thenReturn(true);
+        when(infoBuilder.pluginInfoFor(descriptor)).thenReturn(pluginInfo);
+
+        metadataLoader.registerListeners(pluginMetadataChangeListener);
+        metadataLoader.pluginLoaded(descriptor);
+
+        InOrder inOrder = inOrder(metadataStore, pluginMetadataChangeListener);
+
+        inOrder.verify(metadataStore).setPluginInfo(pluginInfo);
+        inOrder.verify(pluginMetadataChangeListener).onPluginMetadataCreate(descriptor.id());
+    }
+
+    @Test
     public void onPluginLoaded_shouldIgnoreNonAnalyticsPlugins() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
@@ -82,7 +98,7 @@ public class AnalyticsMetadataLoaderTest {
     }
 
     @Test
-    public void onPluginUnloded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
+    public void onPluginUnloaded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
         GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
@@ -92,5 +108,25 @@ public class AnalyticsMetadataLoaderTest {
         metadataLoader.pluginUnLoaded(descriptor);
 
         verify(metadataStore).remove(descriptor.id());
+    }
+
+    @Test
+    public void onPluginUnLoaded_shouldNotifyPluginMetadataLoadListeners() throws Exception {
+        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
+        PluginMetadataChangeListener pluginMetadataChangeListener = mock(PluginMetadataChangeListener.class);
+
+        when(extension.canHandlePlugin(descriptor.id())).thenReturn(true);
+
+        metadataStore.setPluginInfo(pluginInfo);
+
+        metadataLoader.registerListeners(pluginMetadataChangeListener);
+        metadataLoader.pluginUnLoaded(descriptor);
+
+        InOrder inOrder = inOrder(metadataStore, pluginMetadataChangeListener);
+
+        inOrder.verify(metadataStore).remove(descriptor.id());
+        inOrder.verify(pluginMetadataChangeListener).onPluginMetadataRemove(descriptor.id());
     }
 }

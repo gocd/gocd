@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 public class AnalyticsPluginInfo extends PluginInfo {
     private final Image image;
     private final Capabilities capabilities;
+    private String staticAssetsPath;
 
     public AnalyticsPluginInfo(PluginDescriptor descriptor, Image image, Capabilities capabilities,
                                PluggableInstanceSettings pluginSettings) {
@@ -33,7 +34,6 @@ public class AnalyticsPluginInfo extends PluginInfo {
         this.image = image;
         this.capabilities = capabilities;
     }
-
 
     public Image getImage() {
         return image;
@@ -43,4 +43,11 @@ public class AnalyticsPluginInfo extends PluginInfo {
         return capabilities;
     }
 
+    public String getStaticAssetsPath() {
+        return staticAssetsPath;
+    }
+
+    public void setStaticAssetsPath(String staticAssetsPath) {
+        this.staticAssetsPath = staticAssetsPath;
+    }
 }

@@ -312,15 +312,6 @@ describe ApplicationController do
         expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
             only_path: false)).to eq("http://test.host/api/version?foo=junk")
       end
-
-      it "should use ssl base url from server config when requested" do
-        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
-            only_path: false, protocol: 'https')).to eq("https://ssl.host:443/api/version?foo=junk")
-        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
-            only_path: false, protocol: 'http')).to eq("http://test.host/api/version?foo=junk")
-        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
-            only_path: false)).to eq("http://test.host/api/version?foo=junk")
-      end
     end
 
     describe "url cache" do

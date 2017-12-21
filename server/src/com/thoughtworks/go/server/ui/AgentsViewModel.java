@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.ui;
 
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -64,7 +64,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 
     public void filter(String filterCriteria) {
 
-        if (StringUtil.isBlank(filterCriteria)) {
+        if (StringUtils.isBlank(filterCriteria)) {
             return;
         }
         final Map<String, String> filters = filters(filterCriteria);

@@ -26,6 +26,8 @@ import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,13 +49,15 @@ public class P4TestRepo extends TestRepo {
     private File clientFolder;
 
     private P4TestRepo(int port, String repoPrototype, String user, String password, String clientName,
-                       boolean useTickets) {
+                       boolean useTickets, TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
+        super(temporaryFolder);
         this.port = port;
         this.user = user;
         this.password = password;
         this.clientName = clientName;
         this.useTickets = useTickets;
-        tempRepo = TestFileUtil.createTempFolder("testP4Repo-" + System.currentTimeMillis());
+        tempRepo = temporaryFolder.newFolder();
+        this.clientFolder = clientFolder;
         try {
             copyDirectory(new File(repoPrototype), tempRepo);
         } catch (IOException e) {
@@ -62,7 +66,6 @@ public class P4TestRepo extends TestRepo {
     }
 
     public void onSetup() throws Exception {
-        clientFolder = TestFileUtil.createTempFolder("p4Client");
         p4dProcess = startP4dInRepo(tempRepo);
         waitForP4dToStartup();
     }
@@ -99,8 +102,8 @@ public class P4TestRepo extends TestRepo {
         return p4Material1;
     }
 
-    public List<Modification> latestModification() {
-        File workingDir = TestFileUtil.createTempFolder("p4-working-dir-" + UUID.randomUUID());
+    public List<Modification> latestModification() throws IOException {
+        File workingDir = temporaryFolder.newFolder();
         return createMaterial().latestModification(workingDir, new TestSubprocessExecutionContext());
     }
 
@@ -120,24 +123,20 @@ public class P4TestRepo extends TestRepo {
         return "localhost:" + port;
     }
 
-    public static P4TestRepo createP4TestRepo() throws IOException {
+    public static P4TestRepo createP4TestRepo(TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
         String repo = "../common/test-resources/unit/data/p4repo";
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
            repo = "../common/test-resources/unit/data/p4repoWindows";
         }
-        return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false);
+        return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false, temporaryFolder, clientFolder);
     }
 
-    public static P4TestRepo createP4TestRepoWithTickets() throws IOException {
+    public static P4TestRepo createP4TestRepoWithTickets(TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
         String repo = "../common/test-resources/unit/data/p4TicketedRepo";
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             repo = "../common/test-resources/unit/data/p4TicketedRepoWindows";
         }
-        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), repo, "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true);
-    }
-
-    public static P4TestRepo createP4RepoOPS(String repoPrototype) {
-        return new P4TestRepo(RandomPort.find("P4RepoOPS"), repoPrototype, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false);
+        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), repo, "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true, temporaryFolder, clientFolder);
     }
 
     public P4Material material(String p4view) {
@@ -172,7 +171,7 @@ public class P4TestRepo extends TestRepo {
     }
 
     private List<Modification> checkInOneFile(P4Material p4Material1, String fileName, String comment) throws Exception {
-        File workingDir = TestFileUtil.createTempFolder("p4-working-dir-" + UUID.randomUUID());
+        File workingDir = temporaryFolder.newFolder();
 
         P4Client client = createClient();
 

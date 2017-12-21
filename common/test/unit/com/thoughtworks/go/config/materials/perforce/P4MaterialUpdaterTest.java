@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -33,11 +32,11 @@ import static org.junit.Assert.assertThat;
 public class P4MaterialUpdaterTest extends P4MaterialUpdaterTestBase {
     @Before
     public void setup() throws Exception {
-        repo = P4TestRepo.createP4TestRepo();
+        repo = P4TestRepo.createP4TestRepo(temporaryFolder, temporaryFolder.newFolder());
         repo.onSetup();
         p4Fixture = new P4Fixture();
         p4Fixture.setRepo(this.repo);
-        workingDir = TestFileUtil.createTempFolder("p4Client");
+        workingDir = temporaryFolder.newFolder("p4Client");
         if (workingDir == null) {
             throw new RuntimeException();
         }

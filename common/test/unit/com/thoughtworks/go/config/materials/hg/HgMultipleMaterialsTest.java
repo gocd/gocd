@@ -16,25 +16,21 @@
 
 package com.thoughtworks.go.config.materials.hg;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedBy;
 import static org.hamcrest.Matchers.is;
@@ -43,23 +39,19 @@ import static org.junit.Assert.assertThat;
 public class HgMultipleMaterialsTest {
     private HgTestRepo repo;
     private File pipelineDir;
-    private List<File> toClean = new ArrayList<>();
-    private SvnTestRepo svnRepo;
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void createRepo() throws IOException {
-        repo = new HgTestRepo();
-        svnRepo = new SvnTestRepo();
-        pipelineDir = TestFileUtil.createTempFolder("working-dir-" + UUID.randomUUID());
-        toClean.add(pipelineDir);
+        repo = new HgTestRepo(temporaryFolder);
+        pipelineDir = temporaryFolder.newFolder("working-dir");
     }
 
     @After
     public void cleanupRepo() {
         repo.tearDown();
-        for (File file : toClean) {
-            FileUtils.deleteQuietly(file);
-        }
     }
 
     @Test

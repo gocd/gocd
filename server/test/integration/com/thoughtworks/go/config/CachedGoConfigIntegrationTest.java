@@ -57,11 +57,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -103,7 +103,7 @@ public class CachedGoConfigIntegrationTest {
     private ConfigRepository configRepository;
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private String latestCommit;
     private ConfigRepoConfig configRepo;
     private File externalConfigRepo;
@@ -337,14 +337,13 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
     }
 
-    private ArrayList<ServerHealthState> findMessageFor(final HealthStateType type) {
-        return ListUtil.filterInto(new ArrayList<>(), serverHealthService.getAllLogs(), new Filter<ServerHealthState>() {
+    private List<ServerHealthState> findMessageFor(final HealthStateType type) {
+        return serverHealthService.getAllLogs().stream().filter(new Predicate<ServerHealthState>() {
             @Override
-            public boolean matches(ServerHealthState element) {
-                boolean b = element.getType().equals(type);
-                return b;
+            public boolean test(ServerHealthState element) {
+                return element.getType().equals(type);
             }
-        });
+        }).collect(Collectors.toList());
     }
 
     @Test
@@ -875,7 +874,7 @@ public class CachedGoConfigIntegrationTest {
         CruiseConfig updatedConfig = new Cloner().deepClone(goConfigService.getConfigForEditing());
         updatedConfig.server().setCommandRepositoryLocation("foo");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
-        FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml);
+        FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml, UTF_8);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(updatedXml, goConfigDao.md5OfConfigFile());
         assertThat(validity.isValid(), is(true));
         assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
@@ -939,22 +938,20 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
         assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));
         assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
-        assertThat(ListUtil.find(cachedGoPartials.lastKnownPartials(), new ListUtil.Condition() {
+        assertThat(cachedGoPartials.lastKnownPartials().stream().filter(new Predicate<PartialConfig>() {
             @Override
-            public <T> boolean isMet(T item) {
-                PartialConfig partialConfig = (PartialConfig) item;
-                return ((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getMaterialConfig().getFingerprint());
+            public boolean test(PartialConfig item) {
+                return ((RepoConfigOrigin) item.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getMaterialConfig().getFingerprint());
             }
-        }), is(nullValue()));
+        }).findFirst().orElse(null), is(nullValue()));
         assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
         assertThat(((RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
-        assertThat(ListUtil.find(cachedGoPartials.lastValidPartials(), new ListUtil.Condition() {
+        assertThat(cachedGoPartials.lastValidPartials().stream().filter(new Predicate<PartialConfig>() {
             @Override
-            public <T> boolean isMet(T item) {
-                PartialConfig partialConfig = (PartialConfig) item;
-                return ((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getMaterialConfig().getFingerprint());
+            public boolean test(PartialConfig item) {
+                return ((RepoConfigOrigin) item.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getMaterialConfig().getFingerprint());
             }
-        }), is(nullValue()));
+        }).findFirst().orElse(null), is(nullValue()));
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
@@ -1144,7 +1141,7 @@ public class CachedGoConfigIntegrationTest {
 
     public MaterialConfig byFolder(MaterialConfigs materialConfigs, String folder) {
         for (MaterialConfig materialConfig : materialConfigs) {
-            if (materialConfig instanceof ScmMaterialConfig && ObjectUtil.nullSafeEquals(folder, materialConfig.getFolder())) {
+            if (materialConfig instanceof ScmMaterialConfig && Objects.equals(folder, materialConfig.getFolder())) {
                 return materialConfig;
             }
         }

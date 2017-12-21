@@ -23,6 +23,7 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,8 +39,8 @@ public class SvnRemoteRepository {
     public InMemoryStreamConsumer consumer;
     public int port;
 
-    public SvnRemoteRepository() throws IOException {
-        this.repo = new SvnTestRepo();
+    public SvnRemoteRepository(TemporaryFolder temporaryFolder) throws IOException {
+        this.repo = new SvnTestRepo(temporaryFolder);
 
     }
 

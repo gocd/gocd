@@ -49,6 +49,7 @@ import java.util.UUID;
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands how to edit the cruise config file for testing
@@ -206,7 +207,7 @@ public class GoConfigFileHelper {
 
     public void writeXmlToConfigFile(String xml) {
         try {
-            FileUtils.writeStringToFile(configFile, xml);
+            FileUtils.writeStringToFile(configFile, xml, UTF_8);
             goConfigDao.forceReload();
         } catch (Exception e) {
             throw bomb("Error writing config file: " + configFile.getAbsolutePath(), e);
@@ -640,7 +641,7 @@ public class GoConfigFileHelper {
         passwordFile.deleteOnExit();
         final String nonAdmin = "jez=ThmbShxAtJepX80c2JY1FzOEmUk=\n"; //in plain text: badger
         final String admin1 = "admin1=W6ph5Mm5Pz8GgiULbPgzG37mj9g=\n"; //in plain text: password
-        FileUtils.writeStringToFile(passwordFile, nonAdmin + admin1);
+        FileUtils.writeStringToFile(passwordFile, nonAdmin + admin1, UTF_8);
         return passwordFile;
     }
 
@@ -777,7 +778,7 @@ public class GoConfigFileHelper {
     public static String loadAndMigrate(String originalContent) {
         GoConfigFileHelper helper = new GoConfigFileHelper(originalContent);
         try {
-            return FileUtils.readFileToString(helper.getConfigFile());
+            return FileUtils.readFileToString(helper.getConfigFile(), UTF_8);
         } catch (IOException e) {
             throw bomb(e);
         }

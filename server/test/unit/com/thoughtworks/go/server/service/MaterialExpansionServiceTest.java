@@ -16,26 +16,20 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.util.Collections;
-
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.helper.FilterMother;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.helper.GitSubmoduleRepos;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.IOException;
+import java.util.Collections;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
@@ -46,6 +40,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MaterialExpansionServiceTest {
+
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static SvnTestRepoWithExternal svnRepo;
     private MaterialExpansionService materialExpansionService;
@@ -61,7 +58,7 @@ public class MaterialExpansionServiceTest {
 
     @BeforeClass
     public static void copyRepository() throws IOException {
-        svnRepo = new SvnTestRepoWithExternal();
+        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
     }
 
     @AfterClass
@@ -151,7 +148,7 @@ public class MaterialExpansionServiceTest {
 
     @Test
     public void shouldNotExpandGitSubmodulesIntoMultipleMaterialsWhenExpandingGitMaterialForScheduling() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
+        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule("submodule-1", "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
         when(materialConfigConverter.toMaterials(new MaterialConfigs(gitMaterial.config()))).thenReturn(new Materials(gitMaterial));

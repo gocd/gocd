@@ -55,7 +55,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,6 +83,10 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class BuildCauseProducerServiceIntegrationTest {
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static final String STAGE_NAME = "dev";
 
     @Autowired private GoConfigDao goConfigDao;
@@ -116,9 +122,9 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Before
     public void setup() throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
-        new HgTestRepo("testHgRepo");
+        new HgTestRepo("testHgRepo", temporaryFolder);
 
-        svnRepository = new SvnTestRepo("testSvnRepo");
+        svnRepository = new SvnTestRepo(temporaryFolder);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -326,7 +332,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         mingleConfig = configHelper.replaceMaterialForPipeline(MINGLE_PIPELINE_NAME, svn1.config());
         runAndPassWith(svn1, "foo.c", svnRepository);
 
-        SvnTestRepo svn2Repository = new SvnTestRepo("testSvnRepo2");
+        SvnTestRepo svn2Repository = new SvnTestRepo(temporaryFolder);
         Subversion repository2 = new SvnCommand(null, svn2Repository.projectRepositoryUrl());
         SvnMaterial svn2 = SvnMaterial.createSvnMaterialWithMock(repository2);
         svn2.setFolder("boulder");

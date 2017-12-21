@@ -17,18 +17,14 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.CannotScheduleException;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -50,10 +46,11 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -67,10 +64,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -108,13 +102,15 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private GoCache goCache;
     @Autowired private Localizer localizer;
     @Autowired private PluginManager pluginManager;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages preCondition;
     private SchedulerFixture schedulerFixture;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     @Before
     public void setUp() throws Exception {
-        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,26 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
-import java.io.File;
-import java.util.*;
-
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.P4TestRepo;
-
 import com.thoughtworks.go.util.JsonValue;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.*;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.fail;
 
 public abstract class P4MaterialTestBase extends PerforceFixture {
@@ -48,7 +47,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         p4Material.setUseTickets(false);
         ValidationBean validation = p4Material.checkConnection(new TestSubprocessExecutionContext());
         assertThat(validation.isValid(), is(true));
-        assertThat(StringUtil.isBlank(validation.getError()), is(true));
+        assertThat(StringUtils.isBlank(validation.getError()), is(true));
     }
 
     @Test public void shouldBeAbleToGetUrlArgument() throws Exception {
@@ -89,7 +88,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     }
 
     @Test public void shouldCleanOutRepoWhenMaterialChanges() throws Exception {
-        P4TestRepo secondTestRepo = P4TestRepo.createP4TestRepo();
+        P4TestRepo secondTestRepo = P4TestRepo.createP4TestRepo(temporaryFolder, clientFolder);
         try {
             secondTestRepo.onSetup();
 

@@ -23,26 +23,28 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GitSubmoduleRepos extends TestRepo {
-    private final File temporaryFolder;
+    private final File workingDir;
     private File remoteRepoDir;
     public static final String NAME = "with-submodules";
 
-    public GitSubmoduleRepos() throws Exception {
-        temporaryFolder = TestFileUtil.createTempFolder("gitRepos-" + System.currentTimeMillis());
-        tmpFolders.add(temporaryFolder);
+    public GitSubmoduleRepos(TemporaryFolder temporaryFolder) throws Exception {
+        super(temporaryFolder);
+        this.workingDir = temporaryFolder.newFolder();
         remoteRepoDir = createRepo(NAME);
     }
 
@@ -68,15 +70,16 @@ public class GitSubmoduleRepos extends TestRepo {
     }
 
     private File workingCopy(String repoFolder) {
-        return new File(temporaryFolder, repoFolder);
+        return new File(workingDir, repoFolder);
     }
 
     public List<File> files(String repoFolder) {
-        return asList(workingCopy(repoFolder).listFiles());
+        return new ArrayList<>(Arrays.asList(workingCopy(repoFolder).listFiles()));
     }
 
     private File createRepo(String repoName) throws Exception {
-        File withSubmodules = TestFileUtil.createTestFolder(temporaryFolder, repoName);
+        File withSubmodules = new File(workingDir, repoName);
+        withSubmodules.mkdirs();
         git(withSubmodules).init();
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
@@ -87,7 +90,8 @@ public class GitSubmoduleRepos extends TestRepo {
     }
 
     private void addAndCommitNewFile(File repoFolder, String fileName, String comments) throws Exception {
-        File testFile = TestFileUtil.createTestFile(repoFolder, fileName);
+        File testFile = new File(repoFolder, fileName);
+        testFile.createNewFile();
         checkInOneFile(repoFolder, testFile, comments);
     }
 
@@ -128,7 +132,7 @@ public class GitSubmoduleRepos extends TestRepo {
 
     private void changeFile(File parentDir, String fileName, String newFileContent) throws IOException {
         File fileToChange = new File(parentDir, fileName);
-        FileUtils.writeStringToFile(fileToChange, newFileContent);
+        FileUtils.writeStringToFile(fileToChange, newFileContent, UTF_8);
     }
 
     public List<Modification> latestModification() {

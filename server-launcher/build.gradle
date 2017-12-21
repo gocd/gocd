@@ -58,6 +58,7 @@ dependencies {
   packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
   packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
+  packagingInLibDir group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
   packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
 
@@ -120,12 +121,10 @@ task mainJar(type: Jar) {
     include "**/SystemUtil.class"
     include "**/Os.class"
     include "**/ExceptionUtils.class"
-    include "**/FileUtil*.class"
     include "**/StreamConsumer.class"
     include "**/InMemoryConsumer.class"
     include "**/InMemoryStreamConsumer.class"
     include "**/ConsoleOutputStreamConsumer.class"
-    include "**/ArrayUtil.class"
     include "**/StringUtil.class"
 
     into('/')
@@ -250,6 +249,7 @@ task verifyFatJar(type: VerifyJarTask) {
     "lib"         : [
       "bcprov-jdk15on-1.47.jar",
       "commons-io-${project.versions.commonsIO}.jar",
+      "commons-lang-${project.versions.commonsLang}.jar",
       "go-plugin-activator.jar",
       "javasysmon-0.3.6.jar",
       "javax.servlet-api-3.1.0.jar",

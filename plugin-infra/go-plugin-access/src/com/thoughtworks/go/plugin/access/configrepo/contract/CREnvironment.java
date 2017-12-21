@@ -16,8 +16,8 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -185,8 +185,8 @@ public class CREnvironment extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return StringUtil.isBlank(location) ?
-                StringUtil.isBlank(name) ? String.format("Environment in %s",parent) :
+        return StringUtils.isBlank(location) ?
+                StringUtils.isBlank(name) ? String.format("Environment in %s",parent) :
                         String.format("Environment %s",name) : String.format("%s; Environment %s",location,name);
     }
 }

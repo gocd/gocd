@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AgentHTTPClientControllerTest {
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
     private BuildRepositoryRemote loopServer;
     @Mock

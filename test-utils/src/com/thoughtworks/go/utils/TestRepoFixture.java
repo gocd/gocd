@@ -16,27 +16,28 @@
 
 package com.thoughtworks.go.utils;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import org.apache.commons.io.FileUtils;
+import org.junit.rules.TemporaryFolder;
+import org.springframework.beans.factory.DisposableBean;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.DisposableBean;
-
-import com.thoughtworks.go.util.TestFileUtil;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public abstract class TestRepoFixture implements BaseRepoFixture, DisposableBean{
     protected File templateRepo;
+    protected final TemporaryFolder temporaryFolder;
     protected File testRepo;
 
-    public TestRepoFixture(String templateRepoPath) {
+    public TestRepoFixture(String templateRepoPath, TemporaryFolder temporaryFolder) {
         templateRepo = new File(templateRepoPath);
+        this.temporaryFolder = temporaryFolder;
     }
 
-    public File createRepository() {
+    public File createRepository() throws IOException {
         if (testRepo == null) {
-            File repoLocation = TestFileUtil.createUniqueTempFolder("testRepo");
+            File repoLocation = temporaryFolder.newFolder("testRepo");
             return createRepository(repoLocation);
         }
         return testRepo;
@@ -54,22 +55,11 @@ public abstract class TestRepoFixture implements BaseRepoFixture, DisposableBean
         return testRepo;
     }
 
-    public File currentRepository() {
+    public File currentRepository() throws IOException {
         if (testRepo == null) {
             createRepository();
         }
         return testRepo;
-    }
-
-    public File currentRepository(File repoLocation) {
-        if (testRepo == null) {
-            createRepository(repoLocation);
-        }
-        return testRepo;
-    }
-
-    public File createWorkspace(String svnRepoURL) {
-        return TestFileUtil.createUniqueTempFolder("workspace");
     }
 
     public void destroy() {

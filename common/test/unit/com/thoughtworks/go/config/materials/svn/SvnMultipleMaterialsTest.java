@@ -16,23 +16,23 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.util.ArtifactLogUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -43,10 +43,13 @@ public class SvnMultipleMaterialsTest {
     private SvnTestRepo repo;
     private File pipelineDir;
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Before
     public void createRepo() throws IOException {
-        repo = new SvnTestRepo();
-        pipelineDir = TestFileUtil.createTempFolder("working-dir-" + UUID.randomUUID());
+        repo = new SvnTestRepo(temporaryFolder);
+        pipelineDir = temporaryFolder.newFolder();
     }
 
     @After
@@ -133,7 +136,7 @@ public class SvnMultipleMaterialsTest {
         testFile.createNewFile();
         assertThat(testFile.exists(), is(true));
         //simulates what a build will do
-        TestFileUtil.createTestFolder(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER);
+        new File(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER).mkdir();
         assertThat(pipelineDir.listFiles().length, is(3));
 
         updateMaterials(materials, revision);
@@ -180,7 +183,7 @@ public class SvnMultipleMaterialsTest {
         testFile.createNewFile();
         assertThat(testFile.exists(), is(true));
         //simulates what a build will do
-        TestFileUtil.createTestFolder(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER);
+        new File(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER).mkdir();
         assertThat(pipelineDir.listFiles().length, is(2));
 
         updateMaterials(materials, revision);

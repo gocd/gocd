@@ -19,12 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -34,7 +29,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,13 +57,15 @@ public class RestfulServiceTest {
     @Autowired private StageDao stageDao;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private InstanceFactory instanceFactory;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper ;
 
     @Before
     public void setUp() throws Exception {
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(cruiseConfigDao);
         configHelper.onSetUp();
         dbHelper.onSetUp();

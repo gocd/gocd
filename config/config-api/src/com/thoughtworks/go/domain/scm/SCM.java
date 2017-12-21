@@ -1,18 +1,17 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.domain.scm;
@@ -34,14 +33,12 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.thoughtworks.go.util.ListUtil.join;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -217,7 +214,7 @@ public class SCM implements Serializable, Validatable {
             Map<String, String> mapValue = new HashMap<>();
             mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
+                mapValue.put(ERRORS_KEY, StringUtils.join(property.errors().getAll(), ", "));
             }
             configMap.put(property.getConfigKeyName(), mapValue);
         }
@@ -289,7 +286,7 @@ public class SCM implements Serializable, Validatable {
         List<String> list = new ArrayList<>();
         list.add(format("%s=%s", "plugin-id", getPluginId()));
         handleSCMProperties(list);
-        String fingerprint = join(list, AbstractMaterialConfig.FINGERPRINT_DELIMITER);
+        String fingerprint = StringUtils.join(list, AbstractMaterialConfig.FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
         return CachedDigestUtils.sha256Hex(fingerprint);
     }
@@ -327,7 +324,7 @@ public class SCM implements Serializable, Validatable {
 
     @PostConstruct
     public void ensureIdExists() {
-        if (StringUtil.isBlank(getId())) {
+        if (isBlank(getId())) {
             setId(UUID.randomUUID().toString());
         }
     }

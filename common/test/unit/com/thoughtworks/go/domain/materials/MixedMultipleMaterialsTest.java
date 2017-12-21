@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -29,11 +24,15 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -44,19 +43,21 @@ public class MixedMultipleMaterialsTest {
     private GitTestRepo gitRepo;
     private File pipelineDir;
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Before
     public void createRepo() throws IOException {
-        svnRepo = new SvnTestRepo();
-        hgRepo = new HgTestRepo();
-        gitRepo = new GitTestRepo();
-        pipelineDir = TestFileUtil.createTempFolder("working-dir-" + UUID.randomUUID());
+        svnRepo = new SvnTestRepo(temporaryFolder);
+        hgRepo = new HgTestRepo(temporaryFolder);
+        gitRepo = new GitTestRepo(temporaryFolder);
+        pipelineDir = temporaryFolder.newFolder();
     }
 
     @After
     public void cleanupRepo() {
         svnRepo.tearDown();
         hgRepo.tearDown();
-        FileUtils.deleteQuietly(pipelineDir);
     }
 
     @Test

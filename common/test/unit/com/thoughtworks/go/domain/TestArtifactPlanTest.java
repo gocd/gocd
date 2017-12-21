@@ -17,14 +17,15 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.internal.verification.Times;
 
@@ -37,12 +38,16 @@ import static org.mockito.Mockito.*;
 
 @RunWith(JMock.class)
 public class TestArtifactPlanTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private DefaultGoPublisher mockArtifactPublisher;
     private final Mockery context = new ClassMockery();
     private File rootPath;
 
     @Before
     public void setup() throws IOException {
+        temporaryFolder.create();
         mockArtifactPublisher = mock(DefaultGoPublisher.class);
         rootPath = new File("target/test");
         rootPath.mkdirs();
@@ -50,6 +55,7 @@ public class TestArtifactPlanTest {
 
     @After
     public void tearDown() {
+        temporaryFolder.delete();
         FileUtils.deleteQuietly(rootPath);
     }
 
@@ -65,8 +71,8 @@ public class TestArtifactPlanTest {
 
     @Test
     public void shouldNotThrowExceptionIfUserSpecifiesNonFolderFileThatExistsAsSrc() throws Exception {
-        final File nonFolderFileThatExists = TestFileUtil.createTestFile(TestFileUtil.createTempFolder("tempFolder"),
-                "nonFolderFileThatExists");
+        temporaryFolder.newFolder("tempFolder");
+        File nonFolderFileThatExists = temporaryFolder.newFile("tempFolder/nonFolderFileThatExists");
         final ArtifactPlan compositeTestArtifact = new ArtifactPlan(
                 new ArtifactPlan(ArtifactType.unit, nonFolderFileThatExists.getPath(), "testoutput")
         );

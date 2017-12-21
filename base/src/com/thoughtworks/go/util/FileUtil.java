@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
-import java.util.*;
+import java.util.Base64;
+import java.util.Stack;
+import java.util.StringTokenizer;
+import java.util.UUID;
 
 import static java.lang.System.getProperty;
 
@@ -67,7 +67,7 @@ public class FileUtil {
             return actualFileToUse;
         }
 
-        if (StringUtil.isBlank(baseDir.getPath())) {
+        if (StringUtils.isBlank(baseDir.getPath())) {
             return actualFileToUse;
         }
 
@@ -108,7 +108,7 @@ public class FileUtil {
     }
 
     public static String filesystemSafeFileHash(File folder) {
-        String hash = StringUtil.sha1Digest(folder.getAbsolutePath().getBytes());
+        String hash = Base64.getEncoder().encodeToString(DigestUtils.sha1(folder.getAbsolutePath().getBytes()));
         hash = hash.replaceAll("[^0-9a-zA-Z\\.\\-]", "");
         return hash;
     }
@@ -232,7 +232,7 @@ public class FileUtil {
     }
 
     public static String removeLeadingPath(String leading, String path) {
-        if (StringUtil.isBlank(leading)) {
+        if (StringUtils.isBlank(leading)) {
             return path;
         }
         return (path.startsWith(leading)) ? path.substring(leading.length()) : path;
@@ -276,16 +276,6 @@ public class FileUtil {
             throw new RuntimeException("FileUtil#createTempFolder - Could not create temp folder");
         }
         return dir;
-    }
-
-    public static void writeToFile(InputStream stream, File dest) throws IOException {
-        FileOutputStream fos = null;
-        try {
-            fos = FileUtils.openOutputStream(dest);
-            IOUtils.copy(stream, fos);
-        } finally {
-            IOUtils.closeQuietly(fos);
-        }
     }
 
     public static void tryDeleting(final File file) {
@@ -333,6 +323,15 @@ public class FileUtil {
             return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
         }
         return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
+    }
+
+    public static String sha1Digest(File file) {
+        try(InputStream is = new BufferedInputStream(new FileInputStream(file))){
+            byte[] hash = DigestUtils.sha1(is);
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (IOException e) {
+            throw ExceptionUtils.bomb(e);
+        }
     }
 }
 

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
 import com.thoughtworks.go.utils.CommandUtils;
@@ -410,7 +409,7 @@ public class CommandLine {
             throw new CommandLineException(this, result);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Output: \n" + ListUtil.join(result.outputForDisplay(), "\n"));
+            LOG.debug("Output: \n" + StringUtils.join(result.outputForDisplay(), "\n"));
         }
         return result;
     }

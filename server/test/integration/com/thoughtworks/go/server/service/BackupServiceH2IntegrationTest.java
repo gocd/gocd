@@ -95,7 +95,7 @@ public class BackupServiceH2IntegrationTest {
 
     private File backupsDirectory;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private byte[] originalCipher;
     private Username admin;
@@ -159,7 +159,7 @@ public class BackupServiceH2IntegrationTest {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(localizer), is("Backup completed successfully."));
 
-        String location = temporaryFolder.newFolder("foo").getAbsolutePath();
+        String location = temporaryFolder.newFolder().getAbsolutePath();
 
         Restore.execute(dbZip(), location, "cruise", false);
 

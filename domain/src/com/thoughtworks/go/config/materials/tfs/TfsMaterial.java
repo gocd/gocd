@@ -28,9 +28,9 @@ import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -104,7 +104,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     @Override
     public String getPassword() {
         try {
-            return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
@@ -270,7 +270,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     private void resetPassword(String passwordToSet) {
-        if (StringUtil.isBlank(passwordToSet)) {
+        if (StringUtils.isBlank(passwordToSet)) {
             encryptedPassword = null;
         }
 
@@ -278,7 +278,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             return;
         }
         try {

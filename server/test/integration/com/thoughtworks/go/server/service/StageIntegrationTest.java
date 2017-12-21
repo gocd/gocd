@@ -16,38 +16,28 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
@@ -69,6 +59,9 @@ public class StageIntegrationTest {
     @Autowired private StageDao stageDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private ScheduleHelper scheduleHelper;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private PipelineConfig mingle;
@@ -91,7 +84,7 @@ public class StageIntegrationTest {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
 
-        TestRepo svnTestRepo = new SvnTestRepo("testsvnrepo");
+        TestRepo svnTestRepo = new SvnTestRepo(temporaryFolder);
 
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");

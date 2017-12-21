@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -41,6 +40,7 @@ import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,9 +81,12 @@ public class JobInstanceStatusMonitorTest {
     private PipelineWithTwoStages fixture;
     private AgentStub agent;
 
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @BeforeClass
     public static void setupRepos() throws IOException {
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
     }
 
     @AfterClass
@@ -97,7 +100,7 @@ public class JobInstanceStatusMonitorTest {
         configHelper.onSetUp();
 
         dbHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());

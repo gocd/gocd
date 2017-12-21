@@ -26,7 +26,6 @@ import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.URLService;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
@@ -47,11 +46,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Predicate;
@@ -65,12 +63,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(JMock.class)
 public class SslInfrastructureServiceTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SslInfrastructureServiceTest.class);
     private final Mockery context = new ClassMockery();
     private SslInfrastructureService sslInfrastructureService;
-    private boolean remoteCalled;
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private GuidService guidService = new GuidService();
     private TokenService tokenService = new TokenService();
 
@@ -87,9 +83,9 @@ public class SslInfrastructureServiceTest {
 
     @Before
     public void setup() throws Exception {
+        temporaryFolder.create();
         initMocks(this);
 
-        remoteCalled = false;
         GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
         GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.deleteOnExit();
 
@@ -100,6 +96,7 @@ public class SslInfrastructureServiceTest {
 
     @After
     public void teardown() throws Exception {
+        temporaryFolder.delete();
         guidService.delete();
         tokenService.delete();
         GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
@@ -107,8 +104,8 @@ public class SslInfrastructureServiceTest {
 
     @Test
     public void shouldInvalidateKeystore() throws Exception {
-        folder.create();
-        File configFile = folder.newFile();
+        temporaryFolder.create();
+        File configFile = temporaryFolder.newFile();
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), 200, null));
         when(httpResponse.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
 
@@ -192,20 +189,20 @@ public class SslInfrastructureServiceTest {
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {
-        return ListUtil.find(nameValuePairs, new Predicate<NameValuePair>() {
+        return nameValuePairs.stream().filter(new Predicate<NameValuePair>() {
             @Override
             public boolean test(NameValuePair nameValuePair) {
                 return nameValuePair.getName().equals(paramName);
             }
-        });
+        }).findFirst().orElse(null);
     }
 
     private void shouldCreateSslInfrastructure() throws Exception {
         sslInfrastructureService.createSslInfrastructure();
     }
 
-    private Registration createRegistration() {
-        Registration certificates = AgentCertificateMother.agentCertificate();
+    private Registration createRegistration() throws IOException {
+        Registration certificates = AgentCertificateMother.agentCertificate(temporaryFolder);
         return new Registration(certificates.getPrivateKey(), certificates.getChain());
     }
 }

@@ -22,15 +22,15 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -58,6 +58,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class SvnCommandTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     public static SvnTestRepo testRepo;
     protected static final DotSvnIgnoringFilter DOT_SVN_IGNORING_FILTER = new DotSvnIgnoringFilter();
 
@@ -86,24 +89,25 @@ public class SvnCommandTest {
 
     @Before
     public void setup() throws IOException {
-        testRepo = new SvnTestRepo();
+        temporaryFolder.create();
+        testRepo = new SvnTestRepo(temporaryFolder);
         svnRepositoryUrl = testRepo.projectRepositoryUrl();
         subversion = new SvnCommand(null, svnRepositoryUrl, "user", "pass", false);
         outputStreamConsumer = inMemoryConsumer();
-        checkoutFolder = TestFileUtil.createUniqueTempFile("workingcopy" + System.currentTimeMillis());
+        checkoutFolder = temporaryFolder.newFolder("workingcopy");
     }
 
     @After
     public void teardown() {
         testRepo.tearDown();
-        FileUtils.deleteQuietly(checkoutFolder);
+        temporaryFolder.delete();
     }
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldRecogniseSvnAsTheSameIfURLContainsSpaces() throws Exception {
-        File working = TestFileUtil.createTempFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
-        SvnTestRepo repo = new SvnTestRepo("a directory with spaces");
+        File working = temporaryFolder.newFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
+        SvnTestRepo repo = new SvnTestRepo(temporaryFolder, "a directory with spaces");
         SvnMaterial material = repo.material();
         assertThat(material.getUrl(), containsString("%20"));
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
@@ -119,8 +123,8 @@ public class SvnCommandTest {
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldRecogniseSvnAsTheSameIfURLUsesFileProtocol() throws Exception {
-        SvnTestRepo repo = new SvnTestRepo("svnRepo");
-        File working = TestFileUtil.createTempFolder("someDir");
+        SvnTestRepo repo = new SvnTestRepo(temporaryFolder);
+        File working = temporaryFolder.newFolder("someDir");
         SvnMaterial material = repo.material();
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         material.freshCheckout(output, new SubversionRevision("3"), working);
@@ -140,8 +144,8 @@ public class SvnCommandTest {
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldRecogniseSvnAsTheSameIfURLContainsChineseCharacters() throws Exception {
-        File working = TestFileUtil.createTempFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
-        SvnTestRepo repo = new SvnTestRepo("a directory with 司徒空在此");
+        File working = temporaryFolder.newFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
+        SvnTestRepo repo = new SvnTestRepo(temporaryFolder, "a directory with 司徒空在此");
         SvnMaterial material = repo.material();
         assertThat(material.getUrl(), containsString("%20"));
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();

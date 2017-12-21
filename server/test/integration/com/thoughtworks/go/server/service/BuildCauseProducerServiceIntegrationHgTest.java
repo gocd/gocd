@@ -27,16 +27,20 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -76,16 +81,18 @@ public class BuildCauseProducerServiceIntegrationHgTest {
     private HgMaterial hgMaterial;
     private File workingFolder;
     PipelineConfig mingleConfig;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
-        hgTestRepo = new HgTestRepo("hgTestRepo1");
+        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         hgMaterial.setFilter(new Filter(new IgnoredFiles("helper/**/*.*")));
-        workingFolder = TestFileUtil.createTempFolder("workingFolder");
+        workingFolder = temporaryFolder.newFolder("workingFolder");
         outputStreamConsumer = inMemoryConsumer();
         mingleConfig = configHelper.addPipeline("cruise", STAGE_NAME, this.hgMaterial.config(), "unit", "functional");
     }
@@ -136,7 +143,7 @@ public class BuildCauseProducerServiceIntegrationHgTest {
     private void checkInFiles(String... files) throws Exception {
         for (String fileName : files) {
             File file = new File(workingFolder, fileName);
-            FileUtils.writeStringToFile(file, "bla");
+            FileUtils.writeStringToFile(file, "bla", UTF_8);
             hgMaterial.add(workingFolder, outputStreamConsumer, file);
         }
         hgMaterial.commit(workingFolder, outputStreamConsumer, "comment ", "user");

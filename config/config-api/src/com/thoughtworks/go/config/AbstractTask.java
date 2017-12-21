@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.service.TaskFactory;
-import com.thoughtworks.go.util.ArrayUtil;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTask implements Task  {
     @ConfigSubtag(label = "RunIfs")
@@ -53,8 +54,14 @@ public abstract class AbstractTask implements Task  {
         if (runIfConfigs.isEmpty()) {
             return StringUtils.capitalize(RunIfConfig.PASSED.toString());
         }
-        Object[] conditions = ArrayUtil.capitalizeContents(runIfConfigs.toArray());
-        return ArrayUtil.join(conditions, ", ");
+        List<String> capitalized = runIfConfigs.stream().map(new Function<RunIfConfig, String>() {
+            @Override
+            public String apply(RunIfConfig f) {
+                return StringUtils.capitalize(f.toString());
+            }
+        }).collect(Collectors.toList());
+
+        return StringUtils.join(capitalized, ", ");
     }
 
     public Task cancelTask() {

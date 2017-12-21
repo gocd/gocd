@@ -35,7 +35,9 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -68,6 +70,8 @@ public class StageNotificationServiceIntegrationTest {
     @Autowired private StageResultTopic stageResultTopic;
     @Autowired private ServerConfigService serverConfigService;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private ShineDao shineDao;
     private PipelineWithTwoStages pipelineFixture;
@@ -92,7 +96,7 @@ public class StageNotificationServiceIntegrationTest {
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         configFileHelper.enableSecurity();
 

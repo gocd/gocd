@@ -16,12 +16,10 @@
 
 package com.thoughtworks.go.fixture;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.UUID;
-
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -40,11 +38,16 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -54,7 +57,6 @@ import static com.thoughtworks.go.utils.CommandUtils.exec;
 
 public class PipelineWithTwoStages implements PreCondition {
     private SvnCommand svnClient;
-
     public String groupName = PipelineConfigs.DEFAULT_GROUP;
     public final String pipelineName;
     public final String devStage = "dev";
@@ -71,10 +73,12 @@ public class PipelineWithTwoStages implements PreCondition {
     protected final TransactionTemplate transactionTemplate;
     public static final String DEV_STAGE_SECOND_JOB = "foo2";
     public static final String DEV_STAGE_THIRD_JOB = "foo3";
+    private final TemporaryFolder temporaryFolder;
 
-    public PipelineWithTwoStages(MaterialRepository materialRepository, TransactionTemplate transactionTemplate) {
+    public PipelineWithTwoStages(MaterialRepository materialRepository, TransactionTemplate transactionTemplate, TemporaryFolder temporaryFolder) {
         this.materialRepository = materialRepository;
         this.transactionTemplate = transactionTemplate;
+        this.temporaryFolder = temporaryFolder;
         this.pipelineName = "pipeline_" + UUID.randomUUID();
     }
 
@@ -114,7 +118,7 @@ public class PipelineWithTwoStages implements PreCondition {
     }
 
     public void addToSetup() throws Exception {
-        TestRepo svnTestRepo = new SvnTestRepo("testsvnrepo");
+        TestRepo svnTestRepo = new SvnTestRepo(temporaryFolder);
         svnClient = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
 
 
@@ -236,7 +240,7 @@ public class PipelineWithTwoStages implements PreCondition {
         dbHelper.completeStage(ft, result);
     }
 
-    public void createNewCheckin() {
+    public void createNewCheckin() throws IOException {
         ensureWorkingCopyExist();
         String fileName = "readme" + UUID.randomUUID() + ".txt";
         File newFile = new File(workingFolder, fileName);
@@ -250,9 +254,9 @@ public class PipelineWithTwoStages implements PreCondition {
         }
     }
 
-    private void ensureWorkingCopyExist() {
+    private void ensureWorkingCopyExist() throws IOException {
         if (workingFolder == null || !workingFolder.exists()) {
-            workingFolder = TestFileUtil.createTempFolder("svnTestWorkingCopy");
+            workingFolder = temporaryFolder.newFolder();
             svnClient.checkoutTo(inMemoryConsumer(), workingFolder, SubversionRevision.HEAD);
         }
     }

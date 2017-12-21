@@ -1,24 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -87,7 +86,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
     protected String inferValueFromMap(Map attributeMap, String key) {
         String value = null;
-        if (attributeMap.containsKey(key) && !StringUtil.isBlank((String) attributeMap.get(key))) {
+        if (attributeMap.containsKey(key) && !StringUtils.isBlank((String) attributeMap.get(key))) {
             value = (String) attributeMap.get(key);
         }
         return value;
@@ -149,13 +148,13 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<>();
-        if (!StringUtil.isBlank(buildFile)) {
+        if (!StringUtils.isBlank(buildFile)) {
             taskProperties.add(new TaskProperty(BUILD_FILE, buildFile));
         }
-        if (!StringUtil.isBlank(target)) {
+        if (!StringUtils.isBlank(target)) {
             taskProperties.add(new TaskProperty(TARGET, target));
         }
-        if (!StringUtil.isBlank(workingDirectory)) {
+        if (!StringUtils.isBlank(workingDirectory)) {
             taskProperties.add(new TaskProperty(WORKING_DIRECTORY, workingDirectory));
         }
         return taskProperties;

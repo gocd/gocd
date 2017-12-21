@@ -839,12 +839,12 @@ public class MaterialRepository extends HibernateDaoSupport {
         List<String> matchingRevisionsFromDb = getHibernateTemplate().findByCriteria(criteria);
         if (!matchingRevisionsFromDb.isEmpty()) {
             for (final String revision : matchingRevisionsFromDb) {
-                Modification modification = ListUtil.find(list, new ListUtil.Condition() {
+                Modification modification = list.stream().filter(new java.util.function.Predicate<Modification>() {
                     @Override
-                    public <T> boolean isMet(T item) {
-                        return ((Modification) item).getRevision().equals(revision);
+                    public boolean test(Modification item) {
+                        return item.getRevision().equals(revision);
                     }
-                });
+                }).findFirst().orElse(null);
                 list.remove(modification);
             }
         }

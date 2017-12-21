@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -44,6 +43,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class Jetty9ServerTest {
     private Server server;
     private SystemEnvironment systemEnvironment;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File configDir;
 
     @Before
@@ -266,7 +267,7 @@ public class Jetty9ServerTest {
         Handler handler = handlerCollection.getHandlers()[2];
         assertThat(handler instanceof WebAppContext, is(true));
         WebAppContext webAppContext = (WebAppContext) handler;
-        List<String> configClasses = ArrayUtil.asList(webAppContext.getConfigurationClasses());
+        List<String> configClasses = new ArrayList<>(Arrays.asList(webAppContext.getConfigurationClasses()));
         assertThat(configClasses.contains(WebInfConfiguration.class.getCanonicalName()), is(true));
         assertThat(configClasses.contains(WebXmlConfiguration.class.getCanonicalName()), is(true));
         assertThat(configClasses.contains(JettyWebXmlConfiguration.class.getCanonicalName()), is(true));

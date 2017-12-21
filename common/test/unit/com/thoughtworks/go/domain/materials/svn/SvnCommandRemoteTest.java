@@ -19,7 +19,6 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.helper.SvnRemoteRepository;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -27,13 +26,16 @@ import org.hamcrest.core.Is;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -45,21 +47,22 @@ public class SvnCommandRemoteTest {
     public SvnCommand command;
     public File workingDir;
     private InMemoryStreamConsumer outputStreamConsumer;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void startRepo() throws Exception {
-        repository = new SvnRemoteRepository();
+        repository = new SvnRemoteRepository(temporaryFolder);
         repository.addUser(HARRY, HARRYS_PASSWORD);
         repository.start();
         command = new SvnCommand(null, repository.getUrl(), HARRY, HARRYS_PASSWORD, true);
-        workingDir = TestFileUtil.createTempFolder("workingDir" + System.currentTimeMillis());
+        workingDir = temporaryFolder.newFolder();
         outputStreamConsumer = inMemoryConsumer();
     }
 
     @After
     public void stopRepo() throws Exception {
         if (repository!=null) repository.stop();
-        FileUtils.deleteQuietly(workingDir);
     }
 
     @Test public void shouldSupportSvnInfo() throws Exception {
@@ -295,7 +298,7 @@ public class SvnCommandRemoteTest {
     public void shouldMaskPassword_commit() throws IOException {
         command.checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
         File newFile = new File(workingDir.getAbsolutePath() + "/foo");
-        FileUtils.writeStringToFile(newFile, "content");
+        FileUtils.writeStringToFile(newFile, "content", UTF_8);
         command.add(outputStreamConsumer, newFile);
 
         try {

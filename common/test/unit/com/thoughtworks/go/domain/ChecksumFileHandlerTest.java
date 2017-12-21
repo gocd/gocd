@@ -1,33 +1,33 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
 
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -38,14 +38,12 @@ public class ChecksumFileHandlerTest {
     private File file;
     private ChecksumFileHandler checksumFileHandler;
 
-    @Before public void setUp() throws Exception {
-        file = TestFileUtil.createUniqueTempFile("foo");
-        checksumFileHandler = new ChecksumFileHandler(file);
-    }
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @After
-    public void tearDown() {
-        FileUtil.tryDeleting(file);
+    @Before public void setUp() throws Exception {
+        file = temporaryFolder.newFile();
+        checksumFileHandler = new ChecksumFileHandler(file);
     }
 
     @Test
@@ -53,11 +51,11 @@ public class ChecksumFileHandlerTest {
         String url = checksumFileHandler.url("http://foo/go", "cruise/1/stage/1/job");
         assertThat(url, is("http://foo/go/remoting/files/cruise/1/stage/1/job/cruise-output/md5.checksum"));
     }
-    
+
     @Test
     public void shouldStoreTheMd5ChecksumOnTheAgent() throws IOException {
         checksumFileHandler.handle(new ByteArrayInputStream("Hello World".getBytes()));
-        assertThat(FileUtils.readFileToString(file), is("Hello World"));
+        assertThat(FileUtils.readFileToString(file, UTF_8), is("Hello World"));
     }
 
     @Test
@@ -105,7 +103,7 @@ public class ChecksumFileHandlerTest {
         StubGoPublisher goPublisher = new StubGoPublisher();
         assertThat(checksumFileHandler.handleResult(HttpServletResponse.SC_FORBIDDEN, goPublisher), is(false));
     }
-    
+
     @Test
     public void shouldGetArtifactMd5Checksum() throws IOException {
         checksumFileHandler.handle(new ByteArrayInputStream("Hello!!!1".getBytes()));
@@ -115,6 +113,7 @@ public class ChecksumFileHandlerTest {
 
     @Test
     public void shouldReturnNullArtifactMd5ChecksumIfFileDoesNotExist() {
+        file.delete();
         assertThat(checksumFileHandler.getArtifactMd5Checksums(), is(nullValue()));
     }
 

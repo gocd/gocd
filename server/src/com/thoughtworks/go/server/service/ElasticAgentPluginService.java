@@ -36,8 +36,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.Filter;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +46,9 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class ElasticAgentPluginService implements JobStatusListener {
@@ -102,12 +103,12 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
         if (!elasticAgentsOfMissingPlugins.isEmpty()) {
             for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
-                Collection<String> uuids = ListUtil.map(elasticAgentsOfMissingPlugins.get(pluginId), new ListUtil.Transformer<ElasticAgentMetadata, String>() {
+                Collection<String> uuids = elasticAgentsOfMissingPlugins.get(pluginId).stream().map(new Function<ElasticAgentMetadata, String>() {
                     @Override
-                    public String transform(ElasticAgentMetadata input) {
+                    public String apply(ElasticAgentMetadata input) {
                         return input.uuid();
                     }
-                });
+                }).collect(Collectors.toList());
                 String description = String.format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
                 serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, HealthStateType.general(scope(pluginId))));
                 LOGGER.warn(description);
@@ -141,7 +142,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 
-        ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<>(), jobsThatRequireAgent, isElasticAgent());
+        List<JobPlan> plansThatRequireElasticAgent = jobsThatRequireAgent.stream().filter(isElasticAgent()).collect(Collectors.toList());
 //      messageTimeToLive is lesser than the starvation threshold to ensure there are no duplicate create agent message
         long messageTimeToLive = goConfigService.elasticJobStarvationThreshold() - 10000;
 
@@ -163,10 +164,10 @@ public class ElasticAgentPluginService implements JobStatusListener {
         }
     }
 
-    private Filter<JobPlan> isElasticAgent() {
-        return new Filter<JobPlan>() {
+    private Predicate<JobPlan> isElasticAgent() {
+        return new Predicate<JobPlan>() {
             @Override
-            public boolean matches(JobPlan input) {
+            public boolean test(JobPlan input) {
                 return input.requiresElasticAgent();
             }
         };

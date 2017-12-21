@@ -21,9 +21,9 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.*;
@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.domain.materials.ModifiedAction.parseGitAction;
 import static com.thoughtworks.go.util.DateUtils.formatRFC822;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ListUtil.join;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class GitCommand extends SCMCommand {
@@ -52,7 +51,7 @@ public class GitCommand extends SCMCommand {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.secrets = secrets != null ? secrets : new ArrayList<>();
-        this.branch = StringUtil.isBlank(branch)? GitMaterialConfig.DEFAULT_BRANCH : branch ;
+        this.branch = StringUtils.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch ;
         this.isSubmodule = isSubmodule;
         this.environment = environment;
     }
@@ -396,7 +395,7 @@ public class GitCommand extends SCMCommand {
             if (!m.find()) {
                 bomb("Unable to parse git-submodule output line: " + submoduleLine + "\n"
                         + "From output:\n"
-                        + join(submoduleLines, "\n"));
+                        + StringUtils.join(submoduleLines, "\n"));
             }
             submoduleFolders.add(m.group(1));
         }
@@ -415,7 +414,7 @@ public class GitCommand extends SCMCommand {
             if (!m.find()) {
                 bomb("Unable to parse git-config output line: " + result.replaceSecretInfo(submoduleLine) + "\n"
                         + "From output:\n"
-                        + result.replaceSecretInfo(join(submoduleList, "\n")));
+                        + result.replaceSecretInfo(StringUtils.join(submoduleList, "\n")));
             }
             submoduleUrls.put(m.group(1), m.group(2));
         }

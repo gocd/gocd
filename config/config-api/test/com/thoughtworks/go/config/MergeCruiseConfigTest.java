@@ -28,15 +28,11 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.PartialConfigMother.createRepoOrigin;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -74,7 +70,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         BasicEnvironmentConfig environment2InRepo2 = EnvironmentConfigMother.environment("environment2_in_repo2");
         environment2InRepo2.setOrigins(configOrigin);
         partialConfigInRepo2.getEnvironments().add(environment2InRepo2);
-        cruiseConfig.merge(asList(partialConfigInRepo2, partialConfigInRepo1), false);
+        cruiseConfig.merge(new ArrayList<>(Arrays.asList(partialConfigInRepo2, partialConfigInRepo1)), false);
         assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment")),is(true));
         assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment2_in_repo2")),is(true));
     }

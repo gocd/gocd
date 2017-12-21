@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -56,7 +56,7 @@ public class P4MaterialUpdater {
     }
 
     private BuildCommand loginIfUsingTickets() {
-       if (material.getUseTickets() && !StringUtil.isBlank(material.getPassword())) {
+        if (material.getUseTickets() && !StringUtils.isBlank(material.getPassword())) {
            return exec("p4", "login").setExecInput(material.getPassword()).setCommandEnvVars(envVars());
        } else {
            return noop();
@@ -67,10 +67,10 @@ public class P4MaterialUpdater {
         Map<String, String> env = new HashMap<>();
         env.put("P4PORT", material.getServerAndPort());
         env.put("P4CLIENT", clientName);
-        if (!StringUtil.isBlank(material.getUserName())) {
+        if (!StringUtils.isBlank(material.getUserName())) {
             env.put("P4USER", material.getUserName());
         }
-        if (!material.getUseTickets() && !StringUtil.isBlank(material.getPassword())) {
+        if (!material.getUseTickets() && !StringUtils.isBlank(material.getPassword())) {
             env.put("P4PASSWD", material.getPassword());
         }
         return env;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.MapUtil;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class JobAgentMetadata extends PersistentObject {
     private Long jobId;
@@ -50,12 +50,12 @@ public class JobAgentMetadata extends PersistentObject {
         String id = (String) map.get("id");
         Map<String, String> properties = (Map<String, String>) map.get("properties");
 
-        Collection<ConfigurationProperty> configProperties = MapUtil.collect(properties, new ListUtil.Transformer<Map.Entry<String, String>, ConfigurationProperty>() {
+        Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(new Function<Map.Entry<String, String>, ConfigurationProperty>() {
             @Override
-            public ConfigurationProperty transform(Map.Entry<String, String> entry) {
+            public ConfigurationProperty apply(Map.Entry<String, String> entry) {
                 return new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()));
             }
-        });
+        }).collect(Collectors.toList());
 
         return new ElasticProfile(id, pluginId, configProperties);
     }

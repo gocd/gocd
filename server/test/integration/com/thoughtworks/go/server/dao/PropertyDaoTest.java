@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.helper.PipelineMother;
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
@@ -34,7 +35,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.sql.SQLException;
 import java.util.*;
 
-import static com.thoughtworks.go.util.ListUtil.join;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -225,7 +225,7 @@ public class PropertyDaoTest {
             }
 
             public void describeTo(Description description) {
-                description.appendText("contains [").appendText(join(missingProps)).appendText("]");
+                description.appendText("contains [").appendText(StringUtils.join(missingProps, ", ")).appendText("]");
             }
         };
     }

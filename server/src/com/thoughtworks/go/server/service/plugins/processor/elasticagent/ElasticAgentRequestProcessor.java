@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +37,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
 import static com.thoughtworks.go.server.service.ElasticAgentPluginService.toAgentMetadata;
@@ -93,12 +94,12 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
+            metadata = elasticAgents.stream().map(new Function<ElasticAgentMetadata, AgentMetadata>() {
                 @Override
-                public AgentMetadata transform(ElasticAgentMetadata obj) {
+                public AgentMetadata apply(ElasticAgentMetadata obj) {
                     return toAgentMetadata(obj);
                 }
-            });
+            }).collect(Collectors.toList());
         }
 
         String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(metadata);
@@ -138,12 +139,12 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
     private Collection<AgentInstance> getAgentInstances(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
 
-        return ListUtil.map(agents, new ListUtil.Transformer<AgentMetadata, AgentInstance>() {
+        return agents.stream().map(new Function<AgentMetadata, AgentInstance>() {
             @Override
-            public AgentInstance transform(AgentMetadata input) {
+            public AgentInstance apply(AgentMetadata input) {
                 return agentService.findElasticAgent(input.elasticAgentId(), pluginDescriptor.id());
             }
-        });
+        }).collect(Collectors.toList());
     }
 
 }

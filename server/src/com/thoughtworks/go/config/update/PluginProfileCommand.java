@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,9 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
-
-import static com.thoughtworks.go.util.StringUtil.isBlank;
 
 abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
     protected final GoConfigService goConfigService;
@@ -93,7 +92,7 @@ abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginPro
     }
 
     protected final T findExistingProfile(CruiseConfig cruiseConfig) {
-        if (profile == null || isBlank(profile.getId())) {
+        if (profile == null || StringUtils.isBlank(profile.getId())) {
             if (profile != null) {
                 profile.addError("id", getObjectDescriptor() + " cannot have a blank id.");
             }

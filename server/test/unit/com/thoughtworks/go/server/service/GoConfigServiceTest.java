@@ -45,19 +45,17 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.BaseMatcher;
+import org.apache.commons.lang.SystemUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
 import org.jdom2.input.JDOMParseException;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -489,7 +487,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldThrowIfCruiseHasNoReadPermissionOnArtifactsDir() throws Exception {
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             return;
         }
 
@@ -511,7 +509,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldThrowIfCruiseHasNoWritePermissionOnArtifactsDir() throws Exception {
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             return;
         }
         File artifactsDir = FileUtil.createTempFolder();

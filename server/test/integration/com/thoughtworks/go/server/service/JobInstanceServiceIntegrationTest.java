@@ -38,7 +38,9 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -99,6 +101,8 @@ public class JobInstanceServiceIntegrationTest {
     private StageDao stageDao;
     @Autowired
     private InstanceFactory instanceFactory;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithTwoStages pipelineFixture;
@@ -107,7 +111,7 @@ public class JobInstanceServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

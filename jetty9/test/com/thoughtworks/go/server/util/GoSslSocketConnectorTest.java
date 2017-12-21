@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.server.config.GoSSLConfig;
-import com.thoughtworks.go.util.ArrayUtil;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -29,8 +27,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 public class GoSslSocketConnectorTest {
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public final TemporaryFolder folder = new TemporaryFolder();
     private File truststore;
     private File keystore;
     private GoSslSocketConnector sslSocketConnector;
@@ -90,7 +91,7 @@ public class GoSslSocketConnectorTest {
         Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
         SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
 
-        List<String> includedCipherSuites = ArrayUtil.asList(sslContextFactory.getIncludeCipherSuites());
+        List<String> includedCipherSuites = new ArrayList<>(Arrays.asList(sslContextFactory.getIncludeCipherSuites()));
         assertThat(includedCipherSuites.size(), is(1));
         assertThat(includedCipherSuites.contains("FOO"), is(true));
     }
@@ -124,11 +125,11 @@ public class GoSslSocketConnectorTest {
     }
 
     private ConnectionFactory getConnectionFactoryOfType(Collection<ConnectionFactory> connectionFactories, final Class<?> aClass) {
-        return ListUtil.find(connectionFactories, new ListUtil.Condition() {
+        return connectionFactories.stream().filter(new Predicate<ConnectionFactory>() {
             @Override
-            public <T> boolean isMet(T item) {
+            public boolean test(ConnectionFactory item) {
                 return aClass.isInstance(item);
             }
-        });
+        }).findFirst().orElse(null);
     }
 }

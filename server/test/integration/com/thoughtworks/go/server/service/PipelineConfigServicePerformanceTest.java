@@ -27,6 +27,7 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
@@ -118,7 +119,7 @@ public class PipelineConfigServicePerformanceTest {
                 results.put(Thread.currentThread().getName(), result.isSuccessful());
                 if (!result.isSuccessful()) {
                     LOGGER.error(result.toString());
-                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
                 }
             }
         }, numberOfRequests, results);
@@ -139,7 +140,7 @@ public class PipelineConfigServicePerformanceTest {
                 results.put(Thread.currentThread().getName(), result.isSuccessful());
                 if (!result.isSuccessful()) {
                     LOGGER.error(result.toString());
-                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
                 }
             }
         }, numberOfRequests, results);
@@ -161,7 +162,7 @@ public class PipelineConfigServicePerformanceTest {
                 results.put(Thread.currentThread().getName(), result.isSuccessful());
                 if (!result.isSuccessful()) {
                     LOGGER.error(result.toString());
-                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
                 }
             }
         }, numberOfRequests, results);

@@ -54,7 +54,7 @@ import static org.mockito.Mockito.*;
 public class ArtifactsPublisherTest {
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     private static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");

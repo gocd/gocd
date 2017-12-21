@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -39,14 +34,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineGroupModel;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -63,18 +51,24 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TimeConverter;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
@@ -90,6 +84,9 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class PipelineHistoryServiceIntegrationTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -116,9 +113,9 @@ public class PipelineHistoryServiceIntegrationTest {
     public void setUp() throws Exception {
         goCache.clear();
 
-        pipelineOne = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);
+        pipelineOne = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
         pipelineOne.setGroupName("group1");
-        pipelineTwo = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        pipelineTwo = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         pipelineTwo.setGroupName("group2");
 
         diskIsFull = new ArtifactsDiskIsFull();
@@ -358,7 +355,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldMakePipelineInstanceCanRunFalseWhenDiskSpaceIsEmpty() throws Exception {
         diskIsFull.onSetUp();
-        configHelper.updateArtifactRoot(TestFileUtil.createTempFolder("serverlogs").getAbsolutePath());
+        configHelper.updateArtifactRoot(temporaryFolder.newFolder("serverlogs").getAbsolutePath());
         pipelineOne.createdPipelineWithAllStagesPassed();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
                 Pagination.pageStartingAt(0, 1, 10),

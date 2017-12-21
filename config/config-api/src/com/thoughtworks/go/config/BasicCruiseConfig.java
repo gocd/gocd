@@ -38,6 +38,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -1400,7 +1401,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void savePackageRepository(final PackageRepository packageRepository) {
         packageRepository.clearEmptyConfigurations();
-        if (StringUtil.isBlank(packageRepository.getRepoId())) {
+        if (StringUtils.isBlank(packageRepository.getRepoId())) {
             packageRepository.setId(UUID.randomUUID().toString());
         }
         PackageRepository existingPackageRepository = packageRepositories.find(packageRepository.getRepoId());

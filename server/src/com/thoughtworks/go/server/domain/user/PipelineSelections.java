@@ -16,17 +16,18 @@
 
 package com.thoughtworks.go.server.domain.user;
 
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.Serializable;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.domain.PersistentObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
 
@@ -104,11 +105,11 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
 
     public String getSelections() {
-        return ListUtil.join(pipelineList(), ",");
+        return StringUtils.join(pipelineList(), ",");
     }
 
     private void setSelections(String unselectedPipelines) {
-        this.pipelines = ListUtil.split(unselectedPipelines, ",");
+        this.pipelines = Arrays.asList(StringUtils.split(unselectedPipelines, ","));
         List<CaseInsensitiveString> pipelineList = new ArrayList<>();
         for (String pipeline : pipelines) {
             pipelineList.add(new CaseInsensitiveString(pipeline));
@@ -159,6 +160,6 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
     private void updateSelections(List<String> selections) {
-        this.setSelections(ListUtil.join(selections, ","));
+        this.setSelections(StringUtils.join(selections, ","));
     }
 }

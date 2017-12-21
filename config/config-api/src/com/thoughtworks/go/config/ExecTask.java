@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
-import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.utils.CommandUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     @Override
     public String describe() {
         if (null != argList && !argList.isEmpty()) {
-            return CommandUtils.shellJoin(ArrayUtil.pushToArray(command, argList.toStringArray()));
+            return CommandUtils.shellJoin((String[]) ArrayUtils.add(argList.toStringArray(), 0, command));
         }
 
         if (null != args && !"".equals(args)) {
@@ -103,7 +103,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         if (attributeMap.containsKey(ARG_LIST_STRING)) {
             clearCurrentArgsAndArgList();
             String value = (String) attributeMap.get(ARG_LIST_STRING);
-            if (!StringUtil.isBlank(value)) {
+            if (!StringUtils.isBlank(value)) {
                 String[] arguments = value.split("\n");
                 for (String arg : arguments) {
                     argList.add(new Argument(arg));
@@ -129,13 +129,13 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
     public void setArgs(String val) {
         clearCurrentArgsAndArgList();
-        if (!StringUtil.isBlank(val)) {
+        if (!StringUtils.isBlank(val)) {
             this.args = val;
         }
     }
 
     public void setWorkingDirectory(String newWorkingDir) {
-        workingDirectory = StringUtil.isBlank(newWorkingDir) ? null : newWorkingDir;
+        workingDirectory = StringUtils.isBlank(newWorkingDir) ? null : newWorkingDir;
     }
 
     private void clearCurrentArgsAndArgList() {
@@ -169,7 +169,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     private void validateCommand() {
-        if (StringUtil.isBlank(command)) {
+        if (StringUtils.isBlank(command)) {
             errors.add(COMMAND, "Command cannot be empty");
         }
     }

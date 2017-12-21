@@ -23,6 +23,7 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,7 +56,7 @@ public class CommandLineTest {
     private static final String ARG_SPACES = "arg3=value for 3";
     private File subFolder;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
@@ -323,7 +324,7 @@ public class CommandLineTest {
 
     @Test
     public void shouldReturnEchoResult() throws Exception {
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             ConsoleResult result = CommandLine.createCommandLine("cmd").runOrBomb(null);
             assertThat(result.outputAsString(), containsString("Windows"));
         } else {

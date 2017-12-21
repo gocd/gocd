@@ -1,29 +1,32 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.zip.Deflater;
 
 import static java.lang.String.format;
@@ -38,11 +41,13 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
 
     @Before
     public void setUp() throws Exception {
-        File folder = TestFileUtil.createTempFolder("log");
+        File folder = temporaryFolder.newFolder("log");
         File consolelog = new File(folder, "console.log");
         folder.mkdirs();
         consolelog.createNewFile();
-        zip = new ZipUtil().zip(folder, TestFileUtil.createUniqueTempFile(folder.getName()), Deflater.NO_COMPRESSION);
+        File uniqueTempFile = new File(folder, UUID.randomUUID().toString());
+        uniqueTempFile.createNewFile();
+        zip = new ZipUtil().zip(folder, uniqueTempFile, Deflater.NO_COMPRESSION);
     }
 
 
@@ -100,7 +105,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
         File artifactOnAgent = new File(sandbox, "pipelines/cruise/foo/a.jar");
         new File(sandbox, "pipelines/cruise/foo").mkdirs();
         FileUtils.writeStringToFile(artifactOnAgent, "foobar", UTF_8);
-        String sha1 = java.net.URLEncoder.encode(StringUtil.sha1Digest(artifactOnAgent), "UTF-8");
+        String sha1 = java.net.URLEncoder.encode(FileUtil.sha1Digest(artifactOnAgent), "UTF-8");
 
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "content for url without sha1");
 

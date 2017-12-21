@@ -38,6 +38,7 @@ import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.lang.System.getProperty;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -202,8 +203,8 @@ public class AgentProcessParentImplTest {
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
         int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode, is(42));
-        assertThat(FileUtils.readFileToString(stderrLog).contains(stdErrMsg), is(true));
-        assertThat(FileUtils.readFileToString(stdoutLog).contains(stdOutMsg), is(true));
+        assertThat(FileUtils.readFileToString(stderrLog, UTF_8).contains(stdErrMsg), is(true));
+        assertThat(FileUtils.readFileToString(stdoutLog, UTF_8).contains(stdOutMsg), is(true));
     }
 
     @Test

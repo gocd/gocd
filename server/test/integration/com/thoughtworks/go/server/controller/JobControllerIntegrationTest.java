@@ -36,7 +36,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -95,6 +97,8 @@ public class JobControllerIntegrationTest {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GoConfigFileHelper configHelper;
     private PipelineWithTwoStages fixture;
@@ -105,7 +109,7 @@ public class JobControllerIntegrationTest {
         response = new MockHttpServletResponse();
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
                 goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, jobAgentMetadataDao);

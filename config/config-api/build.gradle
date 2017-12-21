@@ -20,7 +20,7 @@ dependencies {
   compile project(':plugin-metadata-store')
   compile project(':go-plugin-domain')
   compile project(':db')
-  compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+  compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
   compile group: 'org.quartz-scheduler', name: 'quartz', version: '1.6.5'
   compile group: 'uk.com.robust-it', name: 'cloning', version: '1.7.3'

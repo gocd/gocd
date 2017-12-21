@@ -43,7 +43,7 @@ module ApiV3
           end
 
           def args
-            return nil if com.thoughtworks.go.util.StringUtil.isBlank(task.getArgs)
+            return if task.getArgs.blank?
             task.getArgs
           end
 

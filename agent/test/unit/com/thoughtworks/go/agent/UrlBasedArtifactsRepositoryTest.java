@@ -1,32 +1,30 @@
-/*************************** GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * ************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.helper.TestStreamConsumer;
-import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -38,17 +36,16 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedUploadingFailure;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UrlBasedArtifactsRepositoryTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
     private HttpService httpService;
@@ -59,8 +56,8 @@ public class UrlBasedArtifactsRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
-        artifactFolder = TestFileUtil.createTempFolder("artifact_folder");
-        tempFile = TestFileUtil.createTestFile(artifactFolder, "file.txt");
+        artifactFolder = temporaryFolder.newFolder("artifact_folder");
+        tempFile = temporaryFolder.newFile("artifact_folder/file.txt");
         console = new TestStreamConsumer();
         artifactsRepository = new UrlBasedArtifactsRepository(httpService, "http://baseurl/artifacts/", "http://baseurl/properties/", new ZipUtil());
     }
@@ -100,7 +97,7 @@ public class UrlBasedArtifactsRepositoryTest {
     public void shouldRetryUponUploadFailure() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
 
@@ -114,7 +111,7 @@ public class UrlBasedArtifactsRepositoryTest {
     public void shouldPrintFailureMessageToConsoleWhenUploadFailed() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
 
@@ -135,7 +132,7 @@ public class UrlBasedArtifactsRepositoryTest {
     public void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
 
@@ -148,7 +145,7 @@ public class UrlBasedArtifactsRepositoryTest {
     public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("file.txt", md5);
 
@@ -162,10 +159,10 @@ public class UrlBasedArtifactsRepositoryTest {
         String data = "Some text whose checksum can be asserted";
         String secondData = "some more";
 
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
 
         File anotherFile = new File(artifactFolder, "bond/james_bond/another_file");
-        FileUtils.writeStringToFile(anotherFile, secondData);
+        FileUtils.writeStringToFile(anotherFile, secondData, UTF_8);
 
 
         when(httpService.upload(eq("http://baseurl/artifacts/dest?attempt=1&buildId=build42"), eq(FileUtils.sizeOfDirectory(artifactFolder)), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpServletResponse.SC_OK);

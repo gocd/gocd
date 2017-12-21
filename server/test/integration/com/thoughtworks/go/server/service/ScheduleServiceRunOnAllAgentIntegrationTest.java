@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.CannotScheduleException;
@@ -42,15 +38,16 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.hamcrest.Matchers.is;
@@ -64,6 +61,9 @@ import static org.junit.Assert.fail;
         "classpath:testPropertyConfigurer.xml"
 })
 public class ScheduleServiceRunOnAllAgentIntegrationTest {
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired private GoConfigService goConfigService;
     @Autowired
     private ServerHealthService serverHealthService;
@@ -83,7 +83,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
     @BeforeClass
     public static void setupRepos() throws IOException {
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
     }
 
     @AfterClass

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
@@ -61,7 +62,7 @@ public class FileHandlerTest {
         fileHandler.handle(new ByteArrayInputStream("Hello world".getBytes()));
         fileHandler.handleResult(200, goPublisher);
 
-        assertThat(FileUtils.readFileToString(artifact), is("Hello world"));
+        assertThat(FileUtils.readFileToString(artifact, UTF_8), is("Hello world"));
         assertThat(goPublisher.getMessage(), containsString("Saved artifact to [foo] after verifying the integrity of its contents."));
         verify(checksums).md5For("src/file/path");
         verifyNoMoreInteractions(checksums);
@@ -75,7 +76,7 @@ public class FileHandlerTest {
 
         assertThat(goPublisher.getMessage(), containsString("Saved artifact to [foo] without verifying the integrity of its contents."));
         assertThat(goPublisher.getMessage(), not(containsString("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents.")));
-        assertThat(FileUtils.readFileToString(artifact), is("Hello world"));
+        assertThat(FileUtils.readFileToString(artifact, UTF_8), is("Hello world"));
     }
 
     @Test
@@ -89,7 +90,7 @@ public class FileHandlerTest {
 
         assertThat(goPublisher.getMessage(), containsString("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents."));
         assertThat(goPublisher.getMessage(), containsString("Saved artifact to [foo] without verifying the integrity of its contents"));
-        assertThat(FileUtils.readFileToString(artifact), is("Hello world"));
+        assertThat(FileUtils.readFileToString(artifact, UTF_8), is("Hello world"));
     }
 
     @Test

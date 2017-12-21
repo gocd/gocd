@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -60,7 +59,7 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     public boolean isSourceAFile() {
-        return !StringUtil.isBlank(srcfile);
+        return !StringUtils.isBlank(srcfile);
     }
 
     public String getDest() {
@@ -106,13 +105,13 @@ public class FetchTask extends AbstractFetchTask {
 
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = super.getPropertiesForDisplay();
-        if (!StringUtil.isBlank(srcfile)) {
+        if (!StringUtils.isBlank(srcfile)) {
             taskProperties.add(new TaskProperty("SRC_FILE", srcfile));
         }
-        if (!StringUtil.isBlank(srcdir)) {
+        if (!StringUtils.isBlank(srcdir)) {
             taskProperties.add(new TaskProperty("SRC_DIR", srcdir));
         }
-        if (!StringUtil.isBlank(dest)) {
+        if (!StringUtils.isBlank(dest)) {
             taskProperties.add(new TaskProperty("DEST_FILE", dest));
         }
         return taskProperties;

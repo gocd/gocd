@@ -16,33 +16,29 @@
 
 package com.thoughtworks.go.domain.builder;
 
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.util.*;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.Deflater;
-
-import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.util.ZipUtil;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FetchArtifactBuilderTest {
     private File zip;
@@ -56,14 +52,21 @@ public class FetchArtifactBuilderTest {
     private URLService urlService;
     private DownloadAction downloadAction;
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Before
     public void setUp() throws Exception {
-        File folder = TestFileUtil.createTempFolder("log");
+        File folder = temporaryFolder.newFolder("log");
         File consolelog = new File(folder, "console.log");
         folder.mkdirs();
         consolelog.createNewFile();
 
-        zip = new ZipUtil().zip(folder, TestFileUtil.createUniqueTempFile(folder.getName()), Deflater.NO_COMPRESSION);
+
+        File uniqueTempFile = new File(folder, UUID.randomUUID().toString());
+        uniqueTempFile.createNewFile();
+
+        zip = new ZipUtil().zip(folder, uniqueTempFile, Deflater.NO_COMPRESSION);
         toClean.add(folder);
         toClean.add(zip);
         dest = new File("dest");

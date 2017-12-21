@@ -18,7 +18,7 @@ package com.thoughtworks.go.buildsession;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.ChecksumFileHandler;
 import com.thoughtworks.go.domain.FileHandler;
-import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TempFiles;
 import com.thoughtworks.go.util.URLService;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class DownloadFileCommandExecutor implements BuildCommandExecutor {
 
         if (fileExist && artifact.isFile()) {
             try {
-                url += "?sha1=" + URLEncoder.encode(StringUtil.sha1Digest(artifact), "UTF-8");
+                url += "?sha1=" + URLEncoder.encode(FileUtil.sha1Digest(artifact), "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Download error", e);
                 return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
 
@@ -227,7 +226,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.setInvertFilter("true".equals(map.get(INVERT_FILTER)));
         if (map.containsKey(FILTER)) {
             String pattern = (String) map.get(FILTER);
-            if (!StringUtil.isBlank(pattern)) {
+            if (!StringUtils.isBlank(pattern)) {
                 this.setFilter(Filter.fromDisplayString(pattern));
             } else {
                 this.setFilter(null);

@@ -43,6 +43,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.TestUtils.assertContains;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -323,7 +324,7 @@ public abstract class GoConfigDaoTestBase {
 
         goConfigDao.load();
         final File configFile = new File(goConfigDao.fileLocation());
-        final String content = FileUtils.readFileToString(configFile);
+        final String content = FileUtils.readFileToString(configFile, UTF_8);
         final int indexOfSecond = content.indexOf("addedSecond");
         final int indexOfFirst = content.indexOf("addedFirst");
         assertThat(indexOfSecond, is(not(-1)));

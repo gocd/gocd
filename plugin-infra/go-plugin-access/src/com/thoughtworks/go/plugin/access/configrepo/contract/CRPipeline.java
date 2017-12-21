@@ -17,12 +17,11 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.SourceCodeMaterial;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -244,8 +243,8 @@ public class CRPipeline extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return StringUtil.isBlank(location) ?
-                StringUtil.isBlank(name) ? String.format("Pipeline in %s",parent) :
+        return StringUtils.isBlank(location) ?
+                StringUtils.isBlank(name) ? String.format("Pipeline in %s",parent) :
                   String.format("Pipeline %s",name) : String.format("%s; Pipeline %s",location,name);
     }
 
@@ -313,7 +312,7 @@ public class CRPipeline extends CRBase {
         if (allSCMMaterials.size() > 1) {
             for (SourceCodeMaterial material : allSCMMaterials) {
                 String directory = material.getDestination();
-                if (StringUtil.isBlank(directory)) {
+                if (StringUtils.isBlank(directory)) {
                     String location = material.getLocation(pipelineLocation);
                     errors.addError(location,"Material must have destination directory when there are many SCM materials");
                 }
@@ -375,7 +374,7 @@ public class CRPipeline extends CRBase {
     }
 
     public boolean hasTemplate() {
-        return template != null && !StringUtil.isBlank(template);
+        return template != null && !StringUtils.isBlank(template);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class GoConfigMigrationTest {
     private GoConfigMigration goConfigMigration;
     private ConfigRepository configRepo;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public static final String OLDER_VERSION_XML = "<cruise schemaVersion='" + (GoConstants.CONFIG_SCHEMA_VERSION - 1) + "' >\n"
             + "<server artifactsdir='artifactsDir' >"

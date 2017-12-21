@@ -54,11 +54,11 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.TestUtils;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.hibernate.SessionFactory;
@@ -79,10 +79,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static java.util.Arrays.asList;
@@ -1188,13 +1186,12 @@ public class MaterialRepositoryIntegrationTest {
         Modifications secondSetOfModificationsFromDb = repo.getModificationsFor(materialInstance, Pagination.pageByNumber(1, 10, 10));
         assertThat(secondSetOfModificationsFromDb.size(), is(4));
         for (final Modification fromPreviousCycle : firstSetOfModificationsFromDb) {
-            Modification modification = ListUtil.find(secondSetOfModificationsFromDb, new ListUtil.Condition() {
+            Modification modification = secondSetOfModificationsFromDb.stream().filter(new Predicate<Modification>() {
                 @Override
-                public <T> boolean isMet(T item) {
-                    Modification modification = (Modification) item;
-                    return modification.getId() == fromPreviousCycle.getId();
+                public boolean test(Modification item) {
+                    return item.getId() == fromPreviousCycle.getId();
                 }
-            });
+            }).findFirst().orElse(null);
             assertThat(modification, is(notNullValue()));
         }
         for (Modification modification : secondSetOfModificationsContainingDuplicateRevisions) {

@@ -16,21 +16,14 @@
 
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class StringUtil {
-    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
     private static final String DELIMITER = "_";
     private static final String DELIMITER_MATCHER = DELIMITER;
     private static final String DELIMITER_ESCAPE_SEQ = DELIMITER + DELIMITER;
@@ -38,57 +31,8 @@ public final class StringUtil {
     private StringUtil() {
     }
 
-    public static String quote(String s) {
-        return "\"" + s + "\"";
-    }
-
     public static String quoteJavascriptString(String s) {
-        s = s.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"");
-        return quote(s);
-    }
-
-    public static String stripSpacesAndNewLines(String content) {
-        return content.replaceAll("\\s+", "");
-    }
-
-    public static String md5Digest(byte[] bytes) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            return Base64.getEncoder().encodeToString(md.digest(bytes));
-        } catch (NoSuchAlgorithmException nsae) {
-            throw ExceptionUtils.bomb(nsae);
-        }
-    }
-
-    public static String sha1Digest(byte[] bytes) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA1");
-            return Base64.getEncoder().encodeToString(md.digest(bytes));
-        } catch (NoSuchAlgorithmException nsae) {
-            throw ExceptionUtils.bomb(nsae);
-        }
-    }
-
-    public static String sha1Digest(File file) {
-        InputStream input = null;
-        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA1");
-            input = new BufferedInputStream(new FileInputStream(file));
-            int n;
-            while (-1 != (n = input.read(buffer))) {
-                digest.update(buffer, 0, n);
-            }
-            return Base64.getEncoder().encodeToString(digest.digest());
-        } catch (Exception nsae) {
-            throw ExceptionUtils.bomb(nsae);
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
-    }
-
-    public static String stripLineSeparator(String s) {
-        return s.replaceAll("\\n", "").replaceAll("\\r", "");
+        return "\"" + StringEscapeUtils.escapeJava(s) + "\"";
     }
 
     public static String matchPattern(String regEx, String s) {
@@ -105,29 +49,6 @@ public final class StringUtil {
             return s.substring(0, s.length() - 1);
         }
         return s;
-    }
-
-    public static String wrapConfigVariable(String var) {
-        return String.format("${%s}", var);
-    }
-
-    public static List<String> splitLines(String str) {
-        return str.isEmpty() ? new ArrayList<>() : Arrays.asList(str.split("\n"));
-    }
-
-    public static String passwordToString(String password) {
-        if (password == null) {
-            return "not-set";
-        }
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < password.length(); i++) {
-            buffer.append('*');
-        }
-        return buffer.toString();
-    }
-
-    public static String shortUUID() {
-        return UUID.randomUUID().toString().substring(0, 8);
     }
 
     public static boolean isInteger(String s) {
@@ -148,14 +69,6 @@ public final class StringUtil {
         return StringUtils.join(strings, " ");
     }
 
-    public static boolean isBlank(String string) {
-        return string == null || string.trim().isEmpty();
-    }
-
-    public static String nullToBlank(String str) {
-        return (str == null) ? "" : str;
-    }
-
     public static String escapeAndJoinStrings(Object... items) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < items.length; i++) {
@@ -171,23 +84,11 @@ public final class StringUtil {
     }
 
     public static String joinForDisplay(final Collection<?> objects) {
-        return ListUtil.join(objects, " | ").trim();
-    }
-
-    public static String stripTrailingSlash(String url) {
-        if (isBlank(url)) {
-            return url;
-        }
-        int length = url.length();
-        return url.charAt(length - 1) == '/' ? url.substring(0, length - 1) : url;
-    }
-
-    public static Boolean matches(String regEx, String string) {
-        return Pattern.matches(regEx, string);
+        return StringUtils.join(objects, " | ").trim();
     }
 
     public static String stripTillLastOccurrenceOf(String input, String pattern) {
-        if (!isBlank(input) && !isBlank(pattern)) {
+        if (!StringUtils.isBlank(input) && !StringUtils.isBlank(pattern)) {
             int index = input.lastIndexOf(pattern);
             if (index > 0) {
                 input = input.substring(index + pattern.length());

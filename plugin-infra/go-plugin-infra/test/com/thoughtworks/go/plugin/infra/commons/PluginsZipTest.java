@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.zip.ZipFile;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -42,7 +43,7 @@ public class PluginsZipTest {
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -74,22 +75,22 @@ public class PluginsZipTest {
         pluginsZip = spy(new PluginsZip(systemEnvironment, pluginManager));
 
         File bundledTask1Jar = new File(bundledPluginsDir, "bundled-task-1.jar");
-        FileUtils.writeStringToFile(bundledTask1Jar, "Bundled1");
+        FileUtils.writeStringToFile(bundledTask1Jar, "Bundled1", UTF_8);
         File bundledAuth2Jar = new File(bundledPluginsDir, "bundled-auth-2.jar");
-        FileUtils.writeStringToFile(bundledAuth2Jar, "Bundled2");
+        FileUtils.writeStringToFile(bundledAuth2Jar, "Bundled2", UTF_8);
         File bundledscm3Jar = new File(bundledPluginsDir, "bundled-scm-3.jar");
-        FileUtils.writeStringToFile(bundledscm3Jar, "Bundled3");
+        FileUtils.writeStringToFile(bundledscm3Jar, "Bundled3", UTF_8);
         File bundledPackageMaterialJar = new File(bundledPluginsDir, "bundled-package-material-4.jar");
-        FileUtils.writeStringToFile(bundledPackageMaterialJar, "Bundled4");
+        FileUtils.writeStringToFile(bundledPackageMaterialJar, "Bundled4", UTF_8);
 
         File externalTask1Jar = new File(externalPluginsDir, "external-task-1.jar");
-        FileUtils.writeStringToFile(externalTask1Jar, "External1");
+        FileUtils.writeStringToFile(externalTask1Jar, "External1", UTF_8);
         File externalElastic1Jar = new File(externalPluginsDir, "external-elastic-agent-2.jar");
-        FileUtils.writeStringToFile(externalElastic1Jar, "External2");
+        FileUtils.writeStringToFile(externalElastic1Jar, "External2", UTF_8);
         File externalscm3Jar = new File(externalPluginsDir, "external-scm-3.jar");
-        FileUtils.writeStringToFile(externalscm3Jar, "External3");
+        FileUtils.writeStringToFile(externalscm3Jar, "External3", UTF_8);
         File externalPackageMaterialJar = new File(externalPluginsDir, "external-package-material-4.jar");
-        FileUtils.writeStringToFile(externalPackageMaterialJar, "External3");
+        FileUtils.writeStringToFile(externalPackageMaterialJar, "External3", UTF_8);
 
         bundledTaskPlugin = new GoPluginDescriptor("bundled-task-1", "1.0", null, bundledTask1Jar.getAbsolutePath(), null, true);
         bundledAuthPlugin = new GoPluginDescriptor("bundled-auth-2", "1.0", null, bundledAuth2Jar.getAbsolutePath(), null, true);
@@ -153,7 +154,7 @@ public class PluginsZipTest {
     public void shouldUpdateChecksumIfFileIsReCreated() throws Exception {
         pluginsZip.create();
         String oldMd5 = pluginsZip.md5();
-        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), UUID.randomUUID().toString());
+        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), UUID.randomUUID().toString(), UTF_8);
         pluginsZip.create();
         assertThat(pluginsZip.md5(), is(not(oldMd5)));
     }
@@ -165,7 +166,7 @@ public class PluginsZipTest {
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled-task-1.jar"), "Bundled1");
+        FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled-task-1.jar"), "Bundled1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
         pluginsZipFail.create();
@@ -177,7 +178,7 @@ public class PluginsZipTest {
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1");
+        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
         pluginsZipFail.create();
@@ -189,7 +190,7 @@ public class PluginsZipTest {
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("/dummy");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
-        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1");
+        FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1", UTF_8);
         expectedException.expect(FileAccessRightsCheckException.class);
         expectedException.expectMessage("dummy");
 

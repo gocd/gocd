@@ -26,10 +26,10 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.svn.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.slf4j.LoggerFactory;
@@ -324,14 +324,14 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     private void resetPassword(String passwordToSet) {
-        if (StringUtil.isBlank(passwordToSet)) {
+        if (StringUtils.isBlank(passwordToSet)) {
             encryptedPassword = null;
         }
         setPasswordIfNotBlank(passwordToSet);
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             return;
         }
         try {
@@ -353,7 +353,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     public String getPassword() {
         try {
-            return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }

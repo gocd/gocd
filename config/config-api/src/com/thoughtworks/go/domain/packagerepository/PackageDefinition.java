@@ -1,28 +1,23 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.domain.packagerepository;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.PostConstruct;
 
 import com.google.gson.annotations.Expose;
@@ -38,14 +33,13 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import org.apache.commons.lang.StringUtils;
 
-import static com.thoughtworks.go.util.ListUtil.join;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -172,7 +166,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
             for (PackageDefinition packageDefinition : packageDefinitionsWithSameFingerprint) {
                 packageNames.add(format("[Repo Name: '%s', Package Name: '%s']", packageDefinition.getRepository().getName(), packageDefinition.getName()));
             }
-            addError(ID, String.format("Cannot save package or repo, found duplicate packages. %s", join(packageNames)));
+            addError(ID, String.format("Cannot save package or repo, found duplicate packages. %s", StringUtils.join(packageNames, ", ")));
         }
     }
 
@@ -206,7 +200,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         list.add(format("%s=%s", "plugin-id", pluginId()));
         handlePackageDefinitionProperties(list);
         handlePackageRepositoryProperties(list);
-        String fingerprint = join(list, fingerprintDelimiter);
+        String fingerprint = StringUtils.join(list, fingerprintDelimiter);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
         return CachedDigestUtils.sha256Hex(fingerprint);
     }
@@ -335,7 +329,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
 
     @PostConstruct
     public void ensureIdExists() {
-        if (StringUtil.isBlank(getId())) {
+        if (isBlank(getId())) {
             setId(UUID.randomUUID().toString());
         }
     }

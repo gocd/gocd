@@ -24,7 +24,6 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +31,9 @@ import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +52,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HgMaterialTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private HgMaterial hgMaterial;
     private static final Date FROM = parseISO8601("2008-03-03 18:40:37 +0800");
     private static final Date TO = parseISO8601("2008-03-03 23:13:50 +0800");
@@ -84,9 +88,9 @@ public class HgMaterialTest {
 
     @Before
     public void setUp() throws Exception {
-        hgTestRepo = new HgTestRepo("hgTestRepo1");
+        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
-        workingFolder = TestFileUtil.createTempFolder("workingFolder");
+        workingFolder = temporaryFolder.newFolder("workingFolder");
         outputStreamConsumer = inMemoryConsumer();
     }
 
@@ -101,7 +105,7 @@ public class HgMaterialTest {
         new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
-        HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2");
+        HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo2.projectRepositoryUrl());
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 

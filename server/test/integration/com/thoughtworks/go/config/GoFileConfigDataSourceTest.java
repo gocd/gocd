@@ -210,13 +210,13 @@ public class GoFileConfigDataSourceTest {
 
         dataSource.write(ConfigMigrator.migrate(VALID_XML_3169), false);
 
-        assertThat(FileUtils.readFileToString(file), containsString("http://hg-server/hg/connectfour"));
+        assertThat(FileUtils.readFileToString(file, UTF_8), containsString("http://hg-server/hg/connectfour"));
     }
 
     @Test
     public void shouldNotCorruptTheCruiseConfigXml() throws Exception {
         File file = dataSource.fileLocation();
-        String originalCopy = FileUtils.readFileToString(file);
+        String originalCopy = FileUtils.readFileToString(file, UTF_8);
 
         try {
             dataSource.write("abc", false);
@@ -225,13 +225,13 @@ public class GoFileConfigDataSourceTest {
             assertThat(e.getMessage(), containsString("Content is not allowed in prolog"));
         }
 
-        assertThat(FileUtils.readFileToString(file), Is.is(originalCopy));
+        assertThat(FileUtils.readFileToString(file, UTF_8), Is.is(originalCopy));
     }
 
     @Test
     public void shouldLoadAsUser_Filesystem_WithMd5Sum() throws Exception {
         GoConfigHolder configHolder = goConfigDao.loadConfigHolder();
-        String md5 = DigestUtils.md5Hex(FileUtils.readFileToString(dataSource.fileLocation()));
+        String md5 = DigestUtils.md5Hex(FileUtils.readFileToString(dataSource.fileLocation(), UTF_8));
         assertThat(configHolder.configForEdit.getMd5(), is(md5));
         assertThat(configHolder.config.getMd5(), is(md5));
 
@@ -241,7 +241,7 @@ public class GoFileConfigDataSourceTest {
         new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()).write(forEdit, fos, false);
 
         configHolder = dataSource.load();
-        String xmlText = FileUtils.readFileToString(dataSource.fileLocation());
+        String xmlText = FileUtils.readFileToString(dataSource.fileLocation(), UTF_8);
         String secondMd5 = DigestUtils.md5Hex(xmlText);
         assertThat(configHolder.configForEdit.getMd5(), is(secondMd5));
         assertThat(configHolder.config.getMd5(), is(secondMd5));
@@ -265,7 +265,7 @@ public class GoFileConfigDataSourceTest {
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
-        FileUtils.writeStringToFile(dataSource.fileLocation(), configContent);
+        FileUtils.writeStringToFile(dataSource.fileLocation(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();
 
@@ -288,7 +288,7 @@ public class GoFileConfigDataSourceTest {
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
-        FileUtils.writeStringToFile(dataSource.fileLocation(), configContent);
+        FileUtils.writeStringToFile(dataSource.fileLocation(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();
 

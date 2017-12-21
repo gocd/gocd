@@ -23,8 +23,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -234,7 +234,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (getView() == null || getView().trim().isEmpty()) {
             errors.add(VIEW, "P4 view cannot be empty.");
         }
-        if (StringUtil.isBlank(getServerAndPort())) {
+        if (StringUtils.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
         }
         if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
@@ -297,14 +297,14 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     private void resetPassword(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             this.encryptedPassword = null;
         }
         setPasswordIfNotBlank(password);
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             return;
         }
         try {
@@ -322,7 +322,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     public String currentPassword() {
         try {
-            return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (Exception e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }

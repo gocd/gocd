@@ -34,12 +34,15 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -54,8 +57,17 @@ import static org.mockito.Mockito.mock;
 @RunWith(JunitExtRunner.class)
 public class MaterialsTest {
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Before
-    public void setup() {
+    public void setup() throws IOException {
+        temporaryFolder.create();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        temporaryFolder.delete();
     }
 
     @Test
@@ -256,8 +268,6 @@ public class MaterialsTest {
 
     @Test
     public void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
-        TemporaryFolder temporaryFolder = new TemporaryFolder();
-        temporaryFolder.create();
         File junkFolder = temporaryFolder.newFolder("junk-folder");
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
@@ -271,8 +281,6 @@ public class MaterialsTest {
 
     @Test
     public void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
-        TemporaryFolder temporaryFolder = new TemporaryFolder();
-        temporaryFolder.create();
         File junkFolder = temporaryFolder.newFolder("junk-folder");
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");

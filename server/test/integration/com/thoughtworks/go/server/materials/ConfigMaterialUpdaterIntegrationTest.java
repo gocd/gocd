@@ -34,10 +34,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +61,9 @@ import static org.mockito.Mockito.mock;
         "classpath:testPropertyConfigurer.xml"
 })
 public class ConfigMaterialUpdaterIntegrationTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
@@ -107,7 +108,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     @Before
     public void setup() throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
-        hgRepo = new HgTestRepo("testHgRepo");
+        hgRepo = new HgTestRepo("testHgRepo", temporaryFolder);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();

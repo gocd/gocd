@@ -62,6 +62,7 @@ import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -132,10 +133,13 @@ public class BuildAssignmentServiceIntegrationTest {
     private ConfigCache configCache;
     private ConfigElementImplementationRegistry registry;
 
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     @BeforeClass
     public static void setupRepos() throws IOException {
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
     }
 
     @AfterClass
@@ -151,7 +155,7 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.onSetUp();
 
         dbHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
@@ -286,7 +290,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges() throws Exception {
         buildAssignmentService.initialize();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate).usingTwoJobs();
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         fixture.createPipelineWithFirstStageScheduled();
 

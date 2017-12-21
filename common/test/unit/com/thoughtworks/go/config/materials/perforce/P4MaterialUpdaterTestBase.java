@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -52,7 +53,7 @@ public abstract class P4MaterialUpdaterTestBase extends BuildSessionBasedTestCas
         P4Material material = p4Fixture.material(VIEW);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
         File tmpFile = new File(workingDir, "shouldBeDeleted");
-        FileUtils.writeStringToFile(tmpFile, "testing");
+        FileUtils.writeStringToFile(tmpFile, "testing", UTF_8);
         assert(tmpFile.exists());
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
         assert(!tmpFile.exists());

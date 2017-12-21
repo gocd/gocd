@@ -35,7 +35,7 @@ public class StageStorageTest {
     private StageStorage stageStorage;
     private TempGraphFactory graphFactory;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {

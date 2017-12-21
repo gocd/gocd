@@ -29,7 +29,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -63,6 +65,8 @@ public class PipelineHistoryControllerIntegrationTest {
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithMultipleStages fixture;
     private HttpServletResponse response;
@@ -71,7 +75,7 @@ public class PipelineHistoryControllerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 

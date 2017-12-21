@@ -50,7 +50,9 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.core.IsNot;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +78,9 @@ import static org.mockito.Mockito.mock;
         "classpath:testPropertyConfigurer.xml"
 })
 public class BuildCauseProducerServiceConfigRepoIntegrationTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
@@ -120,7 +125,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     public void setup() throws Exception {
 
         diskSpaceSimulator = new DiskSpaceSimulator();
-        hgRepo = new HgTestRepo("testHgRepo");
+        hgRepo = new HgTestRepo("testHgRepo", temporaryFolder);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -349,7 +354,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Test
     public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered() throws Exception
     {
-        GitTestRepo otherGitRepo = new GitTestRepo();
+        GitTestRepo otherGitRepo = new GitTestRepo(temporaryFolder);
 
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();

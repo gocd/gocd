@@ -18,10 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +75,7 @@ public class RailsAssetsService implements ServletContextAware {
 
     public String getAssetPath(String asset) {
         String assetFileName = systemEnvironment.useCompressedJs() ? railsAssetsManifest.getAssetWithDigest(asset) : asset;
-        return StringUtil.isBlank(assetFileName) ? null : String.format("assets/%s", assetFileName);
+        return StringUtils.isBlank(assetFileName) ? null : String.format("assets/%s", assetFileName);
     }
 
     @Override

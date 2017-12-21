@@ -28,11 +28,15 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
@@ -66,19 +70,24 @@ public class ArtifactsServiceTest {
     private JobResolverService resolverService;
     private StageDao stageService;
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        temporaryFolder.create();
         systemService = mock(SystemService.class);
         artifactsDirHolder = mock(ArtifactsDirHolder.class);
         zipUtil = mock(ZipUtil.class);
         resolverService = mock(JobResolverService.class);
         stageService = mock(StageDao.class);
 
-        fakeRoot = TestFileUtil.createTempFolder("ArtifactsServiceTest");
+        fakeRoot = temporaryFolder.newFolder("ArtifactsServiceTest");
     }
 
     @After
     public void tearDown() {
+        temporaryFolder.delete();
         for (File resource : resourcesToBeCleanedOnTeardown) {
             FileUtils.deleteQuietly(resource);
         }
@@ -186,15 +195,18 @@ public class ArtifactsServiceTest {
 
     @Test
     public void shouldConvertArtifactPathToFileSystemLocation() throws Exception {
-        assumeArtifactsRoot(new File("artifact-root"));
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         File location = artifactsService.getArtifactLocation("foo/bar/baz");
-        assertThat(location, is(new File("artifact-root/foo/bar/baz")));
+        assertThat(location, is(new File(artifactsRoot + "/foo/bar/baz")));
     }
 
     @Test
     public void shouldConvertArtifactPathToUrl() throws Exception {
-        assumeArtifactsRoot(new File("artifact-root"));
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
+
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         JobIdentifier identifier = JobIdentifierMother.jobIdentifier("p", 1, "s", "2", "j");
         when(resolverService.actualJobIdentifier(identifier)).thenReturn(identifier);
@@ -205,7 +217,9 @@ public class ArtifactsServiceTest {
 
     @Test
     public void shouldConvertArtifactPathWithLocationToUrl() throws Exception {
-        assumeArtifactsRoot(new File("artifact-root"));
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
+
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         JobIdentifier identifier = JobIdentifierMother.jobIdentifier("p", 1, "s", "2", "j");
         when(resolverService.actualJobIdentifier(identifier)).thenReturn(identifier);
@@ -216,12 +230,14 @@ public class ArtifactsServiceTest {
 
     @Test
     public void shouldUsePipelineCounterAsFolderName() throws IllegalArtifactLocationException, IOException {
-        assumeArtifactsRoot(new File("artifact-root"));
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
+
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         artifactsService.initialize();
         File artifact = artifactsService.findArtifact(
                 new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null), "pkg.zip");
-        assertThat(artifact, is(new File("artifact-root/pipelines/cruise/1/dev/2/linux-firefox/pkg.zip")));
+        assertThat(artifact, is(new File(artifactsRoot + "/pipelines/cruise/1/dev/2/linux-firefox/pkg.zip")));
     }
 
     @Test
@@ -260,21 +276,21 @@ public class ArtifactsServiceTest {
 
     @Test
     public void shouldUsePipelineLabelAsFolderNameIfNoCounter() throws IllegalArtifactLocationException, IOException {
-        File artifactsRoot = new File("artifact-root");
+        File artifactsRoot = temporaryFolder.newFolder();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         artifactsService.initialize();
         File artifact = artifactsService.findArtifact(new JobIdentifier("cruise", -2, "1.1", "dev", "2", "linux-firefox", null), "pkg.zip");
-        assertThat(artifact, is(new File("artifact-root/pipelines/cruise/1.1/dev/2/linux-firefox/pkg.zip")));
+        assertThat(artifact, is(new File(artifactsRoot, "pipelines/cruise/1.1/dev/2/linux-firefox/pkg.zip")));
     }
 
     @Test
     public void shouldPurgeArtifactsExceptCruiseOutputForGivenStageAndMarkItCleaned() throws IOException {
-        File artifactsRoot = new File("artifact-root");
+        File artifactsRoot = temporaryFolder.newFolder();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
-        File jobDir = new File("artifact-root/pipelines/pipeline/10/stage/20/job");
+        File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
         jobDir.mkdirs();
         File aFile = new File(jobDir, "foo");
         FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
@@ -301,27 +317,27 @@ public class ArtifactsServiceTest {
         assertThat(anotherFile.exists(), is(false));
         assertThat(aDirectory.exists(), is(false));
 
-        assertThat(new File("artifact-root/pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists(), is(true));
-        assertThat(new File("artifact-root/pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists(), is(true));
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists(), is(true));
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists(), is(true));
 
         verify(stageService).markArtifactsDeletedFor(stage);
     }
 
     @Test
     public void shouldPurgeCachedArtifactsForGivenStageWhilePurgingArtifactsForAStage() throws IOException {
-        File artifactsRoot = new File("artifact-root");
+        File artifactsRoot = temporaryFolder.newFolder();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         artifactsService.initialize();
         Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job1", new Date());
-        File job1Dir = createJobArtifactFolder("artifact-root/pipelines/pipeline/10/stage/20/job1");
-        File job2Dir = createJobArtifactFolder("artifact-root/pipelines/pipeline/10/stage/20/job2");
-        File job1DirFromADifferentStageRun = createJobArtifactFolder("artifact-root/pipelines/pipeline/10/stage/25/job2");
-        File job1CacheDir = createJobArtifactFolder("artifact-root/cache/artifacts/pipelines/pipeline/10/stage/20/job1");
-        File job2CacheDir = createJobArtifactFolder("artifact-root/cache/artifacts/pipelines/pipeline/10/stage/20/job2");
-        File job1CacheDirFromADifferentStageRun = createJobArtifactFolder("artifact-root/cache/artifacts/pipelines/pipeline/10/stage/25/job2");
+        File job1Dir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job1");
+        File job2Dir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job2");
+        File job1DirFromADifferentStageRun = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/25/job2");
+        File job1CacheDir = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/10/stage/20/job1");
+        File job2CacheDir = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/10/stage/20/job2");
+        File job1CacheDirFromADifferentStageRun = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/10/stage/25/job2");
 
         artifactsService.purgeArtifactsForStage(stage);
 

@@ -45,7 +45,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
     @Override
     protected P4TestRepo createTestRepo() throws Exception {
-        P4TestRepo repo = P4TestRepo.createP4TestRepo();
+        P4TestRepo repo = P4TestRepo.createP4TestRepo(temporaryFolder, clientFolder);
         repo.onSetup();
         return repo;
     }
@@ -56,7 +56,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
     @Test
     public void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() throws IOException {
-        File p4_working_dir = temporaryFolder.newFolder("p4_working_dir");
+        File p4_working_dir = temporaryFolder.newFolder();
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
         p4.setPassword("loser");
@@ -71,7 +71,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
     @Test
     public void shouldAddClientNameEnvironmentVariable() throws IOException {
-        File p4_working_dir = temporaryFolder.newFolder("p4_working_dir");
+        File p4_working_dir = temporaryFolder.newFolder();
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
         p4.setPassword("loser");

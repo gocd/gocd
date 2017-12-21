@@ -28,7 +28,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,8 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -93,7 +92,7 @@ public class GoPartialConfigIntegrationTest {
     }
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 
     @Test
@@ -159,13 +158,12 @@ public class GoPartialConfigIntegrationTest {
     }
 
     private PartialConfig findPartial(final String invalidPipelineInPartial, List<PartialConfig> partials) {
-        return ListUtil.find(partials, new ListUtil.Condition() {
+        return partials.stream().filter(new Predicate<PartialConfig>() {
             @Override
-            public <T> boolean isMet(T item) {
-                PartialConfig partialConfig = (PartialConfig) item;
-                return partialConfig.getGroups().first().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null;
+            public boolean test(PartialConfig item) {
+                return item.getGroups().first().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null;
             }
-        });
+        }).findFirst().orElse(null);
     }
 
     @Test
@@ -252,12 +250,11 @@ public class GoPartialConfigIntegrationTest {
     }
 
     private boolean cacheContainsPartial(List<PartialConfig> partialConfigs, final PartialConfig partialConfig) {
-        return ListUtil.find(partialConfigs, new ListUtil.Condition() {
+        return partialConfigs.stream().filter(new Predicate<PartialConfig>() {
             @Override
-            public <T> boolean isMet(T item) {
-                PartialConfig config = (PartialConfig) item;
-                return partialConfig.getEnvironments().equals(config.getEnvironments()) && partialConfig.getGroups().equals(config.getGroups()) && partialConfig.getOrigin().equals(config.getOrigin());
+            public boolean test(PartialConfig item) {
+                return partialConfig.getEnvironments().equals(item.getEnvironments()) && partialConfig.getGroups().equals(item.getGroups()) && partialConfig.getOrigin().equals(item.getOrigin());
             }
-        }) != null;
+        }).findFirst().isPresent();
     }
 }

@@ -22,13 +22,12 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.thoughtworks.go.logging.LogHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.thoughtworks.go.util.ListUtil.join;
 
 public class LogFixture implements Closeable {
 
@@ -77,7 +76,7 @@ public class LogFixture implements Closeable {
     }
 
     public String getLog() {
-        return join(getFormattedMessages());
+        return StringUtils.join(getFormattedMessages(), ", ");
     }
 
     public synchronized boolean contains(Level level, String message) {

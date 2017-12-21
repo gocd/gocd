@@ -37,6 +37,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -79,10 +80,12 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     public Subversion repository;
     public static TestRepo testRepo;
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void setupRepos() throws IOException {
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
     }
 
     @AfterClass

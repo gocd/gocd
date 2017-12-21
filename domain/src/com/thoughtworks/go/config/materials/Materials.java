@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ArtifactLogUtil;
-import com.thoughtworks.go.util.ObjectUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +43,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
 
@@ -156,7 +156,7 @@ public class Materials extends BaseCollection<Material> {
 
     public Material byFolder(String folder) {
         for (Material material : this) {
-            if ((material instanceof ScmMaterial || material instanceof PluggableSCMMaterial) && ObjectUtil.nullSafeEquals(folder, material.getFolder())) {
+            if ((material instanceof ScmMaterial || material instanceof PluggableSCMMaterial) && Objects.equals(folder, material.getFolder())) {
                 return material;
             }
         }

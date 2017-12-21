@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Collection;
 
@@ -82,7 +82,7 @@ public class AgentConfig implements Validatable {
     }
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
-        if(StringUtil.isBlank(uuid)) {
+        if(StringUtils.isBlank(uuid)) {
             addError(UUID, "UUID cannot be empty");
         }
         validateResources();
@@ -99,7 +99,7 @@ public class AgentConfig implements Validatable {
         if (address == null) {
             return;
         }
-        if (StringUtil.isBlank(address)) {
+        if (StringUtils.isBlank(address)) {
             addError(IP_ADDRESS, "IpAddress cannot be empty if it is present.");
             return;
         }

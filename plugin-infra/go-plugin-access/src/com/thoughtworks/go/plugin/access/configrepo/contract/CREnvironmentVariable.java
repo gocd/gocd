@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -127,13 +127,13 @@ public class CREnvironmentVariable extends CRBase {
     }
 
     private void validateValue(ErrorCollection errors, String location) {
-        if(StringUtil.isBlank(value) && StringUtil.isBlank(encrypted_value))
+        if(StringUtils.isBlank(value) && StringUtils.isBlank(encrypted_value))
             errors.addError(location,"Environment variable value not set");
-        if(!StringUtil.isBlank(value) && !StringUtil.isBlank(encrypted_value))
+        if(!StringUtils.isBlank(value) && !StringUtils.isBlank(encrypted_value))
             errors.addError(location,"Environment variable value and encrypted_value is set. Only one field can be assigned.");
     }
 
     public boolean hasEncryptedValue() {
-        return !StringUtil.isBlank(encrypted_value);
+        return !StringUtils.isBlank(encrypted_value);
     }
 }

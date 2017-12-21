@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,6 +39,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -271,11 +271,11 @@ public class PluggableScmServiceTest {
 
 
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {
-        return ListUtil.find(validationErrors, new ListUtil.Condition() {
+        return validationErrors.stream().filter(new Predicate<ValidationError>() {
             @Override
-            public <T> boolean isMet(T item) {
-                return ((ValidationError) item).getKey().equals(key);
+            public boolean test(ValidationError item) {
+                return item.getKey().equals(key);
             }
-        });
+        }).findFirst().orElse(null);
     }
 }

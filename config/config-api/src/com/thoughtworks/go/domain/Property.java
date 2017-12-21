@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ import com.thoughtworks.go.util.json.JsonAware;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static com.thoughtworks.go.util.ObjectUtil.nullSafeEquals;
+import java.util.Objects;
 
 public class Property implements JsonAware, Serializable {
     private String key;
@@ -68,10 +67,10 @@ public class Property implements JsonAware, Serializable {
     }
 
     private boolean equals(Property that) {
-        if (!nullSafeEquals(this.key, that.key)) {
+        if (!Objects.equals(this.key, that.key)) {
             return false;
         }
-        if (!nullSafeEquals(this.value, that.value)) {
+        if (!Objects.equals(this.value, that.value)) {
             return false;
         }
         return true;

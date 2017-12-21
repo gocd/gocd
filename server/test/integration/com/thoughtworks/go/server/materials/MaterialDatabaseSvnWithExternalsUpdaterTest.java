@@ -1,33 +1,34 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials;
+
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
+import com.thoughtworks.go.helper.TestRepo;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
-import com.thoughtworks.go.helper.TestRepo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
 public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForDatabaseUpdater {
     private SvnTestRepoWithExternal testRepoWithExternal;
@@ -37,7 +38,7 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
     }
 
     protected TestRepo repo() throws IOException {
-        testRepoWithExternal = new SvnTestRepoWithExternal();
+        testRepoWithExternal = new SvnTestRepoWithExternal(temporaryFolder);
         return testRepoWithExternal;
     }
 
@@ -62,9 +63,9 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
     public void shouldNotTryToSaveModificationForAnExternalThathasAlreadyBeenSaved() throws Exception {
         updater.updateMaterial(material);
 
-        SvnTestRepoWithExternal otherRepo = new SvnTestRepoWithExternal(testRepoWithExternal.externalRepositoryUrl());
+        SvnTestRepoWithExternal otherRepo = new SvnTestRepoWithExternal(testRepoWithExternal.externalRepositoryUrl(), temporaryFolder);
         SvnMaterial otherMaterial = new SvnMaterial(otherRepo.projectRepositoryUrl(), null, null, true);
-        updater.updateMaterial(otherMaterial);  
+        updater.updateMaterial(otherMaterial);
 
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(otherMaterial);
         assertThat(materialRevisions.numberOfRevisions(), is(2));
@@ -82,7 +83,7 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
         MaterialRevision revisionForExternal = materialRevisions.findRevisionFor(externalMaterial);
         assertThat(revisionForExternal.getModification(0).getComment(), is("foo bar quux"));
     }
-    
+
     @Test
     public void shouldDetectChangesToExternals() throws Exception {
         ((SvnTestRepoWithExternal)testRepo).checkInExternalFile("external.txt", "EXTERNAL");

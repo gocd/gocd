@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
@@ -29,7 +27,9 @@ import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -37,6 +37,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -55,6 +57,8 @@ public class StageControllerIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithMultipleStages fixture;
     private MockHttpServletRequest request;
@@ -63,7 +67,7 @@ public class StageControllerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
         this.configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();

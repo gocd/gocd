@@ -45,6 +45,7 @@ import java.util.List;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands how to migrate from a previous version of config
@@ -104,7 +105,7 @@ public class GoConfigMigration {
     private GoConfigMigrationResult upgradeValidateAndVersion(File configFile, boolean shouldTryOlderVersion, String currentGoServerVersion) throws Exception {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            String xmlStringBeforeUpgrade = FileUtils.readFileToString(configFile);
+            String xmlStringBeforeUpgrade = FileUtils.readFileToString(configFile, UTF_8);
             int currentVersion = getCurrentSchemaVersion(xmlStringBeforeUpgrade);
             String reloadedXml;
             if (shouldUpgrade(currentVersion)) {

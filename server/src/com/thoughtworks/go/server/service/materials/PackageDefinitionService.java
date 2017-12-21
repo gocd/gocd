@@ -44,7 +44,7 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +108,7 @@ public class PackageDefinitionService {
             if (property != null) {
                 property.addError(validationError.getKey(), validationError.getMessage());
             } else {
-                String validationErrorKey = StringUtil.isBlank(validationError.getKey()) ? PackageDefinition.CONFIGURATION : validationError.getKey();
+                String validationErrorKey = StringUtils.isBlank(validationError.getKey()) ? PackageDefinition.CONFIGURATION : validationError.getKey();
                 packageDefinition.addError(validationErrorKey, validationError.getMessage());
             }
         }

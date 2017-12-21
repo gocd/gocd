@@ -39,7 +39,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private DefaultPluginJarLocationMonitor monitor;

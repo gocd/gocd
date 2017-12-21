@@ -54,7 +54,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildAssignmentTest {
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
@@ -73,7 +73,7 @@ public class BuildAssignmentTest {
     public void setUp() throws IOException {
         initMocks(this);
         dir = temporaryFolder.newFolder("someFolder");
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo", temporaryFolder);
         svnRepoFixture.createRepository();
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
         svnMaterial = createSvnMaterialWithMock(command);
@@ -203,7 +203,7 @@ public class BuildAssignmentTest {
         assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER"), Matchers.is(TRIGGERED_BY_USER));
     }
 
-    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) {
+    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
@@ -212,7 +212,7 @@ public class BuildAssignmentTest {
         return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
     }
 
-    private MaterialRevisions materialRevisions() {
+    private MaterialRevisions materialRevisions() throws IOException {
         MaterialRevision svnRevision = new MaterialRevision(this.svnMaterial,
                 ModificationsMother.oneModifiedFile(
                         svnRepoFixture.getHeadRevision(svnRepoFixture.getEnd2EndRepoUrl())));
@@ -257,7 +257,7 @@ public class BuildAssignmentTest {
     }
 
     private void setupHgRepo() throws IOException {
-        hgTestRepo = new HgTestRepo("hgTestRepo1");
+        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl(), "hg_Dir");
     }
 

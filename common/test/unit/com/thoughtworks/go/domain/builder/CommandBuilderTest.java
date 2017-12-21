@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -36,15 +36,14 @@ import static org.junit.Assert.assertThat;
 public class CommandBuilderTest {
 
     private File tempWorkDir;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     @Before
-    public void setUp(){
-        tempWorkDir = TestFileUtil.createTempFolder("someDir");
-    }
-
-    @After
-    public void tearDown(){
-        FileUtils.deleteQuietly(tempWorkDir);
+    public void setUp() throws IOException {
+        temporaryFolder.create();
+        tempWorkDir = temporaryFolder.newFolder();
     }
 
     @Test

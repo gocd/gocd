@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
-import com.thoughtworks.go.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -118,12 +117,12 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         Set<AuthorizationPluginInfo> loadedWebBasedAuthPlugins = authorizationMetadataStore.getPluginsThatSupportsWebBasedAuthentication();
         SecurityAuthConfigs configuredAuthPluginProfiles = getPluginProfiles();
         for (SecurityAuthConfig authConfig : configuredAuthPluginProfiles) {
-            AuthorizationPluginInfo authorizationPluginInfo = ListUtil.find(loadedWebBasedAuthPlugins, new Predicate<AuthorizationPluginInfo>() {
+            AuthorizationPluginInfo authorizationPluginInfo = loadedWebBasedAuthPlugins.stream().filter(new Predicate<AuthorizationPluginInfo>() {
                 @Override
-                public boolean test(AuthorizationPluginInfo authorizationPluginInfo) {
-                    return authorizationPluginInfo.getDescriptor().id().equals(authConfig.getPluginId());
+                public boolean test(AuthorizationPluginInfo authorizationPluginInfo1) {
+                    return authorizationPluginInfo1.getDescriptor().id().equals(authConfig.getPluginId());
                 }
-            });
+            }).findFirst().orElse(null);
             if (authorizationPluginInfo != null) {
                 result.add(new AuthPluginInfoViewModel(authorizationPluginInfo));
             }

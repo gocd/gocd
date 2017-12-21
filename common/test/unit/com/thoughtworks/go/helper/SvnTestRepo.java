@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helper;
 
@@ -20,11 +20,11 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,18 +33,20 @@ import java.util.List;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.copyDirectory;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class SvnTestRepo extends TestRepo {
     protected File tempRepo;
 
     private static final String REPO_TEST_DATA_FOLDER = "../common/test-resources/unit/data/svnrepo";
 
-    public SvnTestRepo() throws IOException {
-        this("testSvnRepo-" + System.currentTimeMillis());
-    }
-
-    public SvnTestRepo(String tempFolderName) throws IOException {
-        tempRepo = TestFileUtil.createUniqueTempFolder(tempFolderName);
+    public SvnTestRepo(TemporaryFolder temporaryFolder, String folderName) throws IOException {
+        super(temporaryFolder);
+        if (isBlank(folderName)) {
+            tempRepo = temporaryFolder.newFolder();
+        } else {
+            tempRepo = temporaryFolder.newFolder(folderName);
+        }
         tmpFolders.add(tempRepo);
         try {
             copyDirectory(new File(REPO_TEST_DATA_FOLDER), tempRepo);
@@ -52,6 +54,10 @@ public class SvnTestRepo extends TestRepo {
             Assert.fail("Could not copy test repo [" + REPO_TEST_DATA_FOLDER + "] into [" + tempRepo + "] beacuse of " + e.getMessage());
         }
         new File(tempRepo, "/project1/db/transactions").mkdir();
+    }
+
+    public SvnTestRepo(TemporaryFolder temporaryFolder) throws IOException {
+        this(temporaryFolder, null);
     }
 
     public String urlFor(String project) {
@@ -96,8 +102,8 @@ public class SvnTestRepo extends TestRepo {
         return material;
     }
 
-    private Revision getLatestRevision(SvnMaterial svnMaterial) {
-        final File workingCopy = TestFileUtil.createTempFolder("bar");
+    private Revision getLatestRevision(SvnMaterial svnMaterial) throws IOException {
+        final File workingCopy = temporaryFolder.newFolder();
         tmpFolders.add(workingCopy);
         return latestRevision(svnMaterial, workingCopy, new TestSubprocessExecutionContext());
     }
@@ -114,7 +120,7 @@ public class SvnTestRepo extends TestRepo {
     }
 
     protected List<Modification> checkInOneFile(SvnMaterial svnMaterial, String filename, String message) throws IOException {
-        final File workingCopy = TestFileUtil.createTempFolder("foo" + System.currentTimeMillis());
+        final File workingCopy = temporaryFolder.newFolder();
         tmpFolders.add(workingCopy);
 
         InMemoryStreamConsumer consumer = inMemoryConsumer();
@@ -137,14 +143,14 @@ public class SvnTestRepo extends TestRepo {
     }
 
     @Override
-    public List<Modification> latestModification() {
-        final File workingCopy = TestFileUtil.createTempFolder("foo" + System.currentTimeMillis());
+    public List<Modification> latestModification() throws IOException {
+        final File workingCopy = temporaryFolder.newFolder();
         return material().latestModification(workingCopy, new TestSubprocessExecutionContext());
     }
 
 
     public void checkInOneFile(String fileName, SvnMaterial svnMaterial) throws Exception {
-        final File baseDir = TestFileUtil.createTempFolder("foo");
+        final File baseDir = temporaryFolder.newFolder();
         tmpFolders.add(baseDir);
 
         ProcessOutputStreamConsumer consumer = inMemoryConsumer();

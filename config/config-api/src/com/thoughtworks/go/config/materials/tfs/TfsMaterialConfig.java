@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -128,7 +128,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     public String getPassword() {
         try {
-            return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
@@ -173,13 +173,13 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public void validateConcreteScmMaterial() {
-        if (url == null || StringUtil.isBlank(url.forDisplay())) {
+        if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
-        if (StringUtil.isBlank(userName)) {
+        if (StringUtils.isBlank(userName)) {
             errors().add(USERNAME, "Username cannot be blank");
         }
-        if (StringUtil.isBlank(projectPath)) {
+        if (StringUtils.isBlank(projectPath)) {
             errors().add(PROJECT_PATH, "Project Path cannot be blank");
         }
         if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
@@ -227,7 +227,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     private void resetPassword(String passwordToSet) {
-        if (StringUtil.isBlank(passwordToSet)) {
+        if (StringUtils.isBlank(passwordToSet)) {
             encryptedPassword = null;
         }
 
@@ -235,7 +235,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             return;
         }
         try {

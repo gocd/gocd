@@ -46,7 +46,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MaterialAgentFactoryTest {
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;
@@ -61,7 +61,7 @@ public class MaterialAgentFactoryTest {
     @Test
     public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() throws IOException {
         String agentUuid = "uuid-01783738";
-        File workingDirectory = temporaryFolder.newFolder("foo");
+        File workingDirectory = temporaryFolder.newFolder();
         MaterialAgentFactory factory = new MaterialAgentFactory(new ProcessOutputStreamConsumer(new DevNull(), new DevNull()), workingDirectory,
                 new AgentIdentifier("host", "1.1.1.1", agentUuid), packageRepositoryExtension, scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");

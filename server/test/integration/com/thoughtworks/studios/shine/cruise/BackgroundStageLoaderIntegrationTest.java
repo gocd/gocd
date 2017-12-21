@@ -66,7 +66,7 @@ import static org.mockito.Mockito.when;
 public class BackgroundStageLoaderIntegrationTest {
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private StageStorage stageStorage;
     private BackgroundStageLoader loader;

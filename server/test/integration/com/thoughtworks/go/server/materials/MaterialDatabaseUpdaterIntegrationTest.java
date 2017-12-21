@@ -35,7 +35,9 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -69,6 +71,9 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired private SecurityService securityService;
     @Autowired private PackageRepositoryExtension packageRepositoryExtension;
     @Autowired private SCMExtension scmExtension;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     private GitTestRepo testRepo;
     private MaterialDatabaseUpdaterIntegrationTest.TransactionTemplateWithInvocationCount transactionTemplateWithInvocationCount;
@@ -76,7 +81,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        testRepo = new GitTestRepo();
+        testRepo = new GitTestRepo(temporaryFolder);
 
         MaterialService slowMaterialService = new MaterialServiceWhichSlowsDownFirstTimeModificationCheck(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension);
         LegacyMaterialChecker materialChecker = new LegacyMaterialChecker(slowMaterialService, subprocessExecutionContext);

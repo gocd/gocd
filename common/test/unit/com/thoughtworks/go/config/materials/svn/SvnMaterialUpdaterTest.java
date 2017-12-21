@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -49,8 +48,8 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Before
     public void setUp() throws Exception {
-        this.svnTestRepo = new SvnTestRepo("testsvnrepo");
-        this.workingDir = TestFileUtil.createTempFolder("workingFolder");
+        this.svnTestRepo = new SvnTestRepo(temporaryFolder);
+        this.workingDir = temporaryFolder.newFolder("workingFolder");
         svnMaterial = MaterialsMother.svnMaterial(svnTestRepo.projectRepositoryUrl());
     }
 
@@ -102,7 +101,7 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
         shouldBeRemoved.createNewFile();
         assertThat(shouldBeRemoved.exists(), is(true));
 
-        String repositoryUrl = new SvnTestRepo().projectRepositoryUrl();
+        String repositoryUrl = new SvnTestRepo(temporaryFolder).projectRepositoryUrl();
         assertNotEquals(svnTestRepo.projectRepositoryUrl(), repositoryUrl);
         SvnMaterial material = MaterialsMother.svnMaterial(repositoryUrl);
         updateTo(material, new RevisionContext(revision), JobResult.Passed);

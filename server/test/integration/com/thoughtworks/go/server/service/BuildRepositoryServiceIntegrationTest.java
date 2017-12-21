@@ -42,10 +42,8 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -108,6 +106,9 @@ public class BuildRepositoryServiceIntegrationTest {
     @Autowired
     private InstanceFactory instanceFactory;
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static GoConfigFileHelper config = new GoConfigFileHelper();
     private PipelineConfig mingle;
     private static final String DEV_STAGE = "dev";
@@ -132,7 +133,7 @@ public class BuildRepositoryServiceIntegrationTest {
         config.usingCruiseConfigDao(goConfigDao);
         goConfigService.forceNotifyListeners();
 
-        svnTestRepo = new SvnTestRepo("testsvnrepo");
+        svnTestRepo = new SvnTestRepo(temporaryFolder);
 
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         config.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");

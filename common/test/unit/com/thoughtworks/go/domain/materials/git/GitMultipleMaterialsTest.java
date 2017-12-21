@@ -16,23 +16,20 @@
 
 package com.thoughtworks.go.domain.materials.git;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static org.hamcrest.Matchers.is;
@@ -41,21 +38,19 @@ import static org.junit.Assert.assertThat;
 public class GitMultipleMaterialsTest {
     private GitTestRepo repo;
     private File pipelineDir;
-    private List<File> toClean = new ArrayList<>();
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void createRepo() throws IOException {
-        repo = new GitTestRepo();
-        pipelineDir = TestFileUtil.createTempFolder("working-dir-" + UUID.randomUUID());
-        toClean.add(pipelineDir);
+        repo = new GitTestRepo(temporaryFolder);
+        pipelineDir = temporaryFolder.newFolder();
     }
 
     @After
     public void cleanupRepo() {
         repo.tearDown();
-        for (File file : toClean) {
-            FileUtils.deleteQuietly(file);
-        }
     }
 
     @Test

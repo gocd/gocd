@@ -1,10 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc. *
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,9 +31,8 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
@@ -205,7 +206,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     }
 
     private void writeConfigToFile(File configFile) throws IOException {
-        if (!SystemUtil.isWindows()) {
+        if (!SystemUtils.IS_OS_WINDOWS) {
             update(configFile);
             return;
         }
@@ -268,13 +269,12 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 goConfigService.updateConfig(new UpdateConfigCommand() {
                     @Override
                     public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                        ConfigRepoConfig repoConfig = ListUtil.find(cruiseConfig.getConfigRepos(), new ListUtil.Condition() {
+                        ConfigRepoConfig repoConfig = cruiseConfig.getConfigRepos().stream().filter(new Predicate<ConfigRepoConfig>() {
                             @Override
-                            public <T> boolean isMet(T item) {
-                                ConfigRepoConfig configRepoConfig = (ConfigRepoConfig) item;
-                                return configRepoToBeDeleted.getMaterialConfig().equals(configRepoConfig.getMaterialConfig());
+                            public boolean test(ConfigRepoConfig item) {
+                                return configRepoToBeDeleted.getMaterialConfig().equals(item.getMaterialConfig());
                             }
-                        });
+                        }).findFirst().orElse(null);
                         cruiseConfig.getConfigRepos().remove(repoConfig);
                         return cruiseConfig;
                     }

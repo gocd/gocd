@@ -16,37 +16,34 @@
 
 package com.thoughtworks.go.domain.materials;
 
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import java.io.File;
 import java.io.IOException;
 
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import static org.hamcrest.Matchers.is;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Assert;
-import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class DirectoryCleanerTest {
     private File baseFolder;
     private DirectoryCleaner cleaner;
     private InMemoryStreamConsumer consumer;
 
-    @Before
-    public void createBaseDirectory() {
-        consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        baseFolder = TestFileUtil.createTempFolder("directoryCleaner");
-        cleaner = new DirectoryCleaner(baseFolder, consumer);
-    }
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @After
-    public void removeBaseDirectory() {
-        FileUtils.deleteQuietly(baseFolder);
+    @Before
+    public void createBaseDirectory() throws IOException {
+        consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
+        baseFolder = temporaryFolder.newFolder("directoryCleaner");
+        cleaner = new DirectoryCleaner(baseFolder, consumer);
     }
 
     @Test

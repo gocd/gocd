@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,26 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.helper.TestStreamConsumer;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.HttpServiceStub;
-import com.thoughtworks.go.util.SystemUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TestingClock;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.text.StrLookup;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.thoughtworks.go.domain.BuildCommand.exec;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 public class BuildSessionBasedTestCase {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     protected BuildStateReporterStub statusReporter;
     protected Map<String, String> buildVariables;
     protected File sandbox;
@@ -48,19 +51,16 @@ public class BuildSessionBasedTestCase {
     protected AgentIdentifier agentIdentifier;
 
     @Before
-    public void superSetup() {
+    public void superSetup() throws IOException {
+        temporaryFolder.delete();
+        temporaryFolder.create();
         statusReporter = new BuildStateReporterStub();
         buildVariables = new HashMap<>();
         artifactsRepository = new ArtifactsRepositoryStub();
-        sandbox = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
+        sandbox = temporaryFolder.newFolder();
         console = new TestStreamConsumer();
         httpService = new HttpServiceStub();
         agentIdentifier = new AgentIdentifier("hostname", "ipaddress", "uuid");
-    }
-
-    @After
-    public void superTeardown() {
-        TestFileUtil.cleanTempFiles();
     }
 
     protected BuildSession newBuildSession() {
@@ -90,11 +90,11 @@ public class BuildSessionBasedTestCase {
     }
 
     protected String pathSystemEnvName() {
-        return SystemUtil.isWindows() ? "Path" : "PATH";
+        return SystemUtils.IS_OS_WINDOWS ? "Path" : "PATH";
     }
 
     public static BuildCommand execSleepScript(int seconds) {
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             return exec("ping 1.1.1.1 -n 1 -w " + seconds * 1000 + " >NUL");
         } else {
             return exec("/bin/sleep", String.valueOf(seconds));
@@ -102,7 +102,7 @@ public class BuildSessionBasedTestCase {
     }
 
     protected String execSleepScriptProcessCommand() {
-        return SystemUtil.isWindows() ? "PING.EXE" : "sleep";
+        return SystemUtils.IS_OS_WINDOWS ? "PING.EXE" : "sleep";
     }
 
 }

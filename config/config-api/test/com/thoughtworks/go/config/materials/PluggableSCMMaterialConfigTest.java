@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 public class PluggableSCMMaterialConfigTest {
     private PluggableSCMMaterialConfig pluggableSCMMaterialConfig;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws IOException {

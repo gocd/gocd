@@ -49,7 +49,9 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -74,6 +76,9 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class BuildCauseProducerServiceWithFlipModificationTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static final String STAGE_NAME = "dev";
 
     @Autowired private GoConfigService goConfigService;
@@ -104,8 +109,8 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
-        svnRepository = new SvnTestRepo("testSvnRepo");
-        hgTestRepo = new HgTestRepo("testHgRepo");
+        svnRepository = new SvnTestRepo(temporaryFolder);
+        hgTestRepo = new HgTestRepo("testHgRepo", temporaryFolder);
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
         svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().forCommandline(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
     }

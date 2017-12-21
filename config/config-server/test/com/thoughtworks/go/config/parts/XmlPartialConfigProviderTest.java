@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,10 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,31 +38,26 @@ import static org.mockito.Mockito.when;
 
 public class XmlPartialConfigProviderTest {
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private ConfigCache configCache = new ConfigCache();
     private MagicalGoConfigXmlLoader xmlLoader;
     private XmlPartialConfigProvider xmlPartialProvider;
     private MagicalGoConfigXmlWriter xmlWriter;
     private  PartialConfigHelper helper;
-    private File baseFolder;
     private  File tmpFolder;
 
     @Before
-    public void SetUp()
-    {
-        baseFolder = TestFileUtil.createTempFolder("test");
+    public void SetUp() throws IOException {
+        tmpFolder = temporaryFolder.newFolder();
 
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         xmlPartialProvider = new XmlPartialConfigProvider(xmlLoader);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
 
-        tmpFolder = TestFileUtil.createTestFolder(baseFolder, "partialTestDir");
         helper = new PartialConfigHelper(xmlWriter, tmpFolder);
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        FileUtil.deleteDirectoryNoisily(baseFolder);
     }
 
     @Test

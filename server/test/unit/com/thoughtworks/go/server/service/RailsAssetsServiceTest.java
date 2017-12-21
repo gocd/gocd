@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,10 +30,9 @@ import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
@@ -51,7 +50,7 @@ public class RailsAssetsServiceTest {
     private SystemEnvironment systemEnvironment;
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Before
     public void setup() throws IOException {
@@ -121,11 +120,10 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo(){
-        List<Field> fields = ArrayUtil.asList(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields());
-        ArrayList<Field> fieldsAnnotatedWithSerializedNameAsAssets = new ArrayList<>();
-        ListUtil.filterInto(fieldsAnnotatedWithSerializedNameAsAssets, fields, new Filter<Field>() {
+        List<Field> fields = new ArrayList<>(Arrays.asList(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields()));
+        List<Field> fieldsAnnotatedWithSerializedNameAsAssets = fields.stream().filter(new Predicate<Field>() {
             @Override
-            public boolean matches(Field field) {
+            public boolean test(Field field) {
                 if (field.isAnnotationPresent(SerializedName.class)) {
                     SerializedName annotation = field.getAnnotation(SerializedName.class);
                     if (annotation.value().equals("assets")) {
@@ -135,7 +133,7 @@ public class RailsAssetsServiceTest {
                 }
                 return false;
             }
-        });
+        }).collect(Collectors.toList());
         assertThat("Expected a field annotated with SerializedName 'assets'", fieldsAnnotatedWithSerializedNameAsAssets.isEmpty(), is(false));
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size(), is(1));
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName(), is(HashMap.class.getCanonicalName()));

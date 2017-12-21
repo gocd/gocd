@@ -37,7 +37,9 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -53,6 +55,9 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class RemoteRegistrationRequesterTest {
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private TokenService tokenService;
 
@@ -164,8 +169,8 @@ public class RemoteRegistrationRequesterTest {
         };
     }
 
-    private Registration createRegistration() {
-        Registration certificates = AgentCertificateMother.agentCertificate();
+    private Registration createRegistration() throws IOException {
+        Registration certificates = AgentCertificateMother.agentCertificate(temporaryFolder);
         return new Registration(certificates.getPrivateKey(), certificates.getChain());
     }
 }

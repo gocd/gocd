@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 @ConfigTag("param")
 public class ParamConfig implements Validatable {
@@ -71,7 +71,7 @@ public class ParamConfig implements Validatable {
     public void validateName(Map<String, ParamConfig> paramConfigMap, ValidationContext validationContext) {
         CaseInsensitiveString parentName = validationContext.getPipeline().name();
 
-        if (StringUtil.isBlank(name)) {
+        if (StringUtils.isBlank(name)) {
             configErrors.add("name", String.format("Parameter cannot have an empty name for pipeline '%s'.", parentName));
             return;
         }

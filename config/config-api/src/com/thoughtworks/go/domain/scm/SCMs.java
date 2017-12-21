@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.scm;
 
@@ -22,14 +22,10 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.ListUtil;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import static com.thoughtworks.go.util.ListUtil.join;
+import java.util.*;
+import java.util.function.Predicate;
 
 @ConfigTag("scms")
 @ConfigCollection(value = SCM.class)
@@ -43,12 +39,12 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     public SCM find(final String scmId) {
-        return ListUtil.find(this, new ListUtil.Condition() {
+        return stream().filter(new Predicate<SCM>() {
             @Override
-            public <T> boolean isMet(T scm) {
-                return ((SCM) scm).getId().equals(scmId);
+            public boolean test(SCM scm) {
+                return scm.getId().equals(scmId);
             }
-        });
+        }).findFirst().orElse(null);
     }
 
     @Override
@@ -116,7 +112,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
                 }
 
                 for (SCM scm : scmsWithSameFingerprint) {
-                    scm.addError(SCM.SCM_ID, String.format("Cannot save SCM, found duplicate SCMs. %s", join(scmNames)));
+                    scm.addError(SCM.SCM_ID, String.format("Cannot save SCM, found duplicate SCMs. %s", StringUtils.join(scmNames, ", ")));
                 }
             }
         }

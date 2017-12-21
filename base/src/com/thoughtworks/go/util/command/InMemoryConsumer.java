@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.util.command;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static com.thoughtworks.go.util.ListUtil.join;
 
 public class InMemoryConsumer implements StreamConsumer {
     private Queue<String> lines = new ConcurrentLinkedQueue<>();
@@ -46,6 +45,6 @@ public class InMemoryConsumer implements StreamConsumer {
     }
 
     public String toString() {
-        return join(asList(), "\n");
+        return StringUtils.join(asList(), "\n");
     }
 }

@@ -32,6 +32,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +48,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class P4Material extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private String serverAndPort;
@@ -312,16 +314,16 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
             String p4RepoId = p4RepoId();
             File file = new File(workingDirectory, ".cruise_p4repo");
             if (!file.exists()) {
-                FileUtils.writeStringToFile(file, p4RepoId);
+                FileUtils.writeStringToFile(file, p4RepoId, UTF_8);
                 return true;
             }
 
-            String existingRepoId = FileUtils.readFileToString(file);
+            String existingRepoId = FileUtils.readFileToString(file, UTF_8);
             if (!p4RepoId.equals(existingRepoId)) {
                 outputConsumer.stdOutput(format("[%s] Working directory has changed. Deleting and re-creating it.", GoConstants.PRODUCT_NAME));
                 FileUtils.deleteDirectory(workingDirectory);
                 workingDirectory.mkdirs();
-                FileUtils.writeStringToFile(file, p4RepoId);
+                FileUtils.writeStringToFile(file, p4RepoId, UTF_8);
                 cleaned = true;
             }
             return cleaned;
@@ -363,14 +365,14 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     private void resetPassword(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             this.encryptedPassword = null;
         }
         setPasswordIfNotBlank(password);
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             return;
         }
         try {
@@ -388,7 +390,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     public String currentPassword() {
         try {
-            return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }

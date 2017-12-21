@@ -107,7 +107,7 @@ public class BackupServiceIntegrationTest {
 
     private File backupsDirectory;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private byte[] originalCipher;
     private Username admin;
 

@@ -34,7 +34,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -67,6 +69,10 @@ public class UpdateAgentStatusTest {
 
     @Autowired
     private MaterialRepository materialRepository;
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private PipelineWithTwoStages preCondition;
     private String agentId = "uuid";
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -76,7 +82,7 @@ public class UpdateAgentStatusTest {
         dbHelper.onSetUp();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
         agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig(agentId, "CCEDev01", "10.81.2.1"), false, "/var/lib", 0L, "linux", false));

@@ -36,6 +36,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_COMMAND_SNIPPETS_ZIP;
 import static com.thoughtworks.go.util.SystemEnvironment.VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class CommandRepositoryInitializer implements Initializer {
@@ -97,7 +98,7 @@ public class CommandRepositoryInitializer implements Initializer {
         if (!file.exists()) {
             return Version.belowAllVersions();
         }
-        return new Version(FileUtils.readFileToString(file));
+        return new Version(FileUtils.readFileToString(file, UTF_8));
     }
 
     ZipInputStream getPackagedRepositoryZipStream() {

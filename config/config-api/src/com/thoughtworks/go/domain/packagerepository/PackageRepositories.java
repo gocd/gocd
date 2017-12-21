@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain.packagerepository;
 
-import java.util.Collections;
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
@@ -26,7 +23,10 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.ListUtil;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.function.Predicate;
 
 import static java.lang.String.format;
 
@@ -42,12 +42,12 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
     }
 
     public PackageRepository find(final String repoId) {
-        return ListUtil.find(this, new ListUtil.Condition() {
+        return stream().filter(new Predicate<PackageRepository>() {
             @Override
-            public <T> boolean isMet(T repository) {
-                return ((PackageRepository) repository).getId().equals(repoId);
+            public boolean test(PackageRepository repository) {
+                return repository.getId().equals(repoId);
             }
-        });
+        }).findFirst().orElse(null);
     }
 
     public PackageRepository findPackageRepositoryWithPackageIdOrBomb(String packageId) {

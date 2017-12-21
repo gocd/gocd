@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -33,7 +28,6 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
@@ -43,10 +37,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import static com.thoughtworks.go.helper.ModificationsMother.createHgMaterialWithMultipleRevisions;
-import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationsInHg;
-import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -57,12 +55,12 @@ public class MaterialRevisionTest {
     private static final StringRevision REVISION_2 = new StringRevision("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
     private HgMaterial hgMaterial;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File workingFolder;
 
     @Before
     public void setUp() throws Exception {
-        HgTestRepo hgTestRepo = new HgTestRepo("hgTestRepo1");
+        HgTestRepo hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         workingFolder = temporaryFolder.newFolder();
     }
@@ -384,13 +382,13 @@ public class MaterialRevisionTest {
     }
 
     private void checkInFiles(HgMaterial hgMaterial, String... fileNames) throws Exception {
-        final File localDir = TestFileUtil.createTempFolder("foo");
+        final File localDir = temporaryFolder.newFolder();
         InMemoryStreamConsumer consumer = inMemoryConsumer();
         Revision revision = latestRevision(hgMaterial, workingFolder, new TestSubprocessExecutionContext());
         hgMaterial.updateTo(consumer, localDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         for (String fileName : fileNames) {
             File file = new File(localDir, fileName);
-            FileUtils.writeStringToFile(file, "");
+            FileUtils.writeStringToFile(file, "", UTF_8);
             hgMaterial.add(localDir, consumer, file);
         }
         hgMaterial.commit(localDir, consumer, "Adding a new file.", "TEST");

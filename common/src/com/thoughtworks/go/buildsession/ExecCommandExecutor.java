@@ -16,10 +16,10 @@
 package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
-import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
     private CommandLine createCommandLine(String cmd) {
         CommandLine commandLine;
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             commandLine = CommandLine.createCommandLine("cmd");
             commandLine.withArg("/c");
             commandLine.withArg(StringUtils.replace(cmd, "/", "\\"));

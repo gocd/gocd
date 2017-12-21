@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @Component
 public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
     private static final String XML_EXTENSION = "xml";
@@ -79,7 +81,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
 
     private String safeReadFileToString(File file) {
         try {
-            return FileUtils.readFileToString(file);
+            return FileUtils.readFileToString(file, UTF_8);
         } catch (IOException e) {
             return null;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NullArgumentException;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
@@ -260,10 +261,10 @@ public class ConfigRepository {
             public String call() throws GitAPIException {
                 RevCommit laterCommit = null;
                 RevCommit earlierCommit = null;
-                if (!StringUtil.isBlank(laterMD5)) {
+                if (!StringUtils.isBlank(laterMD5)) {
                     laterCommit = getRevCommitForMd5(laterMD5);
                 }
-                if (!StringUtil.isBlank(earlierMD5))
+                if (!StringUtils.isBlank(earlierMD5))
                     earlierCommit = getRevCommitForMd5(earlierMD5);
                 return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
             }
@@ -275,10 +276,10 @@ public class ConfigRepository {
             public String call() throws GitAPIException {
                 RevCommit laterCommit = null;
                 RevCommit earlierCommit = null;
-                if (!StringUtil.isBlank(fromRevision)) {
+                if (!StringUtils.isBlank(fromRevision)) {
                     laterCommit = getRevCommitForCommitSHA(fromRevision);
                 }
-                if (!StringUtil.isBlank(toRevision)) {
+                if (!StringUtils.isBlank(toRevision)) {
                     earlierCommit = getRevCommitForCommitSHA(toRevision);
                 }
                 return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
@@ -369,7 +370,7 @@ public class ConfigRepository {
             throw new ConfigFileHasChangedException();
         }
         LOGGER.info("[CONFIG_MERGE] Successfully merged commit {} by user {} to branch {}. Merge commit revision is {}", newCommit.getId().getName(), newCommit.getAuthorIdent().getName(), branchName, getCurrentRevCommit().getId().getName());
-        return FileUtils.readFileToString(new File(workingDir, CRUISE_CONFIG_XML));
+        return FileUtils.readFileToString(new File(workingDir, CRUISE_CONFIG_XML), UTF_8);
     }
 
     private void checkout(String branchName) throws GitAPIException {

@@ -27,7 +27,9 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,6 +49,9 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public abstract class TestBaseForDatabaseUpdater {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     protected TestRepo testRepo;
     protected abstract Material material();
 

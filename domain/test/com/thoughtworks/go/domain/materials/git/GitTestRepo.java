@@ -27,12 +27,14 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -50,19 +52,19 @@ public class GitTestRepo extends TestRepo {
     public static final StringRevision NON_EXISTENT_REVISION = new StringRevision("4ffef3cb33d98b28858743a53b6ee77bfe9d21bb");
     private File gitRepo;
 
-    public GitTestRepo(String path) throws IOException {
-        this(new File(path));
+    public GitTestRepo(String path, TemporaryFolder temporaryFolder) throws IOException {
+        this(new File(path), temporaryFolder);
     }
 
-    public static GitTestRepo testRepoAtBranch(String gitBundleFilePath, String branch) throws IOException {
-        GitTestRepo testRepo = new GitTestRepo(gitBundleFilePath);
+    public static GitTestRepo testRepoAtBranch(String gitBundleFilePath, String branch, TemporaryFolder temporaryFolder) throws IOException {
+        GitTestRepo testRepo = new GitTestRepo(gitBundleFilePath, temporaryFolder);
         testRepo.checkoutRemoteBranchToLocal(branch);
         return testRepo;
     }
 
 
-    public GitTestRepo() throws IOException {
-        this(GIT_3_REVISIONS_BUNDLE);
+    public GitTestRepo(TemporaryFolder temporaryFolder) throws IOException {
+        this(GIT_3_REVISIONS_BUNDLE, temporaryFolder);
     }
 
     public GitMaterial createMaterial(String dest) {
@@ -71,8 +73,9 @@ public class GitTestRepo extends TestRepo {
         return gitMaterial;
     }
 
-    public GitTestRepo(File gitBundleFile) {
-        gitRepo = new File(TestFileUtil.createUniqueTempFolder("GitTestRepo"), "repo");
+    public GitTestRepo(File gitBundleFile, TemporaryFolder temporaryFolder) throws IOException {
+        super(temporaryFolder);
+        gitRepo = temporaryFolder.newFolder("GitTestRepo" + UUID.randomUUID().toString(), "repo");
         cloneBundleToFolder(gitBundleFile, gitRepo);
         tmpFolders.add(gitRepo);
     }
@@ -133,7 +136,7 @@ public class GitTestRepo extends TestRepo {
         newFile.createNewFile();
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).add(newFile);
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).commit(message);
-        return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
+        return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
     }
 
     public List<Modification> addFileAndAmend(String fileName, String message) throws IOException {
@@ -141,7 +144,7 @@ public class GitTestRepo extends TestRepo {
         newFile.createNewFile();
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).add(newFile);
         new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).commitWithAmend(message, gitRepo);
-        return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
+        return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
     }
 
     private static class GitCommandWithAmend extends GitCommand {

@@ -25,12 +25,13 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,13 +47,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GitMaterialShallowCloneTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private GitTestRepo repo;
     private File workingDir;
 
     @Before
     public void setup() throws Exception {
-        repo = new GitTestRepo();
-        workingDir = TestFileUtil.createUniqueTempFolder("working");
+        repo = new GitTestRepo(temporaryFolder);
+        workingDir = temporaryFolder.newFolder("working-dir");
     }
 
 

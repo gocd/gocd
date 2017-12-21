@@ -20,10 +20,9 @@ import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.SystemUtil;
 import ch.qos.logback.classic.Level;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -134,7 +133,7 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
     }
 
     private BuildCommand execEchoEnv(final String envname) {
-        if (SystemUtil.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             return exec("echo", "%" + envname + "%");
         } else {
             return exec("/bin/sh", "-c", String.format("echo ${%s}", envname));

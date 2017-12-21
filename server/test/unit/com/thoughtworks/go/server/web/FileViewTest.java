@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -31,10 +32,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.when;
 
 public class FileViewTest extends MockObjectTestCase {
@@ -46,16 +47,23 @@ public class FileViewTest extends MockObjectTestCase {
 
     private Mock mockServletContext;
     private File file;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     protected void setUp() throws Exception {
+        temporaryFolder.create();
         super.setUp();
         mockRequest = new MockHttpServletRequest();
         mockResponse = new MockHttpServletResponse();
         mockServletContext = mock(ServletContext.class);
         view = new FileView();
         view.setServletContext((ServletContext) mockServletContext.proxy());
-        file = TestFileUtil.createTempFile("file.txt");
-        FileUtils.writeStringToFile(file, "hello");
+        file = temporaryFolder.newFile("file.txt");
+        FileUtils.writeStringToFile(file, "hello", UTF_8);
+    }
+
+    public void tearDown() throws Exception {
+        temporaryFolder.delete();
     }
 
     public void testShouldNotTruncateTheContentLengthHeaderIfTheLengthIsGreaterThan2G() {
@@ -88,10 +96,10 @@ public class FileViewTest extends MockObjectTestCase {
         view.render(model, mockRequest, mockResponse);
 
         // Unzip from the response and verify that the we can read the file back
-        File unzipHere = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
+        File unzipHere = temporaryFolder.newFolder();
         new ZipUtil().unzip(
                 new ZipInputStream(new ByteArrayInputStream(mockResponse.getContentAsByteArray())), unzipHere);
-        assertEquals(FileUtils.readFileToString(new File(unzipHere, file.getName())), "hello");
+        assertEquals(FileUtils.readFileToString(new File(unzipHere, file.getName()), UTF_8), "hello");
     }
 
     public void testShouldNotZipIfZipIsNotRequired() throws Exception {
@@ -112,7 +120,7 @@ public class FileViewTest extends MockObjectTestCase {
     }
 
     public void testCharacterEncodingSetToUtf8ForConsoleLogfile() throws Exception {
-        file = TestFileUtil.createTempFile("console.log");
+        file = temporaryFolder.newFile("console.log");
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
 

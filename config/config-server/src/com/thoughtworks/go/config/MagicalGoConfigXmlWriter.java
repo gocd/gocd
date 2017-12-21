@@ -32,12 +32,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
-import static com.thoughtworks.go.util.ObjectUtil.nullSafeEquals;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static java.text.MessageFormat.format;
 
@@ -190,7 +190,7 @@ public class MagicalGoConfigXmlWriter {
             try {
                 Object defaultObject = ConfigElementInstantiator.instantiateConfigElement(new GoCipher(), originalClass);
                 Object defaultValue = field.get(defaultObject);
-                return nullSafeEquals(value, defaultValue);
+                return Objects.equals(value, defaultValue);
             } catch (Exception e) {
                 return false;
             }

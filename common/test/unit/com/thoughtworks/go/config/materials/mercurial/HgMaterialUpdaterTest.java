@@ -28,8 +28,6 @@ import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,14 +49,13 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Before
     public void setUp() throws Exception {
-        hgTestRepo = new HgTestRepo("hgTestRepo1");
+        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
-        workingFolder = TestFileUtil.createTempFolder("workingFolder");
+        workingFolder = temporaryFolder.newFolder("workingFolder");
     }
 
     @After
     public void teardown() {
-        FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
     }
 
@@ -114,7 +111,7 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     public void shouldNotDeleteAndRecheckoutDirectoryUnlessUrlChanges() throws Exception {
-        String repositoryUrl = new HgTestRepo().projectRepositoryUrl();
+        String repositoryUrl = new HgTestRepo(temporaryFolder).projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
         updateTo(material, new RevisionContext(REVISION_0), JobResult.Passed);
         File shouldNotBeRemoved = new File(workingFolder, "shouldBeRemoved");
@@ -134,7 +131,7 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
         shouldBeRemoved.createNewFile();
         assertThat(shouldBeRemoved.exists(), is(true));
 
-        String repositoryUrl = new HgTestRepo().projectRepositoryUrl();
+        String repositoryUrl = new HgTestRepo(temporaryFolder).projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
         assertThat(material.getUrl(), not(hgMaterial.getUrl()));
@@ -144,7 +141,7 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     public void shouldPullNewChangesFromRemoteBeforeUpdating() throws Exception {
-        File newWorkingFolder = TestFileUtil.createTempFolder("newWorkingFolder");
+        File newWorkingFolder = temporaryFolder.newFolder("newWorkingFolder");
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
         String repositoryUrl = hgTestRepo.projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);

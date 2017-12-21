@@ -50,6 +50,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -224,7 +225,7 @@ public class AgentRegistrationControllerTest {
     @Test
     public void shouldReturnAgentPluginsZipWhenRequested() throws Exception {
         File pluginZipFile = TestFileUtil.createTempFile("plugins.zip");
-        FileUtils.writeStringToFile(pluginZipFile, "content");
+        FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(pluginsZip.md5()).thenReturn("md5");
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
 

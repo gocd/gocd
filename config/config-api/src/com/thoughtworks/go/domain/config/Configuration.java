@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package com.thoughtworks.go.domain.config;
 import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static java.lang.String.format;
 
@@ -47,7 +47,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
                 list.add(format("%s=%s", property.getConfigurationKey().getName().toLowerCase(), property.getConfigurationValue().getValue()));
             }
         }
-        return format("[%s]", ListUtil.join(list, ", "));
+        return format("[%s]", StringUtils.join(list, ", "));
     }
 
     public void setConfigAttributes(Object attributes, SecureKeyInfoProvider secureKeyInfoProvider) {
@@ -86,12 +86,12 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
     }
 
     public ConfigurationProperty getProperty(final String key) {
-        return ListUtil.find(this, new ListUtil.Condition() {
+        return stream().filter(new Predicate<ConfigurationProperty>() {
             @Override
-            public <T> boolean isMet(T item) {
-                return ((ConfigurationProperty) item).getConfigurationKey().getName().equals(key);
+            public boolean test(ConfigurationProperty item) {
+                return item.getConfigurationKey().getName().equals(key);
             }
-        });
+        }).findFirst().orElse(null);
     }
 
     public void addErrorFor(String key, String message) {
@@ -109,7 +109,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
             ConfigurationValue configurationValue = configurationProperty.getConfigurationValue();
             EncryptedConfigurationValue encryptedValue = configurationProperty.getEncryptedConfigurationValue();
 
-            if (StringUtil.isBlank(configurationProperty.getValue()) && (configurationValue == null || configurationValue.errors().isEmpty()) && (encryptedValue == null || encryptedValue.errors().isEmpty())) {
+            if (StringUtils.isBlank(configurationProperty.getValue()) && (configurationValue == null || configurationValue.errors().isEmpty()) && (encryptedValue == null || encryptedValue.errors().isEmpty())) {
                 propertiesToRemove.add(configurationProperty);
             }
         }

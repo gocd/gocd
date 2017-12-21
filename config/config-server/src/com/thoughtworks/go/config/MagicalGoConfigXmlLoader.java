@@ -28,12 +28,11 @@ import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.slf4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +41,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
@@ -176,11 +176,11 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends GoConfigPreprocessor> clazz) {
-        return ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
+        return MagicalGoConfigXmlLoader.PREPROCESSORS.stream().filter(new Predicate<GoConfigPreprocessor>() {
             @Override
-            public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
+            public boolean test(GoConfigPreprocessor item) {
                 return item.getClass().isAssignableFrom(clazz);
             }
-        });
+        }).findFirst().orElse(null);
     }
 }

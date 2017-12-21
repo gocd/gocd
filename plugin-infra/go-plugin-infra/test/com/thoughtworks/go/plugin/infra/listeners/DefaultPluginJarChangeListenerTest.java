@@ -16,23 +16,14 @@
 
 package com.thoughtworks.go.plugin.infra.listeners;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ExceptionHandler;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
-import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptorBuilder;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifest;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifestGenerator;
+import com.thoughtworks.go.plugin.infra.plugininfo.*;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -43,25 +34,21 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultPluginJarChangeListenerTest {
     private static final String TEST_BUNDLES_DIR = "test-bundles-dir";
@@ -129,7 +116,7 @@ public class DefaultPluginJarChangeListenerTest {
         File pluginJarFile = new File(PLUGIN_DIR, pluginJarFileName);
         File expectedBundleDirectory = new File(TEST_BUNDLES_DIR, pluginJarFileName);
         File activatorFileLocation = new File(expectedBundleDirectory, "lib/go-plugin-activator.jar");
-        FileUtils.writeStringToFile(activatorFileLocation, "SOME-DATA");
+        FileUtils.writeStringToFile(activatorFileLocation, "SOME-DATA", UTF_8);
 
         copyPluginToTheDirectory(PLUGIN_DIR, pluginJarFileName);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
@@ -139,7 +126,7 @@ public class DefaultPluginJarChangeListenerTest {
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar").exists(), is(true));
-        assertThat(FileUtils.readFileToString(activatorFileLocation), is(not("SOME-DATA")));
+        assertThat(FileUtils.readFileToString(activatorFileLocation, UTF_8), is(not("SOME-DATA")));
     }
 
     @Test

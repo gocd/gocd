@@ -41,7 +41,7 @@ public class JarUtilTest {
     private static final String PATH_WITH_HASHES = "#hashes#in#path/";
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws IOException {

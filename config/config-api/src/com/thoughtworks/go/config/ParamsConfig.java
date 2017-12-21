@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 @ConfigTag("params")
 @ConfigCollection(ParamConfig.class)
@@ -111,7 +111,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
             for (Map attributeMap : (List<Map>) attributes) {
                 String name = (String) attributeMap.get(ParamConfig.NAME);
                 String value = (String) attributeMap.get(ParamConfig.VALUE);
-                if (StringUtil.isBlank(name) && StringUtil.isBlank(value)) {
+                if (StringUtils.isBlank(name) && StringUtils.isBlank(value)) {
                     continue;
                 }
                 this.add(new ParamConfig(name, value));

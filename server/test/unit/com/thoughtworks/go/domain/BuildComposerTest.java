@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.server.service.builders.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
@@ -60,8 +59,8 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
-import static com.thoughtworks.go.util.SystemUtil.isWindows;
 import static com.thoughtworks.go.util.TestUtils.copyAndClose;
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -118,7 +117,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
             + "    <variable name=\"JOB_ENV\">\n"
             + "      <value>foobar</value>\n"
             + "    </variable>\n"
-            + "    <variable name=\"" + (isWindows() ? "Path" : "PATH") + "\">\n"
+            + "    <variable name=\"" + (IS_OS_WINDOWS ? "Path" : "PATH") + "\">\n"
             + "      <value>/tmp</value>\n"
             + "    </variable>\n"
             + "  </environmentvariables>\n"
@@ -470,7 +469,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
         assertThat(console.output(), matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
         assertThat(console.output(), matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
         assertThat(console.output(), containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
-        if (isWindows()) {
+        if (IS_OS_WINDOWS) {
             assertThat(console.output(), containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
         } else {
             assertThat(console.output(), containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
@@ -492,7 +491,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
             @Override
             public void run() {
                 try {
-                    build(SystemUtil.isWindows() ? SLEEP_TEN_SECONDS_ON_WINDOWS : SLEEP_TEN_SECONDS_ON_UNIX,
+                    build(IS_OS_WINDOWS ? SLEEP_TEN_SECONDS_ON_WINDOWS: SLEEP_TEN_SECONDS_ON_UNIX,
                             PIPELINE_NAME, true, false);
                 } catch (Exception e) {
                     err[0] = e;

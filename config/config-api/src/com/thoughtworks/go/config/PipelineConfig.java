@@ -37,7 +37,6 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.Node;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -207,7 +206,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void validateLabelTemplate() {
-        if (StringUtil.isBlank(labelTemplate)) {
+        if (StringUtils.isBlank(labelTemplate)) {
             addError("labelTemplate", BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
             return;
         }
@@ -615,7 +614,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean hasTemplate() {
-        return templateName != null && !StringUtil.isBlank(templateName.toString());
+        return templateName != null && !StringUtils.isBlank(templateName.toString());
     }
 
     public CaseInsensitiveString getTemplateName() {
@@ -745,7 +744,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
         if (attributeMap.containsKey(LABEL_TEMPLATE)) {
             labelTemplate = (String) attributeMap.get(LABEL_TEMPLATE);
-            if (StringUtil.isBlank(labelTemplate)) {
+            if (StringUtils.isBlank(labelTemplate)) {
                 labelTemplate = PipelineLabel.COUNT_TEMPLATE;
             }
         }

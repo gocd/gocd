@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -195,7 +194,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         }
         if (map.containsKey(FILTER)) {
             String pattern = (String) map.get(FILTER);
-            if (!StringUtil.isBlank(pattern)) {
+            if (!StringUtils.isBlank(pattern)) {
                 this.setFilter(Filter.fromDisplayString(pattern));
             } else {
                 this.setFilter(null);
@@ -256,7 +255,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     protected void validateExtras(ValidationContext validationContext) {
-        if (!StringUtil.isBlank(scmId)) {
+        if (!StringUtils.isBlank(scmId)) {
             SCM scm = validationContext.findScmById(scmId);
             if (scm == null) {
                 addError(SCM_ID, String.format("Could not find SCM for given scm-id: [%s].", scmId));

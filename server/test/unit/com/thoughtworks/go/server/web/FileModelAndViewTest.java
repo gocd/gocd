@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.domain.ZippedArtifact;
-import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class FileModelAndViewTest {
 
     @Test
     public void shouldReturn304AsStatusCodeWhenSha1IsSameAsProvidedValue() throws Exception {
-        ModelAndView modelAndView = FileModelAndView.createFileView(existFile, StringUtil.sha1Digest(existFile));
+        ModelAndView modelAndView = FileModelAndView.createFileView(existFile, FileUtil.sha1Digest(existFile));
         modelAndView.getView().render(modelAndView.getModel(), new MockHttpServletRequest(), response);
         assertThat(response.getStatus(), is(304));
     }

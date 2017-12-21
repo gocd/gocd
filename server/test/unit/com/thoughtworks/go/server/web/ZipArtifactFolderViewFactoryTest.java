@@ -16,17 +16,16 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.File;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -38,15 +37,14 @@ public class ZipArtifactFolderViewFactoryTest {
     private ZipArtifactFolderViewFactory folderViewFactory;
     private File cacheZipFile;
 
-    @Before public void setUp() throws Exception {
-        folder = TestFileUtil.createUniqueTempFolder("ZipArtifactFolderViewFactoryTest");
-        TestFileUtil.createTestFolder(folder, "dir");
-        cacheZipFile = TestFileUtil.createTempFile("cache/dir.zip");
-    }
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @After
-    public void tearDown() {
-        FileUtils.deleteQuietly(folder);
+    @Before public void setUp() throws Exception {
+        folder = temporaryFolder.newFolder("ZipArtifactFolderViewFactoryTest");
+        new File(folder, "dir").mkdirs();
+        temporaryFolder.newFolder("cache");
+        cacheZipFile = temporaryFolder.newFile("cache/dir.zip");
     }
 
     @Test public void shouldCreateArtifactCacheIfDoesNotExist() throws Exception {

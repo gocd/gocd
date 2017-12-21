@@ -30,10 +30,10 @@ import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -113,7 +113,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     private Property getExecProperty(TaskConfig defaultConfig, Property property) {
         String key = property.getKey();
         String configValue = pluginConfig.get(key) == null ? null : pluginConfig.get(key).get(PluggableTask.VALUE_KEY);
-        return StringUtil.isBlank(configValue) ? defaultConfig.get(key) : new TaskConfigProperty(key, configValue);
+        return StringUtils.isBlank(configValue) ? defaultConfig.get(key) : new TaskConfigProperty(key, configValue);
     }
 
     private PluginManager pluginManager() {

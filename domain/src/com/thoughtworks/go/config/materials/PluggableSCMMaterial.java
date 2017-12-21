@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -279,7 +279,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
                         urlEncodedValue = URLEncoder.encode(secureEnvironmentVariable.value(), "UTF-8");
                     } catch (UnsupportedEncodingException e) {
                     }
-                    boolean isSecureEnvironmentVariableEncoded = !StringUtil.isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
+                    boolean isSecureEnvironmentVariableEncoded = !StringUtils.isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
                     if (isSecureEnvironmentVariableEncoded && entry.getValue().contains(urlEncodedValue)) {
                         isSecure = true;
                         break;

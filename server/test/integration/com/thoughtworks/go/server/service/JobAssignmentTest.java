@@ -16,14 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.net.UnknownHostException;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.remote.work.BuildWork;
@@ -36,11 +31,15 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.net.UnknownHostException;
 
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -58,6 +57,8 @@ public class JobAssignmentTest {
     @Autowired private BuildAssignmentService assignmentService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages fixture;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -67,7 +68,7 @@ public class JobAssignmentTest {
     public void setUp() throws Exception {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(cruiseConfigDao);
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).usingThreeJobs().onSetUp();
         systemEnvironment = new SystemEnvironment();
     }

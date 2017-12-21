@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -32,14 +33,14 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
-import ch.qos.logback.classic.Level;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -59,6 +60,9 @@ import static org.hamcrest.core.Is.is;
         "classpath:testPropertyConfigurer.xml"
 })
 public class BuildCauseProducerServiceIntegrationTimerTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
@@ -111,8 +115,8 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWithTimer(pipelineName, u.timer("* * * * * ? 2000", true), u.m(git1));
 
-        u.checkinFile(git1, "g11", TestFileUtil.createTempFile("blah_g11"), ModifiedAction.added);
-        u.checkinFile(git1, "g12", TestFileUtil.createTempFile("blah_g12"), ModifiedAction.added);
+        u.checkinFile(git1, "g11", temporaryFolder.newFile("blah_g11"), ModifiedAction.added);
+        u.checkinFile(git1, "g12", temporaryFolder.newFile("blah_g12"), ModifiedAction.added);
 
         Date mduTimeForG11 = u.d(i++);
         u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeForG11, "g11");
@@ -135,7 +139,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         ScheduleTestUtil.AddedPipeline up1 = u.saveConfigWith("up1", u.m(git1));
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWithTimer(pipelineName, u.timer("* * * * * ? 2000", false), u.m(git1), u.m(up1));
 
-        u.checkinFile(git1, "g11", TestFileUtil.createTempFile("blah_g11"), ModifiedAction.added);
+        u.checkinFile(git1, "g11", temporaryFolder.newFile("blah_g11"), ModifiedAction.added);
         String up1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), "g11");
         pipelineTimeline.update();
 
@@ -168,8 +172,8 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWithTimer(pipelineName, u.timer("* * * * * ? 2000", true), u.m(git1), u.m(git2));
 
-        u.checkinFile(git1, "g11", TestFileUtil.createTempFile("blah_g11"), ModifiedAction.added);
-        u.checkinFile(git2, "g21", TestFileUtil.createTempFile("blah_g21"), ModifiedAction.added);
+        u.checkinFile(git1, "g11", temporaryFolder.newFile("blah_g11"), ModifiedAction.added);
+        u.checkinFile(git2, "g21", temporaryFolder.newFile("blah_g21"), ModifiedAction.added);
 
         // Run once with latest, when pipeline schedules due to timer.
         buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
@@ -199,8 +203,8 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("up1", u.m(git1));
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWithTimer(pipelineName, u.timer("* * * * * ? 2000", true), u.m(git1), u.m(git2), u.m(p1));
 
-        u.checkinFile(git1, "g11", TestFileUtil.createTempFile("blah_g11"), ModifiedAction.added);
-        u.checkinFile(git2, "g21", TestFileUtil.createTempFile("blah_g21"), ModifiedAction.added);
+        u.checkinFile(git1, "g11", temporaryFolder.newFile("blah_g11"), ModifiedAction.added);
+        u.checkinFile(git2, "g21", temporaryFolder.newFile("blah_g21"), ModifiedAction.added);
         Date mduTimeOfG11 = u.d(i++);
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeOfG11, "g11");
         pipelineTimeline.update();
@@ -216,7 +220,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         piplineScheduleQueue.finishSchedule(pipelineName, buildCause, buildCause);
 
         // Check in to git2 and run pipeline P1 once before the timer time. Then, timer happens. Shows those two materials in "yellow" (changed), on the UI.
-        u.checkinFile(git2, "g22", TestFileUtil.createTempFile("blah_g22"), ModifiedAction.added);
+        u.checkinFile(git2, "g22", temporaryFolder.newFile("blah_g22"), ModifiedAction.added);
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeOfG11, "g11");
         pipelineTimeline.update();
         try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {

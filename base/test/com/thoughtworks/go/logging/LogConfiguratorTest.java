@@ -39,7 +39,7 @@ public class LogConfiguratorTest {
     private final ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public final TemporaryFolder folder = new TemporaryFolder();
     private PrintStream originalErr;
     private PrintStream originalOut;
 

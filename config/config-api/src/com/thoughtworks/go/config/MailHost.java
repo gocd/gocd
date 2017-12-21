@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import java.util.LinkedHashMap;
@@ -206,14 +206,14 @@ public class MailHost implements Validatable, PasswordEncrypter {
     }
 
     private void resetPassword(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             this.encryptedPassword = null;
         }
         setPasswordIfNotBlank(password);
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtil.isBlank(password)) {
+        if (StringUtils.isBlank(password)) {
             return;
         }
         try {
@@ -226,7 +226,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
 
     public String getCurrentPassword() {
         try {
-            return StringUtil.isBlank(encryptedPassword) ? "" : this.goCipher.decrypt(encryptedPassword);
+            return StringUtils.isBlank(encryptedPassword) ? "" : this.goCipher.decrypt(encryptedPassword);
         } catch (InvalidCipherTextException e) {
             throw new RuntimeException(e);
         }

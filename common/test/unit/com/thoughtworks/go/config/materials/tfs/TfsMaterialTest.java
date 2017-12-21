@@ -51,7 +51,7 @@ import static org.mockito.Mockito.*;
 
 public class TfsMaterialTest {
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private TfsMaterial tfsMaterialFirstCollectionFirstProject;
     private TfsMaterial tfsMaterialFirstCollectionSecondProject;

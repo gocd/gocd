@@ -43,7 +43,9 @@ import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -85,6 +87,8 @@ public class PipelineScheduleServiceTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private InstanceFactory instanceFactory;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages pipelineWithTwoStages;
     private PipelineConfig mingleConfig;
@@ -102,7 +106,7 @@ public class PipelineScheduleServiceTest {
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
         dbHelper.onSetUp();
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         mingleConfig = configHelper.addPipeline("mingle", STAGE_NAME, repository, "unit", "functional");
@@ -254,7 +258,7 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldForceFirstStagePlan() throws Exception {
-        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
         pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);
@@ -263,7 +267,7 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldForceFirstStagePlanWhenOtherStageIsRunning() throws Exception {
-        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
         pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);

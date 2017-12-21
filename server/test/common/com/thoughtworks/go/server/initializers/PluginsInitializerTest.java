@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.zip.ZipInputStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
@@ -109,7 +110,7 @@ public class PluginsInitializerTest {
     public void shouldNotReplacePluginsIfTheSameVersionWasAlreadyExploded() throws IOException {
         String version = "13.3.0(17222-4c7fabcb9c9e9c)";
         File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
-        FileUtils.writeStringToFile(versionFile, version);
+        FileUtils.writeStringToFile(versionFile, version, UTF_8);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(1));
@@ -119,7 +120,7 @@ public class PluginsInitializerTest {
     @Test
     public void shouldReplacePluginsIfTheDifferentVersionOfPluginsAvailable() throws IOException {
         File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
-        FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)");
+        FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(2));
@@ -129,7 +130,7 @@ public class PluginsInitializerTest {
     public void shouldDeleteAllExistingPluginsWhileExplodingPluginsZip() throws IOException {
         File versionFile = FileSystemUtils.createFile("version.txt", goPluginsDir);
         File oldPlugin = FileSystemUtils.createFile("old-plugin.jar", goPluginsDir);
-        FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)");
+        FileUtils.writeStringToFile(versionFile, "13.2.0(17222-4c7fabcb9c9e9c)", UTF_8);
         pluginsInitializer.initialize();
         Collection collection = FileUtils.listFiles(goPluginsDir, null, true);
         assertThat(collection.size(), is(2));

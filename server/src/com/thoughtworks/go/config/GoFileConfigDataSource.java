@@ -31,7 +31,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.slf4j.Logger;
@@ -46,6 +48,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -159,7 +164,7 @@ public class GoFileConfigDataSource {
     }
 
     private void encryptPasswords(File configFile) throws Exception {
-        String currentContent = FileUtils.readFileToString(configFile);
+        String currentContent = FileUtils.readFileToString(configFile, UTF_8);
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(currentContent);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream, true);
@@ -206,13 +211,13 @@ public class GoFileConfigDataSource {
         try {
             try {
                 List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
-                holder = internalLoad(FileUtils.readFileToString(configFile), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
+                holder = internalLoad(FileUtils.readFileToString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
             } catch (GoConfigInvalidException e) {
                 if (!canUpdateConfigWithLastValidPartials()) {
                     throw e;
                 } else {
                     List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
-                    holder = internalLoad(FileUtils.readFileToString(configFile), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
+                    holder = internalLoad(FileUtils.readFileToString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
                 }
             }
             return holder;
@@ -420,19 +425,19 @@ public class GoFileConfigDataSource {
         if (lastKnownPartials.size() != lastValidPartials.size()) {
             return false;
         }
-        final ArrayList<ConfigOrigin> validConfigOrigins = ListUtil.map(lastValidPartials, new ListUtil.Transformer<PartialConfig, ConfigOrigin>() {
+        final List<ConfigOrigin> validConfigOrigins = lastValidPartials.stream().map(new Function<PartialConfig, ConfigOrigin>() {
             @Override
-            public ConfigOrigin transform(PartialConfig partialConfig) {
+            public ConfigOrigin apply(PartialConfig partialConfig) {
                 return partialConfig.getOrigin();
             }
-        });
-        PartialConfig invalidKnownPartial = ListUtil.find(lastKnownPartials, new ListUtil.Condition() {
+        }).collect(Collectors.toList());
+        return !lastKnownPartials.stream().filter(new Predicate<PartialConfig>() {
             @Override
-            public <T> boolean isMet(T item) {
-                return !validConfigOrigins.contains(((PartialConfig) item).getOrigin());
+            public boolean test(PartialConfig item) {
+                return !validConfigOrigins.contains(item.getOrigin());
+
             }
-        });
-        return invalidKnownPartial == null;
+        }).findFirst().isPresent();
     }
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {

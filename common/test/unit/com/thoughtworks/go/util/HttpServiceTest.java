@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 
 import java.io.File;
@@ -42,6 +43,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class HttpServiceTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static final String NOT_EXIST_URL = "http://bjcruiselablablab";
 
     private File folderToSaveDowloadFiles;
@@ -51,19 +55,13 @@ public class HttpServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        folderToSaveDowloadFiles = TestFileUtil.createUniqueTempFolder("HttpServiceTest");
+        folderToSaveDowloadFiles = temporaryFolder.newFolder();
         httpClientFactory = mock(HttpService.HttpClientFactory.class);
         httpClient = mock(GoAgentServerHttpClient.class);
         when(httpClientFactory.httpClient()).thenReturn(httpClient);
 
         service = new HttpService(httpClientFactory);
     }
-
-    @After
-    public void tearDown() throws Exception {
-        folderToSaveDowloadFiles.delete();
-    }
-
 
     @Test
     public void shouldPostArtifactsAlongWithMD5() throws IOException {

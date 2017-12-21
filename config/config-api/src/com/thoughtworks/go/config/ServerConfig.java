@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -243,7 +242,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSiteUrl(String siteUrl) {
-        this.siteUrl = StringUtil.isBlank(siteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(siteUrl);
+        this.siteUrl = StringUtils.isBlank(siteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(siteUrl);
     }
 
     /**
@@ -252,7 +251,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSecureSiteUrl(String secureSiteUrl) {
-        this.secureSiteUrl = StringUtil.isBlank(secureSiteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(secureSiteUrl);
+        this.secureSiteUrl = StringUtils.isBlank(secureSiteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(secureSiteUrl);
     }
 
 
@@ -351,7 +350,7 @@ public class ServerConfig implements Validatable {
     }
 
     public boolean shouldAutoRegisterAgentWith(String agentKey) {
-        return (!StringUtil.isBlank(getAgentAutoRegisterKey())) && getAgentAutoRegisterKey().equals(agentKey);
+        return (!StringUtils.isBlank(getAgentAutoRegisterKey())) && getAgentAutoRegisterKey().equals(agentKey);
     }
 
     public String getServerId() {

@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.go.util.ExceptionUtils;
-
-import static com.thoughtworks.go.util.ListUtil.join;
+import org.apache.commons.lang.StringUtils;
 
 public class ConsoleResult {
     private int returnValue;
@@ -75,19 +74,19 @@ public class ConsoleResult {
     }
 
     public String outputAsString() {
-        return join(output(), "\n");
+        return StringUtils.join(output(), "\n");
     }
 
     public String outputForDisplayAsString() {
-        return join(outputForDisplay(), "\n");
+        return StringUtils.join(outputForDisplay(), "\n");
     }
 
     public String errorAsString() {
-        return join(error(), "\n");
+        return StringUtils.join(error(), "\n");
     }
 
     public String errorForDisplayAsString() {
-        return join(forDisplay(error), "\n");
+        return StringUtils.join(forDisplay(error), "\n");
     }
 
     private ArrayList<String> forDisplay(List<String> from) {

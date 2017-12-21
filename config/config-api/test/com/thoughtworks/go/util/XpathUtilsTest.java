@@ -1,24 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -30,6 +32,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class XpathUtilsTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private File testFile;
     private static final String XML = "<root>\n"
             + "<son>\n"
@@ -107,7 +112,7 @@ public class XpathUtilsTest {
     }
 
     private File getTestFileUsingUTFWithBOM() throws IOException {
-        testFile = TestFileUtil.createTempFile("testXml" + System.nanoTime());
+        testFile = temporaryFolder.newFile();
         saveUtfFileWithBOM(testFile, XML);
 
         return testFile;
@@ -156,7 +161,7 @@ public class XpathUtilsTest {
     }
 
     private File getTestFile(String xml) throws IOException {
-        testFile = TestFileUtil.createTempFile("testXml");
+        testFile = temporaryFolder.newFile();
         FileUtils.writeStringToFile(testFile, xml, UTF_8);
         return testFile;
     }

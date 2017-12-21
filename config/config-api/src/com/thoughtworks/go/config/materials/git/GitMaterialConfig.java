@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
@@ -151,7 +151,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public void validateConcreteScmMaterial() {
-        if (url == null || StringUtil.isBlank(url.forDisplay())) {
+        if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
     }
@@ -228,7 +228,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         Map map = (Map) attributes;
         if (map.containsKey(BRANCH)) {
             String branchName = (String) map.get(BRANCH);
-            this.branch = StringUtil.isBlank(branchName)? DEFAULT_BRANCH: branchName;
+            this.branch = StringUtils.isBlank(branchName) ? DEFAULT_BRANCH: branchName;
         }
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));

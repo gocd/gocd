@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
@@ -25,21 +23,19 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -48,6 +44,9 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class MaterialExpansionServiceCachingTest {
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired
     GoCache goCache;
     @Autowired private MaterialConfigConverter materialConfigConverter;
@@ -61,7 +60,7 @@ public class MaterialExpansionServiceCachingTest {
 
     @BeforeClass
     public static void copyRepository() throws IOException {
-        svnRepo = new SvnTestRepoWithExternal();
+        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
     }
 
     @AfterClass

@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
@@ -121,12 +122,12 @@ public class ProcessManagerTest {
 
     @Test
     public void canGetProcessLevelEnvironmentVariableNames() {
-        ListUtil.find(processManager.environmentVariableNames(), new ListUtil.Condition() {
+        processManager.environmentVariableNames().stream().filter(new Predicate<String>() {
             @Override
-            public <T> boolean isMet(T item) {
-                return ((String) item).equalsIgnoreCase("path");
+            public boolean test(String item) {
+                return item.equalsIgnoreCase("path");
             }
-        });
+        }).findFirst().orElse(null);
 
     }
 }

@@ -20,9 +20,9 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -162,7 +162,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
             configErrors.add(NAME, String.format("Environment Variable cannot start or end with spaces for %s '%s'.", parentDisplayName, parentName));
             return;
         }
-        if (StringUtil.isBlank(currentVariableName)) {
+        if (StringUtils.isBlank(currentVariableName)) {
             configErrors.add(NAME, String.format("Environment Variable cannot have an empty name for %s '%s'.", parentDisplayName, parentName));
             return;
         }
@@ -213,7 +213,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     public void setIsSecure(boolean isSecure) {
         this.isSecure = isSecure;
     }
-    
+
     public boolean isPlain() {
         return !isSecure();
     }
@@ -265,7 +265,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         Map attributeMap = (Map) attributes;
         this.name = (String) attributeMap.get(EnvironmentVariableConfig.NAME);
         String value = (String) attributeMap.get(EnvironmentVariableConfig.VALUE);
-        if (StringUtil.isBlank(name) && StringUtil.isBlank(value)) {
+        if (StringUtils.isBlank(name) && StringUtils.isBlank(value)) {
             throw new IllegalArgumentException(String.format("Need not null/empty name & value %s:%s", this.name, value));
         }
         this.isSecure = BooleanUtils.toBoolean((String) attributeMap.get(EnvironmentVariableConfig.SECURE));

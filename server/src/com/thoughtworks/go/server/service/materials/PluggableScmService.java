@@ -32,7 +32,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,7 +67,7 @@ public class PluggableScmService {
                 boolean isRequired = SCMMetadataStore.getInstance().hasOption(pluginId, key, Property.REQUIRED);
                 ConfigurationProperty property = scmConfig.getConfiguration().getProperty(key);
                 String configValue = property == null ? null : property.getValue();
-                if (isRequired && StringUtil.isBlank(configValue)) {
+                if (isRequired && StringUtils.isBlank(configValue)) {
                     validationResult.addError(new ValidationError(key, localizer.localize("MANDATORY_CONFIGURATION_FIELD")));
                 }
             }

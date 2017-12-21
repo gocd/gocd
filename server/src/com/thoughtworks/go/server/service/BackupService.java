@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * @understands backing up db and config
  */
@@ -146,7 +148,7 @@ public class BackupService implements BackupStatusProvider {
 
     private void backupVersion(File backupDir) throws IOException {
         File versionFile = new File(backupDir, VERSION_BACKUP_FILE);
-        FileUtils.writeStringToFile(versionFile, serverVersion.version());
+        FileUtils.writeStringToFile(versionFile, serverVersion.version(), UTF_8);
     }
 
     private void backupConfigRepository(File backupDir) throws IOException {

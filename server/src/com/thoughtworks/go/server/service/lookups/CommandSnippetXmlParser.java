@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.jdom2.Comment;
 import org.jdom2.Document;
@@ -104,7 +104,7 @@ public class CommandSnippetXmlParser {
         @Override
         public List<String> getKeywords() {
             String keywords = snippetTagMap.get("keywords");
-            if (StringUtil.isBlank(keywords)) {
+            if (StringUtils.isBlank(keywords)) {
                 return new ArrayList<>();
             }
             return Arrays.asList(keywords.toLowerCase().split(String.format("%s,%s", SPACES, SPACES)));

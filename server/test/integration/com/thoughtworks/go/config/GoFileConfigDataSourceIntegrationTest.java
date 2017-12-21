@@ -69,7 +69,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private GoConfigFileHelper configHelper;
     @Autowired
     private GoConfigService goConfigService;

@@ -42,7 +42,9 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -88,6 +90,8 @@ public class PipelineScheduleQueueIntegrationTest {
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GoConfigFileHelper configFileEditor;
 
@@ -100,7 +104,7 @@ public class PipelineScheduleQueueIntegrationTest {
         configFileEditor.onSetUp();
         dbHelper.onSetUp();
         configFileEditor.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingDbHelper(dbHelper).usingConfigHelper(configFileEditor).onSetUp();
         newCause = BuildCause.createWithEmptyModifications();
     }

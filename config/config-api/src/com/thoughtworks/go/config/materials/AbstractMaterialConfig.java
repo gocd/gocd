@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
@@ -28,7 +24,6 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.ListUtil;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -111,7 +106,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
             list.add(new StringBuilder().append(criteria.getKey()).append("=").append(criteria.getValue()).toString());
         }
-        String fingerprint = ListUtil.join(list, FINGERPRINT_DELIMITER);
+        String fingerprint = StringUtils.join(list, FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
         return CachedDigestUtils.sha256Hex(fingerprint);
     }

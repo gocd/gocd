@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -35,20 +33,17 @@ import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
 import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedTopic;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -60,6 +55,9 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class ChangeMaterialsTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired private ScheduleService scheduleService;
     @Autowired private PipelineService pipelineService;
     @Autowired private GoConfigDao goConfigDao;
@@ -79,11 +77,13 @@ public class ChangeMaterialsTest {
     private static final String PIPELINE_NAME = "mingle";
     private Username username;
     private StubScheduleCheckCompletedListener listener;
+    @ClassRule
+    public static final TemporaryFolder classTemporaryFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void startP4Server() {
         try {
-            p4TestRepo = P4TestRepo.createP4TestRepo();
+            p4TestRepo = P4TestRepo.createP4TestRepo(classTemporaryFolder, classTemporaryFolder.newFolder());
             p4TestRepo.onSetup();
         } catch (Exception e) {
             bomb(e);
@@ -104,9 +104,9 @@ public class ChangeMaterialsTest {
         cruiseConfig.onSetUp();
         cruiseConfig.initializeConfigFile();
 
-        hgTestRepo = new HgTestRepo();
+        hgTestRepo = new HgTestRepo(temporaryFolder);
 
-        SvnTestRepo svnRepo = new SvnTestRepo();
+        SvnTestRepo svnRepo = new SvnTestRepo(temporaryFolder);
         cruiseConfig.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo.materialConfig(), "foo");
         mingle = cruiseConfig.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
         pipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);

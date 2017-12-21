@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class AgentAutoRegistrationPropertiesImplTest {
 
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public final TemporaryFolder folder = new TemporaryFolder();
     private File configFile;
 
     @Before
@@ -86,7 +87,7 @@ public class AgentAutoRegistrationPropertiesImplTest {
                 "# The environments this agent belongs to\n" +
                 "agent.auto.register.environments = production,blue\n" +
                 "\n";
-        FileUtils.write(configFile, originalContents);
+        FileUtils.writeStringToFile(configFile, originalContents, UTF_8);
 
         AgentAutoRegistrationProperties properties = new AgentAutoRegistrationPropertiesImpl(configFile);
         properties.scrubRegistrationProperties();
@@ -111,6 +112,6 @@ public class AgentAutoRegistrationPropertiesImplTest {
                 "# This property has been removed by Go after attempting to auto-register with the Go server.\n" +
                 "# agent.auto.register.environments = production,blue\n" +
                 "\n";
-        assertThat(FileUtils.readFileToString(configFile), is(newContents));
+        assertThat(FileUtils.readFileToString(configFile, UTF_8), is(newContents));
     }
 }

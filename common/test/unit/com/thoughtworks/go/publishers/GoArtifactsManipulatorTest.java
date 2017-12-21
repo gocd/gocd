@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,18 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub;
 import com.thoughtworks.go.remote.work.GoArtifactsManipulatorStub;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -39,12 +42,15 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class GoArtifactsManipulatorTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private HttpService httpService;
     private File tempFile;
@@ -56,17 +62,12 @@ public class GoArtifactsManipulatorTest {
     @Before
     public void setUp() throws Exception {
         httpService = mock(HttpService.class);
-        artifactFolder = TestFileUtil.createTempFolder("artifact_folder");
-        tempFile = TestFileUtil.createTestFile(artifactFolder, "file.txt");
+        artifactFolder = temporaryFolder.newFolder("artifact_folder");
+        tempFile = temporaryFolder.newFile("artifact_folder/file.txt");
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
         goPublisher = new DefaultGoPublisher(goArtifactsManipulatorStub, jobIdentifier, new BuildRepositoryRemoteStub(), agentRuntimeInfo);
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        FileUtil.tryDeleting(artifactFolder);
     }
 
     @Test
@@ -103,7 +104,7 @@ public class GoArtifactsManipulatorTest {
     public void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("dest/path/file.txt", md5);
 
@@ -116,7 +117,7 @@ public class GoArtifactsManipulatorTest {
     public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
         Properties properties = new Properties();
         properties.setProperty("file.txt", md5);
 
@@ -130,10 +131,10 @@ public class GoArtifactsManipulatorTest {
         String data = "Some text whose checksum can be asserted";
         String secondData = "some more";
 
-        FileUtils.writeStringToFile(tempFile, data);
+        FileUtils.writeStringToFile(tempFile, data, UTF_8);
 
         File anotherFile = new File(artifactFolder, "bond/james_bond/another_file");
-        FileUtils.writeStringToFile(anotherFile, secondData);
+        FileUtils.writeStringToFile(anotherFile, secondData, UTF_8);
 
 
         when(httpService.upload(any(String.class), eq(FileUtils.sizeOfDirectory(artifactFolder)), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpServletResponse.SC_OK);

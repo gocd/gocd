@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,11 +58,11 @@ public abstract class AbstractPluginRegistry<Extension extends AbstractExtension
     }
 
     public PluginDescriptor findPlugin(final String pluginId) {
-        return ListUtil.find(plugins, new Predicate<PluginDescriptor>() {
+        return plugins.stream().filter(new Predicate<PluginDescriptor>() {
             @Override
             public boolean test(PluginDescriptor descriptor) {
                 return descriptor.id().equals(pluginId);
             }
-        });
+        }).findFirst().orElse(null);
     }
 }

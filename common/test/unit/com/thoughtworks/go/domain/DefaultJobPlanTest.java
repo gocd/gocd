@@ -35,7 +35,7 @@ import static org.junit.Assert.assertThat;
 public class DefaultJobPlanTest {
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File workingFolder;
 
     @Before

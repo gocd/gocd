@@ -64,7 +64,7 @@ public class AgentWebSocketClientControllerTest {
     private static final int MAX_WAIT_IN_TEST = 10000;
 
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
     private BuildRepositoryRemote loopServer;
     @Mock

@@ -28,7 +28,9 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.GrantedAuthority;
@@ -62,6 +64,8 @@ public class ScheduleStageTest {
     @Autowired private StageDao stageDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithMultipleStages fixture;
     private GoConfigFileHelper configHelper;
@@ -69,7 +73,7 @@ public class ScheduleStageTest {
     @Before
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(dao);
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingThreeJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }

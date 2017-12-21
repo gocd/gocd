@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -51,7 +51,7 @@ public class FileHandler implements FetchHandler {
         boolean fileExist = artifact.exists();
         LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
         if (fileExist && artifact.isFile()) {
-            String sha1 = StringUtil.sha1Digest(artifact);
+            String sha1 = FileUtil.sha1Digest(artifact);
             return format("%s/%s/%s/%s?sha1=%s", remoteHost, "remoting", "files", workingUrl,
                     URLEncoder.encode(sha1, "UTF-8"));
         } else {

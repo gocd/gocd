@@ -16,47 +16,37 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SvnMaterialMockitoTest {
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     SubversionRevision revision = new SubversionRevision("1");
-    private final ArrayList<File> tempFiles = new ArrayList<>();
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
-    @After
-    public void tearDown() throws Exception {
-        for (File tempFile : tempFiles) {
-            tempFile.delete();
-        }
-    }
-
-    private File createSvnWorkingCopy(boolean withDotSvnFolder) {
-        File folder = TestFileUtil.createTempFolder("testSvnWorkingCopy");
+    private File createSvnWorkingCopy(boolean withDotSvnFolder) throws IOException {
+        File folder = temporaryFolder.newFolder("testSvnWorkingCopy");
         if (withDotSvnFolder) {
             File dotSvnFolder = new File(folder, ".svn");
             dotSvnFolder.mkdir();
-            tempFiles.add(dotSvnFolder);
         }
-        tempFiles.add(folder);
         return folder;
     }
 

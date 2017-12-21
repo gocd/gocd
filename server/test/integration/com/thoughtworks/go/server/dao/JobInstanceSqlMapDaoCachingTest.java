@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
 
-import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -277,8 +276,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
-        List<JobState> jobStatesForWhichCacheNeedsToBeMaintained = asList(JobState.Assigned, JobState.Building, JobState.Completed, JobState.Discontinued,
-                JobState.Paused, JobState.Scheduled, JobState.Preparing, JobState.Assigned.Unknown);
+        List<JobState> jobStatesForWhichCacheNeedsToBeMaintained = new ArrayList<>(Arrays.asList(JobState.Assigned, JobState.Building, JobState.Completed, JobState.Discontinued, JobState.Paused, JobState.Scheduled, JobState.Preparing, JobState.Assigned.Unknown));
 
         JobStatusListener listener = jobInstanceDao;
         for (JobState jobState : jobStatesForWhichCacheNeedsToBeMaintained) {

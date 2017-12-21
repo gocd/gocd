@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.*;
@@ -95,7 +94,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
             list.add(new StringBuilder().append(criteria.getKey()).append("=").append(criteria.getValue()).toString());
         }
-        String fingerprint = ListUtil.join(list, FINGERPRINT_DELIMITER);
+        String fingerprint = StringUtils.join(list, FINGERPRINT_DELIMITER);
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
         return CachedDigestUtils.sha256Hex(fingerprint);
     }
@@ -188,7 +187,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     protected boolean hasDestinationFolder() {
-        return !StringUtil.isBlank(getFolder());
+        return !StringUtils.isBlank(getFolder());
     }
 
     public boolean supportsDestinationFolder() {

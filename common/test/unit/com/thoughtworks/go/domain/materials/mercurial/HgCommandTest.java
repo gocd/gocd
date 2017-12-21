@@ -18,16 +18,16 @@ package com.thoughtworks.go.domain.materials.mercurial;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,12 +41,14 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class HgCommandTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static File serverRepo;
     private static File clientRepo;
 
     private HgCommand hgCommand;
 
-    private List<File> foldersToDelete = new ArrayList<>();
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
     private File workingDirectory;
     private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
@@ -64,15 +66,6 @@ public class HgCommandTest {
         workingDirectory = new File(clientRepo.getPath());
         hgCommand = new HgCommand(null, workingDirectory, "default", serverRepo.getAbsolutePath(), null);
         hgCommand.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        for (File folder : foldersToDelete) {
-            if (folder.exists()) {
-                FileUtils.deleteQuietly(folder);
-            }
-        }
     }
 
     @Test
@@ -199,8 +192,8 @@ public class HgCommandTest {
         return hg;
     }
 
-    private File createTmpFolder(String folderName) {
-        return new File(TestFileUtil.createUniqueTempFolder(folderName), "repo");
+    private File createTmpFolder(String folderName) throws IOException {
+        return temporaryFolder.newFolder(folderName, "repo");
     }
 
     private void commit(String message, File workingDir) {

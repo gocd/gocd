@@ -48,7 +48,9 @@ import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +110,8 @@ public class GoConfigMigrationIntegrationTest {
     private ServerHealthService serverHealthService;
     @Autowired
     private CachedGoPartials cachedGoPartials;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private String currentGoServerVersion;
     private MagicalGoConfigXmlLoader loader;
@@ -116,7 +120,8 @@ public class GoConfigMigrationIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        configFile = TestFileUtil.createTempFileInSubfolder("cruise-config.xml");
+        File file = temporaryFolder.newFolder();
+        configFile = new File(file, "cruise-config.xml");
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
         GoConfigFileHelper.clearConfigVersions();
         configRepository = new ConfigRepository(systemEnvironment);
@@ -292,7 +297,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldMigrateDependsOnTagToBeADependencyMaterial() throws Exception {
         String content = FileUtils.readFileToString(
-                new File("../common/test-resources/unit/data/config/version4/cruise-config-dependency-migration.xml"));
+                new File("../common/test-resources/unit/data/config/version4/cruise-config-dependency-migration.xml"), UTF_8);
         CruiseConfig cruiseConfig = loadConfigFileWithContent(content);
         MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().first();
         assertThat(actual, instanceOf(DependencyMaterialConfig.class));
@@ -310,7 +315,7 @@ public class GoConfigMigrationIntegrationTest {
                         exs.add(e);
                     }
                 }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERNT_CASE);
+        FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERNT_CASE, UTF_8);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
         assertThat(exs.size(), is(1));
@@ -325,7 +330,7 @@ public class GoConfigMigrationIntegrationTest {
                         throw new AssertionError("upgrade failed!!!!!");
                     }
                 }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        FileUtils.writeStringToFile(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
+        FileUtils.writeStringToFile(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, UTF_8);
         configRepository.checkin(new GoConfigRevision("dummy-content", "some-md5", "loser", "100.3.1", new TimeProvider()));
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
@@ -334,7 +339,7 @@ public class GoConfigMigrationIntegrationTest {
 
         assertThat(latest.getUsername(), is("Upgrade"));
 
-        String contents = FileUtils.readFileToString(configFile);
+        String contents = FileUtils.readFileToString(configFile, UTF_8);
         assertThat(latest.getContent(), is(contents));
         assertThat(latest.getMd5(), is(DigestUtils.md5Hex(contents)));
     }
@@ -501,12 +506,12 @@ public class GoConfigMigrationIntegrationTest {
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", "hello"), 32);
-        FileUtils.writeStringToFile(configFile, configContent);
+        FileUtils.writeStringToFile(configFile, configContent, UTF_8);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
 
-        assertThat(FileUtils.readFileToString(configFile), containsString("encryptedPassword="));
-        assertThat(FileUtils.readFileToString(configFile), not(containsString("password=")));
+        assertThat(FileUtils.readFileToString(configFile, UTF_8), containsString("encryptedPassword="));
+        assertThat(FileUtils.readFileToString(configFile, UTF_8), not(containsString("password=")));
     }
 
     @Test
@@ -538,7 +543,7 @@ public class GoConfigMigrationIntegrationTest {
                 + " </cruise>";
 
         File configFile = new File(systemEnvironment.getCruiseConfigFile());
-        FileUtils.writeStringToFile(configFile, configContent);
+        FileUtils.writeStringToFile(configFile, configContent, UTF_8);
         CruiseConfig cruiseConfig = loadWithMigration(configFile).config;
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
@@ -585,11 +590,11 @@ public class GoConfigMigrationIntegrationTest {
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", "hello"), 32);
-        FileUtils.writeStringToFile(configFile, configContent);
+        FileUtils.writeStringToFile(configFile, configContent, UTF_8);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
 
-        assertThat(FileUtils.readFileToString(configFile), containsString("port='#{param_foo}'"));
+        assertThat(FileUtils.readFileToString(configFile, UTF_8), containsString("port='#{param_foo}'"));
     }
 
     @Test
@@ -624,11 +629,11 @@ public class GoConfigMigrationIntegrationTest {
                 + "  </server>"
                 + "</cruise>";
 
-        FileUtils.writeStringToFile(configFile, content);
+        FileUtils.writeStringToFile(configFile, content, UTF_8);
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
 
-        String configXml = FileUtils.readFileToString(configFile);
+        String configXml = FileUtils.readFileToString(configFile, UTF_8);
 
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         GoConfigHolder configHolder = loader.loadConfigHolder(configXml);
@@ -700,7 +705,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "  </stage>"
                 + "</pipeline>", 62);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(oldContent, 62);
-        String currentContent = FileUtils.readFileToString(new File(goConfigService.fileLocation()));
+        String currentContent = FileUtils.readFileToString(new File(goConfigService.fileLocation()), UTF_8);
 
         PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(new CaseInsensitiveString("old-timer"));
         TimerConfig timer = pipelineConfig.getTimer();

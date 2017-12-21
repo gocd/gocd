@@ -45,7 +45,9 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -77,13 +79,15 @@ public class BuildWorkArtifactUploadingTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws IOException {
         initMocks(this);
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo", temporaryFolder);
         svnRepoFixture.createRepository();
         SvnCommand command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 
@@ -328,7 +332,7 @@ public class BuildWorkArtifactUploadingTest {
         }
     }
 
-    private BuildAssignment createAssignment(List<ArtifactPlan> artifactPlans, String[] fileToCreate) {
+    private BuildAssignment createAssignment(List<ArtifactPlan> artifactPlans, String[] fileToCreate) throws IOException {
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "");
         List<Builder> builders = new ArrayList<>();
@@ -338,7 +342,7 @@ public class BuildWorkArtifactUploadingTest {
     }
 
 
-    private MaterialRevisions materialRevisions() {
+    private MaterialRevisions materialRevisions() throws IOException {
         MaterialRevision svnRevision = new MaterialRevision(this.svnMaterial,
                 ModificationsMother.oneModifiedFile(
                         svnRepoFixture.getHeadRevision(svnRepoFixture.getEnd2EndRepoUrl())));

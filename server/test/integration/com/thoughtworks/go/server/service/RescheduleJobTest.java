@@ -28,7 +28,9 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -69,6 +71,9 @@ public class RescheduleJobTest {
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     public static final String JOB_NAME = "unit";
     private static final String STAGE_NAME = "mingle";
     private static final String PIPELINE_NAME = "studios";
@@ -78,7 +83,7 @@ public class RescheduleJobTest {
     public void setUp() throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         stage = dbHelper.saveBuildingStage(PIPELINE_NAME, STAGE_NAME);

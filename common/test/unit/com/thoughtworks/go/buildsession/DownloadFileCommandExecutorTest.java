@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -70,7 +70,7 @@ public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
     public void downloadFileShouldAppendSha1IntoDownloadUrlIfDestFileAlreadyExists() throws IOException {
         File dest = new File(sandbox, "bar.jar");
         Files.write(Paths.get(dest.getPath()), "foobar".getBytes());
-        String sha1 = java.net.URLEncoder.encode(StringUtil.sha1Digest(dest), "UTF-8");
+        String sha1 = java.net.URLEncoder.encode(FileUtil.sha1Digest(dest), "UTF-8");
 
         httpService.setupDownload("http://far.far.away/foo.jar", "content without sha1");
         httpService.setupDownload("http://far.far.away/foo.jar?sha1=" + sha1, "content with sha1");

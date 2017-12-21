@@ -88,7 +88,7 @@ public class BuildWorkEnvironmentVariablesTest {
     @Mock
     private TaskExtension taskExtension;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private P4Material p4Material;
     private P4Fixture p4Fixture;
     private P4Client p4Client;
@@ -98,7 +98,7 @@ public class BuildWorkEnvironmentVariablesTest {
         initMocks(this);
         dir = temporaryFolder.newFolder("someFolder");
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo", temporaryFolder);
         svnRepoFixture.createRepository();
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 
@@ -167,7 +167,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     private P4Material getP4Material() throws Exception {
         String view = "//depot/... //something/...";
-        P4TestRepo repo = P4TestRepo.createP4TestRepo();
+        P4TestRepo repo = P4TestRepo.createP4TestRepo(temporaryFolder, temporaryFolder.newFolder());
         repo.onSetup();
         p4Fixture.setRepo(repo);
         p4Client = p4Fixture.createClient();
@@ -175,7 +175,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldMergeEnvironmentVariablesFromInitialContext()  {
+    public void shouldMergeEnvironmentVariablesFromInitialContext() throws IOException {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs());
 
         BuildAssignment buildAssignment = createAssignment(new EnvironmentVariableContext("foo", "bar"));
@@ -194,7 +194,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetupEnvironmentVariableForDependencyMaterial() {
+    public void shouldSetupEnvironmentVariableForDependencyMaterial() throws IOException {
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials());
 
         assertThat("Properties: \n" + environmentVariableContext.getProperties(),
@@ -204,7 +204,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetupEnvironmentVariableUsingDependencyMaterialName() {
+    public void shouldSetupEnvironmentVariableUsingDependencyMaterialName() throws IOException {
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials());
 
         assertThat("Properties: \n" + environmentVariableContext.getProperties(),
@@ -214,7 +214,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldUseSvnMaterialNameIfPresent()  {
+    public void shouldUseSvnMaterialNameIfPresent() throws IOException {
         svnMaterial.setName(new CaseInsensitiveString("Cruise"));
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
 
@@ -233,7 +233,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetUpRevisionIntoEnvironmentContextCorrectlyForMutipleMaterial()  {
+    public void shouldSetUpRevisionIntoEnvironmentContextCorrectlyForMutipleMaterial() throws IOException {
         svnMaterial.setFolder("svn-Dir");
 
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(new Materials(svnMaterial, hgMaterial));
@@ -243,7 +243,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldOutputEnvironmentVariablesIntoConsoleOut()  {
+    public void shouldOutputEnvironmentVariablesIntoConsoleOut() throws IOException {
         BuildAssignment buildAssigment = createAssignment(null);
         BuildWork work = new BuildWork(buildAssigment);
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
@@ -265,7 +265,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldSetEnvironmentVariableForSvnExternal()  {
+    public void shouldSetEnvironmentVariableForSvnExternal() throws IOException {
         svnRepoFixture.createExternals(svnRepoFixture.getEnd2EndRepoUrl());
 
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl(), null, null, true);
@@ -278,7 +278,7 @@ public class BuildWorkEnvironmentVariablesTest {
         assertThat(environmentVariableContext.getProperty("GO_REVISION_SVN_DIR_EXTERNAL"), is("4"));
     }
 
-    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) {
+    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
@@ -288,11 +288,11 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     private void setupHgRepo() throws IOException {
-        hgTestRepo = new HgTestRepo("hgTestRepo1");
+        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl(), "hg_Dir");
     }
 
-    private MaterialRevisions materialRevisions() {
+    private MaterialRevisions materialRevisions() throws IOException {
         MaterialRevision svnRevision = new MaterialRevision(this.svnMaterial,
                 ModificationsMother.oneModifiedFile(
                         svnRepoFixture.getHeadRevision(svnRepoFixture.getEnd2EndRepoUrl())));
@@ -318,7 +318,7 @@ public class BuildWorkEnvironmentVariablesTest {
                 dependencyRevisionWithName);
     }
 
-    private EnvironmentVariableContext doWorkWithMaterials(Materials materials) {
+    private EnvironmentVariableContext doWorkWithMaterials(Materials materials) throws IOException {
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
 
         BuildAssignment buildAssigment = createAssignment(null);

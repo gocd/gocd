@@ -1,31 +1,32 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipBuilder;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.agent.launcher.DownloadableFile.AGENT_PLUGINS;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,8 @@ import static org.mockito.Mockito.when;
 /* Some parts are mocked, as in AgentPluginsInitializerTest, but the file system (through ZipUtil) is not. */
 @RunWith(MockitoJUnitRunner.class)
 public class AgentPluginsInitializerIntegrationTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Mock
     private PluginManager pluginManager;
     @Mock
@@ -62,7 +66,6 @@ public class AgentPluginsInitializerIntegrationTest {
     @After
     public void tearDown() throws Exception {
         cleanupAgentPluginsFile();
-        TestFileUtil.cleanTempFiles();
     }
 
     @Test
@@ -70,7 +73,7 @@ public class AgentPluginsInitializerIntegrationTest {
         File existingBundledPlugin = new File(directoryForUnzippedPlugins, "bundled/existing-plugin-1.jar");
 
         setupAgentsPluginFile().withBundledPlugin("new-plugin-1.jar", "SOME-PLUGIN-CONTENT").done();
-        FileUtils.writeStringToFile(existingBundledPlugin, "OLD-CONTENT");
+        FileUtils.writeStringToFile(existingBundledPlugin, "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
@@ -83,12 +86,12 @@ public class AgentPluginsInitializerIntegrationTest {
         File bundledPlugin = new File(directoryForUnzippedPlugins, "bundled/plugin-1.jar");
 
         setupAgentsPluginFile().withBundledPlugin("plugin-1.jar", "SOME-NEW-CONTENT").done();
-        FileUtils.writeStringToFile(bundledPlugin, "OLD-CONTENT");
+        FileUtils.writeStringToFile(bundledPlugin, "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
         assertThat(bundledPlugin.exists(), is(true));
-        assertThat(FileUtils.readFileToString(bundledPlugin), is("SOME-NEW-CONTENT"));
+        assertThat(FileUtils.readFileToString(bundledPlugin, UTF_8), is("SOME-NEW-CONTENT"));
     }
 
     @Test
@@ -96,7 +99,7 @@ public class AgentPluginsInitializerIntegrationTest {
         File existingExternalPlugin = new File(directoryForUnzippedPlugins, "external/existing-plugin-1.jar");
 
         setupAgentsPluginFile().withExternalPlugin("new-plugin-1.jar", "SOME-PLUGIN-CONTENT").done();
-        FileUtils.writeStringToFile(existingExternalPlugin, "OLD-CONTENT");
+        FileUtils.writeStringToFile(existingExternalPlugin, "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
@@ -109,12 +112,12 @@ public class AgentPluginsInitializerIntegrationTest {
         File externalPlugin = new File(directoryForUnzippedPlugins, "external/plugin-1.jar");
 
         setupAgentsPluginFile().withExternalPlugin("plugin-1.jar", "SOME-NEW-CONTENT").done();
-        FileUtils.writeStringToFile(externalPlugin, "OLD-CONTENT");
+        FileUtils.writeStringToFile(externalPlugin, "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
         assertThat(externalPlugin.exists(), is(true));
-        assertThat(FileUtils.readFileToString(externalPlugin), is("SOME-NEW-CONTENT"));
+        assertThat(FileUtils.readFileToString(externalPlugin, UTF_8), is("SOME-NEW-CONTENT"));
     }
 
     @Test
@@ -122,7 +125,7 @@ public class AgentPluginsInitializerIntegrationTest {
         File existingExternalPlugin = new File(directoryForUnzippedPlugins, "external/plugin-1.jar");
 
         setupAgentsPluginFile().done();
-        FileUtils.writeStringToFile(existingExternalPlugin, "OLD-CONTENT");
+        FileUtils.writeStringToFile(existingExternalPlugin, "OLD-CONTENT", UTF_8);
 
         agentPluginsInitializer.onApplicationEvent(null);
 
@@ -130,7 +133,7 @@ public class AgentPluginsInitializerIntegrationTest {
     }
 
     private File setupUnzippedPluginsDirectoryStructure() throws IOException {
-        File dir = TestFileUtil.createTempFolder("unzipped-plugins");
+        File dir = temporaryFolder.newFolder("unzipped-plugins");
         FileUtils.forceMkdir(new File(dir, "bundled"));
         FileUtils.forceMkdir(new File(dir, "external"));
         return dir;
@@ -153,19 +156,19 @@ public class AgentPluginsInitializerIntegrationTest {
 
         public SetupOfAgentPluginsFile(File pluginsZipFile) throws IOException {
             this.pluginsZipFile = pluginsZipFile;
-            this.bundledPluginsDir = TestFileUtil.createTempFolder("bundled");
-            this.externalPluginsDir = TestFileUtil.createTempFolder("external");
-            this.dummyFileSoZipFileIsNotEmpty = TestFileUtil.createTempFile("dummy.txt");
+            this.bundledPluginsDir = temporaryFolder.newFolder("bundled");
+            this.externalPluginsDir = temporaryFolder.newFolder("external");
+            this.dummyFileSoZipFileIsNotEmpty = temporaryFolder.newFile("dummy.txt");
             this.zipUtil = new ZipUtil();
         }
 
         public SetupOfAgentPluginsFile withBundledPlugin(String pluginFileName, String pluginFileContent) throws IOException {
-            FileUtils.writeStringToFile(new File(bundledPluginsDir, pluginFileName), pluginFileContent);
+            FileUtils.writeStringToFile(new File(bundledPluginsDir, pluginFileName), pluginFileContent, UTF_8);
             return this;
         }
 
         public SetupOfAgentPluginsFile withExternalPlugin(String pluginFileName, String pluginFileContent) throws IOException {
-            FileUtils.writeStringToFile(new File(externalPluginsDir, pluginFileName), pluginFileContent);
+            FileUtils.writeStringToFile(new File(externalPluginsDir, pluginFileName), pluginFileContent, UTF_8);
             return this;
         }
 

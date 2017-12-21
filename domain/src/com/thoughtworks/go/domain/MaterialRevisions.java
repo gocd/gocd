@@ -32,11 +32,7 @@ import com.thoughtworks.go.domain.materials.mercurial.HgMaterialUpdater;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialUpdater;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
-import com.thoughtworks.go.domain.materials.*;
-import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialUpdater;
-import com.thoughtworks.go.util.ObjectUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +255,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
 
     public MaterialRevision getMaterialRevision(String folder) {
         for (MaterialRevision materialRevision : revisions) {
-            if (ObjectUtil.nullSafeEquals(folder, materialRevision.getMaterial().getFolder())) {
+            if (Objects.equals(folder, materialRevision.getMaterial().getFolder())) {
                 return materialRevision;
             }
         }

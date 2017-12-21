@@ -54,7 +54,9 @@ import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -109,6 +111,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     GoConfigFileHelper configHelper;
     private SvnTestRepoWithExternal svnRepo;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setup() throws Exception {
@@ -116,7 +120,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         dbHelper.onSetUp();
         goCache.clear();
         configHelper.onSetUp();
-        svnRepo = new SvnTestRepoWithExternal();
+        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
         cleanupTempFolders();
     }
 
@@ -340,7 +344,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     @Test
     public void shouldLoadShallowCloneFlagForGitMaterialsBaseOnTheirOwnPipelineConfig() throws IOException {
-        GitTestRepo testRepo = new GitTestRepo();
+        GitTestRepo testRepo = new GitTestRepo(temporaryFolder);
 
         PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
         shallowPipeline.materialConfigs().clear();

@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import java.util.Map;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
@@ -196,7 +196,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         List<Admin> result = new ArrayList<>(map.size());
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
-            if (!StringUtil.isBlank(value)) {
+            if (!StringUtils.isBlank(value)) {
                 result.add(new AdminUser(new CaseInsensitiveString(value)));
             }
         }
@@ -207,7 +207,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         List<Admin> result = new ArrayList<>(map.size());
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
-            if (!StringUtil.isBlank(value)) {
+            if (!StringUtils.isBlank(value)) {
                 result.add(new AdminRole(new CaseInsensitiveString(value)));
             }
         }

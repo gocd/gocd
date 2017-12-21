@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentAgentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.ListUtil;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @understands ensuring environment-agents refer to existing, enabled agents
@@ -36,7 +36,7 @@ public class EnvironmentAgentValidator implements GoConfigValidator {
         for (ConfigErrors error : errors) {
             errorMessages.addAll(error.getAll());
         }
-        if (!errors.isEmpty()) throw new RuntimeException(ListUtil.join(errorMessages));
+        if (!errors.isEmpty()) throw new RuntimeException(StringUtils.join(errorMessages, ", "));
     }
 
     public List<ConfigErrors> validateConfig(CruiseConfig cruiseConfig) {

@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class PipelineConfigTreeValidator {
                     }
                 });
                 for (ConfigErrors error : allErrors) {
-                    pipelineConfig.errors().add("template", ListUtil.join(error.getAll()));
+                    pipelineConfig.errors().add("template", StringUtils.join(error.getAll(), ", "));
                 }
             }
         }
@@ -119,7 +120,7 @@ public class PipelineConfigTreeValidator {
                 for (Task task : jobConfig.getTasks()) {
                     if (task instanceof FetchTask) {
                         FetchTask fetchTask = (FetchTask) task;
-                        if (fetchTask.getPipelineNamePathFromAncestor() != null && !StringUtil.isBlank(CaseInsensitiveString.str(fetchTask.getPipelineNamePathFromAncestor().getPath())) && fetchTask.getPipelineNamePathFromAncestor().pathIncludingAncestor().contains(pipelineConfig.name())) {
+                        if (fetchTask.getPipelineNamePathFromAncestor() != null && !StringUtils.isBlank(CaseInsensitiveString.str(fetchTask.getPipelineNamePathFromAncestor().getPath())) && fetchTask.getPipelineNamePathFromAncestor().pathIncludingAncestor().contains(pipelineConfig.name())) {
                             fetchTask = new Cloner().deepClone(fetchTask);
                             fetchTask.validateTask(validationContext.withParent(downstreamPipeline).withParent(stageConfig).withParent(jobConfig));
                             List<String> allErrors = fetchTask.errors().getAll();

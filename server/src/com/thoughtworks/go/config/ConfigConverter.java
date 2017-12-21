@@ -40,7 +40,6 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
@@ -621,7 +620,7 @@ public class ConfigConverter {
 
     public TimerConfig toTimerConfig(CRTimer crTimer) {
         String spec = crTimer.getTimerSpec();
-        if (StringUtil.isBlank(spec))
+        if (StringUtils.isBlank(spec))
             throw new RuntimeException("timer schedule is not specified");
         return new TimerConfig(spec, crTimer.isOnlyOnChanges() == null ? false : crTimer.isOnlyOnChanges());
     }

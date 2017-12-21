@@ -19,6 +19,7 @@ package com.thoughtworks.go.util;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,6 +35,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static com.thoughtworks.go.util.TestUtils.isSameAsPath;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -43,7 +45,7 @@ import static org.mockito.Mockito.*;
 @RunWith(JunitExtRunner.class)
 public class FileUtilTest {
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
@@ -147,13 +149,13 @@ public class FileUtilTest {
 
     @Test
     public void FolderIsEmptyWhenItHasNoContents() throws Exception {
-        File folder = temporaryFolder.newFolder("foo");
+        File folder = temporaryFolder.newFolder();
         assertThat(FileUtil.isFolderEmpty(folder), is(true));
     }
 
     @Test
     public void FolderIsNotEmptyWhenItHasContents() throws Exception {
-        File folder = temporaryFolder.newFolder("foo");
+        File folder = temporaryFolder.newFolder();
         new File(folder, "subfolder").createNewFile();
         assertThat(FileUtil.isFolderEmpty(folder), is(false));
     }
@@ -205,4 +207,12 @@ public class FileUtilTest {
         verify(unreadableDirectory).canRead();
         verify(unreadableDirectory, never()).canExecute();
     }
+
+    @Test
+    public void shouldCalculateSha1Digest() throws IOException {
+        File tempFile = temporaryFolder.newFile();
+        FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
+        assertThat(FileUtil.sha1Digest(tempFile), is("jLIjfQZ5yojbZGTqxg2pY0VROWQ="));
+    }
+
 }

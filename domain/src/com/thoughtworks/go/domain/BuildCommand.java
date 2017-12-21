@@ -18,8 +18,8 @@ package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
-import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.GoConstants;
+import org.apache.commons.lang.ArrayUtils;
 
 import java.util.*;
 
@@ -30,7 +30,7 @@ public class BuildCommand {
     private static final Gson GSON = new Gson();
 
     public static BuildCommand echoWithPrefix(String format, Object...args) {
-        return echo("[%s] " + format, ArrayUtil.pushToArray(GoConstants.PRODUCT_NAME, args));
+        return echo("[%s] " + format, (Object[]) ArrayUtils.add(args, 0, GoConstants.PRODUCT_NAME));
     }
 
     public static BuildCommand exec(String command, String...args) {

@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -115,10 +114,10 @@ public class ArtifactConfig implements Artifact {
     }
 
     public void validate(ValidationContext validationContext) {
-        if (!StringUtil.isBlank(destination) && (!(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination)))) {
+        if (!StringUtils.isBlank(destination) && (!(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination)))) {
             addError(DEST, "Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
         }
-        if (StringUtil.isBlank(source)) {
+        if (StringUtils.isBlank(source)) {
             addError(SRC, String.format("Job '%s' has an artifact with an empty source", validationContext.getJob().name()));
         }
     }

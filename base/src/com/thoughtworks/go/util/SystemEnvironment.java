@@ -922,7 +922,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
         @Override
         protected String[] convertValue(String propertyValueFromSystem, String[] defaultValue) {
-            return StringUtil.isBlank(propertyValueFromSystem) ? defaultValue : propertyValueFromSystem.trim().split("(\\s*)?,(\\s*)?");
+            return isBlank(propertyValueFromSystem) ? defaultValue : propertyValueFromSystem.trim().split("(\\s*)?,(\\s*)?");
         }
     }
 

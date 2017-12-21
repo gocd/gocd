@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -110,7 +110,7 @@ public class PipelineHistoryController {
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
-        PipelineInstanceModels pipelineHistory = StringUtil.isBlank(labelFilter) ?
+        PipelineInstanceModels pipelineHistory = StringUtils.isBlank(labelFilter) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
                 pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, UserHelper.getUserName(), new HttpLocalizedOperationResult());
 

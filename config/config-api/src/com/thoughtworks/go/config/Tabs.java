@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 @ConfigTag("tabs")
 @ConfigCollection(Tab.class)
@@ -66,7 +66,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
             for (Map attributeMap : (List<Map>) attributes) {
                 String tabName = (String) attributeMap.get(Tab.NAME);
                 String path = (String) attributeMap.get(Tab.PATH);
-                if (StringUtil.isBlank(tabName) && StringUtil.isBlank(path)) {
+                if (StringUtils.isBlank(tabName) && StringUtils.isBlank(path)) {
                     continue;
                 }
                 this.add(new Tab(tabName, path));

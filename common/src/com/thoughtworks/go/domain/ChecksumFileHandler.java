@@ -16,8 +16,8 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.ArtifactLogUtil;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class ChecksumFileHandler implements FetchHandler {
     }
 
     public void handle(InputStream stream) throws IOException {
-        FileUtil.writeToFile(stream, checksumFile);
+        FileUtils.copyInputStreamToFile(stream, checksumFile);
     }
 
     public boolean handleResult(int returncode, GoPublisher goPublisher) {

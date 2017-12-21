@@ -20,18 +20,8 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Random;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.net.*;
+import java.util.*;
 
 public class SystemUtil {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(SystemUtil.class);
@@ -46,11 +36,6 @@ public class SystemUtil {
         } catch (SocketException e) {
             throw new RuntimeException("Could not retrieve local network interfaces", e);
         }
-    }
-
-    public static boolean isWindows() {
-        String osName = System.getProperty("os.name");
-        return osName.contains("Windows");
     }
 
     public static String getLocalhostName() {

@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.util.Filter;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 @Service
 public class UserService {
@@ -446,8 +446,8 @@ public class UserService {
 
     public Users findValidSubscribers(final StageConfigIdentifier identifier) {
         Users users = userDao.findNotificationSubscribingUsers();
-        return users.filter(new Filter<User>() {
-            public boolean matches(User user) {
+        return users.filter(new Predicate<User>() {
+            public boolean test(User user) {
                 return user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
                         securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName());
             }

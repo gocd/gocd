@@ -19,7 +19,6 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -205,7 +204,7 @@ public class Jetty9Server extends AppServer {
             if (inputStream == null) {
                 throw new RuntimeException(format("Resource {0}/{1} does not exist in the classpath", JETTY_XML_LOCATION_IN_JAR, jettyConfig.getName()));
             }
-            FileUtil.writeToFile(inputStream, systemEnvironment.getJettyConfigFile());
+            FileUtils.copyInputStreamToFile(inputStream, systemEnvironment.getJettyConfigFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

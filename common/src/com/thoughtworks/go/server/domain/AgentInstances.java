@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,15 @@ import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.MapUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.thoughtworks.go.util.ListUtil.join;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class AgentInstances implements Iterable<AgentInstance> {
 
@@ -291,8 +291,8 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
-        Collection<AgentInstance> values = MapUtil.filterValues(agentInstances, new MapUtil.Predicate<AgentInstance>() {
-            public boolean apply(AgentInstance agentInstance) {
+        Collection<AgentInstance> values = agentInstances.values().stream().filter(new Predicate<AgentInstance>() {
+            public boolean test(AgentInstance agentInstance) {
                 if (!agentInstance.isElastic()) {
                     return false;
                 }
@@ -301,20 +301,20 @@ public class AgentInstances implements Iterable<AgentInstance> {
                 return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
 
             }
-        });
+        }).collect(Collectors.toList());
 
 
         if (values.size() == 0) {
             return null;
         }
         if (values.size() > 1) {
-            Collection<String> uuids = ListUtil.map(values, new ListUtil.Transformer<AgentInstance, String>() {
+            Collection<String> uuids = values.stream().map(new Function<AgentInstance, String>() {
                 @Override
-                public String transform(AgentInstance input) {
+                public String apply(AgentInstance input) {
                     return input.getUuid();
                 }
-            });
-            throw new IllegalStateException(String.format("Found multiple agents with the same elastic agent id [%s]", join(uuids)));
+            }).collect(Collectors.toList());
+            throw new IllegalStateException(String.format("Found multiple agents with the same elastic agent id [%s]", StringUtils.join(uuids, ", ")));
         }
 
         return values.iterator().next();

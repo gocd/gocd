@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -44,6 +45,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -71,6 +73,9 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml"
 })
 public class PipelineSchedulerIntegrationTest {
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private PipelineScheduler pipelineScheduler;
@@ -97,7 +102,7 @@ public class PipelineSchedulerIntegrationTest {
 
     @BeforeClass
     public static void setupRepos() throws IOException {
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
     }
 
     @AfterClass

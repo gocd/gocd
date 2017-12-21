@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.util.ListUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -100,11 +99,11 @@ public class TokenRequesterTest {
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {
-        return ListUtil.find(nameValuePairs, new Predicate<NameValuePair>() {
+        return nameValuePairs.stream().filter(new Predicate<NameValuePair>() {
             @Override
             public boolean test(NameValuePair nameValuePair) {
                 return nameValuePair.getName().equals(paramName);
             }
-        });
+        }).findFirst().orElse(null);
     }
 }

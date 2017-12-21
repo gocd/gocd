@@ -16,24 +16,28 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.DirectoryScanner;
+import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import com.thoughtworks.go.util.DirectoryScanner;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import static org.hamcrest.core.Is.is;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 
 public class DirectoryScannerTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private File baseFolder;
     private DirectoryScanner ds = new DirectoryScanner();
 
@@ -43,9 +47,10 @@ public class DirectoryScannerTest {
 
     @Before
 	public void setUp() throws Exception {
-        baseFolder = TestFileUtil.createTempFolder("test");
-        File tmpFolder = TestFileUtil.createTestFolder(baseFolder, "tmp");
-        TestFileUtil.createTestFolder(tmpFolder, "alpha");
+        baseFolder = temporaryFolder.newFolder("test");
+        File tmpFolder = new File(baseFolder, "tmp");
+        tmpFolder.mkdirs();
+        new File(tmpFolder, "alpha").mkdirs();
     }
 
     @After

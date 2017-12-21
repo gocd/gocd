@@ -32,11 +32,12 @@ import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,6 +46,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.sql.SQLException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -69,10 +71,13 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
     public SvnMaterial svnMaterial;
-    public static SvnTestRepo svnRepository;
+    private static SvnTestRepo svnRepository;
     private Pipeline latestPipeline;
     private File workingFolder;
     PipelineConfig mingleConfig;
+
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setup() throws Exception {
@@ -80,7 +85,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
-        workingFolder = TestFileUtil.createTempFolder("workingFolder");
+        workingFolder = temporaryFolder.newFolder("workingFolder");
     }
 
     private void repositoryForMaterial(SvnTestRepo svnRepository) {
@@ -102,7 +107,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
     @Test
     public void shouldCreateBuildCauseWithModifications() throws Exception {
-        repositoryForMaterial(new SvnTestRepo("svnTestRepo"));
+        repositoryForMaterial(new SvnTestRepo(temporaryFolder));
         prepareAPipelineWithHistory();
 
         checkInFiles("foo");
@@ -124,7 +129,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
     @Test
     public void shouldCreateBuildCauseWithModificationsForSvnRepoWithExternal() throws Exception {
-        SvnTestRepoWithExternal repo = new SvnTestRepoWithExternal();
+        SvnTestRepoWithExternal repo = new SvnTestRepoWithExternal(temporaryFolder);
         repositoryForMaterial(repo);
         prepareAPipelineWithHistory();
 
@@ -160,7 +165,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     private void checkInFiles(String... files) throws Exception {
         for (String fileName : files) {
             File file = new File(workingFolder, fileName);
-            FileUtils.writeStringToFile(file, "bla");
+            FileUtils.writeStringToFile(file, "bla", UTF_8);
             svnRepository.checkInOneFile(fileName, "random commit " + fileName);
         }
     }

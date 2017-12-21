@@ -16,19 +16,18 @@
 
 package com.thoughtworks.go.helper;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
@@ -40,19 +39,20 @@ public class SvnTestRepoWithExternal extends SvnTestRepo {
     public static final String EXTERNAL_REPO_NAME = "end2end";
     private String externalRepoUrl;
 
-    public SvnTestRepoWithExternal(String externalRepoUrl) throws IOException {
+    public SvnTestRepoWithExternal(String externalRepoUrl, TemporaryFolder temporaryFolder) throws IOException {
+        super(temporaryFolder);
         this.externalRepoUrl = externalRepoUrl;
         setupWorkingFolder();
         setupExternals(EXTERNAL_REPO_NAME, workingFolder);
     }
 
-    public SvnTestRepoWithExternal() throws IOException {
-        this(null);
+    public SvnTestRepoWithExternal(TemporaryFolder temporaryFolder) throws IOException {
+        this(null, temporaryFolder);
     }
 
-    private void setupWorkingFolder() {
-        workingFolder = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
-        tmpFolders.add(workingFolder);
+    private void setupWorkingFolder() throws IOException {
+        workingFolder = temporaryFolder.newFolder();
+        tmpFolders.add(this.workingFolder);
     }
 
     public Date beforeCheckin() {
@@ -80,7 +80,7 @@ public class SvnTestRepoWithExternal extends SvnTestRepo {
     }
 
     private void commitToExternalRepo(String externalUrl) throws IOException {
-        File folder = TestFileUtil.createTempFolder("testSvnExternalWorkingCopy");
+        File folder = temporaryFolder.newFolder();
         try {
             SvnCommand repository = getSvnExternalCommand(externalUrl, false);
             repository.checkoutTo(outputStreamConsumer, folder, SubversionRevision.HEAD);

@@ -16,13 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.*;
-import java.util.UUID;
-
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
@@ -30,17 +26,16 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.FAILED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.IGNORED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TEST_TIME;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TOTAL_TEST_COUNT;
-import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static com.thoughtworks.go.util.TestUtils.restoreConsoleOutput;
-import static com.thoughtworks.go.util.TestUtils.suppressConsoleOutput;
+import java.io.*;
+
+import static com.thoughtworks.go.domain.UnitTestReportGenerator.*;
+import static com.thoughtworks.go.util.TestUtils.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -52,10 +47,13 @@ public class UnitTestReportGeneratorTest {
     private File testFolder;
     private UnitTestReportGenerator generator;
     private DefaultGoPublisher publisher;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
-    public void setUp() {
-        testFolder = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
+    public void setUp() throws IOException {
+        temporaryFolder.create();
+        testFolder = temporaryFolder.newFolder();
         publisher = context.mock(DefaultGoPublisher.class);
         generator = new UnitTestReportGenerator(publisher, testFolder);
     }

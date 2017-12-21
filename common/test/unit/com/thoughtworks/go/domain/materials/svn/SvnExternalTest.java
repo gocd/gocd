@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -29,21 +25,27 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.helper.TestRepo;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class SvnExternalTest {
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private static SvnTestRepoWithExternal svnRepo;
     public static File workingDir;
 
     @BeforeClass
     public static void copyRepository() throws IOException {
-        svnRepo = new SvnTestRepoWithExternal();
+        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
         workingDir = svnRepo.projectRepositoryUrlAsFile();
     }
 

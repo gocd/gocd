@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util;
 
@@ -22,10 +22,7 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
@@ -38,6 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -53,10 +51,10 @@ public class ZipUtilTest {
     private File zipFile;
     private File emptyDir;
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static String fileContent(File file) throws IOException {
-        return IOUtils.toString(new FileInputStream(file));
+        return IOUtils.toString(new FileInputStream(file), UTF_8);
     }
 
     @Before
@@ -70,9 +68,9 @@ public class ZipUtilTest {
         childDir1 = new File(srcDir, "_child1");
         childDir1.mkdir();
         file1 = new File(srcDir, "_file1");
-        FileUtils.writeStringToFile(file1, "_file1");
+        FileUtils.writeStringToFile(file1, "_file1", UTF_8);
         file2 = new File(childDir1, "_file2");
-        FileUtils.writeStringToFile(file2, "_file2");
+        FileUtils.writeStringToFile(file2, "_file2", UTF_8);
         zipUtil = new ZipUtil();
     }
 
@@ -144,7 +142,7 @@ public class ZipUtilTest {
     @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
     public void shouldZipFileWhoseNameHasSpecialCharactersOnLinux() throws IOException {
         File specialFile = new File(srcDir, "$`#?@!()?-_{}^'~.+=[];,a.txt");
-        FileUtils.writeStringToFile(specialFile, "specialFile");
+        FileUtils.writeStringToFile(specialFile, "specialFile", UTF_8);
 
         zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
         zipUtil.unzip(zipFile, destDir);
@@ -157,7 +155,7 @@ public class ZipUtilTest {
 
     @Test
     public void shouldReadContentsOfAFileWhichIsInsideAZip() throws Exception {
-        FileUtils.writeStringToFile(new File(srcDir, "some-file.txt"), "some-text-here");
+        FileUtils.writeStringToFile(new File(srcDir, "some-file.txt"), "some-text-here", UTF_8);
         zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
 
         String someStuff = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(zipFile)), "some-file.txt");
@@ -168,12 +166,12 @@ public class ZipUtilTest {
     @Test
     public void shouldZipMultipleFolderContentsAndExcludeRootDirectory() throws IOException {
         File folderOne = temporaryFolder.newFolder("a-folder1");
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1");
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2");
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1", UTF_8);
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2", UTF_8);
 
         File folderTwo = temporaryFolder.newFolder("a-folder2");
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1");
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2");
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1", UTF_8);
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
 
         File targetZipFile = temporaryFolder.newFile("final1.zip");
 
@@ -192,12 +190,12 @@ public class ZipUtilTest {
     public void shouldZipMultipleFolderContentsWhenNotExcludingRootDirectory() throws IOException {
 
         File folderOne = temporaryFolder.newFolder("folder1");
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1");
-        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2");
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1", UTF_8);
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2", UTF_8);
 
         File folderTwo = temporaryFolder.newFolder("folder2");
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1");
-        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2");
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1", UTF_8);
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
 
         File targetZipFile = temporaryFolder.newFile("final2.zip");
 
@@ -250,7 +248,7 @@ public class ZipUtilTest {
         ZipFile actualZip = new ZipFile(targetZipFile);
         ZipEntry entry = actualZip.getEntry(file);
         assertThat(entry, is(notNullValue()));
-        assertThat(IOUtils.toString(actualZip.getInputStream(entry)), is(expectedContent));
+        assertThat(IOUtils.toString(actualZip.getInputStream(entry), UTF_8), is(expectedContent));
     }
 
     private void assertIsDirectory(File file) {

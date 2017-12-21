@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -38,12 +37,12 @@ public class DownloadDirCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
     public void downloadDirWithChecksum() throws Exception {
-        File folder = TestFileUtil.createTempFolder("log");
+        File folder = temporaryFolder.newFolder("log");
         Files.write(Paths.get(folder.getPath(), "a"), "content for a".getBytes());
         Files.write(Paths.get(folder.getPath(), "b"), "content for b".getBytes());
 
 
-        File zip = new ZipUtil().zip(folder, TestFileUtil.createUniqueTempFile(folder.getName()), Deflater.NO_COMPRESSION);
+        File zip = new ZipUtil().zip(folder, temporaryFolder.newFile("log.zip"), Deflater.NO_COMPRESSION);
 
         httpService.setupDownload("http://far.far.away/log.zip", zip);
         httpService.setupDownload("http://far.far.away/log.zip.md5", "s/log/a=524ebd45bd7de3616317127f6e639bd6\ns/log/b=83c0aa3048df233340203c74e8a93d7d");

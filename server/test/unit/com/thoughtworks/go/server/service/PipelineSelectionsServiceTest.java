@@ -25,8 +25,8 @@ import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -35,10 +35,7 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
@@ -336,7 +333,7 @@ public class PipelineSelectionsServiceTest {
                 assertThat(pipelineSelections.isBlacklist(), is(isBlacklist));
 
                 List<String> expectedSelectionsAsList = Arrays.asList(pipelineSelectionsInInstance);
-                assertEquals(pipelineSelections.getSelections(), ListUtil.join(expectedSelectionsAsList, ","));
+                assertEquals(pipelineSelections.getSelections(), StringUtils.join(expectedSelectionsAsList, ","));
 
                 return true;
             }

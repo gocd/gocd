@@ -20,7 +20,7 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -79,10 +79,11 @@ public class AgentBootstrapperFunctionalTest {
                 System.setErr(new PrintStream(os));
                 File agentJar = new File("agent.jar");
                 agentJar.delete();
-                new AgentBootstrapper(){
-                            @Override void jvmExit(int returnValue) {
-                            }
-                        }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+                new AgentBootstrapper() {
+                    @Override
+                    void jvmExit(int returnValue) {
+                    }
+                }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
                 agentJar.delete();
                 assertThat(new String(os.toByteArray()), containsString("Hello World Fellas!"));
             } finally {
@@ -96,10 +97,11 @@ public class AgentBootstrapperFunctionalTest {
         if (!OS_CHECKER.satisfy()) {
             File agentJar = new File("agent.jar");
             agentJar.delete();
-            new AgentBootstrapper(){
-                        @Override void jvmExit(int returnValue) {
-                        }
-                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            new AgentBootstrapper() {
+                @Override
+                void jvmExit(int returnValue) {
+                }
+            }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertTrue("No agent downloaded", agentJar.exists());
             agentJar.delete();
         }
@@ -112,24 +114,17 @@ public class AgentBootstrapperFunctionalTest {
             agentJar.delete();
             createRandomFile(agentJar);
             long original = agentJar.length();
-            new AgentBootstrapper(){
-                        @Override void jvmExit(int returnValue) {
-                        }
-                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            new AgentBootstrapper() {
+                @Override
+                void jvmExit(int returnValue) {
+                }
+            }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertThat(agentJar.length(), not(original));
             agentJar.delete();
         }
     }
 
-    private void createRandomFile(File agentJar) {
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(agentJar);
-            IOUtils.write("some rubbish", output);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(output);
-        }
+    private void createRandomFile(File agentJar) throws IOException {
+        FileUtils.writeStringToFile(agentJar, RandomStringUtils.random((int) (Math.random() * 100)), UTF_8);
     }
 }

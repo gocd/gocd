@@ -66,7 +66,9 @@ import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -120,6 +122,9 @@ public class StageServiceIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -202,7 +207,7 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldReturnFalseWhenAllStagesAreCompletedInAGivenPipeline() throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate);
+        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         assertThat(stageService.isAnyStageActiveForPipeline(fixture.pipelineName, pipeline.getCounter()), Is.is(false));
@@ -210,7 +215,7 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldReturnTrueIfAnyStageIsBuildingInAGivenPipeline() throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate);
+        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
 
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
@@ -608,7 +613,7 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldSaveTheStageStatusProperlyUponJobCancelAfterInvalidatingTheCache() throws Exception {
-        fixture = (PipelineWithMultipleStages) new PipelineWithMultipleStages(2, materialRepository, transactionTemplate).usingTwoJobs();
+        fixture = (PipelineWithMultipleStages) new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
 
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();

@@ -31,24 +31,18 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PluggableTaskServiceTest {
     private PluggableTaskService pluggableTaskService;
@@ -102,12 +96,12 @@ public class PluggableTaskServiceTest {
 
         final List<ValidationError> validationErrors = validationResult.getErrors();
         assertFalse(validationErrors.isEmpty());
-        final ValidationError validationError = ListUtil.find(validationErrors, new ListUtil.Condition() {
+        final ValidationError validationError = validationErrors.stream().filter(new Predicate<ValidationError>() {
             @Override
-            public <T> boolean isMet(T item) {
+            public boolean test(ValidationError item) {
                 return ((ValidationError) item).getKey().equals("KEY1");
             }
-        });
+        }).findFirst().orElse(null);
         assertNotNull(validationError);
         assertThat(validationError.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
     }

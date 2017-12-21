@@ -37,6 +37,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Repository
 public class FeatureToggleRepository {
@@ -102,7 +103,7 @@ public class FeatureToggleRepository {
         representation.toggles = toggles.all();
 
         try {
-            FileUtils.writeStringToFile(file, gson.toJson(representation));
+            FileUtils.writeStringToFile(file, gson.toJson(representation), UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

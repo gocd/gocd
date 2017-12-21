@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.*;
-
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
@@ -35,10 +27,8 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
@@ -47,8 +37,16 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
+import java.io.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -63,17 +61,20 @@ import static org.mockito.Mockito.when;
 
 @RunWith(JMock.class)
 public class SvnMaterialTest {
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private Mockery context = new ClassMockery();
     private Subversion subversion;
 
     private SvnMaterial svnMaterial;
     private static final String URL = "svn://something";
     SubversionRevision revision = new SubversionRevision("1");
-    private final ArrayList<File> tempFiles = new ArrayList<>();
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        temporaryFolder.create();
         subversion = context.mock(Subversion.class);
         context.checking(new Expectations() {
             {
@@ -93,19 +94,15 @@ public class SvnMaterialTest {
 
     @After
     public void tearDown() throws Exception {
-        for (File tempFile : tempFiles) {
-            tempFile.delete();
-        }
+        temporaryFolder.delete();
     }
 
-    private File createSvnWorkingCopy(boolean withDotSvnFolder) {
-        File folder = TestFileUtil.createTempFolder("testSvnWorkingCopy");
+    private File createSvnWorkingCopy(boolean withDotSvnFolder) throws IOException {
+        File folder = temporaryFolder.newFolder("testSvnWorkingCopy");
         if (withDotSvnFolder) {
             File dotSvnFolder = new File(folder, ".svn");
             dotSvnFolder.mkdir();
-            tempFiles.add(dotSvnFolder);
         }
-        tempFiles.add(folder);
         return folder;
     }
 
@@ -146,7 +143,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldCheckoutForInvalidSvnWorkingCopy() {
+    public void shouldCheckoutForInvalidSvnWorkingCopy() throws IOException {
         final File workingCopy = createSvnWorkingCopy(false);
         context.checking(new Expectations() {
             {

@@ -42,6 +42,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -51,13 +52,10 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -122,10 +120,12 @@ public class ScheduleServiceIntegrationTest {
     private PipelineConfig evolveConfig;
     private PipelineWithTwoStages pipelineFixture;
     public static final String JOB_NAME = "unit";
+    @ClassRule
+    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void setupRepos() throws IOException {
-        testRepo = new SvnTestRepo("testSvnRepo");
+        testRepo = new SvnTestRepo(temporaryFolder);
     }
 
     @AfterClass
@@ -139,7 +139,7 @@ public class ScheduleServiceIntegrationTest {
         dbHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
@@ -198,7 +198,7 @@ public class ScheduleServiceIntegrationTest {
         configHelper.addPipeline(pipelineName, firstStageName);
         configHelper.addStageToPipeline(pipelineName, "twist");
         configHelper.lockPipeline(pipelineName);
-        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, asList(firstStageName, secondStageName), asList(JOB_NAME, "twist"));
+        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, new ArrayList<>(Arrays.asList(firstStageName, secondStageName)), new ArrayList<>(Arrays.asList(JOB_NAME, "twist")));
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -221,7 +221,7 @@ public class ScheduleServiceIntegrationTest {
         configHelper.addPipeline(pipelineName, firstStageName);
         configHelper.addStageToPipeline(pipelineName, "twist");
         configHelper.lockPipeline(pipelineName);
-        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, asList(firstStageName, secondStageName), asList(JOB_NAME, "twist"));
+        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, new ArrayList<>(Arrays.asList(firstStageName, secondStageName)), new ArrayList<>(Arrays.asList(JOB_NAME, "twist")));
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {

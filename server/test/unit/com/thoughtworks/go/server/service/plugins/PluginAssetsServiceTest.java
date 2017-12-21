@@ -34,12 +34,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class PluginAssetsLoaderTest {
+public class PluginAssetsServiceTest {
 
     public static final String PLUGIN_ID = "plugin_id";
     @Mock
@@ -50,14 +51,14 @@ public class PluginAssetsLoaderTest {
     @Mock
     GoPluginDescriptor pluginDescriptor;
 
-    PluginAssetsLoader pluginAssetsLoader;
+    PluginAssetsService pluginAssetsService;
     private File railsRoot;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        pluginAssetsLoader = new PluginAssetsLoader(extension);
-        pluginAssetsLoader.setServletContext(servletContext);
+        pluginAssetsService = new PluginAssetsService(extension);
+        pluginAssetsService.setServletContext(servletContext);
     }
 
     @After
@@ -84,7 +85,7 @@ public class PluginAssetsLoaderTest {
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
 
-        pluginAssetsLoader.pluginUnLoaded(pluginDescriptor);
+        pluginAssetsService.pluginUnLoaded(pluginDescriptor);
 
         assertFalse(path.toFile().exists());
         assertFalse(pluginDirPath.toFile().exists());
@@ -108,7 +109,7 @@ public class PluginAssetsLoaderTest {
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(null);
 
-        pluginAssetsLoader.pluginLoaded(pluginDescriptor);
+        pluginAssetsService.pluginLoaded(pluginDescriptor);
 
         assertFalse(dirtyPath.toFile().exists());
         assertFalse(pluginDirPath.toFile().exists());
@@ -132,11 +133,34 @@ public class PluginAssetsLoaderTest {
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
 
-        pluginAssetsLoader.pluginLoaded(pluginDescriptor);
+        pluginAssetsService.pluginLoaded(pluginDescriptor);
 
         assertFalse(dirtyPath.toFile().exists());
         assertTrue(pluginDirPath.toFile().exists());
-        assertTrue(Paths.get(pluginDirPath.toString(), "test.txt").toFile().exists());
+        assertTrue(Paths.get(pluginAssetsService.assetPathFor(PLUGIN_ID), "test.txt").toFile().exists());
+    }
+
+    @Test
+    public void onPluginLoad_shouldKnowPluginStaticAssetsPath() throws Exception {
+        railsRoot = FileUtil.createTempFolder();
+        Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
+
+        Path dirtyPath = Paths.get(pluginDirPath.toString(), "dirty.txt");
+        FileUtil.createParentFolderIfNotExist(dirtyPath.toFile());
+        Files.write(dirtyPath, "hello".getBytes());
+
+        assertTrue(pluginDirPath.toFile().exists());
+        assertTrue(dirtyPath.toFile().exists());
+
+        when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
+        when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
+        when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
+        when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
+        when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
+
+        pluginAssetsService.pluginLoaded(pluginDescriptor);
+        String shaHashOfZipFile = "6BECE2006E5F4BC8A9FCB5BD53C1E87BEE63B7DA4F3A6E24EF1AD122D47C23D3";
+        assertEquals(Paths.get(pluginDirPath.toString(), shaHashOfZipFile).toString(), pluginAssetsService.assetPathFor(PLUGIN_ID));
     }
 
     private String testDataZipArchive() throws IOException {

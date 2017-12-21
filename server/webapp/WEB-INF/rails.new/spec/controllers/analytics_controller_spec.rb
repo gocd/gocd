@@ -41,19 +41,19 @@ describe AnalyticsController do
     it 'should only allow pipeline viewers to see analytics of type pipeline' do
       allow_current_user_to_access_pipeline('pipeline_name')
       allow(@system_environment).to receive(:enablePipelineAnalyticsOnlyForAdmins).and_return(false)
-      expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+      expect(controller).to allow_action(:get, :show, params: {plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id'})
 
       allow_current_user_to_not_access_pipeline('pipeline_name')
-      expect(controller).not_to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+      expect(controller).not_to allow_action(:get, :show, params: {plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id'})
     end
 
     it 'should allow all users to view analytics of type pipeline if security is disabled' do
       allow_current_user_to_not_access_pipeline('pipeline_name')
       allow(@system_environment).to receive(:enablePipelineAnalyticsOnlyForAdmins).and_return(false)
-      expect(controller).not_to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+      expect(controller).not_to allow_action(:get, :show, params: {plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id'})
 
       disable_security
-      expect(controller).to allow_action(:get, :show, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id')
+      expect(controller).to allow_action(:get, :show, params: {plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name', type: 'pipeline', id: 'metric_id'})
     end
 
     it 'should disallow non admin users to view the analytics tab' do
@@ -126,7 +126,7 @@ describe AnalyticsController do
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
       allow(analytics_extension).to receive(:getAnalytics).with('com.tw.myplugin', 'analytics_type', 'metric_id', {pipeline_name: 'pipeline_name', duration: '30 days'}).and_return(analytics_data)
 
-      get :show, plugin_id: 'com.tw.myplugin', type: 'analytics_type', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'
+      get :show, params: {plugin_id: 'com.tw.myplugin', type: 'analytics_type', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'}
 
       expect(response).to be_ok
 
@@ -160,7 +160,7 @@ describe AnalyticsController do
 
       allow(analytics_extension).to receive(:getAnalytics).and_raise(java.lang.Exception.new)
 
-      get :show, plugin_id: 'com.tw.myplugin', type: 'analytics_type', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'
+      get :show, params: {plugin_id: 'com.tw.myplugin', type: 'analytics_type', id: 'metric_id', pipeline_name: 'pipeline_name', duration: '30 days'}
 
       expect(response.code).to eq('500')
       expect(response.body).to eq('Error generating analytics from plugin - com.tw.myplugin')

@@ -146,7 +146,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).with('scm').and_return([notification_plugin_info, analytics_plugin_info])
 
-      get_with_api_header :index, type: 'scm'
+      get_with_api_header :index, params: { type: 'scm' }
 
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response([notification_plugin_info], ApiV3::Plugin::PluginInfosRepresenter))
@@ -230,7 +230,7 @@ describe ApiV3::Admin::PluginInfosController do
 
       expect(@default_plugin_info_finder).to receive(:pluginInfoFor).with('unsupported.plugin').and_return(analytics_plugin_info)
 
-      get_with_api_header :show, id: 'unsupported.plugin'
+      get_with_api_header :show, params: { id: 'unsupported.plugin' }
 
       expect(response.code).to eq('404')
     end

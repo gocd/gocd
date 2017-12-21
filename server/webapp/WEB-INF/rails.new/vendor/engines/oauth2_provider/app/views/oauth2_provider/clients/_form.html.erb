@@ -9,7 +9,7 @@
     </label>
     <%= f.text_field :name, :class => 'width-large' %>
   </div>
-  
+
   <div class="form_item">
     <label for='redirect_uri'>
         OAuth Redirect URI:
@@ -19,9 +19,9 @@
     </label>
     <%= f.text_field :redirect_uri, :class => 'width-large' %>
   </div>
-  
+
   <div class="action-bar">
-    <%= link_to_function 'Submit', 'document.getElementById("oauth_client_edit_form").submit()', {:class => 'link_as_button primary', :href => 'javascript:void(0)'} %>
+    <%= link_to 'Submit', '#', {:onclick => 'document.getElementById("oauth_client_edit_form").submit()', :class => 'link_as_button primary', :href => 'javascript:void(0)'} %>
     <%= link_to 'Cancel', oauth_engine.clients_path, {:class => 'link_as_button back_link'} %>
   </div>
 <% end %>

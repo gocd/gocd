@@ -6,16 +6,18 @@ module Oauth2Provider
     def self.included(receiver)
       receiver.extend         ClassMethods
     end
-    
+
     class TransactionFilter
-      def filter(controller, &block)
-        ModelBase.transaction(&block)
+      class << self
+        def around(controller, &block)
+          ModelBase.transaction(&block)
+        end
       end
     end
 
     module ClassMethods
       def transaction_actions(*actions)
-        self.around_action TransactionFilter.new, :only => actions
+        self.around_action TransactionFilter, :only => actions
       end
     end
   end

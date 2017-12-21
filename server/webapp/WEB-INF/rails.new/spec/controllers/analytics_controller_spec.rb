@@ -53,7 +53,7 @@ describe AnalyticsController do
       analytics_data = instance_double('AnalyticsData')
       allow(analytics_data).to receive(:getData).and_return("pipeline_analytics")
       allow(analytics_data).to receive(:getViewPath).and_return("path/to/view")
-      allow(analytics_data).to receive(:toJson).and_return('{"data": "pipeline_analytics", "viewPath": "/path/to/view"}')
+      allow(analytics_data).to receive(:toMap).and_return({"data" => "pipeline_analytics", "viewPath" => "/path/to/view"})
 
       allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_return(analytics_data)
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
@@ -61,7 +61,7 @@ describe AnalyticsController do
       get :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name'
 
       expect(response).to be_ok
-      expect(response.body).to eq('{"data": "pipeline_analytics", "viewPath": "/path/to/view"}')
+      expect(response.body).to eq('{"data":"pipeline_analytics","viewPath":"/path/to/view"}')
       expect(response.content_type).to eq('application/json')
     end
 

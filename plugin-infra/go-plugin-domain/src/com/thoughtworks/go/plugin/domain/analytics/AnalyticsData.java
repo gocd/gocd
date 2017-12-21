@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.analytics.models;
+package com.thoughtworks.go.plugin.domain.analytics;
 
-import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AnalyticsData {
     String data;
@@ -30,7 +31,10 @@ public class AnalyticsData {
         return viewPath;
     }
 
-    public String toJson() {
-        return new Gson().toJson(this);
+    public Map<String, String> toMap() {
+        HashMap<String, String> m = new HashMap<>();
+        m.put("data", data);
+        m.put("viewPath", viewPath);
+        return m;
     }
 }

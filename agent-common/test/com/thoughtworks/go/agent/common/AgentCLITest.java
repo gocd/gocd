@@ -53,7 +53,7 @@ public class AgentCLITest {
             Assert.fail("Was expecting an exception!");
         } catch (ExitException e) {
             assertThat(e.getStatus(), is(1));
-            assertThat(errorStream.toString(), containsString("The following option is required: -serverUrl"));
+            assertThat(errorStream.toString(), containsString("The following option is required: [-serverUrl]"));
             assertThat(errorStream.toString(), containsString("Usage: java -jar agent-bootstrapper.jar"));
         }
     }

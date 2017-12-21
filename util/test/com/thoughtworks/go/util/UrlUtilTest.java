@@ -45,8 +45,8 @@ public class UrlUtilTest {
 
     @Test
     public void shouldAppendQueryString() throws Exception {
-        assertThat(UrlUtil.urlWithQuery("http://baz.quux", "foo", "bar"), is("http://baz.quux/?foo=bar"));
-        assertThat(UrlUtil.urlWithQuery("http://baz.quux?bang=boom&hello=world", "foo", "bar"), is("http://baz.quux/?bang=boom&hello=world&foo=bar"));
+        assertThat(UrlUtil.urlWithQuery("http://baz.quux", "foo", "bar"), is("http://baz.quux?foo=bar"));
+        assertThat(UrlUtil.urlWithQuery("http://baz.quux?bang=boom&hello=world", "foo", "bar"), is("http://baz.quux?bang=boom&hello=world&foo=bar"));
         assertThat(UrlUtil.urlWithQuery("http://baz.quux:1000/hello/world?bang=boom", "foo", "bar"), is("http://baz.quux:1000/hello/world?bang=boom&foo=bar"));
         assertThat(UrlUtil.urlWithQuery("http://baz.quux:1000/hello/world?bang=boom%20bang&quux=bar/baz&sha1=2jmj7l5rSw0yVb%2FvlWAYkK%2FYBwk%3D", "foo", "bar\\baz"), is("http://baz.quux:1000/hello/world?bang=boom+bang&quux=bar%2Fbaz&sha1=2jmj7l5rSw0yVb%2FvlWAYkK%2FYBwk%3D&foo=bar%5Cbaz"));
         assertThat(UrlUtil.urlWithQuery("http://baz.quux:1000/hello/world?bang=boom#in_hell", "foo", "bar"), is("http://baz.quux:1000/hello/world?bang=boom&foo=bar#in_hell"));

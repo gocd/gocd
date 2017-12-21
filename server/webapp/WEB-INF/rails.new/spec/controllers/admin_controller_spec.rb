@@ -222,7 +222,7 @@ describe AdminController do
 
   it "should use flash-message to report successful save" do
     stub_save_for_success
-    expect(controller).to receive_redirect_to(/http:\/\/foo.bar\/\?fm=#{uuid_pattern}/)
+    expect(controller).to receive_redirect_to(/http:\/\/foo.bar\?fm=#{uuid_pattern}/)
     controller.send(:save_page, "md5", "http://foo.bar", {:action => "foo", :controller => "bar"}, UpdateCommand.new) {}
   end
 

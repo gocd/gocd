@@ -25,7 +25,8 @@ description = 'GoCD Server'
 
 buildscript {
   repositories {
-    jcenter()
+    mavenLocal()
+    mavenCentral()
   }
 
   dependencies {
@@ -533,7 +534,7 @@ task verifyWar(type: VerifyJarTask) {
       "hibernate-core-3.3.2.GA.jar",
       "hibernate-ehcache-3.3.2.GA.jar",
       "httpclient-${project.versions.apacheHttpComponents}.jar",
-      "httpcore-4.4.6.jar",
+      "httpcore-4.4.7.jar",
       "httpmime-${project.versions.apacheHttpComponents}.jar",
       "ibatis-sqlmap-2.3.4.726.jar",
       "jackson-annotations-2.5.0.jar",

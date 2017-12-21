@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -57,15 +58,15 @@ public class AnalyticsExtension extends AbstractExtension {
         });
     }
 
-    public String getPipelineAnalytics(String pluginId, String pipelineName) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PIPELINE_ANALYTICS, new DefaultPluginInteractionCallback<String>() {
+    public AnalyticsData getPipelineAnalytics(String pluginId, String pipelineName) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PIPELINE_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsRequestBody(pipelineName);
             }
 
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsFromResponseBody(responseBody);
             }
         });

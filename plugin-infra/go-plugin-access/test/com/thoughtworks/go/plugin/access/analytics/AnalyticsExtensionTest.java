@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
+import com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -74,14 +75,15 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_GetPipelineAnalytics() throws Exception {
-        String responseBody = "{ \"view\": \"<div>This is view snippet</div>\" }";
+        String responseBody = "{ \"viewPath\": \"path/to/view\", \"data\": \"{}\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        String pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");
+        AnalyticsData pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");
 
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PIPELINE_ANALYTICS, "{\"pipeline_name\": \"test_pipeline\"}");
 
-        assertThat(pipelineAnalytics, is("<div>This is view snippet</div>"));
+        assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
+        assertThat(pipelineAnalytics.getData(), is("{}"));
     }
 
     @Test

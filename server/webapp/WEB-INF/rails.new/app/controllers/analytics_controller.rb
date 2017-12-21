@@ -20,7 +20,7 @@ class AnalyticsController < ApplicationController
   before_action :check_user_can_see_pipeline
 
   def pipeline
-    render :json => analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name])
+    render :json => analytics_extension.getPipelineAnalytics(params[:plugin_id], params[:pipeline_name]).toJson()
   rescue => e
     render_plugin_error e
   end

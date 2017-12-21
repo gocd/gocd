@@ -24,7 +24,7 @@ module ApiV3
         'package-repository',
         'task',
         'scm',
-        'elastic',
+        'elastic-agent',
         'configrepo',
         'authorization',
       ]

@@ -23,7 +23,7 @@ describe("Dashboard", () => {
 
       expect(pipelineInstance.label()).toBe(pipelineInstanceJson.label);
 
-      expect(pipelineInstance.scheduledAt()).toEqual(new Date(pipelineInstanceJson.schedule_at));
+      expect(pipelineInstance.scheduledAt()).toEqual(new Date(pipelineInstanceJson.scheduled_at));
       expect(pipelineInstance.triggeredBy()).toEqual(pipelineInstanceJson.triggered_by);
 
       expect(pipelineInstance.vsmPath()).toEqual(pipelineInstanceJson._links.vsm_url.href);
@@ -71,7 +71,7 @@ describe("Dashboard", () => {
         }
       },
       "label":        "1",
-      "schedule_at":  "2017-11-10T07:25:28.539Z",
+      "scheduled_at":  "2017-11-10T07:25:28.539Z",
       "triggered_by": "changes",
       "_embedded":    {
         "stages": [

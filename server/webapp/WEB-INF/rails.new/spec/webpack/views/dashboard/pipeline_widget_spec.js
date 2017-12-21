@@ -82,7 +82,7 @@ describe("Dashboard Pipeline Widget", () => {
             }
           },
           "label":        "1",
-          "schedule_at":  "2017-11-10T07:25:28.539Z",
+          "scheduled_at":  "2017-11-10T07:25:28.539Z",
           "triggered_by": "changes",
           "_embedded":    {
             "stages": [

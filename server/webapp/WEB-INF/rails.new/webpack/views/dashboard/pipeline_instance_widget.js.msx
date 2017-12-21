@@ -31,7 +31,7 @@ const PipelineInstanceWidget = {
           <span><a href={instance.vsmPath()}> VSM </a></span>
         </div>
         <div class="instance-details">
-          <div>Triggered by {instance.triggeredBy()}</div>
+          <div>{instance.triggeredBy()}</div>
           <div>on {instance.scheduledAt().toString()}</div>
         </div>
         <div class="latest-stage">

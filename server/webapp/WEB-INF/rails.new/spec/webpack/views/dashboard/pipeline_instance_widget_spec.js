@@ -48,7 +48,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
       }
     },
     "label":        "1",
-    "schedule_at":  "2017-11-10T07:25:28.539Z",
+    "scheduled_at":  "2017-11-10T07:25:28.539Z",
     "triggered_by": "changes",
     "_embedded":    {
       "stages": [
@@ -93,8 +93,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render triggered by information", () => {
-    expect($root.find('.instance-details')).toContainText(`Triggered by ${  pipelineInstanceJson.triggered_by }`);
-    expect($root.find('.instance-details')).toContainText(`on ${  new Date(pipelineInstanceJson.schedule_at).toString()}`);
+    expect($root.find('.instance-details')).toContainText(`${  pipelineInstanceJson.triggered_by }`);
+    expect($root.find('.instance-details')).toContainText(`on ${ new Date(pipelineInstanceJson.scheduled_at).toString()}`);
   });
 
   it("should render compare link", () => {

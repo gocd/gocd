@@ -25,7 +25,7 @@ const StageInstance = function (json) {
 
 const PipelineInstance = function (info) {
   this.label       = Stream(info.label);
-  this.scheduledAt = Stream(new Date(info.schedule_at));
+  this.scheduledAt = Stream(new Date(info.scheduled_at));
   this.triggeredBy = Stream(info.triggered_by);
 
   this.vsmPath     = Stream(info._links.vsm_url.href);

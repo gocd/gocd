@@ -23,7 +23,7 @@ describe("Dashboard", () => {
     it("should deserialize from json", () => {
       const pipelines = new Pipelines(pipelinesData);
 
-      expect(pipelines.size()).toBe(1);
+      expect(pipelines.size).toBe(1);
     });
 
     it("should find the pipeline", () => {
@@ -32,7 +32,7 @@ describe("Dashboard", () => {
       const pipelineName     = "up42";
       const actualPipeline   = pipelines.find(pipelineName);
       const expectedPipeline = new Pipeline(pipelinesData[0]);
-      expect(actualPipeline.name()).toEqual(expectedPipeline.name());
+      expect(actualPipeline.name).toEqual(expectedPipeline.name);
     });
 
     const pipelinesData = [
@@ -94,6 +94,31 @@ describe("Dashboard", () => {
               "label":        "1",
               "scheduled_at":  "2017-11-10T07:25:28.539Z",
               "triggered_by": "changes",
+              "build_cause": {
+                "approver": "",
+                "is_forced": false,
+                "trigger_message": "modified by GoCD Test User <devnull@example.com>",
+                "material_revisions": [
+                  {
+                    "material_type": "Git",
+                    "material_name": "test-repo",
+                    "changed": true,
+                    "modifications": [
+                      {
+                        "_links": {
+                          "vsm": {
+                            "href": "http://localhost:8153/go/materials/value_stream_map/4879d548de8a9d7122ceb71e7809c1f91a0876afa534a4f3ba7ed4a532bc1b02/9c86679eefc3c5c01703e9f1d0e96b265ad25691"
+                          }
+                        },
+                        "user_name": "GoCD Test User <devnull@example.com>",
+                        "revision": "9c86679eefc3c5c01703e9f1d0e96b265ad25691",
+                        "modified_time": "2017-12-19T05:30:32.000Z",
+                        "comment": "Initial commit"
+                      }
+                    ]
+                  }
+                ]
+              },
               "_embedded":    {
                 "stages": [
                   {

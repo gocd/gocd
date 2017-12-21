@@ -55,6 +55,7 @@ $settings-icon-hover-color: #000;
 }
 
 .pipeline {
+  position:         relative;
   display:          block;
   float:            left;
   width:            275px;
@@ -132,3 +133,103 @@ $settings-icon-hover-color: #000;
   background-color: #ffc11b;
 }
 
+.more_info {
+  position: relative;
+  .changes {
+    position:      relative;
+    padding-right: 20px;
+    &:after {
+      content:      "";
+      width:        0;
+      height:       0;
+      border-right: 6px solid transparent;
+      border-left:  6px solid transparent;
+      border-top:   6px solid #333;
+      position:     absolute;
+      top:          8px;
+      left:         auto;
+      right:        0;
+      margin:       0;
+      display:      inline-block;
+    }
+  }
+  .info {
+    list-style-type: none;
+    margin:          5px 0;
+    padding:         0;
+    li {
+      display:     inline-block;
+      border-left: 1px solid #ccc;
+      &:first-child {
+        border: 0;
+        a {
+          padding-left: 0;
+        }
+      }
+    }
+    a {
+      display:     block;
+      padding:     0px 7px;
+      font-size:   13px;
+      line-height: 13px;
+    }
+  }
+}
+
+.material_changes {
+  position:      absolute;
+  background:    #333;
+  padding:       20px 20px 0;
+  color:         #fff;
+  font-size:     13px;
+  width:         700px;
+  z-index:       10;
+  border-radius: 3px;
+  max-height:    310px;
+  overflow-y:    scroll;
+  .revisions {
+    margin-bottom: 30px;
+    &.changed {
+      color:      #ff6;
+      font-style: italic;
+    }
+  }
+  .rev_head {
+    border-bottom: 1px solid #ccc;
+    padding:       0 0 5px;
+    word-break:    break-all;
+
+  }
+  .modifications {
+    padding:       10px 0;
+    display:       flex;
+    border-bottom: 1px dotted #5b5b5b;
+    .item {
+      padding:    0 10px;
+      width:      28%;
+      box-sizing: border-box;
+      &:nth-child(1) {
+      }
+      &:nth-child(2) {
+        flex-grow: 2;
+      }
+      &:nth-child(3) {
+      }
+    }
+  }
+  .modified_by {
+    word-break: break-all;
+    span {
+      display: block;
+    }
+  }
+  .revision {
+    display: flex;
+    .revision_id {
+      display:       inline-block;
+      text-overflow: ellipsis;
+      overflow:      hidden;
+      max-width:     77%;
+    }
+  }
+}

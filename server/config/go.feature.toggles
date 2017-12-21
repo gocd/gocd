@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "toggles": [
+    {
+      "key": "quicker_dashboard_key",
+      "value": false
+    }
+  ]
+}

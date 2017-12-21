@@ -19,9 +19,9 @@ const _ = require('lodash');
 
 const StagesInstanceWidget = {
   view: (vnode) => {
-    const stages        = vnode.attrs.stages();
+    const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
-      return (<span class={`stage-instance ${  stage.status().toLowerCase() }`}/>);
+      return (<span class={`stage-instance ${  stage.status.toLowerCase() }`}/>);
     });
 
     return (

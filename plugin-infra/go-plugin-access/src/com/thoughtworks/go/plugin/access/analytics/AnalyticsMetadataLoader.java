@@ -17,13 +17,20 @@
 package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.common.MetadataLoader;
+import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class AnalyticsMetadataLoader extends MetadataLoader<AnalyticsPluginInfo> {
+    private List<PluginMetadataChangeListener> listeners = new ArrayList<>();
+
     @Autowired
     public AnalyticsMetadataLoader(PluginManager pluginManager, AnalyticsPluginInfoBuilder builder,
                                    AnalyticsExtension extension) {
@@ -33,5 +40,32 @@ public class AnalyticsMetadataLoader extends MetadataLoader<AnalyticsPluginInfo>
     protected AnalyticsMetadataLoader(PluginManager pluginManager, AnalyticsMetadataStore metadataStore,
                                       AnalyticsPluginInfoBuilder builder, AnalyticsExtension extension) {
         super(pluginManager, builder, metadataStore, extension);
+    }
+
+    @Override
+    public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
+        super.pluginLoaded(pluginDescriptor);
+
+        if(extension.canHandlePlugin(pluginDescriptor.id())) {
+            for (PluginMetadataChangeListener listener: listeners) {
+                listener.onPluginMetadataCreate(pluginDescriptor.id());
+            }
+        }
+    }
+
+    @Override
+    public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
+        super.pluginUnLoaded(pluginDescriptor);
+
+        if (extension.canHandlePlugin(pluginDescriptor.id())) {
+            for (PluginMetadataChangeListener listener : listeners) {
+                listener.onPluginMetadataRemove(pluginDescriptor.id());
+            }
+        }
+    }
+
+
+    public void registerListeners(PluginMetadataChangeListener listener) {
+        listeners.add(listener);
     }
 }

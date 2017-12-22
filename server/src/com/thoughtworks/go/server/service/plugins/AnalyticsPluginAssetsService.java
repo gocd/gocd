@@ -17,12 +17,13 @@
 package com.thoughtworks.go.server.service.plugins;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
-import com.thoughtworks.go.plugin.infra.PluginChangeListener;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataLoader;
+import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
+import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,19 +42,22 @@ import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 @Service
-public class PluginAssetsService implements ServletContextAware, PluginChangeListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PluginAssetsService.class);
+public class AnalyticsPluginAssetsService implements ServletContextAware, PluginMetadataChangeListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsPluginAssetsService.class);
     public static final String HASH_ALGORITHM = "SHA-256";
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;
     private ZipUtil zipUtil;
     private Map<String, String> pluginAssetPaths;
+    private AnalyticsMetadataStore metadataStore;
 
     @Autowired
-    public PluginAssetsService(AnalyticsExtension analyticsExtension) {
+    public AnalyticsPluginAssetsService(AnalyticsExtension analyticsExtension, AnalyticsMetadataLoader metadataLoader) {
         this.zipUtil = new ZipUtil();
         this.analyticsExtension = analyticsExtension;
         this.pluginAssetPaths = new HashMap<>();
+        metadataLoader.registerListeners(this);
+        metadataStore = AnalyticsMetadataStore.instance();
     }
 
     public String assetPathFor(String pluginId) {
@@ -66,17 +70,18 @@ public class PluginAssetsService implements ServletContextAware, PluginChangeLis
     }
 
     @Override
-    public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (this.analyticsExtension.canHandlePlugin(pluginDescriptor.id())) {
-            deleteExistingAssets(pluginDescriptor.id());
-            cacheStaticAssets(pluginDescriptor.id());
+    public void onPluginMetadataCreate(String pluginId) {
+        if (this.analyticsExtension.canHandlePlugin(pluginId)) {
+            deleteExistingAssets(pluginId);
+            cacheStaticAssets(pluginId);
+            metadataStore.updateAssetsPath(pluginId, assetPathFor(pluginId));
         }
     }
 
     @Override
-    public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (this.analyticsExtension.canHandlePlugin(pluginDescriptor.id())) {
-            deleteExistingAssets(pluginDescriptor.id());
+    public void onPluginMetadataRemove(String pluginId) {
+        if (this.analyticsExtension.canHandlePlugin(pluginId)) {
+            deleteExistingAssets(pluginId);
         }
     }
 
@@ -92,7 +97,7 @@ public class PluginAssetsService implements ServletContextAware, PluginChangeLis
         LOGGER.info("Caching static assets for plugin: {}", pluginId);
         String data = this.analyticsExtension.getStaticAssets(pluginId);
 
-        if (StringUtil.isBlank(data)) {
+        if (StringUtils.isBlank(data)) {
             LOGGER.info("No static assets found for plugin: {}", pluginId);
             return;
         }
@@ -130,7 +135,7 @@ public class PluginAssetsService implements ServletContextAware, PluginChangeLis
     private void deleteExistingAssets(String pluginId) {
         LOGGER.info("Deleting cached static assets for plugin: {}", pluginId);
         try {
-            FileUtil.deleteDirectoryNoisily(new File(pluginStaticAssetsRootDir(pluginId)));
+            FileUtils.deleteDirectory(new File(pluginStaticAssetsRootDir(pluginId)));
             if (pluginAssetPaths.containsKey(pluginId)) {
                 pluginAssetPaths.remove(pluginId);
             }

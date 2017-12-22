@@ -24,8 +24,8 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 public abstract class MetadataLoader<T extends PluginInfo> implements PluginChangeListener {
     private final PluginInfoBuilder<T> builder;
-    private final MetadataStore<T> metadataStore;
-    private final AbstractExtension extension;
+    protected final MetadataStore<T> metadataStore;
+    protected final AbstractExtension extension;
 
     public MetadataLoader(PluginManager pluginManager, PluginInfoBuilder<T> builder, MetadataStore<T> metadataStore, AbstractExtension extension) {
         this.builder = builder;

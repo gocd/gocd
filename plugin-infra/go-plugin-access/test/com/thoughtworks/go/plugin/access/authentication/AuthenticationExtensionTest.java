@@ -33,12 +33,11 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -158,6 +157,20 @@ public class AuthenticationExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", AuthenticationExtension.REQUEST_SEARCH_USER, REQUEST_BODY);
         verify(jsonMessageHandler).responseMessageForSearchUser(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldSerializePluginSettingsToJSON() throws Exception {
+        String pluginId = "plugin_id";
+        HashMap<String, String> pluginSettings = new HashMap<>();
+        pluginSettings.put("key1", "val1");
+        pluginSettings.put("key2", "val2");
+
+        when(pluginManager.resolveExtensionVersion(pluginId, authenticationExtension.goSupportedVersions())).thenReturn("1.0");
+
+        String pluginSettingsJSON = authenticationExtension.pluginSettingsJSON(pluginId, pluginSettings);
+
+        assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

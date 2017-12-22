@@ -19,9 +19,7 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
@@ -54,12 +52,15 @@ public class NotificationExtension extends AbstractExtension {
 
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());
 
         registerHandler("2.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("2.0", new JsonMessageHandler2_0());
+        registerJsonMessageHandlerForRequestProcessor("2.0", new JsonMessageHandlerForRequestProcessor1_0());
 
         registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
         messageHandlerMap.put("3.0", new JsonMessageHandler3_0());
+        registerJsonMessageHandlerForRequestProcessor("3.0", new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {
@@ -86,7 +87,6 @@ public class NotificationExtension extends AbstractExtension {
             }
         });
     }
-
 
     Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
         return pluginSettingsMessageHandlerMap;

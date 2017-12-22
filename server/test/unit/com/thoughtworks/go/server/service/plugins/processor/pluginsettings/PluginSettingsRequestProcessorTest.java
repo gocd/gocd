@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +40,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -55,6 +58,9 @@ public class PluginSettingsRequestProcessorTest {
     @Mock
     private GoPluginDescriptor pluginDescriptor;
 
+    @Mock
+    private GoPluginExtension pluginExtension;
+
     @Before
     public void setUp() {
         initMocks(this);
@@ -68,7 +74,7 @@ public class PluginSettingsRequestProcessorTest {
 
         requestArgumentCaptor = ArgumentCaptor.forClass(PluginSettings.class);
 
-        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao);
+        processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao, Collections.singletonList(pluginExtension));
         processor.getMessageHandlerMap().put("1.0", jsonMessageHandler);
     }
 
@@ -78,46 +84,36 @@ public class PluginSettingsRequestProcessorTest {
     }
 
     @Test
-    public void shouldHandleIncorrectAPIVersion() {
-        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.1", null));
-        assertThat(response.responseCode(), is(400));
-    }
-
-    @Test
-    public void shouldAccept2_0AsAnAPIVersion() {
-        when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
-        when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new Plugin("plugin-foo-id", "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
-        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "2.0", null));
-        assertThat(response.responseCode(), is(200));
-    }
-
-    @Test
     public void shouldGetPluginSettingsForPluginThatExistsInDB() {
-        when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
-        when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new Plugin("plugin-foo-id", "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        String PLUGIN_ID = "plugin-foo-id";
 
-        String requestBody = "expected-request";
+        when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+
         String responseBody = "expected-response";
-        when(jsonMessageHandler.responseMessagePluginSettingsGet(requestArgumentCaptor.capture())).thenReturn(responseBody);
+        Map<String, String> settingsMap = new HashMap<>();
+        settingsMap.put("k1", "v1");
+        settingsMap.put("k2", "v2");
+
+        when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
+        when(pluginExtension.pluginSettingsJSON(PLUGIN_ID, settingsMap)).thenReturn(responseBody);
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", null);
-        apiRequest.setRequestBody(requestBody);
+        apiRequest.setRequestBody("expected-request");
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
 
         assertThat(response.responseCode(), is(200));
         assertThat(response.responseBody(), is(responseBody));
-
-        Map<String, String> settingsMap = new HashMap<>();
-        settingsMap.put("k1", "v1");
-        settingsMap.put("k2", "v2");
-        assertEquals(requestArgumentCaptor.getValue().getSettingsAsKeyValuePair(), settingsMap);
     }
 
     @Test
     public void shouldNotGetPluginSettingsForPluginThatDoesNotExistInDB() {
-        when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
-        when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new NullPlugin());
+        String PLUGIN_ID = "plugin-foo-id";
         String requestBody = "expected-request";
+
+        when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new NullPlugin());
+        when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(jsonMessageHandler.responseMessagePluginSettingsGet(any(PluginSettings.class))).thenReturn(null);
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", null);
@@ -126,5 +122,36 @@ public class PluginSettingsRequestProcessorTest {
 
         assertThat(response.responseCode(), is(200));
         assertThat(response.responseBody(), is(nullValue()));
+        verify(pluginExtension).pluginSettingsJSON(PLUGIN_ID, Collections.EMPTY_MAP);
+    }
+
+    @Test
+    public void shouldRespondWith400IfPluginExtensionErrorsOut() {
+        String PLUGIN_ID = "plugin-foo-id";
+
+        when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+
+        when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
+        when(pluginExtension.pluginSettingsJSON(eq(PLUGIN_ID), any(Map.class))).thenThrow(RuntimeException.class);
+
+        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", null);
+        apiRequest.setRequestBody("expected-request");
+
+        GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
+
+        assertThat(response.responseCode(), is(400));
+    }
+
+    @Test
+    public void shouldRespondWith400IfNoneOfExtensionsCanHandleThePlugin() throws Exception {
+        String PLUGIN_ID = "plugin-foo-id";
+
+        when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
+        when(pluginExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(false);
+
+        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", null));
+
+        assertThat(response.responseCode(), is(400));
     }
 }

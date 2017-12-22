@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -65,6 +66,11 @@ public class TaskExtension extends AbstractExtension {
     public ValidationResult validate(String pluginId, TaskConfig taskConfig) {
         JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginId, pluginRequestHelper, messageHandlerMap);
         return task.validate(taskConfig);
+    }
+
+    @Override
+    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+        throw new UnsupportedOperationException("Fetch PluginSettings is not supported by Task Endpoint.");
     }
 
     @Override

@@ -50,14 +50,18 @@ describe AnalyticsController do
   describe 'pipeline' do
     it 'should render analytics for a pipeline' do
       analytics_extension = instance_double('AnalyticsExtension')
+      analytics_data = com.thoughtworks.go.plugin.domain.analytics.AnalyticsData.new("pipeline_analytics", "/path/to/view")
 
-      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_return('{"data": "pipeline_analytics"}')
       allow(controller).to receive(:analytics_extension).and_return(analytics_extension)
+      allow(analytics_extension).to receive(:getPipelineAnalytics).with('com.tw.myplugin', 'pipeline_name').and_return(analytics_data)
 
       get :pipeline, plugin_id: 'com.tw.myplugin', pipeline_name: 'pipeline_name'
 
       expect(response).to be_ok
-      expect(response.body).to eq('{"data": "pipeline_analytics"}')
+
+      response_json = JSON.parse(response.body)
+      expect(response_json['data']).to eq('pipeline_analytics')
+      expect(response_json['view_path']).to eq('/path/to/view')
       expect(response.content_type).to eq('application/json')
     end
 

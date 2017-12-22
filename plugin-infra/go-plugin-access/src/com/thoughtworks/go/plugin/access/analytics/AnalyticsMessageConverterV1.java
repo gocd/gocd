@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.analytics;
 import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.access.analytics.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import org.apache.commons.lang.StringUtils;
 
@@ -43,12 +44,14 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
     }
 
     @Override
-    public String getPipelineAnalyticsFromResponseBody(String responseBody) {
-        String analytics = (String) new Gson().fromJson(responseBody, Map.class).get("view");
-        if (StringUtils.isBlank(analytics)) {
+    public AnalyticsData getPipelineAnalyticsFromResponseBody(String responseBody) {
+        com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData analyticsData = com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData.fromJSON(responseBody);
+
+        if (!analyticsData.isValid()) {
             throw new RuntimeException("Analytics is blank!");
         }
-        return analytics;
+
+        return analyticsData.toAnalyticsData();
     }
 
     @Override

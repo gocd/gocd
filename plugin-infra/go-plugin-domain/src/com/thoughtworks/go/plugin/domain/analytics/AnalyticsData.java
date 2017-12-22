@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.analytics;
+package com.thoughtworks.go.plugin.domain.analytics;
 
-import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
-import com.thoughtworks.go.plugin.domain.common.Image;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface AnalyticsMessageConverter {
-    com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody);
+public class AnalyticsData {
+    String data;
+    String viewPath;
 
-    String getPipelineAnalyticsRequestBody(String pipelineName);
+    public AnalyticsData(String data, String viewPath) {
+        this.data = data;
+        this.viewPath = viewPath;
+    }
 
-    AnalyticsData getPipelineAnalyticsFromResponseBody(String responseBody);
+    public String getData() {
+        return data;
+    }
 
-    String getStaticAssets(String responseBody);
+    public String getViewPath() {
+        return viewPath;
+    }
 
-    Image getImageResponseFromBody(String responseBody);
+    public Map<String, String> toMap() {
+        HashMap<String, String> m = new HashMap<>();
+        m.put("data", data);
+        m.put("view_path", viewPath);
+
+        return m;
+    }
 }

@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
@@ -105,6 +106,20 @@ public class AnalyticsExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{}"));
 
         analyticsExtension.getStaticAssets(PLUGIN_ID);
+    }
+
+    @Test
+    public void shouldSerializePluginSettingsToJSON() throws Exception {
+        String pluginId = "plugin_id";
+        HashMap<String, String> pluginSettings = new HashMap<>();
+        pluginSettings.put("key1", "val1");
+        pluginSettings.put("key2", "val2");
+
+        when(pluginManager.resolveExtensionVersion(pluginId, analyticsExtension.goSupportedVersions())).thenReturn("1.0");
+
+        String pluginSettingsJSON = analyticsExtension.pluginSettingsJSON(pluginId, pluginSettings);
+
+        assertThat(pluginSettingsJSON, Is.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

@@ -80,7 +80,7 @@ public class AnalyticsExtensionTest {
 
         AnalyticsData pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");
 
-        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PIPELINE_ANALYTICS, "{\"pipeline_name\": \"test_pipeline\"}");
+        assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ANALYTICS, "{\"type\": \"pipeline\", \"data\": {\"pipeline_name\": \"test_pipeline\"}}");
 
         assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
         assertThat(pipelineAnalytics.getData(), is("{}"));

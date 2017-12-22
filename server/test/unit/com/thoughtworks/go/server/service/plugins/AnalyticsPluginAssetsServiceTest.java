@@ -115,6 +115,7 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(dirtyPath.toFile().exists());
 
+        addAnalyticsPluginInfoToStore(PLUGIN_ID);
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -138,6 +139,7 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(dirtyPath.toFile().exists());
 
+        addAnalyticsPluginInfoToStore(PLUGIN_ID);
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -148,7 +150,6 @@ public class AnalyticsPluginAssetsServiceTest {
         assertFalse(dirtyPath.toFile().exists());
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(Paths.get(assetsService.assetPathFor(PLUGIN_ID), "test.txt").toFile().exists());
-
     }
 
     @Test
@@ -189,6 +190,7 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(dirtyPath.toFile().exists());
 
+        addAnalyticsPluginInfoToStore(PLUGIN_ID);
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
@@ -201,5 +203,12 @@ public class AnalyticsPluginAssetsServiceTest {
 
     private String testDataZipArchive() throws IOException {
         return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResourceAsStream("/plugin_cache_test.zip"))));
+    }
+
+    private void addAnalyticsPluginInfoToStore(String pluginId) {
+        GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor(pluginId, null, null, null, null, false);
+        AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(goPluginDescriptor, null, null, null);
+
+        metadataStore.setPluginInfo(analyticsPluginInfo);
     }
 }

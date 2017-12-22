@@ -74,7 +74,6 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
 
             return errorResponse;
         }
-
     }
 
     private PluginSettings pluginSettingsFor(String pluginId) {

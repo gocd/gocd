@@ -52,15 +52,14 @@ public class NotificationExtension extends AbstractExtension {
 
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());
 
         registerHandler("2.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("2.0", new JsonMessageHandler2_0());
+        registerJsonMessageHandlerForRequestProcessor("2.0", new JsonMessageHandlerForRequestProcessor1_0());
 
         registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
         messageHandlerMap.put("3.0", new JsonMessageHandler3_0());
-
-        registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());
-        registerJsonMessageHandlerForRequestProcessor("2.0", new JsonMessageHandlerForRequestProcessor1_0());
         registerJsonMessageHandlerForRequestProcessor("3.0", new JsonMessageHandlerForRequestProcessor1_0());
     }
 

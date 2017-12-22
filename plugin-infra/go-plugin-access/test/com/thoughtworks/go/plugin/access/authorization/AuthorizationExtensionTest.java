@@ -328,13 +328,12 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void shouldNotSupportFetchingPlugginSettings() throws Exception {
+    public void shouldNotSupportFetchingPluginSettings() throws Exception {
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Fetch PluginSettings is not supported by Authorization Endpoint.");
 
         authorizationExtension.pluginSettingsJSON("plugin_id", Collections.emptyMap());
     }
-
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {
         Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));

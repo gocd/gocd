@@ -162,7 +162,7 @@ public class TaskExtensionTest {
     }
 
     @Test
-    public void shouldNotSupportFetchingPlugginSettings() throws Exception {
+    public void shouldNotSupportFetchingPluginSettings() throws Exception {
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Fetch PluginSettings is not supported by Task Endpoint.");
 

@@ -45,21 +45,19 @@ import static java.lang.String.format;
 public class ElasticAgentExtension extends AbstractExtension {
 
     private final HashMap<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
-    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
-        addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
-        addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2());
-
-        jsonMessageHandlersForRequestProcessor.put(ElasticAgentExtensionConverterV1.VERSION, new JsonMessageHandlerForRequestProcessor1_0());
-        jsonMessageHandlersForRequestProcessor.put(ElasticAgentExtensionConverterV2.VERSION, new JsonMessageHandlerForRequestProcessor1_0());
+        addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1(), new JsonMessageHandlerForRequestProcessor1_0());
+        addHandler(ElasticAgentExtensionConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV2(), new JsonMessageHandlerForRequestProcessor1_0());
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler,
+                            JsonMessageHandlerForRequestProcessor  jsonMessageHandlerForRequestProcessor) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
+        registerJsonMessageHandlerForRequestProcessor(version, jsonMessageHandlerForRequestProcessor);
     }
 
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
@@ -157,11 +155,6 @@ public class ElasticAgentExtension extends AbstractExtension {
                 return converter.getCapabilitiesFromResponseBody(responseBody);
             }
         });
-    }
-
-    @Override
-    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
-        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
     }
 
     @Override

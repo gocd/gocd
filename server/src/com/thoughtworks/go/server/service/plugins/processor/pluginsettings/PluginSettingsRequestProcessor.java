@@ -58,20 +58,23 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         try {
-            if (goPluginApiRequest.api().equals(GET_PLUGIN_SETTINGS)) {
-                GoPluginExtension extension = extensionFor(pluginDescriptor.id());
+            GoPluginExtension extension = extensionFor(pluginDescriptor.id());
 
-                PluginSettings pluginSettings = pluginSettingsFor(pluginDescriptor.id());
+            PluginSettings pluginSettings = pluginSettingsFor(pluginDescriptor.id());
 
-                DefaultGoApiResponse response = new DefaultGoApiResponse(200);
-                response.setResponseBody(extension.pluginSettingsJSON(pluginDescriptor.id(), pluginSettings.getSettingsAsKeyValuePair()));
+            DefaultGoApiResponse response = new DefaultGoApiResponse(200);
+            response.setResponseBody(extension.pluginSettingsJSON(pluginDescriptor.id(), pluginSettings.getSettingsAsKeyValuePair()));
 
-                return response;
-            }
+            return response;
         } catch (Exception e) {
             LOGGER.error(format("Error processing PluginSettings request from plugin: %s.", pluginDescriptor.id()), e);
+
+            DefaultGoApiResponse errorResponse = new DefaultGoApiResponse(400);
+            errorResponse.setResponseBody(format("Error while processing get PluginSettings request - %s", e.getMessage()));
+
+            return errorResponse;
         }
-        return new DefaultGoApiResponse(400);
+
     }
 
     private PluginSettings pluginSettingsFor(String pluginId) {

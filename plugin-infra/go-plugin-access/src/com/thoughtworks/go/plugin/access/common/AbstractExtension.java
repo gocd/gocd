@@ -31,6 +31,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
     protected final PluginRequestHelper pluginRequestHelper;
     private final String extensionName;
     protected Map<String, PluginSettingsJsonMessageHandler> pluginSettingsMessageHandlerMap = new HashMap<>();
+    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     protected AbstractExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
         this.pluginManager = pluginManager;
@@ -87,7 +88,13 @@ public abstract class AbstractExtension implements GoPluginExtension {
         return jsonMessageHandlerForRequestProcessor(resolvedExtensionVersion).pluginSettingsToJSON(pluginSettings);
     }
 
-    protected abstract JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion);
+    protected void registerJsonMessageHandlerForRequestProcessor(String apiVersion, JsonMessageHandlerForRequestProcessor handler) {
+        jsonMessageHandlersForRequestProcessor.put(apiVersion, handler);
+    }
+
+    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
+    }
 
     protected abstract List<String> goSupportedVersions();
 

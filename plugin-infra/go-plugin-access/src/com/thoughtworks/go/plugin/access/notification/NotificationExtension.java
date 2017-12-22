@@ -45,7 +45,6 @@ public class NotificationExtension extends AbstractExtension {
     static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
-    private Map<String, JsonMessageHandlerForRequestProcessor> jsonMessageHandlersForRequestProcessor = new HashMap<>();
 
     @Autowired
     public NotificationExtension(PluginManager pluginManager) {
@@ -60,9 +59,9 @@ public class NotificationExtension extends AbstractExtension {
         registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
         messageHandlerMap.put("3.0", new JsonMessageHandler3_0());
 
-        jsonMessageHandlersForRequestProcessor.put("1.0", new JsonMessageHandlerForRequestProcessor1_0());
-        jsonMessageHandlersForRequestProcessor.put("2.0", new JsonMessageHandlerForRequestProcessor1_0());
-        jsonMessageHandlersForRequestProcessor.put("3.0", new JsonMessageHandlerForRequestProcessor1_0());
+        registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());
+        registerJsonMessageHandlerForRequestProcessor("2.0", new JsonMessageHandlerForRequestProcessor1_0());
+        registerJsonMessageHandlerForRequestProcessor("3.0", new JsonMessageHandlerForRequestProcessor1_0());
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {
@@ -90,7 +89,6 @@ public class NotificationExtension extends AbstractExtension {
         });
     }
 
-
     Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
         return pluginSettingsMessageHandlerMap;
     }
@@ -102,10 +100,5 @@ public class NotificationExtension extends AbstractExtension {
     @Override
     protected List<String> goSupportedVersions() {
         return goSupportedVersions;
-    }
-
-    @Override
-    public JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
-        return jsonMessageHandlersForRequestProcessor.get(pluginVersion);
     }
 }

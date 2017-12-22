@@ -32,11 +32,14 @@ import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -50,6 +53,9 @@ public class TaskExtensionTest {
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
     @Mock
     private JsonBasedTaskExtensionHandler jsonMessageHandler;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private TaskExtension extension;
     private String pluginId;
@@ -153,6 +159,14 @@ public class TaskExtensionTest {
         extension.doOnTask(pluginId, action);
 
         verify(action).execute(any(JsonBasedPluggableTask.class), eq(descriptor));
+    }
+
+    @Test
+    public void shouldNotSupportFetchingPlugginSettings() throws Exception {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage("Fetch PluginSettings is not supported by Task Endpoint.");
+
+        extension.pluginSettingsJSON("plugin_id", Collections.emptyMap());
     }
 
     @Test

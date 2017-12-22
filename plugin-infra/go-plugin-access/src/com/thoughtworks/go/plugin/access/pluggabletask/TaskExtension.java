@@ -70,7 +70,7 @@ public class TaskExtension extends AbstractExtension {
 
     @Override
     protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
-        throw new UnsupportedOperationException("Fetch PluginSettings is not supported by Authorization Endpoint.");
+        throw new UnsupportedOperationException("Fetch PluginSettings is not supported by Task Endpoint.");
     }
 
     @Override

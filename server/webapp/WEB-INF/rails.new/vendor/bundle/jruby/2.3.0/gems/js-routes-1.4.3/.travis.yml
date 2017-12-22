@@ -1,0 +1,59 @@
+language: ruby
+cache: bundler
+
+before_install:
+  - gem install bundler # need for jruby and ruby-head
+
+rvm:
+  - 2.0
+  - 2.1
+  - 2.2.5
+  - 2.3.1
+  - 2.4.1
+  - jruby-19mode
+  - ruby-head
+  - jruby-head
+
+gemfile:
+  - gemfiles/rails32.gemfile
+  - gemfiles/rails40_sprockets_2.gemfile
+  - gemfiles/rails40_sprockets_3.gemfile
+  - gemfiles/rails41_sprockets_2.gemfile
+  - gemfiles/rails41_sprockets_3.gemfile
+  - gemfiles/rails42_sprockets_2.gemfile
+  - gemfiles/rails42_sprockets_3.gemfile
+  - gemfiles/rails50_sprockets_3.gemfile
+  - gemfiles/rails51_sprockets_3.gemfile
+
+sudo: false
+
+notifications:
+  email:
+    - agresso@gmail.com
+
+branches:
+  only:
+    - master
+
+matrix:
+  allow_failures:
+    - rvm: jruby-19mode
+    - rvm: ruby-head
+    - rvm: jruby-head
+  exclude:
+    - rvm: 2.0
+      gemfile: gemfiles/rails50_sprockets_3.gemfile
+    - rvm: 2.1
+      gemfile: gemfiles/rails50_sprockets_3.gemfile
+    - rvm: 2.0
+      gemfile: gemfiles/rails51_sprockets_3.gemfile
+    - rvm: 2.1
+      gemfile: gemfiles/rails51_sprockets_3.gemfile
+    - rvm: 2.4.1
+      gemfile: gemfiles/rails40_sprockets_2.gemfile # Segmentation fault (core dumped) for 2.4
+    - rvm: 2.4.1
+      gemfile: gemfiles/rails40_sprockets_3.gemfile # Segmentation fault (core dumped) for 2.4
+    - rvm: 2.4.1
+      gemfile: gemfiles/rails41_sprockets_2.gemfile # Segmentation fault (core dumped) for 2.4
+    - rvm: 2.4.1
+      gemfile: gemfiles/rails41_sprockets_3.gemfile # Segmentation fault (core dumped) for 2.4

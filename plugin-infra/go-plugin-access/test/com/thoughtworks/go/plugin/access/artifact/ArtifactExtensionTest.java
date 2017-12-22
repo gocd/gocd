@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.artifact;
 
+import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
@@ -27,11 +28,11 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -67,9 +68,16 @@ public class ArtifactExtensionTest {
 
         when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, "foo.plugin")).thenReturn(true);
         when(pluginManager.resolveExtensionVersion("foo.plugin", artifactExtension.goSupportedVersions())).thenReturn("1.0");
-        when(pluginManager.submitTo(eq("foo.plugin"), captor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{\"artifact-version\":\"10.12.0\"}"));
+        final String responseBody = "{\n" +
+                "  \"metadata\": {\n" +
+                "    \"artifact-version\": \"10.12.0\"\n" +
+                "  },\n" +
+                "  \"errors\": [\"foo\",\"bar\"]\n" +
+                "}";
 
-        final Map<String, Object> response = artifactExtension.publishArtifact("foo.plugin", new HashMap<>());
+        when(pluginManager.submitTo(eq("foo.plugin"), captor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        final PublishArtifactResponse response = artifactExtension.publishArtifact("foo.plugin", new HashMap<>());
 
         final GoPluginApiRequest request = captor.getValue();
 
@@ -77,8 +85,11 @@ public class ArtifactExtensionTest {
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
         assertThat(request.requestBody(), is("[]"));
 
-        assertThat(response.size(), is(1));
-        assertThat(response, hasEntry("artifact-version", "10.12.0"));
+        assertThat(response.getMetadata().size(), is(1));
+        assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
+
+        assertThat(response.getErrors(), hasSize(2));
+        assertThat(response.getErrors(), contains("Foo", "Bar"));
     }
 
     @Test

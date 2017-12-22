@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -87,16 +88,15 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-
-    public Map<String, Object> publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<Map<String, Object>>() {
+    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<PublishArtifactResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans);
             }
 
             @Override
-            public Map<String, Object> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public PublishArtifactResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).publishArtifactResponse(responseBody);
             }
         });

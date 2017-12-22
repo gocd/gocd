@@ -19,6 +19,8 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import org.hamcrest.MatcherAssert;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -26,11 +28,9 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ArtifactMessageConverterV1Test {
 
@@ -77,8 +77,18 @@ public class ArtifactMessageConverterV1Test {
     public void publishArtifactResponse_shouldDeserializeFromJson() {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
 
-        final Map<String, Object> metadata = converter.publishArtifactResponse("{\"Foo\":\"Bar\"}");
+        final PublishArtifactResponse response = converter.publishArtifactResponse("{\n" +
+                "  \"metadata\": {\n" +
+                "    \"artifact-version\": \"10.12.0\"\n" +
+                "  },\n" +
+                "  \"errors\": [\"Foo\",\"Bar\"]\n" +
+                "}");
 
-        assertThat(metadata, hasEntry("Foo", "Bar"));
+
+        MatcherAssert.assertThat(response.getMetadata().size(), is(1));
+        MatcherAssert.assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
+
+        MatcherAssert.assertThat(response.getErrors(), hasSize(2));
+        MatcherAssert.assertThat(response.getErrors(), contains("Foo", "Bar"));
     }
 }

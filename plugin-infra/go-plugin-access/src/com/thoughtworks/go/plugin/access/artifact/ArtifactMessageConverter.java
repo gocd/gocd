@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Map;
 public interface ArtifactMessageConverter {
     String publishArtifactMessage(Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans);
 
-    Map<String, Object> publishArtifactResponse(String responseBody);
+    PublishArtifactResponse publishArtifactResponse(String responseBody);
 
     List<PluginConfiguration> getMetadataResponseFromBody(String responseBody);
 

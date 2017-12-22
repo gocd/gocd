@@ -17,14 +17,13 @@
 package com.thoughtworks.go.plugin.access.artifact;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.lang.StringUtils;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,10 +59,8 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     }
 
     @Override
-    public Map<String, Object> publishArtifactResponse(String responseBody) {
-        final Type type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        return GSON.fromJson(responseBody, type);
+    public PublishArtifactResponse publishArtifactResponse(String responseBody) {
+        return PublishArtifactResponse.fromJSON(responseBody);
     }
 
     @Override

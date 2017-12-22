@@ -21,16 +21,22 @@ import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
+import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.InOrder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -39,13 +45,14 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class ArtifactsPublisherTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private File workingFolder;
     private ArtifactsPublisher artifactsPublisher;
@@ -146,7 +153,7 @@ public class ArtifactsPublisherTest {
     }
 
     @Test
-    public void shouldPublishPluggableArtifacts() {
+    public void shouldPublishPluggableArtifactsAndUploadMetadataFileToServer() throws IOException {
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
         final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
@@ -155,9 +162,105 @@ public class ArtifactsPublisherTest {
                 new ArtifactPlan(new PluggableArtifactConfig("test-reports", "s3", create("junit", false, "junit.xml")))
         );
 
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class))).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar"), new ArrayList<>()));
+
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
 
-        verify(artifactExtension).publishArtifact(eq("cd.go.s3"), any(Map.class));
+
+        final File fileUploaded = Files
+                .walk(Paths.get(workingFolder.toURI()))
+                .filter(file -> file.toFile().getName().equals("cd.go.s3.json"))
+                .findFirst().get().toFile();
+
+        assertThat(publisher.publishedFiles(), is(Collections.singletonMap(fileUploaded, "pluggable-artifact-metadata")));
+        assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"Foo\":\"Bar\"}"));
+    }
+
+    @Test
+    public void shouldNotUploadMetadataFileWhenPublishArtifactIsUnsuccessful() {
+        final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
+        final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+        List<ArtifactPlan> artifactPlans = Arrays.asList(
+                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")))
+        );
+
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class))).thenReturn(new PublishArtifactResponse(null, Arrays.asList("some-error")));
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("[go] Uploading finished. Failed to upload");
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+    }
+
+
+    @Test
+    public void shouldErrorOutWhenFailedToCreateFolderToWritePluggableArtifactMetadata() {
+        final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
+        final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+        List<ArtifactPlan> artifactPlans = Arrays.asList(
+                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")))
+        );
+
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class))).thenReturn(new PublishArtifactResponse(null, Arrays.asList("some-error")));
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("[go] Could not create pluggable artifact metadata folder");
+
+        workingFolder.setWritable(false);
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+    }
+
+
+    @Test
+    public void shouldContinueWithOtherPluginWhenPublishArtifactCallFailsForOnePlugin() throws IOException {
+        final ArtifactStore artifactStoreForS3 = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
+        final ArtifactStore artifactStoreForDocker = new ArtifactStore("docker", "cd.go.docker", create("tag", false, "10.12.0"));
+        final ArtifactStores artifactStores = new ArtifactStores(artifactStoreForS3, artifactStoreForDocker);
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class))).thenThrow(new RuntimeException("Interaction with plugin `cd.go.s3` failed."));
+        when(artifactExtension.publishArtifact(eq("cd.go.docker"), any(Map.class))).thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0"), new ArrayList<>()));
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, new ArrayList<>());
+
+        final File fileUploaded = Files
+                .walk(Paths.get(workingFolder.toURI()))
+                .filter(file -> file.toFile().getName().equals("cd.go.docker.json"))
+                .findFirst().get().toFile();
+
+        assertThat(publisher.publishedFiles(), is(Collections.singletonMap(fileUploaded, "pluggable-artifact-metadata")));
+        assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"tag\":\"10.12.0\"}"));
+
+        assertThat(publisher.getMessage(), containsString("[go] Interaction with plugin `cd.go.s3` failed"));
+    }
+
+    @Test
+    public void shouldAddPluggableArtifactMetadataFileArtifactPlanAtTop() throws Exception {
+        final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
+        final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
+        final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
+        TestFileUtil.createTestFile(workingFolder, "installer.zip");
+        TestFileUtil.createTestFile(workingFolder, "testreports.xml");
+
+        List<ArtifactPlan> artifactPlans = Arrays.asList(
+                new ArtifactPlan(ArtifactType.file, "installer.zip", "dist"),
+                new ArtifactPlan(ArtifactType.unit, "testreports.xml", "testreports"),
+                new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")))
+        );
+
+        when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class))).thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar"), new ArrayList<>()));
+
+        final GoPublisher publisher = mock(GoPublisher.class);
+
+        artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+
+        InOrder inOrder = inOrder(publisher);
+        inOrder.verify(publisher).upload(any(), eq("pluggable-artifact-metadata"));
+        inOrder.verify(publisher).upload(any(), eq("dist"));
+        inOrder.verify(publisher).upload(any(), eq("testreports"));
     }
 
     private File prepareTestFolder(File workingFolder, String folderName) throws Exception {

@@ -18,11 +18,6 @@ package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class AnalyticsMetadataStore extends MetadataStore<AnalyticsPluginInfo> {
     private static final AnalyticsMetadataStore store = new AnalyticsMetadataStore();
@@ -36,8 +31,7 @@ public class AnalyticsMetadataStore extends MetadataStore<AnalyticsPluginInfo> {
 
     public void updateAssetsPath(String pluginId, String assetPath) {
         AnalyticsPluginInfo pluginInfo = getPluginInfo(pluginId);
-        if (pluginInfo != null) {
-            pluginInfo.setStaticAssetsPath(assetPath);
-        }
+        
+        pluginInfo.setStaticAssetsPath(assetPath);
     }
 }

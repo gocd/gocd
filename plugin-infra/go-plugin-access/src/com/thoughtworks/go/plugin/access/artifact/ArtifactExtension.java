@@ -62,7 +62,7 @@ public class ArtifactExtension extends AbstractExtension {
     }
 
     String getArtifactStoreView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_STORE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Artifact store view");

@@ -28,6 +28,7 @@ module ApiV4
         com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo => ElasticPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo => ConfigRepoPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo => AnalyticsPluginInfoRepresenter,
+        com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo => ArtifactPluginInfoRepresenter
       }
 
       PLUGIN_INFO_WITH_IMAGE = [com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo, com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo,

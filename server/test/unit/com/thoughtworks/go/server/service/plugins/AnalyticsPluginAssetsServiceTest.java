@@ -149,7 +149,7 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assertFalse(dirtyPath.toFile().exists());
         assertTrue(pluginDirPath.toFile().exists());
-        assertTrue(Paths.get(assetsService.assetPathFor(PLUGIN_ID), "test.txt").toFile().exists());
+        assertTrue(Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "test.txt").toFile().exists());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);
         String shaHashOfZipFile = "6BECE2006E5F4BC8A9FCB5BD53C1E87BEE63B7DA4F3A6E24EF1AD122D47C23D3";
-        assertEquals(Paths.get(pluginDirPath.toString(), shaHashOfZipFile).toString(), assetsService.assetPathFor(PLUGIN_ID));
+        assertEquals(Paths.get("assets", "plugins", PLUGIN_ID, shaHashOfZipFile).toString(), assetsService.assetPathFor(PLUGIN_ID));
     }
 
     private String testDataZipArchive() throws IOException {

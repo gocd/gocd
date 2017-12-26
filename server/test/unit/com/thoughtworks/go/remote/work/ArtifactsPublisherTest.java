@@ -36,8 +36,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -167,10 +169,7 @@ public class ArtifactsPublisherTest {
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
 
 
-        final File fileUploaded = Files
-                .walk(Paths.get(workingFolder.toURI()))
-                .filter(file -> file.toFile().getName().equals("cd.go.s3.json"))
-                .findFirst().get().toFile();
+        final File fileUploaded = getFileUploaded("cd.go.s3.json");
 
         assertThat(publisher.publishedFiles(), is(Collections.singletonMap(fileUploaded, "pluggable-artifact-metadata")));
         assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"Foo\":\"Bar\"}"));
@@ -193,7 +192,6 @@ public class ArtifactsPublisherTest {
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
     }
 
-
     @Test
     public void shouldErrorOutWhenFailedToCreateFolderToWritePluggableArtifactMetadata() {
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
@@ -208,11 +206,10 @@ public class ArtifactsPublisherTest {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("[go] Could not create pluggable artifact metadata folder");
 
-        workingFolder.setWritable(false);
+        workingFolder.setReadOnly();
 
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
     }
-
 
     @Test
     public void shouldContinueWithOtherPluginWhenPublishArtifactCallFailsForOnePlugin() throws IOException {
@@ -226,15 +223,24 @@ public class ArtifactsPublisherTest {
 
         artifactsPublisher.publishArtifacts(publisher, workingFolder, new ArrayList<>());
 
-        final File fileUploaded = Files
-                .walk(Paths.get(workingFolder.toURI()))
-                .filter(file -> file.toFile().getName().equals("cd.go.docker.json"))
-                .findFirst().get().toFile();
+        final File fileUploaded = getFileUploaded("cd.go.docker.json");
 
         assertThat(publisher.publishedFiles(), is(Collections.singletonMap(fileUploaded, "pluggable-artifact-metadata")));
         assertThat(FileUtils.readFileToString(fileUploaded, StandardCharsets.UTF_8), is("{\"tag\":\"10.12.0\"}"));
 
         assertThat(publisher.getMessage(), containsString("[go] Interaction with plugin `cd.go.s3` failed"));
+    }
+
+    private File getFileUploaded(String s) throws IOException {
+        return Files
+                .walk(Paths.get(workingFolder.toURI()))
+                .filter(new Predicate<Path>() {
+                    @Override
+                    public boolean test(Path file) {
+                        return file.toFile().getName().equals(s);
+                    }
+                })
+                .findFirst().get().toFile();
     }
 
     @Test

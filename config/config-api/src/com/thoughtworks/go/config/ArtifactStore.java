@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 
 @ConfigTag("artifactStore")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -36,13 +38,23 @@ public class ArtifactStore extends PluginProfile {
 
     @Override
     protected boolean isSecure(String key) {
-        //TODO: Needs a artifactstore metadata store
-        return false;
+        ArtifactPluginInfo pluginInfo = metadataStore().getPluginInfo(getPluginId());
+
+        if (pluginInfo == null
+                || pluginInfo.getStoreConfigSettings() == null
+                || pluginInfo.getStoreConfigSettings().getConfiguration(key) == null) {
+            return false;
+        }
+
+        return pluginInfo.getStoreConfigSettings().getConfiguration(key).isSecure();
+    }
+
+    private ArtifactMetadataStore metadataStore() {
+        return ArtifactMetadataStore.instance();
     }
 
     @Override
     protected boolean hasPluginInfo() {
-        //TODO: Needs a artifactstore metadata store
-        return false;
+        return metadataStore().getPluginInfo(getPluginId()) != null;
     }
 }

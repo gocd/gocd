@@ -74,7 +74,8 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
 
     @Override
     public boolean validateTree(ValidationContext validationContext) {
-        return false;
+        validate(validationContext);
+        return !hasErrors();
     }
 
     @Override
@@ -90,6 +91,10 @@ public class PluggableArtifactConfig extends Configuration implements Artifact {
             if (artifactStore == null) {
                 addError("storeId", String.format("Artifact store with id `%s` does not exist.", storeId));
             }
+        }
+
+        if (!new NameTypeValidator().isNameValid(id)) {
+            errors.add("id", NameTypeValidator.errorMessage("pluggable artifact id", id));
         }
     }
 

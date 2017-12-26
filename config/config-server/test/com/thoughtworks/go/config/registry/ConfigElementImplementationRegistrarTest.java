@@ -110,6 +110,7 @@ public class ConfigElementImplementationRegistrarTest {
         List<Class<? extends Artifact>> artifacts = new ArrayList<>();
         artifacts.add(TestArtifactConfig.class);
         artifacts.add(ArtifactConfig.class);
+        artifacts.add(PluggableArtifactConfig.class);
 
         assertThat(registry.implementersOf(Artifact.class), is(artifacts));
     }

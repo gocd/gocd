@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.domain.ArtifactType;
 import org.junit.Test;
 
@@ -96,5 +97,48 @@ public class PluggableArtifactConfigTest {
         final String actual = config.toJSON();
 
         assertThat(actual, is("{\"configuration\":{\"Foo\":\"Bar\"},\"id\":\"id1\",\"storeId\":\"Store-ID\"}"));
+    }
+
+    @Test
+    public void validateTree_shouldValidatePresenceOfId() {
+        final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("", "s3");
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void validateTree_shouldValidateNullId() {
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig(null, "s3");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void validateTree_presenceStoreId() {
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
+
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void validateTree_presenceOfStoreIdInArtifactStores() {
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "s3");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
+
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+
+        assertFalse(result);
     }
 }

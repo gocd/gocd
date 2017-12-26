@@ -16,8 +16,18 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -25,9 +35,21 @@ import java.util.Arrays;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ArtifactStoreTest {
+    private ArtifactMetadataStore store;
+
+    @Before
+    public void setUp() throws Exception {
+        store = ArtifactMetadataStore.instance();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        store.clear();
+    }
+
     @Test
     public void addConfigurations_shouldAddConfigurationsWithValue() {
         ConfigurationProperty property = create("username", false, "some_value");
@@ -56,7 +78,7 @@ public class ArtifactStoreTest {
     }
 
     @Test
-    public void shouldNotAllowNullPluginIdOrProfileId() {
+    public void shouldNotAllowNullPluginIdOrArtifactStoreId() {
         ArtifactStore store = new ArtifactStore();
 
         store.validate(null);
@@ -66,7 +88,7 @@ public class ArtifactStoreTest {
     }
 
     @Test
-    public void shouldValidateElasticPluginIdPattern() throws Exception {
+    public void shouldValidateArtifactStoreIdPattern() {
         ArtifactStore store = new ArtifactStore("!123", "docker");
         store.validate(null);
         assertThat(store.errors().size(), is(1));
@@ -88,5 +110,68 @@ public class ArtifactStoreTest {
 
         assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'"));
         assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Artifact store 's3.plugin'"));
+    }
+
+    @Test
+    public void shouldReturnTrueIfPluginInfoIsDefined() {
+        final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), null, null, null);
+        store.setPluginInfo(pluginInfo);
+
+        final ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
+
+        assertTrue(artifactStore.hasPluginInfo());
+    }
+
+    @Test
+    public void shouldReturnFalseIfPluginInfoIsDefined() {
+        final ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
+
+        assertFalse(artifactStore.hasPluginInfo());
+    }
+
+    @Test
+    public void postConstruct_shouldEncryptSecureConfigurations() {
+        final PluggableInstanceSettings storeConfig = new PluggableInstanceSettings(
+                Arrays.asList(new PluginConfiguration("password", new Metadata(true, true)))
+        );
+
+        final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), storeConfig, null, null);
+
+        store.setPluginInfo(pluginInfo);
+        ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+
+        artifactStore.encryptSecureConfigurations();
+
+        assertThat(artifactStore.size(), is(1));
+        assertTrue(artifactStore.first().isSecure());
+    }
+
+    @Test
+    public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() {
+        ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+
+        artifactStore.encryptSecureConfigurations();
+
+        assertThat(artifactStore.size(), is(1));
+        assertFalse(artifactStore.first().isSecure());
+    }
+
+    private PluginDescriptor pluginDescriptor(String pluginId) {
+        return new PluginDescriptor() {
+            @Override
+            public String id() {
+                return pluginId;
+            }
+
+            @Override
+            public String version() {
+                return null;
+            }
+
+            @Override
+            public About about() {
+                return null;
+            }
+        };
     }
 }

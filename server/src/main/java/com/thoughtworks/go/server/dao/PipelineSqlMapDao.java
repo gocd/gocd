@@ -123,7 +123,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
                 Long pipelineId = (Long) getSqlMapClientTemplate().insert("insertPipeline", pipeline);
                 savePipelineMaterialRevisions(pipeline, pipelineId);
-                environmentVariableDao.save(pipelineId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger, pipeline.scheduleTimeVariables());
+                environmentVariableDao.save(pipelineId, EnvironmentVariableType.Trigger, pipeline.scheduleTimeVariables());
                 return pipeline;
             }
         });
@@ -322,7 +322,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         if (pipeline == null) {
             return pipeline;
         }
-        pipeline.getBuildCause().setVariables(environmentVariableDao.load(pipeline.getId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
+        pipeline.getBuildCause().setVariables(environmentVariableDao.load(pipeline.getId(), EnvironmentVariableType.Trigger));
         return pipeline;
     }
 

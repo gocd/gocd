@@ -39,6 +39,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -425,6 +426,70 @@ public class JobInstanceSqlMapDaoTest {
 
     }
 
+    @Test
+    public void shouldDeleteJobPlanAssociatedEntities() throws Exception {
+        JobInstance jobInstance = JobInstanceMother.building("Baboon");
+
+        JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans(), artifactPropertiesGenerators());
+        jobInstance.setPlan(jobPlan);
+
+        jobInstanceDao.save(stageId, jobInstance);
+        JobPlan jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
+
+        assertThat(jobPlanFromDb.getArtifactPlans(), is(jobPlan.getArtifactPlans()));
+        assertThat(jobPlanFromDb.getPropertyGenerators(), is(jobPlan.getPropertyGenerators()));
+        assertThat(jobPlanFromDb.getResources(), is(jobPlan.getResources()));
+        assertThat(jobPlanFromDb.getVariables(), is(jobPlan.getVariables()));
+        assertThat(jobPlanFromDb.getElasticProfile(), is(jobPlan.getElasticProfile()));
+
+        Date completionDate = new Date();
+        jobInstance.completing(JobResult.Passed, completionDate);
+        jobInstance.completed(completionDate);
+        jobInstanceDao.updateStateAndResult(jobInstance);
+        jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
+
+        assertThat(jobPlanFromDb.getArtifactPlans().size(), is(2));
+        assertThat(jobPlanFromDb.getArtifactPlans(), Matchers.containsInAnyOrder(
+                new ArtifactPlan(ArtifactType.unit, "unit", "unit"),
+                new ArtifactPlan(ArtifactType.unit, "integration", "integration")
+        ));
+        assertThat(jobPlanFromDb.getPropertyGenerators().size(), is(0));
+        assertThat(jobPlanFromDb.getResources().size(), is(0));
+        assertThat(jobPlanFromDb.getVariables().size(), is(0));
+        assertThat(jobPlanFromDb.getElasticProfile(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldDeleteVariablesAttachedToJobAfterTheJobReschedules() throws Exception {
+        JobInstance jobInstance = JobInstanceMother.building("Baboon");
+
+        JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans(), artifactPropertiesGenerators());
+        jobInstance.setPlan(jobPlan);
+
+        jobInstanceDao.save(stageId, jobInstance);
+        JobPlan jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
+
+        assertThat(jobPlanFromDb.getArtifactPlans().size(), is(4));
+        assertThat(jobPlanFromDb.getPropertyGenerators(), is(jobPlan.getPropertyGenerators()));
+        assertThat(jobPlanFromDb.getResources(), is(jobPlan.getResources()));
+        assertThat(jobPlanFromDb.getVariables(), is(jobPlan.getVariables()));
+        assertThat(jobPlanFromDb.getElasticProfile(), is(jobPlan.getElasticProfile()));
+
+        jobInstance.setState(JobState.Rescheduled);
+        jobInstanceDao.ignore(jobInstance);
+        jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
+
+        assertThat(jobPlanFromDb.getArtifactPlans().size(), is(2));
+        assertThat(jobPlanFromDb.getArtifactPlans(), Matchers.containsInAnyOrder(
+                new ArtifactPlan(ArtifactType.unit, "unit", "unit"),
+                new ArtifactPlan(ArtifactType.unit, "integration", "integration")
+        ));
+        assertThat(jobPlanFromDb.getPropertyGenerators().size(), is(0));
+        assertThat(jobPlanFromDb.getResources().size(), is(0));
+        assertThat(jobPlanFromDb.getVariables().size(), is(0));
+        assertThat(jobPlanFromDb.getElasticProfile(), is(nullValue()));
+
+    }
 
     @Test(expected = DataRetrievalFailureException.class)
     public void shouldReturnNullObjectIfItNotExists() throws Exception {
@@ -752,7 +817,7 @@ public class JobInstanceSqlMapDaoTest {
                 new ArrayList<>(), instance.getId(),
                 instance.getIdentifier(), null, variables, new EnvironmentVariables(), null);
         jobInstanceDao.save(instance.getId(), plan);
-        environmentVariableDao.save(savedPipeline.getId(), EnvironmentVariableDao.EnvironmentVariableType.Trigger, environmentVariables("TRIGGER_VAR", "trigger val"));
+        environmentVariableDao.save(savedPipeline.getId(), EnvironmentVariableType.Trigger, environmentVariables("TRIGGER_VAR", "trigger val"));
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
         assertThat(retrieved.getVariables(), is(plan.getVariables()));
         EnvironmentVariableContext context = new EnvironmentVariableContext();
@@ -780,7 +845,7 @@ public class JobInstanceSqlMapDaoTest {
                 instance.getIdentifier(), null, variables, new EnvironmentVariables(), null);
         jobInstanceDao.save(instance.getId(), plan);
 
-        environmentVariableDao.save(savedPipeline.getId(), EnvironmentVariableDao.EnvironmentVariableType.Trigger, environmentVariables("TRIGGER_VAR", "trigger val"));
+        environmentVariableDao.save(savedPipeline.getId(), EnvironmentVariableType.Trigger, environmentVariables("TRIGGER_VAR", "trigger val"));
 
         List<JobPlan> retrieved = jobInstanceDao.orderedScheduledBuilds();
 
@@ -1028,6 +1093,15 @@ public class JobInstanceSqlMapDaoTest {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
         artifactPlans.add(new ArtifactPlan(ArtifactType.file, "src", "dest"));
         artifactPlans.add(new ArtifactPlan(ArtifactType.file, "src1", "dest2"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "unit", "unit"));
+        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "integration", "integration"));
         return artifactPlans;
+    }
+
+    private List<ArtifactPropertiesGenerator> artifactPropertiesGenerators() {
+        List<ArtifactPropertiesGenerator> artifactPropertiesGenerators = new ArrayList<>();
+        artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator("log", "src", "path"));
+        artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator("text", "src", "path"));
+        return artifactPropertiesGenerators;
     }
 }

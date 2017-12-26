@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -172,5 +173,19 @@ public class ArtifactPlanRepositoryIntegrationTest {
         assertThat(artifactPlan.getId(), is(not(nullValue())));
 
         assertThat(artifactPlanOfFirstJob.getId(), not(equalTo(artifactPlanOfSecondJob.getId())));
+    }
+
+    @Test
+    public void shouldDeleteArtifactPlans() throws Exception {
+        JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        artifactPlan.setBuildId(jobInstance.getId());
+        artifactPlanRepository.save(artifactPlan);
+        List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
+        assertThat(artifactPlanList.size(), is(1));
+
+        artifactPlanRepository.deleteAll(Arrays.asList(artifactPlan));
+        artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
+        assertThat(artifactPlanList.size(), is(0));
     }
 }

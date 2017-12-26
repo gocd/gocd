@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,16 @@ public class JobAgentMetadataSqlMapDao implements JobAgentMetadataDao {
                         .createCriteria(JobAgentMetadata.class)
                         .add(Restrictions.eq("jobId", jobId))
                         .setCacheable(true).uniqueResult();
+            }
+        });
+    }
+
+    @Override
+    public void delete(final JobAgentMetadata jobAgentMetadata) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                sessionFactory.getCurrentSession().delete(jobAgentMetadata);
             }
         });
     }

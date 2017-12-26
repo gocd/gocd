@@ -643,7 +643,6 @@ public class ScheduleService {
                         JobInstance newJob = oldJob.clone();
                         oldJob.changeState(JobState.Rescheduled);
                         jobInstanceService.updateStateAndResult(oldJob);
-                        jobInstanceDao.ignore(oldJob);
 
                         //Make a new Job
                         newJob.reschedule();
@@ -651,6 +650,7 @@ public class ScheduleService {
 
                         //Copy the plan for the old job since we don't load job plan with jobInstance by default
                         JobPlan plan = jobInstanceDao.loadPlan(oldJob.getId());
+                        jobInstanceDao.ignore(oldJob);
                         jobInstanceDao.save(newJob.getId(), plan);
                         LOGGER.info("[Job Reschedule] Scheduled new job: {}. Replacing old job: {}", newJob.getIdentifier(), oldJob.getIdentifier());
                     }

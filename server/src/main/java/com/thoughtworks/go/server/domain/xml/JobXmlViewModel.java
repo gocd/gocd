@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.domain.xml;
 
@@ -66,25 +66,20 @@ public class JobXmlViewModel implements XmlRepresentable {
 
         root.addElement("agent").addAttribute("uuid", jobInstance.getAgentUuid());
 
+        root.addComment("artifacts of type `file` will not be shown. See https://github.com/gocd/gocd/pull/2875");
         Element artifacts = root.addElement("artifacts");
         artifacts.addAttribute("baseUri", writerContext.artifactBaseUrl(identifier)).addAttribute("pathFromArtifactRoot", writerContext.artifactRootPath(identifier));
 
         JobPlan jobPlan = writerContext.planFor(identifier);
-        for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlans()) {
+        for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlansOfType(ArtifactType.unit)) {
             artifacts.addElement("artifact").addAttribute("src", artifactPlan.getSrc()).addAttribute("dest", artifactPlan.getDest()).addAttribute("type", artifactPlan.getArtifactType().toString());
         }
 
-        Element resources = root.addElement("resources");
-
-        for (Resource resource : jobPlan.getResources()) {
-            resources.addElement("resource").addText(resource.getName());
-        }
-
-        Element envVars = root.addElement("environmentvariables");
-
-        for (EnvironmentVariable environmentVariable : jobPlan.getVariables()) {
-            envVars.addElement("variable").addAttribute("name", environmentVariable.getName()).addCDATA(environmentVariable.getDisplayValue());
-        }
+        // Retain the top level elements for backward-compatibility
+        root.addComment("resources are now intentionally left blank. See https://github.com/gocd/gocd/pull/2875");
+        root.addElement("resources");
+        root.addComment("environmentvariables are now intentionally left blank. See https://github.com/gocd/gocd/pull/2875");
+        root.addElement("environmentvariables");
 
         return document;
     }

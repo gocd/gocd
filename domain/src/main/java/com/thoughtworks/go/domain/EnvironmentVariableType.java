@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.dao;
+package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.domain.JobAgentMetadata;
-
-public interface JobAgentMetadataDao {
-    void save(JobAgentMetadata metadata);
-
-    JobAgentMetadata load(Long jobId);
-
-    void delete(JobAgentMetadata jobAgentMetadata);
+public enum EnvironmentVariableType {
+    Job,
+    Trigger
 }

@@ -366,6 +366,10 @@ public class ScheduleServiceIntegrationTest {
         EnvironmentVariables variables = jobPlan.getVariables();
         assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
 
+        pass(pipeline);
+        jobPlan = jobInstanceDao.loadPlan(jobId);
+        assertThat(jobPlan.getVariables().size(), is(0));
+
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));//add
         configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig()); //delete
         configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K3", "V3_updated")))); //edit
@@ -393,6 +397,11 @@ public class ScheduleServiceIntegrationTest {
 
         EnvironmentVariables variables = jobPlan.getVariables();
         assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+
+        pass(pipeline);
+        jobPlan = jobInstanceDao.loadPlan(jobId);
+        assertThat(jobPlan.getVariables().size(), is(0));
+
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunJobs(pipeline.getFirstStage(), Arrays.asList(job), new HttpOperationResult());
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
@@ -415,6 +424,11 @@ public class ScheduleServiceIntegrationTest {
 
         EnvironmentVariables variables = jobPlan.getVariables();
         assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
+
+        pass(pipeline);
+        jobPlan = jobInstanceDao.loadPlan(jobId);
+        assertThat(jobPlan.getVariables().size(), is(0));
+
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunStage(pipelineConfig.name().toString(), "1", stageName);
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
@@ -464,6 +478,10 @@ public class ScheduleServiceIntegrationTest {
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         Pipeline pipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, counter);
         pipeline = pipelineDao.loadAssociations(pipeline, pipelineName);
+        return pipeline;
+    }
+
+    private Pipeline pass(Pipeline pipeline) {
         dbHelper.pass(pipeline);
         return pipeline;
     }

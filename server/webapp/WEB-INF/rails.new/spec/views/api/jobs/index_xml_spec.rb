@@ -94,20 +94,12 @@ describe "/api/jobs" do
 
       resources = entry.xpath("resources")
       expect(resources).to_not be_nil_or_empty
-      resources.tap do |node|
-        expect(node.xpath("resource")[0].text).to eq("linux")
-        expect(node.xpath("resource")[1].text).to eq("teapot")
-      end
 
       environment_variables = entry.xpath("environmentvariables")
       expect(environment_variables).to_not be_nil_or_empty
-      environment_variables.tap do |node|
-        expect(node.xpath("variable[@name='VARIABLE_NAME']").text).to eq("variable-value")
-      end
     end
 
     expect(response.body).to match(/#{cdata_wraped_regexp_for("value_of_property_foo")}/)
-    expect(response.body).to match(/#{cdata_wraped_regexp_for("variable-value")}/)
   end
 
   describe "xml sensitive characters" do
@@ -151,10 +143,6 @@ describe "/api/jobs" do
       expect(root.valueOf("//artifact[1]/@src")).to eq("artifact")
       expect(root.valueOf("//artifact[2]/@src")).to eq("logs/log-arti\"fact")
       expect(root.valueOf("//artifact[3]/@src")).to eq("te<s\"t.xml")
-      expect(root.valueOf("//resource[1]/.")).to eq("linux")
-      expect(root.valueOf("//resource[2]/.")).to eq("teapot")
-      expect(root.valueOf("//variable/@name")).to eq("VARIA<BLE_NA\"ME")
-      expect(root.valueOf("//variable/.")).to eq("varia<ble-val\"ue")
     end
   end
 end

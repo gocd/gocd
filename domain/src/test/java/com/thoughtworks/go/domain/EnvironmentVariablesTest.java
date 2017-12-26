@@ -25,8 +25,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -88,4 +87,5 @@ public class EnvironmentVariablesTest {
         verify(environmentVariableContext, times(0)).setProperty("foo", "bar", false);
         verify(environmentVariableContext, times(1)).setProperty("baz", "car", true);
     }
+
 }

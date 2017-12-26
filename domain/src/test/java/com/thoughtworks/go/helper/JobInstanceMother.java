@@ -18,7 +18,11 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -257,5 +261,15 @@ public class JobInstanceMother {
 
         return new DefaultJobPlan(new Resources(jobConfig.resourceConfigs()), artifactPlans, artifactPropertiesGenerators, -1,
                 jobIdentifier, null, environmentVariables, new EnvironmentVariables(), null);
+    }
+
+    public static JobPlan jobPlanWithAssociatedEntities(String jobName, long id, List<ArtifactPlan> artifactPlans, List<ArtifactPropertiesGenerator> artifactPropertiesGenerators) {
+        ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("image"), new ConfigurationValue("elastic-agent"));
+        ElasticProfile elasticProfile = new ElasticProfile("elastic", "plugin", configurationProperty);
+
+        EnvironmentVariables variables = new EnvironmentVariables();
+        variables.add("some_var", "blah");
+
+        return new DefaultJobPlan(new Resources(new Resource("foo"), new Resource("bar")), artifactPlans, artifactPropertiesGenerators, id, defaultJobIdentifier(jobName), null, variables, new EnvironmentVariables(), elasticProfile);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class DefaultJobPlan implements JobPlan {
 
@@ -169,7 +171,7 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public void setVariables(EnvironmentVariables variables) {
-        this.variables = variables;
+        this.variables = new EnvironmentVariables(variables);
     }
 
     public long getPipelineId() {
@@ -177,7 +179,7 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public void setTriggerVariables(EnvironmentVariables environmentVariables) {
-        triggerVariables = environmentVariables;
+        triggerVariables = new EnvironmentVariables(environmentVariables);
     }
 
     public boolean shouldFetchMaterials() {
@@ -215,7 +217,17 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public void setElasticProfile(ElasticProfile elasticProfile) {
-        this.elasticProfile = elasticProfile;
+        this.elasticProfile = new ElasticProfile(elasticProfile.getId(), elasticProfile.getPluginId(), elasticProfile);
+    }
+
+    @Override
+    public List<ArtifactPlan> getArtifactPlansOfType(final ArtifactType file) {
+        return getArtifactPlans().stream().filter(new Predicate<ArtifactPlan>() {
+            @Override
+            public boolean test(ArtifactPlan artifactPlan) {
+                return artifactPlan.getArtifactType() == file;
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override

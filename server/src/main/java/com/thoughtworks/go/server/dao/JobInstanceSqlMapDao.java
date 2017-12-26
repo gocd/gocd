@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.dao;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.ArtifactPropertyConfig;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -194,7 +193,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlans()) {
             artifactPlanRepository.saveCopyOf(jobId, artifactPlan);
         }
-        environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, jobPlan.getVariables());
+        environmentVariableDao.save(jobId, EnvironmentVariableType.Job, jobPlan.getVariables());
 
         if (jobPlan.requiresElasticAgent()) {
             jobAgentMetadataDao.save(new JobAgentMetadata(jobId, jobPlan.getElasticProfile()));
@@ -211,13 +210,25 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         plan.setArtifactPlans(artifactPlanRepository.findByBuildId(plan.getJobId()));
         plan.setGenerators(artifactPropertiesGeneratorRepository.findByBuildId(plan.getJobId()));
         plan.setResources(resourceRepository.findByBuildId(plan.getJobId()));
-        plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job));
-        plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
+        plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableType.Job));
+        plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableType.Trigger));
         JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(plan.getJobId());
         if (jobAgentMetadata != null) {
             plan.setElasticProfile(jobAgentMetadata.elasticProfile());
         }
     }
+
+    private void deleteJobPlanAssociatedEntities(JobInstance job) {
+        JobPlan jobPlan = loadPlan(job.getId());
+        environmentVariableDao.deleteAll(jobPlan.getVariables());
+        artifactPlanRepository.deleteAll(jobPlan.getArtifactPlansOfType(ArtifactType.file));
+        artifactPropertiesGeneratorRepository.deleteAll(jobPlan.getPropertyGenerators());
+        resourceRepository.deleteAll(jobPlan.getResources());
+        if (jobPlan.requiresElasticAgent()) {
+            jobAgentMetadataDao.delete(jobAgentMetadataDao.load(jobPlan.getJobId()));
+        }
+    }
+
 
     public JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {
         String key = cacheKeyForOriginalJobIdentifier(stageIdentifier, jobName);
@@ -357,6 +368,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private void updateStatus(JobInstance jobInstance) {
         getSqlMapClientTemplate().update("updateStatus", jobInstance);
         saveTransitions(jobInstance);
+
+        if (jobInstance.isCompleted()) {
+            deleteJobPlanAssociatedEntities(jobInstance);
+        }
     }
 
     private void updateResult(JobInstance job) {
@@ -373,6 +388,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     public void ignore(JobInstance job) {
         getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
+        deleteJobPlanAssociatedEntities(job);
     }
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count) {

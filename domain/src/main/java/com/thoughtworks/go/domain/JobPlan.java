@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,6 @@ public interface JobPlan extends Serializable {
 
     long getPipelineId();
 
-    void setTriggerVariables(EnvironmentVariables environmentVariables);
-
     boolean shouldFetchMaterials();
 
     void setFetchMaterials(boolean fetchMaterials);
@@ -67,4 +65,9 @@ public interface JobPlan extends Serializable {
     boolean requiresElasticAgent();
 
     boolean assignedToAgent();
+
+    void setElasticProfile(ElasticProfile elasticProfile);
+
+    List<ArtifactPlan> getArtifactPlansOfType(final ArtifactType file);
+
 }

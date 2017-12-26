@@ -19,6 +19,8 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -26,11 +28,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
+import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
@@ -40,11 +45,20 @@ import static org.mockito.Mockito.*;
 
 public class ArtifactExtensionTest {
 
+    public static final String PLUGIN_ID = "foo.plugin";
     private PluginManager pluginManager;
+    private ArtifactExtension artifactExtension;
+    private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
+        artifactExtension = new ArtifactExtension(pluginManager);
+        requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
+
+
+        when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, artifactExtension.goSupportedVersions())).thenReturn("1.0");
     }
 
     @Test
@@ -63,11 +77,6 @@ public class ArtifactExtensionTest {
 
     @Test
     public void shouldSubmitPublishArtifactRequest() {
-        final ArtifactExtension artifactExtension = new ArtifactExtension(pluginManager);
-        final ArgumentCaptor<GoPluginApiRequest> captor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-
-        when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, "foo.plugin")).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion("foo.plugin", artifactExtension.goSupportedVersions())).thenReturn("1.0");
         final String responseBody = "{\n" +
                 "  \"metadata\": {\n" +
                 "    \"artifact-version\": \"10.12.0\"\n" +
@@ -75,11 +84,11 @@ public class ArtifactExtensionTest {
                 "  \"errors\": [\"foo\",\"bar\"]\n" +
                 "}";
 
-        when(pluginManager.submitTo(eq("foo.plugin"), captor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final PublishArtifactResponse response = artifactExtension.publishArtifact("foo.plugin", new HashMap<>());
+        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new HashMap<>());
 
-        final GoPluginApiRequest request = captor.getValue();
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
@@ -89,22 +98,19 @@ public class ArtifactExtensionTest {
         assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
 
         assertThat(response.getErrors(), hasSize(2));
-        assertThat(response.getErrors(), contains("Foo", "Bar"));
+        assertThat(response.getErrors(), contains("foo", "bar"));
     }
 
     @Test
     public void shouldGetArtifactStoreMetadataFromPlugin() {
         String responseBody = "[{\"key\":\"BUCKET_NAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"AWS_ACCESS_KEY\",\"metadata\":{\"required\":true,\"secure\":true}}]";
-        final ArtifactExtension artifactExtension = new ArtifactExtension(pluginManager);
-        final ArgumentCaptor<GoPluginApiRequest> captor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, "foo.plugin")).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion("foo.plugin", artifactExtension.goSupportedVersions())).thenReturn("1.0");
-        when(pluginManager.submitTo(eq("foo.plugin"), captor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final List<PluginConfiguration> response = artifactExtension.getArtifactStoreMetadata("foo.plugin");
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final GoPluginApiRequest request = captor.getValue();
+        final List<PluginConfiguration> response = artifactExtension.getArtifactStoreMetadata(PLUGIN_ID);
+
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_STORE_CONFIG_METADATA));
@@ -120,16 +126,12 @@ public class ArtifactExtensionTest {
     @Test
     public void shouldGetPublishArtifactMetadataFromPlugin() {
         String responseBody = "[{\"key\":\"FILENAME\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"VERSION\",\"metadata\":{\"required\":true,\"secure\":true}}]";
-        final ArtifactExtension artifactExtension = new ArtifactExtension(pluginManager);
-        final ArgumentCaptor<GoPluginApiRequest> captor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, "foo.plugin")).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion("foo.plugin", artifactExtension.goSupportedVersions())).thenReturn("1.0");
-        when(pluginManager.submitTo(eq("foo.plugin"), captor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final List<PluginConfiguration> response = artifactExtension.getPublishArtifactMetadata("foo.plugin");
+        final List<PluginConfiguration> response = artifactExtension.getPublishArtifactMetadata(PLUGIN_ID);
 
-        final GoPluginApiRequest request = captor.getValue();
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT_METADATA));
@@ -139,6 +141,46 @@ public class ArtifactExtensionTest {
         assertThat(response, containsInAnyOrder(
                 new PluginConfiguration("FILENAME", new Metadata(true, false)),
                 new PluginConfiguration("VERSION", new Metadata(true, true))
+        ));
+    }
+
+    @Test
+    public void shouldValidateArtifactStoreConfig() {
+        String responseBody = "[{\"message\":\"ACCESS_KEY must not be blank.\",\"key\":\"ACCESS_KEY\"}]";
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        ValidationResult validationResult = artifactExtension.validateArtifactStoreConfig(PLUGIN_ID, Collections.singletonMap("ACCESS_KEY", ""));
+
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
+
+        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
+        assertThat(request.requestName(), is(REQUEST_STORE_CONFIG_VALIDATE));
+        assertThat(request.requestBody(), is("{\"ACCESS_KEY\":\"\"}"));
+
+        assertThat(validationResult.isSuccessful(), is(false));
+        assertThat(validationResult.getErrors(), containsInAnyOrder(
+                new ValidationError("ACCESS_KEY", "ACCESS_KEY must not be blank.")
+        ));
+    }
+
+    @Test
+    public void shouldValidatePluggableArtifactConfig() {
+        String responseBody = "[{\"message\":\"Filename must not be blank.\",\"key\":\"Filename\"}]";
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(PLUGIN_ID, Collections.singletonMap("Filename", ""));
+
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
+
+        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
+        assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT_VALIDATE));
+        assertThat(request.requestBody(), is("{\"Filename\":\"\"}"));
+
+        assertThat(validationResult.isSuccessful(), is(false));
+        assertThat(validationResult.getErrors(), containsInAnyOrder(
+                new ValidationError("Filename", "Filename must not be blank.")
         ));
     }
 }

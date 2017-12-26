@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.List;
@@ -32,4 +33,8 @@ public interface ArtifactMessageConverter {
     List<PluginConfiguration> getMetadataResponseFromBody(String responseBody);
 
     String getViewFromResponseBody(String responseBody, final String viewLabel);
+
+    String validateConfigurationRequestBody(Map<String, String> configuration);
+
+    ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody);
 }

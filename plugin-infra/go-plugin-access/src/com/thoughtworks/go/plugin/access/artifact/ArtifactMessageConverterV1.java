@@ -20,7 +20,9 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.lang.StringUtils;
 
@@ -71,6 +73,16 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
     @Override
     public String getViewFromResponseBody(String responseBody, final String viewLabel) {
         return getTemplateFromResponse(responseBody, String.format("%s `template` was blank!", viewLabel));
+    }
+
+    @Override
+    public String validateConfigurationRequestBody(Map<String, String> configuration) {
+        return GSON.toJson(configuration);
+    }
+
+    @Override
+    public ValidationResult getConfigurationValidationResultFromResponseBody(String responseBody) {
+        return new JSONResultMessageHandler().toValidationResult(responseBody);
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

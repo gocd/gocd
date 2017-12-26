@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
-import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.REQUEST_GET_AUTH_CONFIG_VIEW;
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 
@@ -52,7 +52,7 @@ public class ArtifactExtension extends AbstractExtension {
         messageHandlerMap.put(version, extensionHandler);
     }
 
-    List<PluginConfiguration> getArtifactStoreMetadata(String pluginId) {
+    public List<PluginConfiguration> getArtifactStoreMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STORE_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -61,7 +61,7 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    String getArtifactStoreView(String pluginId) {
+    public String getArtifactStoreView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STORE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -70,7 +70,21 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    List<PluginConfiguration> getPublishArtifactMetadata(String pluginId) {
+    public ValidationResult validateArtifactStoreConfig(final String pluginId, final Map<String, String> configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_STORE_CONFIG_VALIDATE, new DefaultPluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).validateConfigurationRequestBody(configuration);
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
+            }
+        });
+    }
+
+    public List<PluginConfiguration> getPublishArtifactMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -79,11 +93,25 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    String getPublishArtifactView(String pluginId) {
+    public String getPublishArtifactView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Publish artifact view");
+            }
+        });
+    }
+
+    public ValidationResult validatePluggableArtifactConfig(final String pluginId, final Map<String, String> configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT_VALIDATE, new DefaultPluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).validateConfigurationRequestBody(configuration);
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
     }

@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.hamcrest.MatcherAssert;
 import org.json.JSONException;
 import org.junit.Test;
@@ -30,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class ArtifactMessageConverterV1Test {
@@ -90,5 +94,28 @@ public class ArtifactMessageConverterV1Test {
 
         MatcherAssert.assertThat(response.getErrors(), hasSize(2));
         MatcherAssert.assertThat(response.getErrors(), contains("Foo", "Bar"));
+    }
+
+    @Test
+    public void validateConfigurationRequestBody_shouldSerializeConfigurationToJson() throws JSONException {
+        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+
+        final String requestBody = converter.validateConfigurationRequestBody(Collections.singletonMap("Foo", "Bar"));
+
+        JSONAssert.assertEquals("{\"Foo\":\"Bar\"}", requestBody, true);
+    }
+
+    @Test
+    public void getConfigurationValidationResultFromResponseBody_shouldDeserializeJsonToValidationResult() {
+        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
+
+        ValidationResult validationResult = converter.getConfigurationValidationResultFromResponseBody(responseBody);
+
+        assertThat(validationResult.isSuccessful(), is(false));
+        assertThat(validationResult.getErrors(), containsInAnyOrder(
+                new ValidationError("Url", "Url must not be blank."),
+                new ValidationError("SearchBase", "SearchBase must not be blank.")
+        ));
     }
 }

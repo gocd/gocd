@@ -130,6 +130,39 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
+
+    public List<PluginConfiguration> getFetchArtifactMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+            @Override
+            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getMetadataResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    public String getFetchArtifactView(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_VIEW, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Fetch artifact view");
+            }
+        });
+    }
+
+    public ValidationResult validateFetchArtifactConfig(final String pluginId, final Map<String, String> configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_VALIDATE, new DefaultPluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).validateConfigurationRequestBody(configuration);
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
+            }
+        });
+    }
+
     protected ArtifactMessageConverter getMessageHandler(String version) {
         return messageHandlerMap.get(version);
     }

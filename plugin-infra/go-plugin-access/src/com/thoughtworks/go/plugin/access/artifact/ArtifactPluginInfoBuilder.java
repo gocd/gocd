@@ -38,18 +38,24 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
     public ArtifactPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         PluggableInstanceSettings pluginSettingsAndView = getPluginSettingsAndView(descriptor, artifactExtension);
         PluggableInstanceSettings storeConfigSettings = storeConfigMetadata(descriptor.id());
-        PluggableInstanceSettings artifactConfigSettings = publishArtifactMetadata(descriptor.id());
-        return new ArtifactPluginInfo(descriptor, storeConfigSettings, artifactConfigSettings, pluginSettingsAndView);
+        PluggableInstanceSettings publishArtifactConfigSettings = publishArtifactMetadata(descriptor.id());
+        PluggableInstanceSettings fetchArtifactConfigSettings = fetchArtifactMetadata(descriptor.id());
+        return new ArtifactPluginInfo(descriptor, storeConfigSettings, publishArtifactConfigSettings, fetchArtifactConfigSettings, pluginSettingsAndView);
     }
 
     private PluggableInstanceSettings storeConfigMetadata(String pluginId) {
         return new PluggableInstanceSettings(artifactExtension.getArtifactStoreMetadata(pluginId),
-               new PluginView(artifactExtension.getArtifactStoreView(pluginId)));
+                new PluginView(artifactExtension.getArtifactStoreView(pluginId)));
     }
 
     private PluggableInstanceSettings publishArtifactMetadata(String pluginId) {
         return new PluggableInstanceSettings(artifactExtension.getPublishArtifactMetadata(pluginId),
-               new PluginView(artifactExtension.getPublishArtifactView(pluginId)));
+                new PluginView(artifactExtension.getPublishArtifactView(pluginId)));
+    }
+
+    private PluggableInstanceSettings fetchArtifactMetadata(String pluginId) {
+        return new PluggableInstanceSettings(artifactExtension.getFetchArtifactMetadata(pluginId),
+                new PluginView(artifactExtension.getFetchArtifactView(pluginId)));
     }
 }
 

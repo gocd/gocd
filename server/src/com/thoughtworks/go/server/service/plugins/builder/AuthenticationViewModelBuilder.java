@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -24,6 +23,8 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHENTICATION_EXTENSION;
 
 @Deprecated
 class AuthenticationViewModelBuilder implements ViewModelBuilder {
@@ -41,7 +42,7 @@ class AuthenticationViewModelBuilder implements ViewModelBuilder {
         for(String pluginId : registry.getAuthenticationPlugins()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(descriptor, AuthenticationExtension.EXTENSION_NAME, null, null, null));
+            pluginInfos.add(new PluginInfo(descriptor, AUTHENTICATION_EXTENSION, null, null, null));
         }
         return pluginInfos;
     }
@@ -53,6 +54,6 @@ class AuthenticationViewModelBuilder implements ViewModelBuilder {
 
         GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-        return new PluginInfo(descriptor, AuthenticationExtension.EXTENSION_NAME, null, null);
+        return new PluginInfo(descriptor, AUTHENTICATION_EXTENSION, null, null);
     }
 }

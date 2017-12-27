@@ -17,7 +17,6 @@
 package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -39,6 +38,7 @@ import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsCo
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -71,13 +71,13 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion("pluginId", Arrays.asList("1.0", "2.0","3.0"))).thenReturn(supportedVersion);
-        when(pluginManager.isPluginOfType(NotificationExtension.EXTENSION_NAME, "pluginId")).thenReturn(true);
+        when(pluginManager.isPluginOfType(NOTIFICATION_EXTENSION, "pluginId")).thenReturn(true);
         when(pluginManager.submitTo(eq("pluginId"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
 
         NotificationExtension extension = new NotificationExtension(pluginManager);
         extension.notifyPluginSettingsChange("pluginId", settings);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME,
+        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION,
                 supportedVersion, REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE, "{\"foo\":\"bar\"}");
     }
 

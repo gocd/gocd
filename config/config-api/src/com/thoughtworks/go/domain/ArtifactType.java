@@ -20,7 +20,8 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public enum ArtifactType {
     unit,
-    file;
+    file,
+    plugin;
 
     public static ArtifactType fromName(String artifactType) {
         try {

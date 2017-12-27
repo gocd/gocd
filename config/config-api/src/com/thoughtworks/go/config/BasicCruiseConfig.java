@@ -67,6 +67,9 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag
     @SkipParameterResolution
     private ConfigReposConfig configRepos = new ConfigReposConfig();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private ArtifactStores artifactStores = new ArtifactStores();
     @ConfigSubtag(label = "groups")
     private PipelineGroups groups = new PipelineGroups();
     @ConfigSubtag(label = "templates")
@@ -997,45 +1000,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         return names;
     }
 
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BasicCruiseConfig config = (BasicCruiseConfig) o;
-
-        if (agents != null ? !agents.equals(config.agents) : config.agents != null) {
-            return false;
-        }
-        if (groups != null ? !groups.equals(config.groups) : config.groups != null) {
-            return false;
-        }
-        if (serverConfig != null ? !serverConfig.equals(config.serverConfig) : config.serverConfig != null) {
-            return false;
-        }
-        if (environments != null ? !environments.equals(config.environments) : config.environments != null) {
-            return false;
-        }
-        if (templatesConfig != null ? !templatesConfig.equals(config.templatesConfig) : config.templatesConfig != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = (serverConfig != null ? serverConfig.hashCode() : 0);
-        result = 31 * result + (groups != null ? groups.hashCode() : 0);
-        result = 31 * result + (agents != null ? agents.hashCode() : 0);
-        result = 31 * result + (environments != null ? environments.hashCode() : 0);
-        result = 31 * result + (templatesConfig != null ? templatesConfig.hashCode() : 0);
-        return result;
-    }
-
     @Override
     public boolean isAdministrator(String username) {
         return hasAdminPrivileges(new AdminUser(new CaseInsensitiveString(username)));
@@ -1538,5 +1502,39 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
     }
 
+    @Override
+    public ArtifactStores getArtifactStores() {
+        return artifactStores;
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BasicCruiseConfig)) return false;
+
+        BasicCruiseConfig that = (BasicCruiseConfig) o;
+
+        if (serverConfig != null ? !serverConfig.equals(that.serverConfig) : that.serverConfig != null) return false;
+        if (elasticConfig != null ? !elasticConfig.equals(that.elasticConfig) : that.elasticConfig != null)
+            return false;
+        if (artifactStores != null ? !artifactStores.equals(that.artifactStores) : that.artifactStores != null)
+            return false;
+        if (groups != null ? !groups.equals(that.groups) : that.groups != null) return false;
+        if (templatesConfig != null ? !templatesConfig.equals(that.templatesConfig) : that.templatesConfig != null)
+            return false;
+        if (environments != null ? !environments.equals(that.environments) : that.environments != null) return false;
+        return agents != null ? agents.equals(that.agents) : that.agents == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = serverConfig != null ? serverConfig.hashCode() : 0;
+        result = 31 * result + (elasticConfig != null ? elasticConfig.hashCode() : 0);
+        result = 31 * result + (artifactStores != null ? artifactStores.hashCode() : 0);
+        result = 31 * result + (groups != null ? groups.hashCode() : 0);
+        result = 31 * result + (templatesConfig != null ? templatesConfig.hashCode() : 0);
+        result = 31 * result + (environments != null ? environments.hashCode() : 0);
+        result = 31 * result + (agents != null ? agents.hashCode() : 0);
+        return result;
+    }
 }

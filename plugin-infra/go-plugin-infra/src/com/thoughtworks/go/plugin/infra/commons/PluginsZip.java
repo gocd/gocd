@@ -62,7 +62,7 @@ public class PluginsZip implements PluginChangeListener {
 
     private final Predicate<GoPluginDescriptor> predicate;
     private String md5DigestOfPlugins;
-    private List<GoPluginDescriptor> taskPlugins = new CopyOnWriteArrayList<>();
+    private List<GoPluginDescriptor> agentPlugins = new CopyOnWriteArrayList<>();
     private final File destZipFile;
     private final File bundledPlugins;
     private final File externalPlugins;
@@ -80,8 +80,8 @@ public class PluginsZip implements PluginChangeListener {
             public boolean test(GoPluginDescriptor goPluginDescriptor) {
                 return PluginsZip.this.pluginManager.isPluginOfType("task", goPluginDescriptor.id()) ||
                         PluginsZip.this.pluginManager.isPluginOfType("scm", goPluginDescriptor.id()) ||
-                        PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id())
-                        ;
+                        PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id()) ||
+                        PluginsZip.this.pluginManager.isPluginOfType("artifact", goPluginDescriptor.id());
             }
         };
     }
@@ -92,15 +92,15 @@ public class PluginsZip implements PluginChangeListener {
 
         MessageDigest md5Digest = DigestUtils.getMd5Digest();
         try (ZipOutputStream zos = new ZipOutputStream(new DigestOutputStream(new BufferedOutputStream(new FileOutputStream(destZipFile)), md5Digest))) {
-            for (GoPluginDescriptor taskPlugin : agentPlugins()) {
+            for (GoPluginDescriptor agentPlugins : agentPlugins()) {
                 String zipEntryPrefix = "external/";
 
-                if (taskPlugin.isBundledPlugin()) {
+                if (agentPlugins.isBundledPlugin()) {
                     zipEntryPrefix = "bundled/";
                 }
 
-                zos.putNextEntry(new ZipEntry(zipEntryPrefix + new File(taskPlugin.pluginFileLocation()).getName()));
-                Files.copy(new File(taskPlugin.pluginFileLocation()).toPath(), zos);
+                zos.putNextEntry(new ZipEntry(zipEntryPrefix + new File(agentPlugins.pluginFileLocation()).getName()));
+                Files.copy(new File(agentPlugins.pluginFileLocation()).toPath(), zos);
                 zos.closeEntry();
             }
         } catch (Exception e) {
@@ -112,7 +112,7 @@ public class PluginsZip implements PluginChangeListener {
 
     private void reset() {
         md5DigestOfPlugins = null;
-        taskPlugins.clear();
+        agentPlugins.clear();
     }
 
     public String md5() {
@@ -120,15 +120,15 @@ public class PluginsZip implements PluginChangeListener {
     }
 
     private List<GoPluginDescriptor> agentPlugins() {
-        if (taskPlugins.isEmpty()) {
+        if (agentPlugins.isEmpty()) {
             List<GoPluginDescriptor> agentPlugins = pluginManager.plugins().stream().
                     filter(predicate).
                     sorted(PLUGIN_COMPARATOR).
                     collect(Collectors.toList());
-            taskPlugins.addAll(agentPlugins);
+            this.agentPlugins.addAll(agentPlugins);
         }
 
-        return taskPlugins;
+        return agentPlugins;
     }
 
     private void checkFilesAccessibility(File bundledPlugins, File externalPlugins) {

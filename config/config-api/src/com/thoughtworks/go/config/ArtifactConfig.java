@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
-import com.thoughtworks.go.domain.Artifact;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.StringUtil;
@@ -109,6 +108,7 @@ public class ArtifactConfig implements Artifact {
         return ARTIFACT_PLAN_DISPLAY_NAME;
     }
 
+    @Override
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         return errors().isEmpty();
@@ -131,20 +131,19 @@ public class ArtifactConfig implements Artifact {
         errors.add(fieldName, message);
     }
 
-    public void validateUniqueness(List<ArtifactConfig> existingPlans) {
-        for (ArtifactConfig existingPlan : existingPlans) {
+    @Override
+    public void validateUniqueness(List<Artifact> existingArtifactList) {
+        for (Artifact existingPlan : existingArtifactList) {
             if (this.equals(existingPlan)) {
-                this.addUniquenessViolationError();
-                existingPlan.addUniquenessViolationError();
+                addError(SRC, "Duplicate artifacts defined.");
+                addError(DEST, "Duplicate artifacts defined.");
+
+                existingPlan.addError(SRC, "Duplicate artifacts defined.");
+                existingPlan.addError(DEST, "Duplicate artifacts defined.");
                 return;
             }
         }
-        existingPlans.add(this);
-    }
-
-    private void addUniquenessViolationError() {
-        addError(SRC, "Duplicate artifacts defined.");
-        addError(DEST, "Duplicate artifacts defined.");
+        existingArtifactList.add(this);
     }
 
     public static ArtifactConfig create(ArtifactType artifactType, String src, String dest) {

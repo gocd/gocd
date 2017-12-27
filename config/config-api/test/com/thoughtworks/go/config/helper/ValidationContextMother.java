@@ -25,106 +25,128 @@ import com.thoughtworks.go.domain.scm.SCM;
 public class ValidationContextMother {
 
     public static ValidationContext validationContext(SecurityConfig securityConfig) {
-        return new ValidationContext() {
-            @Override
-            public ConfigReposConfig getConfigRepos() {
-                return null;
-            }
+        return new DefaultValidationContext(securityConfig);
+    }
 
-            @Override
-            public boolean isWithinPipelines() {
-                return false;
-            }
+    public static ValidationContext validationContext(ArtifactStores artifactStores) {
+        return new DefaultValidationContext(artifactStores);
+    }
 
-            @Override
-            public PipelineConfig getPipeline() {
-                return null;
-            }
+    static class DefaultValidationContext implements ValidationContext {
+        private SecurityConfig securityConfig;
+        private ArtifactStores artifactStores;
 
-            @Override
-            public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
-                return null;
-            }
+        public DefaultValidationContext(SecurityConfig securityConfig) {
+            this.securityConfig = securityConfig;
+        }
 
-            @Override
-            public StageConfig getStage() {
-                return null;
-            }
+        public DefaultValidationContext(ArtifactStores artifactStores) {
+            this.artifactStores = artifactStores;
+        }
 
-            @Override
-            public boolean isWithinTemplates() {
-                return false;
-            }
+        @Override
+        public ConfigReposConfig getConfigRepos() {
+            return null;
+        }
 
-            @Override
-            public String getParentDisplayName() {
-                return null;
-            }
+        @Override
+        public boolean isWithinPipelines() {
+            return false;
+        }
 
-            @Override
-            public Validatable getParent() {
-                return null;
-            }
+        @Override
+        public PipelineConfig getPipeline() {
+            return null;
+        }
 
-            @Override
-            public JobConfig getJob() {
-                return null;
-            }
+        @Override
+        public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
+            return null;
+        }
 
-            @Override
-            public PipelineConfigs getPipelineGroup() {
-                return null;
-            }
+        @Override
+        public StageConfig getStage() {
+            return null;
+        }
 
-            @Override
-            public PipelineTemplateConfig getTemplate() {
-                return null;
-            }
+        @Override
+        public boolean isWithinTemplates() {
+            return false;
+        }
 
-            @Override
-            public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
-                return null;
-            }
+        @Override
+        public String getParentDisplayName() {
+            return null;
+        }
 
-            @Override
-            public boolean shouldCheckConfigRepo() {
-                return false;
-            }
+        @Override
+        public Validatable getParent() {
+            return null;
+        }
 
-            @Override
-            public SecurityConfig getServerSecurityConfig() {
-                return securityConfig;
-            }
+        @Override
+        public JobConfig getJob() {
+            return null;
+        }
 
-            @Override
-            public boolean doesTemplateExist(CaseInsensitiveString template) {
-                return false;
-            }
+        @Override
+        public PipelineConfigs getPipelineGroup() {
+            return null;
+        }
 
-            @Override
-            public SCM findScmById(String scmID) {
-                return null;
-            }
+        @Override
+        public PipelineTemplateConfig getTemplate() {
+            return null;
+        }
 
-            @Override
-            public PackageRepository findPackageById(String packageId) {
-                return null;
-            }
+        @Override
+        public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
+            return null;
+        }
 
-            @Override
-            public ValidationContext withParent(Validatable validatable) {
-                return null;
-            }
+        @Override
+        public boolean shouldCheckConfigRepo() {
+            return false;
+        }
 
-            @Override
-            public boolean isValidProfileId(String profileId) {
-                return false;
-            }
+        @Override
+        public SecurityConfig getServerSecurityConfig() {
+            return securityConfig;
+        }
 
-            @Override
-            public boolean shouldNotCheckRole() {
-                return false;
-            }
-        };
+        @Override
+        public boolean doesTemplateExist(CaseInsensitiveString template) {
+            return false;
+        }
+
+        @Override
+        public SCM findScmById(String scmID) {
+            return null;
+        }
+
+        @Override
+        public PackageRepository findPackageById(String packageId) {
+            return null;
+        }
+
+        @Override
+        public ValidationContext withParent(Validatable validatable) {
+            return null;
+        }
+
+        @Override
+        public boolean isValidProfileId(String profileId) {
+            return false;
+        }
+
+        @Override
+        public boolean shouldNotCheckRole() {
+            return false;
+        }
+
+        @Override
+        public ArtifactStores artifactStores() {
+            return artifactStores;
+        }
     }
 }

@@ -42,9 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
@@ -313,7 +311,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
                             EnvironmentVariableContext contextFromEnvironment = environmentConfigService.environmentVariableContextFor(job.getIdentifier().getPipelineName());
 
-                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment);
+                            final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
+                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment, requiredArtifactStores);
 
                             return new BuildWork(buildAssignment);
                         }
@@ -326,6 +325,16 @@ public class BuildAssignmentService implements ConfigChangedListener {
             throw e;
         }
 
+    }
+
+    private Set<String> getArtifactStoreIdsRequiredByArtifactPlans(List<ArtifactPlan> artifactPlans) {
+        final Set<String> storeIds = new HashSet<>();
+        for (ArtifactPlan artifactPlan : artifactPlans) {
+            if (artifactPlan.getArtifactType() == ArtifactType.plugin) {
+                storeIds.add((String) artifactPlan.getPluggableArtifactConfiguration().get("storeId"));
+            }
+        }
+        return storeIds;
     }
 
     List<JobPlan> jobPlans() {

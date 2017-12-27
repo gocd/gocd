@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
 
 @Deprecated
 public class PackageRepositoryPluginInfo extends NewPluginInfo {
@@ -25,7 +26,7 @@ public class PackageRepositoryPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings repositorySettings;
 
     public PackageRepositoryPluginInfo(GoPluginDescriptor plugin, PluggableInstanceSettings packageSettings, PluggableInstanceSettings repoSettings) {
-        super(plugin, PackageRepositoryExtension.EXTENSION_NAME);
+        super(plugin, PACKAGE_MATERIAL_EXTENSION);
         this.packageSettings = packageSettings;
         this.repositorySettings = repoSettings;
     }

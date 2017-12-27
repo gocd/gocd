@@ -130,7 +130,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void postConstruct_shouldEncryptSecureConfigurations() throws Exception {
+    public void postConstruct_shouldEncryptSecureConfigurations() {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
@@ -144,7 +144,7 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() throws Exception {
+    public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() {
         ElasticProfile profile = new ElasticProfile("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
         profile.encryptSecureConfigurations();

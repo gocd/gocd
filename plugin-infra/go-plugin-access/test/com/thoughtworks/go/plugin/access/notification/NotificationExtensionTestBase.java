@@ -35,6 +35,7 @@ import org.mockito.Mock;
 
 import java.util.List;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -66,7 +67,7 @@ public abstract class NotificationExtensionTestBase {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, NotificationExtension.goSupportedVersions)).thenReturn(apiVersion());
-        when(pluginManager.isPluginOfType(NotificationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(NOTIFICATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
     }
 
@@ -88,7 +89,7 @@ public abstract class NotificationExtensionTestBase {
 
         PluginSettingsConfiguration response = notificationExtension.getPluginSettingsConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
         verify(pluginSettingsJSONMessageHandler()).responseMessageForPluginSettingsConfiguration(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -100,7 +101,7 @@ public abstract class NotificationExtensionTestBase {
 
         String response = notificationExtension.getPluginSettingsView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler()).responseMessageForPluginSettingsView(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -114,7 +115,7 @@ public abstract class NotificationExtensionTestBase {
 
         ValidationResult response = notificationExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, apiVersion(), PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
         verify(pluginSettingsJSONMessageHandler()).responseMessageForPluginSettingsValidation(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -126,7 +127,7 @@ public abstract class NotificationExtensionTestBase {
 
         List<String> deserializedResponse = notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, apiVersion(), NotificationExtension.REQUEST_NOTIFICATIONS_INTERESTED_IN, null);
+        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), NotificationExtension.REQUEST_NOTIFICATIONS_INTERESTED_IN, null);
         verify(jsonMessageHandler()).responseMessageForNotificationsInterestedIn(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }
@@ -142,7 +143,7 @@ public abstract class NotificationExtensionTestBase {
 
         Result deserializedResponse = notificationExtension.notify(PLUGIN_ID, notificationName, stageNotificationData);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, apiVersion(), notificationName, jsonResponse);
+        assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION, apiVersion(), notificationName, jsonResponse);
         verify(jsonMessageHandler()).responseMessageForNotify(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }

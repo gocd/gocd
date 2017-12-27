@@ -34,11 +34,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
+
 @Component
 public class TaskExtension extends AbstractExtension {
     private final static List<String> supportedVersions = Arrays.asList(JsonBasedTaskExtensionHandler_V1.VERSION);
 
-    public final static String TASK_EXTENSION = "task";
     public final static String CONFIGURATION_REQUEST = "configuration";
     public final static String VALIDATION_REQUEST = "validate";
     public final static String EXECUTION_REQUEST = "execute";
@@ -48,7 +49,7 @@ public class TaskExtension extends AbstractExtension {
 
     @Autowired
     public TaskExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, TaskExtension.TASK_EXTENSION), TaskExtension.TASK_EXTENSION);
+        super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, PLUGGABLE_TASK_EXTENSION), PLUGGABLE_TASK_EXTENSION);
         registerHandler(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
     }

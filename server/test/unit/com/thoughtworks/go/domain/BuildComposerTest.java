@@ -19,13 +19,9 @@ import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
-import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
@@ -39,7 +35,6 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
@@ -265,7 +260,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     private String willGenerateProperties(String src, String propertyName, String xpath) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
                 + "   <properties>\n"
-                + "      <property name=\"" + propertyName + "\" src=\"" + src + "\" xpath=\"" +  xpath + "\" />\n"
+                + "      <property name=\"" + propertyName + "\" src=\"" + src + "\" xpath=\"" + xpath + "\" />\n"
                 + "   </properties>"
                 + "  <tasks>\n"
                 + "    <exec command=\"echo\">\n"
@@ -274,7 +269,6 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
                 + "  </tasks>\n"
                 + "</job>";
     }
-
 
 
     @Before
@@ -497,7 +491,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
             @Override
             public void run() {
                 try {
-                    build(SystemUtil.isWindows() ? SLEEP_TEN_SECONDS_ON_WINDOWS: SLEEP_TEN_SECONDS_ON_UNIX,
+                    build(SystemUtil.isWindows() ? SLEEP_TEN_SECONDS_ON_WINDOWS : SLEEP_TEN_SECONDS_ON_UNIX,
                             PIPELINE_NAME, true, false);
                 } catch (Exception e) {
                     err[0] = e;
@@ -592,6 +586,6 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
         return BuildAssignment.create(jobPlan,
                 BuildCause.createWithEmptyModifications(),
                 builder, pipeline.defaultWorkingFolder(),
-                null);
+                null, new ArtifactStores());
     }
 }

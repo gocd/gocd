@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
 import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
 import static com.thoughtworks.go.config.ArtifactConfig.DEST;
 import static com.thoughtworks.go.config.ArtifactConfig.SRC;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class ArtifactConfigsTest {
@@ -122,5 +124,27 @@ public class ArtifactConfigsTest {
         assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.DEST), is("Duplicate artifacts defined."));
         assertThat(artifactConfigs.get(1).errors().on(ArtifactConfig.SRC), is("Duplicate artifacts defined."));
         assertThat(artifactConfigs.get(2).errors().on(ArtifactConfig.DEST), is("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN));
+    }
+
+    @Test
+    public void shouldErrorOutWhenDuplicateArtifactConfigExists() {
+        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(new ArtifactConfig("src", "dest"));
+        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+        artifactConfigs.add(new ArtifactConfig("src", "dest"));
+
+        artifactConfigs.validate(null);
+
+        assertFalse(artifactConfigs.get(0).errors().isEmpty());
+        assertThat( artifactConfigs.get(0).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat( artifactConfigs.get(0).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+
+        assertFalse(artifactConfigs.get(1).errors().isEmpty());
+        assertThat( artifactConfigs.get(1).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat( artifactConfigs.get(1).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+
+        assertFalse(artifactConfigs.get(2).errors().isEmpty());
+        assertThat( artifactConfigs.get(2).errors().on(ArtifactConfig.SRC), Matchers.is("Duplicate artifacts defined."));
+        assertThat( artifactConfigs.get(2).errors().on(ArtifactConfig.DEST), Matchers.is("Duplicate artifacts defined."));
+
     }
 }

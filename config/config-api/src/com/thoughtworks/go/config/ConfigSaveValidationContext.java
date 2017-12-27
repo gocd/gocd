@@ -27,7 +27,7 @@ import java.util.HashMap;
 /**
  * @understands providing right state required to validate a given config element
  */
-public class ConfigSaveValidationContext implements ValidationContext{
+public class ConfigSaveValidationContext implements ValidationContext {
     private final Validatable immediateParent;
     private final ConfigSaveValidationContext parentContext;
     private HashMap<Class, Object> objectOfType;
@@ -118,17 +118,13 @@ public class ConfigSaveValidationContext implements ValidationContext{
             return null;
         } else if (immediateParent.getClass().equals(klass)) {
             return (T) immediateParent;
-        }
-        else
-        {
+        } else {
             // added because of higher hierarchy of configuration types.
             // now there are interfaces with more than one implementation
             // so when asking for CruiseConfig there are 2 matching classes - BasicCruiseConfig and MergeCruiseConfig
             Class<?>[] interfacesOfCandidate = immediateParent.getClass().getInterfaces();
-            for(Class<?> inter : interfacesOfCandidate)
-            {
-                if(inter.equals(klass))
-                {
+            for (Class<?> inter : interfacesOfCandidate) {
+                if (inter.equals(klass)) {
                     // candidate implements interface whose instances we are looking for
                     return (T) immediateParent;
                 }
@@ -224,6 +220,11 @@ public class ConfigSaveValidationContext implements ValidationContext{
     @Override
     public boolean shouldNotCheckRole() {
         return isWithinTemplates();
+    }
+
+    @Override
+    public ArtifactStores artifactStores() {
+        return this.getCruiseConfig().getArtifactStores();
     }
 
     public static ConfigSaveValidationContext forChain(Validatable... validatables) {

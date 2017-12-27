@@ -16,8 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.config.Artifact;
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -27,10 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
@@ -38,28 +44,43 @@ import static org.apache.commons.lang.StringUtils.removeStart;
 
 public class ArtifactPlan extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactPlan.class);
+    public static final Gson GSON = new Gson();
     private long buildId;
     private ArtifactType artifactType;
     private String src;
     private String dest;
+    private String pluggableArtifactConfigJson;
     private static final String MERGED_TEST_RESULT_FOLDER = "result";
     protected final List<ArtifactPlan> testArtifactPlansForMerging = new ArrayList<>();
 
     public ArtifactPlan() {
     }
 
-    public ArtifactPlan(ArtifactConfig artifactConfig) {
-        this(artifactConfig.getArtifactType(), artifactConfig.getSource(), artifactConfig.getDestination());
+    public ArtifactPlan(Artifact artifact) {
+        this.artifactType = artifact.getArtifactType();
+        if (artifact instanceof PluggableArtifactConfig) {
+            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifact).toJSON();
+        } else {
+            ArtifactConfig artifactConfig = (ArtifactConfig) artifact;
+            setSrc(artifactConfig.getSource());
+            setDest(artifactConfig.getDestination());
+        }
     }
 
     public ArtifactPlan(ArtifactPlan artifactPlan) {
         this(artifactPlan.artifactType, artifactPlan.src, artifactPlan.dest);
+        this.pluggableArtifactConfigJson = artifactPlan.pluggableArtifactConfigJson;
     }
 
     public ArtifactPlan(ArtifactType artifactType, String src, String dest) {
         this.artifactType = artifactType;
         setSrc(src);
         setDest(dest);
+    }
+
+    public ArtifactPlan(ArtifactType plugin, String pluggableArtifactConfigJson) {
+        artifactType = plugin;
+        this.pluggableArtifactConfigJson = pluggableArtifactConfigJson;
     }
 
     public long getBuildId() {
@@ -198,29 +219,39 @@ public class ArtifactPlan extends PersistentObject {
 
     public static List<ArtifactPlan> toArtifactPlans(ArtifactConfigs artifactConfigs) {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : artifactConfigs) {
-            artifactPlans.add(new ArtifactPlan(artifactConfig));
+        for (Artifact artifact : artifactConfigs) {
+            artifactPlans.add(new ArtifactPlan(artifact));
         }
         return artifactPlans;
+    }
+
+    public Map<String, Object> getPluggableArtifactConfiguration() {
+        final Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
+        return GSON.fromJson(pluggableArtifactConfigJson, type);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ArtifactPlan)) return false;
+        if (!super.equals(o)) return false;
 
         ArtifactPlan that = (ArtifactPlan) o;
 
         if (artifactType != that.artifactType) return false;
         if (src != null ? !src.equals(that.src) : that.src != null) return false;
-        return dest != null ? dest.equals(that.dest) : that.dest == null;
+        if (dest != null ? !dest.equals(that.dest) : that.dest != null) return false;
+        return pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.equals(that.pluggableArtifactConfigJson) : that.pluggableArtifactConfigJson == null;
     }
 
     @Override
     public int hashCode() {
-        int result = artifactType != null ? artifactType.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (artifactType != null ? artifactType.hashCode() : 0);
         result = 31 * result + (src != null ? src.hashCode() : 0);
         result = 31 * result + (dest != null ? dest.hashCode() : 0);
+        result = 31 * result + (pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.hashCode() : 0);
         return result;
     }
 }

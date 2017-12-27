@@ -43,6 +43,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     private StageConfig stage;
     private JobConfig job;
     private MaterialConfigFingerprintMap materialConfigsFingerprintMap;
+    private ArtifactStores artifactStores;
 
     private PipelineConfigSaveValidationContext(Boolean isPipelineBeingCreated, String groupName, Validatable immediateParent) {
         this.isPipelineBeingCreated = isPipelineBeingCreated;
@@ -259,5 +260,10 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     @Override
     public boolean shouldNotCheckRole() {
         return isWithinTemplates();
+    }
+
+    @Override
+    public ArtifactStores artifactStores() {
+        return this.cruiseConfig.getArtifactStores();
     }
 }

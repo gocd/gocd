@@ -16,13 +16,10 @@
 
 package com.thoughtworks.go.agent.testhelpers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -35,6 +32,10 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -92,7 +93,7 @@ public class DefaultWorkCreator implements WorkCreator {
         try {
             CruiseConfig config = GoConfigMother.pipelineHavingJob(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, ARTIFACT_FILE.getAbsolutePath(), ARTIFACT_FOLDER.getAbsolutePath());
             BuildCause buildCause = BuildCause.createWithEmptyModifications();
-            BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME), new EnvironmentVariableContext());
+            BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME), new EnvironmentVariableContext(), new ArtifactStores());
             return new BuildWork(buildAssignment);
         } catch (Exception e) {
             throw bomb(e);

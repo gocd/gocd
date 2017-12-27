@@ -49,7 +49,7 @@ public class ArtifactConfigTest {
 
     @Test
     public void shouldErrorOutWhenDuplicateArtifactConfigsExists() {
-        List<ArtifactConfig> plans = new ArrayList<>();
+        List<Artifact> plans = new ArrayList<>();
         ArtifactConfig existingPlan = new ArtifactConfig("src", "dest");
         plans.add(existingPlan);
         ArtifactConfig artifactPlan = new ArtifactConfig("src", "dest");

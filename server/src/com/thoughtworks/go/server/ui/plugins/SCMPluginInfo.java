@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
 
 @Deprecated
 public class SCMPluginInfo extends NewPluginInfo {
@@ -25,7 +26,7 @@ public class SCMPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings scmSettings;
 
     public SCMPluginInfo(PluginDescriptor descriptor, String displayName, PluggableInstanceSettings scmSettings) {
-        super(descriptor, SCMExtension.EXTENSION_NAME);
+        super(descriptor, SCM_EXTENSION);
         this.displayName = displayName;
         this.scmSettings = scmSettings;
     }

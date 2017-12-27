@@ -33,12 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHENTICATION_EXTENSION;
 import static java.util.Arrays.asList;
 
 @Component
 @Deprecated
 public class AuthenticationExtension extends AbstractExtension {
-    public static final String EXTENSION_NAME = "authentication";
     private static final List<String> goSupportedVersions = asList("1.0");
 
     public static final String REQUEST_PLUGIN_CONFIGURATION = "go.authentication.plugin-configuration";
@@ -49,7 +49,7 @@ public class AuthenticationExtension extends AbstractExtension {
 
     @Autowired
     public AuthenticationExtension(PluginManager defaultPluginManager) {
-        super(defaultPluginManager, new PluginRequestHelper(defaultPluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
+        super(defaultPluginManager, new PluginRequestHelper(defaultPluginManager, goSupportedVersions, AUTHENTICATION_EXTENSION), AUTHENTICATION_EXTENSION);
         this.registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
         registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());

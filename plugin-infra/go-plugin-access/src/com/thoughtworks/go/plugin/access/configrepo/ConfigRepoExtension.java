@@ -34,11 +34,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static java.util.Arrays.asList;
 
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
-    public static final String EXTENSION_NAME = "configrepo";
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";
 
     private static final List<String> goSupportedVersions = asList("1.0");
@@ -47,7 +47,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Autowired
     public ConfigRepoExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME),EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, CONFIG_REPO_EXTENSION), CONFIG_REPO_EXTENSION);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
         registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());
@@ -58,7 +58,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new DefaultPluginInteractionCallback<CRParseResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseDirectory(destinationFolder,configurations);
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseDirectory(destinationFolder, configurations);
             }
 
             @Override
@@ -78,7 +78,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     public boolean isConfigRepoPlugin(String pluginId) {
-        return pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, pluginId);
+        return pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, pluginId);
     }
 
     @Override

@@ -165,16 +165,17 @@ describe ApiV4::Admin::PluginInfosController do
                         com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo.new(descriptor, @plugin_settings),
                         com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo.new(descriptor, nil, nil, nil),
                         com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo.new(descriptor, nil, nil),
-                        com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, nil, nil, nil)]
+                        com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo.new(descriptor, nil, nil, nil),
+                        com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, nil, nil, nil)]
 
       expect(@default_plugin_info_finder).to receive(:allPluginInfos).and_return(allPluginInfos)
 
       get_with_api_header :index
 
-      expected_response = %w(analytics authentication authorization configrepo elastic-agent notification package-repository scm task)
+      expected_response = %w(analytics artifact authentication authorization configrepo elastic-agent notification package-repository scm task)
 
       expect(response).to be_ok
-      expect(actual_response[:_embedded][:plugin_info].length).to eq(9);
+      expect(actual_response[:_embedded][:plugin_info].length).to eq(10);
       expect(actual_response[:_embedded][:plugin_info].map {|pi| pi['type']}.sort).to eq(expected_response);
     end
 

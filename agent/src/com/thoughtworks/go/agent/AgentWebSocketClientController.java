@@ -24,6 +24,7 @@ import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildVariables;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.BuildSettings;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -59,6 +60,7 @@ public class AgentWebSocketClientController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentWebSocketClientController.class);
     private final SslInfrastructureService sslInfrastructureService;
     private final GoArtifactsManipulator manipulator;
+    private final ArtifactExtension artifactExtension;
     private HttpService httpService;
     private WebSocketClientHandler webSocketClientHandler;
     private WebSocketSessionHandler webSocketSessionHandler;
@@ -74,7 +76,7 @@ public class AgentWebSocketClientController extends AgentController {
                                           AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger,
                                           SystemEnvironment systemEnvironment, PluginManager pluginManager,
                                           PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension,
-                                          TaskExtension taskExtension, HttpService httpService,
+                                          TaskExtension taskExtension, ArtifactExtension artifactExtension, HttpService httpService,
                                           WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler,
                                           AgentHealthHolder agentHealthHolder) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
@@ -84,6 +86,7 @@ public class AgentWebSocketClientController extends AgentController {
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.sslInfrastructureService = sslInfrastructureService;
+        this.artifactExtension = artifactExtension;
         this.httpService = httpService;
         this.webSocketClientHandler = webSocketClientHandler;
         this.webSocketSessionHandler = webSocketSessionHandler;
@@ -131,7 +134,7 @@ public class AgentWebSocketClientController extends AgentController {
                             new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
                             manipulator, getAgentRuntimeInfo(),
                             packageRepositoryExtension, scmExtension,
-                            taskExtension);
+                            taskExtension, artifactExtension);
                 } finally {
                     getAgentRuntimeInfo().idle();
                     updateServerAgentRuntimeInfo();
@@ -164,9 +167,9 @@ public class AgentWebSocketClientController extends AgentController {
             buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
         } else {
             buildConsole = new ConsoleOutputTransmitter(
-                new RemoteConsoleAppender(
-                    urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
-                    httpService)
+                    new RemoteConsoleAppender(
+                            urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
+                            httpService)
             );
         }
 

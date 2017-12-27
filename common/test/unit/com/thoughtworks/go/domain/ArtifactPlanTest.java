@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -31,9 +32,10 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ArtifactPlanTest {
@@ -117,16 +119,36 @@ public class ArtifactPlanTest {
 
     @Test
     public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
+        final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
         final ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(
                 new ArtifactConfig("source", "destination"),
-                new TestArtifactConfig("test-source", "test-destination")
+                new TestArtifactConfig("test-source", "test-destination"),
+                artifactConfig
         ));
 
         final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(artifactConfigs);
 
         assertThat(artifactPlans, containsInAnyOrder(
-                new ArtifactPlan(ArtifactType.file,"source", "destination"),
-                new ArtifactPlan(ArtifactType.unit,"test-source", "test-destination")
+                new ArtifactPlan(ArtifactType.file, "source", "destination"),
+                new ArtifactPlan(ArtifactType.unit, "test-source", "test-destination"),
+                new ArtifactPlan(ArtifactType.plugin, artifactConfig.toJSON())
         ));
+    }
+
+    @Test
+    public void shouldConvertPluggableArtifactConfigToArtifactPlans() {
+        final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("ID", "StoreID", create("Foo", true, "Bar"), create("Baz", false, "Car"));
+
+        final ArtifactPlan artifactPlan = new ArtifactPlan(artifactConfig);
+
+        assertThat(artifactPlan.getArtifactType(), is(ArtifactType.plugin));
+        assertThat(artifactPlan.getPluggableArtifactConfiguration().size(), is(3));
+        assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("id", "ID"));
+        assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("storeId", "StoreID"));
+
+        final Map<String, String> configuration = (Map<String, String>) artifactPlan.getPluggableArtifactConfiguration().get("configuration");
+        assertThat(configuration.size(), is(2));
+        assertThat(configuration, hasEntry("Foo", "Bar"));
+        assertThat(configuration, hasEntry("Baz", "Car"));
     }
 }

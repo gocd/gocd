@@ -37,6 +37,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,7 +49,7 @@ public class ElasticAgentRequestProcessorTest {
 
     private ElasticAgentRequestProcessor processor = new ElasticAgentRequestProcessor(new PluginRequestProcessorRegistry(), agentService, agentConfigService, extension);
     private GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("docker", null, null, null, null, false);
-    private GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier(EXTENSION_NAME, SUPPORTED_VERSIONS);
+    private GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier(ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS);
 
     @Test
     public void shouldProcessListAgentRequest() throws Exception {

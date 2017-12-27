@@ -41,12 +41,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension.EXTENSION_NAME;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -101,12 +99,12 @@ public class PackageRepositoryExtensionTest {
         PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         PluginSettingsConfiguration response = extension.getPluginSettingsConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -120,12 +118,12 @@ public class PackageRepositoryExtensionTest {
         String deserializedResponse = "";
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(responseBody)).thenReturn(deserializedResponse);
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         String response = extension.getPluginSettingsView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -141,12 +139,12 @@ public class PackageRepositoryExtensionTest {
         ValidationResult deserializedResponse = new ValidationResult();
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(responseBody)).thenReturn(deserializedResponse);
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         ValidationResult response = extension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -160,12 +158,12 @@ public class PackageRepositoryExtensionTest {
                 "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
                 "}";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         RepositoryConfiguration repositoryConfiguration = extension.getRepositoryConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_REPOSITORY_CONFIGURATION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_REPOSITORY_CONFIGURATION, expectedRequestBody);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-one"), "key-one", null, true, true, false, "", 0);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-two"), "key-two", "two", true, true, true, "display-two", 1);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-three"), "key-three", "three", false, false, false, "display-three", 2);
@@ -180,12 +178,12 @@ public class PackageRepositoryExtensionTest {
                 "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
                 "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
                 "}";
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = extension.getPackageConfiguration(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_PACKAGE_CONFIGURATION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_PACKAGE_CONFIGURATION, expectedRequestBody);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-one"), "key-one", null, true, true, false, "", 0);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-two"), "key-two", "two", true, true, true, "display-two", 1);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-three"), "key-three", "three", false, false, false, "display-three", 2);
@@ -197,12 +195,12 @@ public class PackageRepositoryExtensionTest {
 
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         ValidationResult validationResult = extension.isRepositoryConfigurationValid(PLUGIN_ID, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_VALIDATE_REPOSITORY_CONFIGURATION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_VALIDATE_REPOSITORY_CONFIGURATION, expectedRequestBody);
         assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
         assertValidationError(validationResult.getErrors().get(1), "", "general error");
     }
@@ -214,12 +212,12 @@ public class PackageRepositoryExtensionTest {
 
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         ValidationResult validationResult = extension.isPackageConfigurationValid(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_VALIDATE_PACKAGE_CONFIGURATION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_VALIDATE_PACKAGE_CONFIGURATION, expectedRequestBody);
         assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
         assertValidationError(validationResult.getErrors().get(1), "", "general error");
     }
@@ -233,12 +231,12 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         PackageRevision packageRevision = extension.getLatestRevision(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_LATEST_REVISION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_LATEST_REVISION, expectedRequestBody);
         assertPackageRevision(packageRevision, "abc.rpm", "some-user", "2011-07-14T19:43:37.100Z", "comment", "http:\\localhost:9999");
     }
 
@@ -258,12 +256,12 @@ public class PackageRepositoryExtensionTest {
         data.put("dataKeyTwo", "data-value-two");
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         PackageRevision packageRevision = extension.latestModificationSince(PLUGIN_ID, packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_LATEST_REVISION_SINCE, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_LATEST_REVISION_SINCE, expectedRequestBody);
         assertPackageRevision(packageRevision, "abc.rpm", "some-user", "2011-07-14T19:43:37.100Z", "comment", "http:\\localhost:9999");
     }
 
@@ -273,12 +271,12 @@ public class PackageRepositoryExtensionTest {
 
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToRepository(PLUGIN_ID, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_CHECK_REPOSITORY_CONNECTION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_REPOSITORY_CONNECTION, expectedRequestBody);
         assertSuccessResult(result, asList("message-one", "message-two"));
     }
 
@@ -288,12 +286,12 @@ public class PackageRepositoryExtensionTest {
 
         String expectedResponseBody = "{\"status\":\"failed\",messages=[\"message-one\",\"message-two\"]}";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToRepository(PLUGIN_ID, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_CHECK_REPOSITORY_CONNECTION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_REPOSITORY_CONNECTION, expectedRequestBody);
         assertFailureResult(result, asList("message-one", "message-two"));
     }
 
@@ -304,12 +302,12 @@ public class PackageRepositoryExtensionTest {
 
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_CHECK_PACKAGE_CONNECTION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_PACKAGE_CONNECTION, expectedRequestBody);
         assertSuccessResult(result, asList("message-one", "message-two"));
     }
 
@@ -320,18 +318,18 @@ public class PackageRepositoryExtensionTest {
 
         String expectedResponseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
 
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         Result result = extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PackageRepositoryExtension.REQUEST_CHECK_PACKAGE_CONNECTION, expectedRequestBody);
+        assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_PACKAGE_CONNECTION, expectedRequestBody);
         assertFailureResult(result, asList("message-one", "message-two"));
     }
 
     @Test
     public void shouldHandleExceptionDuringPluginInteraction() throws Exception {
-        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.isPluginOfType(PACKAGE_MATERIAL_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenThrow(new RuntimeException("exception-from-plugin"));
         try {
             extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);

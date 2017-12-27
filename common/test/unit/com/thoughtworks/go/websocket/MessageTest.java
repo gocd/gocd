@@ -17,6 +17,7 @@
 
 package com.thoughtworks.go.websocket;
 
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
@@ -82,7 +83,7 @@ public class MessageTest {
         builder.add(new FetchArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "desc", jobPlan().getIdentifier(), "srcdir", "dest",
                 new FileHandler(workingDir, "src"),
                 new ChecksumFileHandler(workingDir)));
-        BuildAssignment assignment = BuildAssignment.create(jobPlan(), buildCause, builder, workingDir, new EnvironmentVariableContext());
+        BuildAssignment assignment = BuildAssignment.create(jobPlan(), buildCause, builder, workingDir, new EnvironmentVariableContext(), new ArtifactStores());
 
         BuildWork work = new BuildWork(assignment);
         byte[] msg = MessageEncoding.encodeMessage(new Message(Action.assignWork, MessageEncoding.encodeWork(work)));

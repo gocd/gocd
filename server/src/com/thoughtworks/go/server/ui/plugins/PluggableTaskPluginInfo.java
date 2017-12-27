@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 
 @Deprecated
 public class PluggableTaskPluginInfo extends NewPluginInfo {
@@ -25,7 +26,7 @@ public class PluggableTaskPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings taskSettings;
 
     public PluggableTaskPluginInfo(PluginDescriptor descriptor, String displayName, PluggableInstanceSettings taskSettings) {
-        super(descriptor, TaskExtension.TASK_EXTENSION);
+        super(descriptor, PLUGGABLE_TASK_EXTENSION);
         this.displayName = displayName;
         this.taskSettings = taskSettings;
     }

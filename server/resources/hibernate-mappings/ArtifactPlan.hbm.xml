@@ -16,26 +16,25 @@
  *************************GO-LICENSE-END******************************* -->
 
 <!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="com.thoughtworks.go.domain" default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.domain.ArtifactPlan" table="artifactPlans" polymorphism="explicit">
-        <id name="id" column="id">
-            <generator class="identity"/>
-        </id>
+  <class name="com.thoughtworks.go.domain.ArtifactPlan" table="artifactPlans" polymorphism="explicit">
+    <id name="id" column="id">
+      <generator class="identity"/>
+    </id>
 
-        <property name="buildId"/>
-        <property name="src"/>
-        <property name="dest"/>
-        <property name="artifactType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">com.thoughtworks.go.domain.ArtifactType</param>
-                <param name="type">12</param>
-            </type>
-        </property>
-
-
-    </class>
+    <property name="buildId"/>
+    <property name="src"/>
+    <property name="dest"/>
+    <property name="artifactType">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">com.thoughtworks.go.domain.ArtifactType</param>
+        <param name="type">12</param>
+      </type>
+    </property>
+    <property name="pluggableArtifactConfigJson"/>
+  </class>
 </hibernate-mapping>
 

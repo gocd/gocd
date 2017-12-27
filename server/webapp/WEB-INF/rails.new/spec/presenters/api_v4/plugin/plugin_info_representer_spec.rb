@@ -367,6 +367,40 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
     end
   end
 
+  describe 'artifact plugin info' do
+    it 'should describe an artifact plugin' do
+      vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
+      descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)
+
+      store_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('store_config_view_template')
+      store_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('bucket', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], store_config_view)
+
+      artifact_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('publish_artifact_config_view_template')
+      artifact_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('filename', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], artifact_config_view)
+
+      plugin_info = com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, store_config_settings, artifact_config_settings, nil)
+      actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+      actual_json.delete(:_links)
+
+      expect(actual_json).to eq({
+                                  id: 'foo.example',
+                                  type: 'artifact',
+                                  plugin_file_location: '/path/to/foo.jar',
+                                  bundled_plugin: false,
+                                  status: {
+                                    state: 'active'
+                                  },
+                                  about: about_json,
+                                  extension_info: {
+                                    store_config_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(store_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                    artifact_config_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(artifact_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                  }
+                                })
+
+    end
+  end
+
   def about_json
     {
       name: 'Foo plugin',

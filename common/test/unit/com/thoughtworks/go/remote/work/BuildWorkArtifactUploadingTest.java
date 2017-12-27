@@ -17,6 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -108,7 +109,7 @@ public class BuildWorkArtifactUploadingTest {
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -129,7 +130,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -153,7 +154,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -175,7 +176,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -200,7 +201,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -220,7 +221,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -240,7 +241,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -264,7 +265,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -287,7 +288,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -313,7 +314,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
         assertThat(entries.isEmpty(), is(true));
@@ -332,7 +333,7 @@ public class BuildWorkArtifactUploadingTest {
         List<Builder> builders = new ArrayList<>();
         builders.add(new CreateFileBuilder(fileToCreate));
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
-        return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory, new EnvironmentVariableContext());
+        return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory, new EnvironmentVariableContext(), new ArtifactStores());
     }
 
 

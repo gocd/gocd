@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -34,7 +35,7 @@ public class DeniedAgentWork implements Work {
 
     public void doWork(AgentIdentifier agentIdentifier,
                        BuildRepositoryRemote remoteBuildRepository,
-                       GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+                       GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
         agentRuntimeInfo.idle();
     }
 

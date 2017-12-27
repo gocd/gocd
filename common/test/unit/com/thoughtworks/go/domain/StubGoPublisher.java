@@ -83,4 +83,8 @@ public class StubGoPublisher extends DefaultGoPublisher {
         }
         fail(endOfFileName + " was not published to " + destination + ".\n" + uploadedFiles);
     }
+
+    public void setShouldFail(boolean shouldFail) {
+        this.shouldFail = shouldFail;
+    }
 }

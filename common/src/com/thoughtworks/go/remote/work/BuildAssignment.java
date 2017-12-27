@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -33,6 +34,7 @@ public class BuildAssignment implements Serializable {
     private final List<Builder> builders;
     private final List<ArtifactPlan> artifactPlans;
     private final List<ArtifactPropertiesGenerator> propertyGenerators;
+    private final ArtifactStores artifactStores;
     private final File buildWorkingDirectory;
     private final JobIdentifier jobIdentifier;
     private final EnvironmentVariableContext initialContext = new EnvironmentVariableContext();
@@ -41,7 +43,7 @@ public class BuildAssignment implements Serializable {
 
     private BuildAssignment(BuildCause buildCause, File buildWorkingDirectory, List<Builder> builder, JobIdentifier jobIdentifier,
                             boolean fetchMaterials, boolean cleanWorkingDirectory, List<ArtifactPlan> artifactPlans,
-                            List<ArtifactPropertiesGenerator> propertyGenerators) {
+                            List<ArtifactPropertiesGenerator> propertyGenerators, ArtifactStores artifactStores) {
         this.buildWorkingDirectory = buildWorkingDirectory;
         this.builders = builder;
         this.jobIdentifier = jobIdentifier;
@@ -49,6 +51,7 @@ public class BuildAssignment implements Serializable {
         this.cleanWorkingDirectory = cleanWorkingDirectory;
         this.artifactPlans = artifactPlans;
         this.propertyGenerators = propertyGenerators;
+        this.artifactStores = artifactStores;
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             ArrayList<Modification> modifications = new ArrayList<>();
             for (Modification modification : materialRevision.getModifications()) {
@@ -68,9 +71,9 @@ public class BuildAssignment implements Serializable {
                 '}';
     }
 
-    public static BuildAssignment create(JobPlan plan, BuildCause buildCause, List<Builder> builders, File buildWorkingDirectory, EnvironmentVariableContext contextFromEnvironment) {
+    public static BuildAssignment create(JobPlan plan, BuildCause buildCause, List<Builder> builders, File buildWorkingDirectory, EnvironmentVariableContext contextFromEnvironment, ArtifactStores artifactStores) {
         BuildAssignment buildAssignment = new BuildAssignment(buildCause, buildWorkingDirectory, builders, plan.getIdentifier(), plan.shouldFetchMaterials(),
-                plan.shouldCleanWorkingDir(), plan.getArtifactPlans(), plan.getPropertyGenerators());
+                plan.shouldCleanWorkingDir(), plan.getArtifactPlans(), plan.getPropertyGenerators(), artifactStores);
 
         if (contextFromEnvironment != null) {
             buildAssignment.initialEnvironmentVariableContext().addAll(contextFromEnvironment);
@@ -124,10 +127,14 @@ public class BuildAssignment implements Serializable {
         return artifactPlans;
     }
 
+    public ArtifactStores getArtifactStores() {
+        return artifactStores;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof BuildAssignment)) return false;
 
         BuildAssignment that = (BuildAssignment) o;
 
@@ -137,6 +144,8 @@ public class BuildAssignment implements Serializable {
         if (artifactPlans != null ? !artifactPlans.equals(that.artifactPlans) : that.artifactPlans != null)
             return false;
         if (propertyGenerators != null ? !propertyGenerators.equals(that.propertyGenerators) : that.propertyGenerators != null)
+            return false;
+        if (artifactStores != null ? !artifactStores.equals(that.artifactStores) : that.artifactStores != null)
             return false;
         if (buildWorkingDirectory != null ? !buildWorkingDirectory.equals(that.buildWorkingDirectory) : that.buildWorkingDirectory != null)
             return false;
@@ -156,6 +165,7 @@ public class BuildAssignment implements Serializable {
         result = 31 * result + (builders != null ? builders.hashCode() : 0);
         result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);
         result = 31 * result + (propertyGenerators != null ? propertyGenerators.hashCode() : 0);
+        result = 31 * result + (artifactStores != null ? artifactStores.hashCode() : 0);
         result = 31 * result + (buildWorkingDirectory != null ? buildWorkingDirectory.hashCode() : 0);
         result = 31 * result + (jobIdentifier != null ? jobIdentifier.hashCode() : 0);
         result = 31 * result + (initialContext != null ? initialContext.hashCode() : 0);

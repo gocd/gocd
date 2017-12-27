@@ -51,12 +51,12 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import org.slf4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.jdom2.input.JDOMParseException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -978,6 +978,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public Long elasticJobStarvationThreshold() {
         return getElasticConfig().getJobStarvationTimeout();
+    }
+
+    public ArtifactStores artifactStores() {
+        return cruiseConfig().getArtifactStores();
     }
 
     public abstract class XmlPartialSaver<T> {

@@ -26,6 +26,4 @@ public class SecurityAuthConfigs extends PluginProfiles<SecurityAuthConfig> impl
     public SecurityAuthConfigs(SecurityAuthConfig... configs) {
         super(configs);
     }
-
-
 }

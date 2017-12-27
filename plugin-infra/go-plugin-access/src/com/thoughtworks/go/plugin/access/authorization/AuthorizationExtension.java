@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 
 @Component
 public class AuthorizationExtension extends AbstractExtension {
@@ -46,7 +47,7 @@ public class AuthorizationExtension extends AbstractExtension {
 
     @Autowired
     public AuthorizationExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, EXTENSION_NAME), EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
         addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1());
     }
 

@@ -28,6 +28,7 @@ module ApiV4
         'configrepo',
         'authorization',
         'analytics',
+        'artifact'
       ]
 
       java_import com.thoughtworks.go.plugin.domain.common.BadPluginInfo

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.Artifact;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
@@ -26,13 +25,17 @@ import java.util.Map;
 
 @ConfigTag("artifacts")
 @ConfigCollection(Artifact.class)
-public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements Validatable, ParamsAttributeAware {
+public class ArtifactConfigs extends BaseCollection<Artifact> implements Validatable, ParamsAttributeAware {
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public ArtifactConfigs() {
     }
 
-    public ArtifactConfigs(List<ArtifactConfig> artifactConfigs) {
+    public ArtifactConfigs(List<Artifact> artifactConfigs) {
+        super(artifactConfigs);
+    }
+
+    public ArtifactConfigs(Artifact... artifactConfigs) {
         super(artifactConfigs);
     }
 
@@ -40,20 +43,16 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 
-        for (ArtifactConfig artifactConfig : this) {
-            isValid = artifactConfig.validateTree(validationContext) && isValid;
+        for (Artifact artifact : this) {
+            isValid = artifact.validateTree(validationContext) && isValid;
         }
         return isValid;
     }
 
     public void validate(ValidationContext validationContext) {
-        validateUniqueness();
-    }
-
-    private void validateUniqueness() {
-        List<ArtifactConfig> plans = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : this) {
-            artifactConfig.validateUniqueness(plans);
+        List<Artifact> plans = new ArrayList<>();
+        for (Artifact artifact : this) {
+            artifact.validateUniqueness(plans);
         }
     }
 
@@ -85,5 +84,15 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                 this.add(new ArtifactConfig(source, destination));
             }
         }
+    }
+
+    public List<ArtifactConfig> getArtifactConfigs() {
+        final List<ArtifactConfig> artifactConfigs = new ArrayList<>();
+        for (Artifact artifact : this) {
+            if (artifact instanceof ArtifactConfig) {
+                artifactConfigs.add((ArtifactConfig) artifact);
+            }
+        }
+        return artifactConfigs;
     }
 }

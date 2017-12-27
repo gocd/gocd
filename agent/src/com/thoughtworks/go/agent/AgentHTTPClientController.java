@@ -21,6 +21,7 @@ import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -42,6 +43,7 @@ public class AgentHTTPClientController extends AgentController {
     private BuildRepositoryRemote server;
     private GoArtifactsManipulator manipulator;
     private SslInfrastructureService sslInfrastructureService;
+    private final ArtifactExtension artifactExtension;
 
     private JobRunner runner;
     private PackageRepositoryExtension packageRepositoryExtension;
@@ -60,7 +62,7 @@ public class AgentHTTPClientController extends AgentController {
                                      PackageRepositoryExtension packageRepositoryExtension,
                                      SCMExtension scmExtension,
                                      TaskExtension taskExtension,
-                                     AgentHealthHolder agentHealthHolder) {
+                                     ArtifactExtension artifactExtension, AgentHealthHolder agentHealthHolder) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
@@ -68,6 +70,7 @@ public class AgentHTTPClientController extends AgentController {
         this.server = server;
         this.manipulator = manipulator;
         this.sslInfrastructureService = sslInfrastructureService;
+        this.artifactExtension = artifactExtension;
     }
 
     @Override
@@ -123,7 +126,7 @@ public class AgentHTTPClientController extends AgentController {
                 LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             }
             runner = new JobRunner();
-            runner.run(work, agentIdentifier, server, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension);
+            runner.run(work, agentIdentifier, server, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension);
         } catch (UnregisteredAgentException e) {
             LOG.warn("[Agent Loop] Invalid agent certificate with fingerprint {}. Registering with server on next iteration.", e.getUuid());
             sslInfrastructureService.invalidateAgentCertificate();

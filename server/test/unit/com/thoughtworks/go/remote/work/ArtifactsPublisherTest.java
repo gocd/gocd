@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,6 +46,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -55,6 +57,7 @@ public class ArtifactsPublisherTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
     private File workingFolder;
     private ArtifactsPublisher artifactsPublisher;
@@ -72,6 +75,12 @@ public class ArtifactsPublisherTest {
         File file = new File(workingFolder, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
         file.createNewFile();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        workingFolder.setWritable(true);
+        workingFolder.delete();
     }
 
     @Test
@@ -176,7 +185,7 @@ public class ArtifactsPublisherTest {
     }
 
     @Test
-    public void shouldNotUploadMetadataFileWhenPublishArtifactIsUnsuccessful() {
+    public void shouldNotUploadMetadataFileWhenPublishPluggableArtifactIsUnsuccessful() {
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
         final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
@@ -194,6 +203,8 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldErrorOutWhenFailedToCreateFolderToWritePluggableArtifactMetadata() {
+        assumeFalse("Do not run on windows.", IS_WINDOWS);
+
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
         final ArtifactsPublisher artifactsPublisher = new ArtifactsPublisher(artifactExtension, artifactStores);
@@ -206,7 +217,7 @@ public class ArtifactsPublisherTest {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("[go] Could not create pluggable artifact metadata folder");
 
-        workingFolder.setReadOnly();
+        workingFolder.setWritable(false);
 
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
     }

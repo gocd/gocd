@@ -233,6 +233,10 @@ public class AgentRegistrationController {
                 return new ResponseEntity<>("Elastic agents must submit both elasticAgentId and elasticPluginId.", UNPROCESSABLE_ENTITY);
             }
 
+            if (elasticAgentIdAlreadyRegistered(elasticAgentId, elasticPluginId)) {
+                return new ResponseEntity<>("Duplicate Elastic agent Id used to register elastic agent.", UNPROCESSABLE_ENTITY);
+            }
+
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                 agentConfig.setElasticAgentId(elasticAgentId);
                 agentConfig.setElasticPluginId(elasticPluginId);
@@ -276,6 +280,10 @@ public class AgentRegistrationController {
             LOG.error("Error occurred during agent registration process: ", e);
             return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), UNPROCESSABLE_ENTITY);
         }
+    }
+
+    private boolean elasticAgentIdAlreadyRegistered(String elasticAgentId, String elasticPluginId) {
+        return agentService.findElasticAgent(elasticAgentId, elasticPluginId) != null;
     }
 
     private String getErrorMessage(Exception e) {

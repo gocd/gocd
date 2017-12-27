@@ -50,9 +50,7 @@ import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.springframework.http.HttpStatus.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -97,6 +95,77 @@ public class AgentRegistrationControllerIntegrationTest {
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
         assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());
+    }
+
+    @Test
+    public void shouldRegisterElasticAgent() throws Exception {
+        String autoRegisterKey = goConfigService.serverConfig().getAgentAutoRegisterKey();
+        String uuid = UUID.randomUUID().toString();
+        String elasticAgentId = UUID.randomUUID().toString();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        final ResponseEntity responseEntity = controller.agentRequest("elastic-agent-hostname",
+                uuid,
+                "sandbox",
+                "100",
+                "Alpine Linux v3.5",
+                autoRegisterKey,
+                "",
+                "",
+                "hostname",
+                elasticAgentId,
+                "elastic-plugin-id",
+                false,
+                token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
+                request);
+        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+
+        assertTrue(agentConfig.isElastic());
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+        assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
+        assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());
+    }
+
+    @Test
+    public void shouldNotRegisterElasticAgentWithDuplicateElasticAgentID() throws Exception {
+        String autoRegisterKey = goConfigService.serverConfig().getAgentAutoRegisterKey();
+        String uuid = UUID.randomUUID().toString();
+        String elasticAgentId = UUID.randomUUID().toString();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        controller.agentRequest("elastic-agent-hostname",
+                uuid,
+                "sandbox",
+                "100",
+                "Alpine Linux v3.5",
+                autoRegisterKey,
+                "",
+                "",
+                "hostname",
+                elasticAgentId,
+                "elastic-plugin-id",
+                false,
+                token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
+                request);
+        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        assertTrue(agentConfig.isElastic());
+
+        final ResponseEntity responseEntity = controller.agentRequest("elastic-agent-hostname",
+                uuid,
+                "sandbox",
+                "100",
+                "Alpine Linux v3.5",
+                autoRegisterKey,
+                "",
+                "",
+                "hostname",
+                elasticAgentId,
+                "elastic-plugin-id",
+                false,
+                token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
+                request);
+
+        assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));
+        assertThat(responseEntity.getBody(), is("Duplicate Elastic agent Id used to register elastic agent."));
     }
 
     @Test
@@ -205,7 +274,7 @@ public class AgentRegistrationControllerIntegrationTest {
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid,goConfigService.serverConfig().getTokenGenerationKey()), request);
+        final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
 
         AgentInstance agentInstance = agentService.findAgent(uuid);
 

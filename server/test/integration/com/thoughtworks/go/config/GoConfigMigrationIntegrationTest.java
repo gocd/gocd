@@ -1854,6 +1854,22 @@ public class GoConfigMigrationIntegrationTest {
         );
     }
 
+
+    @Test
+    public void shouldRemoveAgentWithDuplicateElasticAgentId_asPartOf102To103Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<cruise schemaVersion='102'>" +
+                "<agents>\n" +
+                "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"c46a08a7-921c-4e77-b748-6128975a3e7d\" elasticAgentId=\"16649813-4cb3-4682-8702-8e202824dd73\" elasticPluginId=\"elastic-plugin-id\" />\n" +
+                "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"c46a08a7-921c-4e77-b748-6128975a3e7e\" elasticAgentId=\"16649813-4cb3-4682-8702-8e202824dd73\" elasticPluginId=\"elastic-plugin-id\" />\n" +
+                "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"537d36f9-bf4b-48b2-8d09-5d20357d4f16\" elasticAgentId=\"a38d2559-0703-4e69-a30d-a21245d740af\" elasticPluginId=\"elastic-plugin-id\" />\n" +
+                "  </agents>" +
+                "</cruise>";
+
+        assertThat(configXml, containsString("c46a08a7-921c-4e77-b748-6128975a3e7e"));
+        String migratedContent = migrateXmlString(configXml, 102);
+        assertThat(migratedContent, not(containsString("c46a08a7-921c-4e77-b748-6128975a3e7e")));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

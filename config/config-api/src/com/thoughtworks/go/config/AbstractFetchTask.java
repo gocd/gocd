@@ -47,6 +47,11 @@ public abstract class AbstractFetchTask extends AbstractTask implements Serializ
         this.job = job;
     }
 
+    public AbstractFetchTask(CaseInsensitiveString stage, CaseInsensitiveString job) {
+        this.stage = stage;
+        this.job = job;
+    }
+
     public CaseInsensitiveString getPipelineName() {
         return pipelineName == null ? null : pipelineName.getPath();
     }

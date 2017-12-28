@@ -285,4 +285,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines();
 
     ArtifactStores getArtifactStores();
+
+    void setArtifactStores(ArtifactStores artifactStores);
 }

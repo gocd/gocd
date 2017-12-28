@@ -1508,6 +1508,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public void setArtifactStores(ArtifactStores artifactStores) {
+        this.artifactStores = artifactStores;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BasicCruiseConfig)) return false;

@@ -46,6 +46,12 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         configuration.addAll(Arrays.asList(configurations));
     }
 
+    public FetchPluggableArtifactTask(CaseInsensitiveString stage, CaseInsensitiveString job, String storeId, ConfigurationProperty... configurations) {
+        super(stage, job);
+        this.storeId = storeId;
+        configuration.addAll(Arrays.asList(configurations));
+    }
+
     public String getStoreId() {
         return storeId;
     }

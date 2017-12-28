@@ -47,18 +47,16 @@ public class FetchTaskTest {
     private PipelineConfig downstream;
     private PipelineConfig upstream;
     private PipelineConfig uppestStream;
-    private PipelineConfig randomPipeline;
-    private PipelineConfig uppestLookalike;
     private CruiseConfig config;
 
     @Before
     public void setUp() {
         config = GoConfigMother.configWithPipelines("random_pipeline", "uppest_lookalike", "uppest_stream", "upstreams_peer", "upstream", "downstream", "dummy");
 
-        randomPipeline = config.pipelineConfigByName(new CaseInsensitiveString("random_pipeline"));
+        PipelineConfig randomPipeline = config.pipelineConfigByName(new CaseInsensitiveString("random_pipeline"));
         randomPipeline.add(StageConfigMother.stageConfig("random-stage1", new JobConfigs(new JobConfig("random-job1"))));
 
-        uppestLookalike = config.pipelineConfigByName(new CaseInsensitiveString("uppest_lookalike"));
+        PipelineConfig uppestLookalike = config.pipelineConfigByName(new CaseInsensitiveString("uppest_lookalike"));
         uppestLookalike.add(StageConfigMother.stageConfig("uppest-stage1", new JobConfigs(new JobConfig("uppest-job1"))));
 
         uppestStream = config.pipelineConfigByName(new CaseInsensitiveString("uppest_stream"));

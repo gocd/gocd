@@ -1856,18 +1856,34 @@ public class GoConfigMigrationIntegrationTest {
 
 
     @Test
-    public void shouldRemoveAgentWithDuplicateElasticAgentId_asPartOf102To103Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldRemoveAgentWithDuplicateElasticAgentId_asPartOf102To103Migration() throws Exception {
         String configXml = "<cruise schemaVersion='102'>" +
                 "<agents>\n" +
                 "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"c46a08a7-921c-4e77-b748-6128975a3e7d\" elasticAgentId=\"16649813-4cb3-4682-8702-8e202824dd73\" elasticPluginId=\"elastic-plugin-id\" />\n" +
                 "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"c46a08a7-921c-4e77-b748-6128975a3e7e\" elasticAgentId=\"16649813-4cb3-4682-8702-8e202824dd73\" elasticPluginId=\"elastic-plugin-id\" />\n" +
                 "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"537d36f9-bf4b-48b2-8d09-5d20357d4f16\" elasticAgentId=\"a38d2559-0703-4e69-a30d-a21245d740af\" elasticPluginId=\"elastic-plugin-id\" />\n" +
+                "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"c46a08a7-921c-4e77-b748-6128975a3e7f\" elasticAgentId=\"16649813-4cb3-4682-8702-8e202824dd73\" elasticPluginId=\"elastic-plugin-id\" />\n" +
+                "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"537d36f9-bf4b-48b2-8d09-5d20357d4f17\" elasticAgentId=\"a38d2559-0703-4e69-a30d-a21245d740af\" elasticPluginId=\"elastic-plugin-id\" />\n" +
                 "  </agents>" +
                 "</cruise>";
 
+        //before migration should contain 5 elastic agents 3 duplicates
+        assertThat(configXml, containsString("c46a08a7-921c-4e77-b748-6128975a3e7d"));
+        assertThat(configXml, containsString("537d36f9-bf4b-48b2-8d09-5d20357d4f16"));
         assertThat(configXml, containsString("c46a08a7-921c-4e77-b748-6128975a3e7e"));
+        assertThat(configXml, containsString("c46a08a7-921c-4e77-b748-6128975a3e7f"));
+        assertThat(configXml, containsString("537d36f9-bf4b-48b2-8d09-5d20357d4f17"));
+
         String migratedContent = migrateXmlString(configXml, 102);
+
+        //after migration should contain 2 unique elastic agents
+        assertThat(configXml, containsString("c46a08a7-921c-4e77-b748-6128975a3e7d"));
+        assertThat(configXml, containsString("537d36f9-bf4b-48b2-8d09-5d20357d4f16"));
+
+        //after migration should remove 3 duplicate elastic agents
         assertThat(migratedContent, not(containsString("c46a08a7-921c-4e77-b748-6128975a3e7e")));
+        assertThat(migratedContent, not(containsString("c46a08a7-921c-4e77-b748-6128975a3e7f")));
+        assertThat(migratedContent, not(containsString("537d36f9-bf4b-48b2-8d09-5d20357d4f17")));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

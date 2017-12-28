@@ -37,6 +37,7 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ArtifactPlanTest {
     private final Mockery context = new ClassMockery();
@@ -67,6 +68,19 @@ public class ArtifactPlanTest {
 
         artifactPlan.publish(publisher, testFolder);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void shouldIgnoreIdAndBuildIdAsPartOfEqualAndHashCodeCheck() {
+        final ArtifactPlan installer_1 = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        installer_1.setId(100);
+        installer_1.setBuildId(1000);
+
+        final ArtifactPlan installer_2 = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        installer_2.setId(200);
+        installer_2.setBuildId(2000);
+
+        assertTrue(installer_1.equals(installer_2));
     }
 
     @Test

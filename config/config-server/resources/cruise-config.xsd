@@ -578,8 +578,7 @@
     <xsd:attribute name="buildfile" type="xsd:string" use="optional"/>
     <xsd:attribute name="target" type="xsd:string" use="optional"/>
   </xsd:attributeGroup>
-  <xsd:complexType name="taskType" abstract="true">
-  </xsd:complexType>
+  <xsd:complexType name="taskType" abstract="true"/>
   <xsd:complexType name="pluggableTaskType">
     <xsd:complexContent mixed="false">
       <xsd:extension base="taskType">
@@ -658,7 +657,24 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
-
+  <xsd:complexType name="fetchPluggableArtifactType">
+    <xsd:complexContent mixed="false">
+      <xsd:extension base="taskType">
+        <xsd:sequence>
+          <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="configuration" minOccurs="0" maxOccurs="unbounded" type="configurationType"/>
+            <xsd:element name="runif" type="runIfType"/>
+            <xsd:element name="oncancel" type="onCancelType"/>
+          </xsd:choice>
+        </xsd:sequence>
+        <xsd:attribute name="pipeline" type="xsd:string" use="optional"/>
+        <xsd:attribute name="stage" type="xsd:string" use="required"/>
+        <xsd:attribute name="job" type="xsd:string" use="required"/>
+        <xsd:attribute name="storeId" type="xsd:string" use="required"/>
+        <xsd:attributeGroup ref="taskAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
   <xsd:element abstract="true" name="baseTask" type="taskType"/>
   <xsd:element name="task" substitutionGroup="baseTask" type="pluggableTaskType">
     <xsd:unique name='uniqueRunIfTypeForPluggableTask'>
@@ -692,6 +708,12 @@
   </xsd:element>
   <xsd:element name="fetchartifact" substitutionGroup="baseTask" type="fetchType">
     <xsd:unique name='uniqueRunIfTypeForFetch'>
+      <xsd:selector xpath="runif"/>
+      <xsd:field xpath="@status"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:element name="fetchPluggableArtifact" substitutionGroup="baseTask" type="fetchPluggableArtifactType">
+    <xsd:unique name='uniqueRunIfTypeForFetchPluggableArtifact'>
       <xsd:selector xpath="runif"/>
       <xsd:field xpath="@status"/>
     </xsd:unique>

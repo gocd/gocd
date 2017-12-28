@@ -41,7 +41,7 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithStoreSettings() throws Exception {
+    public void shouldBuildPluginInfoWithStoreSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("S3_BUCKET", new Metadata(true, false)),
@@ -57,7 +57,7 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithPublishArtifactConfigSettings() throws Exception {
+    public void shouldBuildPluginInfoWithPublishArtifactConfigSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("FILENAME", new Metadata(true, false))
@@ -72,7 +72,7 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithFetchArtifactConfigSettings() throws Exception {
+    public void shouldBuildPluginInfoWithFetchArtifactConfigSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("FILENAME", new Metadata(true, false))
@@ -87,7 +87,7 @@ public class ArtifactPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() throws Exception {
+    public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
 

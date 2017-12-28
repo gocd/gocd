@@ -59,12 +59,13 @@ public class ConfigElementImplementationRegistrar {
     }
 
     private void registerBuiltinTasks() {
-        registry.registerImplementer(Task.class, AntTask.class, NantTask.class, ExecTask.class, RakeTask.class, FetchTask.class, PluggableTask.class);
+        registry.registerImplementer(Task.class, AntTask.class, NantTask.class, ExecTask.class, RakeTask.class, FetchTask.class, PluggableTask.class, FetchPluggableArtifactTask.class);
         registry.registerView(AntTask.class, new BuiltinTaskViewModelFactory("ant"));
         registry.registerView(NantTask.class, new BuiltinTaskViewModelFactory("nant"));
         registry.registerView(ExecTask.class, new BuiltinTaskViewModelFactory("exec"));
         registry.registerView(RakeTask.class, new BuiltinTaskViewModelFactory("rake"));
         registry.registerView(FetchTask.class, new BuiltinTaskViewModelFactory("fetch"));
+        registry.registerView(FetchPluggableArtifactTask.class, new BuiltinTaskViewModelFactory("fetch"));
         registry.registerView(PluggableTask.class, new PluggableTaskViewModelFactory());
     }
 

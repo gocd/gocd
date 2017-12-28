@@ -65,7 +65,7 @@ public class ConfigElementImplementationRegistrar {
         registry.registerView(ExecTask.class, new BuiltinTaskViewModelFactory("exec"));
         registry.registerView(RakeTask.class, new BuiltinTaskViewModelFactory("rake"));
         registry.registerView(FetchTask.class, new BuiltinTaskViewModelFactory("fetch"));
-        registry.registerView(FetchPluggableArtifactTask.class, new BuiltinTaskViewModelFactory("fetch"));
+        registry.registerView(FetchPluggableArtifactTask.class, new BuiltinTaskViewModelFactory("fetch_pluggable_artifact"));
         registry.registerView(PluggableTask.class, new PluggableTaskViewModelFactory());
     }
 

@@ -16,66 +16,34 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@ConfigTag(value = "fetchPluggableArtifact")
-public class FetchPluggableArtifactTask extends AbstractTask implements Serializable {
-    public static final String PIPELINE_NAME = "pipelineName";
-    public static final String PIPELINE = "pipeline";
-    public static final String STAGE = "stage";
-    public static final String JOB = "job";
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-    @ConfigAttribute(value = "pipeline", allowNull = true)
-    private PathFromAncestor pipelineName;
-    @ConfigAttribute(value = "stage")
-    private CaseInsensitiveString stage;
-    @ConfigAttribute(value = "job")
-    private CaseInsensitiveString job;
+@ConfigTag(value = "fetchPluggableArtifact")
+public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
+    public static final String FETCH_PLUGGABLE_ARTIFACT = "Fetch Pluggable Artifact";
     @ConfigAttribute(value = "storeId", optional = false)
     private String storeId;
     @ConfigSubtag
     private Configuration configuration = new Configuration();
 
-    @Override
-    protected void setTaskConfigAttributes(Map attributes) {
-
+    public FetchPluggableArtifactTask() {
     }
 
-    @Override
-    protected void validateTask(ValidationContext validationContext) {
-
-    }
-
-    @Override
-    public String getTaskType() {
-        return null;
-    }
-
-    @Override
-    public String getTypeForDisplay() {
-        return null;
-    }
-
-    @Override
-    public List<TaskProperty> getPropertiesForDisplay() {
-        return null;
-    }
-
-    public PathFromAncestor getPipelineName() {
-        return pipelineName;
-    }
-
-    public CaseInsensitiveString getStage() {
-        return stage;
-    }
-
-    public CaseInsensitiveString getJob() {
-        return job;
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String storeId, ConfigurationProperty... configurations) {
+        super(pipelineName, stage, job);
+        this.storeId = storeId;
+        configuration.addAll(Arrays.asList(configurations));
     }
 
     public String getStoreId() {
@@ -84,5 +52,48 @@ public class FetchPluggableArtifactTask extends AbstractTask implements Serializ
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    protected void validateAttributes(ValidationContext validationContext) {
+        if (!new NameTypeValidator().isNameValid(storeId)) {
+            errors.add("storeId", NameTypeValidator.errorMessage("fetch artifact storeId", storeId));
+        }
+
+        if (isNotBlank(storeId)) {
+            final ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
+
+            if (artifactStore == null) {
+                addError("storeId", String.format("Artifact store with id `%s` does not exist.", storeId));
+            }
+        }
+
+        configuration.validateTree();
+        configuration.validateUniqueness("Fetch pluggable artifact");
+    }
+
+    @Override
+    protected void setFetchTaskAttributes(Map attributeMap) {
+        configuration.setConfigAttributes(attributeMap, this);
+    }
+
+    @Override
+    public boolean isSecure(String key) {
+        return false;
+    }
+
+    @Override
+    public String getTaskType() {
+        return "fetch_pluggable_artifact";
+    }
+
+    @Override
+    public String getTypeForDisplay() {
+        return FETCH_PLUGGABLE_ARTIFACT;
+    }
+
+    @Override
+    public List<TaskProperty> getPropertiesForDisplay() {
+        return new ArrayList<>();
     }
 }

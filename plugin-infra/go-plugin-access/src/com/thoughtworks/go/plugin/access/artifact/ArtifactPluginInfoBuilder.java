@@ -18,11 +18,16 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPluginInfo> {
@@ -54,7 +59,15 @@ public class ArtifactPluginInfoBuilder implements PluginInfoBuilder<ArtifactPlug
     }
 
     private PluggableInstanceSettings fetchArtifactMetadata(String pluginId) {
-        return new PluggableInstanceSettings(artifactExtension.getFetchArtifactMetadata(pluginId),
+        // fetch does not require secure properties.
+        final List<PluginConfiguration> fetchArtifactMetadata = artifactExtension.getFetchArtifactMetadata(pluginId);
+
+        final List<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        for (PluginConfiguration metadata : fetchArtifactMetadata) {
+            pluginConfigurations.add(new PluginConfiguration(metadata.getKey(), new Metadata(metadata.getMetadata().isRequired(), false)));
+        }
+
+        return new PluggableInstanceSettings(pluginConfigurations,
                 new PluginView(artifactExtension.getFetchArtifactView(pluginId)));
     }
 }

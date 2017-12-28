@@ -16,50 +16,40 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.util.Date;
-
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.TaskProperty;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.Date;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class FetchTaskTest {
-    private static final String LABEL = "1.01";
     private PipelineConfig downstream;
     private PipelineConfig upstream;
     private PipelineConfig uppestStream;
     private PipelineConfig randomPipeline;
     private PipelineConfig uppestLookalike;
     private CruiseConfig config;
-    private UpstreamPipelineResolver resolver;
 
     @Before
     public void setUp() {
@@ -84,15 +74,12 @@ public class FetchTaskTest {
         downstream = config.pipelineConfigByName(new CaseInsensitiveString("downstream"));
         downstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("upstream", "up-stage1")));
         downstream.get(0).getJobs().get(0).addTask(new FetchTask(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"), new CaseInsensitiveString("baz"), "abcd", "efg"));
-
-        resolver = mock(UpstreamPipelineResolver.class);
     }
 
-    @After
-    public void tearDown() {
-        verifyNoMoreInteractions(resolver);
+    @Test
+    public void shouldImplementAbstractFetchArtifact() {
+        assertTrue(new FetchTask() instanceof AbstractFetchTask);
     }
-
 
     @Test
     public void validate_shouldErrorWhenReferencingConfigRepositoryPipelineFromFilePipeline() {
@@ -118,6 +105,7 @@ public class FetchTaskTest {
 
         assertThat(task.errors().isEmpty(), is(true));
     }
+
     @Test
     public void validate_shouldNotErrorWhenReferencingConfigRepositoryPipelineFromConfigRepositoryPipeline() {
         uppestStream.setOrigin(new RepoConfigOrigin());
@@ -128,6 +116,7 @@ public class FetchTaskTest {
 
         assertThat(task.errors().isEmpty(), is(true));
     }
+
     @Test
     public void validate_shouldNotErrorWhenReferencingFilePipelineFromFilePipeline() {
         uppestStream.setOrigin(new FileConfigOrigin());
@@ -559,7 +548,7 @@ public class FetchTaskTest {
     public void shouldSetSrcFileToNullWhenSrcDirIsUpdated() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("pname"), new CaseInsensitiveString("sname"), new CaseInsensitiveString("jname"), "sfile", "dest");
         fetchTask.setConfigAttributes(
-                m(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.IS_SOURCE_A_FILE, "0", FetchTask.SRC, "src_dir",  FetchTask.DEST,
+                m(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.IS_SOURCE_A_FILE, "0", FetchTask.SRC, "src_dir", FetchTask.DEST,
                         "dest_dir"));
 
         assertThat(fetchTask.getSrcfile(), is(nullValue()));
@@ -583,7 +572,7 @@ public class FetchTaskTest {
 
     @Test
     public void shouldUpdateDestToNullIfDestIsEmptyInAttributeMap_SoThatItDoesNotGetSerializedInXml() {
-        FetchTask fetchTask =  new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest");
+        FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest");
         fetchTask.setConfigAttributes(m(FetchTask.DEST, ""));
         assertThat(fetchTask, is(new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", null)));
     }
@@ -633,7 +622,7 @@ public class FetchTaskTest {
     }
 
     @Test
-    public void shouldNotFailValidationIfUpstreamExists_PipelineConfigSave(){
+    public void shouldNotFailValidationIfUpstreamExists_PipelineConfigSave() {
         PipelineConfig upstream = new PipelineConfig(new CaseInsensitiveString("upstream-pipeline"),
                 new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("upstream-stage"),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("upstream-job")))));
@@ -651,7 +640,7 @@ public class FetchTaskTest {
     }
 
     @Test
-    public void shouldFailValidationIfFetchArtifactPipelineIsNotAMaterial_PipelineConfigSave(){
+    public void shouldFailValidationIfFetchArtifactPipelineIsNotAMaterial_PipelineConfigSave() {
         PipelineConfig upstream = new PipelineConfig(new CaseInsensitiveString("upstream-pipeline"),
                 new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("upstream-stage"),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("upstream-job")))));
@@ -670,7 +659,7 @@ public class FetchTaskTest {
     }
 
     @Test
-    public void shouldFailValidationIfFetchArtifactPipelineAndStageExistsButJobDoesNot_PipelineConfigSave(){
+    public void shouldFailValidationIfFetchArtifactPipelineAndStageExistsButJobDoesNot_PipelineConfigSave() {
         PipelineConfig upstream = new PipelineConfig(new CaseInsensitiveString("upstream-pipeline"),
                 new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("upstream-stage"),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("upstream-job")))));

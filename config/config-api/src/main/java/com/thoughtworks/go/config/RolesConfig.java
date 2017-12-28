@@ -19,14 +19,15 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 @ConfigTag("roles")
 @ConfigCollection(Role.class)
@@ -36,10 +37,12 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     public RolesConfig() {
     }
 
+    public RolesConfig(Collection<Role> roles) {
+        super(roles);
+    }
+
     public RolesConfig(Role... roles) {
-        for (Role role : roles) {
-            add(role);
-        }
+        super(roles);
     }
 
     public void validate(ValidationContext validationContext) {
@@ -72,7 +75,6 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     public void removeIfExists(Role role) {
         super.remove(role);
     }
-
 
     public List<Role> memberRoles(Admin admin) {
         List<Role> memberRoles = new ArrayList<>();
@@ -163,6 +165,15 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return new RolesConfig(this.toArray(new Role[0]));
     }
 
+    public void setRoles(List<Role> roles) {
+        this.clear();
+        this.addAll(roles);
+    }
+
+    public List<Role> getRoles() {
+        return this;
+    }
+
     private <T> List<T> filterRolesBy(Class<T> type) {
         List<T> rolesConfig = new ArrayList<>();
         for (Role role : this) {
@@ -171,5 +182,32 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
             }
         }
         return rolesConfig;
+    }
+
+    private static Map<String, Class<? extends Role>> ROLE_FILTER_MAP = new LinkedHashMap<>();
+
+    static {
+        ROLE_FILTER_MAP.put("gocd", RoleConfig.class);
+        ROLE_FILTER_MAP.put("plugin", PluginRoleConfig.class);
+    }
+
+    public RolesConfig ofType(String pluginType) throws InvalidPluginTypeException {
+        if (isBlank(pluginType)) {
+            return this;
+        }
+
+        Class<? extends Role> roleClass = ROLE_FILTER_MAP.get(pluginType);
+
+        if (roleClass == null) {
+            throw new InvalidPluginTypeException("Bad role type `" + pluginType + "`. Valid values are " + StringUtils.join(ROLE_FILTER_MAP.keySet(), ", "));
+        }
+
+        return new RolesConfig(this.stream().filter(new Predicate<Role>() {
+            @Override
+            public boolean test(Role role) {
+                return role.getClass().isAssignableFrom(roleClass);
+            }
+        }).collect(Collectors.toList()));
+
     }
 }

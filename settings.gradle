@@ -16,6 +16,8 @@
 
 rootProject.name = 'gocd'
 include ':jar-class-loader'
+include ':api'
+include ':api-v1'
 include ':base'
 include ':util'
 include ':test-utils'
@@ -32,6 +34,7 @@ include ':go-plugin-access'
 include ':plugin-metadata-store'
 include ':config-api'
 include ':config-server'
+include ':config-representers'
 include ':common'
 include ':agent-common'
 include ':test-agent'
@@ -53,6 +56,8 @@ include ':release'
 include ':tools'
 include ':tw-go-plugins'
 
+project(':api').projectDir = "$rootDir/api/api" as File
+project(':api-v1').projectDir = "$rootDir/api/api-v1" as File
 project(':base').projectDir = "$rootDir/base" as File
 project(':util').projectDir = "$rootDir/util" as File
 project(':test-utils').projectDir = "$rootDir/test-utils" as File
@@ -69,6 +74,7 @@ project(':go-plugin-domain').projectDir = "$rootDir/plugin-infra/go-plugin-domai
 project(':plugin-metadata-store').projectDir = "$rootDir/plugin-infra/plugin-metadata-store" as File
 project(':config-api').projectDir = "$rootDir/config/config-api" as File
 project(':config-server').projectDir = "$rootDir/config/config-server" as File
+project(':config-representers').projectDir = "$rootDir/config/config-representers" as File
 project(':common').projectDir = "$rootDir/common" as File
 project(':agent-common').projectDir = "$rootDir/agent-common" as File
 project(':test-agent').projectDir = "$rootDir/test-agent" as File
@@ -88,6 +94,7 @@ project(':installers').projectDir = "$rootDir/installers" as File
 project(':release').projectDir = "$rootDir/release" as File
 project(':tools').projectDir = "$rootDir/tools" as File
 project(':tw-go-plugins').projectDir = "$rootDir/tw-go-plugins" as File
+
 include 'domain'
 include 'commandline'
 

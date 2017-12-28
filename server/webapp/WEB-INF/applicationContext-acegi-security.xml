@@ -259,6 +259,7 @@
                 /admin/pipeline_group/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/templates/**=ROLE_SUPERVISOR,ROLE_TEMPLATE_SUPERVISOR,ROLE_TEMPLATE_VIEW_USER,ROLE_GROUP_SUPERVISOR
                 /admin/commands/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR
+                /api/admin/security/**=ROLE_SUPERVISOR
                 /admin/plugins=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/pipeline/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/materials/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR

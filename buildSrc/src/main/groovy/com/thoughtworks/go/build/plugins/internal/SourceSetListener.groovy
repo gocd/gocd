@@ -55,14 +55,20 @@ class SourceSetListener {
 
 
   private void applyResourcesSrcDir(SourceSet sourceSet, String oldDirName, String newDirName) {
-    sourceSet.resources.srcDirs += ["src/$newDirName/resources"]
-    sourceSet.resources.srcDirs -= ["src/$oldDirName/resources"]
+    if (oldDirName == null) {
+      oldDirName = sourceSet.name
+    }
+    sourceSet.resources.srcDirs += [project.file("src/$newDirName/resources")]
+    sourceSet.resources.srcDirs -= [project.file("src/$oldDirName/resources")]
   }
 
 
   private void applyJavaSrcDir(SourceSet sourceSet, String oldDirName, String newDirName) {
-    sourceSet.java.srcDirs += ["src/$newDirName/java"]
-    sourceSet.java.srcDirs -= ["src/$oldDirName/java"]
+    if (oldDirName == null) {
+      oldDirName = sourceSet.name
+    }
+    sourceSet.java.srcDirs += [project.file("src/$newDirName/java")]
+    sourceSet.java.srcDirs -= [project.file("src/$oldDirName/java")]
   }
 
 

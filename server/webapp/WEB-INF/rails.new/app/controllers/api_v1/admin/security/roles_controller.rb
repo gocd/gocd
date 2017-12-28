@@ -43,7 +43,7 @@ module ApiV1
 
         def update
           role = load_entity_from_config
-          role_from_request = ApiV1::Security::RoleConfigRepresenter.new(role_for(params[:role][:type])).from_hash(params[:role])
+          role_from_request = RoleMapper.fromJSON(params[:role])
 
           result = HttpLocalizedOperationResult.new
           role_config_service.update(current_user, etag_for(role), role_from_request, result)

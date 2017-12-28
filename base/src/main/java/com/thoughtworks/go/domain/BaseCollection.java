@@ -17,13 +17,13 @@
 package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static java.util.Arrays.asList;
 
 
 public class BaseCollection<T> extends ArrayList<T> {
-    public BaseCollection(List<T> elements) {
+    public BaseCollection(Collection<T> elements) {
         super(elements);
     }
 

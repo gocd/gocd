@@ -220,6 +220,11 @@
     <filter-class>com.thoughtworks.go.server.web.ConfigGitRepoFilter</filter-class>
   </filter>
 
+  <filter>
+    <filter-name>SparkPreFilter</filter-name>
+    <filter-class>com.thoughtworks.go.server.api.SparkPreFilter</filter-class>
+  </filter>
+
   <servlet-mapping>
     <servlet-name>echo-attr-servlet</servlet-name>
     <url-pattern>/echo-attribute/*</url-pattern>
@@ -243,6 +248,12 @@
   <filter-mapping>
     <filter-name>ConfigGitRepositoryFilter</filter-name>
     <url-pattern>/api/config-repository.git/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>SparkPreFilter</filter-name>
+    <url-pattern>/spark/*</url-pattern>
+    <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
 
   <servlet-mapping>

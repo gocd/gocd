@@ -23,6 +23,21 @@
     http://tuckey.org/urlrewrite/
 -->
 <urlrewrite>
+
+    <rule>
+        <name>Spark Security Auth Configs API Index API</name>
+        <from>^/api/admin/security/foo</from>
+        <set name="spark_bound">true</set>
+        <to last="true">/spark/api/admin/security/foo</to>
+    </rule>
+
+    <!--<rule>-->
+        <!--<name>Spark Security Auth Configs API</name>-->
+        <!--<from>^/api/admin/security/foo/(.*)$</from>-->
+        <!--<set name="spark_bound">true</set>-->
+        <!--<to last="true">/spark/api/admin/security/foo/${escape:$1}</to>-->
+    <!--</rule>-->
+
     <rule>
         <name>Initialize for_rails</name>
         <from>.*</from>
@@ -199,6 +214,7 @@
         <to last="true">/rails/api/admin/security/roles/${escape:$1}</to>
         <set name="rails_bound">true</set>
     </rule>
+
 
     <rule>
         <name>Rails API</name>

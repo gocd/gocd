@@ -30,10 +30,14 @@ public class RoleConfig implements Role {
     protected CaseInsensitiveString name;
 
     @ConfigSubtag
-    private Users users = new Users();
+    private final Users users = new Users();
 
     public RoleConfig() {
         this(null, new Users());
+    }
+
+    public RoleConfig(String name, RoleUser... users) {
+        this(new CaseInsensitiveString(name), users);
     }
 
     public RoleConfig(CaseInsensitiveString name, RoleUser... users) {
@@ -74,6 +78,11 @@ public class RoleConfig implements Role {
         if (!this.users.contains(user)) {
             this.users.add(user);
         }
+    }
+
+    public void setUsers(List<RoleUser> users) {
+        this.users.clear();
+        this.users.addAll(users);
     }
 
     public void removeUser(RoleUser roleUser) {

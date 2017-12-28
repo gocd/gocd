@@ -295,4 +295,12 @@ public class ConfigurationProperty implements Serializable, Validatable {
         }
         return getValue();
     }
+
+    public void setKey(ConfigurationKey key) {
+        this.configurationKey = key;
+    }
+
+    public ConfigurationKey getKey() {
+        return configurationKey;
+    }
 }

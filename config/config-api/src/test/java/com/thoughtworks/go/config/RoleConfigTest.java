@@ -96,7 +96,7 @@ public class RoleConfigTest {
     }
 
     private void validateNullRoleName(Validator v) {
-        RoleConfig role = new RoleConfig(null);
+        RoleConfig role = new RoleConfig();
 
         v.validate(role, ValidationContextMother.validationContext(new SecurityConfig()));
 

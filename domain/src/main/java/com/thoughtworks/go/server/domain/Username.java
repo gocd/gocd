@@ -46,6 +46,11 @@ public class Username implements Serializable {
         this.displayName = displayName;
     }
 
+    public Username(final String userName, String displayName) {
+        this(userName);
+        this.displayName = displayName;
+    }
+
     public String getDisplayName() {
         return displayName;
     }

@@ -172,6 +172,9 @@ task cloneCommandRepository(type: Exec) {
 task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCommandRepository']) {
   baseName 'defaultCommandSnippets'
   destinationDir = project.libsDir
+  from("${rootProject.rootDir}/LICENSE") {
+    into "/"
+  }
   from(commandRepoCheckoutDir) { into '/' }
   // because .git is in global excludes
   from("${commandRepoCheckoutDir}/.git") { into '/.git' }
@@ -183,6 +186,8 @@ clean {
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyFatJar'
+  dependsOn ':server:jar'
+  dependsOn ':server:war'
   dependsOn configurations.packagingInDefaultFilesDir, h2dbZip, h2deltasZip, defaultCommandSnippetsZip, configurations.pluginsZip,
     (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile),
     configurations.packagingInLibDir, configurations.compileOnly, mainJar, configurations.extractedAtTopLevel, jar
@@ -193,6 +198,11 @@ task fatJar(type: Jar) {
   }
 
   from(configurations.packagingInDefaultFilesDir) {
+    into "defaultFiles/"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
+
+  from(project(':server').war.archivePath) {
     into "defaultFiles/"
     rename "(.*)-${project.version}.(.*)", '$1.$2'
   }
@@ -244,8 +254,8 @@ task verifyFatJar(type: VerifyJarTask) {
       "plugins.zip",
       "h2deltas.zip",
       "h2db.zip",
-      project.hasProperty('fastBuild') ? null : "defaultCommandSnippets.zip"
-    ].findAll { it != null },
+      "defaultCommandSnippets.zip"
+    ],
     "lib"         : [
       "bcprov-jdk15on-1.47.jar",
       "commons-io-${project.versions.commonsIO}.jar",

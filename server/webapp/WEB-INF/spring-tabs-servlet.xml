@@ -27,6 +27,10 @@
 
     <context:annotation-config/>
     <import resource="velocity-config.xml"/>
+
+    <context:component-scan base-package="com.thoughtworks.go.api.spring"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.spring"/>
+
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.server.controller"/>
     <context:component-scan base-package="com.thoughtworks.go.server.search"/>
@@ -42,7 +46,6 @@
             <list>
                 <ref bean="authorizationInterceptor"/>
                 <ref bean="flashMessageInterceptor"/>
-                <ref bean="tokenInterceptor"/>
             </list>
         </property>
     </bean>
@@ -56,7 +59,6 @@
     </aop:config>
 
     <!-- Interceptors -->
-    <bean id="tokenInterceptor" class="com.thoughtworks.go.server.web.TokenInterceptor" autowire="autodetect"/>
     <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>

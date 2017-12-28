@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.access.artifact;
 
+import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -24,14 +26,17 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
@@ -199,7 +204,7 @@ public class ArtifactExtensionTest {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new HashMap<>());
+        final PublishArtifactResponse response = artifactExtension.publishArtifact(PLUGIN_ID, new HashMap<>(), "/temp");
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
@@ -268,5 +273,29 @@ public class ArtifactExtensionTest {
         assertThat(validationResult.getErrors(), containsInAnyOrder(
                 new ValidationError("Filename", "Filename must not be blank.")
         ));
+    }
+
+    @Test
+    public void shouldSubmitFetchArtifactRequest() throws JSONException {
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
+
+        artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), new Configuration(create("Filename", false, "build/libs/foo.jar")), Collections.singletonMap("Version", "10.12.0"), "/temp");
+
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
+
+        final String requestBody = "{\n" +
+                "  \"fetch_artifact_configuration\": {\n" +
+                "    \"Filename\": \"build/libs/foo.jar\"\n" +
+                "  },\n" +
+                "  \"artifact_metadata\": {\n" +
+                "    \"Version\": \"10.12.0\"\n" +
+                "  },\n" +
+                "  \"store_configuration\": {},\n" +
+                "  \"agent_working_directory\": \"/temp\"\n" +
+                "}";
+
+        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
+        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT));
+        JSONAssert.assertEquals(requestBody, request.requestBody(), true);
     }
 }

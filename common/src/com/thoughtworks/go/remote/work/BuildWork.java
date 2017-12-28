@@ -75,7 +75,7 @@ public class BuildWork implements Work {
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
         this.goPublisher = new DefaultGoPublisher(goArtifactsManipulator, jobIdentifier, remoteBuildRepository, agentRuntimeInfo);
-        this.builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension);
+        this.builders = new Builders(assignment.getBuilders(), goPublisher, taskExtension, artifactExtension);
         this.artifactsPublisher = new ArtifactsPublisher(artifactExtension, assignment.getArtifactStores());
     }
 

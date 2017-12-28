@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -29,10 +30,10 @@ public class NullBuilder extends Builder {
         super(new RunIfConfigs(), null, "NULL");
     }
 
-    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
+    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) {
     }
 
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws
             CruiseControlException {
     }
 

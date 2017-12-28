@@ -22,11 +22,13 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @ConfigTag(value = "fetchPluggableArtifact")
@@ -70,7 +72,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
             final ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
 
             if (artifactStore == null) {
-                addError("storeId", String.format("Artifact store with id `%s` does not exist.", storeId));
+                addError("storeId", format("Artifact store with id `%s` does not exist.", storeId));
             }
         }
 
@@ -101,5 +103,15 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         return new ArrayList<>();
+    }
+
+    @Override
+    protected File destOnAgent(String pipelineName) {
+        return new File(format("pipelines/%s", pipelineName));
+    }
+
+    @Override
+    public String describe() {
+        return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getStoreId(), getPipelineName(), getStage(), getJob());
     }
 }

@@ -45,7 +45,7 @@ public class KillAllChildProcessTaskBuilderTest {
         builderFactory = mock(BuilderFactory.class);
     }
 
-    @Test(timeout = 11*60*1000)//11 minutes
+    @Test(timeout = 11 * 60 * 1000)//11 minutes
     public void shouldKillAllChildProcessOnbuild() throws Exception {
         ProcessWrapper processWrapper = CommandLine.createCommandLine("sleep").withArg(String.valueOf(10 * 60)).execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
                 null);//60 mins
@@ -58,10 +58,10 @@ public class KillAllChildProcessTaskBuilderTest {
 
         long before = getSystemTime();
         Builder builder = new KillAllChildProcessTaskBuilder().createBuilder(builderFactory, new KillAllChildProcessTask(), null, null);
-        builder.build(publisher, environmentVariableContext, null);
+        builder.build(publisher, environmentVariableContext, null, null);
 
         assertThat(processWrapper.waitForExit(), is(greaterThan(0)));
-        assertThat(getSystemTime() - before, is(lessThan(10*60*1000*1000*1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;
+        assertThat(getSystemTime() - before, is(lessThan(10 * 60 * 1000 * 1000 * 1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;
     }
 
     @Test

@@ -28,6 +28,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.matchers.UploadEntry;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -354,7 +355,7 @@ public class BuildWorkArtifactUploadingTest {
         }
 
         public void build(DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws CruiseControlException {
             try {
                 FileUtil.createFilesByPath(buildWorkingDirectory, files);
             } catch (IOException e) {

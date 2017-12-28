@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.config.Property;
@@ -64,7 +65,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {

@@ -97,7 +97,7 @@ public class AntTaskBuilderTest {
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
         try {
-            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
+            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
         }

@@ -28,6 +28,7 @@ import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.BuildComposer;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.server.service.builders.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
@@ -209,7 +210,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
             + "</job>";
 
     private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(), new RakeTaskBuilder(),
-            new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(), new NullTaskBuilder());
+            new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     @Mock
     private static UpstreamPipelineResolver resolver;
 

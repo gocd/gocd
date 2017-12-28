@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.util.ListUtil;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,12 @@ public abstract class AbstractFetchTask extends AbstractTask implements Serializ
     public CaseInsensitiveString getDirectParentInAncestorPath() {
         return pipelineName == null ? null : pipelineName.getDirectParentName();
     }
+
+    public File artifactDest(String pipelineName, final String fileName) {
+        return new File(destOnAgent(pipelineName), fileName);
+    }
+
+    protected abstract File destOnAgent(String pipelineName);
 
     protected void validateTask(ValidationContext validationContext) {
         validateAttributes(validationContext);
@@ -266,4 +273,8 @@ public abstract class AbstractFetchTask extends AbstractTask implements Serializ
     }
 
     protected abstract void setFetchTaskAttributes(Map attributeMap);
+
+    public String checksumPath() {
+        return String.format("%s_%s_%s_md5.checksum", pipelineName, stage, job);
+    }
 }

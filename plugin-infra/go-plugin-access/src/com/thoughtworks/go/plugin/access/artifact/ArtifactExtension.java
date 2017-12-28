@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
@@ -116,11 +117,11 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans) {
+    public PublishArtifactResponse publishArtifact(String pluginId, Map<ArtifactStore, List<ArtifactPlan>> artifactStoreToArtifactPlans, String agentWorkingDirectory) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT, new DefaultPluginInteractionCallback<PublishArtifactResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans);
+                return getMessageHandler(resolvedExtensionVersion).publishArtifactMessage(artifactStoreToArtifactPlans, agentWorkingDirectory);
             }
 
             @Override
@@ -170,5 +171,14 @@ public class ArtifactExtension extends AbstractExtension {
     @Override
     protected List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
+    }
+
+    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<Void>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, metadata, agentWorkingDirectory);
+            }
+        });
     }
 }

@@ -129,10 +129,6 @@ public class FetchTask extends AbstractFetchTask {
         return String.format("fetch artifact [%s] => [%s] from [%s/%s/%s]", getSrc(), getDest(), getPipelineName(), getStage(), getJob());
     }
 
-    public File artifactDest(String pipelineName, final String fileName) {
-        return new File(destOnAgent(pipelineName), fileName);
-    }
-
     public File destOnAgent(String pipelineName) {
         return new File("pipelines" + '/' + pipelineName + '/' + getDest());
     }
@@ -247,9 +243,5 @@ public class FetchTask extends AbstractFetchTask {
                 ", srcfile='" + srcfile + '\'' +
                 ", srcdir='" + srcdir + '\'' +
                 '}';
-    }
-
-    public String checksumPath() {
-        return String.format("%s_%s_%s_md5.checksum", pipelineName, stage, job);
     }
 }

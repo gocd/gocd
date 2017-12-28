@@ -25,11 +25,13 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.server.service.builders.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
@@ -115,7 +117,7 @@ public class BuildWorkTest {
             + "    <variable name=\"JOB_ENV\">\n"
             + "      <value>foobar</value>\n"
             + "    </variable>\n"
-            + "    <variable name=\"" + (isWindows() ? "Path": "PATH") +"\">\n"
+            + "    <variable name=\"" + (isWindows() ? "Path" : "PATH") + "\">\n"
             + "      <value>/tmp</value>\n"
             + "    </variable>\n"
             + "  </environmentvariables>\n"
@@ -193,8 +195,9 @@ public class BuildWorkTest {
     private EnvironmentVariableContext environmentVariableContext;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private GoArtifactsManipulatorStub artifactManipulator;
-    private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(), new RakeTaskBuilder(),
-            new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(), new NullTaskBuilder());
+    private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
+            new RakeTaskBuilder(), new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(),
+            new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     @Mock
     private static UpstreamPipelineResolver resolver;
     @Mock
@@ -209,6 +212,23 @@ public class BuildWorkTest {
                 + "   <artifacts>\n"
                 + "      <artifact src=\"something-not-there.txt\" dest=\"dist\" />\n"
                 + "      <artifact src=\"" + file + "\" dest=\"dist\\test\" />\n"
+                + "   </artifacts>"
+                + "  <tasks>\n"
+                + "    <ant target=\"-help\" />\n"
+                + "  </tasks>\n"
+                + "</job>";
+
+    }
+
+    private static String pluggableArtifact() {
+        return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
+                + "   <artifacts>\n"
+                + "      <pluggableArtifact id=\"installers\" storeId=\"s3\">\n"
+                + "       <property>\n"
+                + "         <key>FileName</key>\n"
+                + "         <value>build/lib/foo.jar</value>\n"
+                + "         </property>\n"
+                + "      </pluggableArtifact>"
                 + "   </artifacts>"
                 + "  <tasks>\n"
                 + "    <ant target=\"-help\" />\n"
@@ -362,6 +382,18 @@ public class BuildWorkTest {
 
         assertThat(actual, printedRuleDoesNotMatchFailure(new File("pipelines/pipeline1").getPath(), artifactFile));
         assertThat(buildRepository.results, containsResult(Failed));
+    }
+
+    @Test
+    public void shouldCallArtifactExtensionToPublishPluggableArtifact() throws Exception {
+        final ArtifactExtension artifactExtension = mock(ArtifactExtension.class);
+        buildWork = (BuildWork) getWork(pluggableArtifact(), PIPELINE_NAME);
+        artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension);
+
+        verify(artifactExtension).publishArtifact(anyString(), any(Map.class), anyString());
     }
 
     @Test
@@ -627,7 +659,8 @@ public class BuildWorkTest {
         BuildAssignment buildAssignment = BuildAssignment.create(jobPlan,
                 BuildCause.createWithEmptyModifications(),
                 builder, pipeline.defaultWorkingFolder(),
-                null, new ArtifactStores());
+                null, cruiseConfig.getArtifactStores());
+
         return new BuildWork(buildAssignment);
     }
 

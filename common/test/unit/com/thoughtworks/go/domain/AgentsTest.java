@@ -16,15 +16,16 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Set;
-
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import org.junit.Test;
+
+import java.util.Set;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertThat;
 
 public class AgentsTest {
 
@@ -35,7 +36,8 @@ public class AgentsTest {
         assertThat(agents.getAgentByUuid("1").getHostname(), is("localhost"));
     }
 
-    @Test public void shouldGiveAListOfUuids() throws Exception {
+    @Test
+    public void shouldGiveAListOfUuids() throws Exception {
         Agents agents = new Agents();
         agents.add(new AgentConfig("1", "localhost", "2"));
         AgentConfig denied = new AgentConfig("2", "localhost", "2");
@@ -47,5 +49,28 @@ public class AgentsTest {
         assertThat(uuids.size(), is(2));
         assertThat(uuids, hasItem("1"));
         assertThat(uuids, hasItem("2"));
+    }
+
+    @Test
+    public void shouldValidateDuplicateElasticAgentId() throws Exception {
+        Agents agents = new Agents();
+
+        AgentConfig elasticAgent1 = new AgentConfig("1", "localhost", "1");
+        elasticAgent1.setElasticAgentId("elastic-agent-id");
+        elasticAgent1.setElasticPluginId("awesome-elastic-agent");
+
+        AgentConfig elasticAgent2 = new AgentConfig("2", "localhost", "2");
+        elasticAgent2.setElasticAgentId("elastic-agent-id");
+        elasticAgent2.setElasticPluginId("awesome-elastic-agent");
+
+        agents.add(elasticAgent1);
+        agents.add(elasticAgent2);
+
+        agents.validate(new ConfigSaveValidationContext(agents));
+
+        assertThat(elasticAgent1.errors().size(), is(1));
+        assertThat(elasticAgent1.errors().getAllOn("elasticAgentId").get(0), is("Duplicate ElasticAgentId found for agents [1, 2]"));
+        assertThat(elasticAgent2.errors().size(), is(1));
+        assertThat(elasticAgent2.errors().getAllOn("elasticAgentId").get(0), is("Duplicate ElasticAgentId found for agents [1, 2]"));
     }
 }

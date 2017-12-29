@@ -194,7 +194,7 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldSubmitPublishArtifactRequest() {
+    public void shouldSubmitPublishArtifactRequest() throws JSONException {
         final String responseBody = "{\n" +
                 "  \"metadata\": {\n" +
                 "    \"artifact-version\": \"10.12.0\"\n" +
@@ -210,7 +210,13 @@ public class ArtifactExtensionTest {
 
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
-        assertThat(request.requestBody(), is("[]"));
+
+        final String expectedJSON = "{\n" +
+                "  \"artifact_infos\": [],\n" +
+                "  \"agent_working_directory\": \"/temp\"\n" +
+                "}";
+
+        JSONAssert.assertEquals(expectedJSON, request.requestBody(), true);
 
         assertThat(response.getMetadata().size(), is(1));
         assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));

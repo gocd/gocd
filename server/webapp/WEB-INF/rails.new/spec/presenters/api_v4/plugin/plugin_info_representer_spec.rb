@@ -379,7 +379,10 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       artifact_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('publish_artifact_config_view_template')
       artifact_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('filename', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], artifact_config_view)
 
-      plugin_info = com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, store_config_settings, artifact_config_settings, nil)
+      fetch_artifact_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('fetch_artifact_config_view_template')
+      fetch_artifact_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('destination', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], fetch_artifact_config_view)
+
+      plugin_info = com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo.new(descriptor, store_config_settings, artifact_config_settings, fetch_artifact_config_settings, nil)
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       actual_json.delete(:_links)
 
@@ -395,6 +398,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
                                   extension_info: {
                                     store_config_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(store_config_settings).to_hash(url_builder: UrlBuilder.new),
                                     artifact_config_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(artifact_config_settings).to_hash(url_builder: UrlBuilder.new),
+                                    fetch_artifact_settings: ApiV4::Plugin::PluggableInstanceSettingsRepresenter.new(fetch_artifact_config_settings).to_hash(url_builder: UrlBuilder.new),
                                   }
                                 })
 

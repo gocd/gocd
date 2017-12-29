@@ -23,7 +23,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -106,12 +105,7 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     public List<TaskProperty> getPropertiesForDisplay() {
-        ArrayList<TaskProperty> taskProperties = new ArrayList<>();
-        if (pipelineName != null && !CaseInsensitiveString.isBlank(pipelineName.getPath())) {
-            taskProperties.add(new TaskProperty("PIPELINE_NAME", CaseInsensitiveString.str(pipelineName.getPath())));
-        }
-        taskProperties.add(new TaskProperty("STAGE_NAME", CaseInsensitiveString.str(stage)));
-        taskProperties.add(new TaskProperty("JOB_NAME", job.toString()));
+        List<TaskProperty> taskProperties = super.getPropertiesForDisplay();
         if (!StringUtil.isBlank(srcfile)) {
             taskProperties.add(new TaskProperty("SRC_FILE", srcfile));
         }

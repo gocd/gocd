@@ -17,15 +17,12 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.validation.NameTypeValidator;
-import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -98,11 +95,6 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     @Override
     public String getTypeForDisplay() {
         return FETCH_PLUGGABLE_ARTIFACT;
-    }
-
-    @Override
-    public List<TaskProperty> getPropertiesForDisplay() {
-        return new ArrayList<>();
     }
 
     @Override

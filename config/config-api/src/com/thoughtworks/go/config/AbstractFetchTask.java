@@ -18,10 +18,12 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.ListUtil;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +97,16 @@ public abstract class AbstractFetchTask extends AbstractTask implements Serializ
 
     public File artifactDest(String pipelineName, final String fileName) {
         return new File(destOnAgent(pipelineName), fileName);
+    }
+
+    public List<TaskProperty> getPropertiesForDisplay() {
+        List<TaskProperty> taskProperties = new ArrayList<>();
+        if (pipelineName != null && !CaseInsensitiveString.isBlank(pipelineName.getPath())) {
+            taskProperties.add(new TaskProperty("PIPELINE_NAME", CaseInsensitiveString.str(pipelineName.getPath())));
+        }
+        taskProperties.add(new TaskProperty("STAGE_NAME", CaseInsensitiveString.str(stage)));
+        taskProperties.add(new TaskProperty("JOB_NAME", job.toString()));
+        return taskProperties;
     }
 
     protected abstract File destOnAgent(String pipelineName);

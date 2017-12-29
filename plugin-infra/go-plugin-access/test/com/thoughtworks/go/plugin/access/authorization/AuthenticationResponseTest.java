@@ -17,7 +17,7 @@
 package com.thoughtworks.go.plugin.access.authorization;
 
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
+import com.thoughtworks.go.plugin.access.authorization.models.User;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

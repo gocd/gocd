@@ -19,12 +19,10 @@ package com.thoughtworks.go.server.security.providers;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -43,14 +41,11 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private AuthenticationPluginRegistry authenticationPluginRegistry;
-    private AuthenticationExtension authenticationExtension;
 
     private final AuthorizationExtension authorizationExtension;
     private final AuthorizationMetadataStore store;
@@ -60,11 +55,8 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     private UserService userService;
 
     @Autowired
-    public PluginAuthenticationProvider(AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension,
-                                        AuthorizationExtension authorizationExtension, AuthorityGranter authorityGranter, GoConfigService configService,
+    public PluginAuthenticationProvider(AuthorizationExtension authorizationExtension, AuthorityGranter authorityGranter, GoConfigService configService,
                                         PluginRoleService pluginRoleService, UserService userService) {
-        this.authenticationPluginRegistry = authenticationPluginRegistry;
-        this.authenticationExtension = authenticationExtension;
         this.authorizationExtension = authorizationExtension;
         this.store = AuthorizationMetadataStore.instance();
         this.authorityGranter = authorityGranter;
@@ -80,13 +72,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         assertPasswordNotBlank(authentication);
-        boolean authenticatedUsingAuthorizationPlugin = true;
         User user = getUserDetailsFromAuthorizationPlugins(username, authentication);
-
-        if (user == null) {
-            user = getUserDetailsFromAuthenticationPlugins(username, authentication);
-            authenticatedUsingAuthorizationPlugin = false;
-        }
 
         if (user == null) {
             removeAnyAssociatedPluginRolesFor(username);
@@ -94,7 +80,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         }
 
         userService.addUserIfDoesNotExist(toDomainUser(user));
-        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication), authenticatedUsingAuthorizationPlugin);
+        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user, loginName(username, authentication), true);
         return goUserPrinciple;
     }
 
@@ -107,29 +93,11 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     }
 
     private com.thoughtworks.go.domain.User toDomainUser(User user) {
-        return new com.thoughtworks.go.domain.User(user.getUsername(),user.getDisplayName(),user.getEmailId());
+        return new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
     }
 
     private void removeAnyAssociatedPluginRolesFor(String username) {
         pluginRoleService.revokeAllRolesFor(username);
-    }
-
-    private User getUserDetailsFromAuthenticationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
-        Set<String> plugins = authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication();
-        for (String pluginId : plugins) {
-            try {
-                LOGGER.debug("[Authenticate] Authenticating user: `{}` using the authentication plugin: `{}`", username, pluginId);
-                String password = (String) authentication.getCredentials();
-                User user = ensureDisplayNamePresent(authenticationExtension.authenticateUser(pluginId, username, password));
-                if (user != null) {
-                    LOGGER.debug("[Authenticate] Successfully authenticated user: `{}` using the authentication plugin: `{}`", username, pluginId);
-                    return user;
-                }
-            } catch (Exception e) {
-                LOGGER.error("[Authenticate] Error while authenticating user: `{}` using the authorization plugin: {} ", username, pluginId);
-            }
-        }
-        return null;
     }
 
     private User getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
@@ -170,10 +138,6 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     @Override
     public boolean supports(Class authentication) {
         if (store.getPluginsThatSupportsPasswordBasedAuthentication().size() > 0) {
-            return super.supports(authentication);
-        }
-
-        if (authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication().size() > 0) {
             return super.supports(authentication);
         }
 

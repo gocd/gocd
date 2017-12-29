@@ -18,8 +18,8 @@ package com.thoughtworks.go.plugin.access.authorization;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;

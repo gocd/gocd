@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
@@ -60,7 +59,6 @@ public class DefaultPluginInfoFinder {
         builders.put(PACKAGE_MATERIAL_EXTENSION, PackageMaterialMetadataStore.instance());
         builders.put(PLUGGABLE_TASK_EXTENSION, PluggableTaskMetadataStore.instance());
         builders.put(SCM_EXTENSION, NewSCMMetadataStore.instance());
-        builders.put(AUTHENTICATION_EXTENSION, AuthenticationMetadataStore.instance());
         builders.put(NOTIFICATION_EXTENSION, NotificationMetadataStore.instance());
         builders.put(ELASTIC_AGENT_EXTENSION, ElasticAgentMetadataStore.instance());
         builders.put(AUTHORIZATION_EXTENSION, AuthorizationMetadataStore.instance());

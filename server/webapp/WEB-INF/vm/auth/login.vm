@@ -157,17 +157,8 @@
 
             <div class="authorization-plugins">
               #set( $allConfiguredWebBasedAuthorizationPlugins = $security_auth_config_service.getAllConfiguredWebBasedAuthorizationPlugins() )
-              #set( $allAuthenticationPlugins = $authentication_plugin_registry.getPluginsThatSupportsWebBasedAuthentication() )
               #foreach ($model in $allConfiguredWebBasedAuthorizationPlugins)
                   <a href="/go/plugin/$model.pluginId()/login"><img class="authorization-plugin-icon" src="$model.imageUrl()" alt="$model.name()"/></a>
-              #end
-              #if($allConfiguredWebBasedAuthorizationPlugins.size() > 0 && $allAuthenticationPlugins.size() > 0)
-                <div class="vertical-line"></div>
-              #end
-              #foreach ($authentication_plugin_id in $allAuthenticationPlugins)
-                <a href="/go/plugin/interact/$authentication_plugin_id/index"><img
-                    src="$authentication_plugin_registry.getDisplayImageURLFor($authentication_plugin_id)"
-                    alt="$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)"/></a>
               #end
             </div>
 

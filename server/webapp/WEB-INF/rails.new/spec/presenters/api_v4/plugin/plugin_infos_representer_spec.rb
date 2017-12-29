@@ -22,11 +22,12 @@ describe ApiV4::Plugin::PluginInfosRepresenter do
     about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
     descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, nil, nil, false)
 
-    repo_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('repo_view_template')
-    url_metadata = com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata.new(true, false, true, "URL", 1)
-    plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', url_metadata)], repo_view)
+    auth_configs = pluggable_instance_settings('MANAGER_DN', 'auth_config_view')
+    role_configs = pluggable_instance_settings('MEMBER_OF', 'role_config_view')
+    capabilities = com.thoughtworks.go.plugin.domain.authorization.Capabilities.new(com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType::Web, true, true)
+    image = com.thoughtworks.go.plugin.domain.common.Image.new('foo', Base64.strict_encode64('bar'), "945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756")
 
-    plugin_info = com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo.new(descriptor, "foo authentication", "foo-image-url",true, true, plugin_settings)
+    plugin_info = com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo.new(descriptor, auth_configs, role_configs, image, capabilities, nil)
 
     actual_json = ApiV4::Plugin::PluginInfosRepresenter.new([plugin_info]).to_hash(url_builder: UrlBuilder.new)
 
@@ -37,4 +38,11 @@ describe ApiV4::Plugin::PluginInfosRepresenter do
     actual_json.delete(:_links)
     expect(actual_json.fetch(:_embedded)).to eq({plugin_info: [ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)]})
   end
+end
+
+def pluggable_instance_settings(field_name, view)
+  plugin_view = com.thoughtworks.go.plugin.domain.common.PluginView.new(view)
+  field_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
+  plugin_configuration = com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new(field_name, field_metadata)
+  com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([plugin_configuration], plugin_view)
 end

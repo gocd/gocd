@@ -19,7 +19,6 @@ module ApiV4
     class PluginInfoRepresenter < BaseRepresenter
 
       REPRESENTER_FOR_PLUGIN_INFO_TYPE = {
-        com.thoughtworks.go.plugin.domain.authentication.AuthenticationPluginInfo => AuthenticationPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo => AuthorizationPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo => NotificationPluginInfoRepresenter,
         com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo => PackageRepositoryPluginInfoRepresenter,

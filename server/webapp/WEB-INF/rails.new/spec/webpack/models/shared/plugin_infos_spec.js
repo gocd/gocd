@@ -630,6 +630,114 @@ describe('PluginInfos', () => {
     });
   });
 
+  describe("Artifact", () => {
+    it("should deserialize", () => {
+      const json = {
+        "id":                   "cd.go.artifact.s3",
+        "type":                 "artifact",
+        "status":               {
+          "state": "active"
+        },
+        "about":                {
+          "name":                     "Example Artifact Plugin for GoCD",
+          "version":                  "0.0.1",
+          "target_go_version":        "18.1.0",
+          "description":              "Example Artifact Plugin for GoCD",
+          "target_operating_systems": [],
+          "vendor":                   {
+            "name": "ThoughtWorks, Inc. & GoCD Contributors",
+            "url":  "https://github.com/gocd-contrib/artifact-skeleton-plugin"
+          }
+        },
+        "extension_info": {
+          "store_config_settings": {
+            "configurations": [
+              {
+                "key":      "S3_BUCKET",
+                "metadata": {
+                  "secure":   false,
+                  "required": true
+                }
+              },
+              {
+                "key":      "AWS_ACCESS_KEY_ID",
+                "metadata": {
+                  "secure":   true,
+                  "required": true
+                }
+              },
+              {
+                "key":      "AWS_SECRET_ACCESS_KEY",
+                "metadata": {
+                  "secure":   true,
+                  "required": true
+                }
+              }
+            ],
+            "view":           {
+              "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DummyField].$error.server}\">Dummy Field:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DummyField].$error.server}\" type=\"text\" ng-model=\"DummyField\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DummyField].$error.server}\" ng-show=\"GOINPUTNAME[DummyField].$error.server\">{{GOINPUTNAME[DummyField].$error.server}}</span>\n</div>"
+            }
+          },
+          "artifact_config_settings":        {
+            "configurations": [
+              {
+                "key":      "Filename",
+                "metadata": {
+                  "secure":   false,
+                  "required": false
+                }
+              }
+            ],
+            "view":           {
+              "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
+            }
+          },
+          "fetch_artifact_settings":        {
+            "configurations": [
+              {
+                "key":      "Destination",
+                "metadata": {
+                  "secure":   false,
+                  "required": false
+                }
+              }
+            ],
+            "view":           {
+              "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
+            }
+          }
+        }
+      };
+
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.storeConfigSettings().viewTemplate()).toEqual(json.extension_info.store_config_settings.view.template);
+      expect(pluginInfo.storeConfigSettings().configurations().countConfiguration()).toEqual(3);
+      expect(pluginInfo.storeConfigSettings().configurations().collectConfigurationProperty('key')).toEqual(['S3_BUCKET', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']);
+      expect(pluginInfo.storeConfigSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+
+      expect(pluginInfo.artifactConfigSettings().viewTemplate()).toEqual(json.extension_info.artifact_config_settings.view.template);
+      expect(pluginInfo.artifactConfigSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.artifactConfigSettings().configurations().collectConfigurationProperty('key')).toEqual(['Filename']);
+      expect(pluginInfo.artifactConfigSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: false
+      });
+
+      expect(pluginInfo.fetchArtifactSettings().viewTemplate()).toEqual(json.extension_info.fetch_artifact_settings.view.template);
+      expect(pluginInfo.fetchArtifactSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.fetchArtifactSettings().configurations().collectConfigurationProperty('key')).toEqual(['Destination']);
+      expect(pluginInfo.fetchArtifactSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: false
+      });
+    });
+  });
+
   describe("ConfigRepo", () => {
     it("should deserialize", () => {
       const json = {

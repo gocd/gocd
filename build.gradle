@@ -293,7 +293,7 @@ subprojects {
   tasks.withType(Test) { Test testTask ->
     dependsOn 'jar'
     // run tests even when inputs have not changed
-//    outputs.upToDateWhen { false }
+    outputs.upToDateWhen { false }
 
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1

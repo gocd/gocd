@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.EnvironmentConfigServiceTest.env;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -283,5 +282,19 @@ public class EnvironmentConfigServiceIntegrationTest {
 
     private BasicEnvironmentConfig environmentConfig(String name) {
         return new BasicEnvironmentConfig(new CaseInsensitiveString(name));
+    }
+
+    private static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
+        for (String selectedPipeline : selectedPipelines) {
+            config.addPipeline(new CaseInsensitiveString(selectedPipeline));
+        }
+        for (String selectedAgent : selectedAgents) {
+            config.addAgent(selectedAgent);
+        }
+        for (Map<String, String> environmentVariable : environmentVariables) {
+            config.getVariables().add(environmentVariable.get("name"), environmentVariable.get("value"));
+        }
+        return config;
     }
 }

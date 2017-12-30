@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.core.Is.is;

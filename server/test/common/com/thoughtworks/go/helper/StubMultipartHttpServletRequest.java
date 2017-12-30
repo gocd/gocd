@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class StubMultipartHttpServletRequest extends DefaultMultipartHttpServletRequest {
 

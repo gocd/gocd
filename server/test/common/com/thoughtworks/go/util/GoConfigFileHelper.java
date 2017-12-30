@@ -112,6 +112,7 @@ public class GoConfigFileHelper {
         try {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
+            configRepository.resetAndClear();
             configRepository.initialize();
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();

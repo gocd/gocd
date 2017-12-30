@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service.lookups;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
@@ -31,14 +26,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static com.thoughtworks.go.helper.CommandSnippetMother.validSnippet;
 import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_DIRECTORY;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CachedCommandSnippetsTest {
@@ -125,7 +122,7 @@ public class CachedCommandSnippetsTest {
         assertThat(snippetsFromCustomRepo, is(expectedSnippetsFromCustomRepo));
     }
 
-    @Test(timeout = 10 * 1000)
+    @Test(timeout = 15 * 1000)
     public void shouldWorkWhenThereAreThreadsTryingToAccessAndReloadCommandSnippets() throws Exception {
         when(systemEnvironment.get(SystemEnvironment.COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS)).thenReturn(1);
 

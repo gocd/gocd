@@ -104,7 +104,7 @@ public class GitTestRepo extends TestRepo {
         if (returnValue != 0) {
             throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
         }
-
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "commit.gpgsign", "false").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, "git_config");

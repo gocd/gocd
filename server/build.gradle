@@ -48,6 +48,9 @@ configurations {
     transitive = false
   }
 
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
+
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
 
@@ -79,11 +82,28 @@ sourceSets {
   }
   test {
     java {
-      srcDirs = ['test/unit', 'test/integration', 'test/common', 'test/agent']
+      srcDirs = ['test/unit', 'test/common', 'test/agent']
     }
 
     resources {
       srcDirs += ['properties/test', 'webapp', 'test/data']
+      exclude "WEB-INF/rails.new/"
+    }
+  }
+
+  integrationTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+
+      compileClasspath += configurations.compileOnly
+      runtimeClasspath += configurations.compileOnly
+
+      srcDirs = ['test/integration', 'test/common', 'test/agent']
+
+    }
+    resources {
+      srcDirs = (sourceSets.test.resources.srcDirs + ['properties/test', 'webapp', 'test/data'])
       exclude "WEB-INF/rails.new/"
     }
   }
@@ -322,7 +342,6 @@ test {
   maxHeapSize '2048m'
 
   systemProperties += project.testSystemProperties
-  forkEvery 1
 
   classpath += project.files(project.configurations.additionalClasspath.files)
 
@@ -355,6 +374,54 @@ test {
     }
   }
 }
+
+task integrationTest(type: Test) {
+  description = 'Runs the integration tests.'
+  group = 'Verification'
+  dependsOn prepare
+
+  reports.html.enabled
+
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.test.runtimeClasspath + sourceSets.test.compileClasspath + sourceSets.integrationTest.runtimeClasspath
+  classpath += project.files(project.configurations.additionalClasspath.files)
+
+  minHeapSize '1024m'
+  maxHeapSize '2048m'
+
+  systemProperties += project.testSystemProperties
+  forkEvery 1
+  testLogging {
+    showStandardStreams = false
+    exceptionFormat 'full'
+  }
+
+  onOutput { TestDescriptor descriptor, TestOutputEvent event ->
+    if (event.message.startsWith("Compiler warnings:")) {
+      return
+    }
+
+    if (event.message.startsWith("  WARNING:  'org.apache.xerces.jaxp.SAXParserImpl:")) {
+      return
+    }
+
+    if (event.message.startsWith("Warning:  org.apache.xerces.parsers.SAXParser:")) {
+      return
+    }
+
+    if (event.message.startsWith("Warning:  org.apache.xerces.jaxp.SAXParserImpl\$JAXPSAXParser")) {
+      return
+    }
+
+    if (event.destination == TestOutputEvent.Destination.StdOut) {
+      logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  OUT: ")));
+    } else if (event.destination == TestOutputEvent.Destination.StdErr) {
+      logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  ERR: ")))
+    }
+  }
+}
+
+check.dependsOn(test, integrationTest)
 
 clean {
   delete 'artifacts'

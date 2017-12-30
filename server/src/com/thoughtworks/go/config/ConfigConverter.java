@@ -167,9 +167,20 @@ public class ConfigConverter {
             return toExecTask((CRExecTask) crTask);
         } else if (crTask instanceof CRFetchArtifactTask) {
             return toFetchTask((CRFetchArtifactTask) crTask);
+        } else if (crTask instanceof CRFetchPluggableArtifactTask) {
+            return toFetchPluggableArtifactTask((CRFetchPluggableArtifactTask) crTask);
         } else
             throw new RuntimeException(
                     String.format("unknown type of task '%s'", crTask));
+    }
+
+    public FetchPluggableArtifactTask toFetchPluggableArtifactTask(CRFetchPluggableArtifactTask crTask) {
+        Configuration configuration = toConfiguration(crTask.getConfiguration());
+        FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString(crTask.getPipelineName() == null ? "" : crTask.getPipelineName()),
+                new CaseInsensitiveString(crTask.getStage()),
+                new CaseInsensitiveString(crTask.getJob()), crTask.getStoreId(), configuration);
+        setCommonTaskMembers(fetchPluggableArtifactTask, crTask);
+        return fetchPluggableArtifactTask;
     }
 
     public FetchTask toFetchTask(CRFetchArtifactTask crTask) {
@@ -237,11 +248,13 @@ public class ConfigConverter {
 
     private Configuration toConfiguration(Collection<CRConfigurationProperty> properties) {
         Configuration configuration = new Configuration();
-        for (CRConfigurationProperty p : properties) {
-            if (p.getValue() != null)
-                configuration.addNewConfigurationWithValue(p.getKey(), p.getValue(), false);
-            else
-                configuration.addNewConfigurationWithValue(p.getKey(), p.getEncryptedValue(), true);
+        if (properties != null) {
+            for (CRConfigurationProperty p : properties) {
+                if (p.getValue() != null)
+                    configuration.addNewConfigurationWithValue(p.getKey(), p.getValue(), false);
+                else
+                    configuration.addNewConfigurationWithValue(p.getKey(), p.getEncryptedValue(), true);
+            }
         }
         return configuration;
     }

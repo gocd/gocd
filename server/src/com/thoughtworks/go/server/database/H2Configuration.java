@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.database;
 
-import com.thoughtworks.go.configuration.DatabaseConfiguration;
+import com.thoughtworks.go.database.DatabaseConfiguration;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Properties;
@@ -26,8 +26,9 @@ import java.util.Properties;
  */
 public class H2Configuration extends DatabaseConfiguration {
 
+    private SystemEnvironment systemEnvironment;
     public H2Configuration(SystemEnvironment systemEnvironment) {
-        super(systemEnvironment);
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override

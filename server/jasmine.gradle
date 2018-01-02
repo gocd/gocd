@@ -51,6 +51,9 @@ task karma(type: Exec) {
 
 task jasmineOld(type: ExecuteUnderRailsTask) {
   dependsOn ':server:testJar'
+  dependsOn ':server:fastUnitTestJar'
+  dependsOn ':server:sharedTestJar'
+
   outputs.upToDateWhen { false }
 
   description = 'Run old jasmine tests'

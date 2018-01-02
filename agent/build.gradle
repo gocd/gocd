@@ -18,11 +18,11 @@ import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Agent'
 
-sourceSets {
-  test {
-    java {
-      srcDirs = ['test/functional', 'test/unit']
-    }
+apply plugin: 'com.thoughtworks.go.test-sets'
+
+testSets {
+  functionalTest {
+    dirName = 'test-functional'
   }
 }
 
@@ -41,6 +41,8 @@ dependencies {
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')
+
+  functionalTestCompile sourceSets.test.output
 }
 
 jar {
@@ -151,6 +153,8 @@ task verifyJar(type: VerifyJarTask) {
     ]
   ]
 }
+
+check.dependsOn(functionalTest)
 
 artifacts {
   fatJarConfig fatJar

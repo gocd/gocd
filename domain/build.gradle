@@ -16,14 +16,6 @@
 
 description = 'GoCD Domain Module'
 
-sourceSets {
-  test {
-    resources {
-      srcDirs = ['test-resources']
-    }
-  }
-}
-
 dependencies {
   compile project(':db')
   compile project(':commandline')

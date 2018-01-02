@@ -154,13 +154,14 @@ task licenseHeaderCheck {
     tree.excludes = [".idea/**",
                      "**/target/",
                      "**/out/",
-                     "**/test-resources",
+                     "**/src/*test*/resources",
                      "tools/",
                      "**/package.json",
                      "**/*.erb",
                      "**/test.rb",
                      "**/test_service_cache.rb",
                      "plugin-infra/go-plugin-access/**/migrations",
+                     "**/plugin-infra/go-plugin-infra/descriptor-aware-test-plugin.jar/**",
                      "server/webapp/scripts",
                      "server/config/cruise-config.xml",
                      "server/webapp/WEB-INF/rails.new/vendor",
@@ -172,7 +173,8 @@ task licenseHeaderCheck {
                      "**/spec/webpack/helpers/fixup-stacktraces.js",
                      "**/admin/commands/matched_command_snippets.json",
                      "**/server/plugins_work/**",
-                     "server/webapp/WEB-INF/rails.new/db/config.git/cruise-config.xml"
+                     "server/webapp/WEB-INF/rails.new/db/config.git/cruise-config.xml",
+                     "server/db/config.git/cruise-config.xml"
     ]
 
     def filesWithoutLicenseHeader = []
@@ -214,21 +216,13 @@ subprojects {
   sourceSets {
     main {
       java {
-        srcDirs = ['src']
         compileClasspath += configurations.compileOnly
-      }
-      resources {
-        srcDirs = ['resources']
       }
     }
     test {
       java {
-        srcDirs = ['test']
         compileClasspath += configurations.compileOnly
         runtimeClasspath += configurations.compileOnly
-      }
-      resources {
-        srcDirs = ['test-resources', rootProject.findProject(':test-utils').file("resource-include-in-all-projects")]
       }
     }
   }
@@ -282,7 +276,9 @@ subprojects {
   }
 
   tasks.withType(JavaCompile) { compileTask ->
+    options.warnings = false
     options.encoding = "UTF-8"
+    options.compilerArgs += '-Xlint:-deprecation'
   }
 
   task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
@@ -301,6 +297,11 @@ subprojects {
     // fixup a tempdir that is predictable and we can clean it up later
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
+    doFirst {
+      // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
+      classpath += rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
+    }
+
     defaultCharacterEncoding = "UTF-8"
 
     filter {
@@ -374,6 +375,13 @@ task allDependencies {
   dependsOn allprojects.collect { "$it.path:dependencies" }
 
   description = "Print dependency tree of all projects"
+}
+
+task compileAll { compileAllTask ->
+  group LifecycleBasePlugin.BUILD_GROUP
+  allprojects.collect { Project prj ->
+    compileAll.dependsOn(prj.getTasks().withType(JavaCompile))
+  }
 }
 
 ext.versions = [

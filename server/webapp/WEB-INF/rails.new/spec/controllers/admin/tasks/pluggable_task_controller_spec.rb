@@ -22,13 +22,13 @@ describe Admin::TasksController do
   include FormUI
   include ConfigSaveStubbing
 
-  before :all do
+  before :each do
     set_up_registry
     task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
     PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
   end
 
-  after :all do
+  after :each do
     unload_all_from_registry
     PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
   end

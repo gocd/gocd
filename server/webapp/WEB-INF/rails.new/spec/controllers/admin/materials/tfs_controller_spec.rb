@@ -19,9 +19,7 @@ require_relative 'material_controller_examples'
 
 describe Admin::Materials::TfsController do
 
-  before :all do
-    import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig unless defined? TfsMaterialConfig
-  end
+  import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig unless defined? TfsMaterialConfig
 
   before do
     @material = TfsMaterialConfig.new(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")

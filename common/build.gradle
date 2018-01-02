@@ -16,19 +16,15 @@
 
 description = 'GoCD Common Module'
 
-sourceSets {
-  test {
-    java {
-      srcDirs = ['test/unit', 'test/integration']
-    }
+apply plugin: 'com.thoughtworks.go.test-sets'
 
-    resources {
-      srcDirs = ['test-resources/unit', 'test-resources/integration']
-    }
+testSets {
+  integrationTest {
+    dirName = 'test-integration'
   }
 }
 
-test {
+integrationTest {
   exclude "**/*DockerTest*"
 }
 
@@ -47,3 +43,5 @@ dependencies {
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.8'
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 }
+
+check.dependsOn(integrationTest)

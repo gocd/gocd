@@ -1,3 +1,4 @@
+
 ##########################GO-LICENSE-START################################
 # Copyright 2017 ThoughtWorks, Inc.
 #
@@ -32,6 +33,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
+    com.thoughtworks.go.ClearSingleton.clearSingletons
     ServiceCacheStrategy.instance.clear_services
   end
 

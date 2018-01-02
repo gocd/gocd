@@ -32,7 +32,13 @@ class PrepareRailsCommandHelper {
   }
 
   public classpath() {
-    (project.sourceSets.test.output + project.sourceSets.test.runtimeClasspath)
+    project.sourceSets.test.output +
+      project.sourceSets.test.runtimeClasspath +
+      project.sourceSets.sharedTest.output +
+      project.sourceSets.sharedTest.runtimeClasspath +
+      project.sourceSets.fastUnitTest.output +
+      project.sourceSets.fastUnitTest.runtimeClasspath +
+      project.rootProject.findProject(':test-utils').files("resource-include-in-all-projects")
   }
 
   public void prepare() {

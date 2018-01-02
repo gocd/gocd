@@ -20,6 +20,8 @@ task pathingJar(type: Jar) {
   classifier 'pathing'
   dependsOn ':server:jar'
   dependsOn ':server:testJar'
+  dependsOn ':server:fastUnitTestJar'
+  dependsOn ':server:sharedTestJar'
 
   doFirst {
     manifest {
@@ -58,6 +60,8 @@ task dependencyClassPath {
   outputs.upToDateWhen { false }
   dependsOn ':server:jar'
   dependsOn ':server:testJar'
+  dependsOn ':server:fastUnitTestJar'
+  dependsOn ':server:sharedTestJar'
 
   def systemPropertiesFile = file("${buildDir}/go-system-properties")
 

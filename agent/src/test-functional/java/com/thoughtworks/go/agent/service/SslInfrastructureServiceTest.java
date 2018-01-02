@@ -1,0 +1,208 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.agent.service;
+
+import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerClientBuilder;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
+import com.thoughtworks.go.config.AgentRegistry;
+import com.thoughtworks.go.config.GuidService;
+import com.thoughtworks.go.config.TokenService;
+import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.security.RegistrationJSONizer;
+import com.thoughtworks.go.util.ClassMockery;
+import com.thoughtworks.go.util.URLService;
+import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicStatusLine;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.springframework.http.HttpStatus;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static com.thoughtworks.go.util.TestUtils.exists;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+@RunWith(JMock.class)
+public class SslInfrastructureServiceTest {
+    private final Mockery context = new ClassMockery();
+    private SslInfrastructureService sslInfrastructureService;
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private GuidService guidService = new GuidService();
+    private TokenService tokenService = new TokenService();
+
+    @Mock
+    private AgentRegistry agentRegistry;
+    @Mock
+    private TokenRequester tokenRequester;
+    @Mock
+    private GoAgentServerHttpClient httpClient;
+    @Mock
+    private CloseableHttpResponse httpResponse;
+    @Mock
+    private URLService urlService;
+
+    @Before
+    public void setup() throws Exception {
+        temporaryFolder.create();
+        initMocks(this);
+
+        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
+        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.deleteOnExit();
+
+        sslInfrastructureService = new SslInfrastructureService(urlService, httpClient, agentRegistry);
+        guidService = new GuidService();
+        guidService.store("uuid");
+    }
+
+    @After
+    public void teardown() throws Exception {
+        temporaryFolder.delete();
+        guidService.delete();
+        tokenService.delete();
+        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
+    }
+
+    @Test
+    public void shouldInvalidateKeystore() throws Exception {
+        temporaryFolder.create();
+        File configFile = temporaryFolder.newFile();
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), 200, null));
+        when(httpResponse.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
+
+        when(agentRegistry.guidPresent()).thenReturn(true);
+        when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
+        when(agentRegistry.tokenPresent()).thenReturn(true);
+
+        shouldCreateSslInfrastructure();
+
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
+        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        verify(httpClient, times(1)).execute(any(HttpRequestBase.class));
+
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
+        verify(httpClient, times(1)).execute(any(HttpRequestBase.class));
+
+        sslInfrastructureService.invalidateAgentCertificate();
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
+        verify(httpClient, times(2)).execute(any(HttpRequestBase.class));
+    }
+
+    @Test
+    public void shouldGetTokenFromServerIfOneNotExist() throws Exception {
+        final ArgumentCaptor<HttpRequestBase> httpRequestBaseArgumentCaptor = ArgumentCaptor.forClass(HttpRequestBase.class);
+        tokenService.delete();
+        when(agentRegistry.uuid()).thenReturn("some-uuid");
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), 200, null));
+        when(httpResponse.getEntity()).thenReturn(new StringEntity("token-from-server"));
+        when(httpClient.execute(httpRequestBaseArgumentCaptor.capture())).thenReturn(httpResponse);
+
+        sslInfrastructureService.getTokenIfNecessary();
+
+        verify(agentRegistry).storeTokenToDisk("token-from-server");
+
+        final HttpRequestBase httpRequestBase = httpRequestBaseArgumentCaptor.getValue();
+        final List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(httpRequestBase.getURI(), StandardCharsets.UTF_8);
+        assertThat(findParam(nameValuePairs, "uuid").getValue(), is("some-uuid"));
+    }
+
+    @Test
+    public void shouldPassUUIDAndTokenDuringAgentRegistration() throws Exception {
+        final ArgumentCaptor<HttpEntityEnclosingRequestBase> httpRequestBaseArgumentCaptor = ArgumentCaptor.forClass(HttpEntityEnclosingRequestBase.class);
+
+        when(agentRegistry.uuid()).thenReturn("some-uuid");
+        when(agentRegistry.token()).thenReturn("some-token");
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), 200, null));
+        when(httpResponse.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
+        when(httpClient.execute(httpRequestBaseArgumentCaptor.capture())).thenReturn(httpResponse);
+
+        sslInfrastructureService.createSslInfrastructure();
+
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
+        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+
+        final HttpEntityEnclosingRequestBase httpRequestBase = httpRequestBaseArgumentCaptor.getValue();
+        final List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(httpRequestBase.getEntity());
+
+        assertThat(findParam(nameValuePairs, "uuid").getValue(), is("some-uuid"));
+        assertThat(findParam(nameValuePairs, "token").getValue(), is("some-token"));
+
+    }
+
+    @Test
+    public void shouldDeleteTokenFromDiskWhenServerRejectsTheRegistrationRequestWithForbiddenErrorCode() throws Exception {
+        final CloseableHttpResponse httpResponseForbidden = mock(CloseableHttpResponse.class);
+        final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
+        when(agentRegistry.uuid()).thenReturn("some-uuid");
+        when(agentRegistry.tokenPresent()).thenReturn(true);
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
+        when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.FORBIDDEN.value(), null));
+        when(httpResponse.getEntity()).thenReturn(new StringEntity(RegistrationJSONizer.toJson(createRegistration())));
+        when(httpResponseForbidden.getEntity()).thenReturn(new StringEntity("Not a valid token."));
+        when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
+        sslInfrastructureService.createSslInfrastructure();
+
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
+
+        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        verify(agentRegistry, times(1)).deleteToken();
+        verify(httpClient, times(2)).execute(any(HttpUriRequest.class));
+    }
+
+    private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {
+        return nameValuePairs.stream().filter(new Predicate<NameValuePair>() {
+            @Override
+            public boolean test(NameValuePair nameValuePair) {
+                return nameValuePair.getName().equals(paramName);
+            }
+        }).findFirst().orElse(null);
+    }
+
+    private void shouldCreateSslInfrastructure() throws Exception {
+        sslInfrastructureService.createSslInfrastructure();
+    }
+
+    private Registration createRegistration() throws IOException {
+        Registration certificates = AgentCertificateMother.agentCertificate(temporaryFolder);
+        return new Registration(certificates.getPrivateKey(), certificates.getChain());
+    }
+}

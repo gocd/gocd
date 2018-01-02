@@ -102,5 +102,5 @@
   <logger name="com.thoughtworks.go.server.Rails" level="WARN"/>
 
   <!-- make sure this is the last line in the config -->
-  <include optional="true" file="${cruise.config.file/..:-config}/logback-include.xml"/>
+  <include optional="true" file="${cruise.config.dir:-config}/logback-include.xml"/>
 </configuration>

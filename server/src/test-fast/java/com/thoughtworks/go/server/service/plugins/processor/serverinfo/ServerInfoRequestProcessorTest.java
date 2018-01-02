@@ -17,12 +17,13 @@
 package com.thoughtworks.go.server.service.plugins.processor.serverinfo;
 
 import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
-import net.javacrumbs.jsonunit.JsonAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,16 +35,17 @@ import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ServerInfoRequestProcessorTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private GoPluginExtension pluginExtension;
+    @Mock
+    private GoPluginDescriptor pluginDescriptor;
     private PluginRequestProcessorRegistry processorRegistry;
     private ServerInfoRequestProcessor processor;
     private ServerConfig serverConfig;
@@ -58,7 +60,7 @@ public class ServerInfoRequestProcessorTest {
 
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         processorRegistry = new PluginRequestProcessorRegistry();
-        processor = new ServerInfoRequestProcessor(processorRegistry, goConfigService);
+        processor = new ServerInfoRequestProcessor(processorRegistry, goConfigService, Collections.singletonList(pluginExtension));
     }
 
     @Test
@@ -69,21 +71,30 @@ public class ServerInfoRequestProcessorTest {
 
     @Test
     public void shouldReturnAServerIdInJSONForm() throws Exception {
+        String pluginId = "plugin_id";
         DefaultGoApiRequest request = new DefaultGoApiRequest(ServerInfoRequestProcessor.GET_SERVER_ID, "1.0", new GoPluginIdentifier("foo", Arrays.asList("1.0")));
-        GoApiResponse response = processor.process(null, request);
+
+        when(pluginDescriptor.id()).thenReturn(pluginId);
+        when(pluginExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(pluginExtension.serverInfoJSON(pluginId, serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl())).thenReturn("server_info");
+
+        GoApiResponse response = processor.process(pluginDescriptor, request);
+
         assertThat(response.responseCode(), is(200));
-        JsonAssert.assertJsonEquals("{\n" +
-                "  \"server_id\": \"" + serverConfig.getServerId() + "\",\n" +
-                "  \"site_url\": \"" + serverConfig.getSiteUrl().getUrl() + "\",\n" +
-                "  \"secure_site_url\": \"" + serverConfig.getSecureSiteUrl().getUrl() + "\"\n" +
-                "}", response.responseBody());
+        assertThat(response.responseBody(), is("server_info"));
     }
 
     @Test
-    public void shouldRaiseErrorWhenApiVersionIsUnSupported() throws Exception {
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("Unsupported 'go.processor.server-info.get' API version: bad-version. Supported versions: [1.0]");
+    public void shouldReturnAErrorResponseIfExtensionDoesNotSupportServerInfo() throws Exception {
+        String pluginId = "plugin_id";
         DefaultGoApiRequest request = new DefaultGoApiRequest(ServerInfoRequestProcessor.GET_SERVER_ID, "bad-version", new GoPluginIdentifier("foo", Arrays.asList("1.0")));
-        processor.process(null, request);
+
+        when(pluginDescriptor.id()).thenReturn(pluginId);
+        when(pluginExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(pluginExtension.serverInfoJSON(any(String.class), any(String.class), any(String.class), any(String.class))).thenThrow(new UnsupportedOperationException("Operation not supported."));
+
+        GoApiResponse response = processor.process(pluginDescriptor, request);
+
+        assertThat(response.responseCode(), is(400));
     }
 }

@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResp
 import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
 import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -331,9 +332,20 @@ public class AuthorizationExtensionTest {
     @Test
     public void shouldNotSupportFetchingPluginSettings() throws Exception {
         thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch PluginSettings is not supported by Authorization Endpoint.");
+        thrown.expectMessage("Fetch Plugin Settings is not supported by Authorization endpoint.");
 
         authorizationExtension.pluginSettingsJSON("plugin_id", Collections.emptyMap());
+    }
+
+    @Test
+    public void shouldSerializeServerInfoToJSON() throws Exception {
+        String pluginId = "plugin_id";
+
+        when(pluginManager.resolveExtensionVersion(pluginId, authorizationExtension.goSupportedVersions())).thenReturn("1.0");
+
+        String serverInfoJSON = authorizationExtension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
+
+        Assert.assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://my.build.com\",\"secure_site_url\":\"https://my.build.com\"}"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

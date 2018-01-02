@@ -28,7 +28,9 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.json.JSONException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -54,6 +56,9 @@ public class ArtifactExtensionTest {
     private PluginManager pluginManager;
     private ArtifactExtension artifactExtension;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -303,5 +308,21 @@ public class ArtifactExtensionTest {
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT));
         JSONAssert.assertEquals(requestBody, request.requestBody(), true);
+    }
+
+    @Test
+    public void shouldNotExposePluginSettings() throws Exception {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage("Fetch Plugin Settings is not supported by Artifact endpoint.");
+
+        artifactExtension.pluginSettingsJSON("plugin_id", Collections.EMPTY_MAP);
+    }
+
+    @Test
+    public void shouldNotExposeServerInfo() throws Exception {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage("Fetch Server Info is not supported by Artifact endpoint.");
+
+        artifactExtension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
     }
 }

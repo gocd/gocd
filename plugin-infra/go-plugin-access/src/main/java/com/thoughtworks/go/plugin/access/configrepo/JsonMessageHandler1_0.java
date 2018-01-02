@@ -19,8 +19,10 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.access.configrepo.contract.*;
-import com.thoughtworks.go.plugin.access.configrepo.messages.*;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryMessage;
+import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryResponseMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

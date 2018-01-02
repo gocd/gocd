@@ -22,9 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ConfigRepoMigrator {
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
 

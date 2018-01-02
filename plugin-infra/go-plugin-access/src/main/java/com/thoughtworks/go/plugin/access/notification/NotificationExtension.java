@@ -19,6 +19,8 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor;
+import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
@@ -50,17 +52,23 @@ public class NotificationExtension extends AbstractExtension {
     public NotificationExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, NOTIFICATION_EXTENSION), NOTIFICATION_EXTENSION);
 
-        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
-        messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
-        registerJsonMessageHandlerForRequestProcessor("1.0", new JsonMessageHandlerForRequestProcessor1_0());
+        registerHandlers("1.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler1_0(),
+                new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
 
-        registerHandler("2.0", new PluginSettingsJsonMessageHandler1_0());
-        messageHandlerMap.put("2.0", new JsonMessageHandler2_0());
-        registerJsonMessageHandlerForRequestProcessor("2.0", new JsonMessageHandlerForRequestProcessor1_0());
+        registerHandlers("2.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler2_0(),
+                new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
 
-        registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
-        messageHandlerMap.put("3.0", new JsonMessageHandler3_0());
-        registerJsonMessageHandlerForRequestProcessor("3.0", new JsonMessageHandlerForRequestProcessor1_0());
+        registerHandlers("3.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler3_0(),
+                new MessageHandlerForPluginSettingsRequestProcessor1_0(), new MessageHandlerForServerInfoRequestProcessor1_0());
+    }
+
+    private void registerHandlers(String version, PluginSettingsJsonMessageHandler pluginSettingsJsonMessageHandler, JsonMessageHandler jsonMessageHandler,
+                                  MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor,
+                                  MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor) {
+        registerHandler(version, pluginSettingsJsonMessageHandler);
+        messageHandlerMap.put(version, jsonMessageHandler);
+        registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
+        registerMessageHandlerForServerInfoRequestProcessor(version, messageHandlerForServerInfoRequestProcessor);
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {

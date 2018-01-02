@@ -18,8 +18,8 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.common.settings.JsonMessageHandlerForRequestProcessor;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -70,12 +70,17 @@ public class TaskExtension extends AbstractExtension {
     }
 
     @Override
-    protected JsonMessageHandlerForRequestProcessor jsonMessageHandlerForRequestProcessor(String pluginVersion) {
+    protected MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
         throw new UnsupportedOperationException("Fetch PluginSettings is not supported by Task Endpoint.");
     }
 
     @Override
     protected List<String> goSupportedVersions() {
         return supportedVersions;
+    }
+
+    @Override
+    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
+        throw new UnsupportedOperationException("Fetch Server Info is not supported by Task endpoint.");
     }
 }

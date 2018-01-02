@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.plugin.domain.analytics;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AnalyticsData {
-    String data;
-    String viewPath;
+    private String data;
+    private String viewPath;
+    private String assetRoot;
 
     public AnalyticsData(String data, String viewPath) {
         this.data = data;
@@ -36,11 +38,22 @@ public class AnalyticsData {
         return viewPath;
     }
 
+    public String getFullViewPath() {
+        if (null == assetRoot || "".equals(assetRoot)) {
+            return viewPath;
+        }
+        return URI.create(assetRoot + "/" + viewPath).normalize().toString();
+    }
+
     public Map<String, String> toMap() {
         HashMap<String, String> m = new HashMap<>();
         m.put("data", data);
-        m.put("view_path", viewPath);
+        m.put("view_path", getFullViewPath());
 
         return m;
+    }
+
+    public void setAssetRoot(String assetRoot) {
+        this.assetRoot = assetRoot;
     }
 }

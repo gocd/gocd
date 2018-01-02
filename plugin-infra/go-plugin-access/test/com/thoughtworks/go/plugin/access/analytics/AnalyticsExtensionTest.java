@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.core.Is;
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,13 +35,15 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AnalyticsExtensionTest {
@@ -51,6 +56,7 @@ public class AnalyticsExtensionTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private AnalyticsMetadataStore metadataStore;
 
     @Before
     public void setUp() throws Exception {
@@ -59,8 +65,14 @@ public class AnalyticsExtensionTest {
         when(pluginManager.isPluginOfType(AnalyticsPluginConstants.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
 
         analyticsExtension = new AnalyticsExtension(pluginManager);
+        metadataStore = AnalyticsMetadataStore.instance();
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        metadataStore.clear();
     }
 
     @Test
@@ -78,13 +90,23 @@ public class AnalyticsExtensionTest {
     public void shouldTalkToPlugin_To_GetPipelineAnalytics() throws Exception {
         String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        AnalyticsPluginInfo pluginInfo = mock(AnalyticsPluginInfo.class);
+        PluginDescriptor desc = mock(PluginDescriptor.class);
+        when(desc.id()).thenReturn(PLUGIN_ID);
+        when(pluginInfo.getDescriptor()).thenReturn(desc);
+        when(pluginInfo.getStaticAssetsPath()).thenReturn("/assets/root");
+        metadataStore.setPluginInfo(pluginInfo);
 
         AnalyticsData pipelineAnalytics = analyticsExtension.getPipelineAnalytics(PLUGIN_ID, "test_pipeline");
 
         assertRequest(requestArgumentCaptor.getValue(), AnalyticsPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PIPELINE_ANALYTICS, "{\"pipeline_name\": \"test_pipeline\"}");
 
         assertThat(pipelineAnalytics.getViewPath(), is("path/to/view"));
-        assertThat(pipelineAnalytics.getData(), is("{}"));
+
+        Map<String, String> expected = new HashMap<>();
+        expected.put("data", "{}");
+        expected.put("view_path", "/assets/root/path/to/view");
+        assertEquals(expected, pipelineAnalytics.toMap());
     }
 
     @Test

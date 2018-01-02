@@ -70,7 +70,9 @@ public class AnalyticsExtension extends AbstractExtension {
 
             @Override
             public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsFromResponseBody(responseBody);
+                AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getPipelineAnalyticsFromResponseBody(responseBody);
+                analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
+                return analyticsData;
             }
         });
     }
@@ -100,5 +102,9 @@ public class AnalyticsExtension extends AbstractExtension {
     @Override
     protected List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
+    }
+
+    private String getCurrentStaticAssetsPath(String pluginId) {
+        return AnalyticsMetadataStore.instance().getPluginInfo(pluginId).getStaticAssetsPath();
     }
 }

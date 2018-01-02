@@ -51,11 +51,11 @@ const PluginInfos = function (data) {
 
 };
 
-PluginInfos.API_VERSION = 'v3';
+PluginInfos.API_VERSION = 'v4';
 
 CrudMixins.Index({
   type:     PluginInfos,
-  indexUrl: Routes.apiv3AdminPluginInfoIndexPath(),
+  indexUrl: Routes.apiv4AdminPluginInfoIndexPath(),
   version:  PluginInfos.API_VERSION,
   dataPath: '_embedded.plugin_info'
 });
@@ -81,7 +81,7 @@ PluginInfos.PluginInfo = function (type, {id, about, pluginSettings, imageUrl, s
 
   this.isActive = () => this.status().state() === 'active';
 
-  this.isBundled = () =>  this.bundledPlugin() === true;
+  this.isBundled = () => this.bundledPlugin() === true;
 
   this.hasErrors = () => this.status().state() === 'invalid';
 
@@ -113,7 +113,7 @@ PluginInfos.PluginInfo.ConfigRepo.fromJSON = (data = {}) => new PluginInfos.Plug
   bundledPlugin:      data.bundled_plugin,
   about:              About.fromJSON(data.about),
   pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
-  imageUrl: _.get(data, '_links.image.href')
+  imageUrl:           _.get(data, '_links.image.href')
 });
 
 PluginInfos.PluginInfo.Notification = function (data) {
@@ -214,8 +214,27 @@ PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.Pl
   about:              About.fromJSON(data.about),
   pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   profileSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
-  capabilities:    ElasticPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
+  capabilities:       ElasticPluginCapabilities.fromJSON(_.get(data, "extension_info.capabilities")),
   imageUrl:           _.get(data, '_links.image.href'),
+});
+
+PluginInfos.PluginInfo.Artifact = function (data) {
+  PluginInfos.PluginInfo.call(this, "artifact", data);
+  this.storeConfigSettings    = Stream(data.storeConfigSettings);
+  this.artifactConfigSettings = Stream(data.artifactConfigSettings);
+  this.fetchArtifactSettings  = Stream(data.fetchArtifactSettings);
+};
+
+PluginInfos.PluginInfo.Artifact.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Artifact({
+  id:                     data.id,
+  status:                 PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation:     data.plugin_file_location,
+  bundledPlugin:          data.bundled_plugin,
+  about:                  About.fromJSON(data.about),
+  storeConfigSettings:    PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.store_config_settings")),
+  artifactConfigSettings: PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.artifact_config_settings")),
+  fetchArtifactSettings:  PluggableInstanceSettings.fromJSON(_.get(data, "extension_info.fetch_artifact_settings")),
+  imageUrl:               _.get(data, '_links.image.href'),
 });
 
 PluginInfos.PluginInfo.Bad = function (data) {
@@ -247,6 +266,7 @@ PluginInfos.PluginInfo.fromJSON = (data = {}) => (data.status && data.status.sta
 
 PluginInfos.Types = {
   'authentication':     PluginInfos.PluginInfo.Authentication,
+  'artifact':           PluginInfos.PluginInfo.Artifact,
   'authorization':      PluginInfos.PluginInfo.Authorization,
   'notification':       PluginInfos.PluginInfo.Notification,
   'elastic-agent':      PluginInfos.PluginInfo.ElasticAgent,

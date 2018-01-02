@@ -88,7 +88,7 @@ describe ApiV3::Plugin::PluginInfoRepresenter do
   end
 
   describe 'scm plugin info' do
-    it 'should describe an authentication plugin' do
+    it 'should describe a scm plugin' do
       vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
       about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
       descriptor = GoPluginDescriptor.new('foo.example', '1.0', about, '/path/to/foo.jar', nil, false)

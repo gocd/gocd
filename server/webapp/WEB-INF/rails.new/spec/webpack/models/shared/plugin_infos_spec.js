@@ -23,7 +23,7 @@ describe('PluginInfos', () => {
     const json = [
       {
         "id":      "github.oauth.login",
-        "type":    "authentication",
+        "type":    "authorization",
         "status":  {
           "state": "active"
         },
@@ -45,58 +45,7 @@ describe('PluginInfos', () => {
     expect(pluginInfos.countPluginInfo()).toBe(1);
     expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
   });
-
-  describe("Authentication", () => {
-    it("should deserialize", () => {
-      const json = {
-        "id":      "github.oauth.login",
-        "type":    "authentication",
-        "status":  {
-          "state": "active"
-        },
-        "about":   {
-          "name":                     "GitHub OAuth Login",
-          "version":                  "2.2",
-          "target_go_version":        "16.2.1",
-          "description":              "Login using GitHub OAuth",
-          "target_operating_systems": ['Linux', 'Mac'],
-          "vendor":                   {
-            "name": "GoCD Contributors",
-            "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
-          }
-        },
-        "extension_info": {
-          "plugin_settings": {
-            "configurations": [
-              {
-                "key": "server_base_url",
-                "metadata": {
-                  "secure": false,
-                  "required": true
-                }
-              }
-            ],
-            "view": {
-              "template": "authentication plugin view"
-            }
-          }
-        }
-      };
-
-      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
-      verifyBasicProperties(pluginInfo, json);
-
-      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
-      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
-      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['server_base_url']);
-      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
-        secure:   false,
-        required: true
-      });
-
-    });
-  });
-
+  
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
       const json = {

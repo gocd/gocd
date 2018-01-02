@@ -84,9 +84,61 @@ describe("PluginsWidget", () => {
       ]
     };
 
+    const elasticAgentPluginInfoJSON = {
+      "id":             "cd.go.contrib.elastic-agent.docker",
+      "type":           "elastic-agent",
+      "status":         {
+        "state": "active"
+      },
+      "about":          {
+        "name":                     "Docker Elastic Agent Plugin",
+        "version":                  "0.6.1",
+        "target_go_version":        "16.12.0",
+        "description":              "Docker Based Elastic Agent Plugins for GoCD",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "GoCD Contributors",
+          "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
+        }
+      },
+      "extension_info": {
+        "plugin_settings":  {
+          "configurations": [
+            {
+              "key":      "instance_type",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": "elastic agent plugin settings view"
+          }
+        },
+        "profile_settings": {
+          "configurations": [
+            {
+              "key":      "Image",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            }
+          ],
+          "view":           {
+            "template": 'elastic-profile-view'
+          }
+        },
+        "capabilities":     {
+          "supports_status_report": true
+        }
+      }
+    };
+
     const githubAuthPluginInfoJSON = {
       "id":                   "github.oauth.login",
-      "type":                 "authentication",
+      "type":                 "authorization",
       "status":               {
         "state": "active"
       },
@@ -190,7 +242,7 @@ describe("PluginsWidget", () => {
       }
     };
 
-    const allPluginInfosJSON = [githubAuthPluginInfoJSON, githubScmPluginInfoJSON, yumPluginInfoJSON];
+    const allPluginInfosJSON = [githubAuthPluginInfoJSON, githubScmPluginInfoJSON, yumPluginInfoJSON, elasticAgentPluginInfoJSON];
     const pluginInfos        = Stream(PluginInfos.fromJSON([]));
     const isUserAnAdmin      = Stream('true' === 'true');
 

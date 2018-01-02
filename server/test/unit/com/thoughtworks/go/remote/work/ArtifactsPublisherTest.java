@@ -195,10 +195,9 @@ public class ArtifactsPublisherTest {
 
         when(artifactExtension.publishArtifact(eq("cd.go.s3"), any(Map.class), anyString())).thenThrow(new RuntimeException("something"));
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("[go] Uploading finished. Failed to upload");
-
         artifactsPublisher.publishArtifacts(publisher, workingFolder, artifactPlans);
+
+        assertThat(publisher.publishedFiles().size(), is(0));
     }
 
     @Test

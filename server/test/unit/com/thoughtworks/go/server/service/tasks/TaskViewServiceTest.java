@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.tasks;
 
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
+import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -36,12 +37,17 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.presentation.TaskViewModel;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
@@ -50,22 +56,23 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class TaskViewServiceTest {
     private ConfigElementImplementationRegistry registry;
     private TaskViewService taskViewService;
     private PluginManager pluginManager;
+    private FeatureToggleService featureToggleService;
 
     @Before
     public void setUp() {
+        featureToggleService = mock(FeatureToggleService.class);
         cleanupTaskPreferences();
         registry = mock(ConfigElementImplementationRegistry.class);
         pluginManager = mock(PluginManager.class);
         taskViewService = new TaskViewService(registry, pluginManager);
+        Toggles.initializeWith(featureToggleService);
     }
 
     @After
@@ -93,6 +100,40 @@ public class TaskViewServiceTest {
         assertThat(taskViewModels.size(), is(3));
         assertThat(taskViewModels, hasItem((PluggableViewModel) viewModel(new AntTask())));
         assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "")));
+    }
+
+    @Test
+    public void shouldGetViewModelForPluggableFetchArtifactTaskWhenToggleIsOn() {
+        List<Class<? extends Task>> taskClasses = taskImplementations();
+        taskClasses.add(FetchPluggableArtifactTask.class);
+
+        when(featureToggleService.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)).thenReturn(true);
+        when(registry.implementersOf(Task.class)).thenReturn(taskClasses);
+        when(registry.getViewModelFor(new FetchPluggableArtifactTask(), "new")).thenReturn(viewModel(new FetchPluggableArtifactTask()));
+        when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(new TaskViewModel(new ExecTask(), ""));
+
+        List<PluggableViewModel> taskViewModels = taskViewService.getTaskViewModels();
+
+        assertThat(taskViewModels.size(), is(4));
+        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "")));
+        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new FetchPluggableArtifactTask(), "")));
+    }
+
+    @Test
+    public void shouldNotGetViewModelForPluggableFetchArtifactTaskWhenToggleIsOff() {
+        List<Class<? extends Task>> taskClasses = taskImplementations();
+        taskClasses.add(FetchPluggableArtifactTask.class);
+
+        when(featureToggleService.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)).thenReturn(false);
+        when(registry.implementersOf(Task.class)).thenReturn(taskClasses);
+        when(registry.getViewModelFor(new FetchPluggableArtifactTask(), "new")).thenReturn(viewModel(new FetchPluggableArtifactTask()));
+        when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(new TaskViewModel(new ExecTask(), ""));
+
+        List<PluggableViewModel> taskViewModels = taskViewService.getTaskViewModels();
+
+        assertThat(taskViewModels.size(), is(3));
+        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "")));
+        assertThat(taskViewModels.indexOf(viewModel(new FetchPluggableArtifactTask())), is(-1));
     }
 
     private void storeTaskPreferences(String pluginId, String... properties) {

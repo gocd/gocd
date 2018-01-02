@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -474,10 +475,17 @@ public class ConfigConverter {
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
 
         ArtifactConfigs artifactConfigs = jobConfig.artifactConfigs();
-        if (crJob.getArtifacts() != null)
+        if (crJob.getArtifacts() != null) {
             for (CRArtifact crArtifact : crJob.getArtifacts()) {
                 artifactConfigs.add(toArtifactConfig(crArtifact));
             }
+        }
+
+        if(crJob.getPluggableArtifacts() != null) {
+            for (CRPluggableArtifact crPluggableArtifact: crJob.getPluggableArtifacts()) {
+                artifactConfigs.add(toPluggableArtifactConfig(crPluggableArtifact));
+            }
+        }
 
         ArtifactPropertiesConfig artifactPropertiesConfig = jobConfig.getProperties();
         if (crJob.getArtifactPropertiesGenerators() != null)
@@ -507,6 +515,12 @@ public class ConfigConverter {
             return new TestArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
         }
         return new ArtifactConfig(crArtifact.getSource(), crArtifact.getDestination());
+    }
+
+    public PluggableArtifactConfig toPluggableArtifactConfig(CRPluggableArtifact crPluggableArtifact) {
+        Configuration configuration = toConfiguration(crPluggableArtifact.getConfiguration());
+        ConfigurationProperty[] configProperties = new ConfigurationProperty[configuration.size()];
+        return new PluggableArtifactConfig(crPluggableArtifact.getId(), crPluggableArtifact.getStoreId(), configuration.toArray(configProperties));
     }
 
     private Tab toTab(CRTab crTab) {

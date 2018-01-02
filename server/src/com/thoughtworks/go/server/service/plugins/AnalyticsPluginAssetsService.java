@@ -90,7 +90,11 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
     }
 
     private String pluginStaticAssetsRootDir(String pluginId) {
-        return Paths.get(servletContext.getRealPath(servletContext.getInitParameter("rails.root")), "public", "assets", "plugins", pluginId).toString();
+        return Paths.get(servletContext.getRealPath(servletContext.getInitParameter("rails.root")), "public", pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId)).toString();
+    }
+
+    private String pluginStaticAssetsPathRelativeToRailsPublicFolder(String pluginId) {
+        return Paths.get("assets", "plugins", pluginId).toString();
     }
 
     private void cacheStaticAssets(String pluginId) {
@@ -106,10 +110,12 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             byte[] payload = Base64.getDecoder().decode(data.getBytes());
             ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(payload));
 
-            String pluginAssetsRoot = currentAssetPath(pluginId, calculateHash(payload));
+            String assetsHash = calculateHash(payload);
+            String pluginAssetsRoot = currentAssetPath(pluginId, assetsHash);
+
             zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
 
-            pluginAssetPaths.put(pluginId, pluginAssetsRoot);
+            pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
         } catch (Exception e) {
             LOGGER.error("Failed to extract static assets from plugin: {}", pluginId, e);
             ExceptionUtils.bomb(e);

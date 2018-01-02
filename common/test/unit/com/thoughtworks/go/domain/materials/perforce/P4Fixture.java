@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.materials.perforce;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.command.CommandLineException;
+import com.thoughtworks.go.util.command.ConsoleResult;
 
 public class P4Fixture {
     private P4TestRepo repo;
@@ -38,13 +39,19 @@ public class P4Fixture {
     private void stopP4d(P4Client p4) {
         try {
             p4.admin("stop");
-            try {
-                //Wait for the server to shutdown
-                Thread.sleep(5000);
-            } catch (InterruptedException ignored) {
+            ConsoleResult consoleResult = p4.checkConnection();
+            while (!consoleResult.failed()) {
+                try {
+                    //Wait for the server to shutdown
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
             }
         } catch (CommandLineException expected) {
             if (isKnownWindowsError(expected)) {
+                return;
+            }
+            if (expected.getResult().errorAsString().contains("Connection refused")) {
                 return;
             }
             throw expected;

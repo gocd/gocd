@@ -66,6 +66,11 @@
                 <span class="vsm_link_wrapper">
                     <a href="<%= url_for_pipeline_value_stream_map(active_pipeline_in_pipeline) -%>" title="VSM for Pipeline Instance: <%= active_pipeline_in_pipeline.getLabel()%>">VSM</a>
                 </span>
+                <% with_pipeline_analytics_support do |plugin_id| %>
+                  <span class="analytics_link_wrapper">
+                    <a onclick='Analytics.modal(<%== {url: pipeline_analytics_path(plugin_id: plugin_id, pipeline_name: active_pipeline_in_pipeline.getName()), pipeline_counter: active_pipeline_in_pipeline.getCounter()}.to_json %>); return false;' title="Analytics for Pipeline Instance: <%= active_pipeline_in_pipeline.getName() %>"><i class="fa fa-bar-chart"></i></a>
+                  </span>
+                <% end %>
                 <%= render :partial=> 'pipelines/pipeline_instance_details.html', :locals => {:scope =>{:active_pipeline_in_pipeline => active_pipeline_in_pipeline}} %>
             </div>
             <%= render :partial=> 'pipelines/previously_blurb.html', :locals => {:scope =>{:active_pipeline_in_pipeline => active_pipeline_in_pipeline, :should_display_previously_blurb =>  scope[:should_display_previously_blurb]}} %>

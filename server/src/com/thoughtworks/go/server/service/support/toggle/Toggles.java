@@ -22,6 +22,7 @@ public class Toggles {
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String PLUGIN_SPA_TOGGLE_KEY = "plugin_spa_toggle_key";
     public static String QUICKER_DASHBOARD_KEY = "quicker_dashboard_key";
+    public static String ARTIFACT_EXTENSION_KEY = "artifact_extension_key";
 
     private static FeatureToggleService service;
 
